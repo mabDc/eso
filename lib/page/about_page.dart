@@ -46,7 +46,7 @@ class AboutPage extends StatelessWidget {
                     ),
                     ListTile(
                       title: Text('调色板'),
-                      subtitle: Text('修改主题色'),
+                      subtitle: Text('修改主题颜色'),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => ColorLensPage())),
                     ),

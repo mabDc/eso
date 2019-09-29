@@ -30,8 +30,8 @@ class HomePage extends StatelessWidget {
                 return BottomNavigationBar(
                   selectedItemColor: Theme.of(context).primaryColor,
                   unselectedItemColor: profile.darkMode
-                      ? Colors.white.withOpacity(0.65)
-                      : Colors.black.withOpacity(0.65),
+                      ? Colors.white.withOpacity(0.6)
+                      : Colors.black.withOpacity(0.6),
                   backgroundColor:
                       profile.darkMode ? Colors.black12 : Colors.white,
                   items: [

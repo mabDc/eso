@@ -202,6 +202,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.0"
+  flutter_seekbar:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "96e16c007f0d9ce02aff90aa8a1a3667ab933dd7"
+      url: "https://github.com/LiuC520/flutter_seekbar.git"
+    source: git
+    version: "0.0.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter

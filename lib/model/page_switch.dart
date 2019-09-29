@@ -18,7 +18,7 @@ class PageSwitch with ChangeNotifier {
       _currentIndex = index;
       if (needUpdatePage) {
         await _pageController.animateToPage(index,
-            duration: Duration(microseconds: 10), curve: Curves.ease);
+            duration: Duration(microseconds: 10), curve: Curves.linear);
       }
       notifyListeners();
     }

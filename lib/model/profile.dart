@@ -10,6 +10,7 @@ class Profile with ChangeNotifier {
             'autoRefresh': false,
             'darkMode': false,
             'colorName': Global.colors.keys.first,
+            'customColor': 0xFFEF3A6E,
           }
         : jsonDecode(source);
     fromJson(json);
@@ -18,28 +19,61 @@ class Profile with ChangeNotifier {
   bool _autoRefresh;
   bool _darkMode;
   String _colorName;
+  int _customColor;
 
   bool get autoRefresh => _autoRefresh;
   bool get darkMode => _darkMode;
   String get colorName => _colorName;
+  int get customColor => _customColor;
 
   set autoRefresh(bool value) {
-    if (value != autoRefresh) {
+    if (value != _autoRefresh) {
       _autoRefresh = value;
       _saveProfile();
     }
   }
 
   set darkMode(bool value) {
-    if (value != darkMode) {
+    if (value != _darkMode) {
       _darkMode = value;
       _saveProfile();
     }
   }
 
   set colorName(String value) {
-    if (value != colorName) {
+    if (value != _colorName) {
       _colorName = value;
+      _saveProfile();
+    }
+  }
+
+  set customColor(int value) {
+    if (value != _customColor) {
+      _customColor = value;
+      _saveProfile();
+    }
+  }
+
+  set customColorRed(int value) {
+    final color = Color(_customColor);
+    if (value != color.red) {
+      _customColor = color.withRed(value).value;
+      _saveProfile();
+    }
+  }
+
+  set customColorGreen(int value) {
+    final color = Color(_customColor);
+    if (value != color.green) {
+      _customColor = color.withGreen(value).value;
+      _saveProfile();
+    }
+  }
+
+  set customColorBlue(int value) {
+    final color = Color(_customColor);
+    if (value != color.blue) {
+      _customColor = color.withBlue(value).value;
       _saveProfile();
     }
   }
@@ -59,11 +93,13 @@ class Profile with ChangeNotifier {
     _autoRefresh = json['autoRefresh'];
     _darkMode = json['darkMode'];
     _colorName = json['colorName'];
+    _customColor = json['customColor'];
   }
 
   Map<String, dynamic> toJson() => {
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'colorName': _colorName,
+        'customColor': _customColor,
       };
 }

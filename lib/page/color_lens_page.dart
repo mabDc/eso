@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_seekbar/flutter_seekbar.dart';
 import '../global.dart';
 import '../model/profile.dart';
 
@@ -9,102 +10,107 @@ class ColorLensPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final keys = Global.colors.keys.toList();
-    Profile profile = Provider.of<Profile>(context);
+    final colors = Global.colors;
     return Scaffold(
       appBar: AppBar(
         title: Text('调色板'),
       ),
-      body: ListView.builder(
-        itemCount: keys.length * 2,
-        itemBuilder: (BuildContext context, int index) {
-          if (index % 2 == 1) {
-            return Divider();
-          }
-          String colorName = keys[index ~/ 2];
-          if ((keys.length - 1) * 2 == index) {
-            Color color = Color(Global.colors[colorName]);
-            return Column(
-              children: <Widget>[
-                ListTile(
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: color,
-                    ),
-                    height: 32,
-                    width: 32,
-                  ),
-                  title: Text(colorName),
-                  onTap: () => profile.colorName = colorName,
-                ),
-                ListTile(
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                    height: 32,
-                    width: 32,
-                  ),
-                  title: Column(
-                    children: <Widget>[
-                      Text(''),
-                      LinearProgressIndicator(value: color.red / 255),
-                      Text('${color.red} / 255'),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green,
-                    ),
-                    height: 32,
-                    width: 32,
-                  ),
-                  title: Column(
-                    children: <Widget>[
-                      Text(''),
-                      LinearProgressIndicator(value: color.green / 255),
-                      Text('${color.green} / 255'),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.blue,
-                    ),
-                    height: 32,
-                    width: 32,
-                  ),
-                  title: Column(
-                    children: <Widget>[
-                      Text(''),
-                      LinearProgressIndicator(value: color.blue / 255),
-                      Text('${color.blue} / 255'),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }
-          return ListTile(
-            leading: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(Global.colors[colorName]),
-              ),
-              height: 32,
-              width: 32,
-            ),
-            title: Text(colorName),
-            onTap: () => profile.colorName = colorName,
+      body: Consumer<Profile>(
+        builder: (BuildContext context, Profile profile, Widget widget) {
+          return ListView.builder(
+            itemCount: keys.length * 2 + 2,
+            itemBuilder: (BuildContext context, int index) {
+              if (index % 2 == 1) {
+                return Divider();
+              }
+              if (keys.length * 2 == index) {
+                return _buildCustomColor();
+              }
+              String colorName = keys[index ~/ 2];
+              return _buildColorListTile(colorName, Color(colors[colorName]));
+            },
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCustomColor() {
+    return Consumer<Profile>(
+      builder: (BuildContext context, Profile profile, Widget widget) {
+        final color = Color(profile.customColor);
+        return Column(
+          children: <Widget>[
+            _buildColorListTile('自定义', color),
+            ListTile(
+              leading: _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
+              title: _buildSeekBar(
+                Colors.red,
+                color.red,
+                (value) => profile.customColorRed = value,
+              ),
+            ),
+            ListTile(
+              leading: _buildColorContainer(Colors.green.withOpacity(color.green / 255)),
+              title: _buildSeekBar(
+                Colors.green,
+                color.green,
+                (value) => profile.customColorGreen = value,
+              ),
+            ),
+            ListTile(
+              leading: _buildColorContainer(Colors.blue.withOpacity(color.blue / 255)),
+              title: _buildSeekBar(
+                Colors.blue,
+                color.blue,
+                (value) => profile.customColorBlue = value,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  SeekBar _buildSeekBar(
+      Color color, int value, void Function(int) valueChanged) {
+    return SeekBar(
+      min: 0.0,
+      max: 255.0,
+      value: value.toDouble(),
+      progresseight: 6,
+      showSectionText:true,
+      progressColor: color,
+      backgroundColor: color.withOpacity(0.5),
+      onValueChanged: (ProgressValue progressValue) {
+        valueChanged(progressValue.value.toInt());
+      },
+    );
+  }
+
+  Widget _buildColorListTile(String colorName, Color color) {
+    return Consumer<Profile>(
+      builder: (BuildContext context, Profile profile, Widget widget) {
+        return ListTile(
+          leading: _buildColorContainer(color),
+          trailing: colorName == profile.colorName
+              ? Icon(Icons.done, size: 32, color: color)
+              : null,
+          title: Text(colorName),
+          onTap: () => profile.colorName = colorName,
+        );
+      },
+    );
+  }
+
+  Container _buildColorContainer(Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
+      height: 32,
+      width: 32,
     );
   }
 }

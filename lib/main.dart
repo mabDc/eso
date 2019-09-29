@@ -34,7 +34,8 @@ class MyApp extends StatelessWidget {
             builder: (BuildContext context, Profile profile, Widget widget) {
               return MaterialApp(
                 theme: ThemeData(
-                  primaryColor: Color(Global.colors[profile.colorName]),
+                  primaryColor: Color(
+                      Global.colors[profile.colorName] ?? profile.customColor),
                   brightness:
                       profile.darkMode ? Brightness.dark : Brightness.light,
                 ),

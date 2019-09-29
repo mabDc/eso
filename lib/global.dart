@@ -13,7 +13,7 @@ class Global with ChangeNotifier {
 
   static SharedPreferences prefs;
   static int currentHomePage;
-  
+
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
   static Map<String, int> get colors => {
     "酷安绿": 0xFF4BAF4F,
@@ -26,12 +26,12 @@ class Global with ChangeNotifier {
     "咖啡棕": 0xFF75655a,
     "柠檬橙": 0xFFD88100,
     "星空灰": 0xFF374f59,
-    "自定义": 0xFFEF3A6E,
+    // "自定义": 0xFFEF3A6E,
   };
 
   static Future<bool> init() async {
     prefs = await SharedPreferences.getInstance();
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 1));
     return true;
   }
 }
