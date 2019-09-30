@@ -23,10 +23,10 @@ class ColorLensPage extends StatelessWidget {
               if (index % 2 == 1) {
                 return Divider();
               }
-              if (keys.length * 2 == index) {
+              if (index == 0) {
                 return _buildCustomColor();
               }
-              String colorName = keys[index ~/ 2];
+              String colorName = keys[index ~/ 2 - 1];
               return _buildColorListTile(colorName, Color(colors[colorName]));
             },
           );
