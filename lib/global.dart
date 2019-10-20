@@ -7,6 +7,7 @@ class Global with ChangeNotifier {
 
   static const waitingPath = "lib/assets/waiting.png";
   static const cheerioFile = "lib/assets/cheerio.min.js";
+  static const md5File = "lib/assets/md5.min.js";
   static const cryptoJSFile = "lib/assets/CryptoJS.min.js";
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";

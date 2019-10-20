@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
                 DiscoverPage(),
                 AboutPage(),
               ],
-              onPageChanged: (index) => pageSwitch.changePage(index),
+              onPageChanged: (index) => pageSwitch.changePage(index, false),
             ),
             bottomNavigationBar: Consumer<Profile>(
               builder: (BuildContext context, Profile profile, Widget widget) {

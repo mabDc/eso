@@ -10,7 +10,7 @@ class Profile with ChangeNotifier {
             'autoRefresh': false,
             'darkMode': false,
             'colorName': Global.colors.keys.first,
-            'customColor': 0xFFEF3A6E,
+            'customColor': Global.colors.values.first,
           }
         : jsonDecode(source);
     fromJson(json);

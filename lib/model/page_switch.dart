@@ -10,7 +10,7 @@ class PageSwitch with ChangeNotifier {
     if(_currentIndex == null){
       _currentIndex = 0;
     }
-    _pageController = PageController();
+    _pageController = PageController(initialPage: _currentIndex);
   }
 
   void changePage(int index, [bool needUpdatePage = true]) async {
