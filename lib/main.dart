@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider<Profile>.value(
               value: Profile(),
             ),
-            ChangeNotifierProvider<SearchHistory>.value(
+            Provider<SearchHistory>.value(
               value: SearchHistory(),
             ),
           ],

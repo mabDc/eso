@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:eso/api/mankezhan.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,13 +9,22 @@ import '../ui/ui_search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
 import 'content_page.dart';
+import 'langding_page.dart';
 
 class ChapterPage extends StatelessWidget {
+  final Map searchItem;
+  final List chapter;
+
+  const ChapterPage({
+    this.searchItem,
+    this.chapter,
+    Key key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final item = FakeData.shelfItem;
-    final chapters = FakeData.chapterList;
+    final item = searchItem ?? FakeData.shelfItem;
+    final chapters = chapter ?? FakeData.chapterList;
     return ChangeNotifierProvider.value(
       value: ChapterPageController(),
       child: Scaffold(
@@ -92,18 +102,22 @@ class ChapterPage extends StatelessWidget {
   Widget buildChapter(List chapters) {
     return Consumer<ChapterPageController>(
         builder: (context, ChapterPageController chapterPageController, _) {
-
       void Function(int index) onTap = (int index) {
         chapterPageController.changeChapter(index);
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ContentPage()));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ContentPage(
+                comicId:
+                    searchItem["comic_id"] ?? FakeData.shelfItem["comic_id"],
+                chapterId: chapters[index]["chapter_id"])));
       };
       final screenWidth = MediaQuery.of(context).size.width;
       switch (chapterPageController.listStyle) {
         case ChapterPageController.BigList:
           return ListView.separated(
-            separatorBuilder: (context, index){
-              return SizedBox(height: 6,);
+            separatorBuilder: (context, index) {
+              return SizedBox(
+                height: 6,
+              );
             },
             itemCount: chapters.length,
             itemBuilder: (context, index) {
@@ -118,7 +132,7 @@ class ChapterPage extends StatelessWidget {
                           ? null
                           : '${chapter["cover"]}!cover-400',
                       title: chapter["title"],
-                      subtitle:'$time'.trim().substring(0, 16)),
+                      subtitle: '$time'.trim().substring(0, 16)),
                   () => onTap(index));
             },
           );
@@ -126,7 +140,7 @@ class ChapterPage extends StatelessWidget {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: (screenWidth - 6)/50/2,
+              childAspectRatio: (screenWidth - 6) / 50 / 2,
               mainAxisSpacing: 6,
               crossAxisSpacing: 6,
             ),
@@ -150,7 +164,7 @@ class ChapterPage extends StatelessWidget {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              childAspectRatio: (screenWidth - 4*6)/32/5,
+              childAspectRatio: (screenWidth - 4 * 6) / 32 / 5,
               mainAxisSpacing: 6,
               crossAxisSpacing: 6,
             ),
@@ -180,7 +194,8 @@ class ChapterPage extends StatelessWidget {
           )
         : RaisedButton(
             onPressed: onPress,
-            color: Colors.primaries[Random().nextInt(Colors.primaries.length)].withAlpha(50),
+            color: Colors.primaries[Random().nextInt(Colors.primaries.length)]
+                .withAlpha(50),
             textColor: Theme.of(context).textTheme.body1.color,
             child: child,
           );

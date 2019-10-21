@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../global.dart';
 import '../database/fake_data.dart';
 import '../page/chapter_page.dart';
 import '../ui/ui_shelf_item.dart';
 import '../model/search_page_delegate.dart';
+import '../model/search_history.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final info = FakeData.shelfItem;
@@ -16,7 +19,12 @@ class FavoritePage extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () => showSearch(context: context, delegate: SearchPageDelegate()),
+            onPressed: () => showSearch(
+              context: context,
+              delegate: SearchPageDelegate(
+                searchHistory: Provider.of<SearchHistory>(context),
+              ),
+            ),
           ),
         ],
       ),

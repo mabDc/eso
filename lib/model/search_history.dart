@@ -1,18 +1,26 @@
-import 'package:flutter/material.dart';
 import '../global.dart';
 
-class SearchHistory with ChangeNotifier {
+class SearchHistory {
   SearchHistory() {
     _searchHistory =
-        Global.prefs.getString(Global.searchHistoryKey) ?? <String>[];
+        Global.prefs.getStringList(Global.searchHistoryKey) ?? <String>[];
   }
 
   List<String> _searchHistory;
   List<String> get searchHistory => _searchHistory;
 
-  void updateSearchHistory() async {
-    await _saveSearchHistory();
-    notifyListeners();
+  Future<bool> updateSearchHistory() async {
+    return await _saveSearchHistory();
+  }
+
+  Future<bool> newSearch(String keyWord) async {
+    _searchHistory.add(keyWord);
+    return await _saveSearchHistory();
+  }
+
+  Future<bool> clearHistory() async {
+    _searchHistory.clear();
+    return await _saveSearchHistory();
   }
 
   Future<bool> _saveSearchHistory() =>
