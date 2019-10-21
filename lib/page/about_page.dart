@@ -1,10 +1,10 @@
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../global.dart';
 import '../model/profile.dart';
 import 'color_lens_page.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({Key key}) : super(key: key);

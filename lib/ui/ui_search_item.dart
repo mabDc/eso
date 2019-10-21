@@ -1,5 +1,5 @@
-import '../global.dart';
 import 'package:flutter/material.dart';
+import '../global.dart';
 
 class UiSearchItem extends StatelessWidget {
   final String origin;

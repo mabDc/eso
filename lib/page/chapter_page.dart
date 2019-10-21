@@ -1,15 +1,13 @@
 import 'dart:math';
 
-import 'package:eso/ui/ui_big_list_chapter_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../database/fake_data.dart';
-import '../global.dart';
 import '../ui/ui_search_item.dart';
-import 'content_page.dart';
 import '../model/chapter_page_controller.dart';
+import '../ui/ui_big_list_chapter_item.dart';
+import 'content_page.dart';
 
 class ChapterPage extends StatelessWidget {
 
@@ -53,7 +51,7 @@ class ChapterPage extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: buildChapter(chapters),
               ),
             ),
@@ -100,7 +98,7 @@ class ChapterPage extends StatelessWidget {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => ContentPage()));
       };
-
+      final screenWidth = MediaQuery.of(context).size.width;
       switch (chapterPageController.listStyle) {
         case ChapterPageController.BigList:
           return ListView.separated(
@@ -128,7 +126,7 @@ class ChapterPage extends StatelessWidget {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 3,
+              childAspectRatio: (screenWidth - 6)/50/2,
               mainAxisSpacing: 6,
               crossAxisSpacing: 6,
             ),
@@ -152,7 +150,7 @@ class ChapterPage extends StatelessWidget {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              childAspectRatio: 1.5,
+              childAspectRatio: (screenWidth - 4*6)/32/5,
               mainAxisSpacing: 6,
               crossAxisSpacing: 6,
             ),

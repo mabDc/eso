@@ -1,8 +1,7 @@
-import '../global.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../database/fake_data.dart';
+import '../global.dart';
 
 class ContentPage extends StatelessWidget {
   const ContentPage({Key key}) : super(key: key);
