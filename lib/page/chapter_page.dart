@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:eso/ui/ui_big_list_chapter_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ import 'content_page.dart';
 import '../model/chapter_page_controller.dart';
 
 class ChapterPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     final item = FakeData.shelfItem;
@@ -113,12 +115,12 @@ class ChapterPage extends StatelessWidget {
               return buildChapterButton(
                   context,
                   chapterPageController.durChapterIndex == index,
-                  buildBigListChapterItem(
-                      chapter["cover"] == null
+                  UIBigListChapterItem(
+                      cover: chapter["cover"] == null
                           ? null
                           : '${chapter["cover"]}!cover-400',
-                      chapter["title"],
-                      '$time'.trim().substring(0, 16)),
+                      title: chapter["title"],
+                      subtitle:'$time'.trim().substring(0, 16)),
                   () => onTap(index));
             },
           );
@@ -167,47 +169,6 @@ class ChapterPage extends StatelessWidget {
           throw ("chapter page style not support");
       }
     });
-  }
-
-  Widget buildBigListChapterItem(String cover, String title, String subtitle) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
-      alignment: FractionalOffset.centerLeft,
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              width: 100,
-              height: double.infinity,
-              child: cover == null
-                  ? Image.asset(
-                      Global.waitingPath,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      '$cover',
-                      fit: BoxFit.cover,
-                    ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text('$title'),
-                  Text('$subtitle'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget buildChapterButton(BuildContext context, bool isDurIndex, Widget child,

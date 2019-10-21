@@ -42,7 +42,7 @@ class UiSearchItem extends StatelessWidget {
                     ),
             ),
             SizedBox(
-              width: 10,
+              width: 8,
             ),
             Expanded(
               child: Column(

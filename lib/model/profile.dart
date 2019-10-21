@@ -78,9 +78,9 @@ class Profile with ChangeNotifier {
     }
   }
 
-  void _saveProfile([bool sholdNotifyListeners = true]) async {
+  void _saveProfile([bool shouldNotifyListeners = true]) async {
     await Global.prefs.setString(Global.profileKey, jsonEncode(toJson()));
-    if (sholdNotifyListeners) {
+    if (shouldNotifyListeners) {
       notifyListeners();
     }
   }
