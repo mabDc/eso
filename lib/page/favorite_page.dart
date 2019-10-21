@@ -3,6 +3,7 @@ import '../global.dart';
 import '../database/fake_data.dart';
 import '../page/chapter_page.dart';
 import '../ui/ui_shelf_item.dart';
+import '../model/search_page_delegate.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
@@ -12,6 +13,12 @@ class FavoritePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(Global.appName),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => showSearch(context: context, delegate: SearchPageDelegate()),
+          ),
+        ],
       ),
       body: ListView.builder(
         itemBuilder: (context, index) {
