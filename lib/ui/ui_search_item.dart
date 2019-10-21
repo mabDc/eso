@@ -95,7 +95,7 @@ class UiSearchItem extends StatelessWidget {
                   ),
                   Text(
                     '$description',
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
