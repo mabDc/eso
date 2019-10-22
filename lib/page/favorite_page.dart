@@ -1,8 +1,8 @@
-import 'package:eso/page/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../global.dart';
-import '../database/fake_data.dart';
+import '../api/fake_data.dart';
 import '../page/chapter_page.dart';
 import '../ui/ui_shelf_item.dart';
 import '../model/search_page_delegate.dart';
@@ -32,8 +32,11 @@ class FavoritePage extends StatelessWidget {
       body: ListView.builder(
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => ChapterPage(searchItem: info,))),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ChapterPage(
+                      item: FakeData.searchList[13],
+                      chapters: FakeData.chapterList,
+                    ))),
             child: UiShelfItem(
               cover: '${info["cover"]}!cover-400',
               title: '${info["title"]}',

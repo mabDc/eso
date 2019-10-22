@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
-
+import '../database/chapter_item.dart';
 import '../global.dart';
 
 class UIBigListChapterItem extends StatelessWidget {
-  final String cover;
-  final String title;
-  final String subtitle;
+  final ChapterItem chapter;
 
   const UIBigListChapterItem({
+    this.chapter,
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _UIBigListChapterItem(
+        cover:chapter.cover,
+        title:chapter.title,
+        time:chapter.time,
+    );
+  }
+}
+
+
+class _UIBigListChapterItem extends StatelessWidget {
+  final String cover;
+  final String title;
+  final String time;
+
+  const _UIBigListChapterItem({
     this.cover,
     this.title,
-    this.subtitle,
+    this.time,
     Key key,
   }) : super(key: key);
 
@@ -47,7 +66,7 @@ class UIBigListChapterItem extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text('$title'),
-                  Text('$subtitle'),
+                  Text('$time'),
                 ],
               ),
             ),

@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../database/fake_data.dart';
+import '../database/chapter_item.dart';
+import '../database/search_item.dart';
 import '../ui/ui_search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
@@ -12,36 +13,26 @@ import 'content_page.dart';
 import 'langding_page.dart';
 
 class ChapterPage extends StatelessWidget {
-  final Map searchItem;
-  final List chapter;
+  final SearchItem item;
+  final List<ChapterItem> chapters;
 
   const ChapterPage({
-    this.searchItem,
-    this.chapter,
+    this.item,
+    this.chapters,
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    print("chapter");
-    final item = searchItem ?? FakeData.shelfItem;
-    final chapters = chapter ?? FakeData.chapterList;
     return ChangeNotifierProvider.value(
       value: ChapterPageController(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${item["title"]}'),
+          title: Text(item.title),
         ),
         body: Column(
           children: <Widget>[
-            UiSearchItem(
-              cover: '${item["cover"]}!cover-400',
-              title: '${item["title"]}',
-              origin: "漫客栈💰",
-              author: '${item["author_title"]}',
-              chapter: '${item["chapter_title"]}',
-              description: '${item["feature"]}',
-            ),
+            UiSearchItem(item: item),
             Container(
               height: 30,
               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -100,18 +91,15 @@ class ChapterPage extends StatelessWidget {
     );
   }
 
-  Widget buildChapter(List chapters) {
+  Widget buildChapter(List<ChapterItem> chapters) {
     return Consumer<ChapterPageController>(
         builder: (context, ChapterPageController chapterPageController, _) {
       void Function(int index) onTap = (int index) {
         chapterPageController.changeChapter(index);
-        final comicId =
-            searchItem["comic_id"] ?? FakeData.shelfItem["comic_id"];
-        final chapterId = chapters[index]["chapter_id"];
+        final chapter = chapters[index];
         Navigator.of(context).push(MaterialPageRoute(
-            maintainState: true,
             builder: (context) => FutureBuilder<List>(
-                future: Mankezhan.content(comicId, chapterId),
+                future: Mankezhan.content(chapter.url),
                 builder: (BuildContext context, AsyncSnapshot<List> data) {
                   if (!data.hasData) {
                     return LandingPage();
@@ -130,18 +118,10 @@ class ChapterPage extends StatelessWidget {
             },
             itemCount: chapters.length,
             itemBuilder: (context, index) {
-              final chapter = chapters[index];
-              final time = DateTime.fromMillisecondsSinceEpoch(
-                  int.parse(chapter["start_time"]) * 1000);
               return buildChapterButton(
                   context,
                   chapterPageController.durChapterIndex == index,
-                  UIBigListChapterItem(
-                      cover: chapter["cover"] == null
-                          ? null
-                          : '${chapter["cover"]}!cover-400',
-                      title: chapter["title"],
-                      subtitle: '$time'.trim().substring(0, 16)),
+                  UIBigListChapterItem(chapter: chapters[index],),
                   () => onTap(index));
             },
           );
@@ -161,7 +141,7 @@ class ChapterPage extends StatelessWidget {
                   Align(
                     alignment: FractionalOffset.centerLeft,
                     child: Text(
-                      chapters[index]["title"],
+                      chapters[index].title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

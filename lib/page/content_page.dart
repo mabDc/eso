@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../database/fake_data.dart';
+import '../api/fake_data.dart';
 import '../global.dart';
 
 class ContentPage extends StatelessWidget {

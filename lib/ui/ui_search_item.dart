@@ -1,7 +1,31 @@
 import 'package:flutter/material.dart';
 import '../global.dart';
+import '../database/search_item.dart';
 
 class UiSearchItem extends StatelessWidget {
+  final SearchItem item;
+
+  const UiSearchItem({
+    @required
+    this.item,
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _UiSearchItem(
+      origin:item.origin,
+      cover:item.cover,
+      title:item.title,
+      author:item.author,
+      chapter:item.chapter,
+      description:item.description,
+    );
+  }
+}
+
+
+class _UiSearchItem extends StatelessWidget {
   final String origin;
   final String cover;
   final String title;
@@ -9,7 +33,7 @@ class UiSearchItem extends StatelessWidget {
   final String chapter;
   final String description;
 
-  const UiSearchItem({
+  const _UiSearchItem({
     this.origin,
     this.cover,
     this.title,

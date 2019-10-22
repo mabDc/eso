@@ -1,3 +1,5 @@
+import 'package:eso/database/chapter_item.dart';
+import 'package:eso/database/search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_liquidcore/liquidcore.dart';
 
@@ -18,6 +20,27 @@ class FakeData {
     print(end - start);
   }
 
+  static List<SearchItem> get searchList => searchListJson.map((item) => SearchItem(
+    cover: '${item["cover"]}!cover-400',
+    title: '${item["title"]}',
+    origin: "漫客栈💰",
+    author: '${item["author_title"]}',
+    chapter: '${item["chapter_title"]}',
+    description: '${item["feature"]}',
+    url: '${item["comic_id"]}',
+  )).toList();
+
+  static List<ChapterItem> get chapterList => chapterListJson.map((chapter){
+    final time = DateTime.fromMillisecondsSinceEpoch(int.parse(chapter["start_time"]) * 1000);
+    return ChapterItem(
+        cover: chapter["cover"] == null ? null : '${chapter["cover"]}!cover-400',
+        title: '${chapter["title"]}',
+        time: '$time'.trim().substring(0, 16),
+        url:'https://comic.mkzhan.com/chapter/content/?chapter_id=${chapter["chapter_id"]}&comic_id=${shelfItem["comic_id"]}'
+    );
+  }).toList();
+
+
   static const Map shelfItem = {
     "comic_id": "206800",
     "chapter_id": "713011",
@@ -37,7 +60,7 @@ class FakeData {
 
   static const picUrl = "https://oss.mkzcdn.com/comic/page/20170612/593e5ce4a295e-1500x2250.jpg!page-1200";
 
-  static const List searchList = [
+  static const List searchListJson = [
     {
       "comic_id": "212807",
       "chapter_id": "852863",
@@ -278,7 +301,7 @@ class FakeData {
     }
   ];
 
-  static const List chapterList = [
+  static const List chapterListJson = [
     {
       "chapter_id": "471790",
       "number": "1",

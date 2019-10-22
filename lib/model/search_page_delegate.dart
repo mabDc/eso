@@ -1,5 +1,3 @@
-import 'package:eso/global.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../api/mankezhan.dart';
@@ -7,6 +5,8 @@ import '../model/history_manager.dart';
 import '../page/langding_page.dart';
 import '../ui/ui_search_item.dart';
 import '../page/chapter_page.dart';
+import '../database/search_item.dart';
+import '../global.dart';
 
 class SearchPageDelegate extends SearchDelegate<String> {
   final HistoryManager historyManager;
@@ -63,13 +63,13 @@ class SearchPageDelegate extends SearchDelegate<String> {
       historyManager.newSearch(query);
     }
     print("search result");
-    return FutureBuilder<List>(
+    return FutureBuilder<List<SearchItem>>(
       future: Mankezhan.search(query),
-      builder: (BuildContext context, AsyncSnapshot<List> data) {
+      builder: (BuildContext context, AsyncSnapshot<List<SearchItem>> data) {
         if (!data.hasData) {
           return LandingPage();
         }
-        return SearchResult(list: data.data,);
+        return SearchResult(items: data.data,);
       },
     );
   }
@@ -132,9 +132,9 @@ class SearchPageDelegate extends SearchDelegate<String> {
 }
 
 class SearchResult extends StatefulWidget {
-  final List list;
+  final List<SearchItem> items;
   const SearchResult({
-    this.list,
+    this.items,
     Key key,
   }) : super(key: key);
 
@@ -170,7 +170,7 @@ class _SearchResultState extends State<SearchResult> with SingleTickerProviderSt
         Expanded(child: TabBarView(
           controller: controller,
           children: <Widget>[
-            buildMangaResult(widget.list),
+            buildMangaResult(widget.items),
             LandingPage(),
             LandingPage(),
             LandingPage(),
@@ -180,35 +180,28 @@ class _SearchResultState extends State<SearchResult> with SingleTickerProviderSt
       ],
     );
   }
-  Widget buildMangaResult(List list){
+  Widget buildMangaResult(List<SearchItem> items){
     return ListView.builder(
-      itemCount: list.length,
+      itemCount: items.length,
       itemBuilder: (BuildContext context, int index) {
-        final item = list[index];
+        final item = items[index];
         return InkWell(
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
             maintainState: true,
             builder: (context) => FutureBuilder<List>(
-              future: Mankezhan.chapter(item["comic_id"]),
+              future: Mankezhan.chapter(item.url),
               builder: (BuildContext context, AsyncSnapshot<List> data) {
                 if (!data.hasData) {
                   return LandingPage();
                 }
                 return ChapterPage(
-                  searchItem: item,
-                  chapter: data.data,
+                  item: item,
+                  chapters: data.data,
                 );
               },
             ),
           )),
-          child: UiSearchItem(
-            cover: '${item["cover"]}!cover-400',
-            title: '${item["title"]}',
-            origin: "漫客栈💰",
-            author: '${item["author_title"]}',
-            chapter: '${item["chapter_title"]}',
-            description: '${item["feature"]}',
-          ),
+          child: UiSearchItem(item: item),
         );
       },
     );
