@@ -1,17 +1,22 @@
-import 'package:eso/page/chapter_page.dart';
-
-import '../api/mankezhan.dart';
-import '../model/search_history.dart';
-import '../page/langding_page.dart';
-import '../ui/ui_search_item.dart';
+import 'package:eso/global.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../api/mankezhan.dart';
+import '../model/history_manager.dart';
+import '../page/langding_page.dart';
+import '../ui/ui_search_item.dart';
+import '../page/chapter_page.dart';
+
 class SearchPageDelegate extends SearchDelegate<String> {
-  String searchFieldLabel = "关键词";
+  final HistoryManager historyManager;
 
-  final SearchHistory searchHistory;
-
-  SearchPageDelegate({this.searchHistory});
+  SearchPageDelegate({this.historyManager})
+      : super(
+          searchFieldLabel: "请输入关键词",
+          keyboardType: TextInputType.text,
+          textInputAction: TextInputAction.search,
+        );
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -36,7 +41,9 @@ class SearchPageDelegate extends SearchDelegate<String> {
     //左侧显示内容 这里放了返回按钮
     return IconButton(
       icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow, progress: transitionAnimation),
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ),
       onPressed: () {
         if (query.isEmpty) {
           close(context, "from search");
@@ -52,49 +59,22 @@ class SearchPageDelegate extends SearchDelegate<String> {
   Widget buildResults(BuildContext context) {
     //点击了搜索显示的页面
     query = query.trim();
-    if (!searchHistory.searchHistory.contains(query)) {
-      searchHistory.newSearch(query);
+    if (!historyManager.searchHistory.contains(query)) {
+      historyManager.newSearch(query);
     }
+    print("search result");
     return FutureBuilder<List>(
       future: Mankezhan.search(query),
       builder: (BuildContext context, AsyncSnapshot<List> data) {
         if (!data.hasData) {
           return LandingPage();
         }
-        final list = data.data;
-        return ListView.builder(
-          itemCount: list.length,
-          itemBuilder: (BuildContext context, int index) {
-            final item = list[index];
-            return InkWell(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => FutureBuilder<List>(
-                  future: Mankezhan.chapter(item["comic_id"]),
-                  builder: (BuildContext context, AsyncSnapshot<List> data) {
-                    if (!data.hasData) {
-                      return LandingPage();
-                    }
-                    return ChapterPage(
-                      searchItem: item,
-                      chapter: data.data,
-                    );
-                  },
-                ),
-              )),
-              child: UiSearchItem(
-                cover: '${item["cover"]}!cover-400',
-                title: '${item["title"]}',
-                origin: "漫客栈💰",
-                author: '${item["author_title"]}',
-                chapter: '${item["chapter_title"]}',
-                description: '${item["feature"]}',
-              ),
-            );
-          },
-        );
+        return SearchResult(list: data.data,);
       },
     );
   }
+
+
 
   @override
   Widget buildSuggestions(BuildContext context) {
@@ -113,8 +93,10 @@ class SearchPageDelegate extends SearchDelegate<String> {
                 IconButton(
                   icon: Icon(Icons.delete_sweep),
                   onPressed: () {
-                    searchHistory.clearHistory();
-                    showSuggestions(context);
+                    (() async{
+                      await historyManager.clearHistory();
+                      showSuggestions(context);
+                    })();
                   },
                 )
               ],
@@ -122,7 +104,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
           ),
           Wrap(
               spacing: 8,
-              children: searchHistory.searchHistory
+              children: historyManager.searchHistory
                   .map((keyword) => RaisedButton(
                         child: Text('$keyword'),
                         onPressed: () {
@@ -145,6 +127,90 @@ class SearchPageDelegate extends SearchDelegate<String> {
       inputDecorationTheme:
           InputDecorationTheme(hintStyle: TextStyle(color: Colors.black87)),
       textTheme: theme.textTheme.apply(bodyColor: Colors.black87),
+    );
+  }
+}
+
+class SearchResult extends StatefulWidget {
+  final List list;
+  const SearchResult({
+    this.list,
+    Key key,
+  }) : super(key: key);
+
+  @override
+  _SearchResultState createState() => _SearchResultState();
+}
+
+class _SearchResultState extends State<SearchResult> with SingleTickerProviderStateMixin{
+  TabController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TabController(length: Global.ruleContentType.length, vsync: this);
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Container(
+          color: Colors.white,
+          height: 40,
+          width: double.infinity,
+          child: TabBar(
+            controller: controller,
+            isScrollable: true,
+            tabs: Global.ruleContentType.map((type) => Text(type)).toList(),
+            indicatorColor: Theme.of(context).primaryColor,
+            labelColor: Theme.of(context).primaryColor,
+            unselectedLabelColor: Colors.black87,
+          ),
+        ),
+        Expanded(child: TabBarView(
+          controller: controller,
+          children: <Widget>[
+            buildMangaResult(widget.list),
+            LandingPage(),
+            LandingPage(),
+            LandingPage(),
+            LandingPage(),
+          ],
+        ),),
+      ],
+    );
+  }
+  Widget buildMangaResult(List list){
+    return ListView.builder(
+      itemCount: list.length,
+      itemBuilder: (BuildContext context, int index) {
+        final item = list[index];
+        return InkWell(
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            maintainState: true,
+            builder: (context) => FutureBuilder<List>(
+              future: Mankezhan.chapter(item["comic_id"]),
+              builder: (BuildContext context, AsyncSnapshot<List> data) {
+                if (!data.hasData) {
+                  return LandingPage();
+                }
+                return ChapterPage(
+                  searchItem: item,
+                  chapter: data.data,
+                );
+              },
+            ),
+          )),
+          child: UiSearchItem(
+            cover: '${item["cover"]}!cover-400',
+            title: '${item["title"]}',
+            origin: "漫客栈💰",
+            author: '${item["author_title"]}',
+            chapter: '${item["chapter_title"]}',
+            description: '${item["feature"]}',
+          ),
+        );
+      },
     );
   }
 }

@@ -1,7 +1,7 @@
 import '../global.dart';
 
-class SearchHistory {
-  SearchHistory() {
+class HistoryManager {
+  HistoryManager() {
     _searchHistory =
         Global.prefs.getStringList(Global.searchHistoryKey) ?? <String>[];
   }

@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:eso/api/mankezhan.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +7,7 @@ import '../database/fake_data.dart';
 import '../ui/ui_search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
+import '../api/mankezhan.dart';
 import 'content_page.dart';
 import 'langding_page.dart';
 
@@ -23,6 +23,7 @@ class ChapterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("chapter");
     final item = searchItem ?? FakeData.shelfItem;
     final chapters = chapter ?? FakeData.chapterList;
     return ChangeNotifierProvider.value(
@@ -44,7 +45,7 @@ class ChapterPage extends StatelessWidget {
             Container(
               height: 30,
               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              alignment: Alignment(0, 0),
+              alignment: Alignment.center,
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -104,11 +105,19 @@ class ChapterPage extends StatelessWidget {
         builder: (context, ChapterPageController chapterPageController, _) {
       void Function(int index) onTap = (int index) {
         chapterPageController.changeChapter(index);
+        final comicId =
+            searchItem["comic_id"] ?? FakeData.shelfItem["comic_id"];
+        final chapterId = chapters[index]["chapter_id"];
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ContentPage(
-                comicId:
-                    searchItem["comic_id"] ?? FakeData.shelfItem["comic_id"],
-                chapterId: chapters[index]["chapter_id"])));
+            maintainState: true,
+            builder: (context) => FutureBuilder<List>(
+                future: Mankezhan.content(comicId, chapterId),
+                builder: (BuildContext context, AsyncSnapshot<List> data) {
+                  if (!data.hasData) {
+                    return LandingPage();
+                  }
+                  return ContentPage(imageList: data.data);
+                }))).then((value){}).whenComplete((){});
       };
       final screenWidth = MediaQuery.of(context).size.width;
       switch (chapterPageController.listStyle) {

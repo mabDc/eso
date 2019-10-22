@@ -15,9 +15,9 @@ class Mankezhan{
     return json["data"];
   }
 
-  static Future<List> content(String comicId, String chapterId) async {
+  static Future<List<String>> content(String comicId, String chapterId) async {
     final res = await http.get("https://comic.mkzhan.com/chapter/content/?chapter_id=$chapterId&comic_id=$comicId");
     final json = jsonDecode(res.body);
-    return json["data"];
+    return (json["data"] as List).map((d) => '${d["image"]}!page-1200').toList();
   }
 }

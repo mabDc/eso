@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'global.dart';
 import 'model/profile.dart';
-import 'model/search_history.dart';
+import 'model/history_manager.dart';
 import 'page/home_page.dart';
 import 'page/langding_page.dart';
 
@@ -26,8 +26,8 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider<Profile>.value(
               value: Profile(),
             ),
-            Provider<SearchHistory>.value(
-              value: SearchHistory(),
+            Provider<HistoryManager>.value(
+              value: HistoryManager(),
             ),
           ],
           child: Consumer<Profile>(

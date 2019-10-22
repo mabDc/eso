@@ -1,3 +1,4 @@
+import 'package:eso/page/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../global.dart';
@@ -5,7 +6,7 @@ import '../database/fake_data.dart';
 import '../page/chapter_page.dart';
 import '../ui/ui_shelf_item.dart';
 import '../model/search_page_delegate.dart';
-import '../model/search_history.dart';
+import '../model/history_manager.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
@@ -22,7 +23,7 @@ class FavoritePage extends StatelessWidget {
             onPressed: () => showSearch(
               context: context,
               delegate: SearchPageDelegate(
-                searchHistory: Provider.of<SearchHistory>(context),
+                historyManager: Provider.of<HistoryManager>(context),
               ),
             ),
           ),
@@ -32,7 +33,7 @@ class FavoritePage extends StatelessWidget {
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => ChapterPage())),
+                .push(MaterialPageRoute(builder: (context) => ChapterPage(searchItem: info,))),
             child: UiShelfItem(
               cover: '${info["cover"]}!cover-400',
               title: '${info["title"]}',
