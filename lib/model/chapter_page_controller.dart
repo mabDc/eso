@@ -4,14 +4,14 @@ class ChapterPageController with ChangeNotifier{
 
   int _durChapterIndex;
   int get durChapterIndex => _durChapterIndex;
-  _ListStyle _listStyle;
-  _ListStyle get listStyle => _listStyle;
+  ChapterListStyle _listStyle;
+  ChapterListStyle get listStyle => _listStyle;
 
-  static const BigList = _ListStyle.BigList;
-  static const SmallList = _ListStyle.SmallList;
-  static const Grid = _ListStyle.Grid;
+  static const BigList = ChapterListStyle.BigList;
+  static const SmallList = ChapterListStyle.SmallList;
+  static const Grid = ChapterListStyle.Grid;
 
-  String getListStyleName([_ListStyle listStyle]){
+  String getListStyleName([ChapterListStyle listStyle]){
     if(listStyle == null){
       listStyle = _listStyle;
     }
@@ -27,9 +27,9 @@ class ChapterPageController with ChangeNotifier{
     }
   }
 
-  ChapterPageController(){
-    _durChapterIndex = 0;
-    _listStyle = _ListStyle.values.first;
+  ChapterPageController({int durChapterIndex, ChapterListStyle chapterListStyle}){
+    _durChapterIndex = durChapterIndex ?? 0;
+    _listStyle = chapterListStyle ?? ChapterListStyle.values.first;
   }
 
   void changeChapter(int index){
@@ -39,14 +39,15 @@ class ChapterPageController with ChangeNotifier{
     }
   }
 
-  void changeListStyle(_ListStyle listStyle){
+  void changeListStyle(ChapterListStyle listStyle){
     if(_listStyle != listStyle){
       _listStyle = listStyle;
       notifyListeners();
     }
   }
+
 }
 
-enum _ListStyle{
+enum ChapterListStyle{
   BigList, SmallList, Grid
 }

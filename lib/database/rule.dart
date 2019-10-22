@@ -9,7 +9,7 @@ class Rule {
   bool enable = true;
   String name = '';
   String host = '';
-  String contentType = Global.ruleContentType.first;
+  RuleContentType contentType = RuleContentType.values.first;
   bool useCheerio = false;
   bool useCryptoJS = false;
   bool useMultiRoads = false;
@@ -50,7 +50,7 @@ class Rule {
     enable = true;
     name = '';
     host = '';
-    contentType = Global.ruleContentType.first;
+    contentType = RuleContentType.values.first;
     useCheerio = false;
     useCryptoJS = false;
     useMultiRoads = false;

@@ -20,7 +20,6 @@ class SearchPageDelegate extends SearchDelegate<String> {
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    //右侧显示内容 这里放清除按钮
     if (query.isEmpty) {
       return <Widget>[];
     } else {
@@ -38,7 +37,6 @@ class SearchPageDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    //左侧显示内容 这里放了返回按钮
     return IconButton(
       icon: AnimatedIcon(
         icon: AnimatedIcons.menu_arrow,
@@ -57,28 +55,25 @@ class SearchPageDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    //点击了搜索显示的页面
     query = query.trim();
     if (!historyManager.searchHistory.contains(query)) {
       historyManager.newSearch(query);
     }
-    print("search result");
     return FutureBuilder<List<SearchItem>>(
       future: Mankezhan.search(query),
       builder: (BuildContext context, AsyncSnapshot<List<SearchItem>> data) {
         if (!data.hasData) {
           return LandingPage();
         }
-        return SearchResult(items: data.data,);
+        return SearchResult(
+          items: data.data,
+        );
       },
     );
   }
 
-
-
   @override
   Widget buildSuggestions(BuildContext context) {
-    //点击了搜索窗显示的页面
     return Padding(
       padding: const EdgeInsets.only(left: 8),
       child: Column(
@@ -93,8 +88,9 @@ class SearchPageDelegate extends SearchDelegate<String> {
                 IconButton(
                   icon: Icon(Icons.delete_sweep),
                   onPressed: () {
-                    (() async{
+                    (() async {
                       await historyManager.clearHistory();
+                      query = query;
                       showSuggestions(context);
                     })();
                   },
@@ -125,7 +121,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
       primaryColor: Colors.white,
       primaryIconTheme: theme.primaryIconTheme.copyWith(color: Colors.black54),
       inputDecorationTheme:
-          InputDecorationTheme(hintStyle: TextStyle(color: Colors.black87)),
+          InputDecorationTheme(hintStyle: TextStyle(color: Colors.black54)),
       textTheme: theme.textTheme.apply(bodyColor: Colors.black87),
     );
   }
@@ -133,6 +129,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
 
 class SearchResult extends StatefulWidget {
   final List<SearchItem> items;
+
   const SearchResult({
     this.items,
     Key key,
@@ -142,14 +139,17 @@ class SearchResult extends StatefulWidget {
   _SearchResultState createState() => _SearchResultState();
 }
 
-class _SearchResultState extends State<SearchResult> with SingleTickerProviderStateMixin{
+class _SearchResultState extends State<SearchResult>
+    with SingleTickerProviderStateMixin {
   TabController controller;
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: Global.ruleContentType.length, vsync: this);
+    controller =
+        TabController(length: RuleContentType.values.length, vsync: this);
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -161,26 +161,31 @@ class _SearchResultState extends State<SearchResult> with SingleTickerProviderSt
           child: TabBar(
             controller: controller,
             isScrollable: true,
-            tabs: Global.ruleContentType.map((type) => Text(type)).toList(),
+            tabs: RuleContentType.values
+                .map((type) => Text(Global.getRuleContentTypeName(type)))
+                .toList(),
             indicatorColor: Theme.of(context).primaryColor,
             labelColor: Theme.of(context).primaryColor,
             unselectedLabelColor: Colors.black87,
           ),
         ),
-        Expanded(child: TabBarView(
-          controller: controller,
-          children: <Widget>[
-            buildMangaResult(widget.items),
-            LandingPage(),
-            LandingPage(),
-            LandingPage(),
-            LandingPage(),
-          ],
-        ),),
+        Expanded(
+          child: TabBarView(
+            controller: controller,
+            children: <Widget>[
+              buildMangaResult(widget.items),
+              LandingPage(),
+              LandingPage(),
+              LandingPage(),
+              LandingPage(),
+            ],
+          ),
+        ),
       ],
     );
   }
-  Widget buildMangaResult(List<SearchItem> items){
+
+  Widget buildMangaResult(List<SearchItem> items) {
     return ListView.builder(
       itemCount: items.length,
       itemBuilder: (BuildContext context, int index) {
@@ -195,7 +200,7 @@ class _SearchResultState extends State<SearchResult> with SingleTickerProviderSt
                   return LandingPage();
                 }
                 return ChapterPage(
-                  item: item,
+                  searchItem: item,
                   chapters: data.data,
                 );
               },

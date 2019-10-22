@@ -13,11 +13,11 @@ import 'content_page.dart';
 import 'langding_page.dart';
 
 class ChapterPage extends StatelessWidget {
-  final SearchItem item;
+  final SearchItem searchItem;
   final List<ChapterItem> chapters;
 
   const ChapterPage({
-    this.item,
+    this.searchItem,
     this.chapters,
     Key key,
   }) : super(key: key);
@@ -25,49 +25,73 @@ class ChapterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: ChapterPageController(),
+      value: ChapterPageController(
+        durChapterIndex: searchItem.durChapterIndex,
+        chapterListStyle: searchItem.chapterListStyle,
+      ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(item.title),
-        ),
-        body: Column(
-          children: <Widget>[
-            UiSearchItem(item: item),
-            Container(
-              height: 30,
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      '章节',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  buildButton(context, ChapterPageController.BigList),
-                  buildButton(context, ChapterPageController.SmallList),
-                  buildButton(context, ChapterPageController.Grid),
-                ],
-              ),
+          title: Text(
+            searchItem.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.favorite_border),
+              onPressed: () {},
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: buildChapter(chapters),
-              ),
-            ),
+            IconButton(
+              icon: Icon(Icons.file_download),
+              onPressed: () {},
+            )
           ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await Future.delayed(Duration(seconds: 1));
+            return;
+          },
+          child: Column(
+            children: <Widget>[
+              UiSearchItem(item: searchItem),
+              Container(
+                height: 30,
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                alignment: Alignment.center,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        '章节(${chapters.length})',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    buildButton(context, ChapterPageController.BigList),
+                    buildButton(context, ChapterPageController.SmallList),
+                    buildButton(context, ChapterPageController.Grid),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: buildChapter(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildButton(BuildContext context, listStyle) {
+  Widget buildButton(BuildContext context, ChapterListStyle listStyle) {
     return Consumer<ChapterPageController>(
       builder: (context, ChapterPageController chapterPageController, _) {
         return MaterialButton(
           onPressed: () {
+            searchItem.chapterListStyle = listStyle;
             chapterPageController.changeListStyle(listStyle);
           },
           shape: RoundedRectangleBorder(
@@ -91,21 +115,31 @@ class ChapterPage extends StatelessWidget {
     );
   }
 
-  Widget buildChapter(List<ChapterItem> chapters) {
+  Widget buildChapter() {
     return Consumer<ChapterPageController>(
         builder: (context, ChapterPageController chapterPageController, _) {
       void Function(int index) onTap = (int index) {
-        chapterPageController.changeChapter(index);
         final chapter = chapters[index];
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => FutureBuilder<List>(
-                future: Mankezhan.content(chapter.url),
-                builder: (BuildContext context, AsyncSnapshot<List> data) {
-                  if (!data.hasData) {
-                    return LandingPage();
-                  }
-                  return ContentPage(imageList: data.data);
-                }))).then((value){}).whenComplete((){});
+        chapterPageController.changeChapter(index);
+        searchItem.durChapterIndex = index;
+        searchItem.durChapter = chapter.name;
+        searchItem.durContentIndex = 1;
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) => FutureBuilder<List>(
+                    future: Mankezhan.content(chapter.url),
+                    builder: (BuildContext context, AsyncSnapshot<List> data) {
+                      if (!data.hasData) {
+                        return LandingPage();
+                      }
+                      return ContentPage(
+                        urls: data.data,
+                        chapters: chapters,
+                        searchItem: searchItem,
+                      );
+                    }))).whenComplete((){
+          chapterPageController.changeChapter(searchItem.durChapterIndex);
+        });
       };
       final screenWidth = MediaQuery.of(context).size.width;
       switch (chapterPageController.listStyle) {
@@ -121,7 +155,9 @@ class ChapterPage extends StatelessWidget {
               return buildChapterButton(
                   context,
                   chapterPageController.durChapterIndex == index,
-                  UIBigListChapterItem(chapter: chapters[index],),
+                  UIBigListChapterItem(
+                    chapter: chapters[index],
+                  ),
                   () => onTap(index));
             },
           );
@@ -141,7 +177,7 @@ class ChapterPage extends StatelessWidget {
                   Align(
                     alignment: FractionalOffset.centerLeft,
                     child: Text(
-                      chapters[index].title,
+                      chapters[index].name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

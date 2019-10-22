@@ -11,7 +11,7 @@ class Mankezhan{
     final json = jsonDecode(res.body);
     return (json["data"]["list"] as List).map((item) => SearchItem(
       cover: item["cover"] == null ? null : '${item["cover"]}!cover-400',
-      title: '${item["title"]}',
+      name: '${item["title"]}',
       origin: "漫客栈💰",
       author: '${item["author_title"]}',
       chapter: '${item["chapter_title"]}',
@@ -24,15 +24,20 @@ class Mankezhan{
     final comicId = url;
     final res = await http.get('https://comic.mkzhan.com/chapter/?comic_id=$comicId');
     final json = jsonDecode(res.body);
-    return (json["data"] as List).map((chapter){
+    final List list = json["data"];
+    final chapters = new List<ChapterItem>(list.length);
+    for(int i = 0; i <list.length; i++){
+      final chapter = list[i];
       final time = DateTime.fromMillisecondsSinceEpoch(int.parse(chapter["start_time"]) * 1000);
-      return ChapterItem(
-          cover: chapter["cover"] == null ? null : '${chapter["cover"]}!cover-400',
-          title: '${chapter["title"]}',
-          time: '$time'.trim().substring(0, 16),
-          url:'https://comic.mkzhan.com/chapter/content/?chapter_id=${chapter["chapter_id"]}&comic_id=$comicId'
+      chapters[i] =  ChapterItem(
+        cover: chapter["cover"] == null ? null : '${chapter["cover"]}!cover-400',
+        name: '${chapter["title"]}',
+        time: '$time'.trim().substring(0, 16),
+        url:'https://comic.mkzhan.com/chapter/content/?chapter_id=${chapter["chapter_id"]}&comic_id=$comicId',
+        chapterNum: i+1,
       );
-    }).toList();
+    }
+    return chapters;
   }
 
   static Future<List<String>> content(String url) async {

@@ -29,25 +29,31 @@ class FavoritePage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ChapterPage(
-                      item: FakeData.searchList[13],
-                      chapters: FakeData.chapterList,
-                    ))),
-            child: UiShelfItem(
-              cover: '${info["cover"]}!cover-400',
-              title: '${info["title"]}',
-              origin: "漫客栈💰",
-              author: '${info["author_title"]}',
-              chapter: '${info["chapter_title"]}',
-              durChapter: '${info["durChapter"]}',
-              chapterNum: info["chapterNum"],
-            ),
-          );
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(Duration(seconds: 1));
+          return;
         },
+        child: ListView.builder(
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ChapterPage(
+                        searchItem: FakeData.searchList[13],
+                        chapters: FakeData.chapterList,
+                      ))),
+              child: UiShelfItem(
+                cover: '${info["cover"]}!cover-400',
+                title: '${info["title"]}',
+                origin: "漫客栈💰",
+                author: '${info["author_title"]}',
+                chapter: '${info["chapter_title"]}',
+                durChapter: '${info["durChapter"]}',
+                chapterNum: info["chapterNum"],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

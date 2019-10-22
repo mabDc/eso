@@ -16,7 +16,7 @@ class UiSearchItem extends StatelessWidget {
     return _UiSearchItem(
       origin:item.origin,
       cover:item.cover,
-      title:item.title,
+      name:item.name,
       author:item.author,
       chapter:item.chapter,
       description:item.description,
@@ -28,7 +28,7 @@ class UiSearchItem extends StatelessWidget {
 class _UiSearchItem extends StatelessWidget {
   final String origin;
   final String cover;
-  final String title;
+  final String name;
   final String author;
   final String chapter;
   final String description;
@@ -36,7 +36,7 @@ class _UiSearchItem extends StatelessWidget {
   const _UiSearchItem({
     this.origin,
     this.cover,
-    this.title,
+    this.name,
     this.author,
     this.chapter,
     this.description,
@@ -77,7 +77,7 @@ class _UiSearchItem extends StatelessWidget {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          '$title',
+                          '$name',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

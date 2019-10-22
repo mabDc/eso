@@ -14,7 +14,7 @@ class UIBigListChapterItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return _UIBigListChapterItem(
         cover:chapter.cover,
-        title:chapter.title,
+        name:chapter.name,
         time:chapter.time,
     );
   }
@@ -23,12 +23,12 @@ class UIBigListChapterItem extends StatelessWidget {
 
 class _UIBigListChapterItem extends StatelessWidget {
   final String cover;
-  final String title;
+  final String name;
   final String time;
 
   const _UIBigListChapterItem({
     this.cover,
-    this.title,
+    this.name,
     this.time,
     Key key,
   }) : super(key: key);
@@ -65,7 +65,7 @@ class _UIBigListChapterItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text('$title'),
+                  Text('$name'),
                   Text('$time'),
                 ],
               ),

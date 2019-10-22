@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum RuleContentType { MANGA, NOVEL, VIDEO, AUDIO, RSS }
+
 class Global with ChangeNotifier {
   static const appName = '亦搜';
   static const appVersion = '1.0.0';
@@ -21,15 +23,39 @@ class Global with ChangeNotifier {
     return true;
   }
 
-  static List<String> ruleContentType = <String>[
-    "漫画",
-    "小说",
-    "视频",
-    "音频",
-    "RSS",
-  ];
+  static const MANGA = RuleContentType.MANGA;
+  static const NOVEL = RuleContentType.NOVEL;
+  static const VIDEO = RuleContentType.VIDEO;
+  static const AUDIO = RuleContentType.AUDIO;
+  static const RSS = RuleContentType.RSS;
+
+  static String getRuleContentTypeName(RuleContentType ruleContentType) {
+    switch (ruleContentType) {
+      case MANGA:
+        return "漫画";
+      case NOVEL:
+        return "小说";
+      case VIDEO:
+        return "视频";
+      case AUDIO:
+        return "音频";
+      case RSS:
+        return "RSS";
+      default:
+        return "漫画";
+    }
+  }
+
+//  static List<String> ruleContentType = <String>[
+//    "漫画",
+//    "小说",
+//    "视频",
+//    "音频",
+//    "RSS",
+//  ];
 
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
+
   static Map<String, int> get colors => {
         // "自定义": 0xFFEF3A6E,
         "酷安绿": 0xFF4BAF4F,

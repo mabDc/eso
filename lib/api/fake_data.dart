@@ -22,7 +22,7 @@ class FakeData {
 
   static List<SearchItem> get searchList => searchListJson.map((item) => SearchItem(
     cover: '${item["cover"]}!cover-400',
-    title: '${item["title"]}',
+    name: '${item["title"]}',
     origin: "漫客栈💰",
     author: '${item["author_title"]}',
     chapter: '${item["chapter_title"]}',
@@ -34,7 +34,7 @@ class FakeData {
     final time = DateTime.fromMillisecondsSinceEpoch(int.parse(chapter["start_time"]) * 1000);
     return ChapterItem(
         cover: chapter["cover"] == null ? null : '${chapter["cover"]}!cover-400',
-        title: '${chapter["title"]}',
+        name: '${chapter["title"]}',
         time: '$time'.trim().substring(0, 16),
         url:'https://comic.mkzhan.com/chapter/content/?chapter_id=${chapter["chapter_id"]}&comic_id=${shelfItem["comic_id"]}'
     );
