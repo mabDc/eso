@@ -4,20 +4,20 @@ import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
-class ContentPageController with ChangeNotifier{
+class ContentNovelPageController with ChangeNotifier{
   final SearchItem searchItem;
-  final List<ChapterItem>  chapters;
+  final List<ChapterItem> chapters;
 
-  List<String> _urls;
-  List<String> get urls => _urls;
+  List<String> _p;
+  List<String> get p => _p;
   ScrollController _controller;
   ScrollController get controller => _controller;
   bool _isLoading;
   bool get isLoading => _isLoading;
 
-  ContentPageController({List<String> urls, this.chapters, this.searchItem }){
+  ContentNovelPageController({List<String> p, this.chapters, this.searchItem }){
     _isLoading = false;
-    _urls = urls;
+    _p = p;
     _controller = ScrollController();
     _controller.addListener((){
       if (_controller.position.pixels ==
@@ -40,7 +40,7 @@ class ContentPageController with ChangeNotifier{
       _isLoading = true;
       notifyListeners();
       searchItem.durChapterIndex++;
-      _urls = await APIManager.getMangaContent(searchItem.originTag, chapters[searchItem.durChapterIndex].url);
+      _p = await APIManager.getNovelContent(searchItem.originTag, chapters[searchItem.durChapterIndex].url);
       searchItem.durChapter = chapters[searchItem.durChapterIndex].name;
       searchItem.durContentIndex = 1;
       _controller.jumpTo(0);

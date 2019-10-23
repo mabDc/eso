@@ -1,11 +1,11 @@
-import 'package:eso/database/chapter_item.dart';
-import 'package:eso/database/search_item.dart';
-import 'package:eso/model/content_page_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../api/fake_data.dart';
 import '../global.dart';
+import '../database/chapter_item.dart';
+import '../database/search_item.dart';
+import '../model/content_page_controller.dart';
 
 class ContentPage extends StatelessWidget {
   final List<String> urls;
@@ -36,7 +36,10 @@ class ContentPage extends StatelessWidget {
     }
     return ChangeNotifierProvider<ContentPageController>.value(
       value: ContentPageController(
-          urls: urls, chapters: chapters, searchItem: searchItem),
+        urls: urls,
+        chapters: chapters,
+        searchItem: searchItem,
+      ),
       child: Scaffold(
         body: Consumer<ContentPageController>(builder: (BuildContext context,
             ContentPageController contentPageController, _) {
@@ -53,9 +56,11 @@ class ContentPage extends StatelessWidget {
                       alignment: Alignment.topCenter,
                       padding: EdgeInsets.only(top: 50),
                       child: Text(
-                        contentPageController.isLoading
-                            ? "正在加载下一章..."
-                            : "继续滑动加载下一章",
+                        searchItem.durChapterIndex == chapters.length - 1
+                            ? "${searchItem.durChapter} 结束\n\n已经是最后一章"
+                            : contentPageController.isLoading
+                                ? "${searchItem.durChapter} 结束\n\n正在加载下一章..."
+                                : "${searchItem.durChapter} 结束\n\n继续滑动加载下一章",
                         style: TextStyle(fontSize: 20),
                       ),
                     );
@@ -73,6 +78,7 @@ class ContentPage extends StatelessWidget {
                   color: Colors.black.withAlpha(0x80),
                   child: Text(
                     '${contentPageController.searchItem.durChapter} ${contentPageController.searchItem.durContentIndex}/${contentPageController.urls.length}',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),

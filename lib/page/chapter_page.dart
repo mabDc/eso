@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:eso/api/api_manager.dart';
+import 'package:eso/global.dart';
+import 'package:eso/page/content_novel_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +11,6 @@ import '../database/search_item.dart';
 import '../ui/ui_search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
-import '../api/mankezhan.dart';
 import 'content_page.dart';
 import 'langding_page.dart';
 
@@ -124,22 +126,41 @@ class ChapterPage extends StatelessWidget {
         searchItem.durChapterIndex = index;
         searchItem.durChapter = chapter.name;
         searchItem.durContentIndex = 1;
-        Navigator.of(context)
-            .push(MaterialPageRoute(
-                builder: (context) => FutureBuilder<List>(
-                    future: Mankezhan.content(chapter.url),
-                    builder: (BuildContext context, AsyncSnapshot<List> data) {
-                      if (!data.hasData) {
-                        return LandingPage();
-                      }
-                      return ContentPage(
-                        urls: data.data,
-                        chapters: chapters,
-                        searchItem: searchItem,
-                      );
-                    }))).whenComplete((){
-          chapterPageController.changeChapter(searchItem.durChapterIndex);
-        });
+        if(searchItem.ruleContentType == RuleContentType.MANGA){
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+              builder: (context) => FutureBuilder<List>(
+                  future: APIManager.getMangaContent(searchItem.originTag, chapter.url),
+                  builder: (BuildContext context, AsyncSnapshot<List> data) {
+                    if (!data.hasData) {
+                      return LandingPage();
+                    }
+                    return ContentPage(
+                      urls: data.data,
+                      chapters: chapters,
+                      searchItem: searchItem,
+                    );
+                  }))).whenComplete((){
+            chapterPageController.changeChapter(searchItem.durChapterIndex);
+          });
+        } else if(searchItem.ruleContentType == RuleContentType.NOVEL){
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+              builder: (context) => FutureBuilder<List>(
+                  future: APIManager.getNovelContent(searchItem.originTag, chapter.url),
+                  builder: (BuildContext context, AsyncSnapshot<List> data) {
+                    if (!data.hasData) {
+                      return LandingPage();
+                    }
+                    return ContentNovelPage(
+                      p: data.data,
+                      chapters: chapters,
+                      searchItem: searchItem,
+                    );
+                  }))).whenComplete((){
+            chapterPageController.changeChapter(searchItem.durChapterIndex);
+          });
+        }
       };
       final screenWidth = MediaQuery.of(context).size.width;
       switch (chapterPageController.listStyle) {
@@ -165,7 +186,7 @@ class ChapterPage extends StatelessWidget {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: (screenWidth - 6) / 50 / 2,
+              childAspectRatio: (screenWidth - 6) / 60 / 2,
               mainAxisSpacing: 6,
               crossAxisSpacing: 6,
             ),
@@ -189,7 +210,7 @@ class ChapterPage extends StatelessWidget {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              childAspectRatio: (screenWidth - 4 * 6) / 32 / 5,
+              childAspectRatio: (screenWidth - 4 * 6) / 50 / 5,
               mainAxisSpacing: 6,
               crossAxisSpacing: 6,
             ),

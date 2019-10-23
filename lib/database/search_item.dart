@@ -1,8 +1,9 @@
-import 'package:eso/global.dart';
-import 'package:eso/model/chapter_page_controller.dart';
+import '../global.dart';
+import '../model/chapter_page_controller.dart';
 
 class SearchItem {
   final String origin;
+  final String originTag;
   final String cover;
   final String name;
   final String author;
@@ -17,6 +18,7 @@ class SearchItem {
 
   SearchItem({
     this.origin,
+    this.originTag,
     this.cover,
     this.name,
     this.author,

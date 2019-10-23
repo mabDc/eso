@@ -48,7 +48,7 @@ class _UiSearchItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
       child: SizedBox(
-        height: 100,
+        height: 104,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -77,17 +77,16 @@ class _UiSearchItem extends StatelessWidget {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          '$name',
+                          '$name'.trim(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15,
                           ),
                         ),
                       ),
                       Text(
-                        '$origin',
+                        '$origin'.trim(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -101,7 +100,7 @@ class _UiSearchItem extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '$author',
+                    '$author'.trim(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -113,14 +112,22 @@ class _UiSearchItem extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '$chapter',
+                    '$chapter'.trim(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    '$description',
+                    '$description'.trim(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context)
+                          .textTheme
+                          .body1
+                          .color
+                          .withOpacity(0.7),
+                    ),
                   ),
                 ],
               ),

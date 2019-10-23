@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../global.dart';
 
@@ -7,9 +8,18 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Image.asset(Global.waitingPath),
-      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            "一个加载页而已",
+            style: TextStyle(fontSize: 20),
+          ),
+          SizedBox(height: 20,),
+          Image.asset(Global.waitingPath),
+        ],
+      )
     );
   }
 }

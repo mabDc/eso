@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../api/mankezhan.dart';
 import '../model/history_manager.dart';
-import '../page/langding_page.dart';
-import '../ui/ui_search_item.dart';
-import '../page/chapter_page.dart';
-import '../database/search_item.dart';
-import '../global.dart';
+import '../page/search_result_page.dart';
 
 class SearchPageDelegate extends SearchDelegate<String> {
   final HistoryManager historyManager;
-
   SearchPageDelegate({this.historyManager})
       : super(
           searchFieldLabel: "请输入关键词",
@@ -19,22 +12,16 @@ class SearchPageDelegate extends SearchDelegate<String> {
         );
 
   @override
-  List<Widget> buildActions(BuildContext context) {
-    if (query.isEmpty) {
-      return <Widget>[];
-    } else {
-      return <Widget>[
-        IconButton(
-          icon: Icon(Icons.clear),
-          onPressed: () {
-            query = "";
-            showSuggestions(context);
-          },
-        ),
-      ];
-    }
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      primaryColor: Colors.white,
+      primaryIconTheme: theme.primaryIconTheme.copyWith(color: Colors.black54),
+      inputDecorationTheme:
+      InputDecorationTheme(hintStyle: TextStyle(color: Colors.black54)),
+      textTheme: theme.textTheme.apply(bodyColor: Colors.black87),
+    );
   }
-
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
@@ -47,29 +34,33 @@ class SearchPageDelegate extends SearchDelegate<String> {
           close(context, "from search");
         } else {
           query = "";
-          showSuggestions(context);
         }
       },
     );
   }
-
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    if (query.isEmpty) {
+      return <Widget>[];
+    } else {
+      return <Widget>[
+        IconButton(
+          icon: Icon(Icons.clear),
+          onPressed: () {
+            query = "";
+          },
+        ),
+      ];
+    }
+  }
   @override
   Widget buildResults(BuildContext context) {
     query = query.trim();
     if (!historyManager.searchHistory.contains(query)) {
       historyManager.newSearch(query);
     }
-    return FutureBuilder<List<SearchItem>>(
-      future: Mankezhan.search(query),
-      builder: (BuildContext context, AsyncSnapshot<List<SearchItem>> data) {
-        if (!data.hasData) {
-          return LandingPage();
-        }
-        return SearchResult(
-          items: data.data,
-        );
-      },
-    );
+    return SearchResultPage(query: query);
+
   }
 
   @override
@@ -114,101 +105,5 @@ class SearchPageDelegate extends SearchDelegate<String> {
     );
   }
 
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    final theme = Theme.of(context);
-    return theme.copyWith(
-      primaryColor: Colors.white,
-      primaryIconTheme: theme.primaryIconTheme.copyWith(color: Colors.black54),
-      inputDecorationTheme:
-          InputDecorationTheme(hintStyle: TextStyle(color: Colors.black54)),
-      textTheme: theme.textTheme.apply(bodyColor: Colors.black87),
-    );
-  }
-}
 
-class SearchResult extends StatefulWidget {
-  final List<SearchItem> items;
-
-  const SearchResult({
-    this.items,
-    Key key,
-  }) : super(key: key);
-
-  @override
-  _SearchResultState createState() => _SearchResultState();
-}
-
-class _SearchResultState extends State<SearchResult>
-    with SingleTickerProviderStateMixin {
-  TabController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller =
-        TabController(length: RuleContentType.values.length, vsync: this);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Container(
-          color: Colors.white,
-          height: 40,
-          width: double.infinity,
-          child: TabBar(
-            controller: controller,
-            isScrollable: true,
-            tabs: RuleContentType.values
-                .map((type) => Text(Global.getRuleContentTypeName(type)))
-                .toList(),
-            indicatorColor: Theme.of(context).primaryColor,
-            labelColor: Theme.of(context).primaryColor,
-            unselectedLabelColor: Colors.black87,
-          ),
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: controller,
-            children: <Widget>[
-              buildMangaResult(widget.items),
-              LandingPage(),
-              LandingPage(),
-              LandingPage(),
-              LandingPage(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildMangaResult(List<SearchItem> items) {
-    return ListView.builder(
-      itemCount: items.length,
-      itemBuilder: (BuildContext context, int index) {
-        final item = items[index];
-        return InkWell(
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            maintainState: true,
-            builder: (context) => FutureBuilder<List>(
-              future: Mankezhan.chapter(item.url),
-              builder: (BuildContext context, AsyncSnapshot<List> data) {
-                if (!data.hasData) {
-                  return LandingPage();
-                }
-                return ChapterPage(
-                  searchItem: item,
-                  chapters: data.data,
-                );
-              },
-            ),
-          )),
-          child: UiSearchItem(item: item),
-        );
-      },
-    );
-  }
 }

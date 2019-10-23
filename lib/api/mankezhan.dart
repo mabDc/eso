@@ -1,18 +1,30 @@
 import 'dart:convert';
-
-import 'package:eso/database/chapter_item.dart';
-
-import '../database/search_item.dart';
 import 'package:http/http.dart' as http;
+import '../database/chapter_item.dart';
+import '../database/search_item.dart';
+import '../global.dart';
+import 'api.dart';
 
-class Mankezhan{
-  static Future<List<SearchItem>> search(String query,[int page = 1, int pageSize = 20]) async {
+class Mankezhan implements API {
+  @override
+  String get origin => "漫客栈💰";
+
+  @override
+  String get originTag => "Mankezhan";
+
+  @override
+  RuleContentType get ruleContentType => RuleContentType.MANGA;
+
+  @override
+  Future<List<SearchItem>> search(String query, int page, int pageSize) async {
     final res = await http.get("https://comic.mkzhan.com/search/keyword/?keyword=$query&page_num=$page&page_size=$pageSize");
     final json = jsonDecode(res.body);
     return (json["data"]["list"] as List).map((item) => SearchItem(
+      origin: origin,
+      originTag: originTag,
+      ruleContentType: ruleContentType,
       cover: item["cover"] == null ? null : '${item["cover"]}!cover-400',
       name: '${item["title"]}',
-      origin: "漫客栈💰",
       author: '${item["author_title"]}',
       chapter: '${item["chapter_title"]}',
       description: '${item["feature"]}',
@@ -20,7 +32,8 @@ class Mankezhan{
     )).toList();
   }
 
-  static Future<List<ChapterItem>> chapter(String url) async {
+  @override
+  Future<List<ChapterItem>> chapter(String url) async {
     final comicId = url;
     final res = await http.get('https://comic.mkzhan.com/chapter/?comic_id=$comicId');
     final json = jsonDecode(res.body);
@@ -40,9 +53,20 @@ class Mankezhan{
     return chapters;
   }
 
-  static Future<List<String>> content(String url) async {
+  @override
+  Future<List<String>> mangaContent(String url) async {
     final res = await http.get(url);
     final json = jsonDecode(res.body);
     return (json["data"] as List).map((d) => '${d["image"]}!page-1200').toList();
+  }
+
+  @override
+  Future<List<String>> novelContent(String url) {
+    throw("mankezhan is not novel");
+  }
+
+  @override
+  Future<String> videoContent(String url) {
+    throw("mankezhan is not video");
   }
 }

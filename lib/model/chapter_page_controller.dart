@@ -45,7 +45,6 @@ class ChapterPageController with ChangeNotifier{
       notifyListeners();
     }
   }
-
 }
 
 enum ChapterListStyle{
