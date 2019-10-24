@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:eso/database/search_item.dart';
+import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,12 +17,15 @@ class Global with ChangeNotifier {
   static const cryptoJSFile = "lib/assets/CryptoJS.min.js";
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
+  static const searchItemKey = "searchItem";
 
-  static SharedPreferences prefs;
+  static SharedPreferences _prefs;
+  static SharedPreferences get prefs => _prefs;
   static int currentHomePage;
 
   static Future<bool> init() async {
-    prefs = await SharedPreferences.getInstance();
+    _prefs = await SharedPreferences.getInstance();
+    SearchItemManager.initSearchItem();
     await Future.delayed(Duration(seconds: 1));
     return true;
   }

@@ -1,15 +1,31 @@
 class ChapterItem{
-  final String cover;
-  final String name;
-  final String time;
-  final String url;
-  final int chapterNum;
+  String cover;
+  String name;
+  String time;
+  String url;
+  int chapterNum;
 
-  const ChapterItem({
+  ChapterItem({
     this.cover,
     this.name,
     this.time,
     this.url,
     this.chapterNum,
   });
+
+  Map<String, dynamic> toJson() => {
+    "cover":cover,
+    "name":name,
+    "time":time,
+    "url":url,
+    "chapterNum":chapterNum,
+  };
+
+  ChapterItem.fromJson(Map<String, dynamic> json){
+    cover=json["cover"];
+    name=json["name"];
+    time=json["time"];
+    url=json["url"];
+    chapterNum=json["chapterNum"];
+  }
 }

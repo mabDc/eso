@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
             body: PageView(
               controller: pageSwitch.pageController,
               children: <Widget>[
-                TestPage(),
+                // TestPage(),
                 FavoritePage(),
                 DiscoverPage(),
                 AboutPage(),
@@ -40,8 +40,8 @@ class HomePage extends StatelessWidget {
                   backgroundColor:
                       profile.darkMode ? Colors.black12 : Colors.white,
                   items: [
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.weekend), title: Text('测试')),
+                    // BottomNavigationBarItem(
+                    //     icon: Icon(Icons.weekend), title: Text('测试')),
                     BottomNavigationBarItem(
                         icon: Icon(Icons.library_books), title: Text('收藏')),
                     BottomNavigationBarItem(

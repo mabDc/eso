@@ -34,6 +34,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
           close(context, "from search");
         } else {
           query = "";
+          showSuggestions(context);
         }
       },
     );
@@ -48,6 +49,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
           icon: Icon(Icons.clear),
           onPressed: () {
             query = "";
+            showSuggestions(context);
           },
         ),
       ];
@@ -60,7 +62,6 @@ class SearchPageDelegate extends SearchDelegate<String> {
       historyManager.newSearch(query);
     }
     return SearchResultPage(query: query);
-
   }
 
   @override

@@ -1,8 +1,31 @@
+import '../database/search_item.dart';
 import '../global.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UiShelfItem extends StatelessWidget {
+  final SearchItem searchItem;
+
+  const UiShelfItem({
+    this.searchItem,
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _UiShelfItem(
+      origin:searchItem.origin,
+      cover:searchItem.cover,
+      title:searchItem.name,
+      author:searchItem.author,
+      chapter:searchItem.chapter,
+      durChapter:searchItem.durChapter,
+      chapterNum:searchItem.chaptersCount - searchItem.durChapterIndex,
+    );
+  }
+}
+
+class _UiShelfItem extends StatelessWidget {
   final String origin;
   final String cover;
   final String title;
@@ -11,7 +34,7 @@ class UiShelfItem extends StatelessWidget {
   final String durChapter;
   final int chapterNum;
 
-  const UiShelfItem({
+  const _UiShelfItem({
     this.origin,
     this.cover,
     this.title,

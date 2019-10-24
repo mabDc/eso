@@ -1,6 +1,6 @@
-import 'package:eso/api/api.dart';
+import 'package:eso/database/chapter_item.dart';
+import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
-import '../global.dart';
 import '../database/search_item.dart';
 import '../api/api_manager.dart';
 import '../ui/ui_search_item.dart';
@@ -17,8 +17,9 @@ class SearchResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final allAPI = APIManager.allAPI;
     return DefaultTabController(
-      length: APIManager.allAPI.length,
+      length: allAPI.length,
       child: Column(
         children: <Widget>[
           Container(
@@ -27,7 +28,7 @@ class SearchResultPage extends StatelessWidget {
             width: double.infinity,
             child: TabBar(
               isScrollable: true,
-              tabs: APIManager.allAPI.map((api) => Text(api.origin)).toList(),
+              tabs: allAPI.map((api) => Text(api.origin)).toList(),
               indicatorColor: Theme.of(context).primaryColor,
               labelColor: Theme.of(context).primaryColor,
               unselectedLabelColor: Colors.black87,
@@ -35,7 +36,7 @@ class SearchResultPage extends StatelessWidget {
           ),
           Expanded(
             child: TabBarView(
-              children: APIManager.allAPI
+              children: allAPI
                   .map((api) =>
                       buildResult(APIManager.search(api.originTag, query)))
                   .toList(),
@@ -57,27 +58,35 @@ class SearchResultPage extends StatelessWidget {
         return ListView.builder(
           itemCount: items.length,
           itemBuilder: (BuildContext context, int index) {
-            final item = items[index];
             return InkWell(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                maintainState: true,
-                builder: (context) => FutureBuilder<List>(
-                  future: APIManager.getChapter(item.originTag, item.url),
-                  builder: (BuildContext context, AsyncSnapshot<List> data) {
-                    if (!data.hasData) {
-                      return LandingPage();
-                    }
-                    return ChapterPage(
-                      searchItem: item,
-                      chapters: data.data,
-                    );
-                  },
-                ),
-              )),
-              child: UiSearchItem(item: item),
+              child: UiSearchItem(item: items[index]),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => buildContentPage(items[index])),
+              ),
             );
           },
         );
+      },
+    );
+  }
+
+  Widget buildContentPage(SearchItem searchItem) {
+    if (SearchItemManager.isFavorite(searchItem.url)) {
+      final item = SearchItemManager.searchItem
+          .firstWhere((item) => item.url == searchItem.url);
+      return ChapterPage(searchItem: item);
+    }
+    return FutureBuilder<List<ChapterItem>>(
+      future: APIManager.getChapter(searchItem.originTag, searchItem.url),
+      builder: (BuildContext context, AsyncSnapshot<List<ChapterItem>> data) {
+        if (!data.hasData) {
+          return LandingPage();
+        }
+        searchItem.chapters = data.data;
+        searchItem.chaptersCount = data.data.length;
+        searchItem.durChapter = data.data.first?.name??'';
+        return ChapterPage(searchItem: searchItem);
       },
     );
   }

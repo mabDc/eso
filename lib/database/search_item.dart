@@ -1,11 +1,12 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/database/chapter_item.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../global.dart';
 import '../model/chapter_page_controller.dart';
 
 class SearchItem {
-  String itemId;
-  String chapterId;
+  int id;
   String origin;
   String originTag;
   String cover;
@@ -19,32 +20,62 @@ class SearchItem {
   String durChapter;
   int durChapterIndex;
   int durContentIndex;
+  int chaptersCount;
+  List<ChapterItem> chapters;
 
   SearchItem({
-    this.itemId,
-    this.chapterId,
+    @required
     this.cover,
+    @required
     this.name,
+    @required
     this.author,
+    @required
     this.chapter,
+    @required
     this.description,
+    @required
     this.url,
-    this.chapterListStyle,
-    this.durChapter,
-    this.durChapterIndex,
-    this.durContentIndex,
+    @required
     API api,
+    this.chaptersCount,
   }){
-    if(api!=null){
-        origin = api.origin;
-        originTag = api.originTag;
-        ruleContentType = api.ruleContentType;
+    if(chaptersCount == null){
+      chaptersCount = 0;
     }
+    if(api!=null){
+      origin = api.origin;
+      originTag = api.originTag;
+      ruleContentType = api.ruleContentType;
+    }
+    id = DateTime.now().millisecondsSinceEpoch;
+    chapterListStyle = ChapterListStyle.values.first;
+    durChapter = "";
+    durChapterIndex = 0;
+    durContentIndex = 1;
+    chapters = <ChapterItem>[];
   }
 
+//  void copyFrom(SearchItem other){
+//    if(isLocal != other.isLocal){
+//      isLocal = other.isLocal;
+//    }
+//    if(chapterListStyle != other.chapterListStyle){
+//      chapterListStyle = other.chapterListStyle;
+//    }
+//    if(durChapter != other.durChapter){
+//      durChapter = other.durChapter;
+//    }
+//    if(durChapterIndex != other.durChapterIndex){
+//      durChapterIndex = other.durChapterIndex;
+//    }
+//    if(durContentIndex != other.durContentIndex){
+//      durContentIndex = other.durContentIndex;
+//    }
+//  }
+
   Map<String, dynamic> toJson() => {
-    "itemId":itemId,
-    "chapterId":chapterId,
+    "id":id,
     "origin":origin,
     "originTag":originTag,
     "cover":cover,
@@ -58,11 +89,11 @@ class SearchItem {
     "durChapter":durChapter,
     "durChapterIndex":durChapterIndex,
     "durContentIndex":durContentIndex,
+    "chaptersCount":chaptersCount,
   };
 
   SearchItem.fromJson(Map<String, dynamic> json){
-    itemId=json["itemId"];
-    chapterId=json["chapterId"];
+    id=json["id"];
     origin=json["origin"];
     originTag=json["originTag"];
     cover=json["cover"];
@@ -71,10 +102,12 @@ class SearchItem {
     chapter=json["chapter"];
     description=json["description"];
     url=json["url"];
-    ruleContentType= RuleContentType.values[json["ruleContentType"]];
-    chapterListStyle= ChapterListStyle.values[json["chapterListStyle"]];
+    ruleContentType= RuleContentType.values[json["ruleContentType"]??0];
+    chapterListStyle= ChapterListStyle.values[json["chapterListStyle"]??0];
     durChapter=json["durChapter"];
     durChapterIndex=json["durChapterIndex"];
     durContentIndex=json["durContentIndex"];
+    chaptersCount=json["chaptersCount"];
+    chapters = <ChapterItem>[];
   }
 }
