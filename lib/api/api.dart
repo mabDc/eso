@@ -7,6 +7,8 @@ abstract class API {
   String get originTag;
   RuleContentType get ruleContentType;
 
+  Future<List<SearchItem>> discover(String query,int page, int pageSize);
+
   Future<List<SearchItem>> search(String query,int page, int pageSize);
 
   Future<List<ChapterItem>> chapter(String url);

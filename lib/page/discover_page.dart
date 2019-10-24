@@ -1,9 +1,11 @@
-import 'package:eso/model/history_manager.dart';
-import 'package:eso/model/search_page_delegate.dart';
-import 'package:provider/provider.dart';
-
-import '../api/api_manager.dart';
+import 'package:eso/database/chapter_item.dart';
+import 'package:eso/database/search_item.dart';
+import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
+import '../ui/ui_discover_item.dart';
+import '../api/api_manager.dart';
+import 'chapter_page.dart';
+import 'langding_page.dart';
 
 class DiscoverPage extends StatelessWidget {
   const DiscoverPage({Key key}) : super(key: key);
@@ -32,8 +34,8 @@ class DiscoverPage extends StatelessWidget {
                 onChanged: (enable) {},
               ),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      DiscoverItemPage(allAPI[index].origin))),
+                  builder: (context) => DiscoverItemPage(
+                      allAPI[index].originTag, allAPI[index].origin))),
             ),
           );
         },
@@ -43,9 +45,11 @@ class DiscoverPage extends StatelessWidget {
 }
 
 class DiscoverItemPage extends StatelessWidget {
+  final String originTag;
   final String name;
 
-  const DiscoverItemPage(this.name, {Key key}) : super(key: key);
+  const DiscoverItemPage(this.originTag, this.name, {Key key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +59,42 @@ class DiscoverItemPage extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () => showSearch(
-              context: context,
-              delegate: SearchPageDelegate(
-                historyManager: Provider.of<HistoryManager>(context),
-              ),
-            ),
+            onPressed: () {},
           ),
         ],
+      ),
+      body: FutureBuilder<List<SearchItem>>(
+        future: APIManager.dicover(originTag, ''),
+        builder: (BuildContext context, AsyncSnapshot<List<SearchItem>> data) {
+          if (!data.hasData) {
+            return LandingPage();
+          }
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.8,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            padding: EdgeInsets.all(8.0),
+            itemCount: data.data.length,
+            itemBuilder: (BuildContext context, int index) {
+              SearchItem searchItem = data.data[index];
+              if (SearchItemManager.isFavorite(searchItem.url)) {
+                searchItem = SearchItemManager.searchItem
+                    .firstWhere((item) => item.url == searchItem.url);
+              }
+              return InkWell(
+                child: UIDiscoverItem(item: searchItem),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ChapterPage(searchItem: searchItem)),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

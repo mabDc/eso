@@ -31,6 +31,13 @@ class AboutPage extends StatelessWidget {
                     ),
                     Divider(),
                     SwitchListTile(
+                      title: Text('切换收藏长按效果'),
+                      subtitle: Text(profile.switchLongPress? '长按查看目录':'长按查看内容'),
+                      value: profile.switchLongPress,
+                      onChanged: (value) => profile.switchLongPress = value,
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                    SwitchListTile(
                       title: Text('自动刷新'),
                       subtitle: Text('软件启动时自动更新收藏'),
                       value: profile.autoRefresh,

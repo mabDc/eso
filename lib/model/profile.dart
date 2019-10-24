@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
 import '../global.dart';
 
 class Profile with ChangeNotifier {
@@ -7,6 +9,7 @@ class Profile with ChangeNotifier {
     final source = Global.prefs.getString(Global.profileKey);
     final json = source == null
         ? {
+            'switchLongPress':false,
             'autoRefresh': false,
             'darkMode': false,
             'colorName': Global.colors.keys.first,
@@ -16,15 +19,24 @@ class Profile with ChangeNotifier {
     fromJson(json);
   }
 
+  bool _switchLongPress;
   bool _autoRefresh;
   bool _darkMode;
   String _colorName;
   int _customColor;
 
+  bool get switchLongPress => _switchLongPress;
   bool get autoRefresh => _autoRefresh;
   bool get darkMode => _darkMode;
   String get colorName => _colorName;
   int get customColor => _customColor;
+
+  set switchLongPress(bool value) {
+    if (value != _switchLongPress) {
+      _switchLongPress = value;
+      _saveProfile();
+    }
+  }
 
   set autoRefresh(bool value) {
     if (value != _autoRefresh) {
@@ -90,6 +102,7 @@ class Profile with ChangeNotifier {
   }
 
   fromJson(Map<String, dynamic> json) {
+    _switchLongPress = json['switchLongPress'];
     _autoRefresh = json['autoRefresh'];
     _darkMode = json['darkMode'];
     _colorName = json['colorName'];
@@ -97,6 +110,7 @@ class Profile with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() => {
+        'switchLongPress': _switchLongPress,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'colorName': _colorName,

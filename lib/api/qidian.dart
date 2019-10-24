@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import '../api/api.dart';
 import '../database/chapter_item.dart';
@@ -16,6 +15,21 @@ class Qidian implements API{
 
   @override
   RuleContentType get ruleContentType => RuleContentType.NOVEL;
+
+  @override
+  Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
+    final res = await http.get("https://www.qidian.com/all");
+    final dom = parse(res.body);
+    return dom.querySelectorAll('.all-img-list li').map((item) => SearchItem(
+      api: this,
+      cover: 'https:${item.querySelector('.book-img-box img').attributes["src"]}',
+      name: '${item.querySelector('h4 a').text}',
+      author: '${item.querySelector('.author a').text}',
+      chapter: '${item.querySelector('.update').text}',
+      description: '${item.querySelector('.intro').text}',
+      url: '${item.querySelector('h4 a').attributes["data-bid"]}',
+    )).toList();
+  }
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
@@ -37,20 +51,15 @@ class Qidian implements API{
     final bookId = url;
     final res = await http.get('https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId=$bookId');
     final json = jsonDecode(res.body);
-    final List list = json["Data"]["Chapters"];
-    final chapters = new List<ChapterItem>(list.length - 1);
-    for(int i = 0; i < list.length - 1; i++){
-      final chapter = list[i+1];
+    return (json["Data"]["Chapters"] as List).skip(1).map((chapter){
       final time = DateTime.fromMillisecondsSinceEpoch(chapter["T"]);
-      chapters[i] =  ChapterItem(
+      return  ChapterItem(
         cover: null,
         name: '${chapter["V"] == 1 ? "🔒":""}${chapter["N"]}',
         time: '$time'.trim().substring(0, 16),
         url:'https://vipreader.qidian.com/chapter/$bookId/${chapter["C"]}',
-        chapterNum: i+1,
       );
-    }
-    return chapters;
+    }).toList();
   }
 
   @override

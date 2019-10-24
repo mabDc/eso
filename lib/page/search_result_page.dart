@@ -1,5 +1,6 @@
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/page/content_page.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
 import '../api/api_manager.dart';
@@ -58,35 +59,20 @@ class SearchResultPage extends StatelessWidget {
         return ListView.builder(
           itemCount: items.length,
           itemBuilder: (BuildContext context, int index) {
+            SearchItem searchItem = items[index];
+            if (SearchItemManager.isFavorite(searchItem.url)) {
+              searchItem = SearchItemManager.searchItem
+                  .firstWhere((item) => item.url == searchItem.url);
+            }
             return InkWell(
-              child: UiSearchItem(item: items[index]),
+              child: UiSearchItem(item: searchItem),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (context) => buildContentPage(items[index])),
+                    builder: (context) => ChapterPage(searchItem: searchItem)),
               ),
             );
           },
         );
-      },
-    );
-  }
-
-  Widget buildContentPage(SearchItem searchItem) {
-    if (SearchItemManager.isFavorite(searchItem.url)) {
-      final item = SearchItemManager.searchItem
-          .firstWhere((item) => item.url == searchItem.url);
-      return ChapterPage(searchItem: item);
-    }
-    return FutureBuilder<List<ChapterItem>>(
-      future: APIManager.getChapter(searchItem.originTag, searchItem.url),
-      builder: (BuildContext context, AsyncSnapshot<List<ChapterItem>> data) {
-        if (!data.hasData) {
-          return LandingPage();
-        }
-        searchItem.chapters = data.data;
-        searchItem.chaptersCount = data.data.length;
-        searchItem.durChapter = data.data.first?.name??'';
-        return ChapterPage(searchItem: searchItem);
       },
     );
   }

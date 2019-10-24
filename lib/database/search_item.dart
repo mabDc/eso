@@ -53,7 +53,7 @@ class SearchItem {
     durChapter = "";
     durChapterIndex = 0;
     durContentIndex = 1;
-    chapters = <ChapterItem>[];
+    chapters = null;
   }
 
 //  void copyFrom(SearchItem other){

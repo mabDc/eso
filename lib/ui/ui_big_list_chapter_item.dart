@@ -12,10 +12,17 @@ class UIBigListChapterItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return chapter.cover == null
-        ? _UIBigListChapterItemWithoutCover(
-            name: chapter.name,
-            time: chapter.time,
-          )
+        ? chapter.time == null
+            ? Container(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                alignment: FractionalOffset.centerLeft,
+                height: 55,
+                child: Text('${chapter.name}'),
+              )
+            : _UIBigListChapterItemWithoutCover(
+                name: chapter.name,
+                time: chapter.time,
+              )
         : _UIBigListChapterItem(
             cover: chapter.cover,
             name: chapter.name,

@@ -3,14 +3,12 @@ class ChapterItem{
   String name;
   String time;
   String url;
-  int chapterNum;
 
   ChapterItem({
     this.cover,
     this.name,
     this.time,
     this.url,
-    this.chapterNum,
   });
 
   Map<String, dynamic> toJson() => {
@@ -18,7 +16,6 @@ class ChapterItem{
     "name":name,
     "time":time,
     "url":url,
-    "chapterNum":chapterNum,
   };
 
   ChapterItem.fromJson(Map<String, dynamic> json){
@@ -26,6 +23,5 @@ class ChapterItem{
     name=json["name"];
     time=json["time"];
     url=json["url"];
-    chapterNum=json["chapterNum"];
   }
 }

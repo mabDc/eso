@@ -26,7 +26,6 @@ class Global with ChangeNotifier {
   static Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
-    await Future.delayed(Duration(seconds: 1));
     return true;
   }
 

@@ -105,6 +105,4 @@ class SearchPageDelegate extends SearchDelegate<String> {
       ),
     );
   }
-
-
 }

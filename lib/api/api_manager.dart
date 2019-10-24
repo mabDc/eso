@@ -1,3 +1,6 @@
+import 'package:eso/api/iqiwx.dart';
+import 'package:flutter/foundation.dart';
+
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
@@ -16,8 +19,13 @@ class APIManager{
 
   static List<API> get allAPI => <API>[
     Qidian(),
+    Iqiwx(),
     Mankezhan(),
   ];
+
+  static Future<List<SearchItem>> dicover(String originTag, String query,[int page = 1, int pageSize = 20]){
+    return chooseAPI(originTag).discover(query, page, pageSize);
+  }
 
   static Future<List<SearchItem>> search(String originTag, String query,[int page = 1, int pageSize = 20]){
     return chooseAPI(originTag).search(query, page, pageSize);

@@ -1,3 +1,4 @@
+import 'package:eso/page/content_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,9 +40,10 @@ class FavoritePage extends StatelessWidget {
             final searchItem = SearchItemManager.searchItem[index];
             return InkWell(
               child: UiShelfItem(searchItem: searchItem),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChapterPage(searchItem: searchItem))),
-              onLongPress: () {},
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ContentPage(searchItem: searchItem))),
             );
           },
         ),

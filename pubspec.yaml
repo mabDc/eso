@@ -21,6 +21,7 @@ dependencies:
   flutter_liquidcore: ^1.0.0
   floor: ^0.8.0
   url_launcher: ^5.1.2
+  fast_gbk: ^0.1.1+1
 
 dev_dependencies:
   flutter_test:

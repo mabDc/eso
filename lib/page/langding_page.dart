@@ -16,8 +16,10 @@ class LandingPage extends StatelessWidget {
             "一个加载页而已",
             style: TextStyle(fontSize: 20),
           ),
-          SizedBox(height: 20,),
+          SizedBox (height: 20,),
           Image.asset(Global.waitingPath),
+          SizedBox (height: 20,),
+          CircularProgressIndicator(),
         ],
       )
     );
