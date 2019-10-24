@@ -22,9 +22,7 @@ class Qidian implements API{
     final res = await http.get("https://www.qidian.com/search?kw=$query&page=$page");
     final dom = parse(res.body);
     return dom.querySelectorAll('#result-list .res-book-item').map((item) => SearchItem(
-      origin: origin,
-      originTag: originTag,
-      ruleContentType: ruleContentType,
+      api: this,
       cover: 'https:${item.querySelector('.book-img-box img').attributes["src"]}',
       name: '${item.querySelector('h4 a').text}',
       author: '${item.querySelector('.author a').text}',
@@ -56,18 +54,9 @@ class Qidian implements API{
   }
 
   @override
-  Future<List<String>> novelContent(String url) async {
+  Future<List<String>> content(String url) async {
     final res = await http.get(url);
     return parse(res.body).querySelectorAll('.read-content p').map((p) => p.text).toList();
   }
 
-  @override
-  Future<List<String>> mangaContent(String url) {
-    throw("Qidian is not manga");
-  }
-
-  @override
-  Future<String> videoContent(String url) {
-    throw("Qidian is not video");
-  }
 }

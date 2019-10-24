@@ -1,8 +1,6 @@
 import 'dart:math';
 
 import 'package:eso/api/api_manager.dart';
-import 'package:eso/global.dart';
-import 'package:eso/page/content_novel_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -126,41 +124,22 @@ class ChapterPage extends StatelessWidget {
         searchItem.durChapterIndex = index;
         searchItem.durChapter = chapter.name;
         searchItem.durContentIndex = 1;
-        if(searchItem.ruleContentType == RuleContentType.MANGA){
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-              builder: (context) => FutureBuilder<List>(
-                  future: APIManager.getMangaContent(searchItem.originTag, chapter.url),
-                  builder: (BuildContext context, AsyncSnapshot<List> data) {
-                    if (!data.hasData) {
-                      return LandingPage();
-                    }
-                    return ContentPage(
-                      urls: data.data,
-                      chapters: chapters,
-                      searchItem: searchItem,
-                    );
-                  }))).whenComplete((){
-            chapterPageController.changeChapter(searchItem.durChapterIndex);
-          });
-        } else if(searchItem.ruleContentType == RuleContentType.NOVEL){
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-              builder: (context) => FutureBuilder<List>(
-                  future: APIManager.getNovelContent(searchItem.originTag, chapter.url),
-                  builder: (BuildContext context, AsyncSnapshot<List> data) {
-                    if (!data.hasData) {
-                      return LandingPage();
-                    }
-                    return ContentNovelPage(
-                      p: data.data,
-                      chapters: chapters,
-                      searchItem: searchItem,
-                    );
-                  }))).whenComplete((){
-            chapterPageController.changeChapter(searchItem.durChapterIndex);
-          });
-        }
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+            builder: (context) => FutureBuilder<List>(
+                future: APIManager.getContent(searchItem.originTag, chapter.url),
+                builder: (BuildContext context, AsyncSnapshot<List> data) {
+                  if (!data.hasData) {
+                    return LandingPage();
+                  }
+                  return ContentPage(
+                    content: data.data,
+                    chapters: chapters,
+                    searchItem: searchItem,
+                  );
+                }))).whenComplete((){
+          chapterPageController.changeChapter(searchItem.durChapterIndex);
+        });
       };
       final screenWidth = MediaQuery.of(context).size.width;
       switch (chapterPageController.listStyle) {

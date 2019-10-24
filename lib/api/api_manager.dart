@@ -5,34 +5,30 @@ import 'mankezhan.dart';
 import 'qidian.dart';
 
 class APIManager{
-  static Future<List<SearchItem>> searchManga(String query,[int page = 1, int pageSize = 20]){
-    return Mankezhan().search(query, page, pageSize);
-  }
-
-  static Future<List<SearchItem>> searchNovel(String query,[int page = 1, int pageSize = 20]){
-    return Qidian().search(query, page, pageSize);
-  }
-
   static API chooseAPI(String originTag){
-    switch(originTag){
-      case "Mankezhan":
-        return Mankezhan();
-      case "Qidian":
-        return Qidian();
-      default:
-        return Mankezhan();
+    for(API api in allAPI){
+      if(api.originTag == originTag){
+        return api;
+      }
     }
+    throw('can not get api when chooseAPI');
+  }
+
+  static List<API> get allAPI => <API>[
+    Qidian(),
+    Mankezhan(),
+  ];
+
+  static Future<List<SearchItem>> search(String originTag, String query,[int page = 1, int pageSize = 20]){
+    return chooseAPI(originTag).search(query, page, pageSize);
   }
 
   static Future<List<ChapterItem>> getChapter(String originTag,String url){
     return chooseAPI(originTag).chapter(url);
   }
 
-  static Future<List<String>> getMangaContent(String originTag,String url){
-    return chooseAPI(originTag).mangaContent(url);
+  static Future<List<String>> getContent(String originTag,String url){
+    return chooseAPI(originTag).content(url);
   }
 
-  static Future<List<String>> getNovelContent(String originTag, String url){
-    return chooseAPI(originTag).novelContent(url);
-  }
 }

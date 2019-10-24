@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../api/fake_data.dart';
 import '../ui/ui_search_item.dart';
 
 class DiscoverPage extends StatelessWidget {
@@ -7,7 +6,7 @@ class DiscoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = FakeData.searchList;
+    final items = [];
     return Scaffold(
       appBar: AppBar(
         title: Text('发现'),

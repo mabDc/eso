@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:flutter/material.dart';
 import '../global.dart';
 import '../database/search_item.dart';
@@ -8,6 +9,7 @@ import 'langding_page.dart';
 
 class SearchResultPage extends StatelessWidget {
   final String query;
+
   const SearchResultPage({
     this.query,
     Key key,
@@ -16,7 +18,7 @@ class SearchResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: RuleContentType.values.length,
+      length: APIManager.allAPI.length,
       child: Column(
         children: <Widget>[
           Container(
@@ -25,9 +27,7 @@ class SearchResultPage extends StatelessWidget {
             width: double.infinity,
             child: TabBar(
               isScrollable: true,
-              tabs: RuleContentType.values
-                  .map((type) => Text(Global.getRuleContentTypeName(type)))
-                  .toList(),
+              tabs: APIManager.allAPI.map((api) => Text(api.origin)).toList(),
               indicatorColor: Theme.of(context).primaryColor,
               labelColor: Theme.of(context).primaryColor,
               unselectedLabelColor: Colors.black87,
@@ -35,16 +35,10 @@ class SearchResultPage extends StatelessWidget {
           ),
           Expanded(
             child: TabBarView(
-              children: <Widget>[
-                buildResult(APIManager.searchManga(query)),
-                buildResult(APIManager.searchNovel(query)),
-//                buildResult(videoItems),
-//                buildResult(audioItems),
-//                buildResult(rssItems),
-                LandingPage(),
-                LandingPage(),
-                LandingPage(),
-              ],
+              children: APIManager.allAPI
+                  .map((api) =>
+                      buildResult(APIManager.search(api.originTag, query)))
+                  .toList(),
             ),
           ),
         ],

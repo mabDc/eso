@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../global.dart';
-import '../api/fake_data.dart';
 import '../page/chapter_page.dart';
 import '../ui/ui_shelf_item.dart';
 import '../model/search_page_delegate.dart';
@@ -13,7 +12,7 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final info = FakeData.shelfItem;
+    final info = [];
     return Scaffold(
       appBar: AppBar(
         title: Text(Global.appName),
@@ -39,18 +38,10 @@ class FavoritePage extends StatelessWidget {
             return InkWell(
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ChapterPage(
-                        searchItem: FakeData.searchList[13],
-                        chapters: FakeData.chapterList,
+                        searchItem: null,
+                        chapters: null,
                       ))),
-              child: UiShelfItem(
-                cover: '${info["cover"]}!cover-400',
-                title: '${info["title"]}',
-                origin: "漫客栈💰",
-                author: '${info["author_title"]}',
-                chapter: '${info["chapter_title"]}',
-                durChapter: '${info["durChapter"]}',
-                chapterNum: info["chapterNum"],
-              ),
+              child: UiShelfItem(),
             );
           },
         ),

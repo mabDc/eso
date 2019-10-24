@@ -8,16 +8,16 @@ class ContentPageController with ChangeNotifier{
   final SearchItem searchItem;
   final List<ChapterItem>  chapters;
 
-  List<String> _urls;
-  List<String> get urls => _urls;
+  List<String> _content;
+  List<String> get content => _content;
   ScrollController _controller;
   ScrollController get controller => _controller;
   bool _isLoading;
   bool get isLoading => _isLoading;
 
-  ContentPageController({List<String> urls, this.chapters, this.searchItem }){
+  ContentPageController({List<String> content, this.chapters, this.searchItem }){
     _isLoading = false;
-    _urls = urls;
+    _content = content;
     _controller = ScrollController();
     _controller.addListener((){
       if (_controller.position.pixels ==
@@ -40,7 +40,7 @@ class ContentPageController with ChangeNotifier{
       _isLoading = true;
       notifyListeners();
       searchItem.durChapterIndex++;
-      _urls = await APIManager.getMangaContent(searchItem.originTag, chapters[searchItem.durChapterIndex].url);
+      _content = await APIManager.getContent(searchItem.originTag, chapters[searchItem.durChapterIndex].url);
       searchItem.durChapter = chapters[searchItem.durChapterIndex].name;
       searchItem.durContentIndex = 1;
       _controller.jumpTo(0);

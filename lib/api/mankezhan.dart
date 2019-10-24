@@ -7,7 +7,7 @@ import 'api.dart';
 
 class Mankezhan implements API {
   @override
-  String get origin => "漫客栈💰";
+  String get origin => "漫客栈";
 
   @override
   String get originTag => "Mankezhan";
@@ -20,9 +20,7 @@ class Mankezhan implements API {
     final res = await http.get("https://comic.mkzhan.com/search/keyword/?keyword=$query&page_num=$page&page_size=$pageSize");
     final json = jsonDecode(res.body);
     return (json["data"]["list"] as List).map((item) => SearchItem(
-      origin: origin,
-      originTag: originTag,
-      ruleContentType: ruleContentType,
+      api: this,
       cover: item["cover"] == null ? null : '${item["cover"]}!cover-400',
       name: '${item["title"]}',
       author: '${item["author_title"]}',
@@ -54,19 +52,9 @@ class Mankezhan implements API {
   }
 
   @override
-  Future<List<String>> mangaContent(String url) async {
+  Future<List<String>> content(String url) async {
     final res = await http.get(url);
     final json = jsonDecode(res.body);
     return (json["data"] as List).map((d) => '${d["image"]}!page-1200').toList();
-  }
-
-  @override
-  Future<List<String>> novelContent(String url) {
-    throw("mankezhan is not novel");
-  }
-
-  @override
-  Future<String> videoContent(String url) {
-    throw("mankezhan is not video");
   }
 }

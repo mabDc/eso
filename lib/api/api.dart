@@ -11,9 +11,6 @@ abstract class API {
 
   Future<List<ChapterItem>> chapter(String url);
 
-  Future<List<String>> mangaContent(String url);
+  Future<List<String>> content(String url);
 
-  Future<List<String>> novelContent(String url);
-
-  Future<String> videoContent(String url);
 }
