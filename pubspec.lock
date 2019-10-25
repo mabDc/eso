@@ -202,13 +202,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_liquidcore:
-    dependency: "direct main"
-    description:
-      name: flutter_liquidcore
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.0"
   flutter_seekbar:
     dependency: "direct main"
     description:
@@ -550,13 +543,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.1.4"
-  uuid:
-    dependency: transitive
-    description:
-      name: uuid
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.2"
   vector_math:
     dependency: transitive
     description:

@@ -32,7 +32,7 @@ class AboutPage extends StatelessWidget {
                     Divider(),
                     SwitchListTile(
                       title: Text('切换收藏长按效果'),
-                      subtitle: Text(profile.switchLongPress? '长按查看目录':'长按查看内容'),
+                      subtitle: Text(profile.switchLongPress ? '长按查看内容':'长按查看目录'),
                       value: profile.switchLongPress,
                       onChanged: (value) => profile.switchLongPress = value,
                       activeColor: Theme.of(context).primaryColor,

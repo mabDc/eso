@@ -31,7 +31,9 @@ class DiscoverPage extends StatelessWidget {
               trailing: Switch(
                 activeColor: Theme.of(context).primaryColor,
                 value: true,
-                onChanged: (enable) {},
+                onChanged: (enable) {
+
+                },
               ),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => DiscoverItemPage(
@@ -64,7 +66,7 @@ class DiscoverItemPage extends StatelessWidget {
         ],
       ),
       body: FutureBuilder<List<SearchItem>>(
-        future: APIManager.dicover(originTag, ''),
+        future: APIManager.discover(originTag, ''),
         builder: (BuildContext context, AsyncSnapshot<List<SearchItem>> data) {
           if (!data.hasData) {
             return LandingPage();

@@ -37,13 +37,6 @@ class ContentPageController with ChangeNotifier{
     notifyListeners();
   }
 
-  void changeContentIndex(int index){
-    if(index != searchItem.durContentIndex){
-      searchItem.durContentIndex = index;
-      notifyListeners();
-    }
-  }
-
   void _loadNextChapterContent() async {
     if(isLoading) return;
     if(searchItem.durChapterIndex < searchItem.chapters.length - 1 ){
@@ -60,4 +53,10 @@ class ContentPageController with ChangeNotifier{
     }
   }
 
+  @override
+  void dispose() {
+    content.clear();
+    _controller.dispose();
+    super.dispose();
+  }
 }

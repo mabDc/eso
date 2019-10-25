@@ -21,6 +21,7 @@ class SearchItem {
   int durChapterIndex;
   int durContentIndex;
   int chaptersCount;
+  bool reverseChapter;
   List<ChapterItem> chapters;
 
   SearchItem({
@@ -39,9 +40,13 @@ class SearchItem {
     @required
     API api,
     this.chaptersCount,
+    this.reverseChapter,
   }){
     if(chaptersCount == null){
       chaptersCount = 0;
+    }
+    if(reverseChapter == null){
+      reverseChapter = false;
     }
     if(api!=null){
       origin = api.origin;
@@ -90,6 +95,7 @@ class SearchItem {
     "durChapterIndex":durChapterIndex,
     "durContentIndex":durContentIndex,
     "chaptersCount":chaptersCount,
+    "reverseChapter":reverseChapter,
   };
 
   SearchItem.fromJson(Map<String, dynamic> json){
@@ -108,6 +114,7 @@ class SearchItem {
     durChapterIndex=json["durChapterIndex"];
     durContentIndex=json["durContentIndex"];
     chaptersCount=json["chaptersCount"];
+    reverseChapter=json["reverseChapter"] ?? false;
     chapters = <ChapterItem>[];
   }
 }

@@ -64,7 +64,7 @@ class _MangaContentPage extends StatelessWidget {
               return Container(
                 height: 800,
                 alignment: Alignment.topLeft,
-                padding: EdgeInsets.only(top: 80,left: 32),
+                padding: EdgeInsets.only(top: 80, left: 32),
                 child: Text(
                   pageController.searchItem.durChapterIndex ==
                           pageController.searchItem.chapters.length - 1
@@ -72,7 +72,8 @@ class _MangaContentPage extends StatelessWidget {
                       : pageController.isLoading
                           ? "当前章节\n${pageController.searchItem.durChapter}\n\n正在加载下一章..."
                           : "当前章节\n${pageController.searchItem.durChapter}\n\n继续滑动加载下一章",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 2),
+                  style: TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold, height: 2),
                 ),
               );
             }
@@ -88,7 +89,9 @@ class _MangaContentPage extends StatelessWidget {
           child: Container(
             color: Colors.black.withAlpha(0x80),
             child: Text(
-              '${pageController.searchItem.durChapter} ${pageController.searchItem.durContentIndex}/${pageController.content.length}',
+              '${pageController.searchItem.durChapter} ${pageController.content.length}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -131,21 +134,33 @@ class _NovelContentPage extends StatelessWidget {
                           : pageController.isLoading
                               ? "当前章节\n${pageController.searchItem.durChapter}\n\n\n正在加载下一章..."
                               : "当前章节\n${pageController.searchItem.durChapter}\n\n\n继续滑动加载下一章",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 2),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        height: 2,
+                        color: Colors.black,
+                      ),
                     ),
                   );
                 }
                 if (index == 0) {
                   return Text(
                     '${pageController.searchItem.durChapter}',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                     textAlign: TextAlign.center,
                   );
                 }
                 return Text(
                   pageController.content[index - 1],
-                  style: TextStyle(fontSize: 20, height: 2),
+                  style: TextStyle(
+                    fontSize: 20,
+                    height: 2,
+                    color: Colors.black,
+                  ),
                 );
               },
             ),

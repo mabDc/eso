@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 
 class ChapterPageController with ChangeNotifier {
   final SearchItem searchItem;
+  ScrollController _controller;
+  ScrollController get controller => _controller;
+
   static const BigList = ChapterListStyle.BigList;
   static const SmallList = ChapterListStyle.SmallList;
   static const Grid = ChapterListStyle.Grid;
@@ -26,11 +29,13 @@ class ChapterPageController with ChangeNotifier {
   }
 
   ChapterPageController({@required this.searchItem}) {
-    if(searchItem.chapters == null){
+    _controller = ScrollController();
+    if (searchItem.chapters == null) {
       initChapters();
-    }else if (searchItem.chapters?.length == 0 && SearchItemManager.isFavorite(searchItem.url)) {
-        searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-      }
+    } else if (searchItem.chapters?.length == 0 &&
+        SearchItemManager.isFavorite(searchItem.url)) {
+      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    }
   }
 
   void initChapters() async {
@@ -39,6 +44,7 @@ class ChapterPageController with ChangeNotifier {
     searchItem.durChapterIndex = 0;
     searchItem.durContentIndex = 1;
     searchItem.durChapter = searchItem.chapters.first?.name;
+    searchItem.chaptersCount = searchItem.chapters.length;
     notifyListeners();
   }
 
@@ -68,6 +74,20 @@ class ChapterPageController with ChangeNotifier {
     notifyListeners();
   }
 
+  void scrollerToTop(){
+    _controller.jumpTo(1);
+  }
+
+  void scrollerToBottom(){
+    _controller.jumpTo(_controller.position.maxScrollExtent);
+  }
+
+  void switchReverseChapter() async {
+    searchItem.reverseChapter = !searchItem.reverseChapter;
+    await SearchItemManager.saveSearchItem();
+    notifyListeners();
+  }
+
   void changeListStyle(ChapterListStyle listStyle) async {
     if (searchItem.chapterListStyle != listStyle) {
       searchItem.chapterListStyle = listStyle;
@@ -75,6 +95,16 @@ class ChapterPageController with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }
 
-enum ChapterListStyle { BigList, SmallList, Grid }
+enum ChapterListStyle {
+  BigList,
+  SmallList,
+  Grid,
+}

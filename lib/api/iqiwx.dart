@@ -17,6 +17,9 @@ class Iqiwx implements API {
   RuleContentType get ruleContentType => RuleContentType.NOVEL;
 
   @override
+  bool enable = true;
+
+  @override
   Future<List<SearchItem>> discover(
       String query, int page, int pageSize) async {
     final res = await http.get('http://www.iqiwx.com/');

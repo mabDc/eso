@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,7 @@ class ChapterPage extends StatelessWidget {
       value: ChapterPageController(searchItem: searchItem),
       child: Consumer<ChapterPageController>(
         builder: (context, ChapterPageController pageController, _) {
-          if(searchItem.chapters == null){
+          if (searchItem.chapters == null) {
             return LandingPage();
           }
           return Scaffold(
@@ -55,7 +56,7 @@ class ChapterPage extends StatelessWidget {
                 children: <Widget>[
                   UiSearchItem(item: searchItem),
                   Container(
-                    height: 30,
+                    height: 32,
                     margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     alignment: Alignment.center,
                     child: Row(
@@ -72,6 +73,33 @@ class ChapterPage extends StatelessWidget {
                             ChapterPageController.SmallList),
                         buildButton(pageController, context,
                             ChapterPageController.Grid),
+                        SizedBox(
+                          width: 26,
+                          child: IconButton(
+                            padding: EdgeInsets.only(left: 6),
+                            iconSize: 20,
+                            icon: Icon(Icons.arrow_upward),
+                            onPressed: pageController.scrollerToTop,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 26,
+                          child: IconButton(
+                            padding: EdgeInsets.only(left: 6),
+                            iconSize: 20,
+                            icon: Icon(Icons.arrow_downward),
+                            onPressed: pageController.scrollerToBottom,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 26,
+                          child: IconButton(
+                            padding: EdgeInsets.only(left: 6),
+                            iconSize: 20,
+                            icon: Icon(Icons.all_inclusive),
+                            onPressed: pageController.switchReverseChapter,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -101,9 +129,10 @@ class ChapterPage extends StatelessWidget {
           color: Theme.of(context).primaryColor,
           width: 1,
         ),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      minWidth: 8,
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      minWidth: 0,
       child: Text(
         pageController.getListStyleName(listStyle),
         style: TextStyle(
@@ -137,6 +166,8 @@ class ChapterPage extends StatelessWidget {
     switch (searchItem.chapterListStyle) {
       case ChapterPageController.BigList:
         return ListView.separated(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          controller: pageController.controller,
           separatorBuilder: (context, index) {
             return SizedBox(
               height: 6,
@@ -144,6 +175,9 @@ class ChapterPage extends StatelessWidget {
           },
           itemCount: searchItem.chapters.length,
           itemBuilder: (context, index) {
+            if(searchItem.reverseChapter){
+              index = searchItem.chapters.length - index - 1;
+            }
             return buildChapterButton(
                 context,
                 searchItem.durChapterIndex == index,
@@ -155,6 +189,8 @@ class ChapterPage extends StatelessWidget {
         );
       case ChapterPageController.SmallList:
         return GridView.builder(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          controller: pageController.controller,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: (screenWidth - 6) / 50 / 2,
@@ -163,6 +199,9 @@ class ChapterPage extends StatelessWidget {
           ),
           itemCount: searchItem.chapters.length,
           itemBuilder: (context, index) {
+            if(searchItem.reverseChapter){
+              index = searchItem.chapters.length - index - 1;
+            }
             return buildChapterButton(
                 context,
                 searchItem.durChapterIndex == index,
@@ -179,6 +218,8 @@ class ChapterPage extends StatelessWidget {
         );
       case ChapterPageController.Grid:
         return GridView.builder(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          controller: pageController.controller,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
             childAspectRatio: (screenWidth - 4 * 6) / 45 / 5,
@@ -187,6 +228,9 @@ class ChapterPage extends StatelessWidget {
           ),
           itemCount: searchItem.chapters.length,
           itemBuilder: (context, index) {
+            if(searchItem.reverseChapter){
+              index = searchItem.chapters.length - index - 1;
+            }
             return buildChapterButton(
                 context,
                 searchItem.durChapterIndex == index,

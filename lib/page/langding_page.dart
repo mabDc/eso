@@ -8,20 +8,9 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            "一个加载页而已",
-            style: TextStyle(fontSize: 20),
-          ),
-          SizedBox (height: 20,),
-          Image.asset(Global.waitingPath),
-          SizedBox (height: 20,),
-          CircularProgressIndicator(),
-        ],
-      )
+      body: Center(
+        child: SizedBox(width: 200,child: LinearProgressIndicator(),),
+      ),
     );
   }
 }
