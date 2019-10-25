@@ -1,5 +1,5 @@
+import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
-import '../global.dart';
 import '../database/search_item.dart';
 
 class UiSearchItem extends StatelessWidget {
@@ -55,15 +55,7 @@ class _UiSearchItem extends StatelessWidget {
             SizedBox(
               width: 80,
               height: double.infinity,
-              child: cover == null
-                  ? Image.asset(
-                      Global.waitingPath,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      cover,
-                      fit: BoxFit.cover,
-                    ),
+              child: UIImageItem(cover: cover),
             ),
             SizedBox(
               width: 8,

@@ -154,10 +154,10 @@ class _ChapterPageState extends State<ChapterPage> {
     void Function(int index) onTap = (int index) {
       pageController.changeChapter(index);
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => FutureBuilder<List>(
+          builder: (context) => FutureBuilder<List<String>>(
               future: APIManager.getContent(widget.searchItem.originTag,
                   widget.searchItem.chapters[index].url),
-              builder: (BuildContext context, AsyncSnapshot<List> data) {
+              builder: (BuildContext context, AsyncSnapshot<List<String>> data) {
                 if (!data.hasData) {
                   return LandingPage();
                 }

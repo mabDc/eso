@@ -68,5 +68,4 @@ class Mankezhan implements API {
     return (json["data"] as List).map((d) => '${d["image"]}!page-1200').toList();
   }
 
-
 }

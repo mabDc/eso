@@ -26,6 +26,7 @@ class DiscoverPage extends StatelessWidget {
             height: 4,
           );
         },
+        padding: EdgeInsets.all(6),
         itemCount: allAPI.length,
         itemBuilder: (context, index) {
           return Card(

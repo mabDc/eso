@@ -1,5 +1,6 @@
+import 'package:eso/ui/ui_image_item.dart';
+
 import '../database/search_item.dart';
-import '../global.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -57,15 +58,7 @@ class _UiShelfItem extends StatelessWidget {
             SizedBox(
               width: 80,
               height: double.infinity,
-              child: cover == null
-                  ? Image.asset(
-                      Global.waitingPath,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      cover,
-                      fit: BoxFit.cover,
-                    ),
+              child:  UIImageItem(cover: cover),
             ),
             SizedBox(
               width: 8,

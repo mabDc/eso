@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'global.dart';
@@ -7,7 +10,12 @@ import 'model/history_manager.dart';
 import 'page/home_page.dart';
 import 'page/langding_page.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+  if (Platform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+  }
+}
 
 class MyApp extends StatelessWidget {
   @override

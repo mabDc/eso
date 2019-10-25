@@ -1,5 +1,8 @@
+import 'dart:convert';
+
+import 'package:eso/ui/ui_image_item.dart';
+
 import '../database/search_item.dart';
-import '../global.dart';
 import 'package:flutter/material.dart';
 
 class UIDiscoverItem extends StatelessWidget {
@@ -17,7 +20,7 @@ class UIDiscoverItem extends StatelessWidget {
         Container(
           width: double.infinity,
           height: double.infinity,
-          child: Image.network(item.cover ?? Global.waitingPath, fit: BoxFit.cover,),
+          child: UIImageItem(cover: item.cover),
         ),
         Container(
           alignment: Alignment.bottomLeft,
@@ -26,7 +29,7 @@ class UIDiscoverItem extends StatelessWidget {
             color: Colors.black.withAlpha(50),
             width: double.infinity,
             child: Text(
-              '${item.name}',
+              '${item.name}'.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: Colors.white, fontSize: 16),

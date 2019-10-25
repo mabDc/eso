@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../ui/ui_dash.dart';
 import '../global.dart';
 import '../database/search_item.dart';
 import '../model/content_page_controller.dart';
@@ -53,6 +56,12 @@ class _MangaContentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final first = pageController.content[0].split('@headers');
+    Map<String, String> headers = Map<String, String>();
+    if (first.length > 1) {
+      pageController.content[0] = first[0];
+      headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+    }
     return Stack(
       children: <Widget>[
         ListView.builder(
@@ -77,9 +86,12 @@ class _MangaContentPage extends StatelessWidget {
                 ),
               );
             }
-            return FadeInImage.assetNetwork(
-              placeholder: Global.waitingPath,
-              image: '${pageController.content[index]}',
+            return FadeInImage(
+              placeholder: AssetImage(Global.waitingPath),
+              image: NetworkImage(
+                "${pageController.content[index]}",
+                headers: headers,
+              ),
             );
           },
         ),
@@ -118,7 +130,7 @@ class _NovelContentPage extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.only(top: 100),
+              padding: EdgeInsets.only(top: 80),
               controller: pageController.controller,
               itemCount: pageController.content.length + 2,
               itemBuilder: (context, index) {
@@ -165,7 +177,13 @@ class _NovelContentPage extends StatelessWidget {
               },
             ),
           ),
-          Divider(),
+          SizedBox(
+            height: 4,
+          ),
+          UIDash(
+            height: 2,
+            color: Colors.black38,
+          ),
           Text(
             '${pageController.searchItem.durChapter} ${pageController.content.length}自然段',
             style: TextStyle(
