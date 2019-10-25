@@ -18,7 +18,7 @@ class Qidian implements API{
 
   @override
   Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
-    final res = await http.get("https://www.qidian.com/all");
+    final res = await http.get("https://www.qidian.com/all?page=$page");
     final dom = parse(res.body);
     return dom.querySelectorAll('.all-img-list li').map((item) => SearchItem(
       api: this,

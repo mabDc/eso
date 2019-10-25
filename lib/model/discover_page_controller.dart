@@ -3,66 +3,90 @@ import 'package:eso/database/search_item.dart';
 import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 
-class DiscoverPageController with ChangeNotifier{
+class DiscoverPageController with ChangeNotifier {
   final String originTag;
   final String origin;
-
-  String get title => _title;
-  String _title;
-
-  String get query => _query;
-  String _query;
-
-  set query(String value) {
-    _query = value;
-  }
+  int _page;
+  bool _hasSearch;
 
   bool get isLoading => _isLoading;
   bool _isLoading;
 
-  bool get loadPopular => _loadPopular;
-  bool _loadPopular;
+  bool get isSearching => _isSearching;
+  bool _isSearching;
+
+  TextEditingController get queryController => _queryController;
+  TextEditingController _queryController;
+
+  ScrollController get controller => _controller;
+  ScrollController _controller;
 
   List<SearchItem> get items => _items;
   List<SearchItem> _items;
 
-  DiscoverPageController({@required this.originTag, this.origin, String title}){
-    if(title == null){
-      _title = origin;
-    }else{
-      _title = title;
-    }
-    _query = '';
-    _loadPopular = true;
-    show();
+  DiscoverPageController({@required this.originTag, this.origin}) {
+    _page = 1;
+    _hasSearch = false;
+    _isLoading = false;
+    _isSearching = false;
+    _queryController = TextEditingController();
+    _queryController.addListener(() => notifyListeners());
+    _controller = ScrollController();
+    _controller.addListener((){
+      if (_controller.position.pixels ==
+          _controller.position.maxScrollExtent) {
+        loadMore();
+      }
+    });
+    fetchData();
   }
 
-  void show() async {
-    if(_loadPopular){
-      _loadPopular = false;
-      _isLoading = true;
-      _items = await APIManager.discover(originTag, '');
-      _isLoading = false;
-      notifyListeners();
+  Future<void> fetchData() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    if(!_hasSearch && _isSearching){
+      _hasSearch = true;
+    }
+    List<SearchItem> newItems;
+    if (_hasSearch) {
+      newItems = await APIManager.search(originTag, _queryController.text, _page);
     } else {
-      if(_isLoading) return;
-      _isLoading = true;
-      notifyListeners();
-      _items = await APIManager.search(originTag, query);
-      _isLoading = false;
-      notifyListeners();
+      newItems = await APIManager.discover(originTag, '', _page);
     }
+    if (_page == 1) {
+      _items?.clear();
+      _items = newItems;
+    } else {
+      _items.addAll(newItems);
+    }
+    _isLoading = false;
+    notifyListeners();
+    return;
   }
 
-  void clearQuery(){
-    if(_query != ''){
-      _query = '';
-      notifyListeners();
-    }
+  void loadMore(){
+    _page++;
+    fetchData();
+  }
+
+  Future<void> search() async{
+    _page = 1;
+    return fetchData();
+  }
+
+  void toggleSearching() {
+    _isSearching = !_isSearching;
+    notifyListeners();
+  }
+
+  void clearInputText() {
+    queryController.text = '';
   }
 
   @override
   void dispose() {
+    _controller.dispose();
+    _queryController.dispose();
     super.dispose();
   }
 }

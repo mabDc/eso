@@ -17,7 +17,7 @@ class Mankezhan implements API {
 
   @override
   Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
-    final res = await http.get("https://comic.mkzhan.com/search/filter/");
+    final res = await http.get("https://comic.mkzhan.com/search/filter/?order=1&page_num=$page&page_size=$pageSize");
     final json = jsonDecode(res.body);
     return (json["data"]["list"] as List).map((item) => SearchItem(
       api: this,
