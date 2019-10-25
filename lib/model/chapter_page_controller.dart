@@ -7,6 +7,8 @@ class ChapterPageController with ChangeNotifier {
   final SearchItem searchItem;
   ScrollController _controller;
   ScrollController get controller => _controller;
+  bool get isLoading => _isLoading;
+  bool _isLoading;
 
   static const BigList = ChapterListStyle.BigList;
   static const SmallList = ChapterListStyle.SmallList;
@@ -30,7 +32,9 @@ class ChapterPageController with ChangeNotifier {
 
   ChapterPageController({@required this.searchItem}) {
     _controller = ScrollController();
+    _isLoading = false;
     if (searchItem.chapters == null) {
+      _isLoading = true;
       initChapters();
     } else if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
@@ -45,6 +49,7 @@ class ChapterPageController with ChangeNotifier {
     searchItem.durContentIndex = 1;
     searchItem.durChapter = searchItem.chapters.first?.name;
     searchItem.chaptersCount = searchItem.chapters.length;
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -59,33 +64,36 @@ class ChapterPageController with ChangeNotifier {
   }
 
   Future<void> updateChapter() async {
+    if(_isLoading)return;
+    _isLoading = true;
+    notifyListeners();
     searchItem.chapters =
         await APIManager.getChapter(searchItem.originTag, searchItem.url);
     searchItem.chaptersCount = searchItem.chapters.length;
     if (SearchItemManager.isFavorite(searchItem.url)) {
       await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
     }
+    _isLoading = false;
     notifyListeners();
     return;
   }
 
   void toggleFavorite() async {
+    if(_isLoading) return;
     await SearchItemManager.toggleFavorite(searchItem);
     notifyListeners();
   }
 
   void scrollerToTop(){
+    searchItem.reverseChapter = false;
+    notifyListeners();
     _controller.jumpTo(1);
   }
 
   void scrollerToBottom(){
-    _controller.jumpTo(_controller.position.maxScrollExtent);
-  }
-
-  void switchReverseChapter() async {
-    searchItem.reverseChapter = !searchItem.reverseChapter;
-    await SearchItemManager.saveSearchItem();
+    searchItem.reverseChapter = true;
     notifyListeners();
+    _controller.jumpTo(1);
   }
 
   void changeListStyle(ChapterListStyle listStyle) async {
@@ -104,7 +112,7 @@ class ChapterPageController with ChangeNotifier {
 }
 
 enum ChapterListStyle {
-  Grid,
-  SmallList,
   BigList,
+  SmallList,
+  Grid,
 }

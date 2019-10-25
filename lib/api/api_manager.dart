@@ -1,5 +1,6 @@
 import 'package:eso/api/iqiwx.dart';
 import 'package:eso/api/manhualou.dart';
+import 'package:eso/api/manhuatai.dart';
 import 'package:eso/api/tencent_manga.dart';
 import 'package:eso/api/u17.dart';
 
@@ -24,10 +25,11 @@ class APIManager {
   static List<API> get allAPI => <API>[
         Qidian(),
         Iqiwx(),
-        Tohomh(),
-        Mankezhan(),
     Dongman(),
+    Mankezhan(),
+    Manhuatai(),
     Manhualou(),
+    Tohomh(),
     U17(),
     TencentManga(),
       ];
