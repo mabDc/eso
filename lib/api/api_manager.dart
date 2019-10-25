@@ -1,7 +1,11 @@
 import 'package:eso/api/iqiwx.dart';
+import 'package:eso/api/manhualou.dart';
+import 'package:eso/api/tencent_manga.dart';
+import 'package:eso/api/u17.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
+import 'dongman.dart';
 import 'tohomh.dart';
 import 'api.dart';
 import 'mankezhan.dart';
@@ -18,10 +22,14 @@ class APIManager {
   }
 
   static List<API> get allAPI => <API>[
-        Tohomh(),
-        Mankezhan(),
         Qidian(),
         Iqiwx(),
+        Tohomh(),
+        Mankezhan(),
+    Dongman(),
+    Manhualou(),
+    U17(),
+    TencentManga(),
       ];
 
   static Future<List<SearchItem>> discover(String originTag, String query,

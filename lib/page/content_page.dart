@@ -168,6 +168,9 @@ class _NovelContentPage extends StatelessWidget {
           Divider(),
           Text(
             '${pageController.searchItem.durChapter} ${pageController.content.length}自然段',
+            style: TextStyle(
+              color: Colors.black,
+            ),
           ),
         ],
       ),

@@ -104,7 +104,7 @@ class ChapterPageController with ChangeNotifier {
 }
 
 enum ChapterListStyle {
-  BigList,
-  SmallList,
   Grid,
+  SmallList,
+  BigList,
 }

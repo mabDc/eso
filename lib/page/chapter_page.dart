@@ -68,11 +68,11 @@ class ChapterPage extends StatelessWidget {
                           ),
                         ),
                         buildButton(pageController, context,
-                            ChapterPageController.BigList),
+                            ChapterPageController.Grid),
                         buildButton(pageController, context,
                             ChapterPageController.SmallList),
                         buildButton(pageController, context,
-                            ChapterPageController.Grid),
+                            ChapterPageController.BigList),
                         SizedBox(
                           width: 26,
                           child: IconButton(
