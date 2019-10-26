@@ -48,10 +48,10 @@ class TencentManga implements API {
         .map((item) => SearchItem(
               api: this,
               cover:
-                  'https:${item.querySelector('img').attributes["data-original"]}',
+                  '${item.querySelector('img').attributes["data-original"]}',
               name: '${item.querySelector('h4').text}',
               author: '',
-              chapter: '',
+              chapter: '${item.querySelector('.mod_book_update').text}',
               description: '',
               url:
                   'https://ac.qq.com${item.querySelector('a').attributes["href"]}',

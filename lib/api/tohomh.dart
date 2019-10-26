@@ -97,7 +97,7 @@ var bqimg = '/pic/banquan.png';
     final urls = List<String>(pcount);
     for (var i = 0; i < pcount; i++) {
       urls[i] =
-          "https://www.tohomh123.com/action/play/read?did=$did&sid=$sid&iid=${iid + i}";
+          "https://www.tohomh123.com/action/play/read?did=$did&sid=$sid&iid=$iid";
     }
     return Future.wait(urls.map((u) async {
       final r = await http.get('$u');

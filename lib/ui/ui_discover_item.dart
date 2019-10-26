@@ -1,7 +1,4 @@
-import 'dart:convert';
-
-import 'package:eso/ui/ui_image_item.dart';
-
+import 'ui_image_item.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 

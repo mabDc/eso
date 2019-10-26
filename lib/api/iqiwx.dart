@@ -16,8 +16,6 @@ class Iqiwx implements API {
   @override
   RuleContentType get ruleContentType => RuleContentType.NOVEL;
 
-  @override
-  bool enable = true;
 
   @override
   Future<List<SearchItem>> discover(

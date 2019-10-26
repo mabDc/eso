@@ -1,6 +1,5 @@
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 
 class DiscoverPageController with ChangeNotifier {

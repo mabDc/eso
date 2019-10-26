@@ -20,7 +20,7 @@ class U17 implements API{
     final json = jsonDecode(res.body);
     return (json["data"]["returnData"]["comics"] as List).map((item) => SearchItem(
       api: this,
-      cover: item["cover"],
+      cover: '${item["cover"]}',
       name: '${item["name"]}',
       author: '${item["author"]}',
       chapter: '',
@@ -45,7 +45,8 @@ class U17 implements API{
     final res = await http.get('http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?&comicid=$comicId');
     final json = jsonDecode(res.body);
     return (json["data"]["returnData"]["chapter_list"] as List).map((chapter){
-      final time = DateTime.fromMillisecondsSinceEpoch(chapter["pass_time"] * 1000);
+      final passTime = chapter["pass_time"];
+      final time = DateTime.fromMillisecondsSinceEpoch(((passTime is int)?passTime:int.parse(passTime)) * 1000);
       final type = chapter["type"];
       return  ChapterItem(
         cover: null,

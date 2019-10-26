@@ -1,6 +1,4 @@
-import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/page/content_page.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
 import '../api/api_manager.dart';
