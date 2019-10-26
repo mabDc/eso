@@ -4,8 +4,8 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
-import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+import 'package:http/http.dart' as http;
 
 class Dongman implements API{
   @override

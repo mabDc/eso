@@ -133,7 +133,8 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
                 ? LandingPage()
                 : RefreshIndicator(
                     onRefresh: pageController.search,
-                    child: buildDiscoverResult(pageController.items, pageController.controller),
+                    child: buildDiscoverResult(
+                        pageController.items, pageController.controller),
                   ),
           );
         },
@@ -141,7 +142,8 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
     );
   }
 
-  Widget buildDiscoverResult(List<SearchItem> items, ScrollController controller) {
+  Widget buildDiscoverResult(
+      List<SearchItem> items, ScrollController controller) {
     return GridView.builder(
       controller: controller,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -151,10 +153,16 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
         crossAxisSpacing: 8,
       ),
       padding: EdgeInsets.all(8.0),
-      itemCount: items.length+1,
+      itemCount: items.length + 1,
       itemBuilder: (BuildContext context, int index) {
-        if(index == items.length){
-          return Align(alignment: Alignment(0,-0.5),child: Text('加载下一页...', style: TextStyle(fontSize:  20),),);
+        if (index == items.length) {
+          return Align(
+            alignment: Alignment(0, -0.5),
+            child: Text(
+              '加载下一页...',
+              style: TextStyle(fontSize: 20),
+            ),
+          );
         }
         SearchItem searchItem = items[index];
         if (SearchItemManager.isFavorite(searchItem.url)) {

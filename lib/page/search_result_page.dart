@@ -1,7 +1,8 @@
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
-import '../database/search_item.dart';
+
 import '../api/api_manager.dart';
+import '../database/search_item.dart';
 import '../ui/ui_search_item.dart';
 import 'chapter_page.dart';
 import 'langding_page.dart';

@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../ui/ui_dash.dart';
-import '../global.dart';
+
 import '../database/search_item.dart';
+import '../global.dart';
 import '../model/content_page_controller.dart';
+import '../ui/ui_dash.dart';
 import 'langding_page.dart';
 
 class ContentPage extends StatelessWidget {

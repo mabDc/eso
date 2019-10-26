@@ -1,10 +1,12 @@
 import 'dart:convert';
+
+import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
+
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import '../global.dart';
 import 'api.dart';
-import 'package:html/parser.dart' show parse;
 class Buka implements API {
   @override
   String get origin => "布卡";

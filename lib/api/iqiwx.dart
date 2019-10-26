@@ -1,6 +1,7 @@
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' show parse;
 import 'package:fast_gbk/fast_gbk.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:http/http.dart' as http;
+
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import '../global.dart';

@@ -1,18 +1,20 @@
-import 'package:eso/api/buka.dart';
-import 'package:eso/api/ymoxuan.dart';
-
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import 'dongman.dart';
-import 'tohomh.dart';
 import 'api.dart';
-import 'mankezhan.dart';
-import 'qidian.dart';
+import 'buka.dart';
+import 'dongman.dart';
+import 'duyidu.dart';
+import 'huanyue.dart';
 import 'iqiwx.dart';
+import 'ixs.dart';
 import 'manhualou.dart';
 import 'manhuatai.dart';
+import 'mankezhan.dart';
+import 'qidian.dart';
 import 'tencent_manga.dart';
+import 'tohomh.dart';
 import 'u17.dart';
+import 'ymoxuan.dart';
 
 class APIManager {
   static API chooseAPI(String originTag) {
@@ -27,16 +29,18 @@ class APIManager {
   static List<API> get allAPI => <API>[
         Qidian(),
         Iqiwx(),
-    Ymoxuan(),
+        Ymoxuan(),
+        Ixs(),
+        Duyidu(),
+        Huanyue(),
         Dongman(),
         Mankezhan(),
         Manhuatai(),
         Manhualou(),
         Tohomh(),
-    Buka(),
+        Buka(),
         U17(),
         TencentManga(),
-
       ];
 
   static Future<List<SearchItem>> discover(String originTag, String query,

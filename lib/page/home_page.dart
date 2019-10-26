@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../global.dart';
 import '../model/page_switch.dart';
 import '../model/profile.dart';
 import '../parse_test.dart';
-import 'favorite_page.dart';
-import 'discover_page.dart';
 import 'about_page.dart';
+import 'discover_page.dart';
+import 'favorite_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key key}) : super(key: key);

@@ -3,11 +3,11 @@ import 'package:eso/page/content_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../global.dart';
-import '../ui/ui_shelf_item.dart';
-import '../model/search_page_delegate.dart';
-import '../model/history_manager.dart';
 import '../database/search_item_manager.dart';
+import '../global.dart';
+import '../model/history_manager.dart';
+import '../model/search_page_delegate.dart';
+import '../ui/ui_shelf_item.dart';
 import 'chapter_page.dart';
 
 class FavoritePage extends StatelessWidget {

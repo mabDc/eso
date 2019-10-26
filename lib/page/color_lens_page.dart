@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_seekbar/flutter_seekbar.dart';
+import 'package:provider/provider.dart';
+
 import '../global.dart';
 import '../model/profile.dart';
 
@@ -43,7 +44,8 @@ class ColorLensPage extends StatelessWidget {
           children: <Widget>[
             _buildColorListTile('自定义', color),
             ListTile(
-              leading: _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
+              leading:
+                  _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
               title: _buildSeekBar(
                 Colors.red,
                 color.red,
@@ -51,7 +53,8 @@ class ColorLensPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: _buildColorContainer(Colors.green.withOpacity(color.green / 255)),
+              leading: _buildColorContainer(
+                  Colors.green.withOpacity(color.green / 255)),
               title: _buildSeekBar(
                 Colors.green,
                 color.green,
@@ -59,7 +62,8 @@ class ColorLensPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: _buildColorContainer(Colors.blue.withOpacity(color.blue / 255)),
+              leading: _buildColorContainer(
+                  Colors.blue.withOpacity(color.blue / 255)),
               title: _buildSeekBar(
                 Colors.blue,
                 color.blue,
@@ -79,7 +83,7 @@ class ColorLensPage extends StatelessWidget {
       max: 255.0,
       value: value.toDouble(),
       progresseight: 6,
-      showSectionText:true,
+      showSectionText: true,
       progressColor: color,
       backgroundColor: color.withOpacity(0.5),
       onValueChanged: (ProgressValue progressValue) {

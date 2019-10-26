@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../database/search_item.dart';
-import '../ui/ui_search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
+import '../ui/ui_search_item.dart';
 import 'content_page.dart';
 import 'langding_page.dart';
 

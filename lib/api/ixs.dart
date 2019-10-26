@@ -2,15 +2,15 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
-import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' show parse;
 
-class Ymoxuan implements API {
+class Ixs implements API {
   @override
-  String get origin => '衍墨轩';
+  String get origin => '爱小说';
 
   @override
-  String get originTag => 'Ymoxuan';
+  String get originTag => 'Ixs';
 
   @override
   RuleContentType get ruleContentType => RuleContentType.NOVEL;
@@ -24,7 +24,7 @@ class Ymoxuan implements API {
         .take(dom.length - 2)
         .map((item) => SearchItem(
               api: this,
-              cover: 'http://r.ymoxuan.com/image/logo.gif',
+              cover: 'http://r.ixs.cc/image/logo.png',
               name: '${item.querySelector('.n2').text}',
               author: '${item.querySelector('.a2').text}',
               chapter: '${item.querySelector('.c2').text}',
@@ -37,13 +37,13 @@ class Ymoxuan implements API {
 
   @override
   Future<List<SearchItem>> discover(String query, int page, int pageSize) {
-    return commonParse("https://www.ymoxuan.com/xuanhuan/$page.htm");
+    return commonParse("https://www.ixs.cc/xuanhuan_$page.html");
   }
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
     return commonParse(
-        "https://www.ymoxuan.com/search.htm?keyword=$query&pn=$page");
+        "https://www.ixs.cc/search.htm?keyword=$query&pn=$page");
   }
 
   @override
