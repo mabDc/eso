@@ -80,8 +80,7 @@ class TencentManga implements API {
     final res = await http.get(url);
     final s = RegExp("DATA        = '([^']*)").firstMatch(res.body)[1];
     final pic = base64Decode(s.substring(s.length % 4));
-    final json = RegExp("\"picture\":([^\\]]*\\])")
-        .firstMatch(String.fromCharCodes(pic))[1];
+    final json = RegExp("\"picture\":([^\\]]*\\])").firstMatch(String.fromCharCodes(pic))[1];
     return (jsonDecode(json) as List).map((s) => '${s["url"]}').toList();
   }
 }

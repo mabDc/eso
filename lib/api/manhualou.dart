@@ -12,7 +12,7 @@ class Manhualou implements API {
   String get origin => '漫画楼';
 
   @override
-  String get originTag => 'manhualou';
+  String get originTag => 'Manhualou';
 
   @override
   RuleContentType get ruleContentType => RuleContentType.MANGA;

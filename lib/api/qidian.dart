@@ -16,11 +16,9 @@ class Qidian implements API{
   @override
   RuleContentType get ruleContentType => RuleContentType.NOVEL;
 
-  @override
-  Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
-    final res = await http.get("https://www.qidian.com/all?page=$page");
-    final dom = parse(res.body);
-    return dom.querySelectorAll('.all-img-list li').map((item) => SearchItem(
+  Future<List<SearchItem>> commonParse(String url)async{
+    final res = await http.get(url);
+    return parse(res.body).querySelectorAll('.all-img-list li').map((item) => SearchItem(
       api: this,
       cover: 'https:${item.querySelector('.book-img-box img').attributes["src"]}',
       name: '${item.querySelector('h4 a').text}',
@@ -32,18 +30,13 @@ class Qidian implements API{
   }
 
   @override
+  Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
+    return commonParse("https://www.qidian.com/all?page=$page");
+  }
+
+  @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final res = await http.get("https://www.qidian.com/search?kw=$query&page=$page");
-    final dom = parse(res.body);
-    return dom.querySelectorAll('#result-list .res-book-item').map((item) => SearchItem(
-      api: this,
-      cover: 'https:${item.querySelector('.book-img-box img').attributes["src"]}',
-      name: '${item.querySelector('h4 a').text}',
-      author: '${item.querySelector('.author a').text}',
-      chapter: '${item.querySelector('.update').text}',
-      description: '${item.querySelector('.intro').text}',
-      url: '${item.querySelector('h4 a').attributes["data-bid"]}',
-    )).toList();
+    return commonParse("https://www.qidian.com/search?kw=$query&page=$page");
   }
 
   @override

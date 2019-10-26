@@ -2,7 +2,13 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum RuleContentType { MANGA, NOVEL, VIDEO, AUDIO, RSS }
+enum RuleContentType {
+  MANGA,
+  NOVEL,
+  VIDEO,
+  AUDIO,
+  RSS,
+}
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
@@ -17,6 +23,7 @@ class Global with ChangeNotifier {
   static const searchItemKey = "searchItem";
 
   static SharedPreferences _prefs;
+
   static SharedPreferences get prefs => _prefs;
   static int currentHomePage;
 

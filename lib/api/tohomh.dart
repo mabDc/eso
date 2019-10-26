@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:eso/api/api.dart';
-import 'package:eso/database/chapter_item.dart';
-import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
+import 'api.dart';
+import '../database/chapter_item.dart';
+import '../database/search_item.dart';
+import '../global.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
@@ -17,11 +17,9 @@ class Tohomh implements API {
   @override
   RuleContentType get ruleContentType => RuleContentType.MANGA;
 
-  @override
-  Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
+  Future<List<SearchItem>> commonParse(String url)async{
     final res =
-        await http.get('https://www.tohomh123.com/f-1-------hits--$page.html');
+        await http.get(url);
     return parse(res.body).querySelectorAll('div.mh-item').map((item) {
       final style = item.querySelector('p.mh-cover').attributes["style"];
       return SearchItem(
@@ -31,31 +29,21 @@ class Tohomh implements API {
         author: '',
         chapter: '${item.querySelector('.chapter a').text}',
         description:
-            '评分 ${item.querySelector('.zl .mh-star-line').attributes["class"].split(' ').last}',
+        '评分 ${item.querySelector('.zl .mh-star-line').attributes["class"].split(' ').last}',
         url:
-            'https://www.tohomh123.com${item.querySelector('h2 a').attributes["href"]}',
+        'https://www.tohomh123.com${item.querySelector('h2 a').attributes["href"]}',
       );
     }).toList();
   }
 
   @override
+  Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
+    return commonParse('https://www.tohomh123.com/f-1-------hits--$page.html');
+  }
+
+  @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final res = await http.get(
-        'https://www.tohomh123.com/action/Search?keyword=$query&page=$page');
-    return parse(res.body).querySelectorAll('div.mh-item').map((item) {
-      final style = item.querySelector('p.mh-cover').attributes["style"];
-      return SearchItem(
-        api: this,
-        cover: '${style.substring(style.indexOf('(') + 1, style.indexOf(')'))}',
-        name: '${item.querySelector('h2 a').text}',
-        author: '',
-        chapter: '${item.querySelector('.chapter a').text}',
-        description:
-            '评分 ${item.querySelector('.zl .mh-star-line').attributes["class"].split(' ').last}',
-        url:
-            'https://www.tohomh123.com${item.querySelector('h2 a').attributes["href"]}',
-      );
-    }).toList();
+    return commonParse('https://www.tohomh123.com/action/Search?keyword=$query&page=$page');
   }
 
   @override
@@ -97,7 +85,7 @@ var bqimg = '/pic/banquan.png';
     final urls = List<String>(pcount);
     for (var i = 0; i < pcount; i++) {
       urls[i] =
-          "https://www.tohomh123.com/action/play/read?did=$did&sid=$sid&iid=$iid";
+          "https://www.tohomh123.com/action/play/read?did=$did&sid=$sid&iid=${iid+1}";
     }
     return Future.wait(urls.map((u) async {
       final r = await http.get('$u');

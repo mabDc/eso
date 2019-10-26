@@ -16,44 +16,35 @@ class Manhuatai implements API {
   @override
   RuleContentType get ruleContentType => RuleContentType.MANGA;
 
-  @override
-  Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
-    final res = await http.get(
-        'http://getcomicinfo-globalapi.yyhao.com/app_api/v5/getsortlist/?page=$page');
+  Future<List<SearchItem>> commonParse(String url) async {
+    final res = await http.get(url);
     final json = jsonDecode(res.body);
     return (json["data"] as List).map((item) {
       final id = item["comic_id"];
-
       return SearchItem(
           api: this,
           cover: 'http://image.mhxk.com/mh/$id.jpg',
           name: item["comic_name"],
           author: '',
           chapter: '',
-          description:'${item["comic_type"]}'.replaceAll(RegExp('^\\w+,|\\|\\w+,'), ' '),
+          description: '${item["comic_type"]}'
+              .replaceAll(RegExp('^\\w+,|\\|\\w+,'), ' '),
           url:
               'http://getcomicinfo-globalapi.yyhao.com/app_api/v5/getcomicinfo_body/?comic_id=$id');
     }).toList();
   }
 
   @override
+  Future<List<SearchItem>> discover(
+      String query, int page, int pageSize) async {
+    return commonParse(
+        'http://getcomicinfo-globalapi.yyhao.com/app_api/v5/getsortlist/?page=$page');
+  }
+
+  @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final res = await http.get(
+    return commonParse(
         'http://getcomicinfo-globalapi.yyhao.com/app_api/v5/getsortlist/?search_key=$query&page=$page');
-    final json = jsonDecode(res.body);
-    return (json["data"] as List).map((item) {
-      final id = item["comic_id"];
-      return SearchItem(
-          api: this,
-          cover: 'http://image.mhxk.com/mh/$id.jpg',
-          name: item["comic_name"],
-          author: '',
-          chapter: '',
-          description: '${item["comic_type"]}'.replaceAll(RegExp('^\\w+,|\\|\\w+,'), ' '),
-          url:
-              'http://getcomicinfo-globalapi.yyhao.com/app_api/v5/getcomicinfo_body/?comic_id=$id');
-    }).toList();
   }
 
   @override
@@ -95,5 +86,4 @@ class Manhuatai implements API {
     }
     return images;
   }
-
 }
