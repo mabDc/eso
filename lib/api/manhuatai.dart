@@ -86,4 +86,8 @@ class Manhuatai implements API {
     }
     return images;
   }
+    @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

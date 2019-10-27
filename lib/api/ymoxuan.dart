@@ -37,7 +37,10 @@ class Ymoxuan implements API {
 
   @override
   Future<List<SearchItem>> discover(String query, int page, int pageSize) {
-    return commonParse("https://www.ymoxuan.com/xuanhuan/$page.htm");
+    if (query == '') {
+      query = discoverMap().values.first;
+    }
+    return commonParse("https://www.ymoxuan.com/$query/$page.htm");
   }
 
   @override
@@ -70,5 +73,25 @@ class Ymoxuan implements API {
         .replaceFirst(
             '''<script type="text/javascript">applyChapterSetting();</script>''',
             "").split('<br>');
+  }
+
+  @override
+  Map<String, String> discoverMap() {
+    return {
+      "玄幻": "xuanhuan",
+      "奇幻": "qihuan",
+      "修真": "xiuzhen",
+      "都市": "dushi",
+      "言情": "yanqing",
+      "历史": "lishi",
+      "同人": "tongren",
+      "武侠": "wuxia",
+      "科幻": "kehuan",
+      "游戏": "youxi",
+      "军事": "junshi",
+      "竞技": "jingji",
+      "灵异": "lingyi",
+      "其他": "qita",
+    };
   }
 }

@@ -15,4 +15,5 @@ abstract class API {
 
   Future<List<String>> content(String url);
 
+  Map<String, String> discoverMap();
 }

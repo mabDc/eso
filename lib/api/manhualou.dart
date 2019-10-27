@@ -68,4 +68,8 @@ class Manhualou implements API {
         .map((s) => 'https://restp.dongqiniqin.com/$s')
         .toList();
   }
+    @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

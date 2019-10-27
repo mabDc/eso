@@ -92,4 +92,8 @@ var bqimg = '/pic/banquan.png';
       return jsonDecode(r.body)["Code"];
     }));
   }
+    @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

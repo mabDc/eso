@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
@@ -17,7 +19,7 @@ class Ixs implements API {
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
-    final dom = parse(res.body).querySelectorAll('.left li');
+    final dom = parse(utf8.decode(res.bodyBytes)).querySelectorAll('.left li');
     final reg = RegExp("\\d+\\.html");
     return dom
         .skip(1)
@@ -37,7 +39,10 @@ class Ixs implements API {
 
   @override
   Future<List<SearchItem>> discover(String query, int page, int pageSize) {
-    return commonParse("https://www.ixs.cc/xuanhuan_$page.html");
+    if (query == '') {
+      query = discoverMap().values.first;
+    }
+    return commonParse("https://www.ixs.cc/${query}_$page.html");
   }
 
   @override
@@ -49,7 +54,7 @@ class Ixs implements API {
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
-    return parse(res.body)
+    return parse(utf8.decode(res.bodyBytes))
         .querySelectorAll('.mulu a')
         .skip(9)
         .map((item) => ChapterItem(
@@ -64,11 +69,31 @@ class Ixs implements API {
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
-    return parse(res.body)
+    return parse(utf8.decode(res.bodyBytes))
         .querySelector('.content,.text')
         .innerHtml
         .replaceFirst(
             '''<script type="text/javascript">applyChapterSetting();</script>''',
             "").split('<br>');
+  }
+  
+  @override
+  Map<String, String> discoverMap() {
+    return {
+      "玄幻": "xuanhuan",
+      "奇幻": "qihuan",
+      "修真": "xiuzhen",
+      "都市": "dushi",
+      "言情": "yanqing",
+      "历史": "lishi",
+      "同人": "tongren",
+      "武侠": "wuxia",
+      "科幻": "kehuan",
+      "游戏": "youxi",
+      "军事": "junshi",
+      "竞技": "jingji",
+      "灵异": "lingyi",
+      "其他": "qita",
+    };
   }
 }

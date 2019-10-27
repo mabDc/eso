@@ -21,20 +21,23 @@ class Iqiwx implements API {
   @override
   Future<List<SearchItem>> discover(
       String query, int page, int pageSize) async {
-    final res = await http.get('http://www.iqiwx.com/');
+        if(query == ''){
+          query = discoverMap().values.first;
+        }
+    final res = await http.get('http://www.iqiwx.com/list/${query}_$page.html');
     final body = gbk.decode(res.bodyBytes);
     return parse(body)
-        .querySelectorAll('.recomclass>dl,.recombook>dl')
+        .querySelectorAll('#sitebox>dl')
         .map((item) {
       final href = item.querySelector('a').attributes["href"];
       final src = item.querySelector('img').attributes["src"];
       return SearchItem(
         api: this,
         cover: '$src',
-        name: '${item.querySelector('dd a').text}',
-        author: '${item.querySelector('.tit').text}',
-        chapter: '',
-        description: '${item.querySelector('.name').text}',
+        name: '${item.querySelector('h3 a').text}',
+        author: '${item.querySelector('.book_other a').text}',
+        chapter: '${item.querySelector('.book_other a').text}',
+        description: '${item.querySelector('.book_des').text}',
         url:
             'http://www.iqiwx.com/book/${src.substring(41, src.indexOf('/', 41))}/${href.substring(26, href.length - 5)}/',
       );
@@ -100,5 +103,17 @@ class Iqiwx implements API {
       sb.write('%${s[i]}${s[i + 1]}');
     }
     return sb.toString();
+  }
+    @override
+  Map<String, String> discoverMap() {
+    return {
+      "玄幻·奇幻":"1",
+      "武侠·仙侠":"2",
+      "都市·言情":"3",
+      "历史·军事":"4",
+      "游戏·竞技":"5",
+      "科幻·灵异":"6",
+      "其他·类型":"7",
+    };
   }
 }

@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
+
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
-import 'package:flutter/material.dart';
 
 class ChapterPageController with ChangeNotifier {
   final SearchItem searchItem;
@@ -64,7 +65,7 @@ class ChapterPageController with ChangeNotifier {
   }
 
   Future<void> updateChapter() async {
-    if(_isLoading)return;
+    if (_isLoading) return;
     _isLoading = true;
     notifyListeners();
     searchItem.chapters =
@@ -79,18 +80,18 @@ class ChapterPageController with ChangeNotifier {
   }
 
   void toggleFavorite() async {
-    if(_isLoading) return;
+    if (_isLoading) return;
     await SearchItemManager.toggleFavorite(searchItem);
     notifyListeners();
   }
 
-  void scrollerToTop(){
+  void scrollerToTop() {
     searchItem.reverseChapter = false;
     notifyListeners();
     _controller.jumpTo(1);
   }
 
-  void scrollerToBottom(){
+  void scrollerToBottom() {
     searchItem.reverseChapter = true;
     notifyListeners();
     _controller.jumpTo(1);

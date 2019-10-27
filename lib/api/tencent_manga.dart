@@ -83,4 +83,8 @@ class TencentManga implements API {
     final json = RegExp("\"picture\":([^\\]]*\\])").firstMatch(String.fromCharCodes(pic))[1];
     return (jsonDecode(json) as List).map((s) => '${s["url"]}').toList();
   }
+    @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

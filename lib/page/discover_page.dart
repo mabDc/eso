@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
@@ -39,8 +41,10 @@ class DiscoverPage extends StatelessWidget {
               ),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => DiscoverItemPage(
-                      originTag: allAPI[index].originTag,
-                      origin: allAPI[index].origin))),
+                        originTag: allAPI[index].originTag,
+                        origin: allAPI[index].origin,
+                        discoverMap: allAPI[index].discoverMap(),
+                      ))),
             ),
           );
         },
@@ -52,10 +56,12 @@ class DiscoverPage extends StatelessWidget {
 class DiscoverItemPage extends StatefulWidget {
   final String originTag;
   final String origin;
+  final Map<String, String> discoverMap;
 
   const DiscoverItemPage({
     this.originTag,
     this.origin,
+    this.discoverMap,
     Key key,
   }) : super(key: key);
 
@@ -117,7 +123,7 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
                     ),
                   )
                 : AppBar(
-                    title: Text(pageController.origin),
+                    title: Text(pageController.title),
                     actions: <Widget>[
                       IconButton(
                         icon: Icon(Icons.search),
@@ -125,21 +131,67 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
                       ),
                       IconButton(
                         icon: Icon(Icons.filter_list),
-                        onPressed: () {},
+                        onPressed: pageController.toggleDiscoverFilter,
                       ),
                     ],
                   ),
-            body: pageController.isLoading
-                ? LandingPage()
-                : RefreshIndicator(
-                    onRefresh: pageController.search,
-                    child: buildDiscoverResult(
-                        pageController.items, pageController.controller),
+            body: RefreshIndicator(
+              onRefresh: pageController.refresh,
+              child: Column(
+                children: <Widget>[
+                  pageController.showFilter
+                      ? Expanded(
+                          flex: 1,
+                          child: SingleChildScrollView(
+                            child: Wrap(
+                              spacing: 8,
+                              children: _buildFilter(pageController.discover),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  Expanded(
+                    flex: 2,
+                    child: pageController.isLoading
+                        ? LandingPage()
+                        : buildDiscoverResult(
+                            pageController.items, pageController.controller),
                   ),
+                ],
+              ),
+            ),
           );
         },
       ),
     );
+  }
+
+  List<Widget> _buildFilter(Function(String title, String query) discover) {
+    final keys = widget.discoverMap.keys.toList();
+    final values = widget.discoverMap.values.toList();
+    if (keys.length == 0) {
+      return <Widget>[
+        Text(
+          '暂无更多发现',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        )
+      ];
+    }
+    final bottons = List<RaisedButton>(keys.length);
+    final random = Random();
+    for (var i = 0; i < keys.length; i++) {
+      bottons[i] = RaisedButton(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        color: Colors.primaries[random.nextInt(Colors.primaries.length)]
+            .withAlpha(100),
+        child: Text(keys[i]),
+        onPressed: () => discover(keys[i], values[i]),
+      );
+    }
+    return bottons;
   }
 
   Widget buildDiscoverResult(

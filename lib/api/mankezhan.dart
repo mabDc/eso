@@ -61,5 +61,8 @@ class Mankezhan implements API {
     final json = jsonDecode(res.body);
     return (json["data"] as List).map((d) => '${d["image"]}!page-1200').toList();
   }
-
+  @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

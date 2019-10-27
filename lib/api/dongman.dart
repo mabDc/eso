@@ -72,5 +72,8 @@ class Dongman implements API{
     list[0] = list[0]+"@headers"+headers;
     return list;
   }
-
+  @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

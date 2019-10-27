@@ -69,4 +69,9 @@ class Buka implements API {
     return  RegExp("class=\"lazy\"\\s*data-original=\"([^\"]*)").allMatches(res.body).map((m) => m[1]).toList();
   }
 
+  @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
+
 }

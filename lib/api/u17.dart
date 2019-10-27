@@ -80,4 +80,8 @@ class U17 implements API {
         ?.forEach((image) => images.add(image["location"]));
     return images;
   }
+    @override
+  Map<String, String> discoverMap() {
+    return Map<String, String>();
+  }
 }

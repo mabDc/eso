@@ -19,9 +19,10 @@ class Duyidu implements API {
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
     final items =
-        parse(gbk.decode(res.bodyBytes)).querySelectorAll('#novel-list li');
+        parse(gbk.decode(res.bodyBytes)).querySelectorAll('.list-group-item');
     return items
         .skip(1)
+        .take(items.length - 2)
         .map((item) => SearchItem(
               api: this,
               cover: 'http://duyidu.net/images/logo.png',
@@ -37,7 +38,10 @@ class Duyidu implements API {
 
   @override
   Future<List<SearchItem>> discover(String query, int page, int pageSize) {
-    return commonParse("http://duyidu.net/shuku.htm");
+    if(query == ''){
+      query = discoverMap().values.first;
+    }
+    return commonParse("http://duyidu.net/$query/$page.htm");
   }
 
   @override
@@ -68,5 +72,29 @@ class Duyidu implements API {
         .replaceFirst(
             '''<script type="text/javascript">try {applySetting();} catch(ex){}</script>''',
             "").split('<br>');
+  }
+
+  @override
+  Map<String, String> discoverMap() {
+    return {
+      "玄幻": "xuanhuanxiaoshuo",
+      "奇幻": "qihuanxiaoshuo",
+      "修真": "xiuzhenxiaoshuo",
+      "都市": "dushixiaoshuo",
+      "言情": "yanqingxiaoshuo",
+      "历史": "lishixiaoshuo",
+      "同人": "tongrenxiaoshuo",
+      "武侠": "wuxiaxiaoshuo",
+      "科幻": "kehuanxiaoshuo",
+      "游戏": "youxixiaoshuo",
+      "军事": "junshixiaoshuo",
+      "竞技": "jingjixiaoshuo",
+      "灵异": "lingyixiaoshuo",
+      "商战": "shangzhanxiaoshuo",
+      "校园": "xiaoyuanxiaoshuo",
+      "官场": "guanchangxiaoshuo",
+      "职场": "zhichangxiaoshuo",
+      "其他": "qitaxiaoshuo",
+    };
   }
 }
