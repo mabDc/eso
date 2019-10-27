@@ -60,10 +60,6 @@ class _ChapterPageState extends State<ChapterPage> {
                       : Icon(Icons.favorite_border),
                   onPressed: pageController.toggleFavorite,
                 ),
-                IconButton(
-                  icon: Icon(Icons.file_download),
-                  onPressed: () {},
-                ),
               ],
             ),
             body: Column(

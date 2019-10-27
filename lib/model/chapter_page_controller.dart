@@ -7,7 +7,9 @@ import '../database/search_item_manager.dart';
 class ChapterPageController with ChangeNotifier {
   final SearchItem searchItem;
   ScrollController _controller;
+
   ScrollController get controller => _controller;
+
   bool get isLoading => _isLoading;
   bool _isLoading;
 
@@ -50,8 +52,25 @@ class ChapterPageController with ChangeNotifier {
     searchItem.durContentIndex = 1;
     searchItem.durChapter = searchItem.chapters.first?.name;
     searchItem.chaptersCount = searchItem.chapters.length;
+    searchItem.chapter = searchItem.chapters.last?.name;
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> updateChapter() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    notifyListeners();
+    searchItem.chapters =
+        await APIManager.getChapter(searchItem.originTag, searchItem.url);
+    searchItem.chaptersCount = searchItem.chapters.length;
+    searchItem.chapter = searchItem.chapters.last?.name;
+    if (SearchItemManager.isFavorite(searchItem.url)) {
+      await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
+    }
+    _isLoading = false;
+    notifyListeners();
+    return;
   }
 
   void changeChapter(int index) async {
@@ -62,21 +81,6 @@ class ChapterPageController with ChangeNotifier {
       await SearchItemManager.saveSearchItem();
       notifyListeners();
     }
-  }
-
-  Future<void> updateChapter() async {
-    if (_isLoading) return;
-    _isLoading = true;
-    notifyListeners();
-    searchItem.chapters =
-        await APIManager.getChapter(searchItem.originTag, searchItem.url);
-    searchItem.chaptersCount = searchItem.chapters.length;
-    if (SearchItemManager.isFavorite(searchItem.url)) {
-      await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
-    }
-    _isLoading = false;
-    notifyListeners();
-    return;
   }
 
   void toggleFavorite() async {

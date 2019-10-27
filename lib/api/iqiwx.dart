@@ -17,7 +17,6 @@ class Iqiwx implements API {
   @override
   RuleContentType get ruleContentType => RuleContentType.NOVEL;
 
-
   @override
   Future<List<SearchItem>> discover(
       String query, int page, int pageSize) async {
@@ -35,7 +34,7 @@ class Iqiwx implements API {
         api: this,
         cover: '$src',
         name: '${item.querySelector('h3 a').text}',
-        author: '${item.querySelector('.book_other a').text}',
+        author: '${item.querySelector('.book_other span').text}',
         chapter: '${item.querySelector('.book_other a').text}',
         description: '${item.querySelector('.book_des').text}',
         url:
@@ -104,6 +103,7 @@ class Iqiwx implements API {
     }
     return sb.toString();
   }
+
     @override
   Map<String, String> discoverMap() {
     return {

@@ -34,9 +34,25 @@ class ContentPage extends StatelessWidget {
           }
           switch (searchItem.ruleContentType) {
             case RuleContentType.MANGA:
-              return _MangaContentPage(pageController: pageController);
+              return  NotificationListener(
+                child:_MangaContentPage(pageController: pageController),
+                onNotification: (t) {
+                  if (t is ScrollEndNotification) {
+                    pageController.refreshProgress();
+                  }
+                  return false;
+                },
+              );
             case RuleContentType.NOVEL:
-              return _NovelContentPage(pageController: pageController);
+              return NotificationListener(
+                child:_NovelContentPage(pageController: pageController),
+                onNotification: (t) {
+                  if (t is ScrollEndNotification) {
+                    pageController.refreshProgress();
+                  }
+                  return false;
+                },
+              );
             default:
               throw ('${searchItem.ruleContentType} not support');
           }
@@ -92,6 +108,7 @@ class _MangaContentPage extends StatelessWidget {
                 "${pageController.content[index]}",
                 headers: headers,
               ),
+              fit: BoxFit.fitWidth,
             );
           },
         ),
@@ -185,7 +202,7 @@ class _NovelContentPage extends StatelessWidget {
             color: Colors.black38,
           ),
           Text(
-            '${pageController.searchItem.durChapter} ${pageController.content.length}自然段',
+            '${pageController.searchItem.durChapter} ${pageController.progress}%',
             style: TextStyle(
               color: Colors.black,
             ),

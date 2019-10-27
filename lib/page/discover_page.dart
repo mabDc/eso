@@ -143,13 +143,15 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
                       ? Expanded(
                           flex: 1,
                           child: SingleChildScrollView(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
                             child: Wrap(
-                              spacing: 8,
+                              spacing: 6,
                               children: _buildFilter(pageController.discover),
                             ),
                           ),
                         )
                       : Container(),
+                  pageController.showFilter ? SizedBox(height: 8,):Container(),
                   Expanded(
                     flex: 2,
                     child: pageController.isLoading
@@ -184,7 +186,7 @@ class _DiscoverItemPageState extends State<DiscoverItemPage> {
     final random = Random();
     for (var i = 0; i < keys.length; i++) {
       bottons[i] = RaisedButton(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        padding: EdgeInsets.symmetric(horizontal: 6),
         color: Colors.primaries[random.nextInt(Colors.primaries.length)]
             .withAlpha(100),
         child: Text(keys[i]),

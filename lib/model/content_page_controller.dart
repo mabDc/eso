@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 
 class ContentPageController with ChangeNotifier{
   final SearchItem searchItem;
-
+  int _progress;
+  int get progress => _progress;
   List<String> _content;
   List<String> get content => _content;
   ScrollController _controller;
@@ -17,6 +18,7 @@ class ContentPageController with ChangeNotifier{
   ContentPageController({List<String> content, this.searchItem}){
     _isLoading = false;
     _content = content;
+    _progress = 0;
     _controller = ScrollController();
     _controller.addListener((){
       if (_controller.position.pixels ==
@@ -30,6 +32,11 @@ class ContentPageController with ChangeNotifier{
     if(content == null){
       initContent();
     }
+  }
+
+  void refreshProgress(){
+    _progress = _controller.position.pixels*100~/_controller.position.maxScrollExtent;
+    notifyListeners();
   }
 
   void initContent() async{

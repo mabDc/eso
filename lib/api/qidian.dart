@@ -19,7 +19,7 @@ class Qidian implements API {
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
     return parse(res.body)
-        .querySelectorAll('.all-img-list li,#limit-list li')
+        .querySelectorAll('.all-img-list li,#result-list li,#limit-list li')
         .map((item) => SearchItem(
               api: this,
               cover:
