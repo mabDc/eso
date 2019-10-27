@@ -68,7 +68,7 @@ class Dongman implements API{
     String headers = jsonEncode({
       "Referer":"https://www.dongmanmanhua.cn",
     });
-    final list = parse(res.body).querySelectorAll('#_viewerBox img').map((p) => p.attributes["data-url"]).toList();
+    final list = parse(res.body).querySelectorAll('#_imageList img').map((p) => p.attributes["data-url"].replaceFirst('?x-oss-process=image/quality,q_90', '')).toList();
     list[0] = list[0]+"@headers"+headers;
     return list;
   }

@@ -10,11 +10,9 @@ import '../ui/ui_dash.dart';
 import 'langding_page.dart';
 
 class ContentPage extends StatelessWidget {
-  final List<String> content;
   final SearchItem searchItem;
 
   const ContentPage({
-    this.content,
     this.searchItem,
     Key key,
   }) : super(key: key);
@@ -22,10 +20,7 @@ class ContentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ContentPageController>.value(
-      value: ContentPageController(
-        content: content,
-        searchItem: searchItem,
-      ),
+      value: ContentPageController(searchItem: searchItem),
       child: Scaffold(
         body: Consumer<ContentPageController>(builder:
             (BuildContext context, ContentPageController pageController, _) {
@@ -34,8 +29,8 @@ class ContentPage extends StatelessWidget {
           }
           switch (searchItem.ruleContentType) {
             case RuleContentType.MANGA:
-              return  NotificationListener(
-                child:_MangaContentPage(pageController: pageController),
+              return NotificationListener(
+                child: _MangaContentPage(pageController: pageController),
                 onNotification: (t) {
                   if (t is ScrollEndNotification) {
                     pageController.refreshProgress();
@@ -45,7 +40,7 @@ class ContentPage extends StatelessWidget {
               );
             case RuleContentType.NOVEL:
               return NotificationListener(
-                child:_NovelContentPage(pageController: pageController),
+                child: _NovelContentPage(pageController: pageController),
                 onNotification: (t) {
                   if (t is ScrollEndNotification) {
                     pageController.refreshProgress();
@@ -72,12 +67,6 @@ class _MangaContentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final first = pageController.content[0].split('@headers');
-    Map<String, String> headers = Map<String, String>();
-    if (first.length > 1) {
-      pageController.content[0] = first[0];
-      headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
-    }
     return Stack(
       children: <Widget>[
         ListView.builder(
@@ -106,7 +95,7 @@ class _MangaContentPage extends StatelessWidget {
               placeholder: AssetImage(Global.waitingPath),
               image: NetworkImage(
                 "${pageController.content[index]}",
-                headers: headers,
+                headers: pageController.headers,
               ),
               fit: BoxFit.fitWidth,
             );

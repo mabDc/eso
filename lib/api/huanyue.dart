@@ -44,14 +44,10 @@ class Huanyue implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final res = await http.post("http://m.huanyue123.com/s.php", body: {
-      "keyword": query,
-      "t": '1',
-    });
+    final res = await http.post("http://m.huanyue123.com/s.php", body: {"keyword": query, "t": '1',});
     final items =
         parse(utf8.decode(res.bodyBytes)).querySelectorAll('.hot_sale');
-    return items
-        .skip(1)
+    return items.skip(1)
         .map((item) => SearchItem(
               api: this,
               cover: null,
@@ -59,18 +55,14 @@ class Huanyue implements API {
               author: '${item.querySelectorAll('.author')[0].text}',
               chapter: '${item.querySelectorAll('.author')[1].text}',
               description: '',
-              url:
-                  'http://m.huanyue123.com${item.querySelector('a').attributes["href"]}all.html',
+              url: 'http://m.huanyue123.com${item.querySelector('a').attributes["href"]}all.html',
             ))
         .toList();
   }
-
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
-    return parse(utf8.decode(res.bodyBytes))
-        .querySelectorAll('#chapterlist a')
-        .skip(1)
+    return parse(utf8.decode(res.bodyBytes)).querySelectorAll('#chapterlist a').skip(1)
         .map((item) => ChapterItem(
               cover: null,
               time: null,
@@ -79,7 +71,6 @@ class Huanyue implements API {
             ))
         .toList();
   }
-
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);

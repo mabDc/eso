@@ -150,18 +150,7 @@ class _ChapterPageState extends State<ChapterPage> {
     void Function(int index) onTap = (int index) {
       pageController.changeChapter(index);
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => FutureBuilder<List<String>>(
-              future: APIManager.getContent(widget.searchItem.originTag,
-                  widget.searchItem.chapters[index].url),
-              builder: (BuildContext context, AsyncSnapshot<List<String>> data) {
-                if (!data.hasData) {
-                  return LandingPage();
-                }
-                return ContentPage(
-                  content: data.data,
-                  searchItem: widget.searchItem,
-                );
-              })));
+          builder: (context) => ContentPage(searchItem: widget.searchItem)));
     };
     final screenWidth = MediaQuery.of(context).size.width;
     switch (widget.searchItem.chapterListStyle) {
