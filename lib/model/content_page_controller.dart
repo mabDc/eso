@@ -60,6 +60,7 @@ class ContentPageController with ChangeNotifier {
         searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
     notifyListeners();
+    await Future.delayed(Duration(milliseconds: 10));
     _controller.jumpTo(searchItem.durContentIndex ==
             _controller.position.maxScrollExtent.floor()
         ? _controller.position.maxScrollExtent - 300
