@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

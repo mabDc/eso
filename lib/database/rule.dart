@@ -1,4 +1,5 @@
-import '../global.dart';
+import 'package:eso/api/api.dart';
+
 import 'package:floor/floor.dart';
 
 @entity
@@ -9,7 +10,7 @@ class Rule {
   bool enable = true;
   String name = '';
   String host = '';
-  RuleContentType contentType = RuleContentType.values.first;
+  int contentType = API.MANGA;
   bool useCheerio = false;
   bool useCryptoJS = false;
   bool useMultiRoads = false;
@@ -50,7 +51,7 @@ class Rule {
     enable = true;
     name = '';
     host = '';
-    contentType = RuleContentType.values.first;
+    contentType = API.MANGA;
     useCheerio = false;
     useCryptoJS = false;
     useMultiRoads = false;

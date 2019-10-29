@@ -1,7 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
 import 'package:fast_gbk/fast_gbk.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
@@ -14,7 +13,7 @@ class Duyidu implements API {
   String get originTag => 'Duyidu';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.NOVEL;
+  int get ruleContentType => API.NOVEL;
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
@@ -37,10 +36,9 @@ class Duyidu implements API {
   }
 
   @override
-  Future<List<SearchItem>> discover(String query, int page, int pageSize) {
-    if(query == ''){
-      query = discoverMap().values.first;
-    }
+  Future<List<SearchItem>> discover(
+      Map<String,DiscoverPair> params, int page, int pageSize) {
+    String query = params["类型"].value;
     return commonParse("http://duyidu.net/$query/$page.htm");
   }
 
@@ -75,26 +73,28 @@ class Duyidu implements API {
   }
 
   @override
-  Map<String, String> discoverMap() {
-    return {
-      "玄幻": "xuanhuanxiaoshuo",
-      "奇幻": "qihuanxiaoshuo",
-      "修真": "xiuzhenxiaoshuo",
-      "都市": "dushixiaoshuo",
-      "言情": "yanqingxiaoshuo",
-      "历史": "lishixiaoshuo",
-      "同人": "tongrenxiaoshuo",
-      "武侠": "wuxiaxiaoshuo",
-      "科幻": "kehuanxiaoshuo",
-      "游戏": "youxixiaoshuo",
-      "军事": "junshixiaoshuo",
-      "竞技": "jingjixiaoshuo",
-      "灵异": "lingyixiaoshuo",
-      "商战": "shangzhanxiaoshuo",
-      "校园": "xiaoyuanxiaoshuo",
-      "官场": "guanchangxiaoshuo",
-      "职场": "zhichangxiaoshuo",
-      "其他": "qitaxiaoshuo",
-    };
+  List<DiscoverMap> discoverMap() {
+    return <DiscoverMap>[
+      DiscoverMap("类型", <DiscoverPair>[
+        DiscoverPair("玄幻", "xuanhuanxiaoshuo"),
+        DiscoverPair("奇幻", "qihuanxiaoshuo"),
+        DiscoverPair("修真", "xiuzhenxiaoshuo"),
+        DiscoverPair("都市", "dushixiaoshuo"),
+        DiscoverPair("言情", "yanqingxiaoshuo"),
+        DiscoverPair("历史", "lishixiaoshuo"),
+        DiscoverPair("同人", "tongrenxiaoshuo"),
+        DiscoverPair("武侠", "wuxiaxiaoshuo"),
+        DiscoverPair("科幻", "kehuanxiaoshuo"),
+        DiscoverPair("游戏", "youxixiaoshuo"),
+        DiscoverPair("军事", "junshixiaoshuo"),
+        DiscoverPair("竞技", "jingjixiaoshuo"),
+        DiscoverPair("灵异", "lingyixiaoshuo"),
+        DiscoverPair("商战", "shangzhanxiaoshuo"),
+        DiscoverPair("校园", "xiaoyuanxiaoshuo"),
+        DiscoverPair("官场", "guanchangxiaoshuo"),
+        DiscoverPair("职场", "zhichangxiaoshuo"),
+        DiscoverPair("其他", "qitaxiaoshuo"),
+      ]),
+    ];
   }
 }

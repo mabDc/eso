@@ -43,9 +43,9 @@ class APIManager {
         TencentManga(),
       ];
 
-  static Future<List<SearchItem>> discover(String originTag, String query,
+  static Future<List<SearchItem>> discover(String originTag, Map<String,DiscoverPair> params,
       [int page = 1, int pageSize = 20]) {
-    return chooseAPI(originTag).discover(query, page, pageSize);
+    return chooseAPI(originTag).discover(params, page, pageSize);
   }
 
   static Future<List<SearchItem>> search(String originTag, String query,

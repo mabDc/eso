@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'package:eso/api/api.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -27,34 +26,105 @@ class ContentPage extends StatelessWidget {
           if (pageController.content == null) {
             return LandingPage();
           }
-          switch (searchItem.ruleContentType) {
-            case RuleContentType.MANGA:
-              return NotificationListener(
-                child: _MangaContentPage(pageController: pageController),
-                onNotification: (t) {
-                  if (t is ScrollEndNotification) {
-                    pageController.refreshProgress();
-                  }
-                  return false;
-                },
-              );
-            case RuleContentType.NOVEL:
-              return NotificationListener(
-                child: _NovelContentPage(pageController: pageController),
-                onNotification: (t) {
-                  if (t is ScrollEndNotification) {
-                    pageController.refreshProgress();
-                  }
-                  return false;
-                },
-              );
-            default:
-              throw ('${searchItem.ruleContentType} not support');
-          }
+          return GestureDetector(
+            child: Stack(
+              children: <Widget>[
+                NotificationListener(
+                  child: (() {
+                    switch (searchItem.ruleContentType) {
+                      case API.MANGA:
+                        return _MangaContentPage(
+                            pageController: pageController);
+                      case API.NOVEL:
+                        return _NovelContentPage(
+                            pageController: pageController);
+                      default:
+                        throw ('${searchItem.ruleContentType} not support');
+                    }
+                  })(),
+                  onNotification: (t) {
+                    if (t is ScrollEndNotification) {
+                      pageController.refreshProgress();
+                    }
+                    return false;
+                  },
+                ),
+                pageController.showChapter
+                    ? _buildChapterSelect(Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black87,pageController)
+                    : Container(),
+              ],
+            ),
+            onTapUp: (TapUpDetails details) {
+              final size = MediaQuery.of(context).size;
+              if (details.globalPosition.dx > size.width / 3 &&
+                  details.globalPosition.dx < size.width * 2 / 3 &&
+                  details.globalPosition.dy > size.height / 3 &&
+                  details.globalPosition.dy < size.height * 2 / 3) {
+                pageController.showChapter = !pageController.showChapter;
+              } else {
+                pageController.showChapter = false;
+              }
+            },
+          );
         }),
       ),
     );
   }
+
+  Widget _buildChapterSelect(Color color, ContentPageController pageController) {
+    int index = 0;
+    return Center(
+      child: Material(
+        color: color,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Row(
+            children: <Widget>[
+              Text('章节选择 '),
+              Expanded(
+                child: ButtonTheme(
+                  alignedDropdown: true,
+                  child: DropdownButton<int>(
+                    isExpanded: true,
+                    value: searchItem.durChapterIndex,
+                    items: searchItem.chapters
+                        .map((chapter) => DropdownMenuItem<int>(
+                              child: Text(chapter.name),
+                              value: index++,
+                            ))
+                        .toList(),
+                    onChanged: pageController.loadChapter,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget _buildChapterSeparate(
+    double screenHeight, bool isLoading, SearchItem searchItem) {
+  return Container(
+    alignment: Alignment.topLeft,
+    padding: EdgeInsets.only(
+      top: 80,
+      left: 32,
+      right: 10,
+      bottom: screenHeight - 200,
+    ),
+    child: Text(
+      searchItem.durChapterIndex == searchItem.chapters.length - 1
+          ? "当前章节\n${searchItem.durChapter}\n\n已经是最后一章"
+          : isLoading
+              ? "当前章节\n${searchItem.durChapter}\n\n正在加载..."
+              : "当前章节\n${searchItem.durChapter}\n\n继续滑动加载下一章",
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 2, color: Colors.black),
+    ),
+  );
 }
 
 class _MangaContentPage extends StatelessWidget {
@@ -71,25 +141,13 @@ class _MangaContentPage extends StatelessWidget {
       children: <Widget>[
         ListView.builder(
           padding: EdgeInsets.all(0),
+          cacheExtent: MediaQuery.of(context).size.height * 2,
           controller: pageController.controller,
           itemCount: pageController.content.length + 1,
           itemBuilder: (context, index) {
             if (index == pageController.content.length) {
-              return Container(
-                height: 800,
-                alignment: Alignment.topLeft,
-                padding: EdgeInsets.only(top: 80, left: 32),
-                child: Text(
-                  pageController.searchItem.durChapterIndex ==
-                          pageController.searchItem.chapters.length - 1
-                      ? "当前章节\n${pageController.searchItem.durChapter}\n\n已经是最后一章"
-                      : pageController.isLoading
-                          ? "当前章节\n${pageController.searchItem.durChapter}\n\n正在加载下一章..."
-                          : "当前章节\n${pageController.searchItem.durChapter}\n\n继续滑动加载下一章",
-                  style: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold, height: 2),
-                ),
-              );
+              return _buildChapterSeparate(MediaQuery.of(context).size.height,
+                  pageController.isLoading, pageController.searchItem);
             }
             return FadeInImage(
               placeholder: AssetImage(Global.waitingPath),
@@ -141,25 +199,10 @@ class _NovelContentPage extends StatelessWidget {
               itemCount: pageController.content.length + 2,
               itemBuilder: (context, index) {
                 if (index == pageController.content.length + 1) {
-                  return Container(
-                    height: 800,
-                    alignment: Alignment.topLeft,
-                    padding: EdgeInsets.only(top: 80, left: 30),
-                    child: Text(
-                      pageController.searchItem.durChapterIndex ==
-                              pageController.searchItem.chapters.length - 1
-                          ? "当前章节\n${pageController.searchItem.durChapter}\n\n\n已经是最后一章"
-                          : pageController.isLoading
-                              ? "当前章节\n${pageController.searchItem.durChapter}\n\n\n正在加载下一章..."
-                              : "当前章节\n${pageController.searchItem.durChapter}\n\n\n继续滑动加载下一章",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        height: 2,
-                        color: Colors.black,
-                      ),
-                    ),
-                  );
+                  return _buildChapterSeparate(
+                      MediaQuery.of(context).size.height,
+                      pageController.isLoading,
+                      pageController.searchItem);
                 }
                 if (index == 0) {
                   return Text(

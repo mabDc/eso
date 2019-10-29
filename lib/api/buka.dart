@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import '../global.dart';
 import 'api.dart';
 
 class Buka implements API {
@@ -16,7 +15,7 @@ class Buka implements API {
   String get originTag => "Buka";
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   Future<List<SearchItem>> commonParse(
       String url, Map<String, String> body) async {
@@ -37,7 +36,7 @@ class Buka implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
     return commonParse("http://m.buka.cn/search/ajax_search", {
       "key": '1',
       "start": '${15 * (page - 1)}',
@@ -74,12 +73,15 @@ class Buka implements API {
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
-    return parse(res.body).querySelectorAll('#manga-imgs img').map((image) =>
-        '${image.attributes["data-original"] ?? image.attributes["src"]}').toList();
+    return parse(res.body)
+        .querySelectorAll('#manga-imgs img')
+        .map((image) =>
+            '${image.attributes["data-original"] ?? image.attributes["src"]}')
+        .toList();
   }
 
   @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }

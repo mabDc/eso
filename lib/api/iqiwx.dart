@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import '../global.dart';
+
 import 'api.dart';
 
 class Iqiwx implements API {
@@ -15,14 +15,12 @@ class Iqiwx implements API {
   String get originTag => 'Iqiwx';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.NOVEL;
+  int get ruleContentType => API.NOVEL;
 
   @override
   Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
-        if(query == ''){
-          query = discoverMap().values.first;
-        }
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
+    String query = params["类型"].value;
     final res = await http.get('http://www.iqiwx.com/list/${query}_$page.html');
     final body = gbk.decode(res.bodyBytes);
     return parse(body)
@@ -105,15 +103,17 @@ class Iqiwx implements API {
   }
 
     @override
-  Map<String, String> discoverMap() {
-    return {
-      "玄幻·奇幻":"1",
-      "武侠·仙侠":"2",
-      "都市·言情":"3",
-      "历史·军事":"4",
-      "游戏·竞技":"5",
-      "科幻·灵异":"6",
-      "其他·类型":"7",
-    };
+    List<DiscoverMap> discoverMap() {
+      return <DiscoverMap>[
+        DiscoverMap("类型",<DiscoverPair>[
+          DiscoverPair("玄幻·奇幻", "1"),
+          DiscoverPair("武侠·仙侠", "2"),
+          DiscoverPair("都市·言情", "3"),
+          DiscoverPair("历史·军事", "4"),
+          DiscoverPair("游戏·竞技", "5"),
+          DiscoverPair("科幻·灵异", "6"),
+          DiscoverPair("其他·类型", "7"),
+        ])
+      ];
   }
 }

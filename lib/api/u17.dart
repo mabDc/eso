@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import '../global.dart';
 import 'api.dart';
 
 class U17 implements API {
@@ -15,7 +14,7 @@ class U17 implements API {
   String get originTag => 'U17';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
@@ -36,7 +35,7 @@ class U17 implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
     return commonParse(
         'http://app.u17.com/v3/appV3_3/android/phone/list/conditionScreenlists?page=$page');
   }
@@ -80,8 +79,8 @@ class U17 implements API {
         ?.forEach((image) => images.add(image["location"]));
     return images;
   }
-    @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  @override
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }

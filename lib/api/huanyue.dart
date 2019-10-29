@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import '../global.dart';
 import 'api.dart';
 
 class Huanyue implements API {
@@ -16,14 +15,12 @@ class Huanyue implements API {
   String get originTag => 'Huanyue';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.NOVEL;
+  int get ruleContentType => API.NOVEL;
 
   @override
   Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
-    if (query == '') {
-      query = discoverMap().values.first;
-    }
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
+    String query = '${params["榜单"].value}${params["类型"].value}';
     final res =
         await http.get('http://m.huanyue123.com/ph/${query}_$page.html');
     final dom = parse(utf8.decode(res.bodyBytes));
@@ -44,10 +41,14 @@ class Huanyue implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final res = await http.post("http://m.huanyue123.com/s.php", body: {"keyword": query, "t": '1',});
+    final res = await http.post("http://m.huanyue123.com/s.php", body: {
+      "keyword": query,
+      "t": '1',
+    });
     final items =
         parse(utf8.decode(res.bodyBytes)).querySelectorAll('.hot_sale');
-    return items.skip(1)
+    return items
+        .skip(1)
         .map((item) => SearchItem(
               api: this,
               cover: null,
@@ -55,14 +56,18 @@ class Huanyue implements API {
               author: '${item.querySelectorAll('.author')[0].text}',
               chapter: '${item.querySelectorAll('.author')[1].text}',
               description: '',
-              url: 'http://m.huanyue123.com${item.querySelector('a').attributes["href"]}all.html',
+              url:
+                  'http://m.huanyue123.com${item.querySelector('a').attributes["href"]}all.html',
             ))
         .toList();
   }
+
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
-    return parse(utf8.decode(res.bodyBytes)).querySelectorAll('#chapterlist a').skip(1)
+    return parse(utf8.decode(res.bodyBytes))
+        .querySelectorAll('#chapterlist a')
+        .skip(1)
         .map((item) => ChapterItem(
               cover: null,
               time: null,
@@ -71,6 +76,7 @@ class Huanyue implements API {
             ))
         .toList();
   }
+
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
@@ -82,38 +88,25 @@ class Huanyue implements API {
   }
 
   @override
-  Map<String, String> discoverMap() {
-    return {
-      "周榜-全部": "week",
-      "周榜-玄幻": "week1",
-      "周榜-仙侠": "week2",
-      "周榜-都市": "week3",
-      "周榜-历史": "week4",
-      "周榜-网游": "week5",
-      "周榜-科幻": "week6",
-      "周榜-灵异": "week7",
-      "周榜-言情": "week8",
-      "周榜-其他": "week9",
-      "月榜-全部": "month",
-      "月榜-玄幻": "month1",
-      "月榜-仙侠": "month2",
-      "月榜-都市": "month3",
-      "月榜-历史": "month4",
-      "月榜-网游": "month5",
-      "月榜-科幻": "month6",
-      "月榜-灵异": "month7",
-      "月榜-言情": "month8",
-      "月榜-其他": "month9",
-      "总榜-全部": "all",
-      "总榜-玄幻": "all1",
-      "总榜-仙侠": "all2",
-      "总榜-都市": "all3",
-      "总榜-历史": "all4",
-      "总榜-网游": "all5",
-      "总榜-科幻": "all6",
-      "总榜-灵异": "all7",
-      "总榜-言情": "all8",
-      "总榜-其他": "all9",
-    };
+  List<DiscoverMap> discoverMap() {
+    return <DiscoverMap>[
+      DiscoverMap("榜单", <DiscoverPair>[
+        DiscoverPair("周榜", "week"),
+        DiscoverPair("月榜", "month"),
+        DiscoverPair("总榜", "all"),
+      ]),
+      DiscoverMap("类型", <DiscoverPair>[
+        DiscoverPair("全部", ""),
+        DiscoverPair("玄幻", "1"),
+        DiscoverPair("仙侠", "2"),
+        DiscoverPair("都市", "3"),
+        DiscoverPair("历史", "4"),
+        DiscoverPair("网游", "5"),
+        DiscoverPair("科幻", "6"),
+        DiscoverPair("灵异", "7"),
+        DiscoverPair("言情", "8"),
+        DiscoverPair("其他", "9"),
+      ]),
+    ];
   }
 }

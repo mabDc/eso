@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 
@@ -13,7 +12,7 @@ class Dongman implements API{
   @override
   String get originTag => 'Dongman';
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   Future<List<SearchItem>> commonParse(String url)async{
     String headers = jsonEncode({
@@ -33,7 +32,7 @@ class Dongman implements API{
   }
 
   @override
-  Future<List<SearchItem>> discover(String query, int page, int pageSize) {
+  Future<List<SearchItem>> discover(Map<String,DiscoverPair> params, int page, int pageSize) {
     return commonParse("https://www.dongmanmanhua.cn");
   }
 
@@ -73,7 +72,7 @@ class Dongman implements API{
     return list;
   }
   @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }

@@ -2,7 +2,6 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../global.dart';
 import '../model/chapter_page_controller.dart';
 
 class SearchItem {
@@ -15,7 +14,7 @@ class SearchItem {
   String chapter;
   String description;
   String url;
-  RuleContentType ruleContentType;
+  int ruleContentType;
   ChapterListStyle chapterListStyle;
   String durChapter;
   int durChapterIndex;
@@ -89,7 +88,7 @@ class SearchItem {
     "chapter":chapter,
     "description":description,
     "url":url,
-    "ruleContentType":ruleContentType.index,
+    "ruleContentType":ruleContentType,
     "chapterListStyle":chapterListStyle.index,
     "durChapter":durChapter,
     "durChapterIndex":durChapterIndex,
@@ -108,7 +107,7 @@ class SearchItem {
     chapter=json["chapter"];
     description=json["description"];
     url=json["url"];
-    ruleContentType= RuleContentType.values[json["ruleContentType"]??0];
+    ruleContentType= json["ruleContentType"];
     chapterListStyle= ChapterListStyle.values[json["chapterListStyle"]??0];
     durChapter=json["durChapter"];
     durChapterIndex=json["durChapterIndex"];

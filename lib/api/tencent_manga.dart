@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
@@ -15,11 +15,11 @@ class TencentManga implements API {
   String get originTag => 'TencentManga';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   @override
   Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
     final res =
         await http.get("https://ac.qq.com/Comic/all/search/time/page/$page");
     final dom = parse(res.body);
@@ -83,8 +83,8 @@ class TencentManga implements API {
     final json = RegExp("\"picture\":([^\\]]*\\])").firstMatch(String.fromCharCodes(pic))[1];
     return (jsonDecode(json) as List).map((s) => '${s["url"]}').toList();
   }
-    @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  @override
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }

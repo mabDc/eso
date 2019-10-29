@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'api.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import '../global.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
@@ -15,7 +15,7 @@ class Tohomh implements API {
   String get originTag => 'Tohomh';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   Future<List<SearchItem>> commonParse(String url)async{
     final res =
@@ -37,7 +37,8 @@ class Tohomh implements API {
   }
 
   @override
-  Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
+  Future<List<SearchItem>> discover(
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
     return commonParse('https://www.tohomh123.com/f-1-------hits--$page.html');
   }
 
@@ -85,15 +86,15 @@ var bqimg = '/pic/banquan.png';
     final urls = List<String>(pcount);
     for (var i = 0; i < pcount; i++) {
       urls[i] =
-          "https://www.tohomh123.com/action/play/read?did=$did&sid=$sid&iid=${iid+1}";
+          "https://www.tohomh123.com/action/play/read?did=$did&sid=$sid&iid=${iid+i}";
     }
     return Future.wait(urls.map((u) async {
       final r = await http.get('$u');
       return jsonDecode(r.body)["Code"];
     }));
   }
-    @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  @override
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }

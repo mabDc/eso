@@ -23,26 +23,36 @@ class ContentPageController with ChangeNotifier {
 
   Map<String, String> get headers => _headers;
 
+  bool _showChapter;
+  bool get showChapter => _showChapter;
+  set showChapter(bool value) {
+    _showChapter = value;
+    notifyListeners();
+  }
+
   ContentPageController({this.searchItem}) {
     _isLoading = false;
+    _showChapter = false;
     _headers = Map<String, String>();
     _controller = ScrollController();
     _progress = 0;
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        _loadNextChapterContent();
+        loadChapter(searchItem.durChapterIndex + 1);
       }
     });
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
-    initContent();
+    _initContent();
   }
 
   void refreshProgress() {
     searchItem.durContentIndex = _controller.position.pixels.floor();
-    _progress = searchItem.durContentIndex *100 ~/ _controller.position.maxScrollExtent;
+    _progress = searchItem.durContentIndex *
+        100 ~/
+        _controller.position.maxScrollExtent;
     notifyListeners();
   }
 
@@ -55,29 +65,30 @@ class ContentPageController with ChangeNotifier {
     }
   }
 
-  void initContent() async {
+  void _initContent() async {
     _content = await APIManager.getContent(searchItem.originTag,
         searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
     notifyListeners();
-    await Future.delayed(Duration(milliseconds: 10));
+    await Future.delayed(Duration(milliseconds: 20));
     _controller.jumpTo(searchItem.durContentIndex ==
             _controller.position.maxScrollExtent.floor()
         ? _controller.position.maxScrollExtent - 300
         : searchItem.durContentIndex.toDouble());
   }
 
-  void _loadNextChapterContent() async {
-    if (isLoading) return;
-    if (searchItem.durChapterIndex < searchItem.chapters.length - 1) {
+  loadChapter(int chapterIndex) async {
+    _showChapter = false;
+    if (isLoading || chapterIndex == searchItem.durChapterIndex) return;
+    if (chapterIndex > 0 && chapterIndex < searchItem.chapters.length) {
       _isLoading = true;
       notifyListeners();
-      searchItem.durChapterIndex++;
-      _content = await APIManager.getContent(searchItem.originTag,
-          searchItem.chapters[searchItem.durChapterIndex].url);
+      _content = await APIManager.getContent(
+          searchItem.originTag, searchItem.chapters[chapterIndex].url);
       _setHeaders();
+      searchItem.durChapterIndex = chapterIndex;
       searchItem.durChapter =
-          searchItem.chapters[searchItem.durChapterIndex].name;
+          searchItem.chapters[chapterIndex].name;
       searchItem.durContentIndex = 1;
       await SearchItemManager.saveSearchItem();
       _isLoading = false;

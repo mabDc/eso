@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -5,10 +6,11 @@ import 'package:flutter/material.dart';
 class DiscoverPageController with ChangeNotifier {
   /// const
   final String originTag;
-
+  final List<DiscoverMap> discoverMap;
   /// private
   int _page;
-  bool _showSearch;
+  bool _showSearchResult;
+  Map<String, DiscoverPair> _discoverParams;
 
   /// private set, public get
   String get title => _title;
@@ -16,8 +18,8 @@ class DiscoverPageController with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool _isLoading;
 
-  bool get isSearching => _isSearching;
-  bool _isSearching;
+  bool get showSearchField => _showSearchField;
+  bool _showSearchField;
 
   bool get showFilter => _showFilter;
   bool _showFilter;
@@ -33,13 +35,16 @@ class DiscoverPageController with ChangeNotifier {
 
   DiscoverPageController({
     @required this.originTag,
+    @required this.discoverMap,
     @required String origin,
   }) {
+    _discoverParams = Map<String, DiscoverPair>();
+    discoverMap.forEach((map) => _discoverParams[map.name] = map.pairs.first);
     _title = origin;
     _page = 1;
-    _showSearch = false;
+    _showSearchResult = false;
     _isLoading = false;
-    _isSearching = false;
+    _showSearchField = false;
     _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
@@ -52,16 +57,36 @@ class DiscoverPageController with ChangeNotifier {
     fetchData();
   }
 
-  Future<void> fetchData() async {
+  void selectDiscoverPair(String name,DiscoverPair pair){
+    if(_discoverParams[name] != pair){
+      _discoverParams[name]= pair;
+      _discover();
+    }
+  }
+
+  DiscoverPair getDiscoverPair(String name){
+    return _discoverParams[name];
+  }
+
+  void resetDiscoverParams(){
+    _discoverParams = Map<String, DiscoverPair>();
+    discoverMap.forEach((map) => _discoverParams[map.name] = map.pairs.first);
+    notifyListeners();
+  }
+
+  Future<void> fetchData({needShowLoading = false}) async {
     if (_isLoading) return;
     _isLoading = true;
+    if(needShowLoading){
+      notifyListeners();
+    }
     List<SearchItem> newItems;
-    if (_showSearch) {
+    if (_showSearchResult) {
       newItems =
           await APIManager.search(originTag, _queryController.text, _page);
     } else {
       newItems =
-          await APIManager.discover(originTag, _queryController.text, _page);
+          await APIManager.discover(originTag, _discoverParams, _page);
     }
     if (_page == 1) {
       _items?.clear();
@@ -80,18 +105,16 @@ class DiscoverPageController with ChangeNotifier {
   }
 
   void search() async {
-    _showSearch = true;
+    _showSearchResult = true;
     _page = 1;
     return fetchData();
   }
 
-  void discover(String title, String query) {
+  void _discover() {
     //_showFilter = false;
-    _title = title;
-    queryController.text = query;
-    _showSearch = false;
+    _showSearchResult = false;
     _page = 1;
-    fetchData();
+    fetchData(needShowLoading: true);
   }
 
   void loadMore() {
@@ -101,7 +124,8 @@ class DiscoverPageController with ChangeNotifier {
 
   void toggleSearching() {
     queryController.text = '';
-    _isSearching = !_isSearching;
+    _showSearchField = !_showSearchField;
+    _showFilter = false;
     notifyListeners();
   }
 

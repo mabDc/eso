@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
+
 import 'package:http/http.dart' as http;
 
 class Manhuatai implements API {
@@ -14,7 +14,7 @@ class Manhuatai implements API {
   String get originTag => 'Manhuatai';
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
@@ -36,7 +36,7 @@ class Manhuatai implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      String query, int page, int pageSize) async {
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
     return commonParse(
         'http://getcomicinfo-globalapi.yyhao.com/app_api/v5/getsortlist/?page=$page');
   }
@@ -86,8 +86,8 @@ class Manhuatai implements API {
     }
     return images;
   }
-    @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  @override
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }

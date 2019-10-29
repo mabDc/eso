@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-import '../global.dart';
+
 import 'api.dart';
 
 class Mankezhan implements API {
@@ -13,7 +13,7 @@ class Mankezhan implements API {
   String get originTag => "Mankezhan";
 
   @override
-  RuleContentType get ruleContentType => RuleContentType.MANGA;
+  int get ruleContentType => API.MANGA;
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
@@ -30,7 +30,8 @@ class Mankezhan implements API {
   }
 
   @override
-  Future<List<SearchItem>> discover(String query, int page, int pageSize) async {
+  Future<List<SearchItem>> discover(
+      Map<String,DiscoverPair> params, int page, int pageSize) async {
     return commonParse("https://comic.mkzhan.com/search/filter/?order=1&page_num=$page&page_size=$pageSize");
   }
 
@@ -62,7 +63,7 @@ class Mankezhan implements API {
     return (json["data"] as List).map((d) => '${d["image"]}!page-1200').toList();
   }
   @override
-  Map<String, String> discoverMap() {
-    return Map<String, String>();
+  List<DiscoverMap> discoverMap() {
+    return [];
   }
 }
