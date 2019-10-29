@@ -1,4 +1,5 @@
 import 'package:eso/api/api.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -50,7 +51,7 @@ class ContentPage extends StatelessWidget {
                   },
                 ),
                 pageController.showChapter
-                    ? _buildChapterSelect(Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black87,pageController)
+                    ? _buildChapterSelect(context, pageController)
                     : Container(),
               ],
             ),
@@ -60,7 +61,7 @@ class ContentPage extends StatelessWidget {
                   details.globalPosition.dx < size.width * 2 / 3 &&
                   details.globalPosition.dy > size.height / 3 &&
                   details.globalPosition.dy < size.height * 2 / 3) {
-                pageController.showChapter = !pageController.showChapter;
+                pageController.showChapter = true;
               } else {
                 pageController.showChapter = false;
               }
@@ -71,34 +72,68 @@ class ContentPage extends StatelessWidget {
     );
   }
 
-  Widget _buildChapterSelect(Color color, ContentPageController pageController) {
-    int index = 0;
+  Widget _buildChapterSelect(
+      BuildContext context, ContentPageController pageController) {
+    final size = MediaQuery.of(context).size;
+    final screenHeight = size.height * 3 / 4 - 10;
+    final itemHeight = 32.0;
+    final height = searchItem.chapters.length * itemHeight;
+    final durHeight = searchItem.durChapterIndex * itemHeight;
+    double offset;
+    if (height < screenHeight) {
+      offset = 1.0;
+    } else if ((height - durHeight) < screenHeight) {
+      offset = height - screenHeight - 1;
+    } else {
+      offset = durHeight;
+    }
     return Center(
-      child: Material(
-        color: color,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Row(
-            children: <Widget>[
-              Text('章节选择 '),
-              Expanded(
-                child: ButtonTheme(
-                  alignedDropdown: true,
-                  child: DropdownButton<int>(
-                    isExpanded: true,
-                    value: searchItem.durChapterIndex,
-                    items: searchItem.chapters
-                        .map((chapter) => DropdownMenuItem<int>(
-                              child: Text(chapter.name),
-                              value: index++,
-                            ))
-                        .toList(),
-                    onChanged: pageController.loadChapter,
+      child: Container(
+        decoration: BoxDecoration(
+          border: new Border.all(color: Colors.grey, width: 0.5),
+          borderRadius: new BorderRadius.all(Radius.circular(10)),
+          color: Theme.of(context).cardColor,
+        ),
+        height: size.height * 3 / 4,
+        width: size.width * 3 / 4,
+        child: ListView.builder(
+          itemExtent: itemHeight,
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          controller: ScrollController(initialScrollOffset: offset),
+          itemCount: searchItem.chapters.length,
+          itemBuilder: (_, index) {
+            return Container(
+              height: itemHeight,
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    '${index + 1}',
+                    style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
                   ),
-                ),
+                  SizedBox(
+                    width: 8,
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      child: Text(
+                        '${searchItem.chapters[index].name}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () => pageController.loadChapter(index),
+                    ),
+                  ),
+                  searchItem.durChapterIndex == index
+                      ? Icon(
+                          Icons.done,
+                          size: itemHeight,
+                          color: Theme.of(context).primaryColor,
+                        )
+                      : Container()
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -106,7 +141,7 @@ class ContentPage extends StatelessWidget {
 }
 
 Widget _buildChapterSeparate(
-    double screenHeight, bool isLoading, SearchItem searchItem) {
+    Color color, double screenHeight, bool isLoading, SearchItem searchItem) {
   return Container(
     alignment: Alignment.topLeft,
     padding: EdgeInsets.only(
@@ -122,7 +157,12 @@ Widget _buildChapterSeparate(
               ? "当前章节\n${searchItem.durChapter}\n\n正在加载..."
               : "当前章节\n${searchItem.durChapter}\n\n继续滑动加载下一章",
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, height: 2, color: Colors.black),
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        height: 2,
+        color: color,
+      ),
     ),
   );
 }
@@ -146,8 +186,11 @@ class _MangaContentPage extends StatelessWidget {
           itemCount: pageController.content.length + 1,
           itemBuilder: (context, index) {
             if (index == pageController.content.length) {
-              return _buildChapterSeparate(MediaQuery.of(context).size.height,
-                  pageController.isLoading, pageController.searchItem);
+              return _buildChapterSeparate(
+                  null,
+                  MediaQuery.of(context).size.height,
+                  pageController.isLoading,
+                  pageController.searchItem);
             }
             return FadeInImage(
               placeholder: AssetImage(Global.waitingPath),
@@ -200,6 +243,7 @@ class _NovelContentPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 if (index == pageController.content.length + 1) {
                   return _buildChapterSeparate(
+                      Colors.black87,
                       MediaQuery.of(context).size.height,
                       pageController.isLoading,
                       pageController.searchItem);

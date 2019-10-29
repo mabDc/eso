@@ -34,7 +34,7 @@ class ContentPageController with ChangeNotifier {
     _isLoading = false;
     _showChapter = false;
     _headers = Map<String, String>();
-    _controller = ScrollController();
+    _controller = ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
     _progress = 0;
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
@@ -71,30 +71,26 @@ class ContentPageController with ChangeNotifier {
     _setHeaders();
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 20));
-    _controller.jumpTo(searchItem.durContentIndex ==
-            _controller.position.maxScrollExtent.floor()
-        ? _controller.position.maxScrollExtent - 300
-        : searchItem.durContentIndex.toDouble());
   }
 
   loadChapter(int chapterIndex) async {
     _showChapter = false;
-    if (isLoading || chapterIndex == searchItem.durChapterIndex) return;
-    if (chapterIndex > 0 && chapterIndex < searchItem.chapters.length) {
-      _isLoading = true;
-      notifyListeners();
-      _content = await APIManager.getContent(
-          searchItem.originTag, searchItem.chapters[chapterIndex].url);
-      _setHeaders();
-      searchItem.durChapterIndex = chapterIndex;
-      searchItem.durChapter =
-          searchItem.chapters[chapterIndex].name;
-      searchItem.durContentIndex = 1;
-      await SearchItemManager.saveSearchItem();
-      _isLoading = false;
-      _controller.jumpTo(1);
-      notifyListeners();
-    }
+    if (isLoading ||
+        chapterIndex == searchItem.durChapterIndex ||
+        chapterIndex < 0 ||
+        chapterIndex >= searchItem.chapters.length) return;
+    _isLoading = true;
+    notifyListeners();
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[chapterIndex].url);
+    _setHeaders();
+    searchItem.durChapterIndex = chapterIndex;
+    searchItem.durChapter = searchItem.chapters[chapterIndex].name;
+    searchItem.durContentIndex = 1;
+    await SearchItemManager.saveSearchItem();
+    _isLoading = false;
+    _controller.jumpTo(1);
+    notifyListeners();
   }
 
   @override

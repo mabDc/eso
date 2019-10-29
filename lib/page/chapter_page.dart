@@ -31,14 +31,14 @@ class _ChapterPageState extends State<ChapterPage> {
   @override
   Widget build(BuildContext context) {
     if (_page == null) {
-      _page = _buildPage();
+      _page = _buildPage(MediaQuery.of(context).size);
     }
     return _page;
   }
 
-  Widget _buildPage() {
+  Widget _buildPage(Size size) {
     return ChangeNotifierProvider.value(
-      value: ChapterPageController(searchItem: widget.searchItem),
+      value: ChapterPageController(searchItem: widget.searchItem, size: size),
       child: Consumer<ChapterPageController>(
         builder: (context, ChapterPageController pageController, _) {
           return Scaffold(
@@ -98,6 +98,14 @@ class _ChapterPageState extends State<ChapterPage> {
                           onPressed: pageController.scrollerToBottom,
                         ),
                       ),
+//                      SizedBox(
+//                        width: 30,
+//                        child: IconButton(
+//                          padding: EdgeInsets.only(left: 6),
+//                          icon: Icon(Icons.compare_arrows),
+//                          onPressed: pageController.toggleReverse,
+//                        ),
+//                      ),
                     ],
                   ),
                 ),
@@ -148,21 +156,18 @@ class _ChapterPageState extends State<ChapterPage> {
     }
     void Function(int index) onTap = (int index) {
       pageController.changeChapter(index);
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ContentPage(searchItem: widget.searchItem)));
+      Navigator.of(context)
+          .push(MaterialPageRoute(
+              builder: (context) => ContentPage(searchItem: widget.searchItem)))
+          .whenComplete(pageController.adjustScroll);
     };
     final screenWidth = MediaQuery.of(context).size.width;
     switch (widget.searchItem.chapterListStyle) {
       case ChapterPageController.BigList:
-        return ListView.separated(
-          reverse: widget.searchItem.reverseChapter,
+        return ListView.builder(
           padding: const EdgeInsets.only(bottom: 8.0),
           controller: pageController.controller,
-          separatorBuilder: (context, index) {
-            return SizedBox(
-              height: 6,
-            );
-          },
+          itemExtent: 66,
           itemCount: widget.searchItem.chapters.length,
           itemBuilder: (context, index) {
             if (widget.searchItem.reverseChapter) {
@@ -184,14 +189,13 @@ class _ChapterPageState extends State<ChapterPage> {
               ? TextDirection.rtl
               : TextDirection.ltr,
           child: GridView.builder(
-            reverse: widget.searchItem.reverseChapter,
             padding: const EdgeInsets.only(bottom: 8.0),
             controller: pageController.controller,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: (screenWidth - 6) / 50 / 2,
-              mainAxisSpacing: 6,
-              crossAxisSpacing: 6,
+              childAspectRatio: (screenWidth - 2 - 16) / 50 / 2,
+              mainAxisSpacing: 2,
+              crossAxisSpacing: 2,
             ),
             itemCount: widget.searchItem.chapters.length,
             itemBuilder: (context, index) {
@@ -220,14 +224,13 @@ class _ChapterPageState extends State<ChapterPage> {
               ? TextDirection.rtl
               : TextDirection.ltr,
           child: GridView.builder(
-            reverse: widget.searchItem.reverseChapter,
             padding: const EdgeInsets.only(bottom: 8.0),
             controller: pageController.controller,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              childAspectRatio: (screenWidth - 4 * 6) / 45 / 5,
-              mainAxisSpacing: 6,
-              crossAxisSpacing: 6,
+              childAspectRatio: (screenWidth - 4 * 2 - 16) / 45 / 5,
+              mainAxisSpacing: 2,
+              crossAxisSpacing: 2,
             ),
             itemCount: widget.searchItem.chapters.length,
             itemBuilder: (context, index) {

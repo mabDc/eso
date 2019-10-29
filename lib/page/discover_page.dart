@@ -1,19 +1,7 @@
-import 'dart:math';
-
-import 'package:eso/api/api.dart';
-import 'package:eso/database/search_item.dart';
-import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/discover_page_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-
 import '../api/api_manager.dart';
-import '../ui/ui_discover_item.dart';
 import 'DiscoverSearchPage.dart';
-import 'chapter_page.dart';
-import 'langding_page.dart';
 
 class DiscoverPage extends StatelessWidget {
   const DiscoverPage({Key key}) : super(key: key);

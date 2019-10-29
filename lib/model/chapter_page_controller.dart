@@ -5,9 +5,9 @@ import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
 
 class ChapterPageController with ChangeNotifier {
+  final Size size;
   final SearchItem searchItem;
   ScrollController _controller;
-
   ScrollController get controller => _controller;
 
   bool get isLoading => _isLoading;
@@ -33,8 +33,8 @@ class ChapterPageController with ChangeNotifier {
     }
   }
 
-  ChapterPageController({@required this.searchItem}) {
-    _controller = ScrollController();
+  ChapterPageController({@required this.searchItem, @required this.size}) {
+    _controller = ScrollController(initialScrollOffset: _calcHeight);
     _isLoading = false;
     if (searchItem.chapters == null) {
       _isLoading = true;
@@ -43,6 +43,43 @@ class ChapterPageController with ChangeNotifier {
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
+  }
+
+  double get _calcHeight {
+    if(searchItem.chapters == null) return 0.0;
+    double itemHeight;
+    int lineNum;
+    switch (searchItem.chapterListStyle) {
+      case BigList:
+        lineNum = 1;
+        itemHeight = 66;
+        break;
+      case SmallList:
+        lineNum = 2;
+        itemHeight = 52;
+        break;
+      case Grid:
+        lineNum = 5;
+        itemHeight = 47;
+        break;
+    }
+    final durHeight = searchItem.durChapterIndex ~/ lineNum * itemHeight;
+    double height = searchItem.chapters.length ~/ lineNum * itemHeight;
+    if (searchItem.chapters.length % lineNum > 0) {
+      height += itemHeight;
+    }
+    final screenHeight = size.height - 246;
+    if (height < screenHeight) {
+      return 1.0;
+    }
+    if ((height - durHeight) < screenHeight) {
+      return height - screenHeight;
+    }
+    return durHeight;
+  }
+
+  void adjustScroll() {
+    _controller.jumpTo(_calcHeight);
   }
 
   void initChapters() async {
@@ -90,15 +127,16 @@ class ChapterPageController with ChangeNotifier {
   }
 
   void scrollerToTop() {
-    searchItem.reverseChapter = false;
-    notifyListeners();
     _controller.jumpTo(1);
   }
 
   void scrollerToBottom() {
-    searchItem.reverseChapter = true;
+    _controller.jumpTo(_controller.position.maxScrollExtent - 1);
+  }
+
+  void toggleReverse() {
+    searchItem.reverseChapter = !searchItem.reverseChapter;
     notifyListeners();
-    _controller.jumpTo(1);
   }
 
   void changeListStyle(ChapterListStyle listStyle) async {
@@ -106,7 +144,9 @@ class ChapterPageController with ChangeNotifier {
       searchItem.chapterListStyle = listStyle;
       await SearchItemManager.saveSearchItem();
       notifyListeners();
+      await Future.delayed(Duration(milliseconds: 20));
     }
+    adjustScroll();
   }
 
   @override
