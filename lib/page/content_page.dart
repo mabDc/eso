@@ -111,14 +111,14 @@ class ContentPage extends StatelessWidget {
                       onTap: () => pageController.loadChapter(index),
                       child: Row(
                         children: <Widget>[
-                          Text(
-                            '${index + 1}',
-                            style: TextStyle(
-                                fontSize: 10, fontStyle: FontStyle.italic),
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
+//                          Text(
+//                            '${index + 1}',
+//                            style: TextStyle(
+//                                fontSize: 10, fontStyle: FontStyle.italic),
+//                          ),
+//                          SizedBox(
+//                            width: 8,
+//                          ),
                           Expanded(
                             child: Text(
                               '${searchItem.chapters[index].name}',

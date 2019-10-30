@@ -35,9 +35,9 @@ class U17 implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     return commonParse(
-        'http://app.u17.com/v3/appV3_3/android/phone/list/conditionScreenlists?page=$page');
+        'http://app.u17.com/v3/appV3_3/android/phone/list/conditionScreenlists?${params["分类"].value}&page=$page');
   }
 
   @override
@@ -79,8 +79,33 @@ class U17 implements API {
         ?.forEach((image) => images.add(image["location"]));
     return images;
   }
+
   @override
   List<DiscoverMap> discoverMap() {
-    return [];
+    return <DiscoverMap>[
+      DiscoverMap("分类", <DiscoverPair>[
+        DiscoverPair('全部', ''),
+        DiscoverPair('搞笑', 'params=theme%3A1'),
+        DiscoverPair('魔幻', 'params=theme%3A2'),
+        DiscoverPair('生活', 'params=theme%3A3'),
+        DiscoverPair('恋爱', 'params=theme%3A4'),
+        DiscoverPair('动作', 'params=theme%3A5'),
+        DiscoverPair('科幻', 'params=theme%3A6'),
+        DiscoverPair('战争', 'params=theme%3A7'),
+        DiscoverPair('体育', 'params=theme%3A8'),
+        DiscoverPair('推理', 'params=theme%3A9'),
+        DiscoverPair('惊奇', 'params=theme%3A11'),
+        DiscoverPair('同人', 'params=theme%3A12'),
+        DiscoverPair('少年', 'params=cate%3A1'),
+        DiscoverPair('少女', 'params=cate%3A2'),
+        DiscoverPair('纯爱', 'params=theme%3A10'),
+        DiscoverPair('VIP', 'params=topic%3A14'),
+        DiscoverPair('订阅', 'params=topic%3A12'),
+        DiscoverPair('免费', 'params=vip%3A5'),
+        DiscoverPair('新作', 'params=vip%3A2'),
+        DiscoverPair('连载', 'params=serial%3A1'),
+        DiscoverPair('完结', 'params=serial%3A2'),
+      ]),
+    ];
   }
 }

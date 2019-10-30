@@ -2,7 +2,6 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
-import 'package:eso/ui/ui_dash.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -100,18 +99,28 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
               child: Column(
                 children: <Widget>[
                   pageController.showFilter
-                      ? Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            children: widget.discoverMap
-                                .map((map) => _buildDropdown(
-                                    map,
-                                    Theme.of(context).primaryColor,
-                                    pageController.getDiscoverPair(map.name),
-                                    pageController.selectDiscoverPair))
-                                .toList(),
-                          ),
-                        )
+                      ? (widget.discoverMap == null ||
+                              widget.discoverMap.length == 0)
+                          ? SizedBox(
+                              height: 32,
+                              child: Text(
+                                '暂无更多发现',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            )
+                          : Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                children: widget.discoverMap
+                                    .map((map) => _buildDropdown(
+                                        map,
+                                        Theme.of(context).primaryColor,
+                                        pageController
+                                            .getDiscoverPair(map.name),
+                                        pageController.selectDiscoverPair))
+                                    .toList(),
+                              ),
+                            )
                       : Container(),
                   Expanded(
                     flex: 2,
