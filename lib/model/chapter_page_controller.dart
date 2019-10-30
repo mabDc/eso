@@ -13,11 +13,11 @@ class ChapterPageController with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool _isLoading;
 
-  static const BigList = ChapterListStyle.BigList;
-  static const SmallList = ChapterListStyle.SmallList;
-  static const Grid = ChapterListStyle.Grid;
+  static const BigList = 0;
+  static const SmallList = 1;
+  static const Grid = 2;
 
-  String getListStyleName([ChapterListStyle listStyle]) {
+  String getListStyleName([int listStyle]) {
     if (listStyle == null) {
       listStyle = searchItem.chapterListStyle;
     }
@@ -139,12 +139,12 @@ class ChapterPageController with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeListStyle(ChapterListStyle listStyle) async {
+  void changeListStyle(int listStyle) async {
     if (searchItem.chapterListStyle != listStyle) {
       searchItem.chapterListStyle = listStyle;
       await SearchItemManager.saveSearchItem();
       notifyListeners();
-      await Future.delayed(Duration(milliseconds: 20));
+      await Future.delayed(Duration(milliseconds: 10));
     }
     adjustScroll();
   }
@@ -154,10 +154,4 @@ class ChapterPageController with ChangeNotifier {
     _controller.dispose();
     super.dispose();
   }
-}
-
-enum ChapterListStyle {
-  BigList,
-  SmallList,
-  Grid,
 }

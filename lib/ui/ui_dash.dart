@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 class UIDash extends StatelessWidget {
   final double height;
   final Color color;
+  final double dashWidth;
 
-  const UIDash({this.height = 1, this.color = Colors.black});
+  const UIDash({this.height = 1, this.color = Colors.black, this.dashWidth = 10.0});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final boxWidth = constraints.constrainWidth();
-        final dashWidth = 10.0;
         final dashHeight = height;
         final dashCount = (boxWidth / (2 * dashWidth)).floor();
         return Flex(

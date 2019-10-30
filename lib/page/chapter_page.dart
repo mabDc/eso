@@ -1,11 +1,9 @@
 import 'dart:math';
 import 'dart:ui';
-
-import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
@@ -76,11 +74,11 @@ class _ChapterPageState extends State<ChapterPage> {
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
-                      buildButton(pageController, context,
+                      _buildButton(pageController, context,
                           ChapterPageController.BigList),
-                      buildButton(pageController, context,
+                      _buildButton(pageController, context,
                           ChapterPageController.SmallList),
-                      buildButton(
+                      _buildButton(
                           pageController, context, ChapterPageController.Grid),
                       SizedBox(
                         width: 30,
@@ -98,21 +96,21 @@ class _ChapterPageState extends State<ChapterPage> {
                           onPressed: pageController.scrollerToBottom,
                         ),
                       ),
-//                      SizedBox(
-//                        width: 30,
-//                        child: IconButton(
-//                          padding: EdgeInsets.only(left: 6),
-//                          icon: Icon(Icons.compare_arrows),
-//                          onPressed: pageController.toggleReverse,
-//                        ),
-//                      ),
+                      SizedBox(
+                        width: 30,
+                        child: IconButton(
+                          padding: EdgeInsets.only(left: 6),
+                          icon: Icon(Icons.compare_arrows),
+                          onPressed: pageController.toggleReverse,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: buildChapter(pageController, context),
+                    child: _buildChapter(pageController, context),
                   ),
                 ),
               ],
@@ -123,8 +121,8 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget buildButton(ChapterPageController pageController, BuildContext context,
-      ChapterListStyle listStyle) {
+  Widget _buildButton(ChapterPageController pageController, BuildContext context,
+      int listStyle) {
     return MaterialButton(
       onPressed: () {
         pageController.changeListStyle(listStyle);
@@ -149,7 +147,7 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget buildChapter(
+  Widget _buildChapter(
       ChapterPageController pageController, BuildContext context) {
     if (pageController.isLoading) {
       return LandingPage();
@@ -173,7 +171,7 @@ class _ChapterPageState extends State<ChapterPage> {
             if (widget.searchItem.reverseChapter) {
               index = widget.searchItem.chapters.length - index - 1;
             }
-            return buildChapterButton(
+            return _buildChapterButton(
                 context,
                 widget.searchItem.durChapterIndex == index,
                 UIBigListChapterItem(
@@ -202,7 +200,7 @@ class _ChapterPageState extends State<ChapterPage> {
               if (widget.searchItem.reverseChapter) {
                 index = widget.searchItem.chapters.length - index - 1;
               }
-              return buildChapterButton(
+              return _buildChapterButton(
                   context,
                   widget.searchItem.durChapterIndex == index,
                   Align(
@@ -237,7 +235,7 @@ class _ChapterPageState extends State<ChapterPage> {
               if (widget.searchItem.reverseChapter) {
                 index = widget.searchItem.chapters.length - index - 1;
               }
-              return buildChapterButton(
+              return _buildChapterButton(
                   context,
                   widget.searchItem.durChapterIndex == index,
                   Text(
@@ -253,7 +251,7 @@ class _ChapterPageState extends State<ChapterPage> {
     }
   }
 
-  Widget buildChapterButton(BuildContext context, bool isDurIndex, Widget child,
+  Widget _buildChapterButton(BuildContext context, bool isDurIndex, Widget child,
       VoidCallback onPress) {
     return isDurIndex
         ? RaisedButton(

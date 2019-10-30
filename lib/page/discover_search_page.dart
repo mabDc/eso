@@ -2,7 +2,9 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
+import 'package:eso/ui/ui_dash.dart';
 import 'package:eso/ui/ui_discover_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -104,6 +106,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                             children: widget.discoverMap
                                 .map((map) => _buildDropdown(
                                     map,
+                                    Theme.of(context).primaryColor,
                                     pageController.getDiscoverPair(map.name),
                                     pageController.selectDiscoverPair))
                                 .toList(),
@@ -126,19 +129,29 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
     );
   }
 
-  Widget _buildDropdown(DiscoverMap map, DiscoverPair value,
+  Widget _buildDropdown(DiscoverMap map, Color color, DiscoverPair value,
       Function(String, DiscoverPair) select) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(
-          '${map.name} ',
-          style: TextStyle(fontSize: 16),
+        Container(
+          height: 34,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '${map.name} ',
+            style: TextStyle(
+              fontSize: 16,
+              color: color,
+            ),
+          ),
         ),
         Expanded(
           child: ButtonTheme(
             alignedDropdown: true,
             child: DropdownButton<DiscoverPair>(
               isExpanded: true,
+              isDense: true,
               underline: Container(),
               value: value,
               items: map.pairs

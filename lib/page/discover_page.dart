@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../api/api_manager.dart';
-import 'DiscoverSearchPage.dart';
+import 'discover_search_page.dart';
 
 class DiscoverPage extends StatelessWidget {
   const DiscoverPage({Key key}) : super(key: key);

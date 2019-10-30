@@ -1,8 +1,7 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
+import 'package:eso/model/chapter_page_controller.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../model/chapter_page_controller.dart';
 
 class SearchItem {
   int id;
@@ -15,7 +14,7 @@ class SearchItem {
   String description;
   String url;
   int ruleContentType;
-  ChapterListStyle chapterListStyle;
+  int chapterListStyle;
   String durChapter;
   int durChapterIndex;
   int durContentIndex;
@@ -53,7 +52,7 @@ class SearchItem {
       ruleContentType = api.ruleContentType;
     }
     id = DateTime.now().millisecondsSinceEpoch;
-    chapterListStyle = ChapterListStyle.values.first;
+    chapterListStyle = ChapterPageController.BigList;
     durChapter = "";
     durChapterIndex = 0;
     durContentIndex = 1;
@@ -89,7 +88,7 @@ class SearchItem {
     "description":description,
     "url":url,
     "ruleContentType":ruleContentType,
-    "chapterListStyle":chapterListStyle.index,
+    "chapterListStyle":chapterListStyle,
     "durChapter":durChapter,
     "durChapterIndex":durChapterIndex,
     "durContentIndex":durContentIndex,
@@ -108,7 +107,7 @@ class SearchItem {
     description=json["description"];
     url=json["url"];
     ruleContentType= json["ruleContentType"];
-    chapterListStyle= ChapterListStyle.values[json["chapterListStyle"]??0];
+    chapterListStyle= json["chapterListStyle"];
     durChapter=json["durChapter"];
     durChapterIndex=json["durChapterIndex"];
     durContentIndex=json["durContentIndex"];

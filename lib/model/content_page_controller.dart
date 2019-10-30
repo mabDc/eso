@@ -70,7 +70,6 @@ class ContentPageController with ChangeNotifier {
         searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
     notifyListeners();
-    await Future.delayed(Duration(milliseconds: 20));
   }
 
   loadChapter(int chapterIndex) async {

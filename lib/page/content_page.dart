@@ -57,10 +57,10 @@ class ContentPage extends StatelessWidget {
             ),
             onTapUp: (TapUpDetails details) {
               final size = MediaQuery.of(context).size;
-              if (details.globalPosition.dx > size.width / 3 &&
-                  details.globalPosition.dx < size.width * 2 / 3 &&
-                  details.globalPosition.dy > size.height / 3 &&
-                  details.globalPosition.dy < size.height * 2 / 3) {
+              if (details.globalPosition.dx > size.width * 3 / 8 &&
+                  details.globalPosition.dx < size.width * 5 / 8 &&
+                  details.globalPosition.dy > size.height * 3 / 8 &&
+                  details.globalPosition.dy < size.height * 5 / 8) {
                 pageController.showChapter = true;
               } else {
                 pageController.showChapter = false;
@@ -75,8 +75,8 @@ class ContentPage extends StatelessWidget {
   Widget _buildChapterSelect(
       BuildContext context, ContentPageController pageController) {
     final size = MediaQuery.of(context).size;
-    final screenHeight = size.height * 3 / 4 - 10;
-    final itemHeight = 32.0;
+    final screenHeight = size.height / 2 - 10;
+    final itemHeight = 40.0;
     final height = searchItem.chapters.length * itemHeight;
     final durHeight = searchItem.durChapterIndex * itemHeight;
     double offset;
@@ -88,52 +88,59 @@ class ContentPage extends StatelessWidget {
       offset = durHeight;
     }
     return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          border: new Border.all(color: Colors.grey, width: 0.5),
-          borderRadius: new BorderRadius.all(Radius.circular(10)),
-          color: Theme.of(context).cardColor,
+      child: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
         ),
-        height: size.height * 3 / 4,
-        width: size.width * 3 / 4,
-        child: ListView.builder(
-          itemExtent: itemHeight,
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          controller: ScrollController(initialScrollOffset: offset),
-          itemCount: searchItem.chapters.length,
-          itemBuilder: (_, index) {
-            return Container(
-              height: itemHeight,
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    '${index + 1}',
-                    style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic),
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Expanded(
-                    child: InkWell(
-                      child: Text(
-                        '${searchItem.chapters[index].name}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+        child: Container(
+          height: size.height / 2,
+          width: size.width * 0.85,
+          child: ListView.builder(
+            itemExtent: itemHeight,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            controller: ScrollController(initialScrollOffset: offset),
+            itemCount: searchItem.chapters.length,
+            itemBuilder: (_, index) {
+              return Container(
+                height: itemHeight,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    InkWell(
                       onTap: () => pageController.loadChapter(index),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            '${index + 1}',
+                            style: TextStyle(
+                                fontSize: 10, fontStyle: FontStyle.italic),
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(
+                            child: Text(
+                              '${searchItem.chapters[index].name}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          searchItem.durChapterIndex == index
+                              ? Icon(
+                                  Icons.done,
+                                  color: Theme.of(context).primaryColor,
+                                )
+                              : Container()
+                        ],
+                      ),
                     ),
-                  ),
-                  searchItem.durChapterIndex == index
-                      ? Icon(
-                          Icons.done,
-                          size: itemHeight,
-                          color: Theme.of(context).primaryColor,
-                        )
-                      : Container()
-                ],
-              ),
-            );
-          },
+                    UIDash(height: 0.5, dashWidth: 4, color: Colors.grey),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -275,13 +282,32 @@ class _NovelContentPage extends StatelessWidget {
           ),
           UIDash(
             height: 2,
+            dashWidth: 6,
             color: Colors.black38,
           ),
-          Text(
-            '${pageController.searchItem.durChapter} ${pageController.progress}%',
-            style: TextStyle(
-              color: Colors.black,
-            ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  '${pageController.searchItem.durChapter}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                child: Text(
+                  '${pageController.progress}%',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
