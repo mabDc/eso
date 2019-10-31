@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:floor/floor.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 class UIDash extends StatelessWidget {
   final double height;
   final Color color;
   final double dashWidth;
 
-  const UIDash({this.height = 1, this.color = Colors.black, this.dashWidth = 10.0});
+  const UIDash(
+      {this.height = 1, this.color = Colors.black, this.dashWidth = 10.0});
 
   @override
   Widget build(BuildContext context) {

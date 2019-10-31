@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 
@@ -44,23 +46,19 @@ abstract class API {
 }
 
 class DiscoverMap {
-  String name;
-  List<DiscoverPair> pairs;
-  DiscoverMap(this.name, this.pairs);
+  final String name;
+  final List<DiscoverPair> pairs;
+  const DiscoverMap(this.name, this.pairs);
 }
 
-class DiscoverPair {
-  String name;
-  String value;
-  DiscoverPair(this.name, this.value);
+class DiscoverPair extends Equatable {
+  final String name;
+  final String value;
+  const DiscoverPair(this.name, this.value);
 
   @override
-  int get hashCode => super.hashCode;
-
-  @override
-  bool operator ==(other) {
-    return (other is DiscoverPair) &&
-        other.name == this.name &&
-        other.value == this.value;
-  }
+  List<Object> get props => [
+        name,
+        value,
+      ];
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 
@@ -34,10 +35,14 @@ class ContentPageController with ChangeNotifier {
     _isLoading = false;
     _showChapter = false;
     _headers = Map<String, String>();
-    _controller = ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
+    if(searchItem.ruleContentType == API.NOVEL){
+      _controller = ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
+    } else{
+      _controller = ScrollController();
+    }
     _progress = 0;
     _controller.addListener(() {
-      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+      if (progress>0 && _controller.position.pixels == _controller.position.maxScrollExtent) {
         loadChapter(searchItem.durChapterIndex + 1);
       }
     });

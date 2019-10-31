@@ -55,8 +55,14 @@ class SearchResultPage extends StatelessWidget {
           return LandingPage();
         }
         List<SearchItem> items = data.data;
-        return ListView.builder(
+        return ListView.separated(
+          separatorBuilder: (context, index) {
+            return SizedBox(
+              height: 8.0,
+            );
+          },
           itemCount: items.length,
+          padding: EdgeInsets.all(8.0),
           itemBuilder: (BuildContext context, int index) {
             SearchItem searchItem = items[index];
             if (SearchItemManager.isFavorite(searchItem.url)) {

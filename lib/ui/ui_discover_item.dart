@@ -3,10 +3,10 @@ import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
 class UIDiscoverItem extends StatelessWidget {
-  final SearchItem item;
+  final SearchItem searchItem;
 
   const UIDiscoverItem({
-    @required this.item,
+    @required this.searchItem,
     Key key,
   }) : super(key: key);
 
@@ -17,19 +17,19 @@ class UIDiscoverItem extends StatelessWidget {
         Container(
           width: double.infinity,
           height: double.infinity,
-          child: UIImageItem(cover: item.cover),
+          child: UIImageItem(cover: searchItem.cover),
         ),
         Container(
           alignment: Alignment.bottomLeft,
           child: Container(
             padding: EdgeInsets.all(4),
-            color: Colors.black.withAlpha(50),
+            color: Colors.black.withAlpha(100),
             width: double.infinity,
             child: Text(
-              '${item.name}'.trim(),
+              '${searchItem.name}'.trim(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
         ),

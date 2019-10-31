@@ -9,7 +9,9 @@ class Profile with ChangeNotifier {
     final source = Global.prefs.getString(Global.profileKey);
     final json = source == null
         ? {
-            'switchLongPress':false,
+            'switchLongPress': false,
+            'switchFavoriteStyle': false,
+            'switchDiscoverStyle': false,
             'autoRefresh': false,
             'darkMode': false,
             'colorName': Global.colors.keys.first,
@@ -20,16 +22,34 @@ class Profile with ChangeNotifier {
   }
 
   bool _switchLongPress;
+  bool _switchFavoriteStyle;
+  bool _switchDiscoverStyle;
   bool _autoRefresh;
   bool _darkMode;
   String _colorName;
   int _customColor;
 
   bool get switchLongPress => _switchLongPress;
+  bool get switchFavoriteStyle => _switchFavoriteStyle;
+  bool get switchDiscoverStyle => _switchDiscoverStyle;
   bool get autoRefresh => _autoRefresh;
   bool get darkMode => _darkMode;
   String get colorName => _colorName;
   int get customColor => _customColor;
+
+  set switchFavoriteStyle(bool value) {
+    if (value != _switchFavoriteStyle) {
+      _switchFavoriteStyle = value;
+      _saveProfile();
+    }
+  }
+
+  set switchDiscoverStyle(bool value) {
+    if (value != _switchDiscoverStyle) {
+      _switchDiscoverStyle = value;
+      _saveProfile();
+    }
+  }
 
   set switchLongPress(bool value) {
     if (value != _switchLongPress) {
@@ -103,6 +123,8 @@ class Profile with ChangeNotifier {
 
   fromJson(Map<String, dynamic> json) {
     _switchLongPress = json['switchLongPress'];
+    _switchFavoriteStyle = json['switchFavoriteStyle']??false;
+    _switchDiscoverStyle = json['switchDiscoverStyle']??false;
     _autoRefresh = json['autoRefresh'];
     _darkMode = json['darkMode'];
     _colorName = json['colorName'];
@@ -111,6 +133,8 @@ class Profile with ChangeNotifier {
 
   Map<String, dynamic> toJson() => {
         'switchLongPress': _switchLongPress,
+        'switchFavoriteStyle': _switchFavoriteStyle,
+        'switchDiscoverStyle': _switchDiscoverStyle,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'colorName': _colorName,

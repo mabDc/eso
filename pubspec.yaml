@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.0.0+1
+version: 1.1.0+1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -17,11 +17,13 @@ dependencies:
   shared_preferences: ^0.5.3+4
   http: ^0.12.0+2
   chewie: ^0.9.7
+  equatable: ^0.6.1
 #  flutter_liquidcore: ^0.6.0+1
 #  flutter_liquidcore: ^1.0.0
   floor: ^0.8.0
   url_launcher: ^5.1.2
   fast_gbk: ^0.1.1+1
+  flutter_bloc: ^1.0.0
 
 dev_dependencies:
   flutter_test:

@@ -76,7 +76,7 @@ class ContentPage extends StatelessWidget {
       BuildContext context, ContentPageController pageController) {
     final size = MediaQuery.of(context).size;
     final screenHeight = size.height / 2 - 10;
-    final itemHeight = 40.0;
+    final itemHeight = 46.0;
     final height = searchItem.chapters.length * itemHeight;
     final durHeight = searchItem.durChapterIndex * itemHeight;
     double offset;
@@ -111,14 +111,14 @@ class ContentPage extends StatelessWidget {
                       onTap: () => pageController.loadChapter(index),
                       child: Row(
                         children: <Widget>[
-//                          Text(
-//                            '${index + 1}',
-//                            style: TextStyle(
-//                                fontSize: 10, fontStyle: FontStyle.italic),
-//                          ),
-//                          SizedBox(
-//                            width: 8,
-//                          ),
+                          // Text(
+                          //   '${index + 1}',
+                          //   style: TextStyle(
+                          //       fontSize: 10, fontStyle: FontStyle.italic),
+                          // ),
+                          // SizedBox(
+                          //   width: 8,
+                          // ),
                           Expanded(
                             child: Text(
                               '${searchItem.chapters[index].name}',
@@ -187,8 +187,8 @@ class _MangaContentPage extends StatelessWidget {
     return Stack(
       children: <Widget>[
         ListView.builder(
+          cacheExtent: double.infinity,
           padding: EdgeInsets.all(0),
-          cacheExtent: MediaQuery.of(context).size.height * 2,
           controller: pageController.controller,
           itemCount: pageController.content.length + 1,
           itemBuilder: (context, index) {

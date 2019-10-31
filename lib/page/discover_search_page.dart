@@ -2,7 +2,9 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_discover_item.dart';
+import 'package:eso/ui/ui_search_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -92,6 +94,14 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                         icon: Icon(Icons.filter_list),
                         onPressed: pageController.toggleDiscoverFilter,
                       ),
+                      IconButton(
+                        icon: Provider.of<Profile>(context).switchDiscoverStyle
+                            ? Icon(Icons.view_module)
+                            : Icon(Icons.view_headline),
+                        onPressed: () => Provider.of<Profile>(context)
+                                .switchDiscoverStyle =
+                            !Provider.of<Profile>(context).switchDiscoverStyle,
+                      ),
                     ],
                   ),
             body: RefreshIndicator(
@@ -126,8 +136,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                     flex: 2,
                     child: pageController.isLoading
                         ? LandingPage()
-                        : buildDiscoverResult(
-                            pageController.items, pageController.controller),
+                        : Provider.of<Profile>(context).switchDiscoverStyle
+                            ? buildDiscoverResultList(
+                                pageController.items, pageController.controller)
+                            : buildDiscoverResultGrid(pageController.items,
+                                pageController.controller),
                   ),
                 ],
               ),
@@ -177,12 +190,49 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
     );
   }
 
-  Widget buildDiscoverResult(
+  Widget buildDiscoverResultList(
+      List<SearchItem> items, ScrollController controller) {
+    return ListView.separated(
+      separatorBuilder: (context, index) {
+        return SizedBox(
+          height: 8.0,
+        );
+      },
+      controller: controller,
+      padding: EdgeInsets.all(8.0),
+      itemCount: items.length + 1,
+      itemBuilder: (BuildContext context, int index) {
+        if (index == items.length) {
+          return Align(
+            alignment: Alignment(0, -0.5),
+            child: Text(
+              '加载下一页...',
+              style: TextStyle(fontSize: 20),
+            ),
+          );
+        }
+        SearchItem searchItem = items[index];
+        if (SearchItemManager.isFavorite(searchItem.url)) {
+          searchItem = SearchItemManager.searchItem
+              .firstWhere((item) => item.url == searchItem.url);
+        }
+        return InkWell(
+          child: UiSearchItem(item: searchItem),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (context) => ChapterPage(searchItem: searchItem)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildDiscoverResultGrid(
       List<SearchItem> items, ScrollController controller) {
     return GridView.builder(
       controller: controller,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: 3,
         childAspectRatio: 0.8,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
@@ -205,7 +255,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
               .firstWhere((item) => item.url == searchItem.url);
         }
         return InkWell(
-          child: UIDiscoverItem(item: searchItem),
+          child: UIDiscoverItem(searchItem: searchItem),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(
                 builder: (context) => ChapterPage(searchItem: searchItem)),
