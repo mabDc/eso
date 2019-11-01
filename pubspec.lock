@@ -225,6 +225,13 @@ packages:
       url: "https://github.com/LiuC520/flutter_seekbar.git"
     source: git
     version: "0.0.3"
+  flutter_share:
+    dependency: "direct main"
+    description:
+      name: flutter_share
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2+1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -397,7 +404,7 @@ packages:
       name: provider
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.0+1"
   pub_semver:
     dependency: transitive
     description:

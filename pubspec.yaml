@@ -13,7 +13,7 @@ dependencies:
     git: https://github.com/LiuC520/flutter_seekbar.git
   cupertino_icons: ^0.1.2
   path_provider: ^1.2.0
-  provider: ^3.1.0
+  provider: ^3.1.0+1
   shared_preferences: ^0.5.3+4
   http: ^0.12.0+2
   chewie: ^0.9.7
@@ -24,6 +24,7 @@ dependencies:
   url_launcher: ^5.1.2
   fast_gbk: ^0.1.1+1
   flutter_bloc: ^1.0.0
+  flutter_share: ^1.0.2+1
 
 dev_dependencies:
   flutter_test:

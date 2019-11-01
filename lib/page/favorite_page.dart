@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/content_page.dart';
@@ -11,6 +12,7 @@ import '../model/history_manager.dart';
 import '../model/search_page_delegate.dart';
 import '../ui/ui_shelf_item.dart';
 import 'chapter_page.dart';
+import 'video_page.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
@@ -66,9 +68,15 @@ class FavoritePage extends StatelessWidget {
         VoidCallback openChapter = () => Navigator.of(context).push(
             MaterialPageRoute(
                 builder: (context) => ChapterPage(searchItem: searchItem)));
-        VoidCallback openContent = () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ContentPage(searchItem: searchItem)));
+        VoidCallback openContent =
+            () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    if (searchItem.ruleContentType == API.VIDEO) {
+                      return VideoPage(searchItem: searchItem);
+                    }
+                    return ContentPage(searchItem: searchItem);
+                  },
+                ));
         return InkWell(
           child: UiShelfItem(searchItem: searchItem),
           onTap: longPress ? openChapter : openContent,
@@ -94,9 +102,15 @@ class FavoritePage extends StatelessWidget {
         VoidCallback openChapter = () => Navigator.of(context).push(
             MaterialPageRoute(
                 builder: (context) => ChapterPage(searchItem: searchItem)));
-        VoidCallback openContent = () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ContentPage(searchItem: searchItem)));
+        VoidCallback openContent =
+            () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    if (searchItem.ruleContentType == API.VIDEO) {
+                      return VideoPage(searchItem: searchItem);
+                    }
+                    return ContentPage(searchItem: searchItem);
+                  },
+                ));
         return InkWell(
           child: UIDiscoverItem(searchItem: searchItem),
           onTap: longPress ? openChapter : openContent,

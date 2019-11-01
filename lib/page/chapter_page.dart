@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:eso/api/api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
 import '../ui/ui_search_item.dart';
 import 'content_page.dart';
+import 'video_page.dart';
 import 'langding_page.dart';
 
 class ChapterPage extends StatefulWidget {
@@ -56,6 +58,10 @@ class _ChapterPageState extends State<ChapterPage> {
                       ? Icon(Icons.favorite)
                       : Icon(Icons.favorite_border),
                   onPressed: pageController.toggleFavorite,
+                ),
+                IconButton(
+                  icon: Icon(Icons.share),
+                  onPressed: pageController.share,
                 ),
               ],
             ),
@@ -121,8 +127,8 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget _buildButton(ChapterPageController pageController, BuildContext context,
-      int listStyle) {
+  Widget _buildButton(ChapterPageController pageController,
+      BuildContext context, int listStyle) {
     return MaterialButton(
       onPressed: () {
         pageController.changeListStyle(listStyle);
@@ -154,10 +160,14 @@ class _ChapterPageState extends State<ChapterPage> {
     }
     void Function(int index) onTap = (int index) {
       pageController.changeChapter(index);
-      Navigator.of(context)
-          .push(MaterialPageRoute(
-              builder: (context) => ContentPage(searchItem: widget.searchItem)))
-          .whenComplete(pageController.adjustScroll);
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) {
+          if (widget.searchItem.ruleContentType == API.VIDEO) {
+            return VideoPage(searchItem: widget.searchItem);
+          }
+          return ContentPage(searchItem: widget.searchItem);
+        },
+      )).whenComplete(pageController.adjustScroll);
     };
     final screenWidth = MediaQuery.of(context).size.width;
     switch (widget.searchItem.chapterListStyle) {
@@ -251,8 +261,8 @@ class _ChapterPageState extends State<ChapterPage> {
     }
   }
 
-  Widget _buildChapterButton(BuildContext context, bool isDurIndex, Widget child,
-      VoidCallback onPress) {
+  Widget _buildChapterButton(BuildContext context, bool isDurIndex,
+      Widget child, VoidCallback onPress) {
     return isDurIndex
         ? RaisedButton(
             padding: EdgeInsets.all(8),

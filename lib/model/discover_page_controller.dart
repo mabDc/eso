@@ -99,10 +99,10 @@ class DiscoverPageController with ChangeNotifier {
     return;
   }
 
-  Future<void> refresh() async {
-    _page = 1;
-    return fetchData();
-  }
+  // Future<void> refresh() async {
+  //   _page = 1;
+  //   return fetchData();
+  // }
 
   void search() async {
     _showSearchResult = true;

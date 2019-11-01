@@ -1,10 +1,6 @@
 import 'package:eso/api/api.dart';
 
-import 'package:floor/floor.dart';
-
-@entity
 class Rule {
-  @primaryKey
   int id = DateTime.now().microsecondsSinceEpoch;
 
   bool enable = true;

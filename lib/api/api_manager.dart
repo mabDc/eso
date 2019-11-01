@@ -1,3 +1,5 @@
+import 'package:eso/api/zzzfun.dart';
+
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
@@ -41,6 +43,7 @@ class APIManager {
         Buka(),
         U17(),
         TencentManga(),
+        ZZZFun(),
       ];
 
   static Future<List<SearchItem>> discover(String originTag, Map<String,DiscoverPair> params,

@@ -104,46 +104,42 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                       ),
                     ],
                   ),
-            body: RefreshIndicator(
-              onRefresh: pageController.refresh,
-              child: Column(
-                children: <Widget>[
-                  pageController.showFilter
-                      ? (widget.discoverMap == null ||
-                              widget.discoverMap.length == 0)
-                          ? SizedBox(
-                              height: 32,
-                              child: Text(
-                                '暂无更多发现',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            )
-                          : Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Column(
-                                children: widget.discoverMap
-                                    .map((map) => _buildDropdown(
-                                        map,
-                                        Theme.of(context).primaryColor,
-                                        pageController
-                                            .getDiscoverPair(map.name),
-                                        pageController.selectDiscoverPair))
-                                    .toList(),
-                              ),
-                            )
-                      : Container(),
-                  Expanded(
-                    flex: 2,
-                    child: pageController.isLoading
-                        ? LandingPage()
-                        : Provider.of<Profile>(context).switchDiscoverStyle
-                            ? buildDiscoverResultList(
-                                pageController.items, pageController.controller)
-                            : buildDiscoverResultGrid(pageController.items,
-                                pageController.controller),
-                  ),
-                ],
-              ),
+            body: Column(
+              children: <Widget>[
+                pageController.showFilter
+                    ? (widget.discoverMap == null ||
+                            widget.discoverMap.length == 0)
+                        ? SizedBox(
+                            height: 32,
+                            child: Text(
+                              '暂无更多发现',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                              children: widget.discoverMap
+                                  .map((map) => _buildDropdown(
+                                      map,
+                                      Theme.of(context).primaryColor,
+                                      pageController.getDiscoverPair(map.name),
+                                      pageController.selectDiscoverPair))
+                                  .toList(),
+                            ),
+                          )
+                    : Container(),
+                Expanded(
+                  flex: 2,
+                  child: pageController.isLoading
+                      ? LandingPage()
+                      : Provider.of<Profile>(context).switchDiscoverStyle
+                          ? buildDiscoverResultList(
+                              pageController.items, pageController.controller)
+                          : buildDiscoverResultGrid(
+                              pageController.items, pageController.controller),
+                ),
+              ],
             ),
           );
         },

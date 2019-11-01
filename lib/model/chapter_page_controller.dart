@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
 
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
@@ -124,6 +125,15 @@ class ChapterPageController with ChangeNotifier {
     if (_isLoading) return;
     await SearchItemManager.toggleFavorite(searchItem);
     notifyListeners();
+  }
+
+  void share() async {
+    await FlutterShare.share(
+      title: '亦搜 eso',
+      text: '${searchItem.name}\n${searchItem.description}\n${searchItem.url}',
+      //linkUrl: '',
+      chooserTitle: '选择分享的应用',
+    );
   }
 
   void scrollerToTop() {
