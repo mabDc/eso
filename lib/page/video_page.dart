@@ -51,40 +51,48 @@ class _VideoPageState extends State<VideoPage> {
                 ),
               ],
             ),
-            body: pageController.content == null
-                ? LandingPage()
-                : GestureDetector(
-                    child: Container(
-                      color: Colors.transparent,
-                      height: double.infinity,
-                      width: double.infinity,
-                      child: Stack(
-                        children: <Widget>[
-                          Chewie(controller: pageController.controller,),
-                          pageController.showChapter
-                              ? UIChapterSelect(
-                                  searchItem: pageController.searchItem,
-                                  loadChapter: pageController.loadChapter,
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                    onTapUp: (TapUpDetails details) {
-                      final size = MediaQuery.of(context).size;
-                      if (details.globalPosition.dx > size.width * 3 / 8 &&
-                          details.globalPosition.dx < size.width * 5 / 8 &&
-                          details.globalPosition.dy > size.height * 3 / 8 &&
-                          details.globalPosition.dy < size.height * 5 / 8) {
-                        //pageController.showChapter = true;
-                      } else {
-                        pageController.showChapter = false;
-                      }
-                    },
-                  ),
+            body: _buildBody(pageController),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildBody(VideoPageController pageController) {
+    if (pageController.content == null) {
+      return LandingPage();
+    }
+    if (pageController.controller == null) {
+      return Text('加载失败', style: TextStyle(fontSize: 30));
+    }
+    return GestureDetector(
+      child: Container(
+        color: Colors.transparent,
+        height: double.infinity,
+        width: double.infinity,
+        child: Stack(
+          children: <Widget>[
+            Chewie(controller: pageController.controller),
+            pageController.showChapter
+                ? UIChapterSelect(
+                    searchItem: pageController.searchItem,
+                    loadChapter: pageController.loadChapter,
+                  )
+                : Container(),
+          ],
+        ),
+      ),
+      onTapUp: (TapUpDetails details) {
+        final size = MediaQuery.of(context).size;
+        if (details.globalPosition.dx > size.width * 3 / 8 &&
+            details.globalPosition.dx < size.width * 5 / 8 &&
+            details.globalPosition.dy > size.height * 3 / 8 &&
+            details.globalPosition.dy < size.height * 5 / 8) {
+          //pageController.showChapter = true;
+        } else {
+          pageController.showChapter = false;
+        }
+      },
     );
   }
 }

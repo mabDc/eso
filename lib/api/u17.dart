@@ -28,7 +28,7 @@ class U17 implements API {
               chapter: '',
               description:
                   '${item["description"] ?? (item["tags"] as List).join(" ")}',
-              url: '${item["comicId"] ?? item["comic_id"]}',
+              url: 'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?comicid=${item["comicId"] ?? item["comic_id"]}',
             ))
         .toList();
   }
@@ -48,9 +48,7 @@ class U17 implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    final comicId = url;
-    final res = await http.get(
-        'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?&comicid=$comicId');
+    final res = await http.get('$url');
     final json = jsonDecode(res.body);
     return (json["data"]["returnData"]["chapter_list"] as List).map((chapter) {
       final passTime = chapter["pass_time"];

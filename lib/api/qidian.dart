@@ -28,7 +28,7 @@ class Qidian implements API {
               author: '${item.querySelector('.author a').text}',
               chapter: '${item.querySelector('.update').text}',
               description: '${item.querySelector('.intro').text}',
-              url: '${item.querySelector('h4 a').attributes["data-bid"]}',
+              url: 'https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId=${item.querySelector('h4 a').attributes["data-bid"]}',
             ))
         .toList();
   }
@@ -54,9 +54,8 @@ class Qidian implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    final bookId = url;
-    final res = await http.get(
-        'https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId=$bookId');
+    final res = await http.get('$url');
+    final bookId = url.substring('https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId='.length);
     final json = jsonDecode(res.body);
     return (json["Data"]["Chapters"] as List).skip(1).map((chapter) {
       final time = DateTime.fromMillisecondsSinceEpoch(chapter["T"]);

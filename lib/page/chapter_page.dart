@@ -27,6 +27,13 @@ class ChapterPage extends StatefulWidget {
 
 class _ChapterPageState extends State<ChapterPage> {
   Widget _page;
+  ChapterPageController __pageController;
+  
+  @override
+  void dispose() {
+    __pageController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

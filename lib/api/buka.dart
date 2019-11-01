@@ -29,7 +29,7 @@ class Buka implements API {
               author: '${item["author"]}',
               chapter: '',
               description: '',
-              url: '${item["mid"]}',
+              url: 'http://m.buka.cn/m/${item["mid"]}',
             ))
         .toList();
   }
@@ -58,8 +58,7 @@ class Buka implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    final cid = '$url';
-    final res = await http.get('http://m.buka.cn/m/$cid');
+    final res = await http.get('$url');
     return parse(res.body)
         .querySelectorAll('#episodes a')
         .map((item) => ChapterItem(

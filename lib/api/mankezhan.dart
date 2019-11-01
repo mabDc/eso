@@ -25,7 +25,7 @@ class Mankezhan implements API {
       author: '${item["author_title"]}',
       chapter: '${item["chapter_title"]}',
       description: '${item["feature"]}',
-      url:'${item["comic_id"]}',
+      url:'https://comic.mkzhan.com/chapter/?comic_id=${item["comic_id"]}',
     )).toList();
   }
 
@@ -46,9 +46,9 @@ class Mankezhan implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    final comicId = url;
-    final res = await http.get('https://comic.mkzhan.com/chapter/?comic_id=$comicId');
+    final res = await http.get('$url');
     final json = jsonDecode(res.body);
+    final comicId = url.substring('https://comic.mkzhan.com/chapter/?comic_id='.length);
     return (json["data"] as List).map((chapter){
       final time = DateTime.fromMillisecondsSinceEpoch(int.parse(chapter["start_time"]) * 1000);
       return  ChapterItem(

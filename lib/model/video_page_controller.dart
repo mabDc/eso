@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:chewie/chewie.dart';
-import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/my_chewie_custom.dart';
 
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -14,15 +12,12 @@ class VideoPageController with ChangeNotifier {
   final SearchItem searchItem;
   // private
   VideoPlayerController _videoPlayerController;
+  bool _isLoading;
   // public get
-  int _progress;
-  int get progress => _progress;
   List<String> _content;
   List<String> get content => _content;
   ChewieController _controller;
   ChewieController get controller => _controller;
-  bool _isLoading;
-  bool get isLoading => _isLoading;
 
   bool _showChapter;
   bool get showChapter => _showChapter;
@@ -36,7 +31,6 @@ class VideoPageController with ChangeNotifier {
   VideoPageController({this.searchItem}) {
     _isLoading = false;
     _showChapter = false;
-    _progress = 0;
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
@@ -47,31 +41,40 @@ class VideoPageController with ChangeNotifier {
   void _initContent() async {
     _content = await APIManager.getContent(searchItem.originTag,
         searchItem.chapters[searchItem.durChapterIndex].url);
-    _setControl();
-    notifyListeners();
+    await _setControl();
   }
 
-  void _setControl() async {
+  Future<void> _setControl() async {
+    if (_content == null || _content.length == 0) {
+      return;
+    }
     _controller?.dispose();
     final cacheControl = _videoPlayerController;
     _videoPlayerController = VideoPlayerController.network(_content[0]);
+    await _videoPlayerController.initialize();
     _controller = ChewieController(
       videoPlayerController: _videoPlayerController,
-      aspectRatio: 16 / 9,
+      aspectRatio: _videoPlayerController.value.size.aspectRatio,
+      placeholder: Center(
+        child: Text(
+          "正在缓冲",
+          style: TextStyle(color: Colors.white30),
+        ),
+      ),
+      allowedScreenSleep: false,
       autoPlay: true,
       looping: false,
       startAt: Duration(milliseconds: searchItem.durContentIndex),
+      customControls: MyChewieMaterialControls(),
     );
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
     cacheControl?.dispose();
   }
 
-  void refreshProgress() {}
-
   loadChapter(int chapterIndex) async {
     _showChapter = false;
-    if (isLoading ||
+    if (_isLoading ||
         chapterIndex == searchItem.durChapterIndex ||
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
@@ -83,9 +86,8 @@ class VideoPageController with ChangeNotifier {
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     await SearchItemManager.saveSearchItem();
-    _setControl();
+    await _setControl();
     _isLoading = false;
-    notifyListeners();
   }
 
   @override
@@ -95,8 +97,8 @@ class VideoPageController with ChangeNotifier {
         (await _videoPlayerController.position).inMilliseconds;
     SearchItemManager.saveSearchItem();
     content.clear();
-    _controller.dispose();
-    _videoPlayerController.dispose();
+    _controller?.dispose();
+    _videoPlayerController?.dispose();
     super.dispose();
   }
 }

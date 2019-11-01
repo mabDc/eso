@@ -9,7 +9,7 @@ import 'package:html/parser.dart' show parse;
 
 class TencentManga implements API {
   @override
-  String get origin => '腾讯动漫';
+  String get origin => '腾讯漫画';
 
   @override
   String get originTag => 'TencentManga';

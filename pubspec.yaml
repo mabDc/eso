@@ -25,6 +25,8 @@ dependencies:
   fast_gbk: ^0.1.1+1
   flutter_bloc: ^1.0.0
   flutter_share: ^1.0.2+1
+  crypto: ^2.1.3
+
 
 dev_dependencies:
   flutter_test:

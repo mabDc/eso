@@ -1,3 +1,7 @@
+import 'package:eso/api/bainian.dart';
+import 'package:eso/api/bilibili.dart';
+import 'package:eso/api/migu_manga.dart';
+import 'package:eso/api/yinghua.dart';
 import 'package:eso/api/zzzfun.dart';
 
 import '../database/chapter_item.dart';
@@ -43,7 +47,11 @@ class APIManager {
         Buka(),
         U17(),
         TencentManga(),
+        MiguManga(),
+        Bainian(),
         ZZZFun(),
+        Yinghua(),
+        Bilibili(),
       ];
 
   static Future<List<SearchItem>> discover(String originTag, Map<String,DiscoverPair> params,

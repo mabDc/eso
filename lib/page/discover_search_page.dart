@@ -30,6 +30,12 @@ class DiscoverSearchPage extends StatefulWidget {
 
 class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
   Widget _discover;
+  DiscoverPageController __pageController;
+  @override
+  void dispose() {
+    __pageController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
