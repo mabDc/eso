@@ -27,9 +27,9 @@ class Bilibili implements API {
       return (json["data"] as List)
           .map((item) => SearchItem(
                 api: this,
-                cover: item["cover"] == null ? null : 'https:${item["cover"]}',
+                cover: item["cover"] == null ? null : '${item["cover"]}',
                 name: '${item["title"]}',
-                author: '${item["dislike_reasons"][0]["reason_name"] ?? ''}',
+                author: '',
                 chapter: '',
                 description: '${item["desc"] ?? ''}',
                 url: "${item["param"]}",

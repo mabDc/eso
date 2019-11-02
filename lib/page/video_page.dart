@@ -1,10 +1,10 @@
-import 'package:chewie/chewie.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/video_page_controller.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:chewie/chewie.dart';
 
 class VideoPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -76,7 +76,7 @@ class _VideoPageState extends State<VideoPage> {
         width: double.infinity,
         child: Stack(
           children: <Widget>[
-            Chewie(controller: pageController.controller),
+            Chewie(controller: pageController.controller,),
             pageController.showChapter
                 ? UIChapterSelect(
                     searchItem: pageController.searchItem,
