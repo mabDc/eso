@@ -1,22 +1,25 @@
 import 'dart:async';
-
-import 'package:chewie/src/chewie_player.dart' show ChewieController;
-import 'package:chewie/src/chewie_progress_colors.dart' show ChewieProgressColors;
-import 'package:chewie/src/material_progress_bar.dart' show MaterialVideoProgressBar;
-import 'package:chewie/src/utils.dart' show formatDuration;
+import 'package:chewie/src/chewie_player.dart';
+import 'package:chewie/src/chewie_progress_colors.dart';
+import 'package:chewie/src/material_progress_bar.dart';
+import 'package:chewie/src/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-class MyChewieMaterialControls extends StatefulWidget {
-  const MyChewieMaterialControls({Key key}) : super(key: key);
+class CustomChewieController extends StatefulWidget {
+  final VideoPlayerController audioController;
+  const CustomChewieController({
+    this.audioController,
+    Key key,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _MyChewieMaterialControlsState();
+    return _CustomChewieController();
   }
 }
 
-class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
+class _CustomChewieController extends State<CustomChewieController> {
   VideoPlayerValue _latestValue;
   double _latestVolume;
   bool _hideStuff = true;
@@ -124,7 +127,11 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
             _buildPlayPause(controller),
             chewieController.isLive ? const SizedBox() : _buildProgressBar(),
             chewieController.isLive
-                ? Expanded(child: const Text('直播',style: TextStyle(color: Colors.white),))
+                ? Expanded(
+                    child: const Text(
+                    '直播',
+                    style: TextStyle(color: Colors.white),
+                  ))
                 : _buildPosition(iconColor),
             chewieController.allowFullScreen
                 ? _buildExpandButton()
@@ -153,7 +160,7 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
               chewieController.isFullScreen
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen,
-                  color: Colors.white,
+              color: Colors.white,
             ),
           ),
         ),
@@ -173,19 +180,18 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
             } else
               _cancelAndRestartTimer();
           } else {
-
             setState(() {
               _hideStuff = true;
             });
           }
         },
-        onDoubleTap: (){
+        onDoubleTap: () {
           _playPause();
         },
         child: Container(
           color: Colors.transparent,
           child: Container(
-          alignment: Alignment.bottomRight,
+            alignment: Alignment.bottomRight,
             child: AnimatedOpacity(
               opacity:
                   _latestValue != null && !_latestValue.isPlaying && !_dragging
@@ -193,22 +199,22 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
                       : 0.0,
               duration: Duration(milliseconds: 300),
               child: GestureDetector(
-                onTap: () {
-                  _playPause();
-                },
+                  onTap: () {
+                    _playPause();
+                  },
                   child: Container(
-                    margin: EdgeInsets.only(bottom: 10,right: 10),
-                  decoration: BoxDecoration(
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: Colors.black54,
-                        blurRadius: 20
-                      ),
-                    ],
-                  ),
-                  child: Icon(Icons.play_circle_outline , size: 40.0,color: Colors.white,),
-                )
-              ),
+                    margin: EdgeInsets.only(bottom: 10, right: 10),
+                    decoration: BoxDecoration(
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(color: Colors.black54, blurRadius: 20),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.play_circle_outline,
+                      size: 40.0,
+                      color: Colors.white,
+                    ),
+                  )),
             ),
           ),
         ),
@@ -242,7 +248,7 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
   //               right: 8.0,
   //             ),
   //             child: Icon(
-                
+
   //               (_latestValue != null && _latestValue.volume > 0)
   //                   ? Icons.volume_up
   //                   : Icons.volume_off,
@@ -287,10 +293,7 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
       padding: EdgeInsets.only(right: 24.0),
       child: Text(
         '${formatDuration(position)}/${formatDuration(duration)}',
-        style: TextStyle(
-          fontSize: 14.0,
-          color: Colors.white
-        ),
+        style: TextStyle(fontSize: 14.0, color: Colors.white),
       ),
     );
   }
@@ -345,18 +348,22 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
         _hideStuff = false;
         _hideTimer?.cancel();
         controller.pause();
+        widget.audioController?.pause();
       } else {
         _cancelAndRestartTimer();
 
         if (!controller.value.initialized) {
           controller.initialize().then((_) {
             controller.play();
+            widget.audioController?.play();
           });
         } else {
           if (isFinished) {
             controller.seekTo(Duration(seconds: 0));
+            widget.audioController?.seekTo(Duration(seconds: 0));
           }
           controller.play();
+          widget.audioController?.play();
         }
       }
     });
@@ -370,9 +377,29 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
     });
   }
 
+  //绝对值
+  int abs(int n) {
+    if (n < 0) {
+      return -n;
+    } else {
+      return n;
+    }
+  }
+
   void _updateState() {
     setState(() {
       _latestValue = controller.value;
+      if (widget.audioController != null &&
+          abs(widget.audioController.value.position.inMilliseconds -
+                  controller.value.position.inMilliseconds) >
+              600) {
+        widget.audioController?.seekTo(controller.value.position);
+        if (controller.value.isPlaying) {
+          widget.audioController?.play();
+        }else {
+          widget.audioController?.pause();
+        }
+      }
     });
   }
 
@@ -380,29 +407,25 @@ class _MyChewieMaterialControlsState extends State<MyChewieMaterialControls> {
     return Expanded(
       child: Padding(
         padding: EdgeInsets.only(right: 20.0),
-        child: MaterialVideoProgressBar(
-          controller,
-          onDragStart: () {
-            setState(() {
-              _dragging = true;
-            });
+        child: MaterialVideoProgressBar(controller, onDragStart: () {
+          setState(() {
+            _dragging = true;
+          });
 
-            _hideTimer?.cancel();
-          },
-          onDragEnd: () {
-            setState(() {
-              _dragging = false;
-            });
+          _hideTimer?.cancel();
+        }, onDragEnd: () {
+          setState(() {
+            _dragging = false;
+          });
 
-            _startHideTimer();
-          },
-          colors: ChewieProgressColors(
-                  playedColor: Theme.of(context).primaryColor,
-                  handleColor: Colors.white,
-                  bufferedColor: Colors.white70,
-                  backgroundColor: Colors.white30,
-          )
-        ),
+          _startHideTimer();
+        },
+            colors: ChewieProgressColors(
+              playedColor: Theme.of(context).primaryColor,
+              handleColor: Colors.white,
+              bufferedColor: Colors.white70,
+              backgroundColor: Colors.white30,
+            )),
       ),
     );
   }

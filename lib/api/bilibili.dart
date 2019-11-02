@@ -25,9 +25,9 @@ class Bilibili implements API {
               api: this,
               cover: item["cover"] == null ? null : 'https:${item["cover"]}',
               name: '${item["title"]}',
-              author: '${item["author"] ?? ''}',
+              author: '${item["author"] ??item["label"]?? ''}',
               chapter: '',
-              description: '${item["desc"] ?? ''}',
+              description: '${item["desc"] ??item["style"]?? ''}',
               url: "${item["param"]}",
             ))
         .toList();
@@ -79,7 +79,18 @@ class Bilibili implements API {
     final res = await http.get("$path?$data&sign=$sign",
         headers: {"content-type": "application/json"});
     final json = jsonDecode(res.body);
-    return (json["data"]["durl"] as List).map((item) => '${item["url"]}').toList();
+    final dash = json["data"]["dash"];
+    if (dash != null) {
+      List<String> urls = <String>[];
+      urls.add('${dash["video"][0]["base_url"]}');
+      urls.add('audio${dash["audio"][0]["base_url"]}');
+      return urls;
+    }
+    final durl = json["data"]["durl"];
+    if (durl != null) {
+      return (durl as List).map((item) => '${item["url"]}').toList();
+    }
+    return <String>[];
   }
 
   @override

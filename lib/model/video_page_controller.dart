@@ -1,7 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/my_chewie_custom.dart';
+import 'package:eso/ui/custom_chewie_controller.dart';
 
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +12,7 @@ class VideoPageController with ChangeNotifier {
   final SearchItem searchItem;
   // private
   VideoPlayerController _videoPlayerController;
+  VideoPlayerController _audioPlayerController;
   bool _isLoading;
   // public get
   List<String> _content;
@@ -49,9 +50,16 @@ class VideoPageController with ChangeNotifier {
       return;
     }
     _controller?.dispose();
+    _audioPlayerController?.dispose();
     final cacheControl = _videoPlayerController;
     _videoPlayerController = VideoPlayerController.network(_content[0]);
     await _videoPlayerController.initialize();
+    if (_content.length == 2 && _content[1].substring(0,5) == 'audio') {
+      _audioPlayerController = VideoPlayerController.network(_content[1].substring(5));
+      await _audioPlayerController.initialize();
+    } else {
+      _audioPlayerController = null;
+    }
     _controller = ChewieController(
       videoPlayerController: _videoPlayerController,
       aspectRatio: _videoPlayerController.value.size.aspectRatio,
@@ -65,7 +73,9 @@ class VideoPageController with ChangeNotifier {
       autoPlay: true,
       looping: false,
       startAt: Duration(milliseconds: searchItem.durContentIndex),
-      customControls: MyChewieMaterialControls(),
+      customControls: CustomChewieController(
+        audioController: _audioPlayerController,
+      ),
     );
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
@@ -94,11 +104,12 @@ class VideoPageController with ChangeNotifier {
   void dispose() async {
     _videoPlayerController.pause();
     searchItem.durContentIndex =
-        (await _videoPlayerController.position).inMilliseconds;
+        _videoPlayerController.value.position.inMilliseconds;
     SearchItemManager.saveSearchItem();
     content.clear();
     _controller?.dispose();
     _videoPlayerController?.dispose();
+    _audioPlayerController?.dispose();
     super.dispose();
   }
 }

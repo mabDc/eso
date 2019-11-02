@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
@@ -69,7 +67,6 @@ class Bainian implements API {
     final zyurl = RegExp("z_yurl='([^']*)'").firstMatch(res.body)[1];
     final zimg = RegExp("z_img='([^']*)").firstMatch(res.body)[1];
     return (jsonDecode(zimg) as List).map((pic) => '$zyurl$pic').toList();
-    Uint8 a;
     
   }
 
