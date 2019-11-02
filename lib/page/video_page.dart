@@ -45,6 +45,10 @@ class _VideoPageState extends State<VideoPage> {
               title: Text(pageController.searchItem.durChapter),
               actions: <Widget>[
                 IconButton(
+                  icon: Icon(Icons.open_in_new),
+                  onPressed: pageController.openWith,
+                ),
+                IconButton(
                   icon: Icon(Icons.dns),
                   onPressed: () =>
                       pageController.showChapter = !pageController.showChapter,

@@ -6,6 +6,7 @@ import 'package:eso/ui/custom_chewie_controller.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VideoPageController with ChangeNotifier {
   // const
@@ -54,8 +55,9 @@ class VideoPageController with ChangeNotifier {
     final cacheControl = _videoPlayerController;
     _videoPlayerController = VideoPlayerController.network(_content[0]);
     await _videoPlayerController.initialize();
-    if (_content.length == 2 && _content[1].substring(0,5) == 'audio') {
-      _audioPlayerController = VideoPlayerController.network(_content[1].substring(5));
+    if (_content.length == 2 && _content[1].substring(0, 5) == 'audio') {
+      _audioPlayerController =
+          VideoPlayerController.network(_content[1].substring(5));
       await _audioPlayerController.initialize();
     } else {
       _audioPlayerController = null;
@@ -111,5 +113,9 @@ class VideoPageController with ChangeNotifier {
     _videoPlayerController?.dispose();
     _audioPlayerController?.dispose();
     super.dispose();
+  }
+
+  void openWith() {
+    launch(_content[0]);
   }
 }

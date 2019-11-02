@@ -17,33 +17,44 @@ class Bilibili implements API {
   @override
   int get ruleContentType => API.VIDEO;
 
-  Future<List<SearchItem>> commonParse(String url) async {
-    final res = await http.get(url);
+  @override
+  Future<List<SearchItem>> discover(
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
+    if (params['分类'].name == '推荐') {
+      final res = await http.get(
+          'https://app.bilibili.com/x/feed/index?appkey=1d8b6e7d45233436&build=508000&login_event=0&mobi_app=android');
+      final json = jsonDecode(res.body);
+      return (json["data"] as List)
+          .map((item) => SearchItem(
+                api: this,
+                cover: item["cover"] == null ? null : 'https:${item["cover"]}',
+                name: '${item["title"]}',
+                author: '${item["dislike_reasons"][0]["reason_name"] ?? ''}',
+                chapter: '',
+                description: '${item["desc"] ?? ''}',
+                url: "${item["param"]}",
+              ))
+          .toList();
+    }
+    return <SearchItem>[];
+  }
+
+  @override
+  Future<List<SearchItem>> search(String query, int page, int pageSize) async {
+    final res = await http.get(
+        'https://app.bilibili.com/x/v2/search?appkey=1d8b6e7d45233436&build=5370000&pn=$page&ps=$pageSize&keyword=$query&order=default');
     final json = jsonDecode(res.body);
     return (json["data"]["item"] as List)
         .map((item) => SearchItem(
               api: this,
               cover: item["cover"] == null ? null : 'https:${item["cover"]}',
               name: '${item["title"]}',
-              author: '${item["author"] ??item["label"]?? ''}',
+              author: '${item["author"] ?? item["label"] ?? ''}',
               chapter: '',
-              description: '${item["desc"] ??item["style"]?? ''}',
+              description: '${item["desc"] ?? item["style"] ?? ''}',
               url: "${item["param"]}",
             ))
         .toList();
-  }
-
-  @override
-  Future<List<SearchItem>> discover(
-      Map<String, DiscoverPair> params, int page, int pageSize) async {
-    return commonParse(
-        'https://app.bilibili.com/x/v2/search?appkey=1d8b6e7d45233436&build=5370000&pn=$page&ps=$pageSize&keyword=鬼灭&order=default');
-  }
-
-  @override
-  Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    return commonParse(
-        'https://app.bilibili.com/x/v2/search?appkey=1d8b6e7d45233436&build=5370000&pn=$page&ps=$pageSize&keyword=$query&order=default');
   }
 
   @override
@@ -97,7 +108,7 @@ class Bilibili implements API {
   List<DiscoverMap> discoverMap() {
     return <DiscoverMap>[
       DiscoverMap("分类", <DiscoverPair>[
-        DiscoverPair('全部', ''),
+        DiscoverPair('推荐', ''),
       ]),
     ];
   }
