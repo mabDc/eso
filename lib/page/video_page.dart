@@ -4,6 +4,10 @@ import 'package:eso/page/langding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chewie/chewie.dart';
+import 'package:eso/ui/ui_chapter_select.dart';
+import 'package:flutter_seekbar/flutter_seekbar.dart';
+import 'package:video_player/video_player.dart';
+import '../model/custom_chewie_provider.dart';
 
 class VideoPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -59,6 +63,170 @@ class _VideoPageState extends State<VideoPage> {
           );
         },
       ),
+    );
+  }
+}
+
+class CustomChewieController extends StatelessWidget {
+  final VideoPlayerController controller;
+  final VideoPlayerController audioController;
+  final SearchItem searchItem;
+  final Function(int index) loadChapter;
+  CustomChewieController({
+    @required this.controller,
+    this.audioController,
+    this.searchItem,
+    this.loadChapter,
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: CustomChewieProvider(
+        controller: controller,
+        audioController: audioController,
+      ),
+      child: Consumer<CustomChewieProvider>(
+        builder: (BuildContext context, CustomChewieProvider provider, _) {
+          return _buildControllers(context, provider);
+        },
+      ),
+    );
+  }
+
+  Widget _buildControllers(
+      BuildContext context, CustomChewieProvider provider) {
+    return GestureDetector(
+      onTap: () => provider.showController = !provider.showController,
+      onDoubleTap: provider.playOrpause,
+      child: Stack(
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              ChewieController.of(context).isFullScreen
+                  ? Container()
+                  : SizedBox(height: MediaQuery.of(context).padding.top),
+              provider.showController
+                  ? Container(
+                      width: double.infinity,
+                      color: Colors.black.withAlpha(25),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      child: _buildTopRow(context, provider),
+                    )
+                  : Container(),
+              Expanded(
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+              provider.showController
+                  ? Container(
+                      width: double.infinity,
+                      color: Colors.black.withAlpha(25),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      child: _buildBottomRow(context, provider),
+                    )
+                  : Container(),
+            ],
+          ),
+          provider.showChapter
+              ? UIChapterSelect(
+                  loadChapter: (int index) {
+                    if (ChewieController.of(context).isFullScreen) {
+                      ChewieController.of(context).toggleFullScreen();
+                    }
+                    loadChapter(index);
+                  },
+                  searchItem: searchItem,
+                )
+              : Container(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopRow(BuildContext context, CustomChewieProvider provider) {
+    return Row(
+      children: <Widget>[
+        InkWell(
+          child: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            size: 32,
+          ),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        SizedBox(
+          width: 6,
+        ),
+        Expanded(
+          child: Text(
+            '${searchItem.durChapter}'.trim(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        InkWell(
+          child: Icon(
+            Icons.more_vert,
+            color: Colors.white,
+          ),
+          onTap: () => provider.showChapter = !provider.showChapter,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomRow(BuildContext context, CustomChewieProvider provider) {
+    return Row(
+      children: <Widget>[
+        InkWell(
+          child: Icon(
+            provider.isPlaying ? Icons.pause : Icons.play_arrow,
+            color: Colors.white,
+            size: 32,
+          ),
+          onTap: provider.playOrpause,
+        ),
+        SizedBox(
+          width: 8,
+        ),
+        Expanded(
+          child: SeekBar(
+            value: provider.positionSeconds.toDouble(),
+            max: provider.seconds.toDouble(),
+            backgroundColor: Colors.white54,
+            progresseight: 4,
+            afterDragShowSectionText: true,
+            onValueChanged: (value) => provider.seekTo(value.value.toInt()),
+            indicatorRadius: 5,
+          ),
+        ),
+        SizedBox(
+          width: 8,
+        ),
+        Text(
+          '${provider.positionDuration}/${provider.duration}',
+          style: TextStyle(color: Colors.white),
+        ),
+        InkWell(
+          child: Icon(
+            ChewieController.of(context).isFullScreen
+                ? Icons.fullscreen_exit
+                : Icons.fullscreen,
+            color: Colors.white,
+            size: 32,
+          ),
+          onTap: ChewieController.of(context).toggleFullScreen,
+        ),
+      ],
     );
   }
 }

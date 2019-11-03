@@ -1,7 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/custom_chewie_controller.dart';
+import 'package:eso/page/video_page.dart';
 
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +77,7 @@ class VideoPageController with ChangeNotifier {
     cacheVideoController?.dispose();
   }
 
-  loadChapter(int chapterIndex) async {
+  Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (_isLoading ||
         chapterIndex == searchItem.durChapterIndex ||
