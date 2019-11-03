@@ -155,7 +155,7 @@ class CustomChewieController extends StatelessWidget {
           child: Icon(
             Icons.arrow_back,
             color: Colors.white,
-            size: 32,
+            size: 26,
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
@@ -177,6 +177,7 @@ class CustomChewieController extends StatelessWidget {
           child: Icon(
             Icons.more_vert,
             color: Colors.white,
+            size: 26,
           ),
           onTap: () => provider.showChapter = !provider.showChapter,
         ),
@@ -191,7 +192,7 @@ class CustomChewieController extends StatelessWidget {
           child: Icon(
             provider.isPlaying ? Icons.pause : Icons.play_arrow,
             color: Colors.white,
-            size: 32,
+            size: 26,
           ),
           onTap: provider.playOrpause,
         ),
@@ -222,7 +223,7 @@ class CustomChewieController extends StatelessWidget {
                 ? Icons.fullscreen_exit
                 : Icons.fullscreen,
             color: Colors.white,
-            size: 32,
+            size: 26,
           ),
           onTap: ChewieController.of(context).toggleFullScreen,
         ),

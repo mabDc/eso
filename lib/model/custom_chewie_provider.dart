@@ -8,9 +8,6 @@ class CustomChewieProvider with ChangeNotifier {
   VideoPlayerController audioController;
   Timer _timer;
   int _lastShowTime;
-  bool _showController;
-  bool get showController => _showController;
-
   int get seconds => controller.value.duration.inSeconds;
   int get positionSeconds => controller.value.position.inSeconds;
 
@@ -19,6 +16,8 @@ class CustomChewieProvider with ChangeNotifier {
 
   bool get isPlaying => controller.value.isPlaying;
 
+  bool _showController;
+  bool get showController => _showController;
   set showController(bool value) {
     refreshLastTime();
     if (_showChapter) {
