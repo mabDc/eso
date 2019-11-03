@@ -56,6 +56,10 @@ android {
     }
 
     buildTypes {
+        debug{
+            //在编译打包时会给包名加上后缀
+            applicationIdSuffix ".debug"
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.

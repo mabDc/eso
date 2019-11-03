@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/custom_chewie_controller.dart';
 
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class VideoPageController with ChangeNotifier {
   // private
   bool _isLoading;
   VideoPlayerController _videoController;
+  VideoPlayerController _audioController;
   // public get
   List<String> _content;
   List<String> get content => _content;
@@ -50,6 +52,12 @@ class VideoPageController with ChangeNotifier {
     final cacheVideoController = _videoController;
     _videoController = VideoPlayerController.network(_content[0]);
     await _videoController.initialize();
+    _audioController?.dispose();
+    if (_content.length == 2 && _content[1].substring(0, 5) == 'audio') {
+      _audioController =
+          VideoPlayerController.network(_content[1].substring(5));
+      await _audioController.initialize();
+    }
     _controller?.dispose();
     _controller = ChewieController(
       autoPlay: true,
@@ -57,25 +65,17 @@ class VideoPageController with ChangeNotifier {
       videoPlayerController: _videoController,
       aspectRatio: _videoController.value.aspectRatio,
       allowedScreenSleep: false,
+      customControls: CustomChewieController(
+        controller: _videoController,
+        audioController: _audioController,
+        searchItem: searchItem,
+        loadChapter: loadChapter,
+      ),
     );
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
     cacheVideoController?.dispose();
   }
-
-  // void _syncController() {
-  //   if (_audioController == null) return;
-  //   if ((_audioController.value.position.inMilliseconds -
-  //           _videoController.value.position.inMilliseconds) >
-  //       600) {
-  //     _audioController.seekTo(_videoController.value.position);
-  //     if (_videoController.value.isPlaying) {
-  //       _audioController.play();
-  //     } else {
-  //       _audioController.pause();
-  //     }
-  //   }
-  // }
 
   loadChapter(int chapterIndex) async {
     _showChapter = false;
@@ -101,6 +101,7 @@ class VideoPageController with ChangeNotifier {
     SearchItemManager.saveSearchItem();
     content.clear();
     _controller?.dispose();
+    await _audioController?.dispose();
     await _videoController?.dispose();
     super.dispose();
   }

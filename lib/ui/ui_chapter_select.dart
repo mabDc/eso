@@ -10,7 +10,7 @@ class UIChapterSelect extends StatelessWidget {
     this.loadChapter,
     this.searchItem,
     Key key,
-    }) : super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,34 +45,35 @@ class UIChapterSelect extends StatelessWidget {
               return Container(
                 height: itemHeight,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    InkWell(
-                      onTap: () => loadChapter(index),
-                      child: Row(
-                        children: <Widget>[
-                          // Text(
-                          //   '${index + 1}',
-                          //   style: TextStyle(
-                          //       fontSize: 10, fontStyle: FontStyle.italic),
-                          // ),
-                          // SizedBox(
-                          //   width: 8,
-                          // ),
-                          Expanded(
-                            child: Text(
-                              '${searchItem.chapters[index].name}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => loadChapter(index),
+                        child: Row(
+                          children: <Widget>[
+                            // Text(
+                            //   '${index + 1}',
+                            //   style: TextStyle(
+                            //       fontSize: 10, fontStyle: FontStyle.italic),
+                            // ),
+                            // SizedBox(
+                            //   width: 8,
+                            // ),
+                            Expanded(
+                              child: Text(
+                                '${searchItem.chapters[index].name}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          searchItem.durChapterIndex == index
-                              ? Icon(
-                                  Icons.done,
-                                  color: Theme.of(context).primaryColor,
-                                )
-                              : Container()
-                        ],
+                            searchItem.durChapterIndex == index
+                                ? Icon(
+                                    Icons.done,
+                                    color: Theme.of(context).primaryColor,
+                                  )
+                                : Container()
+                          ],
+                        ),
                       ),
                     ),
                     UIDash(height: 0.5, dashWidth: 4, color: Colors.grey),

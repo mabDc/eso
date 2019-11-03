@@ -89,6 +89,7 @@ class ColorLensPage extends StatelessWidget {
       onValueChanged: (ProgressValue progressValue) {
         valueChanged(progressValue.value.toInt());
       },
+      afterDragShowSectionText: true,
     );
   }
 
