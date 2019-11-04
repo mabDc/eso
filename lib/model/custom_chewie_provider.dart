@@ -8,13 +8,20 @@ class CustomChewieProvider with ChangeNotifier {
   VideoPlayerController audioController;
   Timer _timer;
   int _lastShowTime;
+  int _lastToastTime;
   int get seconds => controller.value.duration.inSeconds;
   int get positionSeconds => controller.value.position.inSeconds;
 
   String get duration => _getTimeString(seconds);
   String get positionDuration => _getTimeString(positionSeconds);
 
+  String _toastText;
+  String get toastText => _toastText;
+
   bool get isPlaying => controller.value.isPlaying;
+
+  bool _showToast;
+  bool get showToast => _showToast;
 
   bool _showController;
   bool get showController => _showController;
@@ -38,20 +45,32 @@ class CustomChewieProvider with ChangeNotifier {
     }
   }
 
+  double initial;
+  int panSeconds;
   CustomChewieProvider({
     @required this.controller,
     @required this.audioController,
   }) {
+    initial = 0;
+    panSeconds = 0;
     _showController = true;
     _showChapter = false;
+    _showToast = false;
+    _toastText = '';
     refreshLastTime();
-    controller.play();
+    refreshToastTime();
     audioController?.play();
     _syncController();
     _timer = Timer.periodic(Duration(milliseconds: 300), (timer) {
       if (_showController) {
-        if (DateTime.now().millisecondsSinceEpoch - _lastShowTime > 5000) {
+        if (DateTime.now().millisecondsSinceEpoch - _lastShowTime > 3000) {
           _showController = false;
+        }
+        notifyListeners();
+      }
+      if (_showToast) {
+        if (DateTime.now().millisecondsSinceEpoch - _lastToastTime > 800) {
+          _showToast = false;
         }
         notifyListeners();
       }
@@ -108,9 +127,11 @@ class CustomChewieProvider with ChangeNotifier {
     if (isPlaying) {
       controller.pause();
       audioController?.pause();
+      showToastText('暂停');
     } else {
       controller.play();
       audioController?.play();
+      showToastText('播放');
     }
     refreshLastTime();
     notifyListeners();
@@ -120,9 +141,20 @@ class CustomChewieProvider with ChangeNotifier {
     _lastShowTime = DateTime.now().millisecondsSinceEpoch;
   }
 
-  void seekTo(int seconds) {
-    controller.seekTo(Duration(seconds: seconds));
+  void refreshToastTime() {
+    _lastToastTime = DateTime.now().millisecondsSinceEpoch;
+  }
+
+  void seekTo(int seconds) async {
+    if (seconds < 0) {
+      showToastText('从头播放');
+      seconds = 0;
+    } else if (seconds > this.seconds) {
+      showToastText('结束');
+      seconds = this.seconds;
+    }
     refreshLastTime();
+    await controller.seekTo(Duration(seconds: seconds));
     _syncController();
   }
 
@@ -135,5 +167,12 @@ class CustomChewieProvider with ChangeNotifier {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  void showToastText(String text) {
+    _toastText = text;
+    _showToast = true;
+    refreshToastTime();
+    notifyListeners();
   }
 }

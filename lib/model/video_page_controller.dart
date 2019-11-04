@@ -65,7 +65,7 @@ class VideoPageController with ChangeNotifier {
       videoPlayerController: _videoController,
       aspectRatio: _videoController.value.aspectRatio,
       allowedScreenSleep: false,
-      customControls: CustomChewieController(
+      customControls:  CustomChewieController(
         controller: _videoController,
         audioController: _audioController,
         searchItem: searchItem,

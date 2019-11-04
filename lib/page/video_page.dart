@@ -100,6 +100,24 @@ class CustomChewieController extends StatelessWidget {
     return GestureDetector(
       onTap: () => provider.showController = !provider.showController,
       onDoubleTap: provider.playOrpause,
+      onPanStart: (DragStartDetails details) {
+        provider.initial = details.globalPosition.dx;
+      },
+      onPanUpdate: (DragUpdateDetails details) {
+        provider.panSeconds =
+            ((details.globalPosition.dx - provider.initial) ~/ 30) * 5;
+        provider.showToastText(provider.panSeconds == 0
+            ? '　0　'
+            : provider.panSeconds > 0
+                ? '　${provider.panSeconds}►'
+                : '◄${-provider.panSeconds}　');
+      },
+      onPanEnd: (DragEndDetails details) {
+        provider.initial = 0.0;
+        if (provider.panSeconds.abs() > 1) {
+          provider.seekTo(provider.positionSeconds + provider.panSeconds);
+        }
+      },
       child: Stack(
         children: <Widget>[
           Column(
@@ -118,6 +136,19 @@ class CustomChewieController extends StatelessWidget {
                   : Container(),
               Expanded(
                 child: Container(
+                  child: provider.showToast
+                      ? Center(
+                          child: Text(
+                            provider.toastText,
+                            style: TextStyle(
+                              fontSize: 60,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.white70,
+                              letterSpacing: 3,
+                            ),
+                          ),
+                        )
+                      : null,
                   color: Colors.transparent,
                 ),
               ),
