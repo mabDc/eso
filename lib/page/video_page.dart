@@ -1,13 +1,11 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/video_page_controller.dart';
-import 'package:eso/page/langding_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:chewie/chewie.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:video_player/video_player.dart';
-import '../model/custom_chewie_provider.dart';
 
 class VideoPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -22,7 +20,7 @@ class VideoPage extends StatefulWidget {
 
 class _VideoPageState extends State<VideoPage> {
   Widget page;
-  VideoPageController __pageController;
+  VideoPageController __provider;
   @override
   Widget build(BuildContext context) {
     if (page == null) {
@@ -33,7 +31,7 @@ class _VideoPageState extends State<VideoPage> {
 
   @override
   void dispose() {
-    __pageController?.dispose();
+    __provider?.dispose();
     super.dispose();
   }
 
@@ -41,65 +39,72 @@ class _VideoPageState extends State<VideoPage> {
     return ChangeNotifierProvider<VideoPageController>.value(
       value: VideoPageController(searchItem: widget.searchItem),
       child: Consumer<VideoPageController>(
-        builder: (BuildContext context, VideoPageController pageController, _) {
-          __pageController = pageController;
-          if (pageController.content == null) {
-            return LandingPage();
-          }
-          if (pageController.controller == null) {
+        builder: (BuildContext context, VideoPageController provider, _) {
+          __provider = provider;
+          if (provider.content == null ||
+              provider.controller == null ||
+              provider.isLoading ||
+              provider.isParsing) {
+            String s = '加载失败!';
+            if (provider.content == null) {
+              s = '初始化';
+            } else if (provider.isParsing) {
+              s = '解析中';
+            } else if (provider.isLoading) {
+              s = '缓冲中';
+            }
+            SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
             return Scaffold(
-              body: Text(
-                '加载失败',
-                style: TextStyle(fontSize: 30),
+              body: Column(
+                children: <Widget>[
+                  SizedBox(height: MediaQuery.of(context).padding.top),
+                  _buildTopRow(context, provider),
+                  SizedBox(height: 30),
+                  Text(s, style: TextStyle(fontSize: 18)),
+                  SizedBox(height: 30),
+                  CircularProgressIndicator(),
+                ],
               ),
             );
           }
           return Scaffold(
-            body: Column(
-              children: <Widget>[
-                Chewie(controller: pageController.controller),
-              ],
+            body: Container(
+              color: Colors.black,
+              height: double.infinity,
+              width: double.infinity,
+              child: Stack(
+                children: <Widget>[
+                  Center(
+                    child: AspectRatio(
+                      aspectRatio: provider.asaspectRatiop,
+                      child: VideoPlayer(provider.controller),
+                    ),
+                  ),
+                  _buildControllers(context, provider),
+                  provider.showChapter
+                      ? UIChapterSelect(
+                          loadChapter: provider.loadChapter,
+                          searchItem: widget.searchItem,
+                        )
+                      : Container(),
+                ],
+              ),
             ),
           );
         },
       ),
     );
   }
-}
 
-class CustomChewieController extends StatelessWidget {
-  final VideoPlayerController controller;
-  final VideoPlayerController audioController;
-  final SearchItem searchItem;
-  final Function(int index) loadChapter;
-  CustomChewieController({
-    @required this.controller,
-    this.audioController,
-    this.searchItem,
-    this.loadChapter,
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: CustomChewieProvider(
-        controller: controller,
-        audioController: audioController,
-      ),
-      child: Consumer<CustomChewieProvider>(
-        builder: (BuildContext context, CustomChewieProvider provider, _) {
-          return _buildControllers(context, provider);
-        },
-      ),
-    );
-  }
-
-  Widget _buildControllers(
-      BuildContext context, CustomChewieProvider provider) {
+  Widget _buildControllers(BuildContext context, VideoPageController provider) {
+    if (provider.showController) {
+      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    } else {
+      SystemChrome.setEnabledSystemUIOverlays([]);
+    }
     return GestureDetector(
       onTap: () => provider.showController = !provider.showController,
-      onDoubleTap: provider.playOrpause,
+      onDoubleTap: provider.playOrPause,
       onPanStart: (DragStartDetails details) {
         provider.initial = details.globalPosition.dx;
       },
@@ -112,153 +117,138 @@ class CustomChewieController extends StatelessWidget {
                 ? '　${provider.panSeconds}►'
                 : '◄${-provider.panSeconds}　');
       },
-      onPanEnd: (DragEndDetails details) {
-        provider.initial = 0.0;
-        if (provider.panSeconds.abs() > 1) {
-          provider.seekTo(provider.positionSeconds + provider.panSeconds);
-        }
-      },
-      child: Stack(
+      onPanEnd: provider.onPanEnd,
+      child: Column(
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              ChewieController.of(context).isFullScreen
-                  ? Container()
-                  : SizedBox(height: MediaQuery.of(context).padding.top),
-              provider.showController
-                  ? Container(
-                      width: double.infinity,
-                      color: Colors.black.withAlpha(25),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      child: _buildTopRow(context, provider),
-                    )
-                  : Container(),
-              Expanded(
-                child: Container(
-                  child: provider.showToast
-                      ? Center(
-                          child: Text(
-                            provider.toastText,
-                            style: TextStyle(
-                              fontSize: 60,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.white70,
-                              letterSpacing: 3,
+          SizedBox(height: MediaQuery.of(context).padding.top),
+          provider.showController
+              ? _buildTopRow(context, provider)
+              : Container(),
+          Expanded(
+            child: Container(
+              child: provider.showToast
+                  ? Center(
+                      child: Text(
+                        provider.toastText,
+                        style: TextStyle(
+                          fontSize: 60,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.white,
+                          letterSpacing: 3,
+                          shadows: <Shadow>[
+                            Shadow(
+                              color: Colors.blue,
+                              blurRadius: 1,
+                              offset: Offset(1, 1),
                             ),
-                          ),
-                        )
-                      : null,
-                  color: Colors.transparent,
-                ),
-              ),
-              provider.showController
-                  ? Container(
-                      width: double.infinity,
-                      color: Colors.black.withAlpha(25),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      child: _buildBottomRow(context, provider),
+                          ],
+                        ),
+                      ),
                     )
-                  : Container(),
-            ],
+                  : null,
+              color: Colors.transparent,
+            ),
           ),
-          provider.showChapter
-              ? UIChapterSelect(
-                  loadChapter: (int index) {
-                    if (ChewieController.of(context).isFullScreen) {
-                      ChewieController.of(context).toggleFullScreen();
-                    }
-                    loadChapter(index);
-                  },
-                  searchItem: searchItem,
-                )
+          provider.showController
+              ? _buildBottomRow(context, provider)
               : Container(),
         ],
       ),
     );
   }
 
-  Widget _buildTopRow(BuildContext context, CustomChewieProvider provider) {
-    return Row(
-      children: <Widget>[
-        InkWell(
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-            size: 26,
-          ),
-          onTap: () => Navigator.of(context).pop(),
-        ),
-        SizedBox(
-          width: 6,
-        ),
-        Expanded(
-          child: Text(
-            '${searchItem.durChapter}'.trim(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 16,
+  Widget _buildTopRow(BuildContext context, VideoPageController provider) {
+    return Container(
+      width: double.infinity,
+      color: Colors.black.withAlpha(25),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      child: Row(
+        children: <Widget>[
+          InkWell(
+            child: Icon(
+              Icons.arrow_back,
               color: Colors.white,
+              size: 26,
+            ),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+          SizedBox(
+            width: 6,
+          ),
+          Expanded(
+            child: Text(
+              '${widget.searchItem.durChapter}'.trim(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        InkWell(
-          child: Icon(
-            Icons.more_vert,
-            color: Colors.white,
-            size: 26,
+          InkWell(
+            child: Icon(
+              Icons.more_vert,
+              color: Colors.white,
+              size: 26,
+            ),
+            onTap: () => provider.showChapter = !provider.showChapter,
           ),
-          onTap: () => provider.showChapter = !provider.showChapter,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildBottomRow(BuildContext context, CustomChewieProvider provider) {
-    return Row(
-      children: <Widget>[
-        InkWell(
-          child: Icon(
-            provider.isPlaying ? Icons.pause : Icons.play_arrow,
-            color: Colors.white,
-            size: 26,
+  Widget _buildBottomRow(BuildContext context, VideoPageController provider) {
+    return Container(
+      width: double.infinity,
+      color: Colors.black.withAlpha(25),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      child: Row(
+        children: <Widget>[
+          InkWell(
+            child: Icon(
+              provider.isPlaying ? Icons.pause : Icons.play_arrow,
+              color: Colors.white,
+              size: 26,
+            ),
+            onTap: provider.playOrPause,
           ),
-          onTap: provider.playOrpause,
-        ),
-        SizedBox(
-          width: 8,
-        ),
-        Expanded(
-          child: SeekBar(
-            value: provider.positionSeconds.toDouble(),
-            max: provider.seconds.toDouble(),
-            backgroundColor: Colors.white54,
-            progresseight: 4,
-            afterDragShowSectionText: true,
-            onValueChanged: (value) => provider.seekTo(value.value.toInt()),
-            indicatorRadius: 5,
+          SizedBox(
+            width: 8,
           ),
-        ),
-        SizedBox(
-          width: 8,
-        ),
-        Text(
-          '${provider.positionDuration}/${provider.duration}',
-          style: TextStyle(color: Colors.white),
-        ),
-        InkWell(
-          child: Icon(
-            ChewieController.of(context).isFullScreen
-                ? Icons.fullscreen_exit
-                : Icons.fullscreen,
-            color: Colors.white,
-            size: 26,
+          Expanded(
+            child: SeekBar(
+              value: provider.positionSeconds.toDouble(),
+              max: provider.seconds.toDouble(),
+              backgroundColor: Colors.white54,
+              progresseight: 4,
+              afterDragShowSectionText: true,
+              onValueChanged: (progress) =>
+                  provider.seekTo(Duration(seconds: progress.value.toInt())),
+              indicatorRadius: 5,
+            ),
           ),
-          onTap: ChewieController.of(context).toggleFullScreen,
-        ),
-      ],
+          SizedBox(
+            width: 8,
+          ),
+          Text(
+            '${provider.positionDuration}/${provider.duration}',
+            style: TextStyle(color: Colors.white),
+          ),
+          SizedBox(
+            width: 8,
+          ),
+          InkWell(
+            child: Icon(
+              Icons.screen_rotation,
+              color: Colors.white,
+              size: 26,
+            ),
+            onTap: provider.toggleRotation,
+          ),
+        ],
+      ),
     );
   }
 }

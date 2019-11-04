@@ -68,12 +68,15 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                       onPressed: pageController.toggleSearching,
                     ),
                     actions: pageController.queryController.text == ''
-                        ? <Widget>[]
+                        ? <Widget>[
+                            _buildSwitchStyle(context),
+                          ]
                         : <Widget>[
                             IconButton(
                               icon: Icon(Icons.clear),
                               onPressed: pageController.clearInputText,
                             ),
+                            _buildSwitchStyle(context),
                           ],
                     title: TextField(
                       controller: pageController.queryController,
@@ -100,14 +103,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                         icon: Icon(Icons.filter_list),
                         onPressed: pageController.toggleDiscoverFilter,
                       ),
-                      IconButton(
-                        icon: Provider.of<Profile>(context).switchDiscoverStyle
-                            ? Icon(Icons.view_module)
-                            : Icon(Icons.view_headline),
-                        onPressed: () => Provider.of<Profile>(context)
-                                .switchDiscoverStyle =
-                            !Provider.of<Profile>(context).switchDiscoverStyle,
-                      ),
+                      _buildSwitchStyle(context),
                     ],
                   ),
             body: Column(
@@ -150,6 +146,16 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSwitchStyle(BuildContext context) {
+    return IconButton(
+      icon: Provider.of<Profile>(context).switchDiscoverStyle
+          ? Icon(Icons.view_module)
+          : Icon(Icons.view_headline),
+      onPressed: () => Provider.of<Profile>(context).switchDiscoverStyle =
+          !Provider.of<Profile>(context).switchDiscoverStyle,
     );
   }
 
