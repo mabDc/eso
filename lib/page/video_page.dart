@@ -161,7 +161,7 @@ class _VideoPageState extends State<VideoPage> {
     return Container(
       width: double.infinity,
       color: Colors.black.withAlpha(25),
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Row(
         children: <Widget>[
           InkWell(
@@ -173,7 +173,7 @@ class _VideoPageState extends State<VideoPage> {
             onTap: () => Navigator.of(context).pop(),
           ),
           SizedBox(
-            width: 6,
+            width: 10,
           ),
           Expanded(
             child: Text(
@@ -185,6 +185,17 @@ class _VideoPageState extends State<VideoPage> {
                 color: Colors.white,
               ),
             ),
+          ),
+          InkWell(
+            child: Icon(
+              Icons.file_download,
+              color: Colors.white,
+              size: 26,
+            ),
+            onTap: provider.openWith,
+          ),
+          SizedBox(
+            width: 10,
           ),
           InkWell(
             child: Icon(
@@ -203,7 +214,7 @@ class _VideoPageState extends State<VideoPage> {
     return Container(
       width: double.infinity,
       color: Colors.black.withAlpha(25),
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Row(
         children: <Widget>[
           InkWell(
@@ -215,7 +226,7 @@ class _VideoPageState extends State<VideoPage> {
             onTap: provider.playOrPause,
           ),
           SizedBox(
-            width: 8,
+            width: 10,
           ),
           Expanded(
             child: SeekBar(
@@ -230,14 +241,14 @@ class _VideoPageState extends State<VideoPage> {
             ),
           ),
           SizedBox(
-            width: 8,
+            width: 10,
           ),
           Text(
             '${provider.positionDuration}/${provider.duration}',
             style: TextStyle(color: Colors.white),
           ),
           SizedBox(
-            width: 8,
+            width: 10,
           ),
           InkWell(
             child: Icon(

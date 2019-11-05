@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'chapter_item.dart';
 import 'search_item.dart';
 import '../global.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SearchItemManager {
   static List<SearchItem> _searchItem;
@@ -58,7 +60,42 @@ class SearchItemManager {
   }
 
   static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return Global.prefs.setStringList(
-        genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
+    return Global.prefs.setStringList(genChapterKey(id),
+        chapters.map((item) => jsonEncode(item.toJson())).toList());
+  }
+
+  static Future<bool> backupItems() async {
+    Directory dir = await getExternalStorageDirectory();
+    String s = json.encode(_searchItem.map((item) {
+      Map<String, dynamic> json = item.toJson();
+      json["chapters"] = getChapter(item.id)
+          .map((chapter) => jsonEncode(chapter.toJson()))
+          .toList();
+      return json;
+    }).toList());
+    await File(dir.path + '/backup.txt').writeAsString(s);
+    return true;
+  }
+
+  static Future<bool> restore() async {
+    Directory dir = await getExternalStorageDirectory();
+    File file = File(dir.path + '/backup.txt');
+    if (file.existsSync()) {
+      String jsonString = await file.readAsString();
+      List json = jsonDecode(jsonString);
+      json.forEach((item) {
+        SearchItem searchItem = SearchItem.fromJson(item);
+        if (!isFavorite(searchItem.url)) {
+          List<ChapterItem> chapters =
+              (jsonDecode('${item["chapters"]}') as List)
+                  .map((chapter) => ChapterItem.fromJson(chapter))
+                  .toList();
+          saveChapter(searchItem.id, chapters);
+          _searchItem.add(searchItem);
+        }
+      });
+      saveSearchItem();
+    }
+    return true;
   }
 }

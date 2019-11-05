@@ -25,11 +25,12 @@ class Bilibili implements API {
           'https://app.bilibili.com/x/feed/index?appkey=1d8b6e7d45233436&build=508000&login_event=0&mobi_app=android');
       final json = jsonDecode(res.body);
       return (json["data"] as List)
+          .where((item) => item["param"] != '0' && item["param"] != '')
           .map((item) => SearchItem(
                 api: this,
                 cover: item["cover"] == null ? null : '${item["cover"]}',
                 name: '${item["title"]}',
-                author: '',
+                author: '${item["name"]}',
                 chapter: '',
                 description: '${item["desc"] ?? ''}',
                 url: "${item["param"]}",
@@ -45,6 +46,11 @@ class Bilibili implements API {
         'https://app.bilibili.com/x/v2/search?appkey=1d8b6e7d45233436&build=5370000&pn=$page&ps=$pageSize&keyword=$query&order=default');
     final json = jsonDecode(res.body);
     return (json["data"]["item"] as List)
+        .where((item) =>
+            item["badge"] != '番剧' &&
+            item["badge"] != '专栏' &&
+            item["param"] != '0' &&
+            item["param"] != '')
         .map((item) => SearchItem(
               api: this,
               cover: item["cover"] == null ? null : 'https:${item["cover"]}',

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/api/api.dart';
+import 'package:eso/page/audio_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,7 @@ class ChapterPage extends StatefulWidget {
 class _ChapterPageState extends State<ChapterPage> {
   Widget _page;
   ChapterPageController __pageController;
-  
+
   @override
   void dispose() {
     __pageController?.dispose();
@@ -171,6 +172,9 @@ class _ChapterPageState extends State<ChapterPage> {
         builder: (context) {
           if (widget.searchItem.ruleContentType == API.VIDEO) {
             return VideoPage(searchItem: widget.searchItem);
+          }
+          if (widget.searchItem.ruleContentType == API.AUDIO) {
+            return AudioPage(searchItem: widget.searchItem);
           }
           return ContentPage(searchItem: widget.searchItem);
         },

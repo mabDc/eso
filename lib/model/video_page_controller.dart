@@ -38,7 +38,7 @@ class VideoPageController with ChangeNotifier {
 
   String get duration => _getTimeString(seconds);
   String get positionDuration => _getTimeString(positionSeconds);
-  
+
   String _toastText;
   String get toastText => _toastText;
 
@@ -166,7 +166,9 @@ class VideoPageController with ChangeNotifier {
   }
 
   void openWith() {
-    launch(_content[0]);
+    if (_content != null && _content.length > 0) {
+      launch(_content[0]);
+    }
   }
 
   void _syncController() async {
@@ -182,7 +184,7 @@ class VideoPageController with ChangeNotifier {
     } while (
         (_audioController.value.position.inMilliseconds - positionMilliseconds)
                 .abs() >
-            100);
+            200);
   }
 
   String _getTimeString(int all) {

@@ -1,3 +1,4 @@
+import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,6 +57,16 @@ class AboutPage extends StatelessWidget {
                       subtitle: Text('修改主题颜色'),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => ColorLensPage())),
+                    ),
+                    ListTile(
+                      title: Text('备份收藏'),
+                      subtitle: Text('备份至 Android/data/com.mabdc.eso/files/backup.txt'),
+                      onTap: () => SearchItemManager.backupItems(),
+                    ),
+                    ListTile(
+                      title: Text('恢复收藏'),
+                      subtitle: Text('恢复从 Android/data/com.mabdc.eso/files/backup.txt'),
+                      onTap: () => SearchItemManager.restore(),
                     ),
                   ],
                 ),
