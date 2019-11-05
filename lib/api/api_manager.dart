@@ -53,6 +53,7 @@ class APIManager {
         ZZZFun(),
         Yinghua(),
         Bilibili(),
+        Audio5sing(),
       ];
 
   static Future<List<SearchItem>> discover(String originTag, Map<String,DiscoverPair> params,

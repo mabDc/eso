@@ -73,7 +73,7 @@ class Audio5sing implements API {
         time: null,
         name: '${dom.querySelector('h1').text}'.trim(),
         url:
-            'http://service.5sing.kugou.com/song/getSongUrl?version=6.6.70&songid=${matcher[1]}&songtype=${matcher[0]}',
+            'http://service.5sing.kugou.com/song/getSongUrl?version=6.6.70&songid=${matcher[2]}&songtype=${matcher[1]}',
       ),
     ];
   }
@@ -82,8 +82,10 @@ class Audio5sing implements API {
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
     final data = jsonDecode(res.body)["data"];
-    return <String>['${data["squrl"]||data["hqurl"]||data["lqurl"]}'];
+    return <String>['${clearString(data["squrl"]) ?? clearString(data["hqurl"]) ?? clearString(data["lqurl"])}'];
   }
+
+  String clearString(String s) => s == '' ? null : s;
 
   @override
   List<DiscoverMap> discoverMap() {
