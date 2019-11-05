@@ -131,7 +131,7 @@ class ChapterPageController with ChangeNotifier {
     await FlutterShare.share(
       title: '亦搜 eso',
       text: '${searchItem.name}\n${searchItem.description}\n${searchItem.url}',
-      linkUrl: '${searchItem.url}',
+      //linkUrl: '${searchItem.url}',
       chooserTitle: '选择分享的应用',
     );
   }

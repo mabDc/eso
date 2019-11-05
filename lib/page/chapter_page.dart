@@ -1,7 +1,5 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:eso/api/api.dart';
-import 'package:eso/page/audio_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +8,7 @@ import '../database/search_item.dart';
 import '../model/chapter_page_controller.dart';
 import '../ui/ui_big_list_chapter_item.dart';
 import '../ui/ui_search_item.dart';
-import 'content_page.dart';
-import 'video_page.dart';
+import 'content_page_manager.dart';
 import 'langding_page.dart';
 
 class ChapterPage extends StatefulWidget {
@@ -168,17 +165,9 @@ class _ChapterPageState extends State<ChapterPage> {
     }
     void Function(int index) onTap = (int index) {
       pageController.changeChapter(index);
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) {
-          if (widget.searchItem.ruleContentType == API.VIDEO) {
-            return VideoPage(searchItem: widget.searchItem);
-          }
-          if (widget.searchItem.ruleContentType == API.AUDIO) {
-            return AudioPage(searchItem: widget.searchItem);
-          }
-          return ContentPage(searchItem: widget.searchItem);
-        },
-      )).whenComplete(pageController.adjustScroll);
+      Navigator.of(context)
+          .push(ContentPageRoute().route(widget.searchItem))
+          .whenComplete(pageController.adjustScroll);
     };
     final screenWidth = MediaQuery.of(context).size.width;
     switch (widget.searchItem.chapterListStyle) {

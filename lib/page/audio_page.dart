@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/audio_page_controller.dart';
+import 'package:eso/model/audio_service.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_seekbar/flutter_seekbar.dart';
@@ -43,7 +44,7 @@ class _AudioPageState extends State<AudioPage>
 
   Widget _buildPage() {
     controller =
-        AnimationController(duration: const Duration(seconds: 15), vsync: this);
+        AnimationController(duration: const Duration(seconds: 20), vsync: this);
     //动画开始、结束、向前移动或向后移动时会调用StatusListener
     controller.forward();
     controller.addStatusListener((status) {
@@ -70,6 +71,8 @@ class _AudioPageState extends State<AudioPage>
       child: Consumer<AudioPageController>(
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
+          final chapter =
+              widget.searchItem.chapters[widget.searchItem.durChapterIndex];
           return Scaffold(
             body: Container(
               height: double.infinity,
@@ -80,16 +83,14 @@ class _AudioPageState extends State<AudioPage>
                     height: double.infinity,
                     width: double.infinity,
                     child: Image.network(
-                      widget.searchItem.cover ??
+                      chapter.cover ??
                           'http://api.52jhs.cn/api/random/api.php?type=pc',
                       fit: BoxFit.cover,
                     ),
                   ),
                   BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                    child: Container(
-                      color: Colors.black.withAlpha(100),
-                    ),
+                    child: Container(color: Colors.black.withAlpha(50)),
                   ),
                   Column(
                     children: <Widget>[
@@ -97,10 +98,9 @@ class _AudioPageState extends State<AudioPage>
                         height: MediaQuery.of(context).padding.top,
                       ),
                       Container(
-                        height: 50,
                         padding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        child: _buildTopRow(provider),
+                        child: _buildTopRow(provider, chapter.name, chapter.time),
                       ),
                       Expanded(
                         child: Container(
@@ -117,7 +117,7 @@ class _AudioPageState extends State<AudioPage>
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
                                     image: NetworkImage(
-                                      widget.searchItem.cover ??
+                                      chapter.cover ??
                                           'http://api.52jhs.cn/api/random/api.php?type=pc',
                                     ),
                                     fit: BoxFit.cover,
@@ -157,7 +157,8 @@ class _AudioPageState extends State<AudioPage>
     );
   }
 
-  Widget _buildTopRow(AudioPageController provider) {
+  Widget _buildTopRow(
+      AudioPageController provider, String name, String author) {
     return Row(
       children: <Widget>[
         InkWell(
@@ -176,7 +177,7 @@ class _AudioPageState extends State<AudioPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                '${widget.searchItem.name}',
+                '$name',
                 maxLines: 1,
                 style: TextStyle(
                   fontSize: 20,
@@ -184,7 +185,7 @@ class _AudioPageState extends State<AudioPage>
                 ),
               ),
               Text(
-                '${widget.searchItem.author}',
+                '$author',
                 maxLines: 1,
                 style: TextStyle(
                   fontSize: 10,
@@ -222,18 +223,15 @@ class _AudioPageState extends State<AudioPage>
           ),
           Expanded(
             child: SeekBar(
-              value: provider.duration.inMilliseconds == 0
+              value: provider.seconds == 0
                   ? 0
-                  : provider.positionDuration.inMilliseconds /
-                      provider.duration.inMilliseconds,
+                  : provider.postionSeconds / provider.seconds,
               max: 1,
               backgroundColor: Colors.white54,
               progresseight: 4,
               afterDragShowSectionText: true,
-              onValueChanged: (progress) => provider.seekTo(Duration(
-                  milliseconds:
-                      (progress.value * provider.duration.inMilliseconds)
-                          .toInt())),
+              onValueChanged: (progress) => provider
+                  .seekSeconds((progress.value * provider.seconds).toInt()),
               indicatorRadius: 5,
             ),
           ),
@@ -251,22 +249,19 @@ class _AudioPageState extends State<AudioPage>
 
   Widget _buildBottomController(AudioPageController provider) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
         InkWell(
           child: Icon(
-            provider.repeatMode == AudioPageController.REPEAT_ALL
+            provider.repeatMode == AudioService.REPEAT_ALL
                 ? Icons.repeat
-                : provider.repeatMode == AudioPageController.REPEAT_ONE
+                : provider.repeatMode == AudioService.REPEAT_ONE
                     ? Icons.repeat_one
                     : Icons.label_outline,
             color: Colors.white,
             size: 26,
           ),
           onTap: provider.switchRepeatMode,
-        ),
-        SizedBox(
-          width: 30,
         ),
         InkWell(
           child: Icon(
@@ -276,21 +271,15 @@ class _AudioPageState extends State<AudioPage>
           ),
           onTap: provider.playPrev,
         ),
-        SizedBox(
-          width: 30,
-        ),
         InkWell(
           child: Icon(
-            provider.playerState == AudioPlayerState.PLAYING
+            provider.state == AudioPlayerState.PLAYING
                 ? Icons.pause_circle_outline
                 : Icons.play_circle_outline,
             color: Colors.white,
-            size: 36,
+            size: 42,
           ),
           onTap: provider.playOrPause,
-        ),
-        SizedBox(
-          width: 30,
         ),
         InkWell(
           child: Icon(
@@ -299,9 +288,6 @@ class _AudioPageState extends State<AudioPage>
             size: 26,
           ),
           onTap: provider.playNext,
-        ),
-        SizedBox(
-          width: 30,
         ),
         InkWell(
           child: Icon(

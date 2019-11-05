@@ -188,7 +188,7 @@ class _VideoPageState extends State<VideoPage> {
           ),
           InkWell(
             child: Icon(
-              Icons.file_download,
+              Icons.open_in_new,
               color: Colors.white,
               size: 26,
             ),

@@ -69,8 +69,8 @@ class Audio5sing implements API {
     final matcher = RegExp('(yc|fc)/(\\d+)').firstMatch(url);
     return <ChapterItem>[
       ChapterItem(
-        cover: null,
-        time: null,
+        cover: '${dom.querySelector('.lrc_box img').attributes["src"]}'.trim(),
+        time: '${dom.querySelector('.view_box a').text}'.trim(),
         name: '${dom.querySelector('h1').text}'.trim(),
         url:
             'http://service.5sing.kugou.com/song/getSongUrl?version=6.6.70&songid=${matcher[2]}&songtype=${matcher[1]}',
