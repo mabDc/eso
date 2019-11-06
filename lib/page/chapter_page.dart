@@ -72,7 +72,10 @@ class _ChapterPageState extends State<ChapterPage> {
             ),
             body: Column(
               children: <Widget>[
-                UiSearchItem(item: widget.searchItem),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
+                  child: UiSearchItem(item: widget.searchItem),
+                ),
                 Container(
                   height: 32,
                   margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),

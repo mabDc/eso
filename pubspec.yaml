@@ -25,6 +25,7 @@ dependencies:
   video_player: ^0.10.2+5
   path_provider: ^1.4.0
   audioplayers: ^0.13.2
+  encrypt: ^3.3.1
 
 dev_dependencies:
   flutter_test:

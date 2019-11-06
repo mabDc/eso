@@ -89,8 +89,8 @@ class _AudioPageState extends State<AudioPage>
                     ),
                   ),
                   BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                    child: Container(color: Colors.black.withAlpha(50)),
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(color: Colors.black.withAlpha(30)),
                   ),
                   Column(
                     children: <Widget>[
@@ -100,7 +100,8 @@ class _AudioPageState extends State<AudioPage>
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        child: _buildTopRow(provider, chapter.name, chapter.time),
+                        child:
+                            _buildTopRow(provider, chapter.name, chapter.time),
                       ),
                       Expanded(
                         child: Container(
@@ -116,10 +117,8 @@ class _AudioPageState extends State<AudioPage>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
-                                    image: NetworkImage(
-                                      chapter.cover ??
-                                          'http://api.52jhs.cn/api/random/api.php?type=pc',
-                                    ),
+                                    image: NetworkImage(chapter.cover ??
+                                        'http://api.52jhs.cn/api/random/api.php?type=pc'),
                                     fit: BoxFit.cover,
                                   ),
                                 ),

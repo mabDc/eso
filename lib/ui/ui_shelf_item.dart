@@ -21,7 +21,7 @@ class UiShelfItem extends StatelessWidget {
       author: searchItem.author,
       chapter: searchItem.chapter,
       durChapter: searchItem.durChapter,
-      chapterNum: searchItem.chaptersCount - searchItem.durChapterIndex,
+      chapterNum: searchItem.chaptersCount - searchItem.durChapterIndex - 1,
     );
   }
 }
@@ -79,23 +79,26 @@ class _UiShelfItem extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      alignment: Alignment(0, 0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                      child: Text(
-                        '$chapterNum',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    chapterNum == 0
+                        ? Container()
+                        : Container(
+                            alignment: Alignment(0, 0),
+                            decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8))),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 4),
+                            child: Text(
+                              '$chapterNum',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                   ],
                 ),
                 Text(

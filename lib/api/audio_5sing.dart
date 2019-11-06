@@ -25,7 +25,7 @@ class Audio5sing implements API {
         .where((entry) => entry.value.value != '' && entry.key != '作品')
         .map((entry) => entry.value.value)
         .join('&');
-    final res = await http.get("$url?$query&p=$page");
+    final res = await http.get("$url$query&p=$page");
     final dom = parse(utf8.decode(res.bodyBytes));
     return dom
         .querySelectorAll('.lists>dl')
@@ -67,9 +67,10 @@ class Audio5sing implements API {
     final res = await http.get('$url');
     final dom = parse(res.body);
     final matcher = RegExp('(yc|fc)/(\\d+)').firstMatch(url);
+    final img = dom.querySelector('.lrc_box img');
     return <ChapterItem>[
       ChapterItem(
-        cover: '${dom.querySelector('.lrc_box img').attributes["src"]}'.trim(),
+        cover: img == null ? null : '${img.attributes["src"]??''}',
         time: '${dom.querySelector('.view_box a').text}'.trim(),
         name: '${dom.querySelector('h1').text}'.trim(),
         url:

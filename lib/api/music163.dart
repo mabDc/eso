@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 
@@ -6,10 +7,11 @@ import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:encrypt/encrypt.dart';
 
 class Music163 implements API {
   @override
-  String get origin => '网易云';
+  String get origin => '网易歌单';
 
   @override
   String get originTag => 'Music163';
@@ -21,7 +23,7 @@ class Music163 implements API {
   Future<List<SearchItem>> discover(
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     String url =
-        'https://music.163.com/#/discover/playlist/?order=hot&cat=${params["分类"].value}&limit=$pageSize&offset=${(page - 1) * pageSize}';
+        'https://music.163.com/discover/playlist/?order=hot&cat=${params["分类"].value}&limit=$pageSize&offset=${(page - 1) * pageSize}';
     final res = await http.get(url);
     return parse(utf8.decode(res.bodyBytes))
         .querySelectorAll('#m-pl-container>li')
@@ -40,18 +42,31 @@ class Music163 implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final res = await http.get('https://music.163.com/discover/playlist');
-    return parse(utf8.decode(res.bodyBytes))
-        .querySelectorAll('#m-pl-container>li')
+    final res = await http
+        .post('https://music.163.com/weapi/cloudsearch/get/web?csrf_token=',
+            body: genParams(jsonEncode({
+              "s": "$query",
+              "type": "1000",
+              "offset": "${pageSize * (page - 1)}",
+              "total": "true",
+              "limit": "$pageSize",
+              "csrf_token": ""
+            })),
+            headers: {
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36',
+          'Referer': 'https://music.163.com/search/',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        });
+    return (jsonDecode(res.body)["result"]["playlists"] as List)
         .map((item) => SearchItem(
               api: this,
-              cover: '${item.querySelector('img').attributes["src"]}',
-              name: '${item.querySelector('.dec').text}'.trim(),
-              author: '${item.querySelector('.nm').text}'.trim(),
+              cover: '${item["coverImgUrl"]}',
+              name: '${item["name"]}',
+              author: '${item["creator"]["nickname"]}',
               chapter: '',
-              description: '播放 ${item.querySelector('.nb').text}',
-              url:
-                  'https://music.163.com/m${item.querySelector('a').attributes["href"]}',
+              description: '${item["description"]}',
+              url: 'https://music.163.com/m/playlist?id=${item["id"]}',
             ))
         .toList();
   }
@@ -85,8 +100,6 @@ class Music163 implements API {
         .attributes["data-src"];
     return <String>['$url', 'cover$src'];
   }
-
-  String clearString(String s) => s == '' ? null : s;
 
   @override
   List<DiscoverMap> discoverMap() {
@@ -167,5 +180,46 @@ class Music163 implements API {
         DiscoverPair('00后', '00后'),
       ]),
     ];
+  }
+
+  dynamic genParams(String query) {
+    final nonce = '0CoJUm6Qyw8W8jud';
+    final iv = '0102030405060708';
+    final modulus =
+        '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7';
+    final pubKey = '010001';
+    final genKey = randomKey(16);
+    final aes = Encrypter(AES(Key.fromUtf8(nonce), mode: AESMode.cbc))
+        .encrypt(query, iv: IV.fromUtf8(iv))
+        .base64;
+    final params = Encrypter(AES(Key.fromUtf8(genKey), mode: AESMode.cbc))
+        .encrypt(aes, iv: IV.fromUtf8(iv))
+        .base64;
+
+    final text = genKey.split('').reversed.join();
+    BigInt integer = BigInt.parse(
+        utf8.encode(text).map((i) {
+          String s = i.toRadixString(16);
+          return '${'0' * (2 - s.length)}$s';
+        }).join(),
+        radix: 16);
+    BigInt pubkeyInt = BigInt.parse(pubKey, radix: 16);
+    BigInt modulusInt = BigInt.parse(modulus, radix: 16);
+    String encSecKey = integer.modPow(pubkeyInt, modulusInt).toRadixString(16);
+    encSecKey = '${"0" * (encSecKey.length - 256)}$encSecKey';
+    return {
+      "params": params,
+      "encSecKey": encSecKey,
+    };
+  }
+
+  String randomKey(int len) {
+    String s = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    StringBuffer sb = StringBuffer();
+    Random r = Random();
+    for (int i = 0; i < len; i++) {
+      sb.write(s[r.nextInt(s.length)]);
+    }
+    return sb.toString();
   }
 }

@@ -123,6 +123,7 @@ class AudioService {
 
   AudioPlayer _player;
   SearchItem _searchItem;
+  SearchItem get searchItem => _searchItem;
   int _durChapterIndex;
   String _url;
   String get url => _url;
@@ -137,4 +138,12 @@ class AudioService {
 
   AudioPlayerState _playerState;
   AudioPlayerState get playerState => _playerState;
+
+  void dispose() {
+    try {
+      _player?.stop();
+      _player?.resume();
+      _player?.dispose();
+    } catch (_) {}
+  }
 }

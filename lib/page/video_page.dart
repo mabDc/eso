@@ -160,7 +160,7 @@ class _VideoPageState extends State<VideoPage> {
   Widget _buildTopRow(BuildContext context, VideoPageController provider) {
     return Container(
       width: double.infinity,
-      color: Colors.black.withAlpha(25),
+      color: Colors.black.withAlpha(20),
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Row(
         children: <Widget>[
@@ -213,7 +213,7 @@ class _VideoPageState extends State<VideoPage> {
   Widget _buildBottomRow(BuildContext context, VideoPageController provider) {
     return Container(
       width: double.infinity,
-      color: Colors.black.withAlpha(25),
+      color: Colors.black.withAlpha(20),
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Row(
         children: <Widget>[

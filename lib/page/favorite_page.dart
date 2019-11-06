@@ -1,4 +1,5 @@
 import 'package:eso/database/search_item.dart';
+import 'package:eso/model/audio_service.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/ui/ui_discover_item.dart';
@@ -17,6 +18,12 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<SearchItem> searchItems =
+        List<SearchItem>.from(SearchItemManager.searchItem);
+    if (AudioService().searchItem != null &&
+        !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
+      searchItems.add(AudioService().searchItem);
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(Global.appName),
@@ -45,8 +52,8 @@ class FavoritePage extends StatelessWidget {
           return;
         },
         child: Provider.of<Profile>(context).switchFavoriteStyle
-            ? _buildFavoriteGrid(SearchItemManager.searchItem)
-            : _buildFavoriteList(SearchItemManager.searchItem),
+            ? _buildFavoriteGrid(searchItems)
+            : _buildFavoriteList(searchItems),
       ),
     );
   }
