@@ -65,7 +65,8 @@ class _ContentPageState extends State<ContentPage> {
                           return _NovelContentPage(
                               pageController: pageController);
                         case API.RSS:
-                          return _RSSContentPage(content: pageController.content);
+                          return _RSSContentPage(
+                              pageController: pageController);
                         default:
                           throw ('${widget.searchItem.ruleContentType} not support');
                       }
@@ -104,7 +105,6 @@ class _ContentPageState extends State<ContentPage> {
   }
 }
 
-
 Widget _buildChapterSeparate(
     Color color, double screenHeight, bool isLoading, SearchItem searchItem) {
   return Container(
@@ -132,20 +132,62 @@ Widget _buildChapterSeparate(
   );
 }
 
-class _RSSContentPage extends StatelessWidget {
-  final List<String> content;
+class _RSSContentPage extends StatefulWidget {
+  final ContentPageController pageController;
 
-  const _RSSContentPage({
-    this.content,
+  _RSSContentPage({
+    this.pageController,
     Key key,
   }) : super(key: key);
+
+  @override
+  __RSSContentPageState createState() => __RSSContentPageState();
+}
+
+class __RSSContentPageState extends State<_RSSContentPage> {
+  WebViewController _controller;
+  Widget _webView;
+  int _durChapterIndex = -1;
   @override
   Widget build(BuildContext context) {
-    final String contentBase64 =
-        base64.encode(utf8.encode('<style>img{max-width:100%}</style>${content.join('\n')}'));
-    return WebView(
-     initialUrl: 'data:text/html;base64,$contentBase64', 
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.pageController.searchItem.durChapter),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.list),
+            onPressed: () => widget.pageController.showChapter =
+                !widget.pageController.showChapter,
+          ),
+        ],
+      ),
+      body: _buildWebView(),
     );
+  }
+
+  WebView _buildWebView() {
+    String contentBase64 = base64.encode(utf8.encode(
+        '<style>img{max-width:100%}</style>${widget.pageController.content.join('\n')}'));
+    if (_controller != null &&
+        _durChapterIndex != widget.pageController.searchItem.durChapterIndex) {
+      _durChapterIndex = widget.pageController.searchItem.durChapterIndex;
+      _controller.loadUrl('data:text/html;base64,$contentBase64');
+    }
+    if (_webView == null) {
+      _webView = WebView(
+        onWebViewCreated: (WebViewController controller) =>
+            _controller = controller,
+        initialUrl: 'data:text/html;base64,$contentBase64',
+      );
+      _durChapterIndex = widget.pageController.searchItem.durChapterIndex;
+    }
+    return _webView;
+  }
+
+  @override
+  void dispose() {
+    _controller.clearCache();
+    super.dispose();
   }
 }
 

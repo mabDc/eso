@@ -92,7 +92,9 @@ class ContentPageController with ChangeNotifier {
     searchItem.durContentIndex = 1;
     await SearchItemManager.saveSearchItem();
     _isLoading = false;
-    _controller.jumpTo(1);
+    if (searchItem.ruleContentType != API.RSS) {
+      _controller.jumpTo(1);
+    }
     notifyListeners();
   }
 
