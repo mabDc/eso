@@ -248,6 +248,9 @@ class VideoPageController with ChangeNotifier {
     seekTo(Duration(seconds: positionSeconds));
   }
 
+  void setVideoSpeed(double speed){
+  }
+
   void showToastText(String text) {
     _toastText = text;
     _showToast = true;

@@ -21,7 +21,7 @@ class Yinghuaw implements API {
       return SearchItem(
         api: this,
         cover: '${item.querySelector('img').attributes['data-original']}',
-        name: '${item.querySelector('h2').text}',
+        name: '${item.querySelector('h2').text}'.trim(),
         author: '${item.querySelector('.am_list_juqing').text}',
         chapter: '',
         description: '${item.querySelector('.am_list_item_text').text}',

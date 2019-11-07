@@ -102,7 +102,11 @@ class ChapterPageController with ChangeNotifier {
     searchItem.chapters =
         await APIManager.getChapter(searchItem.originTag, searchItem.url);
     searchItem.chaptersCount = searchItem.chapters.length;
-    searchItem.chapter = searchItem.chapters.last?.name;
+    if(searchItem.chaptersCount > 0){
+      searchItem.chapter = searchItem.chapters.last?.name;
+    }else{
+      searchItem.chapter = '';
+    }
     if (SearchItemManager.isFavorite(searchItem.url)) {
       await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
     }

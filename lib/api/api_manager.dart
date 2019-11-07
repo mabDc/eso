@@ -1,6 +1,7 @@
 import 'package:eso/api/audio_5sing.dart';
 import 'package:eso/api/bainian.dart';
 import 'package:eso/api/bilibili.dart';
+import 'package:eso/api/bilibili_manga.dart';
 import 'package:eso/api/migu_manga.dart';
 import 'package:eso/api/music163.dart';
 import 'package:eso/api/yinghuaw.dart';
@@ -35,7 +36,7 @@ class APIManager {
   }
 
   static List<API> get allAPI => <API>[
-        Qidian(),
+        // Qidian(),
         Iqiwx(),
         Ymoxuan(),
         Ixs(),
@@ -48,14 +49,15 @@ class APIManager {
         Tohomh(),
         Buka(),
         U17(),
-        TencentManga(),
+        // TencentManga(),
+        // BilibiliManga(),
         MiguManga(),
         Bainian(),
         ZZZFun(),
         Yinghuaw(),
-        Bilibili(),
+        // Bilibili(),
         Audio5sing(),
-        Music163(),
+        // Music163(),
       ];
 
   static Future<List<SearchItem>> discover(String originTag, Map<String,DiscoverPair> params,
