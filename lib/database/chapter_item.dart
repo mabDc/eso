@@ -1,4 +1,4 @@
-class ChapterItem{
+class ChapterItem {
   String cover;
   String name;
   String time;
@@ -12,16 +12,16 @@ class ChapterItem{
   });
 
   Map<String, dynamic> toJson() => {
-    "cover":cover,
-    "name":name,
-    "time":time,
-    "url":url,
-  };
+        "cover": cover,
+        "name": name,
+        "time": time,
+        "url": url,
+      };
 
-  ChapterItem.fromJson(Map<String, dynamic> json){
-    cover=json["cover"];
-    name=json["name"];
-    time=json["time"];
-    url=json["url"];
+  ChapterItem.fromJson(Map<String, dynamic> json) {
+    cover = json["cover"];
+    name = json["name"];
+    time = json["time"];
+    url = json["url"];
   }
 }

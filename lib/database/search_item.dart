@@ -23,30 +23,24 @@ class SearchItem {
   List<ChapterItem> chapters;
 
   SearchItem({
-    @required
-    this.cover,
-    @required
-    this.name,
-    @required
-    this.author,
-    @required
-    this.chapter,
-    @required
-    this.description,
-    @required
-    this.url,
-    @required
-    API api,
+    @required this.cover,
+    @required this.name,
+    @required this.author,
+    @required this.chapter,
+    @required this.description,
+    @required this.url,
+    @required API api,
     this.chaptersCount,
     this.reverseChapter,
-  }){
-    if(chaptersCount == null){
+    this.chapters,
+  }) {
+    if (chaptersCount == null) {
       chaptersCount = 0;
     }
-    if(reverseChapter == null){
+    if (reverseChapter == null) {
       reverseChapter = false;
     }
-    if(api!=null){
+    if (api != null) {
       origin = api.origin;
       originTag = api.originTag;
       ruleContentType = api.ruleContentType;
@@ -78,41 +72,41 @@ class SearchItem {
 //  }
 
   Map<String, dynamic> toJson() => {
-    "id":id,
-    "origin":origin,
-    "originTag":originTag,
-    "cover":cover,
-    "name":name,
-    "author":author,
-    "chapter":chapter,
-    "description":description,
-    "url":url,
-    "ruleContentType":ruleContentType,
-    "chapterListStyle":chapterListStyle,
-    "durChapter":durChapter,
-    "durChapterIndex":durChapterIndex,
-    "durContentIndex":durContentIndex,
-    "chaptersCount":chaptersCount,
-    "reverseChapter":reverseChapter,
-  };
+        "id": id,
+        "origin": origin,
+        "originTag": originTag,
+        "cover": cover,
+        "name": name,
+        "author": author,
+        "chapter": chapter,
+        "description": description,
+        "url": url,
+        "ruleContentType": ruleContentType,
+        "chapterListStyle": chapterListStyle,
+        "durChapter": durChapter,
+        "durChapterIndex": durChapterIndex,
+        "durContentIndex": durContentIndex,
+        "chaptersCount": chaptersCount,
+        "reverseChapter": reverseChapter,
+      };
 
-  SearchItem.fromJson(Map<String, dynamic> json){
-    id=json["id"];
-    origin=json["origin"];
-    originTag=json["originTag"];
-    cover=json["cover"];
-    name=json["name"];
-    author=json["author"];
-    chapter=json["chapter"];
-    description=json["description"];
-    url=json["url"];
-    ruleContentType= json["ruleContentType"];
-    chapterListStyle= json["chapterListStyle"];
-    durChapter=json["durChapter"];
-    durChapterIndex=json["durChapterIndex"];
-    durContentIndex=json["durContentIndex"];
-    chaptersCount=json["chaptersCount"];
-    reverseChapter=json["reverseChapter"] ?? false;
+  SearchItem.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    origin = json["origin"];
+    originTag = json["originTag"];
+    cover = json["cover"];
+    name = json["name"];
+    author = json["author"];
+    chapter = json["chapter"];
+    description = json["description"];
+    url = json["url"];
+    ruleContentType = json["ruleContentType"];
+    chapterListStyle = json["chapterListStyle"];
+    durChapter = json["durChapter"];
+    durChapterIndex = json["durChapterIndex"];
+    durContentIndex = json["durContentIndex"];
+    chaptersCount = json["chaptersCount"];
+    reverseChapter = json["reverseChapter"] ?? false;
     chapters = <ChapterItem>[];
   }
 }

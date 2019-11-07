@@ -12,22 +12,17 @@ class ContentPageController with ChangeNotifier {
   int _progress;
   int get progress => _progress;
   List<String> _content;
-
   List<String> get content => _content;
   ScrollController _controller;
-
   ScrollController get controller => _controller;
   bool _isLoading;
-
   bool get isLoading => _isLoading;
   Map<String, String> _headers;
-
   Map<String, String> get headers => _headers;
-
   bool _showChapter;
   bool get showChapter => _showChapter;
   set showChapter(bool value) {
-    if(_showChapter != value){
+    if (_showChapter != value) {
       _showChapter = value;
       notifyListeners();
     }
@@ -37,14 +32,16 @@ class ContentPageController with ChangeNotifier {
     _isLoading = false;
     _showChapter = false;
     _headers = Map<String, String>();
-    if(searchItem.ruleContentType == API.NOVEL){
-      _controller = ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
-    } else{
+    if (searchItem.ruleContentType == API.NOVEL) {
+      _controller = ScrollController(
+          initialScrollOffset: searchItem.durContentIndex.toDouble());
+    } else {
       _controller = ScrollController();
     }
     _progress = 0;
     _controller.addListener(() {
-      if (progress>0 && _controller.position.pixels == _controller.position.maxScrollExtent) {
+      if (progress > 0 &&
+          _controller.position.pixels == _controller.position.maxScrollExtent) {
         loadChapter(searchItem.durChapterIndex + 1);
       }
     });

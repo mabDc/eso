@@ -3,7 +3,7 @@ import 'package:eso/api/bainian.dart';
 import 'package:eso/api/bilibili.dart';
 import 'package:eso/api/migu_manga.dart';
 import 'package:eso/api/music163.dart';
-import 'package:eso/api/yinghua.dart';
+import 'package:eso/api/yinghuaw.dart';
 import 'package:eso/api/zzzfun.dart';
 
 import '../database/chapter_item.dart';
@@ -52,7 +52,7 @@ class APIManager {
         MiguManga(),
         Bainian(),
         ZZZFun(),
-        Yinghua(),
+        Yinghuaw(),
         Bilibili(),
         Audio5sing(),
         Music163(),

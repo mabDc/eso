@@ -70,7 +70,7 @@ class Audio5sing implements API {
     final img = dom.querySelector('.lrc_box img');
     return <ChapterItem>[
       ChapterItem(
-        cover: img == null ? null : '${img.attributes["src"]??''}',
+        cover: img == null ? null : '${img.attributes["src"] ?? ''}',
         time: '${dom.querySelector('.view_box a').text}'.trim(),
         name: '${dom.querySelector('h1').text}'.trim(),
         url:
@@ -83,7 +83,9 @@ class Audio5sing implements API {
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
     final data = jsonDecode(res.body)["data"];
-    return <String>['${clearString(data["squrl"]) ?? clearString(data["hqurl"]) ?? clearString(data["lqurl"])}'];
+    return <String>[
+      '${clearString(data["squrl"]) ?? clearString(data["hqurl"]) ?? clearString(data["lqurl"])}'
+    ];
   }
 
   String clearString(String s) => s == '' ? null : s;

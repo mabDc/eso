@@ -22,7 +22,8 @@ class ZZZFun implements API {
         .where((pair) => pair.value != '')
         .map((pair) => pair.value)
         .join('-');
-    final res = await http.get('http://www.zzzfun.com/vod-show-$query-page-$page');
+    final res =
+        await http.get('http://www.zzzfun.com/vod-show-$query-page-$page');
     return parse(res.body).querySelectorAll('.search-result>a').map((item) {
       return SearchItem(
         api: this,
@@ -65,15 +66,18 @@ class ZZZFun implements API {
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
-    return parse(res.body)
-        .querySelectorAll('.episode-wrap ul a')
-        .map((item) => ChapterItem(
-              cover: null,
-              time: null,
-              name: '${item.text}',
-              url: '${item.attributes["href"]}',
-            ))
-        .toList();
+    final chapters = <ChapterItem>[];
+    int i = 1;
+    parse(res.body).querySelectorAll('.episode-wrap ul').forEach((episode) {
+      final episodeName = '线路${i++}';
+      episode.querySelectorAll('a').forEach((item) => chapters.add(ChapterItem(
+            cover: null,
+            time: null,
+            name: '$episodeName · ${item.text}',
+            url: '${item.attributes["href"]}',
+          )));
+    });
+    return chapters;
   }
 
   @override

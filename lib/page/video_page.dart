@@ -42,16 +42,16 @@ class _VideoPageState extends State<VideoPage> {
         builder: (BuildContext context, VideoPageController provider, _) {
           __provider = provider;
           if (provider.content == null ||
-              provider.controller == null ||
+              provider.parseFailure ||
               provider.isLoading ||
               provider.isParsing) {
             String s = '加载失败!';
             if (provider.content == null) {
-              s = '初始化';
+              s = '初始化...';
             } else if (provider.isParsing) {
-              s = '解析中';
+              s = '正在解析...';
             } else if (provider.isLoading) {
-              s = '缓冲中';
+              s = '正在缓冲...\n\n${provider.content?.join('\n')}';
             }
             SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
             return Scaffold(
@@ -76,7 +76,7 @@ class _VideoPageState extends State<VideoPage> {
                 children: <Widget>[
                   Center(
                     child: AspectRatio(
-                      aspectRatio: provider.asaspectRatiop,
+                      aspectRatio: provider.aspectRatio,
                       child: VideoPlayer(provider.controller),
                     ),
                   ),

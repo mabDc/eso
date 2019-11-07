@@ -28,7 +28,7 @@ class VideoPageController with ChangeNotifier {
   VideoPlayerController _controller;
   VideoPlayerController get controller => _controller;
 
-  double get asaspectRatiop => _controller.value.aspectRatio;
+  double get aspectRatio => _controller.value.aspectRatio;
 
   int get seconds => _controller.value.duration.inSeconds;
   int get positionSeconds => _controller.value.position.inSeconds;
@@ -55,6 +55,8 @@ class VideoPageController with ChangeNotifier {
 
   bool _showController;
   bool get showController => _showController;
+  bool _parseFailure;
+  bool get parseFailure => _parseFailure;
 
   set showController(bool value) {
     refreshLastTime();
@@ -88,6 +90,7 @@ class VideoPageController with ChangeNotifier {
     ]);
     _isLoading = false;
     _isParsing = false;
+    _parseFailure = false;
     _showChapter = false;
     initial = 0;
     panSeconds = 0;
@@ -111,7 +114,12 @@ class VideoPageController with ChangeNotifier {
   }
 
   Future<void> _setControl() async {
-    if (_content == null || _content.length == 0) return;
+    if (_content == null || _content.length == 0) {
+      _parseFailure = true;
+      notifyListeners();
+      return;
+    }
+    _parseFailure = false;
     _isLoading = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
@@ -276,9 +284,11 @@ class VideoPageController with ChangeNotifier {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    searchItem.durContentIndex = _controller.value.position.inMilliseconds;
-    SearchItemManager.saveSearchItem();
-    content.clear();
+    if (_controller != null) {
+      searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+      SearchItemManager.saveSearchItem();
+    }
+    content?.clear();
     await _audioController?.dispose();
     await _controller?.dispose();
     super.dispose();

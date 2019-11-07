@@ -37,9 +37,9 @@ class _AudioPageState extends State<AudioPage>
 
   @override
   void dispose() {
-    controller.dispose();
+    controller?.dispose();
+    __provider?.dispose();
     super.dispose();
-    __provider.dispose();
   }
 
   Widget _buildPage() {
@@ -144,8 +144,7 @@ class _AudioPageState extends State<AudioPage>
                   provider.showChapter
                       ? UIChapterSelect(
                           searchItem: widget.searchItem,
-                          loadChapter: provider.loadChapter,
-                        )
+                          loadChapter: provider.loadChapter)
                       : Container(),
                 ],
               ),
