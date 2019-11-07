@@ -12,6 +12,7 @@ class ContentPageRoute {
         switch (searchItem.ruleContentType) {
           case API.MANGA:
           case API.NOVEL:
+          case API.RSS:
             return ContentPage(searchItem: searchItem);
             break;
           case API.VIDEO:

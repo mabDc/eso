@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +11,7 @@ import '../global.dart';
 import '../model/content_page_controller.dart';
 import '../ui/ui_dash.dart';
 import 'langding_page.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ContentPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -61,6 +64,8 @@ class _ContentPageState extends State<ContentPage> {
                         case API.NOVEL:
                           return _NovelContentPage(
                               pageController: pageController);
+                        case API.RSS:
+                          return _RSSContentPage(content: pageController.content);
                         default:
                           throw ('${widget.searchItem.ruleContentType} not support');
                       }
@@ -125,6 +130,23 @@ Widget _buildChapterSeparate(
       ),
     ),
   );
+}
+
+class _RSSContentPage extends StatelessWidget {
+  final List<String> content;
+
+  const _RSSContentPage({
+    this.content,
+    Key key,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final String contentBase64 =
+        base64.encode(utf8.encode('<style>img{max-width:100%}</style>${content.join('\n')}'));
+    return WebView(
+     initialUrl: 'data:text/html;base64,$contentBase64', 
+    );
+  }
 }
 
 class _MangaContentPage extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,6 @@ import 'global.dart';
 import 'model/profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
-import 'page/langding_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         if (!snapshot.hasData) {
           return MaterialApp(
             title: Global.appName,
-            home: LandingPage(),
+            home: FirstPage(),
           );
         }
         return MultiProvider(

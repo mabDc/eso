@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
-  static const appVersion = '1.11.5';
+  static const appVersion = '1.11.7';
 
   static const waitingPath = "lib/assets/waiting.png";
   static const cheerioFile = "lib/assets/cheerio.min.js";
@@ -22,6 +22,7 @@ class Global with ChangeNotifier {
   static Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
+    await Future.delayed(Duration(seconds: 1));
     return true;
   }
 
