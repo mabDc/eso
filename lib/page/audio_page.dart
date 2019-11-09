@@ -44,7 +44,7 @@ class _AudioPageState extends State<AudioPage>
 
   Widget _buildPage() {
     controller =
-        AnimationController(duration: const Duration(seconds: 20), vsync: this);
+        AnimationController(duration: const Duration(seconds: 30), vsync: this);
     //动画开始、结束、向前移动或向后移动时会调用StatusListener
     controller.forward();
     controller.addStatusListener((status) {

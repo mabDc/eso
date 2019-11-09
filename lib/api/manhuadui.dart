@@ -23,7 +23,7 @@ class Manhuadui implements API {
         cover: '${item.querySelector('img').attributes['src']}',
         name: '${item.querySelector('.title').text}'.trim(),
         author: '${item.querySelector('.txtItme').text}',
-        chapter: '${item.querySelector('.coll').text}',
+        chapter: '${item.querySelector('.coll')?.text}',
         description: '${item.querySelector('.pd,.date').text}',
         url: '${item.querySelector('.title').attributes['href']}',
       );

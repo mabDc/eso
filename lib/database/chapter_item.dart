@@ -24,4 +24,5 @@ class ChapterItem {
     time = json["time"];
     url = json["url"];
   }
+
 }

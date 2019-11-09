@@ -1,3 +1,5 @@
+import 'package:eso/api/api.dart';
+import 'package:eso/database/chapter_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
 
@@ -47,7 +49,7 @@ class ChapterPageController with ChangeNotifier {
   }
 
   double get _calcHeight {
-    if(searchItem.chapters == null) return 0.0;
+    if (searchItem.chapters == null) return 0.0;
     double itemHeight;
     int lineNum;
     switch (searchItem.chapterListStyle) {
@@ -99,12 +101,21 @@ class ChapterPageController with ChangeNotifier {
     if (_isLoading) return;
     _isLoading = true;
     notifyListeners();
-    searchItem.chapters =
-        await APIManager.getChapter(searchItem.originTag, searchItem.url);
+    if (searchItem.ruleContentType == API.RSS) {
+      Set<String> chs = Set<String>();
+      chs.addAll(searchItem.chapters?.map((ch) => ch.url));
+      List<ChapterItem> temps =
+          await APIManager.getChapter(searchItem.originTag, searchItem.url);
+      searchItem.chapters.addAll(temps.where((ch) => !chs.contains(ch.url)));
+    } else {
+      searchItem.chapters =
+          await APIManager.getChapter(searchItem.originTag, searchItem.url);
+    }
+
     searchItem.chaptersCount = searchItem.chapters.length;
-    if(searchItem.chaptersCount > 0){
+    if (searchItem.chaptersCount > 0) {
       searchItem.chapter = searchItem.chapters.last?.name;
-    }else{
+    } else {
       searchItem.chapter = '';
     }
     if (SearchItemManager.isFavorite(searchItem.url)) {

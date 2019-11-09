@@ -86,6 +86,7 @@ class _ContentPageState extends State<ContentPage> {
                       : Container(),
                 ],
               ),
+              onLongPressUp: () {},
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
                 if (details.globalPosition.dx > size.width * 3 / 8 &&
@@ -167,7 +168,7 @@ class __RSSContentPageState extends State<_RSSContentPage> {
 
   WebView _buildWebView() {
     String contentBase64 = base64.encode(utf8.encode(
-        '<style>img{max-width:100%}</style>${widget.pageController.content.join('\n')}'));
+        '<meta charset="UTF-8"><style>img{max-width:100%}</style>${widget.pageController.content.join('\n')}'));
     if (_controller != null &&
         _durChapterIndex != widget.pageController.searchItem.durChapterIndex) {
       _durChapterIndex = widget.pageController.searchItem.durChapterIndex;

@@ -2,10 +2,13 @@ import 'package:eso/api/audio_5sing.dart';
 import 'package:eso/api/bainian.dart';
 import 'package:eso/api/bilibili.dart';
 import 'package:eso/api/bilibili_manga.dart';
+import 'package:eso/api/clicli.dart';
 import 'package:eso/api/manhuadui.dart';
 import 'package:eso/api/migu_manga.dart';
+import 'package:eso/api/missevan.dart';
 import 'package:eso/api/music163.dart';
 import 'package:eso/api/news163.dart';
+import 'package:eso/api/huba.dart';
 import 'package:eso/api/yinghuaw.dart';
 import 'package:eso/api/zzzfun.dart';
 
@@ -57,10 +60,13 @@ class APIManager {
         MiguManga(),
         Bainian(),
         ZZZFun(),
+        Huba(),
+        Clicli(),
         Yinghuaw(),
         Bilibili(),
         Audio5sing(),
         Music163(),
+        Missevan(),
         News163(),
       ];
 

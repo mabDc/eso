@@ -22,7 +22,8 @@ class News163 implements API {
     return <SearchItem>[
       SearchItem(
         api: this,
-        cover: null,
+        cover:
+            'https://ss3.bdstatic.com/yrwDcj7w0QhBkMak8IuT_XF5ehU5bvGh7c50/logopic/ecb601f5df22edd5e7e5dfb6126e0a38_fullsize.jpg',
         name: '网易要闻',
         author: 'RSS',
         chapter: '',
@@ -46,23 +47,25 @@ class News163 implements API {
           "content-type": "application/json"
         });
     final json = jsonDecode(res.body);
-    return (json["data"]["data"] as List).map((chapter) {
-      return ChapterItem(
-        cover: '${chapter["thumbnail"]}',
-        name: '${chapter["title"]}',
-        time: '${chapter["createTime"]}',
-        url: 'http://47.105.79.245/v2/text/${chapter["id"]}',
-      );
-    }).toList().reversed.toList();
+    return (json["data"]["data"] as List)
+        .map((chapter) {
+          return ChapterItem(
+            cover: '${chapter["thumbnail"]}',
+            name: '${chapter["title"]}',
+            time: '${chapter["createTime"]}',
+            url: 'http://47.105.79.245/v2/text/${chapter["id"]}',
+          );
+        })
+        .toList()
+        .reversed
+        .toList();
   }
 
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
-    final json = jsonDecode(res.body);
-    return <String>[
-      '${json["data"]["content"]}'
-    ];
+    final json = jsonDecode(utf8.decode(res.bodyBytes));
+    return <String>['${json["data"]["content"]}'];
   }
 
   @override
