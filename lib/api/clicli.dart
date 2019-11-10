@@ -54,7 +54,7 @@ class Clicli implements API {
     return (videos as List).map((chapter) {
       return ChapterItem(
         cover: null,
-        name: '${chapter["oid"]} · ${chapter["title"]}',
+        name: '${chapter["oid"]} ${chapter["title"]}',
         time: '${chapter["time"]}'.trim().substring(0, 16),
         url: '${chapter["content"]}',
       );

@@ -167,28 +167,25 @@ class __RSSContentPageState extends State<_RSSContentPage> {
   }
 
   WebView _buildWebView() {
-    String contentBase64 = base64.encode(utf8.encode(
-        '<meta charset="UTF-8"><style>img{max-width:100%}</style>${widget.pageController.content.join('\n')}'));
+    String content = Uri.dataFromString(
+      '<style>img{max-width:100%}</style>${widget.pageController.content.join('\n')}',
+      mimeType: 'text/html',
+      encoding: Encoding.getByName('UTF-8'),
+    ).toString();
     if (_controller != null &&
         _durChapterIndex != widget.pageController.searchItem.durChapterIndex) {
       _durChapterIndex = widget.pageController.searchItem.durChapterIndex;
-      _controller.loadUrl('data:text/html;base64,$contentBase64');
+      _controller.loadUrl(content);
     }
     if (_webView == null) {
       _webView = WebView(
         onWebViewCreated: (WebViewController controller) =>
             _controller = controller,
-        initialUrl: 'data:text/html;base64,$contentBase64',
+        initialUrl: content,
       );
       _durChapterIndex = widget.pageController.searchItem.durChapterIndex;
     }
     return _webView;
-  }
-
-  @override
-  void dispose() {
-    _controller.clearCache();
-    super.dispose();
   }
 }
 
