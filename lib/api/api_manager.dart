@@ -3,6 +3,8 @@ import 'package:eso/api/bainian.dart';
 import 'package:eso/api/bilibili.dart';
 import 'package:eso/api/bilibili_manga.dart';
 import 'package:eso/api/clicli.dart';
+import 'package:eso/api/duitang.dart';
+import 'package:eso/api/gank.dart';
 import 'package:eso/api/manhuadui.dart';
 import 'package:eso/api/migu_manga.dart';
 import 'package:eso/api/missevan.dart';
@@ -11,7 +13,6 @@ import 'package:eso/api/news163.dart';
 import 'package:eso/api/huba.dart';
 import 'package:eso/api/yinghuaw.dart';
 import 'package:eso/api/zzzfun.dart';
-
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
@@ -68,6 +69,8 @@ class APIManager {
         Music163(),
         Missevan(),
         News163(),
+        Gank(),
+        Duitang(),
       ];
 
   static Future<List<SearchItem>> discover(String originTag, Map<String,DiscoverPair> params,

@@ -177,6 +177,7 @@ class _AudioPageState extends State<AudioPage>
               Text(
                 '$name',
                 maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.white70,
