@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import '../database/search_item.dart';
 import '../global.dart';
 import '../model/content_page_controller.dart';
-import '../ui/ui_dash.dart';
 import 'langding_page.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -61,9 +60,6 @@ class _ContentPageState extends State<ContentPage> {
                         case API.MANGA:
                           return _MangaContentPage(
                               pageController: pageController);
-                        case API.NOVEL:
-                          return _NovelContentPage(
-                              pageController: pageController);
                         case API.RSS:
                           return _RSSContentPage(
                               pageController: pageController);
@@ -86,7 +82,6 @@ class _ContentPageState extends State<ContentPage> {
                       : Container(),
                 ],
               ),
-              onLongPressUp: () {},
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
                 if (details.globalPosition.dx > size.width * 3 / 8 &&
@@ -214,10 +209,11 @@ class _MangaContentPage extends StatelessWidget {
                   pageController.isLoading,
                   pageController.searchItem);
             }
+            final path = '${pageController.content[index]}';
             return FadeInImage(
               placeholder: AssetImage(Global.waitingPath),
               image: NetworkImage(
-                "${pageController.content[index]}",
+                path,
                 headers: pageController.headers,
               ),
               fit: BoxFit.fitWidth,
@@ -238,94 +234,6 @@ class _MangaContentPage extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _NovelContentPage extends StatelessWidget {
-  final ContentPageController pageController;
-
-  const _NovelContentPage({
-    this.pageController,
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Color(0xFFF5DEB3),
-      padding: EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 80),
-              controller: pageController.controller,
-              itemCount: pageController.content.length + 2,
-              itemBuilder: (context, index) {
-                if (index == pageController.content.length + 1) {
-                  return _buildChapterSeparate(
-                      Colors.black87,
-                      MediaQuery.of(context).size.height,
-                      pageController.isLoading,
-                      pageController.searchItem);
-                }
-                if (index == 0) {
-                  return Text(
-                    '${pageController.searchItem.durChapter}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  );
-                }
-                return Text(
-                  pageController.content[index - 1],
-                  style: TextStyle(
-                    fontSize: 20,
-                    height: 2,
-                    color: Colors.black,
-                  ),
-                );
-              },
-            ),
-          ),
-          SizedBox(
-            height: 4,
-          ),
-          UIDash(
-            height: 2,
-            dashWidth: 6,
-            color: Colors.black38,
-          ),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  '${pageController.searchItem.durChapter}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 36,
-                child: Text(
-                  '${pageController.progress}%',
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

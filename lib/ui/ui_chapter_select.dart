@@ -27,63 +27,84 @@ class UIChapterSelect extends StatelessWidget {
     } else {
       offset = durHeight;
     }
-    return Center(
-      child: Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Container(
-          height: size.height / 2,
-          width: size.width * 0.85,
-          child: ListView.builder(
-            itemExtent: itemHeight,
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            controller: ScrollController(initialScrollOffset: offset),
-            itemCount: searchItem.chapters.length,
-            itemBuilder: (_, index) {
-              return Container(
-                height: itemHeight,
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => loadChapter(index),
-                        child: Row(
-                          children: <Widget>[
-                            // Text(
-                            //   '${index + 1}',
-                            //   style: TextStyle(
-                            //       fontSize: 10, fontStyle: FontStyle.italic),
-                            // ),
-                            // SizedBox(
-                            //   width: 8,
-                            // ),
-                            Expanded(
-                              child: Text(
-                                '${searchItem.chapters[index].name}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            searchItem.durChapterIndex == index
-                                ? Icon(
-                                    Icons.done,
-                                    color: Theme.of(context).primaryColor,
-                                  )
-                                : Container()
-                          ],
-                        ),
-                      ),
-                    ),
-                    UIDash(height: 0.5, dashWidth: 4, color: Colors.grey),
-                  ],
-                ),
-              );
-            },
+    final primaryColor = Theme.of(context).primaryColor;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Container(
+            height: size.height / 2,
+            width: size.width * 0.85,
+            child: ListView.builder(
+              itemExtent: itemHeight,
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              controller: ScrollController(initialScrollOffset: offset),
+              itemCount: searchItem.chapters.length,
+              itemBuilder: (_, index) {
+                return Container(
+                  height: itemHeight,
+                  child: _buildChapter(index, primaryColor),
+                );
+              },
+            ),
           ),
         ),
-      ),
+        SizedBox(
+          height: 10,
+          width: double.infinity,
+        ),
+        Container(
+          width: size.width * 0.85,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              RaisedButton(
+                child: Text("上一章"),
+                onPressed: () => loadChapter(searchItem.durChapterIndex - 1),
+              ),
+              RaisedButton(
+                child: Text("下一章"),
+                onPressed: () => loadChapter(searchItem.durChapterIndex + 1),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _buildChapter(int index, Color primaryColor) {
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: InkWell(
+            onTap: () => loadChapter(index),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    '${searchItem.chapters[index].name}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                searchItem.durChapterIndex == index
+                    ? Icon(
+                        Icons.done,
+                        color: primaryColor,
+                      )
+                    : Container()
+              ],
+            ),
+          ),
+        ),
+        UIDash(height: 0.5, dashWidth: 4, color: Colors.grey),
+      ],
     );
   }
 }
