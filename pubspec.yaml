@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.11.12+1
+version: 1.11.13+1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

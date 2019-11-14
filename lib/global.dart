@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
-  static const appVersion = '1.11.12';
+  static const appVersion = '1.11.13';
 
   static const waitingPath = "lib/assets/waiting.png";
   static const cheerioFile = "lib/assets/cheerio.min.js";
