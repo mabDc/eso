@@ -9,6 +9,7 @@ class Profile with ChangeNotifier {
     final source = Global.prefs.getString(Global.profileKey);
     final json = source == null
         ? {
+            'showMangaInfo': true,
             'switchLongPress': false,
             'switchFavoriteStyle': false,
             'switchDiscoverStyle': false,
@@ -28,6 +29,7 @@ class Profile with ChangeNotifier {
   bool _darkMode;
   String _colorName;
   int _customColor;
+  bool _showMangaInfo;
 
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
@@ -36,6 +38,7 @@ class Profile with ChangeNotifier {
   bool get darkMode => _darkMode;
   String get colorName => _colorName;
   int get customColor => _customColor;
+  bool get showMangaInfo => _showMangaInfo;
 
   set switchFavoriteStyle(bool value) {
     if (value != _switchFavoriteStyle) {
@@ -110,6 +113,13 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set showMangaInfo(bool value) {
+    if (_showMangaInfo != value) {
+      _showMangaInfo = value;
+      _saveProfile();
+    }
+  }
+
   void _saveProfile([bool shouldNotifyListeners = true]) async {
     await Global.prefs.setString(Global.profileKey, jsonEncode(toJson()));
     if (shouldNotifyListeners) {
@@ -123,8 +133,9 @@ class Profile with ChangeNotifier {
 
   fromJson(Map<String, dynamic> json) {
     _switchLongPress = json['switchLongPress'];
-    _switchFavoriteStyle = json['switchFavoriteStyle']??false;
-    _switchDiscoverStyle = json['switchDiscoverStyle']??false;
+    _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
+    _switchDiscoverStyle = json['switchDiscoverStyle'] ?? false;
+    _showMangaInfo = json['showMangaInfo'] ?? true;
     _autoRefresh = json['autoRefresh'];
     _darkMode = json['darkMode'];
     _colorName = json['colorName'];
@@ -135,6 +146,7 @@ class Profile with ChangeNotifier {
         'switchLongPress': _switchLongPress,
         'switchFavoriteStyle': _switchFavoriteStyle,
         'switchDiscoverStyle': _switchDiscoverStyle,
+        'showMangaInfo': _showMangaInfo,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'colorName': _colorName,

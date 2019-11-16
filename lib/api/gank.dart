@@ -23,7 +23,7 @@ class Gank implements API {
       SearchItem(
         api: this,
         cover: 'http://gank.io/static/images/special/work.png',
-        name: '干货集中营-妹子图',
+        name: '干货集中营',
         author: 'gank.io',
         chapter: '',
         description: '每日分享妹子图和技术干货，还有供大家中午休息的休闲视频\n妹子图每页10张，设置100页，前70页有图',
@@ -34,7 +34,6 @@ class Gank implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    
     return <SearchItem>[];
   }
 

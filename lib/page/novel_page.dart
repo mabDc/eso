@@ -153,7 +153,7 @@ class _NovelPageState extends State<NovelPage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.close),
+                          child: Icon(Icons.close, color: Colors.black87),
                         ),
                       ],
                     ),

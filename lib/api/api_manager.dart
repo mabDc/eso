@@ -1,3 +1,6 @@
+import 'package:eso/api/bupt_ivi.dart';
+import 'package:eso/api/huya.dart';
+
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
@@ -33,6 +36,8 @@ import 'zzzfun.dart';
 
 class APIManager {
   static List<API> get allAPI => <API>[
+        BuptIvi(),
+        Huya(),
         News163(),
         Gank(),
         Duitang(),

@@ -14,7 +14,7 @@ class UIImageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(cover == null){
+    if (cover == null) {
       return Image.asset(
         Global.waitingPath,
         fit: BoxFit.cover,

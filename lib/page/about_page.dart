@@ -32,10 +32,19 @@ class AboutPage extends StatelessWidget {
                     ),
                     Divider(),
                     SwitchListTile(
-                      title: Text('切换收藏长按效果'),
-                      subtitle: Text(profile.switchLongPress ? '长按查看内容':'长按查看目录'),
+                      title: Text('交换收藏点击和长按效果'),
+                      subtitle: Text(profile.switchLongPress
+                          ? '点击进入目录，长按查看内容'
+                          : '点击查看内容，长按进入目录'),
                       value: profile.switchLongPress,
                       onChanged: (value) => profile.switchLongPress = value,
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                    SwitchListTile(
+                      title: Text('漫画右下角显示章节'),
+                      subtitle: Text('也可在漫画中长按切换'),
+                      value: profile.showMangaInfo,
+                      onChanged: (value) => profile.showMangaInfo = value,
                       activeColor: Theme.of(context).primaryColor,
                     ),
                     SwitchListTile(
@@ -60,12 +69,14 @@ class AboutPage extends StatelessWidget {
                     ),
                     ListTile(
                       title: Text('备份收藏'),
-                      subtitle: Text('备份至 Android/data/com.mabdc.eso/files/backup.txt'),
+                      subtitle: Text(
+                          '备份至 Android/data/com.mabdc.eso/files/backup.txt'),
                       onTap: () => SearchItemManager.backupItems(),
                     ),
                     ListTile(
                       title: Text('恢复收藏'),
-                      subtitle: Text('恢复从 Android/data/com.mabdc.eso/files/backup.txt'),
+                      subtitle: Text(
+                          '恢复从 Android/data/com.mabdc.eso/files/backup.txt'),
                       onTap: () => SearchItemManager.restore(),
                     ),
                   ],

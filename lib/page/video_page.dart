@@ -120,7 +120,10 @@ class _VideoPageState extends State<VideoPage> {
       onPanEnd: provider.onPanEnd,
       child: Column(
         children: <Widget>[
-          SizedBox(height: MediaQuery.of(context).padding.top),
+          Container(
+            height: MediaQuery.of(context).padding.top,
+            color: Color(0xB0000000),
+          ),
           provider.showController
               ? _buildTopRow(context, provider)
               : Container(),
@@ -160,8 +163,21 @@ class _VideoPageState extends State<VideoPage> {
   Widget _buildTopRow(BuildContext context, VideoPageController provider) {
     return Container(
       width: double.infinity,
-      color: Colors.black.withAlpha(20),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      height: 80,
+      alignment: Alignment.topLeft,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.transparent,
+            Color(0x40000000),
+            Color(0x90000000),
+            Color(0xB0000000),
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: <Widget>[
           InkWell(
@@ -213,8 +229,21 @@ class _VideoPageState extends State<VideoPage> {
   Widget _buildBottomRow(BuildContext context, VideoPageController provider) {
     return Container(
       width: double.infinity,
-      color: Colors.black.withAlpha(20),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      height: 80,
+      alignment: Alignment.bottomLeft,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.transparent,
+            Color(0x40000000),
+            Color(0x90000000),
+            Color(0xB0000000),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: <Widget>[
           InkWell(
