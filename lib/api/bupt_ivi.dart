@@ -15,6 +15,7 @@ class BuptIvi implements API {
   @override
   Future<List<SearchItem>> discover(
       Map<String, DiscoverPair> params, int page, int pageSize) async {
+    if (page > 1) return <SearchItem>[];
     return list
         .map((item) => SearchItem(
               api: this,

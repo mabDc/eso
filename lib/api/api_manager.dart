@@ -1,5 +1,6 @@
 import 'package:eso/api/bupt_ivi.dart';
 import 'package:eso/api/huya.dart';
+import 'package:eso/api/qula.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
@@ -41,6 +42,7 @@ class APIManager {
         News163(),
         Gank(),
         Duitang(),
+        Qula(),
         Qidian(),
         Iqiwx(),
         Ymoxuan(),
