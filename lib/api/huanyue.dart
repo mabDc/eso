@@ -19,7 +19,7 @@ class Huanyue implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     String query = '${params["榜单"].value}${params["类型"].value}';
     final res =
         await http.get('http://m.huanyue123.com/ph/${query}_$page.html');
@@ -80,11 +80,13 @@ class Huanyue implements API {
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
-    final text = parse(utf8.decode(res.bodyBytes))
-        .querySelector('#chaptercontent')
-        .text
-        .split('\n')[3];
-    return text.split(text.substring(0, 4)).map((s) => "　　$s").toList();
+    return <String>[
+      parse(utf8.decode(res.bodyBytes))
+          .querySelector('#chaptercontent')
+          .text
+          .replaceAll('章节错误,点此举报(免注册)', '')
+          .replaceAll(RegExp('\\n\\s*'), '\n　　')
+    ];
   }
 
   @override

@@ -1,4 +1,3 @@
-import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 
@@ -82,9 +81,7 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.durContentIndex = 1;
     await SearchItemManager.saveSearchItem();
     _isLoading = false;
-    if (searchItem.ruleContentType != API.RSS) {
-      _controller.jumpTo(1);
-    }
+    _controller.jumpTo(1);
     notifyListeners();
   }
 

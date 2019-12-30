@@ -9,11 +9,16 @@ import 'global.dart';
 import 'model/profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 
 void main() {
+  // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
+  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   runApp(MyApp());
   if (Platform.isAndroid) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
 }
 
@@ -23,6 +28,9 @@ class MyApp extends StatelessWidget {
     return FutureBuilder<bool>(
       future: Global.init(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.hasError) {
+          print(snapshot.error);
+        }
         if (!snapshot.hasData) {
           return MaterialApp(
             title: Global.appName,
