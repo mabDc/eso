@@ -9,12 +9,9 @@ import 'global.dart';
 import 'model/profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
-import 'package:flutter/foundation.dart'
-    show debugDefaultTargetPlatformOverride;
 
 void main() {
   // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
-  debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   runApp(MyApp());
   if (Platform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(
