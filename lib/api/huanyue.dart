@@ -80,13 +80,21 @@ class Huanyue implements API {
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
-    return <String>[
-      parse(utf8.decode(res.bodyBytes))
-          .querySelector('#chaptercontent')
-          .text
-          .replaceAll('章节错误,点此举报(免注册)', '')
-          .replaceAll(RegExp('\\n\\s*'), '\n　　')
-    ];
+    final html = utf8.decode(res.bodyBytes);
+    final text1 = parse(html).querySelector('#chaptercontent').text;
+    final text2 = parse(RegExp(
+                'document\\.getElementById\\("aabbccdd"\\)\\.innerHTML = "(.*?)";')
+            .firstMatch(html)
+            .group(1))
+        .querySelector('*')
+        .text;
+    final split = parse('&nbsp;&nbsp;&nbsp;&nbsp;').querySelector('*').text;
+    return '$text1\n$text2'
+        .replaceAll(
+            RegExp('章节错误,点此举报\\(免注册\\)|退出畅读模式，可以看完整内容。|幻月\\s*书院|『加入书签，方便阅读』'),
+            '')
+        .replaceAll(RegExp('\\n\\s*|    |' + split), '\n　　')
+        .split('\n');
   }
 
   @override
