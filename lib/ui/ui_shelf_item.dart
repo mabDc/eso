@@ -108,7 +108,7 @@ class _UiShelfItem extends StatelessWidget {
                   style: TextStyle(
                     color: Theme.of(context)
                         .textTheme
-                        .body1
+                        .bodyText1
                         .color
                         .withOpacity(0.7),
                   ),
