@@ -35,7 +35,7 @@ packages:
       name: audioplayers
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.13.7"
+    version: "0.14.2"
   boolean_selector:
     dependency: transitive
     description:

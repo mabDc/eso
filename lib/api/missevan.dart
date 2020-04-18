@@ -67,7 +67,6 @@ class Missevan implements API {
 
   @override
   Future<List<String>> content(String url) async {
-    final a=1;
     final res = await http.get(url);
     final json = jsonDecode(utf8.decode(res.bodyBytes));
     final sound = json["info"]["sound"];
@@ -77,7 +76,7 @@ class Missevan implements API {
     return clear(url2) == null
         ? <String>[]
         : <String>[
-            'https://static.missevan.com/$url2',
+            '$url2',
             'coverhttp://static.missevan.com/coversmini/$cover'
           ];
   }
