@@ -19,8 +19,11 @@ class Missevan implements API {
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
     final json = jsonDecode(utf8.decode(res.bodyBytes));
-    return (json["info"]["Datas"] as List)
-        .map((item) => SearchItem(
+    final searchItems = <SearchItem>[];
+    for (var item in json["info"]["Datas"] as List) {
+      var episodes = item["episodes"] as List;
+      if(episodes.length == 0) continue;
+      searchItems.add(SearchItem(
               api: this,
               cover: '${item["cover"]}',
               name: '${item["name"]}',
@@ -28,9 +31,10 @@ class Missevan implements API {
               chapter: '${item["newest"]}',
               description: '${item["abstract"]}',
               url:
-                  'https://www.missevan.com/dramaapi/getdramabysound?sound_id=${item["episodes"][0]["sound_id"]}',
-            ))
-        .toList();
+                  'https://www.missevan.com/dramaapi/getdramabysound?sound_id=${episodes[0]["sound_id"]}',
+            ));
+    }
+    return searchItems;
   }
 
   @override

@@ -19,7 +19,7 @@ class Manhualou implements API {
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
-    final dom = parse(res.body);
+    final dom = parse(utf8.decode(res.bodyBytes));
     return dom
         .querySelectorAll('#contList li')
         .map((item) => SearchItem(

@@ -19,14 +19,14 @@ class Huba implements API {
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
-    return parse(res.body).querySelectorAll('#list-focus li').map((item) {
+    return parse(res.body).querySelectorAll('.mlist li').map((item) {
       return SearchItem(
         api: this,
         cover: '${item.querySelector('img').attributes['src']}',
         name: '${item.querySelector('h2').text}'.trim(),
-        author: '${item.querySelector('dl').text}',
+        author: '${item.querySelector('.info p').text}',
         chapter: '',
-        description: '${item.querySelector('.juqing').text}',
+        description: '${item.querySelector('.info').text}',
         url: 'http://www.17185.cc${item.querySelector('a').attributes['href']}',
       );
     }).toList();

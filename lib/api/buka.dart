@@ -64,11 +64,9 @@ class Buka implements API {
         .map((item) => ChapterItem(
               cover: null,
               time: null,
-              name: '${item.text}'.trim(),
+              name: '${item.text}'.replaceAll(RegExp('\\s'),''),
               url: 'http://buka.cn${item.attributes["href"]}',
             ))
-        .toList()
-        .reversed
         .toList();
   }
 

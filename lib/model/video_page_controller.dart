@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/services.dart';
-import 'package:wakelock/wakelock.dart';
+// import 'package:wakelock/wakelock.dart';
 
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +83,7 @@ class VideoPageController with ChangeNotifier {
 
   VideoPageController({this.searchItem}) {
     _horizontal = true;
-    Wakelock.enable();
+    // Wakelock.enable();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
@@ -279,7 +279,7 @@ class VideoPageController with ChangeNotifier {
   @override
   void dispose() async {
     _timer?.cancel();
-    Wakelock.disable();
+    // Wakelock.disable();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,

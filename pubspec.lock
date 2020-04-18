@@ -376,10 +376,12 @@ packages:
   video_player:
     dependency: "direct main"
     description:
-      name: video_player
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.10.8+1"
+      path: "packages/video_player/video_player"
+      ref: video_player_macos
+      resolved-ref: ba0e30c0423f27181addb68bad360cdae788c2bb
+      url: "git://github.com/cbenhagen/plugins.git"
+    source: git
+    version: "0.10.6"
   video_player_platform_interface:
     dependency: transitive
     description:
@@ -394,13 +396,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.2+1"
-  wakelock:
-    dependency: "direct main"
-    description:
-      name: wakelock
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.4"
   webview_flutter:
     dependency: "direct main"
     description:
@@ -409,5 +404,5 @@ packages:
     source: hosted
     version: "0.3.19+9"
 sdks:
-  dart: ">=2.7.0 <3.0.0"
-  flutter: ">=1.12.13+hotfix.8 <2.0.0"
+  dart: ">=2.6.0 <3.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
