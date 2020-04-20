@@ -10,8 +10,8 @@ import 'model/profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
 
+
 void main() {
-  // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
   runApp(MyApp());
   if (Platform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
     return FutureBuilder<bool>(
       future: Global.init(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+
         if (snapshot.hasError) {
           print(snapshot.error);
         }
@@ -46,12 +47,8 @@ class MyApp extends StatelessWidget {
           child: Consumer<Profile>(
             builder: (BuildContext context, Profile profile, Widget widget) {
               return MaterialApp(
-                theme: ThemeData(
-                  primaryColor: Color(
-                      Global.colors[profile.colorName] ?? profile.customColor),
-                  brightness:
-                      profile.darkMode ? Brightness.dark : Brightness.light,
-                ),
+                theme: profile.getTheme(isDarkMode: false),
+                darkTheme: profile.getTheme(isDarkMode: true),
                 title: Global.appName,
                 home: HomePage(),
               );
