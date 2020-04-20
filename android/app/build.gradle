@@ -48,7 +48,7 @@ android {
 
     defaultConfig {
         applicationId "com.mabdc.eso"
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
