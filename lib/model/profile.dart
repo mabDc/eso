@@ -9,15 +9,15 @@ class Profile with ChangeNotifier {
     final source = Global.prefs.getString(Global.profileKey);
     final json = source == null
         ? {
-            'showMangaInfo': true,
-            'switchLongPress': false,
-            'switchFavoriteStyle': false,
-            'switchDiscoverStyle': false,
-            'autoRefresh': false,
-            'darkMode': false,
-            'colorName': Global.colors.keys.first,
-            'customColor': Global.colors.values.first,
-          }
+      'showMangaInfo': true,
+      'switchLongPress': false,
+      'switchFavoriteStyle': false,
+      'switchDiscoverStyle': false,
+      'autoRefresh': false,
+      'darkMode': "跟随系统",
+      'colorName': Global.colors.keys.first,
+      'customColor': Global.colors.values.first,
+    }
         : jsonDecode(source);
     fromJson(json);
   }
@@ -26,7 +26,7 @@ class Profile with ChangeNotifier {
   bool _switchFavoriteStyle;
   bool _switchDiscoverStyle;
   bool _autoRefresh;
-  bool _darkMode;
+  String _darkMode;
   String _colorName;
   int _customColor;
   bool _showMangaInfo;
@@ -35,7 +35,7 @@ class Profile with ChangeNotifier {
   bool get switchFavoriteStyle => _switchFavoriteStyle;
   bool get switchDiscoverStyle => _switchDiscoverStyle;
   bool get autoRefresh => _autoRefresh;
-  bool get darkMode => _darkMode;
+  String get darkMode => _darkMode;
   String get colorName => _colorName;
   int get customColor => _customColor;
   bool get showMangaInfo => _showMangaInfo;
@@ -68,7 +68,7 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set darkMode(bool value) {
+  set darkMode(String value) {
     if (value != _darkMode) {
       _darkMode = value;
       _saveProfile();
@@ -127,6 +127,24 @@ class Profile with ChangeNotifier {
     }
   }
 
+  getTheme({bool isDarkMode: false}) {
+    switch (darkMode) {
+      case "开启":
+        isDarkMode = true;
+        break;
+      case "关闭":
+        isDarkMode = false;
+        break;
+      default:
+        break;
+    }
+    return ThemeData(
+      primaryColor: Color(
+          Global.colors[colorName] ?? customColor),
+      brightness: isDarkMode ? Brightness.dark : Brightness.light,
+    );
+  }
+
   Profile.fromJson(Map<String, dynamic> json) {
     fromJson(json);
   }
@@ -137,19 +155,19 @@ class Profile with ChangeNotifier {
     _switchDiscoverStyle = json['switchDiscoverStyle'] ?? false;
     _showMangaInfo = json['showMangaInfo'] ?? true;
     _autoRefresh = json['autoRefresh'];
-    _darkMode = json['darkMode'];
+    _darkMode = json['darkMode'].toString();
     _colorName = json['colorName'];
     _customColor = json['customColor'];
   }
 
   Map<String, dynamic> toJson() => {
-        'switchLongPress': _switchLongPress,
-        'switchFavoriteStyle': _switchFavoriteStyle,
-        'switchDiscoverStyle': _switchDiscoverStyle,
-        'showMangaInfo': _showMangaInfo,
-        'autoRefresh': _autoRefresh,
-        'darkMode': _darkMode,
-        'colorName': _colorName,
-        'customColor': _customColor,
-      };
+    'switchLongPress': _switchLongPress,
+    'switchFavoriteStyle': _switchFavoriteStyle,
+    'switchDiscoverStyle': _switchDiscoverStyle,
+    'showMangaInfo': _showMangaInfo,
+    'autoRefresh': _autoRefresh,
+    'darkMode': _darkMode,
+    'colorName': _colorName,
+    'customColor': _customColor,
+  };
 }

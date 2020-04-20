@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:provider/provider.dart';
 
-import '../global.dart';
-import '../model/profile.dart';
+import '../../global.dart';
+import '../../model/profile.dart';
 
 class ColorLensPage extends StatelessWidget {
   const ColorLensPage({Key key}) : super(key: key);

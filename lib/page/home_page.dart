@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../global.dart';
 import '../model/page_switch.dart';
 import '../model/profile.dart';
-import 'about_page.dart';
+import 'setting/about_page.dart';
 import 'discover_page.dart';
 import 'favorite_page.dart';
 
@@ -29,16 +29,17 @@ class HomePage extends StatelessWidget {
                 AboutPage(),
               ],
               onPageChanged: (index) => pageSwitch.changePage(index, false),
+              physics: new NeverScrollableScrollPhysics(),//禁止主页左右滑动
             ),
             bottomNavigationBar: Consumer<Profile>(
               builder: (BuildContext context, Profile profile, Widget widget) {
+                bool isDark = Theme.of(context).brightness == Brightness.dark;
                 return BottomNavigationBar(
                   selectedItemColor: Theme.of(context).primaryColor,
-                  unselectedItemColor: profile.darkMode
+                  unselectedItemColor: isDark
                       ? Colors.white.withOpacity(0.6)
                       : Colors.black.withOpacity(0.6),
-                  backgroundColor:
-                      profile.darkMode ? Colors.black12 : Colors.white,
+                  backgroundColor: isDark ? Colors.grey[850] : Colors.white,
                   items: [
                     // BottomNavigationBarItem(
                     //     icon: Icon(Icons.weekend), title: Text('测试')),

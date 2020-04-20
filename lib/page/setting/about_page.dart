@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../global.dart';
-import '../model/profile.dart';
+import '../../global.dart';
+import '../../model/profile.dart';
+import 'darkmod_page.dart';
 import 'color_lens_page.dart';
 
 class AboutPage extends StatelessWidget {
@@ -54,12 +55,11 @@ class AboutPage extends StatelessWidget {
                       onChanged: (value) => profile.autoRefresh = value,
                       activeColor: Theme.of(context).primaryColor,
                     ),
-                    SwitchListTile(
+                    ListTile(
                       title: Text('夜间模式'),
-                      subtitle: Text('暗色背景'),
-                      value: profile.darkMode,
-                      onChanged: (value) => profile.darkMode = value,
-                      activeColor: Theme.of(context).primaryColor,
+                      subtitle: Text('切换夜间模式'),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => DarkModpage())),
                     ),
                     ListTile(
                       title: Text('调色板'),
