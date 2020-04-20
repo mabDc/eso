@@ -1,5 +1,6 @@
 import 'package:eso/api/bupt_ivi.dart';
 import 'package:eso/api/huya.dart';
+import 'package:eso/api/onemanhua.dart';
 import 'package:eso/api/qula.dart';
 
 import '../database/chapter_item.dart';
@@ -49,13 +50,14 @@ class APIManager {
         Duyidu(),
         Huanyue(),
         Dongman(),
+        Onemanhua(),
         Mankezhan(),
         Manhuatai(),
         Manhualou(),
+        Manhuadui(),
         Tohomh(),
         Buka(),
         U17(),
-        Manhuadui(),
         TencentManga(),
         BilibiliManga(),
         MiguManga(),

@@ -2,6 +2,8 @@ PODS:
   - audioplayers (0.0.1):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_js (0.0.1):
+    - Flutter
   - flutter_seekbar (0.0.1):
     - Flutter
   - flutter_share (0.0.1):
@@ -32,6 +34,7 @@ PODS:
 DEPENDENCIES:
   - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
   - Flutter (from `Flutter`)
+  - flutter_js (from `.symlinks/plugins/flutter_js/ios`)
   - flutter_seekbar (from `.symlinks/plugins/flutter_seekbar/ios`)
   - flutter_share (from `.symlinks/plugins/flutter_share/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
@@ -51,6 +54,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audioplayers/ios"
   Flutter:
     :path: Flutter
+  flutter_js:
+    :path: ".symlinks/plugins/flutter_js/ios"
   flutter_seekbar:
     :path: ".symlinks/plugins/flutter_seekbar/ios"
   flutter_share:
@@ -81,6 +86,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_js: eb1d2d30ead7b5e597f7e7bfed642589ca15efe2
   flutter_seekbar: 611a908fbb7553d78a8af5adf422cdf822a14540
   flutter_share: 4be0208963c60b537e6255ed2ce1faae61cd9ac2
   path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
@@ -93,7 +99,7 @@ SPEC CHECKSUMS:
   url_launcher_web: e5527357f037c87560776e36436bf2b0288b965c
   video_player: 69c5f029fac4ffe4fc8a85ea7f7b793709661549
   video_player_web: da8cadb8274ed4f8dbee8d7171b420dedd437ce7
-  webview_flutter: bec7599de6bfbe8008a739aa3ebd7b364ea9d0cd
+  webview_flutter: db3aba222b23e4dc432e0c5882834123dc50ff9f
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 

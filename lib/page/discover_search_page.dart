@@ -135,7 +135,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                   flex: 2,
                   child: pageController.isLoading
                       ? LandingPage()
-                      : Provider.of<Profile>(context).switchDiscoverStyle
+                      : Provider.of<Profile>(context, listen: false)
+                              .switchDiscoverStyle
                           ? buildDiscoverResultList(
                               pageController.items, pageController.controller)
                           : buildDiscoverResultGrid(
@@ -151,11 +152,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
 
   Widget _buildSwitchStyle(BuildContext context) {
     return IconButton(
-      icon: Provider.of<Profile>(context).switchDiscoverStyle
+      icon: Provider.of<Profile>(context, listen: false).switchDiscoverStyle
           ? Icon(Icons.view_module)
           : Icon(Icons.view_headline),
-      onPressed: () => Provider.of<Profile>(context).switchDiscoverStyle =
-          !Provider.of<Profile>(context).switchDiscoverStyle,
+      onPressed: () =>
+          Provider.of<Profile>(context, listen: false).switchDiscoverStyle =
+              !Provider.of<Profile>(context, listen: false).switchDiscoverStyle,
     );
   }
 

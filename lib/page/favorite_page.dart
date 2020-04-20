@@ -33,16 +33,20 @@ class FavoritePage extends StatelessWidget {
             onPressed: () => showSearch(
               context: context,
               delegate: SearchPageDelegate(
-                historyManager: Provider.of<HistoryManager>(context),
+                historyManager:
+                    Provider.of<HistoryManager>(context, listen: false),
               ),
             ),
           ),
           IconButton(
-            icon: Provider.of<Profile>(context).switchFavoriteStyle
-                ? Icon(Icons.view_headline)
-                : Icon(Icons.view_module),
-            onPressed: () => Provider.of<Profile>(context).switchFavoriteStyle =
-                !Provider.of<Profile>(context).switchFavoriteStyle,
+            icon:
+                Provider.of<Profile>(context, listen: false).switchFavoriteStyle
+                    ? Icon(Icons.view_headline)
+                    : Icon(Icons.view_module),
+            onPressed: () => Provider.of<Profile>(context, listen: false)
+                    .switchFavoriteStyle =
+                !Provider.of<Profile>(context, listen: false)
+                    .switchFavoriteStyle,
           ),
         ],
       ),
@@ -51,7 +55,7 @@ class FavoritePage extends StatelessWidget {
           await Future.delayed(Duration(seconds: 1));
           return;
         },
-        child: Provider.of<Profile>(context).switchFavoriteStyle
+        child: Provider.of<Profile>(context, listen: false).switchFavoriteStyle
             ? _buildFavoriteGrid(searchItems)
             : _buildFavoriteList(searchItems),
       ),
@@ -69,7 +73,8 @@ class FavoritePage extends StatelessWidget {
       padding: EdgeInsets.all(8.0),
       itemBuilder: (context, index) {
         final searchItem = searchItems[index];
-        final longPress = Provider.of<Profile>(context).switchLongPress;
+        final longPress =
+            Provider.of<Profile>(context, listen: false).switchLongPress;
         VoidCallback openChapter = () => Navigator.of(context).push(
             MaterialPageRoute(
                 builder: (context) => ChapterPage(searchItem: searchItem)));
@@ -96,7 +101,8 @@ class FavoritePage extends StatelessWidget {
       itemCount: searchItems.length,
       itemBuilder: (context, index) {
         final searchItem = searchItems[index];
-        final longPress = Provider.of<Profile>(context).switchLongPress;
+        final longPress =
+            Provider.of<Profile>(context, listen: false).switchLongPress;
         VoidCallback openChapter = () => Navigator.of(context).push(
             MaterialPageRoute(
                 builder: (context) => ChapterPage(searchItem: searchItem)));
