@@ -10,10 +10,10 @@ import 'package:html/parser.dart' show parse;
 
 class Manhuadui implements API {
   @override
-  String get origin => "漫画堆";
+  String get origin => "one漫画";
 
   @override
-  String get originTag => 'Manhuadui';
+  String get originTag => 'OneManhua';
 
   @override
   int get ruleContentType => API.MANGA;
@@ -93,6 +93,13 @@ class Manhuadui implements API {
         return '$filename';
       return "$host/${chapterPath.replaceAll(RegExp('^/|/\$'), '')}/${filename.replaceAll(RegExp('^/'), '')}";
     }).toList();
+
+    // final C_DATA = RegExp("C_DATA\\s*=\\s*'([^']*)").firstMatch(res.body)[1];
+    // final key = 'JRUIFMVJDIWE569j';
+    // final aes =
+    //     Encrypter(AES(Key.fromUtf8(key), mode: AESMode.ecb, padding: 'PKCS7'))
+    //         .decrypt(Encrypted(Uint8List.fromList(C_DATA.codeUnits)));
+    // final info = parse(res.body).querySelector('.BarTit').text;
   }
 
   @override

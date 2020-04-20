@@ -16,7 +16,6 @@ import 'duitang.dart';
 import 'duyidu.dart';
 import 'gank.dart';
 import 'huanyue.dart';
-import 'huba.dart';
 import 'iqiwx.dart';
 import 'ixs.dart';
 import 'manhuadui.dart';
@@ -56,7 +55,7 @@ class APIManager {
         Tohomh(),
         Buka(),
         U17(),
-        // Manhuadui(),
+        Manhuadui(),
         TencentManga(),
         BilibiliManga(),
         MiguManga(),

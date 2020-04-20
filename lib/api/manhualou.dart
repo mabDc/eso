@@ -36,7 +36,7 @@ class Manhualou implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     final query = params.values
         .where((pair) => pair.value != '')
         .map((pair) => pair.value)

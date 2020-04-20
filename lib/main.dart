@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
           );
         }
         return MultiProvider(
-          providers: <SingleChildCloneableWidget>[
+          providers: [
             ChangeNotifierProvider<Profile>.value(
               value: Profile(),
             ),

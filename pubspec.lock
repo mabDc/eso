@@ -35,7 +35,7 @@ packages:
       name: audioplayers
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.14.2"
+    version: "0.15.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -98,14 +98,14 @@ packages:
       name: encrypt
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.3.1"
+    version: "4.0.0"
   equatable:
     dependency: "direct main"
     description:
       name: equatable
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.6.1"
+    version: "1.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -186,6 +186,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.8"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.4"
   path:
     dependency: transitive
     description:
@@ -248,7 +255,7 @@ packages:
       name: provider
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.0"
+    version: "4.0.5"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -402,7 +409,7 @@ packages:
       name: webview_flutter
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.19+9"
+    version: "0.3.15+1"
 sdks:
   dart: ">=2.6.0 <3.0.0"
-  flutter: ">=1.12.13+hotfix.5 <2.0.0"
+  flutter: ">=1.12.13+hotfix.4 <2.0.0"
