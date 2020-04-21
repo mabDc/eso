@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
-import 'package:flutter_js/flutter_js.dart';
+import '../flutter_js.dart';
 
 import 'api.dart';
 import '../database/chapter_item.dart';
@@ -84,12 +84,11 @@ class Onemanhua implements API {
             .decrypt(Encrypted.fromBase64(utf8.decode(base64.decode(c_data))));
 
     final _idJsEngine = await FlutterJs.initEngine();
-    String result = await FlutterJs.evaluate("""
+    final info = await FlutterJs.getMap("""
         $imagesString;
         var info = {mh:mh_info,image: image_info};
         info
         """, _idJsEngine);
-    final info = jsonDecode(result);
     var d = info['image']['urls__direct'];
     if (d == '') {
       final images = <String>[];

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:flutter_js/flutter_js.dart';
+import '../flutter_js.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 
@@ -64,32 +64,30 @@ class Bainian implements API {
 
   @override
   Future<List<String>> content(String url) async {
-    // final rule = '''
-    //   var z_yurl = result.match(/z_yurl='([^']*)'/)[1];
-    //   var z_img = result.match(/z_img='([^']*)'/)[1];
-    //   result = JSON.parse(z_img).map((pic) => '' + z_yurl + pic)
-    // ''';
+    final rule = '''
+      var z_yurl = result.match(/z_yurl='([^']*)'/)[1];
+      var z_img = result.match(/z_img='([^']*)'/)[1];
+      JSON.parse(z_img).map((pic) => '' + z_yurl + pic)
+    ''';
 
-    // // analyze by rule
-    // // 解析流程
-    // final res = await http.get(url);
-    // final json = {
-    //   "result": res.body,
-    //   "baseUrl": url,
-    // };
-    // final _idJsEngine = await FlutterJs.initEngine();
-    // String result = await FlutterJs.evaluate("""
-    //     var json = ${jsonEncode(json)};
-    //     var result = json.result;
-    //     var baseUrl = json.baseUrl;
-    //     $rule;
-    //     JSON.stringify(result)
-    //     """, _idJsEngine);
-    // return (jsonDecode(result) as List).map((u) => '$u').toList();
+    // analyze by rule
+    // 解析流程
     final res = await http.get(url);
-    final zyurl = RegExp("z_yurl='([^']*)'").firstMatch(res.body)[1];
-    final zimg = RegExp("z_img='([^']*)").firstMatch(res.body)[1];
-    return (jsonDecode(zimg) as List).map((pic) => '$zyurl$pic').toList();
+    final json = {
+      "result": res.body,
+      "baseUrl": url,
+    };
+    final _idJsEngine = await FlutterJs.initEngine();
+    return FlutterJs.getStringList("""
+        var json = ${jsonEncode(json)};
+        var result = json.result;
+        var baseUrl = json.baseUrl;
+        $rule;
+        """, _idJsEngine);
+    // final res = await http.get(url);
+    // final zyurl = RegExp("z_yurl='([^']*)'").firstMatch(res.body)[1];
+    // final zimg = RegExp("z_img='([^']*)").firstMatch(res.body)[1];
+    // return (jsonDecode(zimg) as List).map((pic) => '$zyurl$pic').toList();
   }
 
   @override

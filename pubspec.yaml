@@ -32,7 +32,8 @@ dependencies:
   encrypt: ^4.0.0
   archive: ^2.0.13
   webview_flutter: 0.3.15+1
-  flutter_js: ^0.0.2+1
+  flutter_js: 
+    git: git://github.com/abner/flutter_js
 
 dev_dependencies:
   flutter_test:

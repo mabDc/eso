@@ -128,9 +128,11 @@ packages:
   flutter_js:
     dependency: "direct main"
     description:
-      name: flutter_js
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "94a21cd625ad810400fc44347b116581fed9d507"
+      url: "git://github.com/abner/flutter_js"
+    source: git
     version: "0.0.2+1"
   flutter_seekbar:
     dependency: "direct main"
