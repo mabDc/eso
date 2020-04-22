@@ -34,12 +34,10 @@ class FlutterJs {
     return engineId;
   }
 
-  static Future<dynamic> evaluate(String command, int id,
-      {String convertTo = ""}) async {
+  static Future<dynamic> evaluate(String command, int id) async {
     var arguments = {
       "engineId": id,
-      "command": command,
-      "convertTo": convertTo
+      "command": command
     };
     final rs = await _channel.invokeMethod("evaluate", arguments);
     if (DEBUG) {
@@ -49,18 +47,18 @@ class FlutterJs {
   }
 
   static Future<String> getString(String command, int id) async {
-    final rs = await evaluate(command, id, convertTo: "String");
+    final rs = await evaluate(command, id);
     return rs ?? '';
   }
 
   static Future<List<String>> getStringList(String command, int id) async {
-    final rs = await evaluate(command, id, convertTo: "array");
+    final rs = await evaluate(command, id);
     if (rs == null) return <String>[];
     return (rs as List).map((r) => '$r').toList();
   }
 
   static Future<Map<dynamic, dynamic>> getMap(String command, int id) async {
-    final rs = await evaluate(command, id, convertTo: "object");
+    final rs = await evaluate(command, id);
     return rs ?? Map<String, String>();
   }
 }
