@@ -36,3 +36,5 @@ lib/generated_plugin_registrant.dart
 
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+modules/flutter_js/android/gradle/wrapper/gradle-wrapper.jar
+modules/flutter_js/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java

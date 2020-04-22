@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
-import '../flutter_js.dart';
+import 'package:flutter_js/flutter_js.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 

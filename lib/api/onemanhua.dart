@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
-import '../flutter_js.dart';
+import 'package:flutter_js/flutter_js.dart';
 
 import 'api.dart';
 import '../database/chapter_item.dart';

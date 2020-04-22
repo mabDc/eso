@@ -14,7 +14,7 @@ class FlutterJs {
     return version;
   }
 
-  static Future<String> evaluateOrginal(String command, int id,
+  static Future<String> evaluateOriginal(String command, int id,
       {String convertTo = ""}) async {
     var arguments = {
       "engineId": id,
@@ -45,6 +45,7 @@ class FlutterJs {
     if (DEBUG) {
       print("${DateTime.now().toIso8601String()} - JS RESULT : $rs");
     }
+    if(Platform.isAndroid) return jsonDecode(rs);
     return rs;
   }
 
