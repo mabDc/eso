@@ -79,4 +79,3 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
 
-subprojects { subproject -> afterEvaluate{ if((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) { android { compileSdkVersion 28 } } } }
