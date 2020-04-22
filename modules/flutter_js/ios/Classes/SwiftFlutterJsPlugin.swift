@@ -12,7 +12,14 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
         let instance = SwiftFlutterJsPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-
+    
+    // 字典或者数组 转 JSON
+    private func dataTypeTurnJson(element:AnyObject) -> String {
+        let jsonData = try! JSONSerialization.data(withJSONObject: element, options: JSONSerialization.WritingOptions.prettyPrinted)
+        let str = String(data: jsonData, encoding: String.Encoding.utf8)!
+        return str
+    }
+    
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "initEngine":
@@ -35,9 +42,9 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
 
                 let resultJsValue: JSValue = jsEngine.evaluateScript(command)
                 if resultJsValue.isArray {
-                    result(resultJsValue.toArray())
+                    result(dataTypeTurnJson(element: resultJsValue.toArray() as AnyObject))
                 } else if resultJsValue.isObject {
-                    result(resultJsValue.toDictionary())
+                    result(dataTypeTurnJson(element: resultJsValue.toDictionary() as AnyObject))
                 } else {
                     result(resultJsValue.toString())
                 }
@@ -49,8 +56,6 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
             }
         case "close":
             break
-        case "getPlatformVersion":
-            result("iOS " + UIDevice.current.systemVersion)
         default:
             result(FlutterMethodNotImplemented)
         }
