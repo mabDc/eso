@@ -3,28 +3,8 @@ import JavaScriptCore
 import UIKit
 
 
-public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
-    private var jsEngineMap = [Int: JSContextFoundation]()
-    public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "io.abner.flutter_js", binaryMessenger: registrar.messenger())
-        let instance = SwiftFlutterJsPlugin()
-        registrar.addMethodCallDelegate(instance, channel: channel)
-    }
 
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        switch call.method {
-        case "initEngine":
-            let engineId = call.arguments as! Int
-            jsEngineMap[engineId] = JSContextFoundation()
-            result(engineId)
-        case "evaluate":
-            result("macOS " + ProcessInfo.processInfo.operatingSystemVersionString)
-        default:
-            result(FlutterMethodNotImplemented)
-        }
-    }
-}
-
+@available(iOS 9.0, *)
 public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
     private var jsEngineMap = [Int: JSContextFoundation]()
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -43,7 +23,6 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
             let argsMap = call.arguments as! NSDictionary
             let command: String = argsMap.value(forKey: "command") as! String
             let engineId: Int = argsMap.value(forKey: "engineId") as! Int
-            let convertTo: String = argsMap.value(forKey: "convertTo") as! String
 
             if let jsEngine = jsEngineMap[engineId] {
                 jsEngine.exceptionHandler = { _, exception in
@@ -55,14 +34,10 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
                 }
 
                 let resultJsValue: JSValue = jsEngine.evaluateScript(command)
-                if convertTo != nil {
-                    if convertTo == "array" {
-                        result(resultJsValue.toArray())
-                    } else if convertTo == "object" {
-                        result(resultJsValue.toDictionary())
-                    } else {
-                        result(resultJsValue.toString())
-                    }
+                if resultJsValue.isArray {
+                    result(resultJsValue.toArray())
+                } else if resultJsValue.isObject {
+                    result(resultJsValue.toDictionary())
                 } else {
                     result(resultJsValue.toString())
                 }
