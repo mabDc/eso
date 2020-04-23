@@ -1,12 +1,12 @@
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext.kotlin_version = '1.3.72'
     repositories {
         google()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -26,8 +26,16 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
+subprojects {
+    subproject -> afterEvaluate{
+        if ((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) {
+            android {
+                compileSdkVersion 28
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
-subprojects { subproject -> afterEvaluate{ if((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) { android { compileSdkVersion 28 } } } }
