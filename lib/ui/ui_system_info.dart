@@ -2,10 +2,14 @@ import 'package:eso/model/system_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'battery_view.dart';
+
 class UISystemInfo extends StatefulWidget {
   final String mangaInfo;
+  final int mangaCount;
   const UISystemInfo({
     this.mangaInfo,
+    this.mangaCount,
     Key key,
   }) : super(key: key);
 
@@ -39,35 +43,19 @@ class _UISystemInfoState extends State<UISystemInfo> {
         __provider = provider;
         return Container(
           height: 20,
-          width: double.infinity,
           alignment: Alignment.bottomRight,
           padding: EdgeInsets.symmetric(horizontal: 8.0),
-          decoration: BoxDecoration(
-            color: Color.fromARGB(100, 0, 0, 0),
-          ),
+          decoration: BoxDecoration(color: Color.fromARGB(100, 0, 0, 0)),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                '${widget.mangaInfo} ${provider.now} ${provider.level}%',
+                '${widget.mangaInfo} 共${widget.mangaCount}页 ${provider.now} ${provider.level}',
                 style: TextStyle(color: Colors.white),
               ),
-              Padding(padding: EdgeInsets.only(left: 2)),
-              Container(
-                width: 27,
-                height: 12,
-                child: Stack(
-                  children: <Widget>[
-                    Image.asset('lib/assets/reader_battery.png'),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(2, 2, 2, 2),
-                      width: 20 * provider.level / 100,
-                      color: Color.fromARGB(255, 255, 255, 255),
-                    ),
-                  ],
-                ),
-              ),
+              Padding(padding: EdgeInsets.only(left: 4)),
+              BatteryView(electricQuantity: provider.level / 100),
             ],
           ),
         );

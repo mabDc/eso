@@ -1,60 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:battery/battery.dart';
-import 'package:device_info/device_info.dart';
-import 'dart:io';
-
 
 class BatteryView extends StatefulWidget {
+  final double electricQuantity;
+  final double width;
+  final double height;
+
+  BatteryView(
+      {Key key, this.electricQuantity, this.width = 18, this.height = 8})
+      : super(key: key);
+
   @override
-  _BatteryViewState createState() => _BatteryViewState();
+  State<StatefulWidget> createState() {
+    return BatteryViewState();
+  }
 }
 
-class _BatteryViewState extends State<BatteryView> {
-  double batteryLevel = 0;
-
+class BatteryViewState extends State<BatteryView> {
   @override
   void initState() {
     super.initState();
-
-    getBatteryLevel();
-  }
-
-  getBatteryLevel() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    if (Platform.isAndroid) {
-      var androidInfo = await deviceInfo.androidInfo;
-      if (!androidInfo.isPhysicalDevice) {
-        return;
-      }
-    }
-    if (Platform.isIOS) {
-      var iosInfo = await deviceInfo.iosInfo;
-      if (!iosInfo.isPhysicalDevice) {
-        return;
-      }
-    }
-
-    var level = await Battery().batteryLevel;
-    setState(() {
-      this.batteryLevel = level / 100.0;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 27,
-      height: 12,
-      child: Stack(
-        children: <Widget>[
-          Image.asset('lib/assets/reader_battery.png'),
-          Container(
-            margin: EdgeInsets.fromLTRB(2, 2, 2, 2),
-            width: 20 * batteryLevel,
-            color: Color.fromARGB(255, 255, 255, 255),
-          )
-        ],
-      ),
+      child: CustomPaint(
+          size: Size(widget.width, widget.height),
+          painter: BatteryViewPainter(widget.electricQuantity)),
     );
+  }
+}
+
+class BatteryViewPainter extends CustomPainter {
+  double electricQuantity;
+  Paint mPaint;
+  double mStrokeWidth = 0.0;
+  double mPaintStrokeWidth = 1.5;
+
+  BatteryViewPainter(electricQuantity) {
+    this.electricQuantity = electricQuantity;
+    mPaint = Paint()..strokeWidth = mPaintStrokeWidth;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    //电池框位置
+    double batteryLeft = mStrokeWidth;
+    double batteryTop = 0;
+    double batteryRight = size.width;
+    double batteryBottom = size.height;
+
+    //电量位置
+
+    double electricQuantityLeft = 0;
+    double electricQuantityTop = 0;
+    double electricQuantityRight = size.width * electricQuantity;
+    double electricQuantityBottom = size.height - mStrokeWidth;
+
+    //电池头部位置
+    double batteryHeadLeft = batteryRight + mStrokeWidth * 4;
+    double batteryHeadTop = size.height / 4;
+    double batteryHeadRight = batteryHeadLeft + size.width / 12;
+    double batteryHeadBottom = batteryHeadTop + (size.height / 2);
+
+    mPaint.style = PaintingStyle.fill;
+    mPaint.color = Colors.white;
+    //画电池头部
+    canvas.drawRRect(
+        RRect.fromLTRBR(batteryHeadLeft, batteryHeadTop, batteryHeadRight,
+            batteryHeadBottom, Radius.circular(mStrokeWidth)),
+        mPaint);
+    mPaint.style = PaintingStyle.stroke;
+    //画电池框
+    canvas.drawRRect(
+        RRect.fromLTRBR(batteryLeft, batteryTop, batteryRight, batteryBottom,
+            Radius.circular(mStrokeWidth)),
+        mPaint);
+    mPaint.style = PaintingStyle.fill;
+    //画电池电量
+    canvas.drawRRect(
+        RRect.fromLTRBR(
+            electricQuantityLeft,
+            electricQuantityTop,
+            electricQuantityRight,
+            electricQuantityBottom,
+            Radius.circular(mStrokeWidth)),
+        mPaint);
+  }
+
+  @override
+  bool shouldRepaint(BatteryViewPainter other) {
+    return true;
   }
 }

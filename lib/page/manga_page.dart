@@ -4,12 +4,12 @@ import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
 import 'package:eso/ui/ui_system_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../database/search_item.dart';
 import '../global.dart';
 import 'langding_page.dart';
-import '../ui/battery_view.dart';
 
 class MangaPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -37,6 +37,7 @@ class _MangaPageState extends State<MangaPage> {
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     __provider?.dispose();
     super.dispose();
   }
@@ -48,6 +49,7 @@ class _MangaPageState extends State<MangaPage> {
         body: Consumer2<MangaPageProvider, Profile>(
           builder: (BuildContext context, MangaPageProvider provider,
               Profile profile, _) {
+            SystemChrome.setEnabledSystemUIOverlays([]);
             if (provider.content == null) {
               return LandingPage();
             }
@@ -63,10 +65,10 @@ class _MangaPageState extends State<MangaPage> {
                         )
                       : Container(),
                   profile.showMangaInfo
-                      ?
-                      //${provider.content.length}
-                      UISystemInfo(
-                          mangaInfo: '${provider.searchItem.durChapter}')
+                      ? UISystemInfo(
+                          mangaInfo: provider.searchItem.durChapter,
+                          mangaCount: provider.content.length,
+                        )
                       : Container(),
                 ],
               ),
@@ -91,7 +93,6 @@ class _MangaPageState extends State<MangaPage> {
 
   Widget _buildMangaContent(MangaPageProvider provider) {
     return ListView.builder(
-      cacheExtent: double.infinity,
       padding: EdgeInsets.all(0),
       controller: provider.controller,
       itemCount: provider.content.length + 1,
