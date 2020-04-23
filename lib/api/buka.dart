@@ -36,14 +36,14 @@ class Buka implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     List<String> query = params["分类"].value.split('&');
     return commonParse("http://m.buka.cn/category/ajax_group", {
       "start": '${pageSize * (page - 1)}',
       "count": '$pageSize',
-      "fun":query[0].substring('fun='.length),
-      "param":query[1].substring('param='.length),
-      "gname":query[2].substring('gname='.length),
+      "fun": query[0].substring('fun='.length),
+      "param": query[1].substring('param='.length),
+      "gname": query[2].substring('gname='.length),
     });
   }
 
@@ -64,7 +64,7 @@ class Buka implements API {
         .map((item) => ChapterItem(
               cover: null,
               time: null,
-              name: '${item.text}'.replaceAll(RegExp('\\s'),''),
+              name: '${item.text}'.replaceAll(RegExp('\\s'), ''),
               url: 'http://buka.cn${item.attributes["href"]}',
             ))
         .toList();

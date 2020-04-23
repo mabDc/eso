@@ -5,6 +5,31 @@ import 'package:http/http.dart' as http;
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
+import 'package:jsonpath/json_path.dart';
+
+class JPathCustom {
+  JPathCustom(this.json);
+  final json;
+  String searchString(String path) {
+    if (path.contains('&&')) {
+      return path
+          .split('&&')
+          .map((p) => JPath.compile(p).search(json).toString())
+          .join(', ');
+    } else if (path.contains('||')) {
+      for (var p in path.split('||')) {
+        dynamic s = JPath.compile(p).search(json);
+        if (s == null ||
+            s == '' ||
+            (s is Map && s.isEmpty) ||
+            (s is List && s.isEmpty)) continue;
+        return '$s';
+      }
+      return '';
+    }
+    return JPath.compile(path).search(json).toString();
+  }
+}
 
 class U17 implements API {
   @override
@@ -18,19 +43,34 @@ class U17 implements API {
 
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
-    final json = jsonDecode(res.body);
-    return (json["data"]["returnData"]["comics"] as List)
-        .map((item) => SearchItem(
-              api: this,
-              cover: '${item["cover"]}',
-              name: '${item["name"]}',
-              author: '${item["author"]}',
-              chapter: '',
-              description:
-                  '${item["description"] ?? (item["tags"] as List).join(" ")}',
-              url: 'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?comicid=${item["comicId"] ?? item["comic_id"]}',
-            ))
-        .toList();
+    final test =
+        JPath.compile('\$.data.returnData.comics').search(res.body) as List;
+    return test.map((item) {
+      JPathCustom jPathCustom = JPathCustom(item);
+      return SearchItem(
+          cover: jPathCustom.searchString('\$.cover'),
+          name: jPathCustom.searchString('\$.name'),
+          author: jPathCustom.searchString('\$.author'),
+          chapter: '',
+          description: jPathCustom.searchString('\$.description||\$.tags.*'),
+          url:
+              'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?comicid=${jPathCustom.searchString('\$.comicId||\$.comic_id')}',
+          api: this);
+    }).toList();
+    // final json = jsonDecode(res.body);
+    // return (json["data"]["returnData"]["comics"] as List)
+    //     .map((item) => SearchItem(
+    //           api: this,
+    //           cover: '${item["cover"]}',
+    //           name: '${item["name"]}',
+    //           author: '${item["author"]}',
+    //           chapter: '',
+    //           description:
+    //               '${item["description"] ?? (item["tags"] as List).join(" ")}',
+    //           url:
+    //               'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?comicid=${item["comicId"] ?? item["comic_id"]}',
+    //         ))
+    //     .toList();
   }
 
   @override
@@ -67,15 +107,19 @@ class U17 implements API {
 
   @override
   Future<List<String>> content(String url) async {
+    // final res = await http.get(url);
+    // final json = jsonDecode(res.body);
+    // final data = json["data"]["returnData"];
+    // List<String> images = <String>[];
+    // (data["image_list"] as List)
+    //     ?.forEach((image) => images.add(image["location"]));
+    // (data["free_image_list"] as List)
+    //     ?.forEach((image) => images.add(image["location"]));
+    // return images;
     final res = await http.get(url);
-    final json = jsonDecode(res.body);
-    final data = json["data"]["returnData"];
-    List<String> images = <String>[];
-    (data["image_list"] as List)
-        ?.forEach((image) => images.add(image["location"]));
-    (data["free_image_list"] as List)
-        ?.forEach((image) => images.add(image["location"]));
-    return images;
+    final jsonpathRule = '\$.data.returnData..location';
+    final re = JPath.compile(jsonpathRule).search(res.body);
+    return (re as List).map((r) => '$r').toList();
   }
 
   @override

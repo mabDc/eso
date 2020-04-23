@@ -1,0 +1,17 @@
+name: jsonpath
+description: A Flutter plugin which support read, write and delete on json string using json Path.
+
+version: 1.0.0
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
