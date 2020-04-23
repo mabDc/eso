@@ -2,6 +2,7 @@ import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
+import 'package:eso/ui/ui_system_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,6 @@ class _MangaPageState extends State<MangaPage> {
   Widget page;
   MangaPageProvider __provider;
 
-
   @override
   Widget build(BuildContext context) {
     if (page == null) {
@@ -42,7 +42,6 @@ class _MangaPageState extends State<MangaPage> {
   }
 
   Widget buildPage() {
-
     return ChangeNotifierProvider<MangaPageProvider>.value(
       value: MangaPageProvider(searchItem: widget.searchItem),
       child: Scaffold(
@@ -72,16 +71,20 @@ class _MangaPageState extends State<MangaPage> {
                           decoration: BoxDecoration(
                             color: Color.fromARGB(100, 0, 0, 0),
                           ),
-                          child: Row(
-                            textDirection: TextDirection.rtl,
-                            children: <Widget>[
-                              Text(provider.bottomTime, style: TextStyle(color: Colors.white)),
-                              BatteryView(),
-                              Text(
-                                  '${provider.searchItem.durChapter} ${provider.content.length}',
-                                  style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
+                          child: 
+                          // todo: '${provider.searchItem.durChapter} ${provider.content.length}'直接整合到info
+                          UISystemInfo(),
+                          // Row(
+                          //   textDirection: TextDirection.rtl,
+                          //   children: <Widget>[
+                          //     // Text(provider.bottomTime, style: TextStyle(color: Colors.white)),
+                          //     //BatteryView(),
+
+                          //     Text(
+                          //         '${provider.searchItem.durChapter} ${provider.content.length}',
+                          //         style: TextStyle(color: Colors.white)),
+                          //   ],
+                          // ),
                         )
                       : Container(),
                 ],
@@ -132,5 +135,4 @@ class _MangaPageState extends State<MangaPage> {
       },
     );
   }
-
 }

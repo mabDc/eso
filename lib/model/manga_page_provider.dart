@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:eso/api/api.dart';
@@ -7,8 +8,9 @@ import 'package:intl/intl.dart' as intl;
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
-
 class MangaPageProvider with ChangeNotifier {
+  final _format = intl.DateFormat('HH:mm:ss');
+  Timer _timer;
   final SearchItem searchItem;
   List<String> _content;
   List<String> get content => _content;
@@ -18,7 +20,7 @@ class MangaPageProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   Map<String, String> _headers;
   Map<String, String> get headers => _headers;
-  String _bottomTime = intl.DateFormat('HH:mm:ss').format(DateTime.now());
+  String _bottomTime;
   String get bottomTime => _bottomTime;
   bool _showChapter;
   bool get showChapter => _showChapter;
@@ -30,6 +32,7 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   MangaPageProvider({this.searchItem}) {
+    _bottomTime = _format.format(DateTime.now());
     _isLoading = false;
     _showChapter = false;
     _headers = Map<String, String>();
@@ -60,15 +63,12 @@ class MangaPageProvider with ChangeNotifier {
     }
   }
 
-  void _setBottomTime(_bottomTime){
-    this._bottomTime = _bottomTime;
-  }
-
   void _initContent() async {
     _content = await APIManager.getContent(searchItem.originTag,
         searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
     notifyListeners();
+    
   }
 
   loadChapter(int chapterIndex) async {
@@ -95,6 +95,7 @@ class MangaPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _timer?.cancel();
     content.clear();
     _controller.dispose();
     SearchItemManager.saveSearchItem();

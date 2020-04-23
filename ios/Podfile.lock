@@ -1,6 +1,10 @@
 PODS:
   - audioplayers (0.0.1):
     - Flutter
+  - battery (0.0.1):
+    - Flutter
+  - device_info (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_js (0.0.1):
     - Flutter
@@ -33,6 +37,8 @@ PODS:
 
 DEPENDENCIES:
   - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
+  - battery (from `.symlinks/plugins/battery/ios`)
+  - device_info (from `.symlinks/plugins/device_info/ios`)
   - Flutter (from `Flutter`)
   - flutter_js (from `.symlinks/plugins/flutter_js/ios`)
   - flutter_seekbar (from `.symlinks/plugins/flutter_seekbar/ios`)
@@ -52,6 +58,10 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   audioplayers:
     :path: ".symlinks/plugins/audioplayers/ios"
+  battery:
+    :path: ".symlinks/plugins/battery/ios"
+  device_info:
+    :path: ".symlinks/plugins/device_info/ios"
   Flutter:
     :path: Flutter
   flutter_js:
@@ -85,6 +95,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
+  battery: 6b19dafdbba590f03b1f0cd2f1224e3ffedadbe6
+  device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_js: eb1d2d30ead7b5e597f7e7bfed642589ca15efe2
   flutter_seekbar: 611a908fbb7553d78a8af5adf422cdf822a14540
