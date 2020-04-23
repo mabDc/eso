@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../database/search_item.dart';
 import '../global.dart';
 import 'langding_page.dart';
+import '../ui/battery_view.dart';
 
 class MangaPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -24,6 +25,8 @@ class MangaPage extends StatefulWidget {
 class _MangaPageState extends State<MangaPage> {
   Widget page;
   MangaPageProvider __provider;
+
+
   @override
   Widget build(BuildContext context) {
     if (page == null) {
@@ -39,6 +42,7 @@ class _MangaPageState extends State<MangaPage> {
   }
 
   Widget buildPage() {
+
     return ChangeNotifierProvider<MangaPageProvider>.value(
       value: MangaPageProvider(searchItem: widget.searchItem),
       child: Scaffold(
@@ -61,27 +65,22 @@ class _MangaPageState extends State<MangaPage> {
                       : Container(),
                   profile.showMangaInfo
                       ? Container(
-                          height: 40,
+                          height: 20,
                           width: double.infinity,
                           alignment: Alignment.bottomRight,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.transparent,
-                                Color(0x40000000),
-                                Color(0x90000000),
-                                Color(0xB0000000),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
                           padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            '${provider.searchItem.durChapter} ${provider.content.length}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Colors.white),
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(100, 0, 0, 0),
+                          ),
+                          child: Row(
+                            textDirection: TextDirection.rtl,
+                            children: <Widget>[
+                              Text(provider.bottomTime, style: TextStyle(color: Colors.white)),
+                              BatteryView(),
+                              Text(
+                                  '${provider.searchItem.durChapter} ${provider.content.length}',
+                                  style: TextStyle(color: Colors.white)),
+                            ],
                           ),
                         )
                       : Container(),
@@ -133,4 +132,5 @@ class _MangaPageState extends State<MangaPage> {
       },
     );
   }
+
 }

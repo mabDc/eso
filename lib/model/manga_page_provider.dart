@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
-
+import 'package:intl/intl.dart' as intl;
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
+
 
 class MangaPageProvider with ChangeNotifier {
   final SearchItem searchItem;
@@ -17,6 +18,8 @@ class MangaPageProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   Map<String, String> _headers;
   Map<String, String> get headers => _headers;
+  String _bottomTime = intl.DateFormat('HH:mm:ss').format(DateTime.now());
+  String get bottomTime => _bottomTime;
   bool _showChapter;
   bool get showChapter => _showChapter;
   set showChapter(bool value) {
@@ -55,6 +58,10 @@ class MangaPageProvider with ChangeNotifier {
       _headers =
           (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
+  }
+
+  void _setBottomTime(_bottomTime){
+    this._bottomTime = _bottomTime;
   }
 
   void _initContent() async {
