@@ -63,29 +63,10 @@ class _MangaPageState extends State<MangaPage> {
                         )
                       : Container(),
                   profile.showMangaInfo
-                      ? Container(
-                          height: 20,
-                          width: double.infinity,
-                          alignment: Alignment.bottomRight,
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(100, 0, 0, 0),
-                          ),
-                          child: 
-                          // todo: '${provider.searchItem.durChapter} ${provider.content.length}'直接整合到info
-                          UISystemInfo(),
-                          // Row(
-                          //   textDirection: TextDirection.rtl,
-                          //   children: <Widget>[
-                          //     // Text(provider.bottomTime, style: TextStyle(color: Colors.white)),
-                          //     //BatteryView(),
-
-                          //     Text(
-                          //         '${provider.searchItem.durChapter} ${provider.content.length}',
-                          //         style: TextStyle(color: Colors.white)),
-                          //   ],
-                          // ),
-                        )
+                      ?
+                      //${provider.content.length}
+                      UISystemInfo(
+                          mangaInfo: '${provider.searchItem.durChapter}')
                       : Container(),
                 ],
               ),
