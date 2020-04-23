@@ -76,11 +76,11 @@ class Onemanhua implements API {
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get('$url');
-    final c_data = RegExp("C_DATA\\s*=\\s*'([^']*)").firstMatch(res.body)[1];
+    final cData = RegExp("C_DATA\\s*=\\s*'([^']*)").firstMatch(res.body)[1];
     final key = 'JRUIFMVJDIWE569j';
     final imagesString =
         Encrypter(AES(Key.fromUtf8(key), mode: AESMode.ecb, padding: 'PKCS7'))
-            .decrypt(Encrypted.fromBase64(utf8.decode(base64.decode(c_data))));
+            .decrypt(Encrypted.fromBase64(utf8.decode(base64.decode(cData))));
 
     final _idJsEngine = await FlutterJs.initEngine();
     final info = await FlutterJs.getMap("""

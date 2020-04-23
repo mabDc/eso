@@ -2,6 +2,7 @@ import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
+import 'package:eso/ui/ui_manga_menu.dart';
 import 'package:eso/ui/ui_system_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,18 +54,29 @@ class _MangaPageState extends State<MangaPage> {
             if (provider.content == null) {
               return LandingPage();
             }
+            if (provider.showMenu) {
+              SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+            } else {
+              SystemChrome.setEnabledSystemUIOverlays([]);
+            }
             return GestureDetector(
               child: Stack(
                 alignment: AlignmentDirectional.bottomEnd,
                 children: <Widget>[
                   _buildMangaContent(provider),
-                  provider.showChapter
-                      ? UIChapterSelect(
+                  provider.showMenu
+                      ? UIMangaMenu(
                           searchItem: widget.searchItem,
                           loadChapter: provider.loadChapter,
                         )
                       : Container(),
-                  profile.showMangaInfo
+                  // provider.showChapter
+                  //     ? UIChapterSelect(
+                  //         searchItem: widget.searchItem,
+                  //         loadChapter: provider.loadChapter,
+                  //       )
+                  //     : Container(),
+                  profile.showMangaInfo && !provider.showMenu
                       ? UISystemInfo(
                           mangaInfo: provider.searchItem.durChapter,
                           mangaCount: provider.content.length,
@@ -78,10 +90,13 @@ class _MangaPageState extends State<MangaPage> {
                 if (details.globalPosition.dx > size.width * 3 / 8 &&
                     details.globalPosition.dx < size.width * 5 / 8 &&
                     details.globalPosition.dy > size.height * 3 / 8 &&
-                    details.globalPosition.dy < size.height * 5 / 8) {
-                  provider.showChapter = true;
+                    details.globalPosition.dy < size.height * 5 / 8 &&
+                    !provider.showMenu) {
+                  // provider.showChapter = true;
+                  provider.showMenu = true;
                 } else {
-                  provider.showChapter = false;
+                  // provider.showChapter = false;
+                  provider.showMenu = false;
                 }
               },
             );
