@@ -132,7 +132,7 @@ class AnalyzeByJSonPath {
     }
   }
 
-  Object getObject(String rule) {
+  dynamic getObject(String rule) {
     try {
       final res = JPath.compile(rule).search(_ctx);
       return null == res ? '' : res;
@@ -142,8 +142,8 @@ class AnalyzeByJSonPath {
     }
   }
 
-  List<Object> getList(String rule) {
-    final result = <Object>[];
+  List<dynamic> getList(String rule) {
+    final result = <dynamic>[];
     if (null == rule || rule.isEmpty) return result;
     String elementsType;
     List<String> rules;
