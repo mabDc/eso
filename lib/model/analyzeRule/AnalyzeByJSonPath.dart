@@ -24,7 +24,7 @@ class AnalyzeByJSonPath {
     if (rules.length == 1) {
       if (!rule.contains('{\$.')) {
         try {
-          var ob = JPath.compile(rule).search(_ctx);
+          final ob = JPath.compile(rule).search(_ctx);
           if (null == ob) return result;
           if (ob is List) {
             final builder = <String>[];
@@ -81,7 +81,7 @@ class AnalyzeByJSonPath {
     if (rules.length == 1) {
       if (!rule.contains('{\$.')) {
         try {
-          var object = JPath.compile(rule).search(_ctx);
+          final object = JPath.compile(rule).search(_ctx);
           if (null == object) return result;
           if (object is List) {
             for (var o in object) result.add(o.toString());
@@ -134,7 +134,8 @@ class AnalyzeByJSonPath {
 
   Object getObject(String rule) {
     try {
-      return JPath.compile(rule).search(_ctx);
+      final res = JPath.compile(rule).search(_ctx);
+      return null == res ? '' : res;
     } catch (e) {
       print(e);
       return '';
@@ -158,7 +159,7 @@ class AnalyzeByJSonPath {
     }
     if (rules.length == 1) {
       try {
-        var res = JPath.compile(rules[0]).search(_ctx);
+        final res = JPath.compile(rules[0]).search(_ctx);
         if (null == res) return result;
 //        print(res.runtimeType);
         if (res[0] is List) {
