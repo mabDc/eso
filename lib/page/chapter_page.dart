@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:eso/ui/CurvePainter.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/ui/ui_image_item_gaussion_background.dart' as GAUSSION_IMG;
 import 'package:flutter/material.dart';
@@ -6,8 +7,6 @@ import 'package:provider/provider.dart';
 import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
 import '../model/chapter_page_controller.dart';
-import '../ui/ui_big_list_chapter_item.dart';
-import '../ui/ui_search_item.dart';
 import 'content_page_manager.dart';
 import 'langding_page.dart';
 
@@ -26,6 +25,7 @@ class ChapterPage extends StatefulWidget {
 class _ChapterPageState extends State<ChapterPage> {
   Widget _page;
   ChapterPageController __pageController;
+  
 
   @override
   void dispose() {
@@ -47,13 +47,14 @@ class _ChapterPageState extends State<ChapterPage> {
       child: Consumer<ChapterPageController>(
         builder: (context, ChapterPageController pageController, _) {
           return Scaffold(
-            extendBodyBehindAppBar:true,
+            extendBodyBehindAppBar: true,
             appBar: _buildAlphaAppbar(pageController),
             body: Column(
               children: <Widget>[
-                Expanded(flex: 1,child: _comicDetail(pageController)),
+                Expanded(flex: 1, child: _comicDetail(pageController)),
                 _sortWidget(pageController),
-                Expanded(flex: 1,
+                Expanded(
+                  flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: _buildChapter(pageController, context),
@@ -142,61 +143,60 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget _sortWidget(ChapterPageController pageController){
-    return                 Container(
-                  height: 32,
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).textTheme.body1.color))),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          '全部章节(${widget.searchItem.chapters?.length ?? 0})',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      GestureDetector(
-                        child: Text(
-                          "升序",
-                          style: TextStyle(
-                              color: widget.searchItem.reverseChapter
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).textTheme.body1.color),
-                        ),
-                        onTap: widget.searchItem.reverseChapter
-                            ? pageController.toggleReverse
-                            : null,
-                      ),
-                      Text(" | "),
-                      GestureDetector(
-                        child: Text(
-                          "降序",
-                          style: TextStyle(
-                              color: !widget.searchItem.reverseChapter
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).textTheme.body1.color),
-                        ),
-                        onTap: !widget.searchItem.reverseChapter
-                            ? pageController.toggleReverse
-                            : null,
-                      ),
-                    ],
-                  ),
-                );
+  Widget _sortWidget(ChapterPageController pageController) {
+    return Container(
+      height: 32,
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                  width: 1, color: Theme.of(context).textTheme.body1.color))),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              '全部章节(${widget.searchItem.chapters?.length ?? 0})',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+          GestureDetector(
+            child: Text(
+              "升序",
+              style: TextStyle(
+                  color: widget.searchItem.reverseChapter
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).textTheme.body1.color),
+            ),
+            onTap: widget.searchItem.reverseChapter
+                ? pageController.toggleReverse
+                : null,
+          ),
+          Text(" | "),
+          GestureDetector(
+            child: Text(
+              "降序",
+              style: TextStyle(
+                  color: !widget.searchItem.reverseChapter
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).textTheme.body1.color),
+            ),
+            onTap: !widget.searchItem.reverseChapter
+                ? pageController.toggleReverse
+                : null,
+          ),
+        ],
+      ),
+    );
   }
 
   //漫画详情
   Widget _comicDetail(ChapterPageController pageController) {
     return Stack(
       children: [
-        GAUSSION_IMG.UIImageItem(
-          cover: pageController.searchItem.cover,
-          height: 350,
+        CustomPaint(
+          painter: CurvePainter(drawColor: Theme.of(context).bottomAppBarColor),
+          child: Container(),
         ),
         Column(children: [
           Expanded(
@@ -231,6 +231,7 @@ class _ChapterPageState extends State<ChapterPage> {
     //   child: UiSearchItem(item: widget.searchItem),
     // );
   }
+
 
   Widget _buildChapterButton(BuildContext context, bool isDurIndex,
       Widget child, VoidCallback onPress) {
