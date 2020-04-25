@@ -9,15 +9,14 @@ class AnalyzeByJSonPath {
   }
 
   AnalyzeByJSonPath parse(json) {
-    _ctx = json;
-    return this;
+    return AnalyzeByJSonPath(json);
   }
 
   dynamic get json => _ctx;
 
   String getString(String rule) {
     var result = "";
-    if (rule.isEmpty || rule == null) return result;
+    if (null == rule || rule.isEmpty) return result;
 
     if (rule.contains("{\$.")) {
       result = rule;
@@ -30,12 +29,12 @@ class AnalyzeByJSonPath {
     }
 
     var rules = <String>[];
-    var _customOrRule = false;
+    var customOrRUle = false;
     if (rule.contains("&&")) {
       rules = rule.split("&&");
     } else if (rule.contains('||')) {
       rules = rule.split("||");
-      _customOrRule = true;
+      customOrRUle = true;
     } else {
       try {
         final ob = JPath.compile(rule).search(_ctx);
@@ -60,7 +59,7 @@ class AnalyzeByJSonPath {
       String temp = getString(rl);
       if (temp.isNotEmpty) {
         textS.add(temp);
-        if (_customOrRule) {
+        if (customOrRUle) {
           break;
         }
       }
@@ -177,7 +176,7 @@ class AnalyzeByJSonPath {
       }
       return result;
     } else {
-      final results = <List<Object>>[];
+      final results = <List<dynamic>>[];
       for (var rl in rules) {
         final temp = getList(rl);
         if (null != temp && temp.isNotEmpty) {

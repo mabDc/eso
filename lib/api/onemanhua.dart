@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
+import 'package:eso/model/analyzeRule/AnalyzeByHtml.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'api.dart';
 import '../database/chapter_item.dart';
@@ -7,6 +8,34 @@ import '../database/search_item.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+
+class _Onemanhua {
+  final discoverUrl = r'';
+  final discoverList = r'.fed-list-info>li';
+  final discoverCover = r'a[data-original]@data-original';
+  final discoverName = r'.fed-list-title@text';
+  final discoverAuthor = r'';
+  final discoverChapter = r'.fed-list-remarks@text';
+  final discoverDescription = r'';
+  final discoverResultUrl = r'a@href';
+
+  final searchUrl = r'';
+  final searchList = r'dl.fed-deta-info';
+  final searchCover = r'a[data-original]@data-original';
+  final searchName = r'h1 a@text';
+  final searchAuthor = r'.fed-col-xs6@text';
+  final searchChapter = r'.fed-list-remarks@text';
+  final searchDescription = r'.fed-part-esan@text';
+  final searchResultUrl = r'a@href';
+
+  final chapterList = r'.all_data_list a[title]';
+  final chapterCover = r'';
+  final chapterName = r'text';
+  final chapterTime = r'';
+  final chapterLock = r'';
+  final chapterResultUrl = r'href';
+  final content = r'@js:...';
+}
 
 class Onemanhua implements API {
   @override
@@ -23,17 +52,18 @@ class Onemanhua implements API {
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     final res = await http.get(
         'https://www.onemanhua.com/show?orderBy=${params["类型"].value}&page=$page');
-    return parse(res.body).querySelectorAll('.fed-list-info>li').map((item) {
+    final rule = _Onemanhua();
+    return AnalyzerByHtml(res.body).getElements(rule.discoverList).map((e) {
+      final analyzer = AnalyzerByHtml(e);
       return SearchItem(
+        cover: analyzer.getString(rule.discoverCover),
+        name: analyzer.getString(rule.discoverName),
+        author: analyzer.getString(rule.discoverAuthor),
+        chapter: analyzer.getString(rule.discoverChapter),
+        description: analyzer.getString(rule.discoverDescription),
+        url: 'https://www.onemanhua.com' +
+            analyzer.getString(rule.discoverResultUrl),
         api: this,
-        cover:
-            '${item.querySelector('a[data-original]').attributes['data-original']}',
-        name: '${item.querySelector('.fed-list-title').text}'.trim(),
-        author: '',
-        chapter: '${item.querySelector('.fed-list-remarks').text}',
-        description: '',
-        url:
-            'https://www.onemanhua.com${item.querySelector('a').attributes['href']}',
       );
     }).toList();
   }
@@ -42,17 +72,18 @@ class Onemanhua implements API {
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
     final res = await http
         .get('https://www.onemanhua.com/search?searchString=$query&page=$page');
-    return parse(res.body).querySelectorAll('dl.fed-deta-info').map((item) {
+    final rule = _Onemanhua();
+    return AnalyzerByHtml(res.body).getElements(rule.searchList).map((e) {
+      final analyzer = AnalyzerByHtml(e);
       return SearchItem(
+        cover: analyzer.getString(rule.searchCover),
+        name: analyzer.getString(rule.searchName),
+        author: analyzer.getString(rule.searchAuthor),
+        chapter: analyzer.getString(rule.searchChapter),
+        description: analyzer.getString(rule.searchDescription),
+        url: 'https://www.onemanhua.com' +
+            analyzer.getString(rule.searchResultUrl),
         api: this,
-        cover:
-            '${item.querySelector('a[data-original]').attributes['data-original']}',
-        name: '${item.querySelector('h1 a').text}'.trim(),
-        author: '${item.querySelector('.fed-col-xs6').text}'.trim(),
-        chapter: '${item.querySelector('.fed-col-xs12').text}',
-        description: '${item.querySelector('.fed-part-esan').text}',
-        url:
-            'https://www.onemanhua.com${item.querySelector('a').attributes['href']}',
       );
     }).toList();
   }
@@ -60,17 +91,17 @@ class Onemanhua implements API {
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
-    return parse(res.body)
-        .querySelectorAll('.all_data_list a[title]')
-        .map((item) => ChapterItem(
-              cover: null,
-              time: null,
-              name: '${item.text}'.trim(),
-              url: 'https://www.onemanhua.com${item.attributes["href"]}',
-            ))
-        .toList()
-        .reversed
-        .toList();
+    final rule = _Onemanhua();
+    return AnalyzerByHtml(res.body).getElements(rule.chapterList).map((e) {
+      final analyzer = AnalyzerByHtml(e);
+      return ChapterItem(
+        cover: analyzer.getString(rule.chapterCover),
+        name: analyzer.getString(rule.chapterName),
+        time: analyzer.getString(rule.chapterTime),
+        url: 'https://www.onemanhua.com' +
+            analyzer.getString(rule.chapterResultUrl),
+      );
+    }).toList();
   }
 
   @override

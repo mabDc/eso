@@ -17,7 +17,7 @@ class _U17Rule {
       r'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?comicid={$.comicId||$.comic_id}';
   final chapterList = r'$["data"]["returnData"]["chapter_list"]';
   final chapterCover = r'';
-  final chapterName = r'name';
+  final chapterName = r'$.name';
   final chapterTime = r'$.pass_time';
   final chapterLock = r'$.type';
   final chapterResultUrl =
@@ -41,13 +41,14 @@ class U17 implements API {
     return AnalyzeByJSonPath(res.body).getList(rule.searchList).map((item) {
       AnalyzeByJSonPath analyzer = AnalyzeByJSonPath(item);
       return SearchItem(
-          cover: analyzer.getString(rule.searchCover),
-          name: analyzer.getString(rule.searchName),
-          author: analyzer.getString(rule.searchAuthor),
-          chapter: analyzer.getString(rule.searchChapter),
-          description: analyzer.getString(rule.searchDescription),
-          url: analyzer.getString(rule.searchResultUrl),
-          api: this);
+        cover: analyzer.getString(rule.searchCover),
+        name: analyzer.getString(rule.searchName),
+        author: analyzer.getString(rule.searchAuthor),
+        chapter: analyzer.getString(rule.searchChapter),
+        description: analyzer.getString(rule.searchDescription),
+        url: analyzer.getString(rule.searchResultUrl),
+        api: this,
+      );
     }).toList();
   }
 
