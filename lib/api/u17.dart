@@ -12,6 +12,7 @@ class _U17Rule {
   final searchName = r'$.name';
   final searchAuthor = r'$.author';
   final searchChapter = r'';
+  final searchTags = r'$.tags';
   final searchDescription = r'$.description||$.tags.*';
   final searchResultUrl =
       r'http://app.u17.com/v3/appV3_3/android/phone/comic/detail_static_new?comicid={$.comicId||$.comic_id}';
@@ -47,6 +48,7 @@ class U17 implements API {
         chapter: analyzer.getString(rule.searchChapter),
         description: analyzer.getString(rule.searchDescription),
         url: analyzer.getString(rule.searchResultUrl),
+        tags: analyzer.getStringList(rule.searchTags),
         api: this,
       );
     }).toList();

@@ -9,8 +9,6 @@ import 'global.dart';
 import 'model/profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
-import 'package:flutter/rendering.dart';
-
 
 void main() {
   runApp(MyApp());
@@ -23,12 +21,10 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-    debugPaintSizeEnabled= true;
+    // debugPaintSizeEnabled= true;
     return FutureBuilder<bool>(
       future: Global.init(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-
         if (snapshot.hasError) {
           print(snapshot.error);
         }

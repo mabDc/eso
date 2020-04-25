@@ -12,6 +12,7 @@ class SearchItem {
   String author;
   String chapter;
   String description;
+  List<String> tags;
   String url;
   int ruleContentType;
   int chapterListStyle;
@@ -33,6 +34,7 @@ class SearchItem {
     this.chaptersCount,
     this.reverseChapter,
     this.chapters,
+    @required this.tags,
   }) {
     if (chaptersCount == null) {
       chaptersCount = 0;
@@ -88,6 +90,7 @@ class SearchItem {
         "durContentIndex": durContentIndex,
         "chaptersCount": chaptersCount,
         "reverseChapter": reverseChapter,
+        "tags": tags.join(", "),
       };
 
   SearchItem.fromJson(Map<String, dynamic> json) {
@@ -107,6 +110,7 @@ class SearchItem {
     durContentIndex = json["durContentIndex"];
     chaptersCount = json["chaptersCount"];
     reverseChapter = json["reverseChapter"] ?? false;
+    tags = json["tags"]?.split(", ") ?? <String>[];
     chapters = <ChapterItem>[];
   }
 }

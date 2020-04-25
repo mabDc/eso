@@ -16,7 +16,7 @@ class AnalyzeByJSonPath {
 
   String getString(String rule) {
     var result = "";
-    if (null == rule || rule.isEmpty) return result;
+    if (null == rule || rule.isEmpty) return result; 
 
     if (rule.contains("{\$.")) {
       result = rule;

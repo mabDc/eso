@@ -51,6 +51,21 @@ class _ChapterPageState extends State<ChapterPage> {
             body: Column(
               children: <Widget>[
                 Expanded(flex: 2, child: _comicDetail(pageController)),
+                Wrap(
+                    spacing: 8,
+                    children: widget.searchItem.tags
+                        .map((keyword) => RaisedButton(
+                              child: Text('$keyword'),
+                              onPressed: () {},
+                            ))
+                        .toList()),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    widget.searchItem.description,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
                 _sortWidget(pageController),
                 Expanded(
                   flex: 3,
