@@ -8,11 +8,16 @@ class AnalyzeByJSonPath {
     _ctx = json;
   }
 
+  // AnalyzeByJSonPath parse(json) {
+  //   _ctx = json;
+  //   return this;
+  // }
+
   dynamic get json => _ctx;
 
   String getString(String rule) {
     var result = "";
-    if (rule.isEmpty) return result;
+    if (rule.isEmpty || rule == null) return result;
 
     if (rule.contains("{\$.")) {
       result = rule;
@@ -34,13 +39,13 @@ class AnalyzeByJSonPath {
     } else {
       try {
         final ob = JPath.compile(rule).search(_ctx);
-        if (ob == null) return "";
+        if (ob == null) return result;
         if (ob is List) {
           final builder = <String>[];
           for (var o in ob) {
             builder..add('$o'.trim())..add('\n');
           }
-          result = builder.toString().replaceFirst(RegExp(r'\n$'), "");
+          result = builder.join('').replaceFirst(new RegExp(r'\n$'), '');
         } else {
           result = '$ob';
         }
@@ -64,25 +69,25 @@ class AnalyzeByJSonPath {
   }
 
   List<String> getStringList(String rule) {
-    List<String> result = [];
-    if (rule.isEmpty) return result;
+    final result = <String>[];
+    if (null == rule || rule.isEmpty) return result;
     List<String> rules;
     String elementsType;
-    if (rule.contains("&&")) {
-      rules = rule.split("&&");
-      elementsType = "&";
-    } else if (rule.contains("%%")) {
-      rules = rule.split("%%");
-      elementsType = "%";
+    if (rule.contains('&&')) {
+      rules = rule.split('&&');
+      elementsType = '&';
+    } else if (rule.contains('%%')) {
+      rules = rule.split('%%');
+      elementsType = '%';
     } else {
-      rules = rule.split("||");
-      elementsType = "|";
+      rules = rule.split('||');
+      elementsType = '|';
     }
     if (rules.length == 1) {
-      if (!rule.contains("{\$.")) {
+      if (!rule.contains('{\$.')) {
         try {
-          var object = JPath.compile(rule).search(_ctx);
-          if (object == null) return result;
+          final object = JPath.compile(rule).search(_ctx);
+          if (null == object) return result;
           if (object is List) {
             for (var o in object) result.add(o.toString());
           } else {
@@ -97,28 +102,28 @@ class AnalyzeByJSonPath {
         for (var m in matcher) {
           var stringList = getStringList(m.group(0).trim());
           for (var s in stringList) {
-            result.add(rule.replaceAll("{${m.group(0)}}", s));
+            result.add(rule.replaceAll('{${m.group(0)}}', s));
           }
         }
         return result;
       }
     } else {
-      List<List<String>> results = <List<String>>[];
+      final results = <List<String>>[];
       for (var rl in rules) {
         List<String> temp = getStringList(rl);
-        if (temp.isNotEmpty) {
+        if (temp != null && temp.isNotEmpty) {
           results.add(temp);
-          if (temp.length > 0 && elementsType == "|") {
+          if (temp.length > 0 && '|' == elementsType) {
             break;
           }
         }
       }
       if (results.length > 0) {
-        if ("%" == elementsType) {
+        if ('%' == elementsType) {
           for (int i = 0; i < results[0].length; i++) {
             for (var temp in results) {
               if (i < temp.length) {
-                result.add(temp[i]);
+                result.add('${temp[i]}');
               }
             }
           }
@@ -132,45 +137,58 @@ class AnalyzeByJSonPath {
     }
   }
 
-  dynamic getObject(String rule) {
-    return JPath.compile(rule).search(_ctx);
+  Object getObject(String rule) {
+    try {
+      final res = JPath.compile(rule).search(_ctx);
+      return null == res ? '' : res;
+    } catch (e) {
+      print(e);
+      return '';
+    }
   }
 
-  List<dynamic> getList(String rule) {
-    List<dynamic> result = [];
-    if (rule.isEmpty) return result;
+  List<Object> getList(String rule) {
+    final result = <Object>[];
+    if (null == rule || rule.isEmpty) return result;
     String elementsType;
     List<String> rules;
-    if (rule.contains("&&")) {
-      rules = rule.split("&&");
-      elementsType = "&";
-    } else if (rule.contains("%%")) {
-      rules = rule.split("%%");
-      elementsType = "%";
+    if (rule.contains('&&')) {
+      rules = rule.split('&&');
+      elementsType = '&';
+    } else if (rule.contains('%%')) {
+      rules = rule.split('%%');
+      elementsType = '%';
     } else {
-      rules = rule.split("||");
-      elementsType = "|";
+      rules = rule.split('||');
+      elementsType = '|';
     }
     if (rules.length == 1) {
       try {
-        return JPath.compile(rules[0]).search(_ctx);
+        final res = JPath.compile(rules[0]).search(_ctx);
+        if (null == res) return result;
+//        print(res.runtimeType);
+        if (res[0] is List) {
+          res.forEach((r) => result.addAll(r));
+        } else {
+          result.addAll(res);
+        }
       } catch (e) {
         print(e);
-        return null;
       }
+      return result;
     } else {
-      List<List> results = [];
+      final results = <List<Object>>[];
       for (var rl in rules) {
         var temp = getList(rl);
-        if (temp.isNotEmpty) {
+        if (null != temp && temp.isNotEmpty) {
           results.add(temp);
-          if (temp.length > 0 && elementsType == "|") {
+          if (temp.length > 0 && '|' == elementsType) {
             break;
           }
         }
       }
       if (results.length > 0) {
-        if ("%" == elementsType) {
+        if ('%' == elementsType) {
           for (int i = 0; i < results[0].length; i++) {
             for (var temp in results) {
               if (i < temp.length) {
