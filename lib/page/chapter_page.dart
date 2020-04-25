@@ -25,7 +25,6 @@ class ChapterPage extends StatefulWidget {
 class _ChapterPageState extends State<ChapterPage> {
   Widget _page;
   ChapterPageController __pageController;
-  
 
   @override
   void dispose() {
@@ -51,10 +50,10 @@ class _ChapterPageState extends State<ChapterPage> {
             appBar: _buildAlphaAppbar(pageController),
             body: Column(
               children: <Widget>[
-                Expanded(flex: 1, child: _comicDetail(pageController)),
+                Expanded(flex: 2, child: _comicDetail(pageController)),
                 _sortWidget(pageController),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: _buildChapter(pageController, context),
@@ -200,7 +199,7 @@ class _ChapterPageState extends State<ChapterPage> {
         ),
         Column(children: [
           Expanded(
-              flex: 2,
+              flex: 3,
               child: Container(
                   child: Container(
                       width: 100,
@@ -231,7 +230,6 @@ class _ChapterPageState extends State<ChapterPage> {
     //   child: UiSearchItem(item: widget.searchItem),
     // );
   }
-
 
   Widget _buildChapterButton(BuildContext context, bool isDurIndex,
       Widget child, VoidCallback onPress) {
