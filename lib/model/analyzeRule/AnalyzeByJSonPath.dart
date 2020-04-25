@@ -1,65 +1,66 @@
 import 'package:jsonpath/json_path.dart';
 
 class AnalyzeByJSonPath {
-  final _jsonRulePattern = new RegExp(r"(?<={)\$\..+?(?=})");
-  dynamic _ctx = null;
+  final _jsonRulePattern = RegExp(r"(?<={)\$\..+?(?=})");
+  dynamic _ctx;
 
-  AnalyzeByJSonPath parse(json) {
+  AnalyzeByJSonPath(json) {
     _ctx = json;
-    return this;
   }
 
+  dynamic get json => _ctx;
+
   String getString(String rule) {
-    if (rule.isEmpty) return "";
     var result = "";
-    List<String> rules;
-    String elementsType;
+    if (rule.isEmpty) return result;
+
+    if (rule.contains("{\$.")) {
+      result = rule;
+      var matcher = _jsonRulePattern.allMatches(rule);
+      for (var m in matcher) {
+        result =
+            result.replaceAll("{${m.group(0)}}", getString(m.group(0).trim()));
+      }
+      return result;
+    }
+
+    var rules = <String>[];
+    var _customOrRule = false;
     if (rule.contains("&&")) {
       rules = rule.split("&&");
-      elementsType = "&";
-    } else {
+    } else if (rule.contains('||')) {
       rules = rule.split("||");
-      elementsType = "|";
-    }
-    if (rules.length == 1) {
-      if (!rule.contains("{\$.")) {
-        try {
-          var ob = JPath.compile(rule).search(_ctx);
-          if (ob is List) {
-            List<String> builder = [];
-            for (var o in ob) {
-              builder.add(o);
-              builder.add("\n");
-            }
-            result = builder.toString().replaceFirst(new RegExp(r'\n$'), "");
-          } else {
-            result = ob.toString();
-          }
-        } catch (e) {
-          print(e);
-        }
-        return result;
-      } else {
-        result = rule;
-        var matcher = _jsonRulePattern.allMatches(rule);
-        for (var m in matcher) {
-          result = result.replaceAll("{${m.group(0)}}", getString(m.group(0).trim()));
-        }
-        return result;
-      }
+      _customOrRule = true;
     } else {
-      List<String> textS = [];
-      for (String rl in rules) {
-        String temp = getString(rl);
-        if (temp.isNotEmpty) {
-          textS.add(temp);
-          if (elementsType == "|") {
-            break;
+      try {
+        final ob = JPath.compile(rule).search(_ctx);
+        if (ob == null) return "";
+        if (ob is List) {
+          final builder = <String>[];
+          for (var o in ob) {
+            builder..add('$o'.trim())..add('\n');
           }
+          result = builder.toString().replaceFirst(RegExp(r'\n$'), "");
+        } else {
+          result = '$ob';
+        }
+      } catch (e) {
+        print(e);
+      }
+      return result;
+    }
+
+    final textS = <String>[];
+    for (String rl in rules) {
+      String temp = getString(rl);
+      if (temp.isNotEmpty) {
+        textS.add(temp);
+        if (_customOrRule) {
+          break;
         }
       }
-      return textS.map((s) => s.trim()).join("\n");
     }
+    return textS.map((s) => s.trim()).join("\n");
   }
 
   List<String> getStringList(String rule) {
@@ -102,7 +103,7 @@ class AnalyzeByJSonPath {
         return result;
       }
     } else {
-      List<List<String>> results = [];
+      List<List<String>> results = <List<String>>[];
       for (var rl in rules) {
         List<String> temp = getStringList(rl);
         if (temp.isNotEmpty) {
