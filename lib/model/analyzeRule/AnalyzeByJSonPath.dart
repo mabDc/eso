@@ -41,7 +41,7 @@ class AnalyzeByJSonPath {
         return result;
       } else {
         result = rule;
-        var matcher = _jsonRulePattern.allMatches(rule);
+        final matcher = _jsonRulePattern.allMatches(rule);
         for (var m in matcher) {
           result = result.replaceAll(
               '{${m.group(0)}}', getString(m.group(0).trim()));
@@ -51,7 +51,7 @@ class AnalyzeByJSonPath {
     } else {
       final textS = <String>[];
       for (String rl in rules) {
-        var temp = getString(rl);
+        final temp = getString(rl);
         if (temp.isNotEmpty) {
           textS.add('$temp');
           if ('|' == elementsType) {
@@ -93,9 +93,9 @@ class AnalyzeByJSonPath {
         }
         return result;
       } else {
-        var matcher = _jsonRulePattern.allMatches(rule);
+        final matcher = _jsonRulePattern.allMatches(rule);
         for (var m in matcher) {
-          var stringList = getStringList(m.group(0).trim());
+          final stringList = getStringList(m.group(0).trim());
           for (var s in stringList) {
             result.add(rule.replaceAll('{${m.group(0)}}', s));
           }
@@ -105,7 +105,7 @@ class AnalyzeByJSonPath {
     } else {
       final results = <List<String>>[];
       for (var rl in rules) {
-        List<String> temp = getStringList(rl);
+        final temp = getStringList(rl);
         if (temp != null && temp.isNotEmpty) {
           results.add(temp);
           if (temp.length > 0 && '|' == elementsType) {
@@ -174,7 +174,7 @@ class AnalyzeByJSonPath {
     } else {
       final results = <List<Object>>[];
       for (var rl in rules) {
-        var temp = getList(rl);
+        final temp = getList(rl);
         if (null != temp && temp.isNotEmpty) {
           results.add(temp);
           if (temp.length > 0 && '|' == elementsType) {
