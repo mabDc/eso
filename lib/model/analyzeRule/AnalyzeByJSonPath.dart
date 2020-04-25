@@ -8,6 +8,11 @@ class AnalyzeByJSonPath {
     _ctx = json;
   }
 
+  AnalyzeByJSonPath parse(json) {
+    _ctx = json;
+    return this;
+  }
+
   dynamic get json => _ctx;
 
   String getString(String rule) {
