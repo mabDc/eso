@@ -30,21 +30,16 @@ class HomePage extends StatelessWidget {
                 BottomNavigationBarItem(
                     icon: Icon(Icons.info_outline), title: Text('关于')),
               ],
+              activeColor: Color(Global.colors[Profile().colorName]),
               currentIndex: pageSwitch.currentIndex,
-              onTap: (index) => pageSwitch.changePage(index),
+              //onTap: (index) => pageSwitch.changePage(index),
             ),
             tabBuilder: (BuildContext context, int index) {
-              return CupertinoTabView(
-                builder: (BuildContext context) {
-                  return CupertinoPageScaffold(
-                    child: [
-                      FavoritePage(),
-                      DiscoverPage(),
-                      AboutPage(),
-                    ][index],
-                  );
-                },
-              );
+              return [
+                FavoritePage(),
+                DiscoverPage(),
+                AboutPage(),
+              ][index];
             },
           );
         },

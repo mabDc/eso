@@ -90,7 +90,7 @@ class SearchItem {
         "durContentIndex": durContentIndex,
         "chaptersCount": chaptersCount,
         "reverseChapter": reverseChapter,
-        "tags": tags.join(", "),
+        "tags": tags != null ? tags.join(", ") : null,
       };
 
   SearchItem.fromJson(Map<String, dynamic> json) {
