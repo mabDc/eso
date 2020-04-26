@@ -45,53 +45,55 @@ class _ChapterPageState extends State<ChapterPage> {
       child: Consumer<ChapterPageController>(
         builder: (context, ChapterPageController pageController, _) {
           return Scaffold(
-            extendBodyBehindAppBar: true,
-            appBar: _buildAlphaAppbar(pageController),
-            body: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Container(
-                      height: 300, child: _comicDetail(pageController)),
+              extendBodyBehindAppBar: true,
+              appBar: _buildAlphaAppbar(pageController),
+              body: SafeArea(
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Container(
+                          height: 250, child: _comicDetail(pageController)),
+                    ),
+                    SliverToBoxAdapter(
+                        child: widget.searchItem.tags != null
+                            ? Container(
+                                padding: EdgeInsets.only(top: 14.0),
+                                child: Wrap(
+                                    spacing: 8,
+                                    alignment: WrapAlignment.center,
+                                    children: widget.searchItem.tags
+                                        .map((keyword) => Container(
+                                            decoration: new BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(15.0)),
+                                            ),
+                                            child: Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    8, 2, 8, 2),
+                                                child: Text(
+                                                  keyword,
+                                                  style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.white),
+                                                ))))
+                                        .toList()))
+                            : Container()),
+                    SliverToBoxAdapter(
+                        child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 14.0),
+                      child: Text(
+                        widget.searchItem.description,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    )),
+                    SliverToBoxAdapter(child: _sortWidget(pageController)),
+                    _buildChapter(pageController, context)
+                  ],
                 ),
-                SliverToBoxAdapter(
-                    child: widget.searchItem.tags != null
-                        ? Container(
-                            padding: EdgeInsets.only(top: 14.0),
-                            child: Wrap(
-                                spacing: 8,
-                                alignment: WrapAlignment.center,
-                                children: widget.searchItem.tags
-                                    .map((keyword) => Container(
-                                        decoration: new BoxDecoration(
-                                          color: Theme.of(context).primaryColor,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15.0)),
-                                        ),
-                                        child: Padding(
-                                            padding:
-                                                EdgeInsets.fromLTRB(8, 2, 8, 2),
-                                            child: Text(
-                                              keyword,
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: Colors.white),
-                                            ))))
-                                    .toList()))
-                        : Container()),
-                SliverToBoxAdapter(
-                    child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 14.0),
-                  child: Text(
-                    widget.searchItem.description,
-                    style: TextStyle(fontSize: 12),
-                  ),
-                )),
-                SliverToBoxAdapter(child: _sortWidget(pageController)),
-                _buildChapter(pageController, context)
-              ],
-            ),
-          );
+              ));
         },
       ),
     );
