@@ -2,7 +2,6 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
-
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';

@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:eso/ui/CurvePainter.dart';
 import 'package:eso/ui/ui_image_item.dart';
-import 'package:eso/ui/ui_image_item_gaussion_background.dart' as GAUSSION_IMG;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../database/search_item_manager.dart';
@@ -48,32 +47,48 @@ class _ChapterPageState extends State<ChapterPage> {
           return Scaffold(
             extendBodyBehindAppBar: true,
             appBar: _buildAlphaAppbar(pageController),
-            body: Column(
-              children: <Widget>[
-                Expanded(flex: 2, child: _comicDetail(pageController)),
-                Wrap(
-                    spacing: 8,
-                    children: widget.searchItem.tags
-                        .map((keyword) => RaisedButton(
-                              child: Text('$keyword'),
-                              onPressed: () {},
-                            ))
-                        .toList()),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
+            body: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Container(
+                      height: 300, child: _comicDetail(pageController)),
+                ),
+                SliverToBoxAdapter(
+                    child: widget.searchItem.tags != null
+                        ? Container(
+                            padding: EdgeInsets.only(top: 14.0),
+                            child: Wrap(
+                                spacing: 8,
+                                alignment: WrapAlignment.center,
+                                children: widget.searchItem.tags
+                                    .map((keyword) => Container(
+                                        decoration: new BoxDecoration(
+                                          color: Theme.of(context).primaryColor,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(15.0)),
+                                        ),
+                                        child: Padding(
+                                            padding:
+                                                EdgeInsets.fromLTRB(8, 2, 8, 2),
+                                            child: Text(
+                                              keyword,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white),
+                                            ))))
+                                    .toList()))
+                        : Container()),
+                SliverToBoxAdapter(
+                    child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 14.0),
                   child: Text(
                     widget.searchItem.description,
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(fontSize: 12),
                   ),
-                ),
-                _sortWidget(pageController),
-                Expanded(
-                  flex: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: _buildChapter(pageController, context),
-                  ),
-                ),
+                )),
+                SliverToBoxAdapter(child: _sortWidget(pageController)),
+                _buildChapter(pageController, context)
               ],
             ),
           );
@@ -84,54 +99,102 @@ class _ChapterPageState extends State<ChapterPage> {
 
   Widget _buildChapter(
       ChapterPageController pageController, BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     if (pageController.isLoading) {
-      return LandingPage();
+      return SliverToBoxAdapter(
+          child: Container(height: 100, child: LandingPage()));
     }
+
     void Function(int index) onTap = (int index) {
       pageController.changeChapter(index);
       Navigator.of(context)
           .push(ContentPageRoute().route(widget.searchItem))
           .whenComplete(pageController.adjustScroll);
     };
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: GridView.builder(
-        padding: const EdgeInsets.only(bottom: 25.0, top: 8.0),
-        controller: pageController.controller,
+
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+      sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
           childAspectRatio: (screenWidth - 2 - 16) / 50 / 4,
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
         ),
-        itemCount: widget.searchItem.chapters.length,
-        itemBuilder: (context, index) {
-          if (widget.searchItem.reverseChapter) {
-            index = widget.searchItem.chapters.length - index - 1;
-          }
-          return _buildChapterButton(
-              context,
-              widget.searchItem.durChapterIndex == index,
-              Align(
-                alignment: FractionalOffset.center,
-                child: Text(
-                  '${widget.searchItem.chapters[index].name}'.trim(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              () => onTap(index));
-        },
+        delegate: SliverChildBuilderDelegate(
+          (BuildContext context, int index) {
+            return Container(
+              child: _buildChapterButton(
+                  context,
+                  widget.searchItem.durChapterIndex == index,
+                  Align(
+                    alignment: FractionalOffset.center,
+                    child: Text(
+                      '${widget.searchItem.chapters[index].name}'.trim(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  () => onTap(index)),
+            );
+          },
+          childCount: widget.searchItem.chapters.length,
+        ),
       ),
     );
   }
 
+  // Widget _buildChapter(
+  //     ChapterPageController pageController, BuildContext context) {
+  //   if (pageController.isLoading) {
+  //     return LandingPage();
+  //   }
+  //   void Function(int index) onTap = (int index) {
+  //     pageController.changeChapter(index);
+  //     Navigator.of(context)
+  //         .push(ContentPageRoute().route(widget.searchItem))
+  //         .whenComplete(pageController.adjustScroll);
+  //   };
+  //   final screenWidth = MediaQuery.of(context).size.width;
+  //   return Directionality(
+  //     textDirection: TextDirection.ltr,
+  //     child: GridView.builder(
+  //       padding: const EdgeInsets.only(bottom: 25.0, top: 8.0),
+  //       controller: pageController.controller,
+  //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //         crossAxisCount: 4,
+  //         childAspectRatio: (screenWidth - 2 - 16) / 50 / 4,
+  //         mainAxisSpacing: 8,
+  //         crossAxisSpacing: 8,
+  //       ),
+  //       itemCount: widget.searchItem.chapters.length,
+  //       itemBuilder: (context, index) {
+  //         if (widget.searchItem.reverseChapter) {
+  //           index = widget.searchItem.chapters.length - index - 1;
+  //         }
+  //         return _buildChapterButton(
+  //             context,
+  //             widget.searchItem.durChapterIndex == index,
+  //             Align(
+  //               alignment: FractionalOffset.center,
+  //               child: Text(
+  //                 '${widget.searchItem.chapters[index].name}'.trim(),
+  //                 maxLines: 1,
+  //                 overflow: TextOverflow.ellipsis,
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //             ),
+  //             () => onTap(index));
+  //       },
+  //     ),
+  //   );
+  // }
+
   //头部
   Widget _buildAlphaAppbar(ChapterPageController pageController) {
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).bottomAppBarColor,
       elevation: 0,
       title: Text(
         widget.searchItem.origin,
@@ -157,10 +220,11 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
+  //排序
   Widget _sortWidget(ChapterPageController pageController) {
     return Container(
       height: 32,
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       alignment: Alignment.center,
       decoration: BoxDecoration(
           border: Border(
@@ -216,12 +280,14 @@ class _ChapterPageState extends State<ChapterPage> {
           Expanded(
               flex: 3,
               child: Container(
-                  child: Container(
-                      width: 100,
-                      child: UIImageItem(
-                        cover: pageController.searchItem.cover,
-                      )),
-                  alignment: Alignment.bottomCenter)),
+                child: Container(
+                  width: 100,
+                  child: UIImageItem(
+                    cover: pageController.searchItem.cover,
+                  ),
+                ),
+                alignment: Alignment.bottomCenter,
+              )),
           Expanded(
             flex: 1,
             child: Padding(
@@ -229,11 +295,17 @@ class _ChapterPageState extends State<ChapterPage> {
               child: Column(children: [
                 Text(
                   pageController.searchItem.name,
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                  ),
                 ),
-                Text(
-                  pageController.searchItem.author,
-                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 5),
+                    child: Text(
+                      pageController.searchItem.author,
+                      style: TextStyle(fontSize: 12),
+                    )),
               ]),
             ),
           ),
@@ -251,6 +323,7 @@ class _ChapterPageState extends State<ChapterPage> {
     return isDurIndex
         ? RaisedButton(
             padding: EdgeInsets.all(8),
+            elevation: 0,
             onPressed: onPress,
             color: Theme.of(context).primaryColor,
             textColor: Theme.of(context).primaryTextTheme.title.color,
@@ -258,6 +331,7 @@ class _ChapterPageState extends State<ChapterPage> {
           )
         : RaisedButton(
             padding: EdgeInsets.all(8),
+            elevation: 0,
             onPressed: onPress,
             color: Theme.of(context).bottomAppBarColor,
             textColor: Theme.of(context).textTheme.body1.color,

@@ -27,13 +27,16 @@ class UIImageItem extends StatelessWidget {
       _cover = ss[0];
       headers = (jsonDecode(ss[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
-    return FadeInImage(
-      placeholder: AssetImage(Global.waitingPath),
-      image: NetworkImage(
-        "$_cover",
-        headers: headers,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3.0),
+      child: FadeInImage(
+        placeholder: AssetImage(Global.waitingPath),
+        image: NetworkImage(
+          "$_cover",
+          headers: headers,
+        ),
+        fit: BoxFit.cover,
       ),
-      fit: BoxFit.cover,
     );
   }
 }

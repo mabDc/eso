@@ -9,15 +9,15 @@ class Profile with ChangeNotifier {
     final source = Global.prefs.getString(Global.profileKey);
     final json = source == null
         ? {
-      'showMangaInfo': true,
-      'switchLongPress': false,
-      'switchFavoriteStyle': false,
-      'switchDiscoverStyle': false,
-      'autoRefresh': false,
-      'darkMode': "跟随系统",
-      'colorName': Global.colors.keys.first,
-      'customColor': Global.colors.values.first,
-    }
+            'showMangaInfo': true,
+            'switchLongPress': false,
+            'switchFavoriteStyle': false,
+            'switchDiscoverStyle': false,
+            'autoRefresh': false,
+            'darkMode': "跟随系统",
+            'colorName': Global.colors.keys.first,
+            'customColor': Global.colors.values.first,
+          }
         : jsonDecode(source);
     fromJson(json);
   }
@@ -139,8 +139,10 @@ class Profile with ChangeNotifier {
         break;
     }
     return ThemeData(
-      primaryColor: Color(
-          Global.colors[colorName] ?? customColor),
+      primaryColor: Color(Global.colors[colorName] ?? customColor),
+      bottomAppBarColor: isDarkMode
+          ? Color.fromARGB(255, 66, 66, 66)
+          : Color.fromARGB(255, 180, 188, 196),
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
     );
   }
@@ -161,13 +163,13 @@ class Profile with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() => {
-    'switchLongPress': _switchLongPress,
-    'switchFavoriteStyle': _switchFavoriteStyle,
-    'switchDiscoverStyle': _switchDiscoverStyle,
-    'showMangaInfo': _showMangaInfo,
-    'autoRefresh': _autoRefresh,
-    'darkMode': _darkMode,
-    'colorName': _colorName,
-    'customColor': _customColor,
-  };
+        'switchLongPress': _switchLongPress,
+        'switchFavoriteStyle': _switchFavoriteStyle,
+        'switchDiscoverStyle': _switchDiscoverStyle,
+        'showMangaInfo': _showMangaInfo,
+        'autoRefresh': _autoRefresh,
+        'darkMode': _darkMode,
+        'colorName': _colorName,
+        'customColor': _customColor,
+      };
 }
