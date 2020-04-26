@@ -16,7 +16,7 @@ class AnalyzeByJSonPath {
 
   String getString(String rule) {
     var result = "";
-    if (null == rule || rule.isEmpty) return result; 
+    if (null == rule || rule.isEmpty) return result;
 
     if (rule.contains("{\$.")) {
       result = rule;
@@ -29,12 +29,12 @@ class AnalyzeByJSonPath {
     }
 
     var rules = <String>[];
-    var customOrRUle = false;
+    var customOrRule = false;
     if (rule.contains("&&")) {
       rules = rule.split("&&");
     } else if (rule.contains('||')) {
       rules = rule.split("||");
-      customOrRUle = true;
+      customOrRule = true;
     } else {
       try {
         final ob = JPath.compile(rule).search(_ctx);
@@ -59,7 +59,7 @@ class AnalyzeByJSonPath {
       String temp = getString(rl);
       if (temp.isNotEmpty) {
         textS.add(temp);
-        if (customOrRUle) {
+        if (customOrRule) {
           break;
         }
       }

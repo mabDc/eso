@@ -49,12 +49,12 @@ class AnalyzerByHtml {
     if (rule == null || rule.isEmpty) return "";
 
     var rules = <String>[];
-    bool customOrRUle = false;
+    bool customOrRule = false;
     if (rule.contains('&&')) {
       rules = rule.split('&&');
     } else if (rule.contains('||')) {
       rules = rule.split('||');
-      customOrRUle = true;
+      customOrRule = true;
     } else if (!rule.contains('@')) {
       return _getResult(_element, rule);
     } else {
@@ -73,7 +73,7 @@ class AnalyzerByHtml {
       String temp = getString(rl);
       if (temp.isNotEmpty) {
         textS.add(temp);
-        if (customOrRUle) {
+        if (customOrRule) {
           break;
         }
       }

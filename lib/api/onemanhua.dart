@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
-import 'package:eso/model/analyzeRule/AnalyzeByHtml.dart';
+import 'package:eso/model/analyze_rule/analyze_by_html.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'api.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' show parse;
 
 class _Onemanhua {
   final discoverUrl = r'';

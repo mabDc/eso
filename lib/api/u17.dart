@@ -1,4 +1,4 @@
-import 'package:eso/model/analyzeRule/AnalyzeByJSonPath.dart';
+import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
 import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
