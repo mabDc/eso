@@ -63,57 +63,59 @@ class FavoritePage extends StatelessWidget {
   }
 
   Widget _buildFavoriteList(List<SearchItem> searchItems) {
-    return ListView.separated(
-      separatorBuilder: (context, index) {
-        return SizedBox(
-          height: 8.0,
-        );
-      },
-      itemCount: searchItems.length,
-      padding: EdgeInsets.all(8.0),
-      itemBuilder: (context, index) {
-        final searchItem = searchItems[index];
-        final longPress =
-            Provider.of<Profile>(context, listen: false).switchLongPress;
-        VoidCallback openChapter = () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ChapterPage(searchItem: searchItem)));
-        VoidCallback openContent = () =>
-            Navigator.of(context).push(ContentPageRoute().route(searchItem));
-        return InkWell(
-          child: UiShelfItem(searchItem: searchItem),
-          onTap: longPress ? openChapter : openContent,
-          onLongPress: longPress ? openContent : openChapter,
-        );
-      },
-    );
+    return Padding(
+        padding: EdgeInsets.all(8),
+        child: ListView.separated(
+          separatorBuilder: (context, index) {
+            return SizedBox(
+              height: 8.0,
+            );
+          },
+          itemCount: searchItems.length,
+          itemBuilder: (context, index) {
+            final searchItem = searchItems[index];
+            final longPress =
+                Provider.of<Profile>(context, listen: false).switchLongPress;
+            VoidCallback openChapter = () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => ChapterPage(searchItem: searchItem)));
+            VoidCallback openContent = () => Navigator.of(context)
+                .push(ContentPageRoute().route(searchItem));
+            return InkWell(
+              child: UiShelfItem(searchItem: searchItem),
+              onTap: longPress ? openChapter : openContent,
+              onLongPress: longPress ? openContent : openChapter,
+            );
+          },
+        ));
   }
 
   Widget _buildFavoriteGrid(List<SearchItem> searchItems) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.8,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      padding: EdgeInsets.all(8.0),
-      itemCount: searchItems.length,
-      itemBuilder: (context, index) {
-        final searchItem = searchItems[index];
-        final longPress =
-            Provider.of<Profile>(context, listen: false).switchLongPress;
-        VoidCallback openChapter = () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ChapterPage(searchItem: searchItem)));
-        VoidCallback openContent = () =>
-            Navigator.of(context).push(ContentPageRoute().route(searchItem));
-        return InkWell(
-          child: UIDiscoverItem(searchItem: searchItem),
-          onTap: longPress ? openChapter : openContent,
-          onLongPress: longPress ? openContent : openChapter,
-        );
-      },
-    );
+    return Padding(
+        padding: EdgeInsets.all(8),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 0.8,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+          ),
+          itemCount: searchItems.length,
+          itemBuilder: (context, index) {
+            final searchItem = searchItems[index];
+            final longPress =
+                Provider.of<Profile>(context, listen: false).switchLongPress;
+            VoidCallback openChapter = () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => ChapterPage(searchItem: searchItem)));
+            VoidCallback openContent = () => Navigator.of(context)
+                .push(ContentPageRoute().route(searchItem));
+            return InkWell(
+              child: UIDiscoverItem(searchItem: searchItem),
+              onTap: longPress ? openChapter : openContent,
+              onLongPress: longPress ? openContent : openChapter,
+            );
+          },
+        ));
   }
 }

@@ -13,35 +13,32 @@ class DiscoverPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('发现'),
       ),
-      body: ListView.separated(
-        separatorBuilder: (context, index) {
-          return SizedBox(
-            height: 4,
-          );
-        },
-        padding: EdgeInsets.all(6),
-        itemCount: allAPI.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(allAPI[index].origin),
-              trailing: Switch(
-                activeColor: Theme.of(context).primaryColor,
-                value: true,
-                onChanged: (enable) {},
-              ),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => DiscoverSearchPage(
+      body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          child: ListView.separated(
+            separatorBuilder: (context, index) {
+              return Container(height: 4);
+            },
+            itemCount: allAPI.length,
+            itemBuilder: (context, index) {
+              return Card(
+                child: ListTile(
+                  title: Text(allAPI[index].origin),
+                  trailing: Switch(
+                    activeColor: Theme.of(context).primaryColor,
+                    value: true,
+                    onChanged: (enable) {},
+                  ),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => DiscoverSearchPage(
                         originTag: allAPI[index].originTag,
                         origin: allAPI[index].origin,
                         discoverMap: allAPI[index].discoverMap(),
                       ))),
-            ),
-          );
-        },
-      ),
+                ),
+              );
+            },
+          )),
     );
   }
 }
-
-
