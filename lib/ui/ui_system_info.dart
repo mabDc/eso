@@ -42,21 +42,49 @@ class _UISystemInfoState extends State<UISystemInfo> {
           builder: (BuildContext context, SystemInfoProvider provider, _) {
         __provider = provider;
         return Container(
-          height: 20,
-          alignment: Alignment.bottomRight,
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          decoration: BoxDecoration(color: Color.fromARGB(100, 0, 0, 0)),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                '${widget.mangaInfo} 共${widget.mangaCount}页 ${provider.now} ${provider.level}',
-                style: TextStyle(color: Colors.white),
+          padding: const EdgeInsets.only(
+            bottom: 6,
+            right: 16,
+          ),
+          child: Flexible(
+            child: Material(
+              color: Colors.black.withOpacity(0.5),
+              borderRadius: BorderRadius.horizontal(
+                left: Radius.circular(10),
+                right: Radius.circular(10),
               ),
-              Padding(padding: EdgeInsets.only(left: 4)),
-              BatteryView(electricQuantity: provider.level / 100),
-            ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 2,
+                  horizontal: 10,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        '${widget.mangaInfo}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          textBaseline: TextBaseline.alphabetic,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      ' | ${widget.mangaCount}P ${provider.now} ${provider.level}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        textBaseline: TextBaseline.alphabetic,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    BatteryView(electricQuantity: provider.level / 100),
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       }),

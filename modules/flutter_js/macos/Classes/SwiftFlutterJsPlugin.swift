@@ -52,6 +52,10 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
                                     details: nil))
             }
         case "close":
+            let argsMap = call.arguments as! NSDictionary
+            let engineId: Int = argsMap.value(forKey: "engineId") as! Int
+            jsEngineMap.removeValue(forKey: engineId)
+            result(true)
             break
         default:
             result(FlutterMethodNotImplemented)

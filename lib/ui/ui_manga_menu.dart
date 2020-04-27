@@ -32,7 +32,7 @@ class UIMangaMenu extends StatelessWidget {
   Widget _buildTopRow(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 100,
+      height: 80,
       alignment: Alignment.topLeft,
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -98,7 +98,9 @@ class UIMangaMenu extends StatelessWidget {
           InkWell(
             child: Text(
               searchItem.chapters[searchItem.durChapterIndex].url,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white, ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
             onTap: () =>
                 launch(searchItem.chapters[searchItem.durChapterIndex].url),
