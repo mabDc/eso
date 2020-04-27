@@ -6,7 +6,7 @@ version: 0.0.2+1
 homepage: https://github.com/abner/flutter_js
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
   flutter: ">=1.10.0 <2.0.0"
 
 dependencies:
@@ -25,3 +25,5 @@ flutter:
         pluginClass: FlutterJsPlugin
       ios:
         pluginClass: FlutterJsPlugin
+      macos:
+        pluginClass: SwiftFlutterJsPlugin
