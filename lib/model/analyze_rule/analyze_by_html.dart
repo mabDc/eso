@@ -62,24 +62,26 @@ class AnalyzerByHtml {
       final lastRule = rule.split('@').last;
       final elementList =
           _querySelectorAll(rule.substring(0, rule.length - lastRule.length));
+      final builder = <String>[];
       for (var e in elementList) {
         final r = _getResult(e, lastRule);
-        if (r.isNotEmpty) return r;
+        if (r.isNotEmpty)
+          builder.add(r.trim());
       }
-      return '';
+      return builder.join('\n');
     }
 
     final textS = <String>[];
-    for (String rl in rules) {
-      String temp = getString(rl);
+    for (var rl in rules) {
+      final temp = getString(rl);
       if (temp.isNotEmpty) {
-        textS.add(temp);
+        textS.add(temp.trim());
         if (customOrRule) {
           break;
         }
       }
     }
-    return textS.map((s) => s.trim()).join("\n");
+    return textS.join("\n");
   }
 
   List<String> getStringList(String rule) {
@@ -126,7 +128,6 @@ class AnalyzerByHtml {
         final r = _getResult(e, lastRule);
         if (r.isNotEmpty) result.add(r);
       }
-      return <String>[];
     }
     return result;
   }
