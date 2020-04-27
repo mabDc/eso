@@ -5,18 +5,6 @@ class AnalyzerByHtml {
   Element _element;
   Element get element => _element;
 
-  AnalyzerByHtml parse(doc) {
-    return AnalyzerByHtml(doc);
-  }
-
-  Element _querySelector(String selector) {
-    return _element.querySelector(selector);
-  }
-
-  List<Element> _querySelectorAll(String selector) {
-    return _element.querySelectorAll(selector);
-  }
-
   AnalyzerByHtml(doc) {
     if (doc is Element) {
       _element = doc;
@@ -27,6 +15,18 @@ class AnalyzerByHtml {
     } else {
       _element = parser.parse('$doc').documentElement;
     }
+  }
+
+  AnalyzerByHtml parse(doc) {
+    return AnalyzerByHtml(doc);
+  }
+
+  Element _querySelector(String selector) {
+    return _element.querySelector(selector);
+  }
+
+  List<Element> _querySelectorAll(String selector) {
+    return _element.querySelectorAll(selector);
   }
 
   String _getResult(Element e, String lastRule) {
@@ -41,7 +41,8 @@ class AnalyzerByHtml {
       case 'html':
         return e.innerHtml;
       default:
-        return e.attributes[lastRule].trim() ?? '';
+        final r = e.attributes[lastRule];
+        return null == r || r.isEmpty ? '' : r.trim();
     }
   }
 
@@ -49,36 +50,38 @@ class AnalyzerByHtml {
     if (rule == null || rule.isEmpty) return "";
 
     var rules = <String>[];
-    bool customOrRUle = false;
+    bool customOrRule = false;
     if (rule.contains('&&')) {
       rules = rule.split('&&');
     } else if (rule.contains('||')) {
       rules = rule.split('||');
-      customOrRUle = true;
+      customOrRule = true;
     } else if (!rule.contains('@')) {
       return _getResult(_element, rule);
     } else {
       final lastRule = rule.split('@').last;
       final elementList =
           _querySelectorAll(rule.substring(0, rule.length - lastRule.length));
+      final builder = <String>[];
       for (var e in elementList) {
         final r = _getResult(e, lastRule);
-        if (r.isNotEmpty) return r;
+        if (r.isNotEmpty)
+          builder.add(r.trim());
       }
-      return '';
+      return builder.join('\n');
     }
 
     final textS = <String>[];
-    for (String rl in rules) {
-      String temp = getString(rl);
+    for (var rl in rules) {
+      final temp = getString(rl);
       if (temp.isNotEmpty) {
-        textS.add(temp);
-        if (customOrRUle) {
+        textS.add(temp.trim());
+        if (customOrRule) {
           break;
         }
       }
     }
-    return textS.map((s) => s.trim()).join("\n");
+    return textS.join("\n");
   }
 
   List<String> getStringList(String rule) {
@@ -125,7 +128,6 @@ class AnalyzerByHtml {
         final r = _getResult(e, lastRule);
         if (r.isNotEmpty) result.add(r);
       }
-      return <String>[];
     }
     return result;
   }

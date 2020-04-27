@@ -3,6 +3,7 @@ import 'package:jsonpath/json_path.dart';
 class AnalyzeByJSonPath {
   final _jsonRulePattern = RegExp(r"(?<={)\$\..+?(?=})");
   dynamic _ctx;
+  dynamic get json => _ctx;
 
   AnalyzeByJSonPath(json) {
     _ctx = json;
@@ -12,11 +13,9 @@ class AnalyzeByJSonPath {
     return AnalyzeByJSonPath(json);
   }
 
-  dynamic get json => _ctx;
-
   String getString(String rule) {
     var result = "";
-    if (null == rule || rule.isEmpty) return result; 
+    if (null == rule || rule.isEmpty) return result;
 
     if (rule.contains("{\$.")) {
       result = rule;
@@ -29,12 +28,12 @@ class AnalyzeByJSonPath {
     }
 
     var rules = <String>[];
-    var customOrRUle = false;
+    var customOrRule = false;
     if (rule.contains("&&")) {
       rules = rule.split("&&");
     } else if (rule.contains('||')) {
       rules = rule.split("||");
-      customOrRUle = true;
+      customOrRule = true;
     } else {
       try {
         final ob = JPath.compile(rule).search(_ctx);
@@ -42,9 +41,9 @@ class AnalyzeByJSonPath {
         if (ob is List) {
           final builder = <String>[];
           for (var o in ob) {
-            builder..add('$o'.trim())..add('\n');
+            builder.add('$o'.trim());
           }
-          result = builder.join('').replaceFirst(new RegExp(r'\n$'), '');
+          result = builder.join('\n');
         } else {
           result = '$ob';
         }
@@ -55,16 +54,16 @@ class AnalyzeByJSonPath {
     }
 
     final textS = <String>[];
-    for (String rl in rules) {
-      String temp = getString(rl);
+    for (var rl in rules) {
+      final temp = getString(rl);
       if (temp.isNotEmpty) {
-        textS.add(temp);
-        if (customOrRUle) {
+        textS.add(temp.trim());
+        if (customOrRule) {
           break;
         }
       }
     }
-    return textS.map((s) => s.trim()).join("\n");
+    return textS.join("\n");
   }
 
   List<String> getStringList(String rule) {
