@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
@@ -28,12 +29,21 @@ class FlutterJs {
     if (DEBUG) {
       print("${DateTime.now().toIso8601String()} - JS RESULT : $rs");
     }
+    if(Platform.isAndroid) return jsonDecode(rs);
     return rs;
+  }
+
+  static Future<bool> close(int id) async {
+    var arguments = {
+      "engineId": id,
+    };
+    _channel.invokeMethod("close", arguments);
+    return true;
   }
 
   static Future<String> getString(String command, int id) async {
     final rs = await evaluate(command, id);
-    return rs ?? '';
+    return '$rs' ?? '';
   }
 
   static Future<List<String>> getStringList(String command, int id) async {

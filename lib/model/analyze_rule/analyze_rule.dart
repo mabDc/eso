@@ -1,17 +1,22 @@
+import 'dart:convert';
+
 import 'package:eso/model/analyze_rule/analyze_by_html.dart';
 import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
+import 'package:flutter_js/flutter_js.dart';
 
 class AnalyzeRule {
   dynamic _content;
   dynamic get content => _content;
   String _baseUrl;
   String get baseUrl => _baseUrl;
+  int _idJsEngine;
+  int get idJsEngine => _idJsEngine;
   AnalyzeRule(
     this._content,
     this._baseUrl,
   );
 
-  List<String> getStringList(String rule) {
+  Future<List<String>> getStringList(String rule) async {
     final result = <String>[];
     if (null == rule || rule.isEmpty) return result;
     final ruleList = splitSourceRule(rule);
@@ -48,21 +53,73 @@ class AnalyzeRule {
       for (var r in re) {
         if (r.length == 1) {
           s += r[0];
-        } else {
+        } else if(r.length > 1){
           s += r[i];
         }
       }
       result.add(s);
     }
     if (null != js) {
-      if (result.isEmpty) {
-        
-      } else {}
+        initJsEngine(result.isEmpty ? _content : result);
+        final temp = await FlutterJs.getStringList(js.rule, _idJsEngine);
+        closeJsEngine();
+        return temp;
     }
     return result;
   }
 
-  String getString(String rule) {}
+  Future<String> getString(String rule) async {
+    final result = StringBuffer();
+    if (null == rule || rule.isEmpty) return result.toString();
+    final ruleList = splitSourceRule(rule);
+    SourceRule js;
+    if (ruleList.last.mode == Mode.JS) {
+      js = ruleList.removeLast();
+    }
+    for (var r in ruleList) {
+      switch (r.mode) {
+        case Mode.String:
+          result.write(r.rule);
+          break;
+        case Mode.CSS:
+          result.write(AnalyzerByHtml(_content).getString(r.rule));
+          break;
+        case Mode.Json:
+          result.write(AnalyzeByJSonPath(_content).getString(r.rule));
+          break;
+        default:
+      }
+    }
+    if (null != js) {
+      initJsEngine(result.isEmpty ? _content : result.toString());
+      final temp = await FlutterJs.getString(js.rule, _idJsEngine);
+      closeJsEngine();
+      return temp;
+    }
+    return result.toString();
+  }
+
+  Future<bool> initJsEngine(dynamic result) async {
+    if(_idJsEngine == null){
+      _idJsEngine = await FlutterJs.initEngine();
+      final json = {
+        "result": result,
+        "baseUrl": _baseUrl,
+      };
+      FlutterJs.evaluate("""
+var json = ${jsonEncode(json)};
+var result = json.result;
+var baseUrl = json.baseUrl;""", _idJsEngine);
+    }
+    return true;
+  }
+  
+  void closeJsEngine(){
+    if(_idJsEngine == null){
+      FlutterJs.close(_idJsEngine);
+    }
+    _idJsEngine = null;
+  }
 
   List<SourceRule> splitSourceRule(String rule) {
     final ruleList = <SourceRule>[];
