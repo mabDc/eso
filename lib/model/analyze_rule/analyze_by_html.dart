@@ -5,18 +5,6 @@ class AnalyzerByHtml {
   Element _element;
   Element get element => _element;
 
-  AnalyzerByHtml parse(doc) {
-    return AnalyzerByHtml(doc);
-  }
-
-  Element _querySelector(String selector) {
-    return _element.querySelector(selector);
-  }
-
-  List<Element> _querySelectorAll(String selector) {
-    return _element.querySelectorAll(selector);
-  }
-
   AnalyzerByHtml(doc) {
     if (doc is Element) {
       _element = doc;
@@ -27,6 +15,18 @@ class AnalyzerByHtml {
     } else {
       _element = parser.parse('$doc').documentElement;
     }
+  }
+
+  AnalyzerByHtml parse(doc) {
+    return AnalyzerByHtml(doc);
+  }
+
+  Element _querySelector(String selector) {
+    return _element.querySelector(selector);
+  }
+
+  List<Element> _querySelectorAll(String selector) {
+    return _element.querySelectorAll(selector);
   }
 
   String _getResult(Element e, String lastRule) {
@@ -41,7 +41,8 @@ class AnalyzerByHtml {
       case 'html':
         return e.innerHtml;
       default:
-        return e.attributes[lastRule].trim() ?? '';
+        final r = e.attributes[lastRule];
+        return null == r || r.isEmpty ? '' : r.trim();
     }
   }
 
