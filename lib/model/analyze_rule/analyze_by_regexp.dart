@@ -21,6 +21,46 @@ class AnalyzerByRegexp {
   }
 
   /*
+   添加自定义符号 AND ,例：
+   <div id="content">[\w\W]*</div>AND<li>.*?</li>
+   会先匹配前面的内容，然后在前一个AND的结果中匹配后面的内容
+  */
+  List<String> _getList(String rule, String input) {
+    var result = <String>[];
+    if (null == rule || rule.isEmpty) return result;
+
+    var rules = <String>[];
+    if (rule.contains('AND')) {
+      rules = rule.split('AND');
+    }
+
+    if (rules.length > 0) {
+      for (var rl in rules) {
+        result = _getList(rl, input);
+        input = result.join('\n');
+      }
+    } else {
+      try {
+        final matcherList = RegExp(rule).allMatches(input);
+        if (matcherList.isEmpty) return result;
+
+        final builder = <String>[];
+        for (var m in matcherList) {
+          final value = m.group(0);
+          if (value.isNotEmpty) {
+            // 因为是正则匹配，所以不使用trim()去掉空格
+            builder.add(value);
+          }
+        }
+        result = builder;
+      } catch (e) {
+        print(e);
+      }
+    }
+    return result;
+  }
+
+  /*
   使用正向/反向肯定/否定预查 (?<=pattern)  (?=pattern)  (?!pattern)  (?<!pattern)
   来定位内容，例：r'(?<=href=")[^"]*'
   */
@@ -36,21 +76,7 @@ class AnalyzerByRegexp {
       rules = rule.split('||');
       customOrRule = true;
     } else {
-      try {
-        final matcherList = RegExp(rule).allMatches(_string);
-        if (matcherList.isEmpty) return result;
-
-        final builder = <String>[];
-        for (var m in matcherList) {
-          final value = m.group(0);
-          if (value.isNotEmpty) {
-            builder.add(value.trim());
-          }
-        }
-        result = builder.join('\n');
-      } catch (e) {
-        print(e);
-      }
+      result = _getList(rule, _string).join('\n');
       return result;
     }
 
@@ -58,7 +84,7 @@ class AnalyzerByRegexp {
     for (var rl in rules) {
       final temp = getString(rl);
       if (temp.isNotEmpty) {
-        textS.add(temp.trim());
+        textS.add(temp);
         if (customOrRule) break;
       }
     }
@@ -94,15 +120,12 @@ class AnalyzerByRegexp {
         }
       }
     } else {
-      final matcherList = RegExp(rule).allMatches(_string);
-      if (matcherList.isEmpty) return result;
-      for (var m in matcherList) {
-        final value = m.group(0);
-        if (value.isNotEmpty) {
-          result.add(value.trim());
-        }
-      }
+      return _getList(rule, _string);
     }
     return result;
+  }
+
+  List<String> getList(String rule) {
+    return getStringList(rule);
   }
 }
