@@ -77,6 +77,12 @@ class BatteryViewPainter extends CustomPainter {
             Radius.circular(mStrokeWidth)),
         mPaint);
     mPaint.style = PaintingStyle.fill;
+
+    //判断电池电量颜色
+    if(electricQuantity<0.2){
+      mPaint.color = Colors.red;
+    }
+
     //画电池电量
     canvas.drawRRect(
         RRect.fromLTRBR(
