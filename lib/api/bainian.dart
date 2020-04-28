@@ -78,12 +78,8 @@ class Bainian implements API {
       "baseUrl": url,
     };
     final _idJsEngine = await FlutterJs.initEngine();
-    return FlutterJs.getStringList("""
-        var json = ${jsonEncode(json)};
-        var result = json.result;
-        var baseUrl = json.baseUrl;
-        $rule;
-        """, _idJsEngine);
+    await FlutterJs.initJson(json, _idJsEngine);
+    return FlutterJs.getStringList("$rule", _idJsEngine);
     // final res = await http.get(url);
     // final zyurl = RegExp("z_yurl='([^']*)'").firstMatch(res.body)[1];
     // final zimg = RegExp("z_img='([^']*)").firstMatch(res.body)[1];

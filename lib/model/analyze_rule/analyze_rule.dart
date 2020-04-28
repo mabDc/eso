@@ -5,6 +5,12 @@ import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
 import 'package:flutter_js/flutter_js.dart';
 
 class AnalyzeRule {
+  // 正则规则维护
+  String _regexSplitJoin = r"\{\{(.+?)\}\}";
+  String _regexSplitRule = r"(<=@json:)|(<=@css:)";
+
+  bool _isJoinRule;
+  // 只读属性
   dynamic _content;
   dynamic get content => _content;
   String _baseUrl;
@@ -16,82 +22,157 @@ class AnalyzeRule {
     this._baseUrl,
   );
 
-  Future<List<String>> getStringList(String rule) async {
-    final result = <String>[];
+  Future<List<dynamic>> getElements(String rule) async {
+    var result = <dynamic>[];
     if (null == rule || rule.isEmpty) return result;
     final ruleList = splitSourceRule(rule);
     SourceRule js;
     if (ruleList.last.mode == Mode.JS) {
       js = ruleList.removeLast();
     }
-    final re = <List<dynamic>>[];
-    int count = -1;
+    result = _content;
     for (var r in ruleList) {
-      List<String> temp;
       switch (r.mode) {
-        case Mode.String:
-          temp = <String>[r.rule];
-          break;
         case Mode.CSS:
-          temp = AnalyzerByHtml(_content).getStringList(r.rule);
+          result = AnalyzerByHtml(result).getElements(r.rule);
           break;
         case Mode.Json:
-          temp = AnalyzeByJSonPath(_content).getStringList(r.rule);
+          result = AnalyzeByJSonPath(result).getList(r.rule);
           break;
         default:
-          temp = <String>[];
       }
-      if (count == -1) {
-        count = temp.length;
-      } else if (temp.length < count) {
-        count = temp.length;
-      }
-      re.add(temp);
-    }
-    for (var i = 0; i < count; i++) {
-      String s = "";
-      for (var r in re) {
-        if (r.length == 1) {
-          s += r[0];
-        } else if(r.length > 1){
-          s += r[i];
-        }
-      }
-      result.add(s);
     }
     if (null != js) {
-        initJsEngine(result.isEmpty ? _content : result);
-        final temp = await FlutterJs.getStringList(js.rule, _idJsEngine);
-        closeJsEngine();
-        return temp;
+      await initJsEngine(result);
+      final temp = await FlutterJs.getList(js.rule, _idJsEngine);
+      closeJsEngine();
+      return temp;
     }
     return result;
   }
 
-  Future<String> getString(String rule) async {
-    final result = StringBuffer();
-    if (null == rule || rule.isEmpty) return result.toString();
+  Future<List<String>> getStringList(String rule) async {
+    var result = <String>[];
+    if (null == rule || rule.isEmpty) return result;
     final ruleList = splitSourceRule(rule);
     SourceRule js;
     if (ruleList.last.mode == Mode.JS) {
       js = ruleList.removeLast();
     }
-    for (var r in ruleList) {
-      switch (r.mode) {
-        case Mode.String:
-          result.write(r.rule);
-          break;
-        case Mode.CSS:
-          result.write(AnalyzerByHtml(_content).getString(r.rule));
-          break;
-        case Mode.Json:
-          result.write(AnalyzeByJSonPath(_content).getString(r.rule));
-          break;
-        default:
+    // Todo: 实现 ## 替换规则
+    if (_isJoinRule) {
+      final re = <List<dynamic>>[];
+      int count = -1;
+      for (var r in ruleList) {
+        List<String> temp;
+        switch (r.mode) {
+          case Mode.String:
+            temp = <String>[r.rule];
+            break;
+          case Mode.CSS:
+            temp = AnalyzerByHtml(_content).getStringList(r.rule);
+            break;
+          case Mode.Json:
+            temp = AnalyzeByJSonPath(_content).getStringList(r.rule);
+            break;
+          default:
+            temp = <String>[];
+        }
+        if (count == -1) {
+          count = temp.length;
+        } else if (temp.length < count) {
+          count = temp.length;
+        }
+        re.add(temp);
+      }
+      for (var i = 0; i < count; i++) {
+        String s = "";
+        for (var r in re) {
+          if (r.length == 1) {
+            s += r[0];
+          } else if (r.length > 1) {
+            s += r[i];
+          }
+        }
+        result.add(s);
+      }
+    } else {
+      result = _content;
+      for (var r in ruleList) {
+        switch (r.mode) {
+          case Mode.CSS:
+            result = AnalyzerByHtml(result).getStringList(r.rule);
+            break;
+          case Mode.Json:
+            result = AnalyzeByJSonPath(result).getStringList(r.rule);
+            break;
+          default:
+        }
       }
     }
+
     if (null != js) {
-      initJsEngine(result.isEmpty ? _content : result.toString());
+      await initJsEngine(result);
+      final temp = await FlutterJs.getStringList(js.rule, _idJsEngine);
+      closeJsEngine();
+      return temp;
+    }
+    return result;
+  }
+
+  Future<String> getString(String rule) async {
+    var result = "";
+    if (null == rule || rule.isEmpty) return result;
+    final ruleList = splitSourceRule(rule);
+    SourceRule js;
+    if (ruleList.last.mode == Mode.JS) {
+      js = ruleList.removeLast();
+    }
+
+    if (_isJoinRule) {
+      result = ruleList.map((r) {
+        var temp = "";
+        switch (r.mode) {
+          case Mode.String:
+            temp = r.rule;
+            break;
+          case Mode.CSS:
+            temp = AnalyzerByHtml(_content).getString(r.rule);
+            break;
+          case Mode.Json:
+            temp = AnalyzeByJSonPath(_content).getString(r.rule);
+            break;
+          default:
+        }
+        if (r.replaceFirst) {
+          return temp.replaceFirst(RegExp(r.replaceRegex), r.replacement);
+        } else {
+          return temp.replaceAll(RegExp(r.replaceRegex), r.replacement);
+        }
+      }).join("");
+    } else {
+      result = _content;
+      for (var r in ruleList) {
+        switch (r.mode) {
+          case Mode.CSS:
+            result = AnalyzerByHtml(result).getString(r.rule);
+            break;
+          case Mode.Json:
+            result = AnalyzeByJSonPath(result).getString(r.rule);
+            break;
+          default:
+        }
+
+        if (r.replaceFirst) {
+          result = result.replaceFirst(RegExp(r.replaceRegex), r.replacement);
+        } else {
+          result = result.replaceAll(RegExp(r.replaceRegex), r.replacement);
+        }
+      }
+    }
+
+    if (null != js) {
+      await initJsEngine(result);
       final temp = await FlutterJs.getString(js.rule, _idJsEngine);
       closeJsEngine();
       return temp;
@@ -100,22 +181,18 @@ class AnalyzeRule {
   }
 
   Future<bool> initJsEngine(dynamic result) async {
-    if(_idJsEngine == null){
+    if (_idJsEngine == null) {
       _idJsEngine = await FlutterJs.initEngine();
-      final json = {
+      await FlutterJs.initJson({
         "result": result,
         "baseUrl": _baseUrl,
-      };
-      FlutterJs.evaluate("""
-var json = ${jsonEncode(json)};
-var result = json.result;
-var baseUrl = json.baseUrl;""", _idJsEngine);
+      }, _idJsEngine);
     }
     return true;
   }
-  
-  void closeJsEngine(){
-    if(_idJsEngine == null){
+
+  void closeJsEngine() {
+    if (_idJsEngine == null) {
       FlutterJs.close(_idJsEngine);
     }
     _idJsEngine = null;
@@ -124,7 +201,7 @@ var baseUrl = json.baseUrl;""", _idJsEngine);
   List<SourceRule> splitSourceRule(String rule) {
     final ruleList = <SourceRule>[];
     // 规则示例
-    '''https:{{@css:img@data-original##webp!0##webp!1##}}@js:baseUrl+"?source="+encodeURI(result)''';
+    // '''https:{{@css:img@data-original##webp!0##webp!1##}}@js:baseUrl+"?source="+encodeURI(result)''';
     // 提取 js 规则, 只支持尾部出现一次
     var js = "";
     if (rule.contains("@js:")) {
@@ -132,11 +209,11 @@ var baseUrl = json.baseUrl;""", _idJsEngine);
       rule = rules[0].trim();
       js = rules[1].trim();
     }
-
-    if (rule.contains("{{") && rule.contains("}}")) {
+    _isJoinRule = rule.contains("{{") && rule.contains("}}");
+    if (_isJoinRule) {
       // 提取 {{}} 规则, 可能有多个, 内部可以包含##规则
       rule.splitMapJoin(
-        RegExp(r"\{\{(.+?)\}\}"),
+        RegExp(_regexSplitJoin),
         onMatch: (match) {
           ruleList.add(SourceRule.gen(match.group(1)));
           return "";
@@ -151,7 +228,9 @@ var baseUrl = json.baseUrl;""", _idJsEngine);
       );
     } else if (rule.isNotEmpty) {
       // 不存在 {{}} , 只需要考虑替换规则
-      ruleList.add(SourceRule.gen(rule));
+      for (var r in rule.split(RegExp(_regexSplitRule))) {
+        ruleList.add(SourceRule.gen(r));
+      }
     }
     // 最后处理 js 规则
     if (js.isNotEmpty) {
@@ -193,7 +272,7 @@ class SourceRule {
       replaceFirst = true;
     }
     rule = rules[0];
-    // 确定 rule 和 mode
+    // 确定 rule 和 mode, 暂不考虑xpath
     var mode = Mode.CSS;
     if (rule.substring(0, 5).toLowerCase() == "@css:") {
       rule = rule.substring(5);
@@ -216,8 +295,8 @@ enum Mode {
   JS,
   CSS,
   Json,
+  Regex,
   String,
   // XPath,
   // Default,
-  // Regex,
 }
