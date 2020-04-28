@@ -46,45 +46,47 @@ class _UISystemInfoState extends State<UISystemInfo> {
             bottom: 6,
             right: 16,
           ),
-          child: Flexible(
-            child: Material(
-              color: Colors.black.withOpacity(0.5),
-              borderRadius: BorderRadius.horizontal(
-                left: Radius.circular(10),
-                right: Radius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 2,
-                  horizontal: 10,
+          child: Wrap(
+            children: [
+              Material(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(10),
+                  right: Radius.circular(10),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        '${widget.mangaInfo}',
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 2,
+                    horizontal: 10,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${widget.mangaInfo}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            textBaseline: TextBaseline.alphabetic,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        ' | ${widget.mangaCount}P ${provider.now} ${provider.level}',
                         style: TextStyle(
                           color: Colors.white,
                           textBaseline: TextBaseline.alphabetic,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      ' | ${widget.mangaCount}P ${provider.now} ${provider.level}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        textBaseline: TextBaseline.alphabetic,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    BatteryView(electricQuantity: provider.level / 100),
-                  ],
+                      SizedBox(width: 4),
+                      BatteryView(electricQuantity: provider.level / 100),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         );
       }),
