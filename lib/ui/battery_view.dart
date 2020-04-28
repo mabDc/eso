@@ -5,9 +5,12 @@ class BatteryView extends StatefulWidget {
   final double width;
   final double height;
 
-  BatteryView(
-      {Key key, this.electricQuantity, this.width = 18, this.height = 8})
-      : super(key: key);
+  BatteryView({
+    Key key,
+    this.electricQuantity,
+    this.width = 18,
+    this.height = 10,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -79,7 +82,7 @@ class BatteryViewPainter extends CustomPainter {
     mPaint.style = PaintingStyle.fill;
 
     //判断电池电量颜色
-    if(electricQuantity<0.2){
+    if (electricQuantity < 0.2) {
       mPaint.color = Colors.red;
     }
 

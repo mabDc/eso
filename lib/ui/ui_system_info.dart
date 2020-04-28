@@ -41,18 +41,13 @@ class _UISystemInfoState extends State<UISystemInfo> {
       child: Consumer<SystemInfoProvider>(
           builder: (BuildContext context, SystemInfoProvider provider, _) {
         __provider = provider;
-        return Container(
-          padding: const EdgeInsets.only(
-            bottom: 6,
-            right: 16,
-          ),
+        return SafeArea(
           child: Wrap(
             children: [
               Material(
                 color: Colors.black.withOpacity(0.5),
                 borderRadius: BorderRadius.horizontal(
                   left: Radius.circular(10),
-                  right: Radius.circular(10),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
