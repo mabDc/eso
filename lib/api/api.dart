@@ -3,6 +3,14 @@ import 'package:equatable/equatable.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 
+enum ContentType {
+  MANGA,
+  NOVEL,
+  VIDEO,
+  AUDIO,
+  RSS,
+}
+
 abstract class API {
   static const MANGA = 0;
   static const NOVEL = 1;
@@ -10,17 +18,17 @@ abstract class API {
   static const AUDIO = 3;
   static const RSS = 4;
 
-  static String getRuleContentTypeName(int ruleContentType) {
+  static String getRuleContentTypeName(ContentType ruleContentType) {
     switch (ruleContentType) {
-      case MANGA:
+      case ContentType.MANGA:
         return "漫画";
-      case NOVEL:
+      case ContentType.NOVEL:
         return "小说";
-      case VIDEO:
+      case ContentType.VIDEO:
         return "视频";
-      case AUDIO:
+      case ContentType.AUDIO:
         return "音频";
-      case RSS:
+      case ContentType.RSS:
         return "RSS";
       default:
         return "漫画";

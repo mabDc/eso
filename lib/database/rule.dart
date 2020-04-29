@@ -1,25 +1,56 @@
 import 'package:eso/api/api.dart';
+import 'package:uuid/uuid.dart';
 
 class Rule {
-  int id = DateTime.now().microsecondsSinceEpoch;
-
+  String id = Uuid().v4();
+  int createTime = DateTime.now().microsecondsSinceEpoch;
+  int modifiedTime = DateTime.now().microsecondsSinceEpoch;
   bool enable = true;
   String name = '';
   String host = '';
-  int contentType = API.MANGA;
+  ContentType contentType = ContentType.MANGA;
   bool useCheerio = false;
   bool useCryptoJS = false;
   bool useMultiRoads = false;
+
+  // 发现规则
   String discoverUrl = '';
   String discoverItems = '';
+
+  String discoverList = '';
+  String discoverTags = '';
+  String discoverName = '';
+  String discoverCover = '';
+  String discoverAuthor = '';
+  String discoverChapter = '';
+  String discoverDescription = '';
+  String discoverResult = '';
+
   String searchUrl = '';
   String searchItems = '';
+
+  // 搜索规则
+  String searchList = '';
+  String searchTags = '';
+  String searchName = '';
+  String searchCover = '';
+  String searchAuthor = '';
+  String searchChapter = '';
+  String searchDescription = '';
+  String searchResult = '';
+
   String detailUrl = '';
   String detailItems = '';
   String chapterUrl = '';
   String chapterItems = '';
   String contentUrl = '';
   String contentItems = '';
+
+  String road; //List<dynamic>
+  String roadName;
+  String roadElement; // chapterList
+  String chapterName;
+  String chapterResult;
 
   Rule(
     this.id,
@@ -43,24 +74,55 @@ class Rule {
   );
 
   Rule.newRule() {
-    id = DateTime.now().microsecondsSinceEpoch;
+    id = Uuid().v4();
+    createTime = DateTime.now().microsecondsSinceEpoch;
+    modifiedTime = DateTime.now().microsecondsSinceEpoch;
     enable = true;
     name = '';
     host = '';
-    contentType = API.MANGA;
+    contentType = ContentType.MANGA;
     useCheerio = false;
     useCryptoJS = false;
     useMultiRoads = false;
+
+    // 发现规则
     discoverUrl = '';
     discoverItems = '';
+
+    discoverList = '';
+    discoverTags = '';
+    discoverName = '';
+    discoverCover = '';
+    discoverAuthor = '';
+    discoverChapter = '';
+    discoverDescription = '';
+    discoverResult = '';
+
     searchUrl = '';
     searchItems = '';
+
+    // 搜索规则
+    searchList = '';
+    searchTags = '';
+    searchName = '';
+    searchCover = '';
+    searchAuthor = '';
+    searchChapter = '';
+    searchDescription = '';
+    searchResult = '';
+
     detailUrl = '';
     detailItems = '';
     chapterUrl = '';
     chapterItems = '';
     contentUrl = '';
     contentItems = '';
+
+    road = ''; //List<dynamic>
+    roadName = '';
+    roadElement = ''; // chapterList
+    chapterName = '';
+    chapterResult = '';
   }
 
   Rule.fromJson(Map<dynamic, dynamic> json) {

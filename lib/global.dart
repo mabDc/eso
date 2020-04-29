@@ -13,6 +13,7 @@ class Global with ChangeNotifier {
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
+  static const testRuleKey = "testRule";
 
   static SharedPreferences _prefs;
 

@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../api/api_manager.dart';
@@ -19,8 +20,27 @@ class DiscoverPage extends StatelessWidget {
             separatorBuilder: (context, index) {
               return Container(height: 4);
             },
-            itemCount: allAPI.length,
+            itemCount: allAPI.length + 1,
             itemBuilder: (context, index) {
+              if (index == 0) {
+                return Card(
+                  child: ListTile(
+                    title: Text("test_rule"),
+                    trailing: Switch(
+                      activeColor: Theme.of(context).primaryColor,
+                      value: true,
+                      onChanged: (enable) {},
+                    ),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => DiscoverSearchPage(
+                              originTag: "test_rule",
+                              origin: "test_rule",
+                              discoverMap: <DiscoverMap>[],
+                            ))),
+                  ),
+                );
+              }
+              index = index - 1;
               return Card(
                 child: ListTile(
                   title: Text(allAPI[index].origin),
@@ -31,10 +51,10 @@ class DiscoverPage extends StatelessWidget {
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => DiscoverSearchPage(
-                        originTag: allAPI[index].originTag,
-                        origin: allAPI[index].origin,
-                        discoverMap: allAPI[index].discoverMap(),
-                      ))),
+                            originTag: allAPI[index]?.originTag,
+                            origin: allAPI[index].origin,
+                            discoverMap: allAPI[index].discoverMap(),
+                          ))),
                 ),
               );
             },

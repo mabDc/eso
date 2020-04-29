@@ -2,6 +2,9 @@ import 'package:eso/api/bupt_ivi.dart';
 import 'package:eso/api/huya.dart';
 import 'package:eso/api/onemanhua.dart';
 import 'package:eso/api/qula.dart';
+import 'package:eso/database/rule.dart';
+import 'package:eso/model/analyze_rule/analyze_rule.dart';
+import 'package:eso/model/analyze_rule/analyze_url.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
@@ -78,25 +81,85 @@ class APIManager {
         return api;
       }
     }
-    throw ('can not get api when chooseAPI');
+    return null;
   }
 
   static Future<List<SearchItem>> discover(
       String originTag, Map<String, DiscoverPair> params,
-      [int page = 1, int pageSize = 20]) {
-    return chooseAPI(originTag).discover(params, page, pageSize);
+      [int page = 1, int pageSize = 20, Rule rule]) async {
+    if (originTag != null) {
+      final api = chooseAPI(originTag);
+      if (api != null) return api.discover(params, page, pageSize);
+    }
+    // if (rule == null) throw ('rule cannot be null');
+    final rule = Rule.newRule();
+    final res = await AnalyzeUrl.urlRuleParser(
+      rule.discoverUrl,
+      host: rule.host,
+      page: page,
+      pageSize: pageSize,
+    );
+    final list = await AnalyzeRule(res.body, res.request.url.toString())
+        .getElements(rule.discoverList);
+    final result = <SearchItem>[];
+    for (var item in list) {
+      final analyzer = AnalyzeRule(item, res.request.url.toString());
+      result.add(SearchItem(
+        cover: await analyzer.getString(rule.discoverCover),
+        name: await analyzer.getString(rule.discoverName),
+        author: await analyzer.getString(rule.discoverAuthor),
+        chapter: await analyzer.getString(rule.discoverChapter),
+        description: await analyzer.getString(rule.discoverDescription),
+        url: await analyzer.getString(rule.discoverResult),
+        api: null,
+        tags: await analyzer.getStringList(rule.discoverTags),
+      ));
+    }
+    return result;
   }
 
   static Future<List<SearchItem>> search(String originTag, String query,
-      [int page = 1, int pageSize = 20]) {
-    return chooseAPI(originTag).search('$query'.trim(), page, pageSize);
+      [int page = 1, int pageSize = 20, Rule rule]) async {
+    final api = chooseAPI(originTag);
+    if (api != null) return api.search('$query'.trim(), page, pageSize);
+    // if (rule == null) throw ('rule cannot be null');
+    final rule = Rule.newRule();
+    final res = await AnalyzeUrl.urlRuleParser(
+      rule.searchUrl,
+      host: rule.host,
+      page: page,
+      pageSize: pageSize,
+    );
+    final list = await AnalyzeRule(res.body, res.request.url.toString())
+        .getElements(rule.discoverList);
+    final result = <SearchItem>[];
+    for (var item in list) {
+      final analyzer = AnalyzeRule(item, res.request.url.toString());
+      result.add(SearchItem(
+        cover: await analyzer.getString(rule.searchCover),
+        name: await analyzer.getString(rule.searchName),
+        author: await analyzer.getString(rule.searchAuthor),
+        chapter: await analyzer.getString(rule.searchChapter),
+        description: await analyzer.getString(rule.searchDescription),
+        url: await analyzer.getString(rule.searchResult),
+        api: null,
+        tags: await analyzer.getStringList(rule.searchTags),
+      ));
+    }
+    return result;
   }
 
-  static Future<List<ChapterItem>> getChapter(String originTag, String url) {
-    return chooseAPI(originTag).chapter(url);
+  static Future<List<ChapterItem>> getChapter(String originTag, String url,
+      [Rule rule]) async {
+    final api = chooseAPI(originTag);
+    if (api != null) return api.chapter(url);
+    if (rule == null) throw ('rule cannot be null');
   }
 
-  static Future<List<String>> getContent(String originTag, String url) {
-    return chooseAPI(originTag).content(url);
+  static Future<List<String>> getContent(String originTag, String url,
+      [Rule rule]) {
+    final api = chooseAPI(originTag);
+    if (api != null) return api.content(url);
+    if (rule == null) throw ('rule cannot be null');
   }
 }

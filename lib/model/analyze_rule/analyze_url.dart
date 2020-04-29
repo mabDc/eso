@@ -9,12 +9,14 @@ class AnalyzeUrl {
     String host = "",
     String key = "",
     int page = 0,
+    int pageSize = 20,
   }) async {
     rule = rule.trim();
     Map<String, dynamic> json = {
       "host": host,
       "key": key,
       "page": page,
+      "pageSize": pageSize,
     };
     if (rule.startsWith("@js:")) {
       // js规则
@@ -22,19 +24,27 @@ class AnalyzeUrl {
       await FlutterJs.initJson(json, _idJsEngine);
       final result = FlutterJs.evaluate(rule, _idJsEngine);
       FlutterJs.close(_idJsEngine);
-      return _parser(result);
+      return _parser(host, result);
     } else {
       // 非js规则, 考虑字符串替换
-      return _parser(rule.replaceAllMapped(RegExp(r"\$host|\$key|\$page"), (m) {
-        return '${json[m.group(0)]}';
-      }));
+      return _parser(
+          host,
+          rule.replaceAllMapped(
+            RegExp(r"\$host|\$key|\$page|\$pageSize"),
+            (m) {
+              return '${json[m.group(0)]}';
+            },
+          ));
     }
   }
 
-  static Future<http.Response> _parser(dynamic rule) async {
-    rule = rule.trim();
-    if (rule is String && rule.startsWith("{")) {
-      rule = jsonDecode(rule);
+  static Future<http.Response> _parser(String host, dynamic rule) async {
+    if (rule is String) {
+      rule = rule.trim();
+      if (rule.isEmpty) return http.get('$host');
+      if (rule.startsWith("{")) {
+        rule = jsonDecode(rule);
+      }
     }
     if (rule is Map) {
       Map<String, dynamic> r =
