@@ -41,6 +41,7 @@ dependencies:
   jsonpath: 
     path: modules/jsonpath
     # https://github.com/qhzhyt/dart-json-path.git
+  uuid: ^2.0.4
 
 
 dev_dependencies:
