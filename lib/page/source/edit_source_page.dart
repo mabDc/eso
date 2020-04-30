@@ -25,13 +25,14 @@ class EditSourcePage extends StatelessWidget {
               ),
             );
           }
+          final rules = snapshot.data;
           return ListView.separated(
             separatorBuilder: (context, index) => Container(),
-            itemCount: 100,
+            itemCount: rules.length,
             padding: EdgeInsets.all(10),
             physics: BouncingScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              return _buildItem(context);
+              return _buildItem(context, rules[index]);
             },
           );
         },
@@ -39,7 +40,7 @@ class EditSourcePage extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(BuildContext context) {
+  Widget _buildItem(BuildContext context, Rule rule) {
     return Card(
       elevation: 0,
       color: Colors.amberAccent,
@@ -48,13 +49,13 @@ class EditSourcePage extends StatelessWidget {
         value: true,
         activeColor: Theme.of(context).primaryColor,
         title: Text(
-          '源名称',
+          '${rule.name}',
           textAlign: TextAlign.start,
           style: TextStyle(
               color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
         ),
         subtitle: Text(
-          '作者 - 网址\n源创建时间 - 源更新时间',
+          '${rule.author} - ${rule.host}\n${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)} - ${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}',
           textAlign: TextAlign.start,
           style: TextStyle(
               color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
