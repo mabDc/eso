@@ -14,30 +14,23 @@ class _ZoomViewState extends State<ZoomView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (ctx, constraints) {
-          return MatrixGestureDetector(
-            onMatrixUpdate: (m, tm, sm, rm) {
-              setState(() {
-                if (matrix[0] <= 1) {
-                  tm = Matrix4.identity();
-                }
-                matrix = MatrixGestureDetector.compose(matrix, tm, sm, null);
-                //缩放小于1则修正为1
-                if (matrix[0] - sm[0] < 0) {
-                  matrix = Matrix4.diagonal3Values(1, 1, 1);
-                }
-
-                //缩放为1禁止平移
-              });
-            },
-            child: Transform(
-              transform: matrix,
-              child: widget.child,
-            ),
-          );
-        },
+    return MatrixGestureDetector(
+      onMatrixUpdate: (m, tm, sm, rm) {
+        setState(() {
+          //缩放为1禁止平移
+          if (matrix[0] <= 1) {
+            tm = Matrix4.identity();
+          }
+          matrix = MatrixGestureDetector.compose(matrix, tm, sm, null);
+          //缩放小于1则修正为1
+          if (matrix[0] - sm[0] < 0) {
+            matrix = Matrix4.diagonal3Values(1, 1, 1);
+          }
+        });
+      },
+      child: Transform(
+        transform: matrix,
+        child: widget.child,
       ),
     );
   }
