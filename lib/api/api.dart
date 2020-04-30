@@ -10,6 +10,22 @@ enum ContentType {
   AUDIO,
   RSS,
 }
+// static String getRuleContentTypeName(ContentType ruleContentType) {
+//   switch (ruleContentType) {
+//     case ContentType.MANGA:
+//       return "漫画";
+//     case ContentType.NOVEL:
+//       return "小说";
+//     case ContentType.VIDEO:
+//       return "视频";
+//     case ContentType.AUDIO:
+//       return "音频";
+//     case ContentType.RSS:
+//       return "RSS";
+//     default:
+//       return "漫画";
+//   }
+// }
 
 abstract class API {
   static const MANGA = 0;
@@ -18,17 +34,17 @@ abstract class API {
   static const AUDIO = 3;
   static const RSS = 4;
 
-  static String getRuleContentTypeName(ContentType ruleContentType) {
+  static String getRuleContentTypeName(int ruleContentType) {
     switch (ruleContentType) {
-      case ContentType.MANGA:
+      case MANGA:
         return "漫画";
-      case ContentType.NOVEL:
+      case NOVEL:
         return "小说";
-      case ContentType.VIDEO:
+      case VIDEO:
         return "视频";
-      case ContentType.AUDIO:
+      case AUDIO:
         return "音频";
-      case ContentType.RSS:
+      case RSS:
         return "RSS";
       default:
         return "漫画";

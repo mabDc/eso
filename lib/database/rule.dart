@@ -6,12 +6,13 @@ class Rule {
   String id = Uuid().v4();
   int createTime = DateTime.now().microsecondsSinceEpoch;
   int modifiedTime = DateTime.now().microsecondsSinceEpoch;
+  String author = '';
   String name = '';
   String host = '';
-  ContentType contentType = ContentType.MANGA;
+  int contentType = API.MANGA;
+
   // bool useCheerio = false;
   bool useCryptoJS = false;
-  bool useMultiRoads = false;
   String loadJs = '';
   String userAgent = '';
 
@@ -44,6 +45,7 @@ class Rule {
   String searchResult = '';
 
   // 章节规则
+  bool enableMultiRoads = false;
   String chapterRoads = '';
   String chapterRoadName = '';
   String chapterUrl = '';
@@ -63,12 +65,12 @@ class Rule {
     id = Uuid().v4();
     createTime = DateTime.now().microsecondsSinceEpoch;
     modifiedTime = DateTime.now().microsecondsSinceEpoch;
+    author = '';
     name = '';
     host = '';
-    contentType = ContentType.MANGA;
+    contentType = API.MANGA;
     // bool useCheerio = false;
     useCryptoJS = false;
-    useMultiRoads = false;
     loadJs = '';
     userAgent = '';
 
@@ -101,6 +103,7 @@ class Rule {
     searchResult = '';
 
     // 章节规则
+    enableMultiRoads = false;
     chapterRoads = '';
     chapterRoadName = '';
     chapterUrl = '';
@@ -117,18 +120,149 @@ class Rule {
     contentItems = '';
   }
 
-  // Todo: 自动生成Rule构造方法
   Rule(
-      //,
-      );
+    this.id,
+    this.createTime,
+    this.modifiedTime,
+    this.author,
+    this.name,
+    this.host,
+    this.contentType,
+    this.useCryptoJS,
+    this.loadJs,
+    this.userAgent,
+    this.enableDiscover,
+    this.discoverUrl,
+    this.discoverItems,
+    this.discoverList,
+    this.discoverTags,
+    this.discoverName,
+    this.discoverCover,
+    this.discoverAuthor,
+    this.discoverChapter,
+    this.discoverDescription,
+    this.discoverResult,
+    this.enableSearch,
+    this.searchUrl,
+    this.searchItems,
+    this.searchList,
+    this.searchTags,
+    this.searchName,
+    this.searchCover,
+    this.searchAuthor,
+    this.searchChapter,
+    this.searchDescription,
+    this.searchResult,
+    this.enableMultiRoads,
+    this.chapterRoads,
+    this.chapterRoadName,
+    this.chapterUrl,
+    this.chapterItems,
+    this.chapterName,
+    this.chapterCover,
+    this.chapterLock,
+    this.chapterTime,
+    this.chapterResult,
+    this.contentUrl,
+    this.contentItems,
+  );
 
   // Todo: 补全fromJson
   Rule.fromJson(Map<dynamic, dynamic> json) {
     final defaultRule = Rule.newRule();
     id = json['id'] ?? defaultRule.id;
+    createTime = json['createTime'] ?? defaultRule.createTime;
+    modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
+    author = json['author'] ?? defaultRule.author;
+    name = json['name'] ?? defaultRule.name;
+    host = json['host'] ?? defaultRule.host;
+    contentType = json['contentType'] ?? defaultRule.contentType;
+    useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
+    loadJs = json['loadJs'] ?? defaultRule.loadJs;
+    userAgent = json['userAgent'] ?? defaultRule.userAgent;
+    enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
+    discoverUrl = json['discoverUrl'] ?? defaultRule.discoverUrl;
+    discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
+    discoverList = json['discoverList'] ?? defaultRule.discoverList;
+    discoverTags = json['discoverTags'] ?? defaultRule.discoverTags;
+    discoverName = json['discoverName'] ?? defaultRule.discoverName;
+    discoverCover = json['discoverCover'] ?? defaultRule.discoverCover;
+    discoverAuthor = json['discoverAuthor'] ?? defaultRule.discoverAuthor;
+    discoverChapter = json['discoverChapter'] ?? defaultRule.discoverChapter;
+    discoverDescription =
+        json['discoverDescription'] ?? defaultRule.discoverDescription;
+    discoverResult = json['discoverResult'] ?? defaultRule.discoverResult;
+    enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
+    searchUrl = json['searchUrl'] ?? defaultRule.searchUrl;
+    searchItems = json['searchItems'] ?? defaultRule.searchItems;
+    searchList = json['searchList'] ?? defaultRule.searchList;
+    searchTags = json['searchTags'] ?? defaultRule.searchTags;
+    searchName = json['searchName'] ?? defaultRule.searchName;
+    searchCover = json['searchCover'] ?? defaultRule.searchCover;
+    searchAuthor = json['searchAuthor'] ?? defaultRule.searchAuthor;
+    searchChapter = json['searchChapter'] ?? defaultRule.searchChapter;
+    searchDescription =
+        json['searchDescription'] ?? defaultRule.searchDescription;
+    searchResult = json['searchResult'] ?? defaultRule.searchResult;
+    enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
+    chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
+    chapterRoadName = json['chapterRoadName'] ?? defaultRule.chapterRoadName;
+    chapterUrl = json['chapterUrl'] ?? defaultRule.chapterUrl;
+    chapterItems = json['chapterItems'] ?? defaultRule.chapterItems;
+    chapterName = json['chapterName'] ?? defaultRule.chapterName;
+    chapterCover = json['chapterCover'] ?? defaultRule.chapterCover;
+    chapterLock = json['chapterLock'] ?? defaultRule.chapterLock;
+    chapterTime = json['chapterTime'] ?? defaultRule.chapterTime;
+    chapterResult = json['chapterResult'] ?? defaultRule.chapterResult;
+    contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
+    contentItems = json['contentItems'] ?? defaultRule.contentItems;
   }
+
   // Todo: 补全toJson
   Map<dynamic, dynamic> toJson() => {
         'id': id,
+        'createTime': createTime,
+        'modifiedTime': modifiedTime,
+        'author': author,
+        'name': name,
+        'host': host,
+        'contentType': contentType,
+        'useCryptoJS': useCryptoJS,
+        'loadJs': loadJs,
+        'userAgent': userAgent,
+        'enableDiscover': enableDiscover,
+        'discoverUrl': discoverUrl,
+        'discoverItems': discoverItems,
+        'discoverList': discoverList,
+        'discoverTags': discoverTags,
+        'discoverName': discoverName,
+        'discoverCover': discoverCover,
+        'discoverAuthor': discoverAuthor,
+        'discoverChapter': discoverChapter,
+        'discoverDescription': discoverDescription,
+        'discoverResult': discoverResult,
+        'enableSearch': enableSearch,
+        'searchUrl': searchUrl,
+        'searchItems': searchItems,
+        'searchList': searchList,
+        'searchTags': searchTags,
+        'searchName': searchName,
+        'searchCover': searchCover,
+        'searchAuthor': searchAuthor,
+        'searchChapter': searchChapter,
+        'searchDescription': searchDescription,
+        'searchResult': searchResult,
+        'enableMultiRoads': enableMultiRoads,
+        'chapterRoads': chapterRoads,
+        'chapterRoadName': chapterRoadName,
+        'chapterUrl': chapterUrl,
+        'chapterItems': chapterItems,
+        'chapterName': chapterName,
+        'chapterCover': chapterCover,
+        'chapterLock': chapterLock,
+        'chapterTime': chapterTime,
+        'chapterResult': chapterResult,
+        'contentUrl': contentUrl,
+        'contentItems': contentItems,
       };
 }
