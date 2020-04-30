@@ -1,6 +1,8 @@
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'database/database.dart';
+import 'database/rule_dao.dart';
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
@@ -16,13 +18,18 @@ class Global with ChangeNotifier {
   static const testRuleKey = "testRule";
 
   static SharedPreferences _prefs;
-
   static SharedPreferences get prefs => _prefs;
   static int currentHomePage;
+
+  static RuleDao _ruleDao;
+  static RuleDao get ruleDao => _ruleDao;
 
   static Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
+    final _database =
+        await $FloorAppDatabase.databaseBuilder('eso_database.db').build();
+    _ruleDao = _database.ruleDao;
     await Future.delayed(Duration(seconds: 1));
     return true;
   }

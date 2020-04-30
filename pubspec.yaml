@@ -44,11 +44,14 @@ dependencies:
     path: modules/jsonpath
     # https://github.com/qhzhyt/dart-json-path.git
   uuid: ^2.0.4
+  floor: ^0.12.0
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  floor_generator: ^0.12.0
+  build_runner: ^1.7.3
 
 flutter:
   uses-material-design: true

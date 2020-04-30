@@ -1,8 +1,11 @@
 import 'package:eso/api/api.dart';
 import 'package:uuid/uuid.dart';
+import 'package:floor/floor.dart';
 
+@entity
 class Rule {
   // 基本信息
+  @primaryKey
   String id = Uuid().v4();
   int createTime = DateTime.now().microsecondsSinceEpoch;
   int modifiedTime = DateTime.now().microsecondsSinceEpoch;
@@ -168,7 +171,7 @@ class Rule {
   );
 
   // Todo: 补全fromJson
-  Rule.fromJson(Map<dynamic, dynamic> json) {
+  Rule.fromJson(Map<String, dynamic> json) {
     final defaultRule = Rule.newRule();
     id = json['id'] ?? defaultRule.id;
     createTime = json['createTime'] ?? defaultRule.createTime;
@@ -219,7 +222,7 @@ class Rule {
   }
 
   // Todo: 补全toJson
-  Map<dynamic, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         'id': id,
         'createTime': createTime,
         'modifiedTime': modifiedTime,
