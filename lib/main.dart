@@ -4,7 +4,7 @@ import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter/rendering.dart';
 import 'global.dart';
 import 'model/profile.dart';
 import 'model/history_manager.dart';
@@ -21,7 +21,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // debugPaintSizeEnabled= true;
+    debugPaintSizeEnabled = false;
     return FutureBuilder<bool>(
       future: Global.init(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {

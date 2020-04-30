@@ -2,6 +2,7 @@ import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
+import 'package:eso/ui/zoom_view.dart';
 import 'package:eso/ui/ui_manga_menu.dart';
 import 'package:eso/ui/ui_system_info.dart';
 import 'package:flutter/material.dart';
@@ -107,29 +108,31 @@ class _MangaPageState extends State<MangaPage> {
   }
 
   Widget _buildMangaContent(MangaPageProvider provider) {
-    return ListView.builder(
-      padding: EdgeInsets.all(0),
-      controller: provider.controller,
-      itemCount: provider.content.length + 1,
-      itemBuilder: (context, index) {
-        if (index == provider.content.length) {
-          return UIChapterSeparate(
-            chapterName: provider.searchItem.durChapter,
-            isLastChapter: (provider.searchItem.chaptersCount - 1) ==
-                provider.searchItem.durChapterIndex,
-            isLoading: provider.isLoading,
+    return ZoomView(
+      child: ListView.builder(
+        padding: EdgeInsets.all(0),
+        controller: provider.controller,
+        itemCount: provider.content.length + 1,
+        itemBuilder: (context, index) {
+          if (index == provider.content.length) {
+            return UIChapterSeparate(
+              chapterName: provider.searchItem.durChapter,
+              isLastChapter: (provider.searchItem.chaptersCount - 1) ==
+                  provider.searchItem.durChapterIndex,
+              isLoading: provider.isLoading,
+            );
+          }
+          final path = '${provider.content[index]}';
+          return FadeInImage(
+            placeholder: AssetImage(Global.waitingPath),
+            image: NetworkImage(
+              path,
+              headers: provider.headers,
+            ),
+            fit: BoxFit.fitWidth,
           );
-        }
-        final path = '${provider.content[index]}';
-        return FadeInImage(
-          placeholder: AssetImage(Global.waitingPath),
-          image: NetworkImage(
-            path,
-            headers: provider.headers,
-          ),
-          fit: BoxFit.fitWidth,
-        );
-      },
+        },
+      ),
     );
   }
 }
