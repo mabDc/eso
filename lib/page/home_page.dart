@@ -1,3 +1,4 @@
+import 'package:eso/page/source/edit_source_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,6 +29,8 @@ class HomePage extends StatelessWidget {
                 BottomNavigationBarItem(
                     icon: Icon(Icons.satellite), title: Text('发现')),
                 BottomNavigationBarItem(
+                    icon: Icon(Icons.edit), title: Text('图源')),
+                BottomNavigationBarItem(
                     icon: Icon(Icons.info_outline), title: Text('关于')),
               ],
               activeColor: Color(Global.colors[Profile().colorName]),
@@ -38,6 +41,7 @@ class HomePage extends StatelessWidget {
               return [
                 FavoritePage(),
                 DiscoverPage(),
+                EditSourcePage(),
                 AboutPage(),
               ][index];
             },
