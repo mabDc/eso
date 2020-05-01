@@ -255,7 +255,7 @@ class _$RuleDao extends RuleDao {
   final DeletionAdapter<Rule> _ruleDeletionAdapter;
 
   @override
-  Future<Rule> findRuleById(int id) async {
+  Future<Rule> findRuleById(String id) async {
     return _queryAdapter.query('SELECT * FROM rule WHERE id = ?',
         arguments: <dynamic>[id], mapper: _ruleMapper);
   }
@@ -266,23 +266,24 @@ class _$RuleDao extends RuleDao {
   }
 
   @override
-  Future<void> insertOrUpdateRule(Rule rule) async {
-    await _ruleInsertionAdapter.insert(rule, sqflite.ConflictAlgorithm.replace);
+  Future<int> insertOrUpdateRule(Rule rule) {
+    return _ruleInsertionAdapter.insertAndReturnId(
+        rule, sqflite.ConflictAlgorithm.replace);
   }
 
   @override
-  Future<void> insertOrUpdateRules(List<Rule> rules) async {
-    await _ruleInsertionAdapter.insertList(
+  Future<List<int>> insertOrUpdateRules(List<Rule> rules) {
+    return _ruleInsertionAdapter.insertListAndReturnIds(
         rules, sqflite.ConflictAlgorithm.replace);
   }
 
   @override
-  Future<void> deleteRule(Rule rule) async {
-    await _ruleDeletionAdapter.delete(rule);
+  Future<int> deleteRule(Rule rule) {
+    return _ruleDeletionAdapter.deleteAndReturnChangedRows(rule);
   }
 
   @override
-  Future<void> deleteRules(List<Rule> rules) async {
-    await _ruleDeletionAdapter.deleteList(rules);
+  Future<int> deleteRules(List<Rule> rules) {
+    return _ruleDeletionAdapter.deleteListAndReturnChangedRows(rules);
   }
 }

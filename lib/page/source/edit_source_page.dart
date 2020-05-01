@@ -4,6 +4,7 @@ import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/utils/adapt_util.dart';
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
+import 'package:intl/intl.dart' as intl;
 
 //图源编辑
 class EditSourcePage extends StatelessWidget {
@@ -131,13 +132,22 @@ class EditSourcePage extends StatelessWidget {
     );
   }
 
+  String formatTime(int t) {
+    return intl.DateFormat("yy-MM-dd HH:mm:ss")
+        .format(DateTime.fromMicrosecondsSinceEpoch(t));
+  }
+
   Widget _buildItem(BuildContext context, Color primaryColor, Rule rule) {
     return Card(
       elevation: 0,
       color: Colors.amberAccent,
       child: SwitchListTile(
-        onChanged: (value) {},
-        value: true,
+        onChanged: (value) async {
+          rule.enableDiscover = value;
+          final result = await Global.ruleDao.insertOrUpdateRule(rule);
+          print(result);
+        },
+        value: rule.enableSearch,
         activeColor: primaryColor,
         title: Text(
           '${rule.name}',
@@ -146,7 +156,7 @@ class EditSourcePage extends StatelessWidget {
               color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
         ),
         subtitle: Text(
-          '${rule.author} - ${rule.host}\n${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)} - ${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}',
+          '${rule.author} - ${rule.host}\n${formatTime(rule.createTime)} - ${formatTime(rule.modifiedTime)}',
           textAlign: TextAlign.start,
           style: TextStyle(
               color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
