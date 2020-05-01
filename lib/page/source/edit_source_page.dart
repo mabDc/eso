@@ -7,12 +7,7 @@ import 'package:toast/toast.dart';
 import 'package:intl/intl.dart' as intl;
 
 //图源编辑
-class EditSourcePage extends StatefulWidget {
-  @override
-  _EditSourcePageState createState() => _EditSourcePageState();
-}
-
-class _EditSourcePageState extends State<EditSourcePage> {
+class EditSourcePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GlobalKey<AnimatedListState> _key = GlobalKey();
