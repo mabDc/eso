@@ -7,9 +7,15 @@ import 'package:toast/toast.dart';
 import 'package:intl/intl.dart' as intl;
 
 //图源编辑
-class EditSourcePage extends StatelessWidget {
+class EditSourcePage extends StatefulWidget {
+  @override
+  _EditSourcePageState createState() => _EditSourcePageState();
+}
+
+class _EditSourcePageState extends State<EditSourcePage> {
   @override
   Widget build(BuildContext context) {
+    GlobalKey<AnimatedListState> _key = GlobalKey();
     final primaryColor = Theme.of(context).primaryColor;
     return Scaffold(
       appBar: AppBar(
@@ -33,13 +39,15 @@ class EditSourcePage extends StatelessWidget {
             );
           }
           final rules = snapshot.data;
-          return ListView.separated(
-            separatorBuilder: (context, index) => Container(),
-            itemCount: rules.length,
+          return AnimatedList(
+            key: _key,
+            initialItemCount: rules.length,
             padding: EdgeInsets.all(10),
             physics: BouncingScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return _buildItem(context, primaryColor, rules[index]);
+            itemBuilder:
+                (BuildContext context, int index, Animation animation) {
+              return _buildItem(
+                  context, primaryColor, rules[index], index, _key);
             },
           );
         },
@@ -137,29 +145,48 @@ class EditSourcePage extends StatelessWidget {
         .format(DateTime.fromMicrosecondsSinceEpoch(t));
   }
 
-  Widget _buildItem(BuildContext context, Color primaryColor, Rule rule) {
-    return Card(
-      elevation: 0,
-      color: Colors.amberAccent,
-      child: SwitchListTile(
-        onChanged: (value) async {
-          rule.enableDiscover = value;
-          final result = await Global.ruleDao.insertOrUpdateRule(rule);
-          print(result);
-        },
-        value: rule.enableSearch,
-        activeColor: primaryColor,
-        title: Text(
-          '${rule.name}',
-          textAlign: TextAlign.start,
-          style: TextStyle(
-              color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
-        ),
-        subtitle: Text(
-          '${rule.author} - ${rule.host}\n${formatTime(rule.createTime)} - ${formatTime(rule.modifiedTime)}',
-          textAlign: TextAlign.start,
-          style: TextStyle(
-              color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
+  Widget _buildItem(BuildContext context, Color primaryColor, Rule rule,
+      int index, GlobalKey<AnimatedListState> key) {
+    return Dismissible(
+      onDismissed: (DismissDirection direction) {
+        Global.ruleDao.deleteRule(rule);
+        key.currentState.removeItem(index, (_, __) => Container());
+        // Show a snackbar! This snackbar could also contain "Undo" actions.
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text("${rule.host} 已删除"),
+          action: SnackBarAction(
+            label: '撤销',
+            onPressed: () {
+              Global.ruleDao.insertOrUpdateRule(rule);
+              key.currentState.insertItem(index);
+            },
+          ),
+        ));
+      },
+      key: Key(rule.id),
+      child: Card(
+        elevation: 0,
+        color: Colors.amberAccent,
+        child: SwitchListTile(
+          onChanged: (value) async {
+            rule.enableDiscover = value;
+            final result = await Global.ruleDao.insertOrUpdateRule(rule);
+            print(result);
+          },
+          value: rule.enableDiscover,
+          activeColor: primaryColor,
+          title: Text(
+            '${rule.name}',
+            textAlign: TextAlign.start,
+            style: TextStyle(
+                color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
+          ),
+          subtitle: Text(
+            '${rule.author} - ${rule.host}\n${formatTime(rule.createTime)} - ${formatTime(rule.modifiedTime)}',
+            textAlign: TextAlign.start,
+            style: TextStyle(
+                color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
+          ),
         ),
       ),
     );
