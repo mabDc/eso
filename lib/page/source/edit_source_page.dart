@@ -162,25 +162,29 @@ class EditSourcePage extends StatelessWidget {
       child: Card(
         elevation: 0,
         color: Colors.amberAccent,
-        child: SwitchListTile(
-          onChanged: (value) async {
-            rule.enableDiscover = value;
-            final result = await Global.ruleDao.insertOrUpdateRule(rule);
-            print(result);
-          },
-          value: rule.enableDiscover,
-          activeColor: primaryColor,
-          title: Text(
-            '${rule.name}',
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
-          ),
-          subtitle: Text(
-            '${rule.author} - ${rule.host}\n${formatTime(rule.createTime)} - ${formatTime(rule.modifiedTime)}',
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
+        child: InkWell(
+          onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => EditRulePage(rule: rule))),
+          child: SwitchListTile(
+            onChanged: (value) async {
+              rule.enableDiscover = value;
+              final result = await Global.ruleDao.insertOrUpdateRule(rule);
+              print(result);
+            },
+            value: rule.enableDiscover,
+            activeColor: primaryColor,
+            title: Text(
+              '${rule.name}',
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                  color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
+            ),
+            subtitle: Text(
+              '${rule.author} - ${rule.host}\n${formatTime(rule.createTime)} - ${formatTime(rule.modifiedTime)}',
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                  color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
+            ),
           ),
         ),
       ),

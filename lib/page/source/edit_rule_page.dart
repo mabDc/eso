@@ -6,8 +6,14 @@ import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
+import '../../api/api.dart';
 
 class EditRulePage extends StatefulWidget {
+  final Rule rule;
+  const EditRulePage({
+    this.rule,
+    Key key,
+  }) : super(key: key);
   @override
   _EditRulePageState createState() => _EditRulePageState();
 }
@@ -18,11 +24,11 @@ class _EditRulePageState extends State<EditRulePage> {
   @override
   Widget build(BuildContext context) {
     if (null == rule) {
-      rule = Rule.newRule();
+      rule = widget.rule ?? Rule.newRule();
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('新建规则'),
+        title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           IconButton(
             icon: Icon(Icons.bug_report),
@@ -38,15 +44,132 @@ class _EditRulePageState extends State<EditRulePage> {
           _buildpopupMenu(context),
         ],
       ),
-      body: _buildBody(context),
+      body: ListView(
+        children: [
+          _buildInfo(context),
+          _buildDiscover(context),
+          _buildSearch(context),
+          _buildChapter(context),
+          _buildContent(context),
+        ],
+      ),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    return ListView(
+  Text _buildBigText(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: Colors.black87,
+        fontSize: 20,
+      ),
+    );
+  }
+
+  Widget _buildDetailsText(String text) {
+    return FractionallySizedBox(
+      widthFactor: 1,
+      child: Container(
+        height: 40,
+        margin: EdgeInsets.only(bottom: 5, left: 12),
+        //decoration: BoxDecoration(color: Colors.grey),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditText(
+    String text,
+    String labelText,
+    void Function(String text) onChanged, {
+    int minLines = 1,
+    int maxLines = 1,
+  }) {
+    return FractionallySizedBox(
+      widthFactor: 1,
+      child: Container(
+        height: 40,
+        margin: EdgeInsets.only(bottom: 5, left: 12),
+        // decoration: BoxDecoration(color: Colors.grey),
+        child: TextField(
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+          controller: TextEditingController(text: text),
+          minLines: minLines,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            labelText: labelText,
+          ),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfo(BuildContext context) {
+    return ExpansionTile(
+      title: _buildBigText("规则信息"),
+      tilePadding: EdgeInsets.symmetric(horizontal: 16),
+      initiallyExpanded: true,
       children: [
-        
+        _buildDetailsText(
+            '创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
+        _buildDetailsText(
+            '修改时间：${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}'),
+        _buildEditText(rule.author, '作者(author)', (text) => rule.author = text),
+        _buildEditText(rule.name, '名称(name)', (text) => rule.name = text),
+        _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
+        _buildDetailsText('类型(contentType)：'),
+        DropdownButton<int>(
+          isDense: true,
+          underline: Container(),
+          value: rule.contentType,
+          onChanged: (value) => rule.contentType = value,
+          items: List.generate(
+            5,
+            (index) => DropdownMenuItem<int>(
+              child: Text(API.getRuleContentTypeName(index)),
+              value: index,
+            ),
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildDiscover(BuildContext context) {
+    return ExpansionTile(
+      title: _buildBigText("发现规则"),
+      children: [],
+    );
+  }
+
+  Widget _buildSearch(BuildContext context) {
+    return ExpansionTile(
+      title: _buildBigText("搜索规则"),
+      children: [],
+    );
+  }
+
+  Widget _buildChapter(BuildContext context) {
+    return ExpansionTile(
+      title: _buildBigText("章节规则"),
+      children: [],
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    return ExpansionTile(
+      title: _buildBigText("正文规则"),
+      children: [],
     );
   }
 
