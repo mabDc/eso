@@ -29,7 +29,7 @@ class _EditRulePageState extends State<EditRulePage> {
             onPressed: () async {
               if (isLoading) return;
               isLoading = true;
-              await Global.ruleDao.insertOrUpdateRule(Rule.newRule());
+              await Global.ruleDao.insertOrUpdateRule(rule);
               isLoading = false;
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => DebugRulePage(rule: rule)));
@@ -38,6 +38,15 @@ class _EditRulePageState extends State<EditRulePage> {
           _buildpopupMenu(context),
         ],
       ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return ListView(
+      children: [
+        
+      ],
     );
   }
 
@@ -45,7 +54,7 @@ class _EditRulePageState extends State<EditRulePage> {
     Toast.show("开始保存", context);
     if (isLoading) return false;
     isLoading = true;
-    final count = await Global.ruleDao.insertOrUpdateRule(Rule.newRule());
+    final count = await Global.ruleDao.insertOrUpdateRule(rule);
     isLoading = false;
     if (count > 0) {
       Toast.show("保存成功", context);
@@ -151,7 +160,7 @@ class _EditRulePageState extends State<EditRulePage> {
               ),
             ],
           ),
-          value: SAVE,
+          value: DEBUG_WITHOUT_SAVE,
         ),
       ],
     );

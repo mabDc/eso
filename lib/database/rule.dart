@@ -20,7 +20,7 @@ class Rule {
   String userAgent = '';
 
   // 发现规则
-  bool enableDiscover = true;
+  bool enableDiscover = false;
   String discoverUrl = '';
   String discoverItems = '';
 
@@ -78,7 +78,7 @@ class Rule {
     userAgent = '';
 
     // 发现规则
-    enableDiscover = true;
+    enableDiscover = false;
     discoverUrl = '';
     discoverItems = '';
 
@@ -107,9 +107,9 @@ class Rule {
 
     // 章节规则
     enableMultiRoads = false;
+    chapterUrl = '';
     chapterRoads = '';
     chapterRoadName = '';
-    chapterUrl = '';
     chapterItems = '';
 
     chapterName = '';
@@ -157,9 +157,9 @@ class Rule {
     this.searchDescription,
     this.searchResult,
     this.enableMultiRoads,
+    this.chapterUrl,
     this.chapterRoads,
     this.chapterRoadName,
-    this.chapterUrl,
     this.chapterItems,
     this.chapterName,
     this.chapterCover,
