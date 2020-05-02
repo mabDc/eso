@@ -27,8 +27,9 @@ class Global with ChangeNotifier {
   static Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
-    final _database =
-        await $FloorAppDatabase.databaseBuilder('eso_database.db').build();
+    final _database = await $FloorAppDatabase
+        .databaseBuilder('eso_database.db')
+        .addMigrations([migration1to2]).build();
     _ruleDao = _database.ruleDao;
     await Future.delayed(Duration(seconds: 1));
     return true;

@@ -136,7 +136,7 @@ class EditSourcePage extends StatelessWidget {
   }
 
   String formatTime(int t) {
-    return intl.DateFormat("yy-MM-dd HH:mm:ss")
+    return intl.DateFormat("yyyy-MM-dd HH:mm")
         .format(DateTime.fromMicrosecondsSinceEpoch(t));
   }
 
@@ -165,14 +165,14 @@ class EditSourcePage extends StatelessWidget {
         child: InkWell(
           onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => EditRulePage(rule: rule))),
-          child: SwitchListTile(
-            onChanged: (value) async {
-              rule.enableDiscover = value;
-              final result = await Global.ruleDao.insertOrUpdateRule(rule);
-              print(result);
-            },
-            value: rule.enableDiscover,
-            activeColor: primaryColor,
+          child: ListTile(
+            // onChanged: (value) async {
+            //   rule.enableDiscover = value;
+            //   final result = await Global.ruleDao.insertOrUpdateRule(rule);
+            //   print(result);
+            // },
+            // value: rule.enableDiscover,
+            // activeColor: primaryColor,
             title: Text(
               '${rule.name}',
               textAlign: TextAlign.start,

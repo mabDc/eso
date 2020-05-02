@@ -40,12 +40,14 @@ class DebugRulePage extends StatelessWidget {
           _buildDetailsText("""
 创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}
 修改时间：${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}
-规则作者：${rule.author}
-规则名称：${rule.name}
-规则host：${rule.host}
+作者：${rule.author}
+签名档：${rule.postScript}
+名称：${rule.name}
+域名：${rule.host}
 类型：${API.getRuleContentTypeName(rule.contentType)}"""),
           SizedBox(height: 10),
           _buildBigText('发现测试'),
+          FutureBuilder(builder: null), 
         ],
       ),
     );

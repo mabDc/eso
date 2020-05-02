@@ -10,6 +10,7 @@ class Rule {
   int createTime = DateTime.now().microsecondsSinceEpoch;
   int modifiedTime = DateTime.now().microsecondsSinceEpoch;
   String author = '';
+  String postScript = '';
   String name = '';
   String host = '';
   int contentType = API.MANGA;
@@ -71,6 +72,7 @@ class Rule {
     author = '';
     name = '';
     host = '';
+    postScript = '';
     contentType = API.MANGA;
     // bool useCheerio = false;
     useCryptoJS = false;
@@ -130,6 +132,7 @@ class Rule {
     this.author,
     this.name,
     this.host,
+    this.postScript,
     this.contentType,
     this.useCryptoJS,
     this.loadJs,
@@ -177,6 +180,7 @@ class Rule {
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
     author = json['author'] ?? defaultRule.author;
+    postScript = json['postScript'] ?? defaultRule.postScript;
     name = json['name'] ?? defaultRule.name;
     host = json['host'] ?? defaultRule.host;
     contentType = json['contentType'] ?? defaultRule.contentType;
@@ -227,6 +231,7 @@ class Rule {
         'createTime': createTime,
         'modifiedTime': modifiedTime,
         'author': author,
+        'postScript': postScript,
         'name': name,
         'host': host,
         'contentType': contentType,

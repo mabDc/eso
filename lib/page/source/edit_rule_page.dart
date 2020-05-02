@@ -45,6 +45,7 @@ class _EditRulePageState extends State<EditRulePage> {
         ],
       ),
       body: ListView(
+        padding: EdgeInsets.all(16),
         children: [
           _buildInfo(context),
           _buildDiscover(context),
@@ -67,18 +68,14 @@ class _EditRulePageState extends State<EditRulePage> {
   }
 
   Widget _buildDetailsText(String text) {
-    return FractionallySizedBox(
-      widthFactor: 1,
-      child: Container(
-        height: 40,
-        margin: EdgeInsets.only(bottom: 5, left: 12),
-        //decoration: BoxDecoration(color: Colors.grey),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -91,56 +88,64 @@ class _EditRulePageState extends State<EditRulePage> {
     int minLines = 1,
     int maxLines = 1,
   }) {
-    return FractionallySizedBox(
-      widthFactor: 1,
-      child: Container(
-        height: 40,
-        margin: EdgeInsets.only(bottom: 5, left: 12),
-        // decoration: BoxDecoration(color: Colors.grey),
-        child: TextField(
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: TextField(
+        controller: TextEditingController(text: text),
+        decoration: InputDecoration(
+          labelText: labelText,
+          contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(4),
           ),
-          controller: TextEditingController(text: text),
-          minLines: minLines,
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            labelText: labelText,
-          ),
-          onChanged: onChanged,
         ),
+        onChanged: onChanged,
       ),
     );
   }
 
   Widget _buildInfo(BuildContext context) {
     return ExpansionTile(
-      title: _buildBigText("规则信息"),
-      tilePadding: EdgeInsets.symmetric(horizontal: 16),
+      title: _buildBigText("基本规则"),
       initiallyExpanded: true,
       children: [
         _buildDetailsText(
             '创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
         _buildDetailsText(
             '修改时间：${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}'),
-        _buildEditText(rule.author, '作者(author)', (text) => rule.author = text),
-        _buildEditText(rule.name, '名称(name)', (text) => rule.name = text),
-        _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
-        _buildDetailsText('类型(contentType)：'),
-        DropdownButton<int>(
-          isDense: true,
-          underline: Container(),
-          value: rule.contentType,
-          onChanged: (value) => rule.contentType = value,
-          items: List.generate(
-            5,
-            (index) => DropdownMenuItem<int>(
-              child: Text(API.getRuleContentTypeName(index)),
-              value: index,
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              _buildDetailsText('类型(contentType)：'),
+              DropdownButton<int>(
+                isDense: true,
+                value: rule.contentType,
+                onChanged: (value) {
+                  setState(() {
+                    rule.contentType = value;
+                  });
+                },
+                items: List.generate(
+                  5,
+                  (index) => DropdownMenuItem<int>(
+                    child: Text(API.getRuleContentTypeName(index)),
+                    value: index,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+        _buildEditText(rule.author, '作者(author)', (text) => rule.author = text),
+        _buildEditText(rule.name, '名称(name)', (text) => rule.name = text),
+        _buildEditText(
+          rule.postScript,
+          '签名档(post script, p.s.)',
+          (text) => rule.postScript = text,
+          maxLines: null,
+        ),
+        _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
       ],
     );
   }
@@ -148,13 +153,79 @@ class _EditRulePageState extends State<EditRulePage> {
   Widget _buildDiscover(BuildContext context) {
     return ExpansionTile(
       title: _buildBigText("发现规则"),
-      children: [],
+      initiallyExpanded: rule.enableDiscover,
+      children: [
+        SwitchListTile(
+          title: Text('启用发现'),
+          value: rule.enableDiscover,
+          onChanged: (value) {
+            setState(() {
+              rule.enableDiscover = value;
+            });
+          },
+        ),
+        _buildEditText(
+          rule.discoverUrl,
+          '地址(discoverUrl)',
+          (text) => rule.discoverUrl = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverList,
+          '列表(discoverList)',
+          (text) => rule.discoverList = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverName,
+          '名称(discoverName)',
+          (text) => rule.discoverName = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverAuthor,
+          '作者(discoverAuthor)',
+          (text) => rule.discoverAuthor = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverCover,
+          '封面(discoverCover)',
+          (text) => rule.discoverCover = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverChapter,
+          '最新章节(discoverChapter)',
+          (text) => rule.discoverChapter = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverDescription,
+          '简介(discoverDescription)',
+          (text) => rule.discoverDescription = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverTags,
+          '标签(discoverTags)',
+          (text) => rule.discoverTags = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.discoverResult,
+          '结果(discoverResult)',
+          (text) => rule.discoverResult = text,
+          maxLines: null,
+        ),
+      ],
     );
   }
 
   Widget _buildSearch(BuildContext context) {
     return ExpansionTile(
       title: _buildBigText("搜索规则"),
+      initiallyExpanded: rule.enableSearch,
       children: [],
     );
   }
