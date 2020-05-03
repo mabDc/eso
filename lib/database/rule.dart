@@ -55,6 +55,7 @@ class Rule {
   String chapterUrl = '';
   String chapterItems = '';
 
+  String chapterList = '';
   String chapterName = '';
   String chapterCover = '';
   String chapterLock = '';
@@ -114,6 +115,7 @@ class Rule {
     chapterRoadName = '';
     chapterItems = '';
 
+    chapterList = '';
     chapterName = '';
     chapterCover = '';
     chapterLock = '';
@@ -164,6 +166,7 @@ class Rule {
     this.chapterRoads,
     this.chapterRoadName,
     this.chapterItems,
+    this.chapterList,
     this.chapterName,
     this.chapterCover,
     this.chapterLock,
@@ -216,6 +219,7 @@ class Rule {
     chapterRoadName = json['chapterRoadName'] ?? defaultRule.chapterRoadName;
     chapterUrl = json['chapterUrl'] ?? defaultRule.chapterUrl;
     chapterItems = json['chapterItems'] ?? defaultRule.chapterItems;
+    chapterList = json['chapterList'] ?? defaultRule.chapterList;
     chapterName = json['chapterName'] ?? defaultRule.chapterName;
     chapterCover = json['chapterCover'] ?? defaultRule.chapterCover;
     chapterLock = json['chapterLock'] ?? defaultRule.chapterLock;
@@ -265,6 +269,7 @@ class Rule {
         'chapterRoadName': chapterRoadName,
         'chapterUrl': chapterUrl,
         'chapterItems': chapterItems,
+        'chapterList': chapterList,
         'chapterName': chapterName,
         'chapterCover': chapterCover,
         'chapterLock': chapterLock,

@@ -81,7 +81,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterUrl` TEXT, `chapterItems` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterUrl` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -139,6 +139,7 @@ class _$RuleDao extends RuleDao {
                   'chapterRoadName': item.chapterRoadName,
                   'chapterUrl': item.chapterUrl,
                   'chapterItems': item.chapterItems,
+                  'chapterList': item.chapterList,
                   'chapterName': item.chapterName,
                   'chapterCover': item.chapterCover,
                   'chapterLock': item.chapterLock,
@@ -190,6 +191,7 @@ class _$RuleDao extends RuleDao {
                   'chapterRoadName': item.chapterRoadName,
                   'chapterUrl': item.chapterUrl,
                   'chapterItems': item.chapterItems,
+                  'chapterList': item.chapterList,
                   'chapterName': item.chapterName,
                   'chapterCover': item.chapterCover,
                   'chapterLock': item.chapterLock,
@@ -244,6 +246,7 @@ class _$RuleDao extends RuleDao {
         row['chapterRoads'],
         row['chapterRoadName'],
         row['chapterItems'],
+        row['chapterList'],
         row['chapterName'],
         row['chapterCover'],
         row['chapterLock'],

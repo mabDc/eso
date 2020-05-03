@@ -20,9 +20,11 @@ class EditRulePage extends StatefulWidget {
 
 class _EditRulePageState extends State<EditRulePage> {
   var isLoading = false;
+  Color primaryColor;
   Rule rule;
   @override
   Widget build(BuildContext context) {
+    primaryColor = Theme.of(context).primaryColor;
     if (null == rule) {
       rule = widget.rule ?? Rule.newRule();
     }
@@ -45,7 +47,6 @@ class _EditRulePageState extends State<EditRulePage> {
         ],
       ),
       body: ListView(
-        padding: EdgeInsets.all(16),
         children: [
           _buildInfo(context),
           _buildDiscover(context),
@@ -57,19 +58,9 @@ class _EditRulePageState extends State<EditRulePage> {
     );
   }
 
-  Text _buildBigText(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: Colors.black87,
-        fontSize: 20,
-      ),
-    );
-  }
-
   Widget _buildDetailsText(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       alignment: Alignment.centerLeft,
       child: Text(
         text,
@@ -88,25 +79,32 @@ class _EditRulePageState extends State<EditRulePage> {
     int minLines = 1,
     int maxLines = 1,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
+    return Padding(
+      padding: const EdgeInsets.all(12),
       child: TextField(
+        minLines: minLines,
+        maxLines: maxLines,
         controller: TextEditingController(text: text),
         decoration: InputDecoration(
           labelText: labelText,
-          contentPadding: EdgeInsets.symmetric(horizontal: 12),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
           ),
         ),
-        onChanged: onChanged,
       ),
+    );
+  }
+
+  Widget _buildTitle(String text) {
+    return Text(
+      text,
+      style: TextStyle(color: primaryColor),
     );
   }
 
   Widget _buildInfo(BuildContext context) {
     return ExpansionTile(
-      title: _buildBigText("基本规则"),
+      title: _buildTitle("基本规则"),
       initiallyExpanded: true,
       children: [
         _buildDetailsText(
@@ -152,11 +150,11 @@ class _EditRulePageState extends State<EditRulePage> {
 
   Widget _buildDiscover(BuildContext context) {
     return ExpansionTile(
-      title: _buildBigText("发现规则"),
+      title: _buildTitle("发现规则"),
       initiallyExpanded: rule.enableDiscover,
       children: [
         SwitchListTile(
-          title: Text('启用发现'),
+          title: Text('启用'),
           value: rule.enableDiscover,
           onChanged: (value) {
             setState(() {
@@ -224,23 +222,167 @@ class _EditRulePageState extends State<EditRulePage> {
 
   Widget _buildSearch(BuildContext context) {
     return ExpansionTile(
-      title: _buildBigText("搜索规则"),
+      title: _buildTitle("搜索规则"),
       initiallyExpanded: rule.enableSearch,
-      children: [],
+      children: [
+        SwitchListTile(
+          title: Text('启用'),
+          value: rule.enableSearch,
+          onChanged: (value) {
+            setState(() {
+              rule.enableSearch = value;
+            });
+          },
+        ),
+        _buildEditText(
+          rule.searchUrl,
+          '地址(searchUrl)',
+          (text) => rule.searchUrl = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchList,
+          '列表(searchList)',
+          (text) => rule.searchList = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchName,
+          '名称(searchName)',
+          (text) => rule.searchName = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchAuthor,
+          '作者(searchAuthor)',
+          (text) => rule.searchAuthor = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchCover,
+          '封面(searchCover)',
+          (text) => rule.searchCover = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchChapter,
+          '最新章节(searchChapter)',
+          (text) => rule.searchChapter = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchDescription,
+          '简介(searchDescription)',
+          (text) => rule.searchDescription = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchTags,
+          '标签(searchTags)',
+          (text) => rule.searchTags = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.searchResult,
+          '结果(searchResult)',
+          (text) => rule.searchResult = text,
+          maxLines: null,
+        ),
+      ],
     );
   }
 
   Widget _buildChapter(BuildContext context) {
     return ExpansionTile(
-      title: _buildBigText("章节规则"),
-      children: [],
+      title: _buildTitle("章节规则"),
+      children: [
+        SwitchListTile(
+          title: Text('启用多线路'),
+          value: rule.enableMultiRoads,
+          onChanged: (value) {
+            setState(() {
+              rule.enableSearch = value;
+            });
+          },
+        ),
+        _buildEditText(
+          rule.chapterUrl,
+          '地址(chapterUrl)',
+          (text) => rule.chapterUrl = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterRoads,
+          '线路(chapterRoads)',
+          (text) => rule.chapterRoads = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterList,
+          '章节列表(chapterList)',
+          (text) => rule.chapterList = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterName,
+          '章节名称(chapterName)',
+          (text) => rule.chapterName = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterTime,
+          '更新时间(chapterTime)',
+          (text) => rule.chapterTime = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterCover,
+          '章节封面(chapterCover)',
+          (text) => rule.chapterCover = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterLock,
+          '章节状态(chapterLock)',
+          (text) => rule.chapterLock = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.chapterResult,
+          '结果(chapterResult)',
+          (text) => rule.chapterResult = text,
+          maxLines: null,
+        ),
+      ],
     );
   }
 
   Widget _buildContent(BuildContext context) {
     return ExpansionTile(
-      title: _buildBigText("正文规则"),
-      children: [],
+      title: _buildTitle("正文规则"),
+      children: [
+        SwitchListTile(
+          title: Text('启用CryptoJS'),
+          value: rule.useCryptoJS,
+          onChanged: (value) {
+            setState(() {
+              rule.enableSearch = value;
+            });
+          },
+        ),
+        _buildEditText(
+          rule.contentUrl,
+          '地址(contentUrl)',
+          (text) => rule.contentUrl = text,
+          maxLines: null,
+        ),
+        _buildEditText(
+          rule.contentItems,
+          '内容(contentItems)',
+          (text) => rule.contentItems = text,
+          maxLines: null,
+        ),
+      ],
     );
   }
 
