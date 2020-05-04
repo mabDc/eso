@@ -11,7 +11,7 @@ import 'rule_dao.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 2, entities: [Rule])
+@Database(version: 3, entities: [Rule])
 abstract class AppDatabase extends FloorDatabase {
   RuleDao get ruleDao;
 }

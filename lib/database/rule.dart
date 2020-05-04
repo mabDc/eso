@@ -176,9 +176,8 @@ class Rule {
     this.contentItems,
   );
 
-  // Todo: 补全fromJson
-  Rule.fromJson(Map<String, dynamic> json) {
-    final defaultRule = Rule.newRule();
+  Rule.fromJson(Map<String, dynamic> json, [Rule rule]) {
+    final defaultRule = rule ?? Rule.newRule();
     id = json['id'] ?? defaultRule.id;
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
@@ -229,7 +228,59 @@ class Rule {
     contentItems = json['contentItems'] ?? defaultRule.contentItems;
   }
 
-  // Todo: 补全toJson
+  Rule.fromYiCiYuan(Map<String, dynamic> json, [Rule rule]) {
+    final defaultRule = rule ?? Rule.newRule();
+    id = json['id'] ?? defaultRule.id;
+    createTime = json['createTime'] ?? defaultRule.createTime;
+    modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
+    author = json['author'] ?? defaultRule.author;
+    postScript = (json['bookSourceGroup'] ?? '' + json['sourceRemark'] ?? '');
+    name = json['bookSourceName'] ?? defaultRule.name;
+    host = json['bookSourceUrl'] ?? defaultRule.host;
+    contentType = json['contentType'] ?? defaultRule.contentType;
+    useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
+    loadJs = json['loadJs'] ?? defaultRule.loadJs;
+    userAgent = json['httpUserAgent'] ?? defaultRule.userAgent;
+    enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
+    discoverUrl = json['discoverUrl'] ?? defaultRule.discoverUrl;
+    discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
+    discoverList = json['ruleSearchList'] ?? defaultRule.discoverList;
+    discoverTags = json['ruleSearchKind'] ?? defaultRule.discoverTags;
+    discoverName = json['ruleSearchName'] ?? defaultRule.discoverName;
+    discoverCover = json['ruleSearchCoverUrl'] ?? defaultRule.discoverCover;
+    discoverAuthor = json['ruleSearchAuthor'] ?? defaultRule.discoverAuthor;
+    discoverChapter =
+        json['ruleSearchLastChapter'] ?? defaultRule.discoverChapter;
+    discoverDescription =
+        json['discoverDescription'] ?? defaultRule.discoverDescription;
+    discoverResult = json['ruleSearchNoteUrl'] ?? defaultRule.discoverResult;
+    enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
+    searchUrl = json['ruleSearchUrl'] ?? defaultRule.searchUrl;
+    searchItems = json['searchItems'] ?? defaultRule.searchItems;
+    searchList = json['ruleSearchList'] ?? defaultRule.searchList;
+    searchTags = json['ruleSearchKind'] ?? defaultRule.searchTags;
+    searchName = json['ruleSearchName'] ?? defaultRule.searchName;
+    searchCover = json['ruleSearchCoverUrl'] ?? defaultRule.searchCover;
+    searchAuthor = json['ruleSearchAuthor'] ?? defaultRule.searchAuthor;
+    searchChapter = json['ruleSearchLastChapter'] ?? defaultRule.searchChapter;
+    searchDescription =
+        json['searchDescription'] ?? defaultRule.searchDescription;
+    searchResult = json['ruleSearchNoteUrl'] ?? defaultRule.searchResult;
+    enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
+    chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
+    chapterRoadName = json['chapterRoadName'] ?? defaultRule.chapterRoadName;
+    chapterUrl = json['ruleChapterUrl'] ?? defaultRule.chapterUrl;
+    chapterItems = json['chapterItems'] ?? defaultRule.chapterItems;
+    chapterList = json['ruleChapterList'] ?? defaultRule.chapterList;
+    chapterName = json['ruleChapterName'] ?? defaultRule.chapterName;
+    chapterCover = json['chapterCover'] ?? defaultRule.chapterCover;
+    chapterLock = json['chapterLock'] ?? defaultRule.chapterLock;
+    chapterTime = json['chapterTime'] ?? defaultRule.chapterTime;
+    chapterResult = json['ruleContentUrl'] ?? defaultRule.chapterResult;
+    contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
+    contentItems = json['ruleBookContent'] ?? defaultRule.contentItems;
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'createTime': createTime,

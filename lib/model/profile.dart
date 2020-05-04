@@ -127,7 +127,7 @@ class Profile with ChangeNotifier {
     }
   }
 
-  getTheme({bool isDarkMode: false}) {
+  ThemeData getTheme({bool isDarkMode: false}) {
     switch (darkMode) {
       case "开启":
         isDarkMode = true;
@@ -151,7 +151,7 @@ class Profile with ChangeNotifier {
     fromJson(json);
   }
 
-  fromJson(Map<String, dynamic> json) {
+  void fromJson(Map<String, dynamic> json) {
     _switchLongPress = json['switchLongPress'];
     _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
     _switchDiscoverStyle = json['switchDiscoverStyle'] ?? false;

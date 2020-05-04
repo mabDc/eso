@@ -7,7 +7,8 @@ import 'package:flutter_js/flutter_js.dart';
 class AnalyzeRule {
   // 正则规则维护
   String _regexSplitJoin = r"\{\{(.+?)\}\}";
-  String _regexSplitRule = r"(<=@json:)|(<=@css:)";
+  String _regexSplitRule =
+      r"@json:((?!@css:|@json:).)*|@css:((?!@css:|@json:).)*";
 
   bool _isJoinRule;
   // 只读属性
@@ -30,20 +31,21 @@ class AnalyzeRule {
     if (ruleList.last.mode == Mode.JS) {
       js = ruleList.removeLast();
     }
-    result = _content;
     for (var r in ruleList) {
       switch (r.mode) {
         case Mode.CSS:
-          result = AnalyzerByHtml(result).getElements(r.rule);
+          result = AnalyzerByHtml(result.isNotEmpty ? result : _content)
+              .getElements(r.rule);
           break;
         case Mode.Json:
-          result = AnalyzeByJSonPath(result).getList(r.rule);
+          result = AnalyzeByJSonPath(result.isNotEmpty ? result : _content)
+              .getList(r.rule);
           break;
         default:
       }
     }
     if (null != js) {
-      await initJsEngine(result);
+      await initJsEngine(result.isNotEmpty ? result : _content);
       final temp = await FlutterJs.getList(js.rule, _idJsEngine);
       closeJsEngine();
       return temp;
@@ -151,14 +153,15 @@ class AnalyzeRule {
         }
       }).join("");
     } else {
-      result = _content;
       for (var r in ruleList) {
         switch (r.mode) {
           case Mode.CSS:
-            result = AnalyzerByHtml(result).getString(r.rule);
+            result = AnalyzerByHtml(result.isNotEmpty ? result : _content)
+                .getString(r.rule);
             break;
           case Mode.Json:
-            result = AnalyzeByJSonPath(result).getString(r.rule);
+            result = AnalyzeByJSonPath(result.isNotEmpty ? result : _content)
+                .getString(r.rule);
             break;
           default:
         }
@@ -172,7 +175,7 @@ class AnalyzeRule {
     }
 
     if (null != js) {
-      await initJsEngine(result);
+      await initJsEngine(result.isNotEmpty ? result : _content);
       final temp = await FlutterJs.getString(js.rule, _idJsEngine);
       closeJsEngine();
       return temp;
@@ -228,8 +231,8 @@ class AnalyzeRule {
       );
     } else if (rule.isNotEmpty) {
       // 不存在 {{}} , 只需要考虑替换规则
-      for (var r in rule.split(RegExp(_regexSplitRule))) {
-        ruleList.add(SourceRule.gen(r));
+      for (var m in RegExp(_regexSplitRule).allMatches(rule)) {
+        ruleList.add(SourceRule.gen(m.group(0)));
       }
     }
     // 最后处理 js 规则

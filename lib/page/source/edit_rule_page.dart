@@ -44,6 +44,7 @@ class _EditRulePageState extends State<EditRulePage> {
             onPressed: () async {
               if (isLoading) return;
               isLoading = true;
+              rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
               await Global.ruleDao.insertOrUpdateRule(rule);
               isLoading = false;
               Navigator.of(context).push(MaterialPageRoute(
@@ -98,6 +99,7 @@ class _EditRulePageState extends State<EditRulePage> {
             borderRadius: BorderRadius.circular(4),
           ),
         ),
+        onChanged: onChanged,
       ),
     );
   }
@@ -152,6 +154,16 @@ class _EditRulePageState extends State<EditRulePage> {
           maxLines: null,
         ),
         _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
+        _buildEditText(
+          rule.userAgent,
+          '用户代理字符串(userAgent)',
+          (text) => rule.userAgent = text,
+        ),
+        _buildEditText(
+          rule.loadJs,
+          '加载js内容(loadJs)',
+          (text) => rule.loadJs = text,
+        ),
       ],
     );
   }
@@ -330,6 +342,12 @@ class _EditRulePageState extends State<EditRulePage> {
           maxLines: null,
         ),
         _buildEditText(
+          rule.chapterRoadName,
+          '线路名称(chapterRoadName)',
+          (text) => rule.chapterRoadName = text,
+          maxLines: null,
+        ),
+        _buildEditText(
           rule.chapterList,
           '章节列表(chapterList)',
           (text) => rule.chapterList = text,
@@ -415,13 +433,32 @@ class _EditRulePageState extends State<EditRulePage> {
     }
   }
 
-  Future<bool> _loadfromClipBoard(BuildContext context) async {
+  Future<bool> _loadFromClipBoard(BuildContext context) async {
     if (isLoading) return false;
     isLoading = true;
     final text = await Clipboard.getData(Clipboard.kTextPlain);
     isLoading = false;
     try {
-      rule = Rule.fromJson(jsonDecode(text.text));
+      setState(() {
+        rule = Rule.fromJson(jsonDecode(text.text), rule);
+      });
+      Toast.show("已从剪贴板导入", context);
+      return true;
+    } catch (e) {
+      Toast.show("导入失败：" + e.toString(), context, duration: 2);
+      return false;
+    }
+  }
+
+  Future<bool> _loadFromYICIYUAN(BuildContext context) async {
+    if (isLoading) return false;
+    isLoading = true;
+    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    isLoading = false;
+    try {
+      setState(() {
+        rule = Rule.fromYiCiYuan(jsonDecode(text.text), rule);
+      });
       Toast.show("已从剪贴板导入", context);
       return true;
     } catch (e) {
@@ -435,6 +472,7 @@ class _EditRulePageState extends State<EditRulePage> {
     const FROM_CLIPBOARD = 1;
     const TO_CLIPBOARD = 2;
     const DEBUG_WITHOUT_SAVE = 3;
+    const FROM_YICIYUAN = 4;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
@@ -446,7 +484,10 @@ class _EditRulePageState extends State<EditRulePage> {
             _saveRule(context);
             break;
           case FROM_CLIPBOARD:
-            _loadfromClipBoard(context);
+            _loadFromClipBoard(context);
+            break;
+          case FROM_YICIYUAN:
+            _loadFromYICIYUAN(context);
             break;
           case TO_CLIPBOARD:
             Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
@@ -485,6 +526,19 @@ class _EditRulePageState extends State<EditRulePage> {
             ],
           ),
           value: FROM_CLIPBOARD,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('从异次元导入'),
+              Icon(
+                Icons.ac_unit,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: FROM_YICIYUAN,
         ),
         PopupMenuItem(
           child: Row(

@@ -60,13 +60,12 @@ class AnalyzerByHtml {
       return _getResult(_element, rule);
     } else {
       final lastRule = rule.split('@').last;
-      final elementList =
-          _querySelectorAll(rule.substring(0, rule.length - lastRule.length));
+      final elementList = _querySelectorAll(
+          rule.substring(0, rule.length - lastRule.length - 1));
       final builder = <String>[];
       for (var e in elementList) {
         final r = _getResult(e, lastRule);
-        if (r.isNotEmpty)
-          builder.add(r.trim());
+        if (r.isNotEmpty) builder.add(r.trim());
       }
       return builder.join('\n');
     }
