@@ -22,11 +22,18 @@ class _EditRulePageState extends State<EditRulePage> {
   var isLoading = false;
   Color primaryColor;
   Rule rule;
+  bool _infoExpanded = true;
+  bool _discoverExpanded = true;
+  bool _searchExpanded = true;
+  bool _chapterExpanded = true;
+  bool _contentExpanded = true;
   @override
   Widget build(BuildContext context) {
     primaryColor = Theme.of(context).primaryColor;
     if (null == rule) {
       rule = widget.rule ?? Rule.newRule();
+      _discoverExpanded = rule.enableDiscover;
+      _searchExpanded = rule.enableSearch;
     }
     return Scaffold(
       appBar: AppBar(
@@ -105,7 +112,8 @@ class _EditRulePageState extends State<EditRulePage> {
   Widget _buildInfo(BuildContext context) {
     return ExpansionTile(
       title: _buildTitle("基本规则"),
-      initiallyExpanded: true,
+      initiallyExpanded: _infoExpanded,
+      onExpansionChanged: (value) => _infoExpanded = value,
       children: [
         _buildDetailsText(
             '创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
@@ -151,7 +159,8 @@ class _EditRulePageState extends State<EditRulePage> {
   Widget _buildDiscover(BuildContext context) {
     return ExpansionTile(
       title: _buildTitle("发现规则"),
-      initiallyExpanded: rule.enableDiscover,
+      initiallyExpanded: _discoverExpanded,
+      onExpansionChanged: (value) => _discoverExpanded = value,
       children: [
         SwitchListTile(
           title: Text('启用'),
@@ -223,7 +232,8 @@ class _EditRulePageState extends State<EditRulePage> {
   Widget _buildSearch(BuildContext context) {
     return ExpansionTile(
       title: _buildTitle("搜索规则"),
-      initiallyExpanded: rule.enableSearch,
+      initiallyExpanded: _searchExpanded,
+      onExpansionChanged: (value) => _searchExpanded = value,
       children: [
         SwitchListTile(
           title: Text('启用'),
@@ -295,6 +305,8 @@ class _EditRulePageState extends State<EditRulePage> {
   Widget _buildChapter(BuildContext context) {
     return ExpansionTile(
       title: _buildTitle("章节规则"),
+      initiallyExpanded: _chapterExpanded,
+      onExpansionChanged: (value) => _chapterExpanded = value,
       children: [
         SwitchListTile(
           title: Text('启用多线路'),
@@ -360,6 +372,8 @@ class _EditRulePageState extends State<EditRulePage> {
   Widget _buildContent(BuildContext context) {
     return ExpansionTile(
       title: _buildTitle("正文规则"),
+      initiallyExpanded: _contentExpanded,
+      onExpansionChanged: (value) => _contentExpanded = value,
       children: [
         SwitchListTile(
           title: Text('启用CryptoJS'),
@@ -489,7 +503,7 @@ class _EditRulePageState extends State<EditRulePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('调试且不保存'),
+              Text('调试但不保存'),
               Icon(
                 Icons.bug_report,
                 color: primaryColor,
