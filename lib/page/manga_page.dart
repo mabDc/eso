@@ -109,7 +109,7 @@ class _MangaPageState extends State<MangaPage> {
 
   Widget _buildMangaContent(MangaPageProvider provider) {
     return ZoomView(
-      child: ListView.builder(
+      child: ListView.builder( 
         padding: EdgeInsets.all(0),
         controller: provider.controller,
         itemCount: provider.content.length + 1,
@@ -125,14 +125,19 @@ class _MangaPageState extends State<MangaPage> {
           final path = '${provider.content[index]}';
           return FadeInImage(
             placeholder: AssetImage(Global.waitingPath),
-            image: NetworkImage(
-              path,
-              headers: provider.headers,
-            ),
+            image: checkUrl(path,provider.headers),
             fit: BoxFit.fitWidth,
           );
         },
       ),
     );
+  }
+
+    ImageProvider checkUrl(String url,Map<String, String> header) {
+    try {
+      return NetworkImage(url,headers: header);
+    } catch (e) {
+      return AssetImage(Global.waitingPath);
+    }
   }
 }
