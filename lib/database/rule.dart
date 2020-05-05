@@ -14,6 +14,7 @@ class Rule {
   String name = '';
   String host = '';
   int contentType = API.MANGA;
+  int sort = 0;
 
   // bool useCheerio = false;
   bool useCryptoJS = false;
@@ -75,6 +76,7 @@ class Rule {
     host = '';
     postScript = '';
     contentType = API.MANGA;
+    sort = 0;
     // bool useCheerio = false;
     useCryptoJS = false;
     loadJs = '';
@@ -136,6 +138,7 @@ class Rule {
     this.host,
     this.postScript,
     this.contentType,
+    this.sort,
     this.useCryptoJS,
     this.loadJs,
     this.userAgent,
@@ -186,6 +189,7 @@ class Rule {
     name = json['name'] ?? defaultRule.name;
     host = json['host'] ?? defaultRule.host;
     contentType = json['contentType'] ?? defaultRule.contentType;
+    sort = json['sort'] ?? defaultRule.sort;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['userAgent'] ?? defaultRule.userAgent;
@@ -238,6 +242,7 @@ class Rule {
     name = json['bookSourceName'] ?? defaultRule.name;
     host = json['bookSourceUrl'] ?? defaultRule.host;
     contentType = json['contentType'] ?? defaultRule.contentType;
+    sort = json['weight'] ?? defaultRule.sort;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['httpUserAgent'] ?? defaultRule.userAgent;
@@ -290,6 +295,7 @@ class Rule {
         'name': name,
         'host': host,
         'contentType': contentType,
+        'sort': sort,
         'useCryptoJS': useCryptoJS,
         'loadJs': loadJs,
         'userAgent': userAgent,
