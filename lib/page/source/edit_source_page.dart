@@ -60,9 +60,7 @@ class _EditSourcePageState extends State {
     const FROM_CLIPBOARD = 1;
     const FROM_FILE = 2;
     const FROM_CLOUD = 3;
-    final primaryColor = Theme
-        .of(context)
-        .primaryColor;
+    final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
       icon: Icon(Icons.add),
@@ -85,8 +83,7 @@ class _EditSourcePageState extends State {
           default:
         }
       },
-      itemBuilder: (BuildContext context) =>
-      <PopupMenuEntry<int>>[
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,9 +150,7 @@ class _EditSourcePageState extends State {
         },
         child: CheckboxListTile(
           value: rule.enableSearch,
-          activeColor: Theme
-              .of(context)
-              .primaryColor,
+          activeColor: Theme.of(context).primaryColor,
           title: Text('${rule.name}'),
           subtitle: Text('${rule.host}'),
           onChanged: (bool val) {
@@ -170,6 +165,13 @@ class _EditSourcePageState extends State {
           caption: '置顶',
           color: Colors.blueGrey,
           icon: Icons.vertical_align_top,
+          onTap: () async {
+            Rule maxSort = await Global.ruleDao.findMaxSort();
+
+            rule.sort = maxSort.sort + 1;
+            Global.ruleDao.insertOrUpdateRule(rule);
+            _updateView();
+          },
         ),
       ],
       secondaryActions: <Widget>[
@@ -177,9 +179,10 @@ class _EditSourcePageState extends State {
           caption: '编辑',
           color: Colors.black45,
           icon: Icons.create,
-          onTap: () =>
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule,))),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => EditRulePage(
+                    rule: rule,
+                  ))),
         ),
         IconSlideAction(
           caption: '删除',
