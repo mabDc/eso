@@ -2,6 +2,7 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:eso/page/source/edit_source_page.dart';
 
 import '../../global.dart';
 import '../../model/profile.dart';
@@ -22,6 +23,26 @@ class AboutPage extends StatelessWidget {
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(
             children: <Widget>[
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        '管理',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('站点管理'),
+                      onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  EditSourcePage())),
+                    ),
+                  ],
+                ),
+              ),
               Card(
                 child: Column(
                   children: <Widget>[

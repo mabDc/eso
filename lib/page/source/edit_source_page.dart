@@ -1,20 +1,28 @@
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
-import 'package:eso/utils/adapt_util.dart';
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
-import 'package:intl/intl.dart' as intl;
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 //图源编辑
-class EditSourcePage extends StatelessWidget {
+class EditSourcePage extends StatefulWidget {
+  @override
+  _EditSourcePageState createState() => _EditSourcePageState();
+}
+
+class _EditSourcePageState extends State {
+  @override
+  void initState() {
+    _updateView();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    GlobalKey<AnimatedListState> _key = GlobalKey();
-    final primaryColor = Theme.of(context).primaryColor;
     return Scaffold(
       appBar: AppBar(
-        title: Text('图源'),
+        title: Text('站点管理'),
         actions: [
           _buildpopupMenu(context),
         ],
@@ -34,15 +42,12 @@ class EditSourcePage extends StatelessWidget {
             );
           }
           final rules = snapshot.data;
-          return AnimatedList(
-            key: _key,
-            initialItemCount: rules.length,
-            padding: EdgeInsets.all(10),
+          return ListView.builder(
+            itemCount: rules.length,
+            //padding: EdgeInsets.all(10),
             physics: BouncingScrollPhysics(),
-            itemBuilder:
-                (BuildContext context, int index, Animation animation) {
-              return _buildItem(
-                  context, primaryColor, rules[index], index, _key);
+            itemBuilder: (BuildContext context, int index) {
+              return _buildItem(context, rules[index], index);
             },
           );
         },
@@ -55,7 +60,9 @@ class EditSourcePage extends StatelessWidget {
     const FROM_CLIPBOARD = 1;
     const FROM_FILE = 2;
     const FROM_CLOUD = 3;
-    final primaryColor = Theme.of(context).primaryColor;
+    final primaryColor = Theme
+        .of(context)
+        .primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
       icon: Icon(Icons.add),
@@ -78,7 +85,8 @@ class EditSourcePage extends StatelessWidget {
           default:
         }
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+      itemBuilder: (BuildContext context) =>
+      <PopupMenuEntry<int>>[
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -135,59 +143,58 @@ class EditSourcePage extends StatelessWidget {
     );
   }
 
-  String formatTime(int t) {
-    return intl.DateFormat("yyyy-MM-dd HH:mm")
-        .format(DateTime.fromMicrosecondsSinceEpoch(t));
-  }
-
-  Widget _buildItem(BuildContext context, Color primaryColor, Rule rule,
-      int index, GlobalKey<AnimatedListState> key) {
-    return Dismissible(
-      onDismissed: (DismissDirection direction) {
-        Global.ruleDao.deleteRule(rule);
-        key.currentState.removeItem(index, (_, __) => Container());
-        // Show a snackbar! This snackbar could also contain "Undo" actions.
-        Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text("${rule.host} 已删除"),
-          action: SnackBarAction(
-            label: '撤销',
-            onPressed: () {
-              Global.ruleDao.insertOrUpdateRule(rule);
-              key.currentState.insertItem(index);
-            },
-          ),
-        ));
-      },
-      key: Key(rule.id),
-      child: Card(
-        elevation: 0,
-        color: Colors.amberAccent,
-        child: InkWell(
-          onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => EditRulePage(rule: rule))),
-          child: ListTile(
-            // onChanged: (value) async {
-            //   rule.enableDiscover = value;
-            //   final result = await Global.ruleDao.insertOrUpdateRule(rule);
-            //   print(result);
-            // },
-            // value: rule.enableDiscover,
-            // activeColor: primaryColor,
-            title: Text(
-              '${rule.name}',
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  color: Colors.black87, fontSize: AdaptUtil.adaptSize(12)),
-            ),
-            subtitle: Text(
-              '${rule.author} - ${rule.host}\n${formatTime(rule.createTime)} - ${formatTime(rule.modifiedTime)}',
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  color: Colors.black54, fontSize: AdaptUtil.adaptSize(10)),
-            ),
-          ),
+  Widget _buildItem(BuildContext context, Rule rule, int index) {
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      child: GestureDetector(
+        onTap: () {
+          Toast.show(rule.name, context);
+        },
+        child: CheckboxListTile(
+          value: rule.enableSearch,
+          activeColor: Theme
+              .of(context)
+              .primaryColor,
+          title: Text('${rule.name}'),
+          subtitle: Text('${rule.host}'),
+          onChanged: (bool val) {
+            rule.enableSearch = val;
+            Global.ruleDao.insertOrUpdateRule(rule);
+            _updateView();
+          },
         ),
       ),
+      actions: [
+        IconSlideAction(
+          caption: '置顶',
+          color: Colors.blueGrey,
+          icon: Icons.vertical_align_top,
+        ),
+      ],
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: '编辑',
+          color: Colors.black45,
+          icon: Icons.create,
+          onTap: () =>
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule,))),
+        ),
+        IconSlideAction(
+          caption: '删除',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () {
+            Global.ruleDao.deleteRule(rule);
+            _updateView();
+          },
+        ),
+      ],
     );
+  }
+
+  void _updateView() {
+    setState(() {});
   }
 }

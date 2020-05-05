@@ -13,6 +13,7 @@ class DebugRulePage extends StatefulWidget {
     this.rule,
     Key key,
   }) : super(key: key);
+
   @override
   _DebugRulePageState createState() => _DebugRulePageState();
 }
