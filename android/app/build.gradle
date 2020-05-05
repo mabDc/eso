@@ -36,8 +36,6 @@ android {
             v2SigningEnabled true
         }
     }
-    ndkVersion '16.1.4479499'
-
     compileSdkVersion 28
 
     sourceSets {

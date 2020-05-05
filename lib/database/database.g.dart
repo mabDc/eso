@@ -66,7 +66,7 @@ class _$AppDatabase extends AppDatabase {
       [Callback callback]) async {
     return sqflite.openDatabase(
       path,
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },

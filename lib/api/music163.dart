@@ -73,19 +73,20 @@ class Music163 implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    final res = await http.get('$url', headers: {
+    final res =
+        await http.get('$url'.replaceFirst("music", 'y.music'), headers: {
       "User-Agent":
           "Mozilla/5.0 (Linux; Android 8.0.0; MIX 2 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 YaBrowser/18.9.1.2199.00 Mobile Safari/537.36"
     });
-    final json = res.body
-        .split(RegExp('REDUX_STATE\\s*=\\s*'))[1]
-        .split(RegExp(';\\s*<'))[0];
-    return (jsonDecode(json)["Playlist"]["data"] as List)
+    final a =
+        parse(utf8.decode(res.bodyBytes)).querySelectorAll('.pylst_list a');
+    return a
         .map((item) => ChapterItem(
               cover: null,
-              time: '${item["singerName"]}',
-              name: '${item["songName"]}',
-              url: 'http://music.163.com/song/media/outer/url?id=${item["id"]}',
+              time: '${item.querySelector('.sginfo').text}',
+              name: '${item.querySelector('.sgtl').text}',
+              url:
+                  'http://music.163.com/song/media/outer/url?id=${item.attributes["href"].split("id=")[1]}',
             ))
         .toList();
   }
