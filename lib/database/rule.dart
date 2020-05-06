@@ -234,9 +234,14 @@ class Rule {
 
   Rule.fromYiCiYuan(Map<String, dynamic> json, [Rule rule]) {
     final defaultRule = rule ?? Rule.newRule();
+    var flag = false;
     for (final key in json.keys) {
       var s = '${json[key]}';
       if (s.contains('@css:')) continue;
+      if (s.substring(0, 1) == "-") {
+        flag = true;
+        s = s.substring(1);
+      }
       if (s.contains(RegExp(r"img|text|href|tag\.|class\.|id\."))) {
         s = s
             .replaceAll("@tag.", " ")
@@ -245,8 +250,9 @@ class Rule {
             .replaceAll("tag.", "")
             .replaceAll("class.", ".")
             .replaceAll("id.", "#")
-            .replaceAll(RegExp(r"\.(\d)"), r":nth-of-type(n+$1)");
-        json[key] = "@css:" + s.trim();
+            .replaceAllMapped(
+                RegExp(r"\.(\d)"), (Match m) => ":nth-of-type(${m[1]})");
+        json[key] = (flag ? "-" : "") + "@css:" + s.trim();
       }
     }
 

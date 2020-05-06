@@ -60,6 +60,7 @@ class _EditSourcePageState extends State {
 
   bool _isloadFromYiciYuan = false;
   Future<void> fromYiciYuan(BuildContext context) async {
+    await Global.ruleDao.deleteRules(await Global.ruleDao.findAllRules());
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
