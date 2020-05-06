@@ -19,13 +19,12 @@ class TencentManga implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     final query = params.values
         .where((pair) => pair.value != '')
         .map((pair) => pair.value)
         .join('/');
-    final res =
-        await http.get("https://ac.qq.com/Comic/all/page/$page/$query");
+    final res = await http.get("https://ac.qq.com/Comic/all/page/$page/$query");
     final dom = parse(res.body);
     return dom
         .querySelectorAll('.ret-search-list li')
@@ -51,8 +50,7 @@ class TencentManga implements API {
         .querySelectorAll('.mod_book_list li')
         .map((item) => SearchItem(
               api: this,
-              cover:
-                  '${item.querySelector('img').attributes["data-original"]}',
+              cover: '${item.querySelector('img').attributes["data-original"]}',
               name: '${item.querySelector('h4').text}',
               author: '',
               chapter: '${item.querySelector('.mod_book_update').text}',
@@ -72,7 +70,7 @@ class TencentManga implements API {
               cover: null,
               time: null,
               name:
-                  '${item.querySelector('i').className == "ui-icon-pay" ? "🔒" : ""}${item.text}'.trim(),
+                  '${item.querySelector('i').className == "ui-icon-pay" ? "🔒" : ""}${item.text?.trim()}',
               url:
                   'https://ac.qq.com${item.querySelector('a').attributes["href"]}',
             ))
@@ -84,9 +82,11 @@ class TencentManga implements API {
     final res = await http.get(url);
     final s = RegExp("DATA        = '([^']*)").firstMatch(res.body)[1];
     final pic = base64Decode(s.substring(s.length % 4));
-    final json = RegExp("\"picture\":([^\\]]*\\])").firstMatch(String.fromCharCodes(pic))[1];
+    final json = RegExp("\"picture\":([^\\]]*\\])")
+        .firstMatch(String.fromCharCodes(pic))[1];
     return (jsonDecode(json) as List).map((s) => '${s["url"]}').toList();
   }
+
   @override
   List<DiscoverMap> discoverMap() {
     return <DiscoverMap>[
