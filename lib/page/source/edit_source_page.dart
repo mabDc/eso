@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:http/http.dart' as http;
 
 //图源编辑
 class EditSourcePage extends StatefulWidget {
@@ -55,11 +58,52 @@ class _EditSourcePageState extends State {
     );
   }
 
+  bool _isloadFromYiciYuan = false;
+  Future<void> fromYiciYuan(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => Dialog(
+        child: TextField(
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: "输入源地址, 回车开始导入",
+            contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          ),
+          enabled: !_isloadFromYiciYuan,
+          onSubmitted: (url) async {
+            setState(() {
+              _isloadFromYiciYuan = true;
+            });
+            url = url.trim();
+            Toast.show("输入的地址为$url", context);
+            try {
+              final res = await http.get("$url");
+              final json = jsonDecode(utf8.decode(res.bodyBytes));
+              if (json is Map) {
+                await Global.ruleDao
+                    .insertOrUpdateRule(Rule.fromYiCiYuan(json));
+              } else if (json is List) {
+                await Global.ruleDao.insertOrUpdateRules(
+                    json.map((rule) => Rule.fromYiCiYuan(rule)).toList());
+              }
+            } catch (e) {
+              Toast.show("$e", context);
+            }
+            _isloadFromYiciYuan = false;
+            Navigator.pop(context);
+            setState(() {});
+          },
+        ),
+      ),
+    );
+  }
+
   PopupMenuButton _buildpopupMenu(BuildContext context) {
     const ADD_RULE = 0;
     const FROM_CLIPBOARD = 1;
     const FROM_FILE = 2;
     const FROM_CLOUD = 3;
+    const FROM_YICIYUAN = 4;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
@@ -79,6 +123,9 @@ class _EditSourcePageState extends State {
             break;
           case FROM_CLOUD:
             Toast.show("从网络导入", context);
+            break;
+          case FROM_YICIYUAN:
+            fromYiciYuan(context);
             break;
           default:
         }
@@ -101,7 +148,20 @@ class _EditSourcePageState extends State {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('剪贴板'),
+              Text('从异次元源链接导入'),
+              Icon(
+                Icons.cloud_download,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: FROM_YICIYUAN,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('从剪贴板导入'),
               Icon(
                 Icons.content_paste,
                 color: primaryColor,

@@ -456,15 +456,20 @@ class _EditRulePageState extends State<EditRulePage> {
     final text = await Clipboard.getData(Clipboard.kTextPlain);
     isLoading = false;
     try {
-      setState(() {
-        rule = Rule.fromYiCiYuan(jsonDecode(text.text), rule);
-      });
-      Toast.show("已从剪贴板导入", context);
-      return true;
+      final json = jsonDecode(text.text);
+      if (json is Map) {
+        setState(() {
+          rule = Rule.fromYiCiYuan(json, rule);
+        });
+        Toast.show("已从剪贴板导入", context);
+        return true;
+      } else if (json is List) {
+        Toast.show("当前界面只支持单个源导入", context);
+      }
     } catch (e) {
       Toast.show("导入失败：" + e.toString(), context, duration: 2);
-      return false;
     }
+    return false;
   }
 
   PopupMenuButton _buildpopupMenu(BuildContext context) {
