@@ -245,7 +245,7 @@ class Rule {
             .replaceAll("tag.", "")
             .replaceAll("class.", ".")
             .replaceAll("id.", "#")
-            .replaceAll(RegExp(r".(\d)"), r":nth-of-type(n+$1)");
+            .replaceAll(RegExp(r"\.(\d)"), r":nth-of-type(n+$1)");
         json[key] = "@css:" + s.trim();
       }
     }
