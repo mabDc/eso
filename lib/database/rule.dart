@@ -247,6 +247,7 @@ class Rule {
             .replaceAll("@tag.", " ")
             .replaceAll("@class.", " .")
             .replaceAll("@id.", " #")
+            .replaceAll("@children", ">*")
             .replaceAll("tag.", "")
             .replaceAll("class.", ".")
             .replaceAll("id.", "#")
