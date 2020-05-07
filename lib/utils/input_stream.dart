@@ -6,7 +6,7 @@ class InputStream {
     final str = latin1.decode(bytes);
     if (!str.contains('charset')) return str;
     try {
-      final charset = RegExp("(?<=charset\s*\=[^\"'\w]*[\"']?)[^\"';\s]+")
+      final charset = RegExp("(?<=charset\s*\=\s*[\"']?)[^\"';\s]+")
           .firstMatch(str)
           .group(0);
       return decode(bytes, charset);
@@ -16,7 +16,7 @@ class InputStream {
     }
   }
 
-  String decode(List<int> bytes, String charset) {
+  String decode(List<int> bytes, [String charset = "utf-8"]) {
     if (charset.toLowerCase() == 'gbk') return gbk.decode(bytes);
     return (Encoding.getByName(charset) ?? latin1).decode(bytes);
   }
