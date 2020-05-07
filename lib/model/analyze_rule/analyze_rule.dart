@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:eso/model/analyze_rule/analyze_by_html.dart';
 import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
 import 'package:flutter_js/flutter_js.dart';
@@ -165,15 +163,11 @@ class AnalyzeRule {
             break;
           default:
         }
-
-        if (r.replaceFirst) {
-          result = result.replaceFirst(RegExp(r.replaceRegex), r.replacement);
-        } else {
-          result = result.replaceAll(RegExp(r.replaceRegex), r.replacement);
+        if (r.replaceRegex.isNotEmpty) {
+          result = await replaceByJSEngine(r, result);
         }
       }
     }
-
     if (null != js) {
       await initJsEngine(result.isNotEmpty ? result : _content);
       final temp = await FlutterJs.getString(js.rule, _idJsEngine);
@@ -181,6 +175,23 @@ class AnalyzeRule {
       return temp;
     }
     return result.toString();
+  }
+
+  Future<String> replaceByJSEngine(SourceRule rule, String result) async {
+    if (_idJsEngine == null) {
+      _idJsEngine = await FlutterJs.initEngine();
+    }
+    await FlutterJs.initJson({
+      "result": result,
+      "regex": rule.replaceRegex,
+      "replacement": rule.replacement,
+      "replaceFirst": rule.replaceFirst,
+    }, _idJsEngine);
+    final temp = await FlutterJs.getString(
+        "result.replace(RegExp(regex, replaceFirst?'':'g'), replacement);",
+        _idJsEngine);
+    closeJsEngine();
+    return temp;
   }
 
   Future<bool> initJsEngine(dynamic result) async {
@@ -195,7 +206,7 @@ class AnalyzeRule {
   }
 
   void closeJsEngine() {
-    if (_idJsEngine == null) {
+    if (_idJsEngine != null) {
       FlutterJs.close(_idJsEngine);
     }
     _idJsEngine = null;

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:gbk2utf8/gbk2utf8.dart';
+import 'package:fast_gbk/fast_gbk.dart';
 
 class InputStream {
   String autoDecode(List<int> bytes) {
