@@ -17,7 +17,7 @@ class InputStream {
   }
 
   String decode(List<int> bytes, [String charset = "utf-8"]) {
-    if (charset.toLowerCase() == 'gbk') return gbk.decode(bytes);
+    if (charset.toLowerCase().startsWith('gb')) return gbk.decode(bytes);
     return (Encoding.getByName(charset) ?? latin1).decode(bytes);
   }
 }
