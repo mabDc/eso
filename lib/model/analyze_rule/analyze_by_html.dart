@@ -32,6 +32,7 @@ class AnalyzerByHtml {
   String _getResult(Element e, String lastRule) {
     switch (lastRule) {
       case 'text':
+      case 'textNodes':
         return e.text.trim();
       case 'id':
         return e.id;

@@ -97,14 +97,15 @@ class AnalyzeRule {
         result.add(s);
       }
     } else {
-      result = _content;
       for (var r in ruleList) {
         switch (r.mode) {
           case Mode.CSS:
-            result = AnalyzerByHtml(result).getStringList(r.rule);
+            result = AnalyzerByHtml(result.isNotEmpty ? result : _content)
+                .getStringList(r.rule);
             break;
           case Mode.Json:
-            result = AnalyzeByJSonPath(result).getStringList(r.rule);
+            result = AnalyzeByJSonPath(result.isNotEmpty ? result : _content)
+                .getStringList(r.rule);
             break;
           default:
         }
@@ -112,7 +113,7 @@ class AnalyzeRule {
     }
 
     if (null != js) {
-      await initJsEngine(result);
+      await initJsEngine(result.isNotEmpty ? result : _content);
       final temp = await FlutterJs.getStringList(js.rule, _idJsEngine);
       closeJsEngine();
       return temp;

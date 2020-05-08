@@ -252,6 +252,7 @@ class _ChapterPageState extends State<ChapterPage> {
                   () => onTap(index)),
             );
           },
+          childCount: pageController.searchItem.chapters.length,
         ),
       ),
     );

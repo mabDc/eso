@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:eso/api/api.dart';
+import 'package:eso/api/api_form_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
@@ -7,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
+
+import '../discover_search_page.dart';
 
 //图源编辑
 class EditSourcePage extends StatefulWidget {
@@ -60,7 +64,6 @@ class _EditSourcePageState extends State {
 
   bool _isloadFromYiciYuan = false;
   Future<void> fromYiciYuan(BuildContext context) async {
-    await Global.ruleDao.deleteRules(await Global.ruleDao.findAllRules());
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
@@ -105,6 +108,7 @@ class _EditSourcePageState extends State {
     const FROM_FILE = 2;
     const FROM_CLOUD = 3;
     const FROM_YICIYUAN = 4;
+    const DELETE_ALL_RULES = 5;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
@@ -127,6 +131,9 @@ class _EditSourcePageState extends State {
             break;
           case FROM_YICIYUAN:
             fromYiciYuan(context);
+            break;
+          case DELETE_ALL_RULES:
+            Global.ruleDao.clearAllRules();
             break;
           default:
         }
@@ -197,6 +204,19 @@ class _EditSourcePageState extends State {
           ),
           value: FROM_CLOUD,
         ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('清空源'),
+              Icon(
+                Icons.delete_forever,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: DELETE_ALL_RULES,
+        ),
       ],
     );
   }
@@ -205,7 +225,7 @@ class _EditSourcePageState extends State {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
-      child: GestureDetector(
+      child: InkWell(
         onTap: () {
           Toast.show(rule.name, context);
         },
@@ -220,6 +240,12 @@ class _EditSourcePageState extends State {
             _updateView();
           },
         ),
+        onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => DiscoverSearchPage(
+                  originTag: rule.id,
+                  origin: rule.name,
+                  discoverMap: APIFromRUle(rule).discoverMap(),
+                ))),
       ),
       actions: [
         IconSlideAction(

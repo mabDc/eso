@@ -23,4 +23,7 @@ abstract class RuleDao {
 
   @Query('SELECT * FROM rule order by sort desc limit 1')
   Future<Rule> findMaxSort();
+
+  @Query("DELETE FROM rule")
+  Future<void> clearAllRules();
 }

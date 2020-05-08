@@ -244,7 +244,9 @@ class Rule {
       }
       if (s.contains(RegExp(r"img|text|href|tag\.|class\.|id\."))) {
         s = s
-            .replaceAll("#", "##")
+            .replaceAll(RegExp(r"(?<!|)|(?!|)"), "||")
+            .replaceAll(RegExp(r"(?<!&)&(?!&)"), "&&")
+            .replaceAll(RegExp(r"(?<!#)#(?!#)"), "##")
             .replaceAll("@tag.", " ")
             .replaceAll("@class.", " .")
             .replaceAll("@id.", " #")
@@ -271,7 +273,7 @@ class Rule {
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['httpUserAgent'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
-    discoverUrl = json['discoverUrl'] ?? defaultRule.discoverUrl;
+    discoverUrl = json['ruleFindUrl'] ?? defaultRule.discoverUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
     discoverList = json['ruleSearchList'] ?? defaultRule.discoverList;
     discoverTags = json['ruleSearchKind'] ?? defaultRule.discoverTags;
