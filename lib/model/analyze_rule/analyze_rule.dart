@@ -288,17 +288,14 @@ class SourceRule {
     rule = rules[0];
     // 确定 rule 和 mode, 暂不考虑xpath
     var mode = Mode.CSS;
-    
-    if (rule.length > 2 && rule.substring(0, 2) == '\$.') {
+    if (rule.startsWith("\$.")) {
       mode = Mode.Json;
-    } else if (rule.length > 6) {
-      if (rule.substring(0, 6).toLowerCase() == "@json:") {
-        rule = rule.substring(6);
-        mode = Mode.Json;
-      } else if (rule.substring(0, 5).toLowerCase() == "@css:") {
-        rule = rule.substring(5);
-        mode = Mode.CSS;
-      }
+    } else if (rule.startsWith(RegExp(r"@json:", caseSensitive: false))) {
+      rule = rule.substring(6);
+      mode = Mode.Json;
+    } else if (rule.startsWith(RegExp(r"@css:", caseSensitive: false))) {
+      rule = rule.substring(5);
+      mode = Mode.CSS;
     }
     return SourceRule(
       mode: mode,

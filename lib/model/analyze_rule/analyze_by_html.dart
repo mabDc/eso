@@ -59,9 +59,9 @@ class AnalyzerByHtml {
     } else if (!rule.contains('@')) {
       return _getResult(_element, rule);
     } else {
-      final lastRule = rule.split('@').last;
-      final elementList = _querySelectorAll(
-          rule.substring(0, rule.length - lastRule.length - 1));
+      final split = rule.lastIndexOf("@");
+      final lastRule = rule.substring(split + 1);
+      final elementList = _querySelectorAll(rule.substring(0, split));
       final builder = <String>[];
       for (var e in elementList) {
         final r = _getResult(e, lastRule);
@@ -103,9 +103,9 @@ class AnalyzerByHtml {
       final el = <int>[];
       int max = 0;
       for (var r in rules) {
-        final lastRule = r.split('@').last;
-        final temp =
-            _querySelectorAll(r.substring(0, rule.length - lastRule.length));
+        final split = r.lastIndexOf("@");
+        final lastRule = r.substring(split + 1);
+        final temp = _querySelectorAll(r.substring(0, split));
         final l = temp.length;
         lastRuleList.add(lastRule);
         elementsList.add(temp);
@@ -120,9 +120,9 @@ class AnalyzerByHtml {
         }
       }
     } else {
-      final lastRule = rule.split('@').last;
-      final elementList =
-          _querySelectorAll(rule.substring(0, rule.length - lastRule.length));
+      final split = rule.lastIndexOf("@");
+      final lastRule = rule.substring(split + 1);
+      final elementList = _querySelectorAll(rule.substring(0, split));
       for (var e in elementList) {
         final r = _getResult(e, lastRule);
         if (r.isNotEmpty) result.add(r);
