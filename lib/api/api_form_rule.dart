@@ -66,11 +66,12 @@ class APIFromRUle implements API {
       host: rule.host,
       page: page,
       pageSize: pageSize,
+      key: query,
     );
     final list = await AnalyzeRule(
       InputStream.decode(res.bodyBytes),
       res.request.url.toString(),
-    ).getElements(rule.discoverList);
+    ).getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzeRule(item, res.request.url.toString());

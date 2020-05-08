@@ -244,7 +244,7 @@ class Rule {
       }
       if (s.contains(RegExp(r"img|text|href|tag\.|class\.|id\."))) {
         s = s
-            .replaceAll(RegExp(r"(?<!|)|(?!|)"), "||")
+            .replaceAll(RegExp(r"(?<!\|)\|(?!\|)"), "||")
             .replaceAll(RegExp(r"(?<!&)&(?!&)"), "&&")
             .replaceAll(RegExp(r"(?<!#)#(?!#)"), "##")
             .replaceAll("@tag.", " ")

@@ -18,11 +18,14 @@ class EditSourcePage extends StatefulWidget {
   _EditSourcePageState createState() => _EditSourcePageState();
 }
 
-class _EditSourcePageState extends State {
-  @override
-  void initState() {
-    _updateView();
-    super.initState();
+class _EditSourcePageState extends State<EditSourcePage> {
+  List<Rule> rules;
+
+  Future<List<Rule>> init() async {
+    if (rules == null) {
+      rules = await Global.ruleDao.findAllRules();
+    }
+    return rules;
   }
 
   @override
@@ -35,7 +38,7 @@ class _EditSourcePageState extends State {
         ],
       ),
       body: FutureBuilder<List<Rule>>(
-        future: Global.ruleDao.findAllRules(),
+        future: init(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
@@ -234,9 +237,9 @@ class _EditSourcePageState extends State {
           activeColor: Theme.of(context).primaryColor,
           title: Text('${rule.name}'),
           subtitle: Text('${rule.host}'),
-          onChanged: (bool val) {
+          onChanged: (bool val) async {
             rule.enableSearch = val;
-            Global.ruleDao.insertOrUpdateRule(rule);
+            await Global.ruleDao.insertOrUpdateRule(rule);
             _updateView();
           },
         ),
@@ -254,9 +257,8 @@ class _EditSourcePageState extends State {
           icon: Icons.vertical_align_top,
           onTap: () async {
             Rule maxSort = await Global.ruleDao.findMaxSort();
-
             rule.sort = maxSort.sort + 1;
-            Global.ruleDao.insertOrUpdateRule(rule);
+            await Global.ruleDao.insertOrUpdateRule(rule);
             _updateView();
           },
         ),
@@ -275,8 +277,8 @@ class _EditSourcePageState extends State {
           caption: '删除',
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () {
-            Global.ruleDao.deleteRule(rule);
+          onTap: () async {
+            await Global.ruleDao.deleteRule(rule);
             _updateView();
           },
         ),
@@ -284,7 +286,8 @@ class _EditSourcePageState extends State {
     );
   }
 
-  void _updateView() {
+  void _updateView() async {
+    rules = await Global.ruleDao.findAllRules();
     setState(() {});
   }
 }
