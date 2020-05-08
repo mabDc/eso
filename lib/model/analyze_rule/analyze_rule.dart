@@ -6,7 +6,7 @@ class AnalyzeRule {
   // 正则规则维护
   String _regexSplitJoin = r"\{\{(.+?)\}\}";
   String _regexSplitRule =
-      r"@json:((?!@css:|@json:).)*|@css:((?!@css:|@json:).)*";
+      r"^$\.((?!@css:|@json:).)*|@json:((?!@css:|@json:).)*|@css:((?!@css:|@json:).)*";
 
   bool _isJoinRule;
   // 只读属性
@@ -288,12 +288,17 @@ class SourceRule {
     rule = rules[0];
     // 确定 rule 和 mode, 暂不考虑xpath
     var mode = Mode.CSS;
-    if (rule.substring(0, 5).toLowerCase() == "@css:") {
-      rule = rule.substring(5);
-      mode = Mode.CSS;
-    } else if (rule.substring(0, 6).toLowerCase() == "@json:") {
-      rule = rule.substring(6);
+    
+    if (rule.length > 2 && rule.substring(0, 2) == '\$.') {
       mode = Mode.Json;
+    } else if (rule.length > 6) {
+      if (rule.substring(0, 6).toLowerCase() == "@json:") {
+        rule = rule.substring(6);
+        mode = Mode.Json;
+      } else if (rule.substring(0, 5).toLowerCase() == "@css:") {
+        rule = rule.substring(5);
+        mode = Mode.CSS;
+      }
     }
     return SourceRule(
       mode: mode,

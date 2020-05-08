@@ -234,12 +234,12 @@ class Rule {
 
   Rule.fromYiCiYuan(Map<String, dynamic> json, [Rule rule]) {
     final defaultRule = rule ?? Rule.newRule();
-    var flag = false;
     for (final key in json.keys) {
       var s = '${json[key]}';
-      if (s.contains('@css:')) continue;
-      if (s.startsWith("-")) {
-        flag = true;
+      if (s.contains('@css:') || s.contains("@js:") || s.startsWith("\$."))
+        continue;
+      final flag = s.startsWith("-");
+      if (flag) {
         s = s.substring(1);
       }
       if (s.contains(RegExp(r"img|text|href|tag\.|class\.|id\."))) {
