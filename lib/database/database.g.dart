@@ -307,4 +307,9 @@ class _$RuleDao extends RuleDao {
   Future<int> deleteRules(List<Rule> rules) {
     return _ruleDeletionAdapter.deleteListAndReturnChangedRows(rules);
   }
+  @override
+  Future<List<Rule>> getRuleByName(String name){
+    return _queryAdapter.queryList("SELECT * FROM rule WHERE name like ? ORDER BY sort desc",
+    arguments: <dynamic>[name], mapper: _ruleMapper);
+  }
 }

@@ -41,8 +41,50 @@ class _EditSourcePageState extends State<EditSourcePage> {
   Widget _buildPage() {
     return Scaffold(
       appBar: AppBar(
-        title: Text('站点管理'),
+        title: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 32),
+          child: TextField(
+            cursorColor: Theme.of(context).primaryColor,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white24,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.transparent),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.transparent),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.transparent),
+              ),
+              hintText: "搜索",
+              hintStyle: TextStyle(
+                color: Colors.white,
+              ),
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+              prefixIcon: Icon(
+                Icons.search,
+                color: Colors.white30,
+              ),
+            ),
+            maxLines: 1,
+            style: TextStyle(fontSize: 14, color: Colors.white, height: 1),
+            onSubmitted: (content) {
+              __provider.getRuleListByName(content);
+            },
+          ),
+        ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.check_circle),
+            onPressed: () {
+              __provider.toggleCheckAllRule();
+            },
+          ),
           _buildpopupMenu(context),
         ],
       ),
@@ -70,6 +112,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
   }
 
   bool _isloadFromYiciYuan = false;
+
   Future<void> fromYiciYuan(BuildContext context) async {
     showDialog(
       context: context,
