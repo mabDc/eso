@@ -42,22 +42,22 @@ class _EditSourcePageState extends State<EditSourcePage> {
     return Scaffold(
       appBar: AppBar(
         title: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 32),
+          constraints: BoxConstraints(maxHeight: 30),
           child: TextField(
             cursorColor: Theme.of(context).primaryColor,
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white24,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
               hintText: "搜索",
@@ -65,7 +65,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 color: Colors.white,
               ),
               isDense: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
               prefixIcon: Icon(
                 Icons.search,
                 color: Colors.white30,
