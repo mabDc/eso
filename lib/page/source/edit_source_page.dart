@@ -41,8 +41,34 @@ class _EditSourcePageState extends State<EditSourcePage> {
   Widget _buildPage() {
     return Scaffold(
       appBar: AppBar(
-        title: Text('站点管理'),
+        title: Container(
+          decoration: new BoxDecoration(
+            color: Color.fromARGB(80, 255, 255, 255),
+            borderRadius: new BorderRadius.all(new Radius.circular(18.0)),
+          ),
+          alignment: Alignment.center,
+          height: 32,
+          child: TextField(
+            cursorColor: Theme.of(context).primaryColor,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                icon: Icon(Icons.search),
+                hintText: "搜索",
+                hintStyle: new TextStyle(fontSize: 14, color: Colors.white)),
+            maxLines: 1,
+            style: new TextStyle(fontSize: 14, color: Colors.white),
+            onSubmitted: (content){
+              __provider.getRuleListByName(content);
+            },
+          ),
+        ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.check_circle),
+            onPressed: (){
+              __provider.toggleCheckAllRule();
+            },
+          ),
           _buildpopupMenu(context),
         ],
       ),
@@ -67,10 +93,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
         ),
       ),
     );
-
   }
 
   bool _isloadFromYiciYuan = false;
+
   Future<void> fromYiciYuan(BuildContext context) async {
     showDialog(
       context: context,
