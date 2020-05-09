@@ -10,12 +10,13 @@ class EditSourceProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   EditSourceProvider() {
-    _isLoading = false;
-    compute(_initContent, null);
+    _isLoading = true;
+    refreshData();
   }
 
-  void _initContent(_) async {
+  void refreshData() async {
     _rules = await Global.ruleDao.findAllRules();
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -36,11 +37,23 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = false;
   }
 
+  void deleteAllRules() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    await Global.ruleDao.clearAllRules();
+    notifyListeners();
+    _isLoading = false;
+  }
+
   void setSortMax(Rule rule) async {
     if (_isLoading) return;
     _isLoading = true;
     Rule maxSort = await Global.ruleDao.findMaxSort();
     rule.sort = maxSort.sort + 1;
+    //更换顺序
+    _rules.remove(rule);
+    _rules.insert(0, rule);
+    //保存到数据库
     await Global.ruleDao.insertOrUpdateRule(rule);
     notifyListeners();
     _isLoading = false;

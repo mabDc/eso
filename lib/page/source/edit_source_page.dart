@@ -67,7 +67,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
         ),
       ),
     );
-
   }
 
   bool _isloadFromYiciYuan = false;
@@ -103,7 +102,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
             }
             _isloadFromYiciYuan = false;
             Navigator.pop(context);
-            setState(() {});
+            __provider.refreshData();
           },
         ),
       ),
@@ -112,7 +111,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
 
   PopupMenuButton _buildpopupMenu(BuildContext context) {
     const ADD_RULE = 0;
-    const FROM_CLIPBOARD = 1;
     const FROM_FILE = 2;
     const FROM_CLOUD = 3;
     const FROM_YICIYUAN = 4;
@@ -128,9 +126,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => EditRulePage()));
             break;
-          case FROM_CLIPBOARD:
-            Toast.show("从剪贴板导入", context);
-            break;
           case FROM_FILE:
             Toast.show("从本地文件导入", context);
             break;
@@ -141,7 +136,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
             fromYiciYuan(context);
             break;
           case DELETE_ALL_RULES:
-            Global.ruleDao.clearAllRules();
+            __provider.deleteAllRules();
             break;
           default:
         }
@@ -164,7 +159,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('从异次元源链接导入'),
+              Text('从异次元链接导入'),
               Icon(
                 Icons.cloud_download,
                 color: primaryColor,
@@ -172,19 +167,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
             ],
           ),
           value: FROM_YICIYUAN,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('从剪贴板导入'),
-              Icon(
-                Icons.content_paste,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_CLIPBOARD,
         ),
         PopupMenuItem(
           child: Row(
