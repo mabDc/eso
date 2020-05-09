@@ -4,6 +4,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/model/analyze_rule/analyze_rule.dart';
 import 'package:eso/model/analyze_rule/analyze_url.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
 import '../../api/api.dart';
 
@@ -21,12 +22,11 @@ class DebugRulePage extends StatefulWidget {
 class _DebugRulePageState extends State<DebugRulePage> {
   Widget _buildBigText(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.black87,
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -36,14 +36,14 @@ class _DebugRulePageState extends State<DebugRulePage> {
   Text _buildDetailsText(String text) {
     return Text(
       text,
-      style: TextStyle(color: Colors.black54, fontSize: 16, height: 2),
+      style: TextStyle(fontSize: 12, height: 2),
     );
   }
 
   TextEditingController _controller;
-  final searchDebugReport = <String>["等待中..."];
-  final chapterDebugReport = <String>["等待中..."];
-  final contentDebugReport = <String>["等待中..."];
+  final searchDebugReport = <String>[];
+  final chapterDebugReport = <String>[];
+  final contentDebugReport = <String>[];
 
   @override
   void dispose() {
@@ -57,11 +57,22 @@ class _DebugRulePageState extends State<DebugRulePage> {
     super.initState();
   }
 
+  String parseTime(DateTime perTime) {
+    //相差时间戳
+    var now = new DateTime.now().difference(perTime);
+    print(DateTime.fromMicrosecondsSinceEpoch(now.inMilliseconds * 1000));
+    return DateFormat("mm:ss.SSS")
+        .format(DateTime.fromMicrosecondsSinceEpoch(now.inMilliseconds * 1000));
+  }
+
   Future<bool> parseSearch() async {
-    searchDebugReport.removeRange(1, searchDebugReport.length);
-    chapterDebugReport.removeRange(1, searchDebugReport.length);
-    contentDebugReport.removeRange(1, searchDebugReport.length);
-    setState(() {});
+    final DateTime now = new DateTime.now();
+    // searchDebugReport.removeRange(1, searchDebugReport.length);
+    // chapterDebugReport.removeRange(1, searchDebugReport.length);
+    // contentDebugReport.removeRange(1, searchDebugReport.length);
+    setState(() {
+      searchDebugReport.add("• [00:00.000] 搜索开始");
+    });
     final searchResult = await AnalyzeUrl.urlRuleParser(
       widget.rule.searchUrl,
       host: widget.rule.host,
@@ -69,98 +80,117 @@ class _DebugRulePageState extends State<DebugRulePage> {
     );
     final baseUrl = searchResult.request.url.toString();
     setState(() {
-      searchDebugReport.add("成功获取搜索响应");
-      searchDebugReport.add("搜索地址: " + baseUrl);
+      searchDebugReport.add("• 搜索地址: " + baseUrl);
     });
     final analyzer = AnalyzeRule(utf8.decode(searchResult.bodyBytes), baseUrl);
     final searchList = await analyzer.getElements(widget.rule.searchList);
     final resultCount = searchList.length;
     if (resultCount == 0) {
       setState(() {
-        searchDebugReport.add("搜索结果列表个数为0，解析结束！");
+        searchDebugReport.add("• 搜索结果列表个数为0，解析结束！");
       });
       return false;
     }
     setState(() {
-      searchDebugReport.add("搜索结果列表个数: " + resultCount.toString());
-      searchDebugReport.add("开始解析第一个搜索结果");
+      searchDebugReport.add("• 搜索结果列表个数: " + resultCount.toString());
+      searchDebugReport.add("• 开始解析第一个搜索结果");
     });
-    await parseFirstSearchResult(searchList.first, baseUrl);
+    await parseFirstSearchResult(searchList.first, baseUrl, now);
     return true;
   }
 
-  Future<bool> parseFirstSearchResult(dynamic first, String baseUrl) async {
+  Future<bool> parseFirstSearchResult(
+      dynamic first, String baseUrl, DateTime now) async {
     try {
       final analyzer = AnalyzeRule(first, baseUrl);
-      searchDebugReport.add("名称: " + await analyzer.getString(widget.rule.searchName));
-      searchDebugReport.add("作者: " + await analyzer.getString(widget.rule.searchAuthor));
-      searchDebugReport.add("封面: " + await analyzer.getString(widget.rule.searchCover));
-      searchDebugReport.add("章节: " + await analyzer.getString(widget.rule.searchChapter));
-      searchDebugReport.add("简介: " + await analyzer.getString(widget.rule.searchDescription));
-      searchDebugReport.add("标签: " + await analyzer.getString(widget.rule.searchTags));
+      searchDebugReport
+          .add("• 名称: " + await analyzer.getString(widget.rule.searchName));
+      searchDebugReport
+          .add("• 作者: " + await analyzer.getString(widget.rule.searchAuthor));
+      searchDebugReport
+          .add("• 封面: " + await analyzer.getString(widget.rule.searchCover));
+      searchDebugReport
+          .add("• 章节: " + await analyzer.getString(widget.rule.searchChapter));
+      searchDebugReport.add(
+          "• 简介: " + await analyzer.getString(widget.rule.searchDescription));
+      searchDebugReport
+          .add("• 标签: " + await analyzer.getString(widget.rule.searchTags));
       final result = await analyzer.getString(widget.rule.searchResult);
-      searchDebugReport.add("结果: " + result);
+      searchDebugReport.add("• 结果: " + result);
+      searchDebugReport.add("• [${parseTime(now)}] 搜索结束");
       setState(() {});
-      await parseChapter(result);
+      await parseChapter(result, now);
     } catch (e) {
       Toast.show(e.toString(), context, duration: 3);
-      setState(() {
-        searchDebugReport.add("解析已结束");
-      });
     }
     return true;
   }
 
-  Future<bool> parseChapter(String result) async {
-    if(widget.rule.chapterUrl.isEmpty){
-      chapterDebugReport.add("chapterUrl规则为空，使用searchResult作为请求地址");
+  Future<bool> parseChapter(String result, DateTime now) async {
+    setState(() {
+      chapterDebugReport.add("• [${parseTime(now)}] 目录开始");
+    });
+    if (widget.rule.chapterUrl.isEmpty) {
+      chapterDebugReport.add("• chapterUrl规则为空，使用searchResult作为请求地址");
       final chapterResult = await AnalyzeUrl.urlRuleParser(
         result,
         host: widget.rule.host,
       );
       final baseUrl = chapterResult.request.url.toString();
       setState(() {
-        chapterDebugReport.add("成功获取章节响应");
-        chapterDebugReport.add("章节地址: " + baseUrl);
+        chapterDebugReport.add("• 成功获取章节响应");
+        chapterDebugReport.add("• 章节地址: " + baseUrl);
       });
-      final analyzer = AnalyzeRule(utf8.decode(chapterResult.bodyBytes), baseUrl);
+      final analyzer =
+          AnalyzeRule(utf8.decode(chapterResult.bodyBytes), baseUrl);
       final chapterList = await analyzer.getElements(widget.rule.chapterList);
       final resultCount = chapterList.length;
       if (resultCount == 0) {
         setState(() {
-          chapterDebugReport.add("章节结果列表个数为0，解析结束！");
+          chapterDebugReport.add("• 章节结果列表个数为0，解析结束！");
         });
         return false;
       }
       setState(() {
-        chapterDebugReport.add("章节结果列表个数: " + resultCount.toString());
-        chapterDebugReport.add("开始解析第一个章节");
+        chapterDebugReport.add("• 章节结果列表个数: " + resultCount.toString());
+        chapterDebugReport.add("• 开始解析第一个章节");
       });
-      await parseFirstChapterResult(chapterList.first, baseUrl);
-
-    }else{
-      chapterDebugReport.add("暂不支持chapterUrl规则");
+      await parseFirstChapterResult(chapterList.first, baseUrl, now);
+    } else {
+      chapterDebugReport.add("• 暂不支持chapterUrl规则");
     }
+    setState(() {
+      chapterDebugReport.add("• [${parseTime(now)}] 目录结束");
+    });
     return true;
   }
 
-  Future<bool> parseFirstChapterResult(dynamic first, String baseUrl) async {
+  Future<bool> parseFirstChapterResult(
+      dynamic first, String baseUrl, DateTime now) async {
     try {
       final analyzer = AnalyzeRule(first, baseUrl);
-      chapterDebugReport.add("名称: " + await analyzer.getString(widget.rule.chapterName));
-      chapterDebugReport.add("付费: " + await analyzer.getString(widget.rule.chapterLock));
-      chapterDebugReport.add("封面: " + await analyzer.getString(widget.rule.chapterCover));
-      chapterDebugReport.add("时间: " + await analyzer.getString(widget.rule.chapterTime));
+      contentDebugReport.add("• [${parseTime(now)}] 正文开始");
+      contentDebugReport
+          .add("• 名称: " + await analyzer.getString(widget.rule.chapterName));
+      contentDebugReport
+          .add("• 付费: " + await analyzer.getString(widget.rule.chapterLock));
+      contentDebugReport
+          .add("• 封面: " + await analyzer.getString(widget.rule.chapterCover));
+      contentDebugReport
+          .add("• 时间: " + await analyzer.getString(widget.rule.chapterTime));
       final result = await analyzer.getString(widget.rule.chapterResult);
-      chapterDebugReport.add("结果: " + result);
-      chapterDebugReport.add("正文解析暂未实现，解析已结束！");
+      contentDebugReport.add("• 结果: " + result);
+      contentDebugReport.add("• 正文解析暂未实现，解析已结束！");
       setState(() {});
     } catch (e) {
       Toast.show(e.toString(), context, duration: 3);
       setState(() {
-        chapterDebugReport.add("解析已结束");
+        contentDebugReport.add("• 解析已结束");
       });
     }
+    setState(() {
+      contentDebugReport.add("• [${parseTime(now)}] 正文结束");
+    });
     return true;
   }
 
@@ -192,22 +222,22 @@ class _DebugRulePageState extends State<DebugRulePage> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
         children: [
-          _buildBigText('基础信息'),
-          _buildDetailsText("""
-创建时间：${DateTime.fromMicrosecondsSinceEpoch(widget.rule.createTime)}
-修改时间：${DateTime.fromMicrosecondsSinceEpoch(widget.rule.modifiedTime)}
-作者：${widget.rule.author}
-签名档：${widget.rule.postScript}
-名称：${widget.rule.name}
-域名：${widget.rule.host}
-类型：${API.getRuleContentTypeName(widget.rule.contentType)}"""),
-          _buildBigText('搜索测试'),
+//           _buildBigText('基础信息'),
+//           _buildDetailsText("""
+// 创建时间：${DateTime.fromMicrosecondsSinceEpoch(widget.rule.createTime)}
+// 修改时间：${DateTime.fromMicrosecondsSinceEpoch(widget.rule.modifiedTime)}
+// 作者：${widget.rule.author}
+// 签名档：${widget.rule.postScript}
+// 名称：${widget.rule.name}
+// 域名：${widget.rule.host}
+// 类型：${API.getRuleContentTypeName(widget.rule.contentType)}"""),
+          _buildBigText('★ 搜索测试'),
           _buildDetailsText(searchDebugReport.join("\n")),
-          _buildBigText('目录测试'),
+          _buildBigText('★ 目录测试'),
           _buildDetailsText(chapterDebugReport.join("\n")),
-          _buildBigText('正文测试'),
+          _buildBigText('★ 正文测试'),
           _buildDetailsText(contentDebugReport.join("\n")),
         ],
       ),

@@ -75,8 +75,7 @@ class EditSourceProvider with ChangeNotifier {
     //循环处理（如果有未勾选则全选 没有则全不选）
     int _enCheck = _rules.indexWhere((e)=>(!e.enableSearch),0);
     _rules.forEach((rule){
-      if (_enCheck>=0) rule.enableSearch = true;
-      else rule.enableSearch = false;
+      rule.enableSearch = _enCheck<0?false:true;
     });
     notifyListeners();
     //保存到数据库
