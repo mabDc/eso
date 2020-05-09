@@ -84,7 +84,7 @@ class APIFromRUle implements API {
         url: await analyzer.getString(rule.searchResult),
         api: this,
         tags: await analyzer.getStringList(rule.searchTags),
-      ));
+      )); 
     }
     return result;
   }

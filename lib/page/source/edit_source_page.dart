@@ -1,11 +1,13 @@
 import 'dart:convert';
 
-import 'package:eso/api/api.dart';
 import 'package:eso/api/api_form_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
+import 'package:eso/model/edit_source_provider.dart';
+import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
@@ -19,17 +21,24 @@ class EditSourcePage extends StatefulWidget {
 }
 
 class _EditSourcePageState extends State<EditSourcePage> {
-  List<Rule> rules;
+  Widget _page;
+  EditSourceProvider __provider;
 
-  Future<List<Rule>> init() async {
-    if (rules == null) {
-      rules = await Global.ruleDao.findAllRules();
-    }
-    return rules;
+  @override
+  void dispose() {
+    __provider?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_page == null) {
+      _page = _buildPage();
+    }
+    return _page;
+  }
+
+  Widget _buildPage() {
     return Scaffold(
       appBar: AppBar(
         title: Text('站点管理'),
@@ -37,30 +46,25 @@ class _EditSourcePageState extends State<EditSourcePage> {
           _buildpopupMenu(context),
         ],
       ),
-      body: FutureBuilder<List<Rule>>(
-        future: init(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.data.length == 0) {
-            return Center(
-              child: Text(
-                '请点击右上角添加规则',
-                style: TextStyle(color: Colors.grey[700]),
-              ),
+      body: ChangeNotifierProvider.value(
+        value: EditSourceProvider(),
+        child: Consumer<EditSourceProvider>(
+          builder: (context, EditSourceProvider provider, _) {
+            if (__provider == null) {
+              __provider = provider;
+            }
+            if (provider.rules == null) {
+              return LandingPage();
+            }
+            return ListView.builder(
+              itemCount: provider.rules.length,
+              physics: BouncingScrollPhysics(),
+              itemBuilder: (BuildContext context, int index) {
+                return _buildItem(provider, index);
+              },
             );
-          }
-          final rules = snapshot.data;
-          return ListView.builder(
-            itemCount: rules.length,
-            //padding: EdgeInsets.all(10),
-            physics: BouncingScrollPhysics(),
-            itemBuilder: (BuildContext context, int index) {
-              return _buildItem(context, rules[index], index);
-            },
-          );
-        },
+          },
+        ),
       ),
     );
   }
@@ -224,7 +228,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
     );
   }
 
-  Widget _buildItem(BuildContext context, Rule rule, int index) {
+  Widget _buildItem(EditSourceProvider provider, int index) {
+    final rule = provider.rules[index];
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
@@ -237,11 +242,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           activeColor: Theme.of(context).primaryColor,
           title: Text('${rule.name}'),
           subtitle: Text('${rule.host}'),
-          onChanged: (bool val) async {
-            rule.enableSearch = val;
-            await Global.ruleDao.insertOrUpdateRule(rule);
-            _updateView();
-          },
+          onChanged: (value) => provider.toggleEnableSearch(rule),
         ),
         onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => DiscoverSearchPage(
@@ -255,12 +256,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           caption: '置顶',
           color: Colors.blueGrey,
           icon: Icons.vertical_align_top,
-          onTap: () async {
-            Rule maxSort = await Global.ruleDao.findMaxSort();
-            rule.sort = maxSort.sort + 1;
-            await Global.ruleDao.insertOrUpdateRule(rule);
-            _updateView();
-          },
+          onTap: () => provider.setSortMax(rule),
         ),
       ],
       secondaryActions: <Widget>[
@@ -277,17 +273,9 @@ class _EditSourcePageState extends State<EditSourcePage> {
           caption: '删除',
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () async {
-            await Global.ruleDao.deleteRule(rule);
-            _updateView();
-          },
+          onTap: () => provider.deleteRule(rule),
         ),
       ],
     );
-  }
-
-  void _updateView() async {
-    rules = await Global.ruleDao.findAllRules();
-    setState(() {});
   }
 }
