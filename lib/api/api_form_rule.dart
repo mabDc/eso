@@ -91,15 +91,14 @@ class APIFromRUle implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    if (rule.chapterUrl.isNotEmpty) {
-      try {
-        url = await AnalyzeRule(url, null).getString(rule.chapterUrl);
-      } catch (e) {}
-    }
-    final res = await AnalyzeUrl.urlRuleParser(
-      url,
-      host: rule.host,
-    );
+    final res = rule.chapterUrl.isNotEmpty
+        ? await AnalyzeUrl.urlRuleParser(
+            rule.chapterUrl,
+            host: rule.host,
+            result: url,
+          )
+        : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
+
     final reversed = rule.chapterList.startsWith("-");
     final list = await AnalyzeRule(
       InputStream.decode(res.bodyBytes),
@@ -129,15 +128,14 @@ class APIFromRUle implements API {
 
   @override
   Future<List<String>> content(String url) async {
-    if (rule.contentUrl.isNotEmpty) {
-      try {
-        url = await AnalyzeRule(url, null).getString(rule.contentUrl);
-      } catch (e) {}
-    }
-    final res = await AnalyzeUrl.urlRuleParser(
-      url,
-      host: rule.host,
-    );
+    final res = rule.contentUrl.isNotEmpty
+        ? await AnalyzeUrl.urlRuleParser(
+            rule.contentUrl,
+            host: rule.host,
+            result: url,
+          )
+        : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
+
     return AnalyzeRule(
       InputStream.decode(res.bodyBytes),
       res.request.url.toString(),

@@ -8,6 +8,7 @@ class AnalyzeUrl {
     String rule, {
     String host = "",
     String key = "",
+    String result = "",
     int page = 1,
     int pageSize = 20,
   }) async {
@@ -19,6 +20,7 @@ class AnalyzeUrl {
       "pageSize": pageSize,
       "searchKey": key,
       "searchPage": page,
+      "result": result,
     };
     if (rule.startsWith("@js:")) {
       // js规则
@@ -32,7 +34,8 @@ class AnalyzeUrl {
       return _parser(
           host,
           rule.replaceAllMapped(
-            RegExp(r"\$host|\$key|\$page|\$pageSize|searchKey|searchPage"),
+            RegExp(
+                r"\$result|\$host|\$key|\$page|\$pageSize|searchKey|searchPage"),
             (m) {
               return '${json[m.group(0).replaceFirst("\$", '')]}';
             },
