@@ -172,7 +172,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
         switch (value) {
           case ADD_RULE:
             Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => EditRulePage()));
+                .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                .then((value) => __provider.refreshData());
             break;
           case FROM_FILE:
             Toast.show("从本地文件导入", context);
@@ -295,10 +296,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
           caption: '编辑',
           color: Colors.black45,
           icon: Icons.create,
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => EditRulePage(
-                    rule: rule,
-                  ))),
+          onTap: () => Navigator.of(context)
+              .push(MaterialPageRoute(
+                  builder: (context) => EditRulePage(rule: rule)))
+              .then((value) => provider.refreshData()),
         ),
         IconSlideAction(
           caption: '删除',
