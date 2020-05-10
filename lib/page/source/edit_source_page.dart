@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:eso/api/api_form_rule.dart';
 import 'package:eso/database/rule.dart';
@@ -41,42 +42,45 @@ class _EditSourcePageState extends State<EditSourcePage> {
   Widget _buildPage() {
     return Scaffold(
       appBar: AppBar(
-        title: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 30),
-          child: TextField(
-            cursorColor: Theme.of(context).primaryColor,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white24,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              hintText: "搜索",
-              hintStyle: TextStyle(
-                color: Colors.white,
-              ),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8),
-              prefixIcon: Icon(
+        title: TextField(
+          cursorColor: Theme.of(context).primaryColor,
+          cursorRadius: Radius.circular(2),
+          selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white24,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+            hintText: "搜索",
+            hintStyle: TextStyle(
+              color: Colors.white70,
+            ),
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              child: Icon(
                 Icons.search,
-                color: Colors.white30,
+                color: Colors.white70,
               ),
             ),
-            maxLines: 1,
-            style: TextStyle(fontSize: 14, color: Colors.white, height: 1),
-            onSubmitted: (content) {
-              __provider.getRuleListByName(content);
-            },
+            prefixIconConstraints: BoxConstraints(),
           ),
+          maxLines: 1,
+          style: TextStyle(fontSize: 14, color: Colors.white, height: 1.6),
+          onSubmitted: (content) {
+            __provider.getRuleListByName(content);
+          },
         ),
         actions: [
           IconButton(

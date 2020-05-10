@@ -6,7 +6,7 @@ class AnalyzeRule {
   // 正则规则维护
   String _regexSplitJoin = r"\{\{(.+?)\}\}";
   String _regexSplitRule =
-      r"^$\.((?!@css:|@json:).)*|@json:((?!@css:|@json:).)*|@css:((?!@css:|@json:).)*";
+      r"^\$\.((?!@css:|@json:).)*|@json:((?!@css:|@json:).)*|@css:((?!@css:|@json:).)*";
 
   bool _isJoinRule;
   // 只读属性
@@ -243,7 +243,10 @@ class AnalyzeRule {
       );
     } else if (rule.isNotEmpty) {
       // 不存在 {{}} , 只需要考虑替换规则
-      for (var m in RegExp(_regexSplitRule).allMatches(rule)) {
+      for (var m in RegExp(
+        _regexSplitRule,
+        caseSensitive: false,
+      ).allMatches(rule)) {
         ruleList.add(SourceRule.gen(m.group(0)));
       }
     }
@@ -289,7 +292,7 @@ class SourceRule {
     rule = rules[0];
     // 确定 rule 和 mode, 暂不考虑xpath
     var mode = Mode.CSS;
-    if (rule.startsWith("\$.")) {
+    if (rule.startsWith(r"$.")) {
       mode = Mode.Json;
     } else if (rule.startsWith(RegExp(r"@json:", caseSensitive: false))) {
       rule = rule.substring(6);

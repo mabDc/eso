@@ -95,8 +95,7 @@ class _DebugRulePageState extends State<DebugRulePage> {
       searchDebugReport.add("• 搜索结果列表个数: " + resultCount.toString());
       searchDebugReport.add("• 开始解析第一个搜索结果");
     });
-    await parseFirstSearchResult(searchList.first, baseUrl, now);
-    return true;
+    return parseFirstSearchResult(searchList.first, baseUrl, now);
   }
 
   Future<bool> parseFirstSearchResult(
@@ -119,11 +118,11 @@ class _DebugRulePageState extends State<DebugRulePage> {
       searchDebugReport.add("• 结果: " + result);
       searchDebugReport.add("• [${parseTime(now)}] 搜索结束");
       setState(() {});
-      await parseChapter(result, now);
+      return parseChapter(result, now);
     } catch (e) {
       Toast.show(e.toString(), context, duration: 3);
     }
-    return true;
+    return false;
   }
 
   Future<bool> parseChapter(String result, DateTime now) async {

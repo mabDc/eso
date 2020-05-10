@@ -65,7 +65,6 @@ class EditSourceProvider with ChangeNotifier {
 
   ///搜索
   void getRuleListByName(String name) async {
-
     _rules = await Global.ruleDao.getRuleByName('%$name%');
     notifyListeners();
   }
@@ -73,9 +72,9 @@ class EditSourceProvider with ChangeNotifier {
   ///全选
   Future<void> toggleCheckAllRule() async {
     //循环处理（如果有未勾选则全选 没有则全不选）
-    int _enCheck = _rules.indexWhere((e)=>(!e.enableSearch),0);
-    _rules.forEach((rule){
-      rule.enableSearch = _enCheck<0?false:true;
+    int _enCheck = _rules.indexWhere((e) => (!e.enableSearch), 0);
+    _rules.forEach((rule) {
+      rule.enableSearch = !(_enCheck < 0);
     });
     notifyListeners();
     //保存到数据库

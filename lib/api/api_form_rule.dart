@@ -84,7 +84,7 @@ class APIFromRUle implements API {
         url: await analyzer.getString(rule.searchResult),
         api: this,
         tags: await analyzer.getStringList(rule.searchTags),
-      )); 
+      ));
     }
     return result;
   }
@@ -110,7 +110,10 @@ class APIFromRUle implements API {
       final analyzer = AnalyzeRule(item, res.request.url.toString());
       final lock = await analyzer.getString(rule.chapterLock);
       var name = await analyzer.getString(rule.chapterName);
-      if (lock != null && lock.isNotEmpty && lock != "undefined") {
+      if (lock != null &&
+          lock.isNotEmpty &&
+          lock != "undefined" &&
+          lock != "false") {
         name = "🔒" + name;
       }
       result.add(ChapterItem(
