@@ -66,7 +66,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               color: Colors.white70,
             ),
             isDense: true,
-            contentPadding: EdgeInsets.zero,
+            contentPadding: EdgeInsets.only(bottom: 4),
             prefixIcon: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               child: Icon(
@@ -77,7 +77,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
             prefixIconConstraints: BoxConstraints(),
           ),
           maxLines: 1,
-          style: TextStyle(fontSize: 14, color: Colors.white, height: 1.6),
+          style: TextStyle(color: Colors.white, height: 1.25),
+          textAlignVertical: TextAlignVertical.bottom,
           onSubmitted: (content) {
             __provider.getRuleListByName(content);
           },
