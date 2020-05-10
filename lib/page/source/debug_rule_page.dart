@@ -81,7 +81,8 @@ class _DebugRulePageState extends State<DebugRulePage> {
     setState(() {
       searchDebugReport.add("• 搜索地址: " + baseUrl);
     });
-    final analyzer = AnalyzeRule(utf8.decode(searchResult.bodyBytes), baseUrl);
+    final analyzer = AnalyzeRule(
+        utf8.decode(searchResult.bodyBytes), baseUrl, widget.rule.host);
     final searchList = await analyzer.getElements(widget.rule.searchList);
     final resultCount = searchList.length;
     if (resultCount == 0) {
@@ -100,7 +101,7 @@ class _DebugRulePageState extends State<DebugRulePage> {
   Future<bool> parseFirstSearchResult(
       dynamic first, String baseUrl, DateTime now) async {
     try {
-      final analyzer = AnalyzeRule(first, baseUrl);
+      final analyzer = AnalyzeRule(first, baseUrl, widget.rule.host);
       searchDebugReport
           .add("• 名称: " + await analyzer.getString(widget.rule.searchName));
       searchDebugReport
@@ -139,8 +140,8 @@ class _DebugRulePageState extends State<DebugRulePage> {
         chapterDebugReport.add("• 成功获取章节响应");
         chapterDebugReport.add("• 章节地址: " + baseUrl);
       });
-      final analyzer =
-          AnalyzeRule(utf8.decode(chapterResult.bodyBytes), baseUrl);
+      final analyzer = AnalyzeRule(
+          utf8.decode(chapterResult.bodyBytes), baseUrl, widget.rule.host);
       final chapterList = await analyzer.getElements(widget.rule.chapterList);
       final resultCount = chapterList.length;
       if (resultCount == 0) {
@@ -166,7 +167,7 @@ class _DebugRulePageState extends State<DebugRulePage> {
   Future<bool> parseFirstChapterResult(
       dynamic first, String baseUrl, DateTime now) async {
     try {
-      final analyzer = AnalyzeRule(first, baseUrl);
+      final analyzer = AnalyzeRule(first, baseUrl, widget.rule.host);
       contentDebugReport.add("• [${parseTime(now)}] 正文开始");
       contentDebugReport
           .add("• 名称: " + await analyzer.getString(widget.rule.chapterName));

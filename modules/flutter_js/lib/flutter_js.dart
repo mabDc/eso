@@ -65,12 +65,12 @@ for(var key in json) {
 
   static Future<Map<dynamic, dynamic>> getMap(String command, int id) async {
     final rs = await evaluate(command, id);
-    return jsonDecode(rs) ?? Map<String, String>();
+    return rs ?? Map<String, String>();
   }
 
   static Future<List<dynamic>> getList(String command, int id) async {
     final rs = await evaluate(command, id);
     if (rs == null) return <dynamic>[];
-    return jsonDecode(rs) as List;
+    return rs as List;
   }
 }

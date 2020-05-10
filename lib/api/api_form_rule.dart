@@ -41,10 +41,11 @@ class APIFromRUle implements API {
     final list = await AnalyzeRule(
       InputStream.decode(res.bodyBytes),
       res.request.url.toString(),
+      rule.host,
     ).getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, res.request.url.toString());
+      final analyzer = AnalyzeRule(item, res.request.url.toString(), rule.host);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
         name: await analyzer.getString(rule.discoverName),
@@ -71,10 +72,11 @@ class APIFromRUle implements API {
     final list = await AnalyzeRule(
       InputStream.decode(res.bodyBytes),
       res.request.url.toString(),
+      rule.host,
     ).getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, res.request.url.toString());
+      final analyzer = AnalyzeRule(item, res.request.url.toString(), rule.host);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
         name: await analyzer.getString(rule.searchName),
@@ -103,10 +105,11 @@ class APIFromRUle implements API {
     final list = await AnalyzeRule(
       InputStream.decode(res.bodyBytes),
       res.request.url.toString(),
+      rule.host,
     ).getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
     final result = <ChapterItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, res.request.url.toString());
+      final analyzer = AnalyzeRule(item, res.request.url.toString(), rule.host);
       final lock = await analyzer.getString(rule.chapterLock);
       var name = await analyzer.getString(rule.chapterName);
       if (lock != null &&
@@ -139,6 +142,7 @@ class APIFromRUle implements API {
     return AnalyzeRule(
       InputStream.decode(res.bodyBytes),
       res.request.url.toString(),
+      rule.host,
     ).getStringList(rule.contentItems);
   }
 

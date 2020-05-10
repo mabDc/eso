@@ -14,11 +14,14 @@ class AnalyzeRule {
   dynamic get content => _content;
   String _baseUrl;
   String get baseUrl => _baseUrl;
+  String _host;
+  String get host => _host;
   int _idJsEngine;
   int get idJsEngine => _idJsEngine;
   AnalyzeRule(
     this._content,
     this._baseUrl,
+    this._host,
   );
 
   Future<List<dynamic>> getElements(String rule) async {
@@ -201,6 +204,7 @@ class AnalyzeRule {
       await FlutterJs.initJson({
         "result": result,
         "baseUrl": _baseUrl,
+        "host": _host,
       }, _idJsEngine);
     }
     return true;
