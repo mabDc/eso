@@ -7,8 +7,8 @@ import '../global.dart';
 
 class UIImageItem extends StatelessWidget {
   final String cover;
-  double width;
-  double height;
+  final double width;
+  final double height;
 
   UIImageItem({
     this.cover,
@@ -19,14 +19,8 @@ class UIImageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (width == null) {
-      width = MediaQuery.of(context).size.width;
-      print(width);
-    }
-    if (height == null) {
-      height = MediaQuery.of(context).size.height;
-    }
-
+    final _width = width ?? MediaQuery.of(context).size.width;
+    final _height = height ?? MediaQuery.of(context).size.height;
     if (cover == null) {
       return Image.asset(
         Global.waitingPath,
@@ -41,27 +35,28 @@ class UIImageItem extends StatelessWidget {
       headers = (jsonDecode(ss[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
     return ClipRRect(
-      //borderRadius: BorderRadius.vertical(bottom: Radius.elliptical(width/2, height/10)),
-      child: Stack(
-          children: [
-            FadeInImage(
-                placeholder: AssetImage(Global.waitingPath),
-                image: NetworkImage(
-                  "$_cover",
-                  headers: headers,
-                ),
-                fit: BoxFit.cover,
-                width: width,
-                height: height),
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30.0, sigmaY: 30.0),
-              child: new Container(
-                color: Colors.black.withOpacity(0.1),
-                width: width,
-                height: height,
-              ),
-            ),
-          ],
+        //borderRadius: BorderRadius.vertical(bottom: Radius.elliptical(width/2, height/10)),
+        child: Stack(
+      children: [
+        FadeInImage(
+          placeholder: AssetImage(Global.waitingPath),
+          image: NetworkImage(
+            "$_cover",
+            headers: headers,
+          ),
+          fit: BoxFit.cover,
+          width: _width,
+          height: _height,
+        ),
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30.0, sigmaY: 30.0),
+          child: new Container(
+            color: Colors.black.withOpacity(0.1),
+            width: _width,
+            height: _height,
+          ),
+        ),
+      ],
     ));
   }
 }

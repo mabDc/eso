@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
@@ -18,6 +17,7 @@ class Bainian implements API {
     final res = await http.get(url);
     return parse(res.body).querySelectorAll('#list_img li').map((item) {
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes['data-src']}',
         name: '${item.querySelector('p').text}',

@@ -21,6 +21,7 @@ class Qidian implements API {
     return parse(res.body)
         .querySelectorAll('.all-img-list li,#result-list li,#limit-list li')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover:
                   'https:${item.querySelector('.book-img-box img').attributes["src"]}',
@@ -28,7 +29,8 @@ class Qidian implements API {
               author: '${item.querySelector('.author a').text}',
               chapter: '${item.querySelector('.update').text}',
               description: '${item.querySelector('.intro').text}',
-              url: 'https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId=${item.querySelector('h4 a').attributes["data-bid"]}',
+              url:
+                  'https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId=${item.querySelector('h4 a').attributes["data-bid"]}',
             ))
         .toList();
   }
@@ -55,7 +57,9 @@ class Qidian implements API {
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
-    final bookId = url.substring('https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId='.length);
+    final bookId = url.substring(
+        'https://druid.if.qidian.com/argus/api/v1/chapterlist/chapterlist?bookId='
+            .length);
     final json = jsonDecode(res.body);
     return (json["Data"]["Chapters"] as List).skip(1).map((chapter) {
       final time = DateTime.fromMillisecondsSinceEpoch(chapter["T"]);

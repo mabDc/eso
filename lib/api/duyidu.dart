@@ -23,6 +23,7 @@ class Duyidu implements API {
         .skip(1)
         .take(items.length - 2)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: 'http://duyidu.net/images/logo.png',
               name: '${item.querySelector('.col-xs-3').text}',
@@ -37,7 +38,7 @@ class Duyidu implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) {
+      Map<String, DiscoverPair> params, int page, int pageSize) {
     String query = params["类型"].value;
     return commonParse("http://duyidu.net/$query/$page.htm");
   }

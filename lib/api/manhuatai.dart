@@ -22,6 +22,7 @@ class Manhuatai implements API {
     return (json["data"] as List).map((item) {
       final id = item["comic_id"];
       return SearchItem(
+          tags: <String>[],
           api: this,
           cover: 'http://image.mhxk.com/mh/$id.jpg',
           name: item["comic_name"],
@@ -36,7 +37,7 @@ class Manhuatai implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     final query = params.values
         .where((pair) => pair.value != '')
         .map((pair) => pair.value)
@@ -90,6 +91,7 @@ class Manhuatai implements API {
     }
     return images;
   }
+
   @override
   List<DiscoverMap> discoverMap() {
     return <DiscoverMap>[

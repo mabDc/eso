@@ -28,6 +28,7 @@ class Music163 implements API {
     return parse(utf8.decode(res.bodyBytes))
         .querySelectorAll('#m-pl-container>li')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item.querySelector('img').attributes["src"]}',
               name: '${item.querySelector('.dec').text}'.trim(),
@@ -60,6 +61,7 @@ class Music163 implements API {
         });
     return (jsonDecode(res.body)["result"]["playlists"] as List)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item["coverImgUrl"]}',
               name: '${item["name"]}',

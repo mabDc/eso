@@ -26,6 +26,7 @@ class ZZZFun implements API {
         await http.get('http://www.zzzfun.com/vod-show-$query-page-$page');
     return parse(res.body).querySelectorAll('.search-result>a').map((item) {
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes['src']}',
         name: '${item.querySelector('.title-big').text}',
@@ -52,6 +53,7 @@ class ZZZFun implements API {
         }
       });
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${li.querySelector('img').attributes['src']}',
         name: '${li.querySelector('h2').text}',

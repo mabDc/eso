@@ -31,6 +31,7 @@ class Huya implements API {
     List searchItem = <SearchItem>[];
     (json["response"]["3"]["docs"] as List)
         .forEach((item) => searchItem.add(SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item["game_imgUrl"]}',
               name: '${item["game_roomName"]}',

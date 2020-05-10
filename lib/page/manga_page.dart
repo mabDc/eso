@@ -1,6 +1,5 @@
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
 import 'package:eso/ui/zoom_view.dart';
 import 'package:eso/ui/ui_manga_menu.dart';
@@ -109,7 +108,7 @@ class _MangaPageState extends State<MangaPage> {
 
   Widget _buildMangaContent(MangaPageProvider provider) {
     return ZoomView(
-      child: ListView.builder( 
+      child: ListView.builder(
         padding: EdgeInsets.all(0),
         controller: provider.controller,
         itemCount: provider.content.length + 1,
@@ -125,7 +124,7 @@ class _MangaPageState extends State<MangaPage> {
           final path = '${provider.content[index]}';
           return FadeInImage(
             placeholder: AssetImage(Global.waitingPath),
-            image: checkUrl(path,provider.headers),
+            image: checkUrl(path, provider.headers),
             fit: BoxFit.fitWidth,
           );
         },
@@ -133,9 +132,9 @@ class _MangaPageState extends State<MangaPage> {
     );
   }
 
-    ImageProvider checkUrl(String url,Map<String, String> header) {
+  ImageProvider checkUrl(String url, Map<String, String> header) {
     try {
-      return NetworkImage(url,headers: header);
+      return NetworkImage(url, headers: header);
     } catch (e) {
       return AssetImage(Global.waitingPath);
     }

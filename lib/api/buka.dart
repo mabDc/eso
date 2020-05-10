@@ -23,6 +23,7 @@ class Buka implements API {
     final json = jsonDecode(res.body);
     return (json["datas"]["items"] as List)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item["logo"]}',
               name: '${item["name"]}',

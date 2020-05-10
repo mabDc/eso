@@ -27,6 +27,7 @@ class Huanyue implements API {
     return dom
         .querySelectorAll('.hot_sale')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item.querySelector('img').attributes["data-original"]}',
               name: '${item.querySelector('.title').text}'.trim(),
@@ -50,6 +51,7 @@ class Huanyue implements API {
     return items
         .skip(1)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: null,
               name: '${item.querySelector('.title').text}',

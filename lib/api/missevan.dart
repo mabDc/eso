@@ -22,17 +22,18 @@ class Missevan implements API {
     final searchItems = <SearchItem>[];
     for (var item in json["info"]["Datas"] as List) {
       var episodes = item["episodes"] as List;
-      if(episodes.length == 0) continue;
+      if (episodes.length == 0) continue;
       searchItems.add(SearchItem(
-              api: this,
-              cover: '${item["cover"]}',
-              name: '${item["name"]}',
-              author: '${item["catalog_name"]}',
-              chapter: '${item["newest"]}',
-              description: '${item["abstract"]}',
-              url:
-                  'https://www.missevan.com/dramaapi/getdramabysound?sound_id=${episodes[0]["sound_id"]}',
-            ));
+        tags: <String>[],
+        api: this,
+        cover: '${item["cover"]}',
+        name: '${item["name"]}',
+        author: '${item["catalog_name"]}',
+        chapter: '${item["newest"]}',
+        description: '${item["abstract"]}',
+        url:
+            'https://www.missevan.com/dramaapi/getdramabysound?sound_id=${episodes[0]["sound_id"]}',
+      ));
     }
     return searchItems;
   }

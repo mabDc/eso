@@ -23,6 +23,7 @@ class Ymoxuan implements API {
         .skip(1)
         .take(dom.length - 2)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: 'http://r.ymoxuan.com/image/logo.gif',
               name: '${item.querySelector('.n2').text}',
@@ -37,7 +38,7 @@ class Ymoxuan implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     String query = params["类型"].value;
     return commonParse("https://www.ymoxuan.com/$query/$page.htm");
   }
@@ -77,7 +78,7 @@ class Ymoxuan implements API {
   @override
   List<DiscoverMap> discoverMap() {
     return <DiscoverMap>[
-      DiscoverMap("类型",<DiscoverPair>[
+      DiscoverMap("类型", <DiscoverPair>[
         DiscoverPair("玄幻", "xuanhuan"),
         DiscoverPair("奇幻", "qihuan"),
         DiscoverPair("修真", "xiuzhen"),

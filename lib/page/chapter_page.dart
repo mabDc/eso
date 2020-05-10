@@ -198,9 +198,10 @@ class _ChapterPageState extends State<ChapterPage> {
             child: Text(
               "反序",
               style: TextStyle(
-                  color: widget.searchItem.reverseChapter
-                      ? Theme.of(context).primaryColor
-                      : Theme.of(context).textTheme.body1.color),
+                color: widget.searchItem.reverseChapter
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).textTheme.bodyText1.color,
+              ),
             ),
             onTap: pageController.toggleReverse,
           ),
@@ -296,7 +297,7 @@ class _ChapterPageState extends State<ChapterPage> {
             elevation: 0,
             onPressed: onPress,
             color: Theme.of(context).primaryColor,
-            textColor: Theme.of(context).primaryTextTheme.title.color,
+            textColor: Theme.of(context).primaryTextTheme.headline6.color,
             child: child,
           )
         : RaisedButton(
@@ -304,7 +305,7 @@ class _ChapterPageState extends State<ChapterPage> {
             elevation: 0,
             onPressed: onPress,
             color: Theme.of(context).bottomAppBarColor,
-            textColor: Theme.of(context).textTheme.body1.color,
+            textColor: Theme.of(context).textTheme.bodyText1.color,
             child: child,
           );
   }

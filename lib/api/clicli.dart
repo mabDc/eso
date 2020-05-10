@@ -21,6 +21,7 @@ class Clicli implements API {
     final json = jsonDecode(utf8.decode(res.bodyBytes));
     return (json["posts"] as List)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: null,
               name: '${item["title"]}',

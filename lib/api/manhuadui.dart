@@ -22,6 +22,7 @@ class Manhuadui implements API {
     final res = await http.get(url);
     return parse(res.body).querySelectorAll('.itemBox,.list-comic').map((item) {
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes['src']}',
         name: '${item.querySelector('.title').text}'.trim(),

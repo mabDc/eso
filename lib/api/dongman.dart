@@ -23,6 +23,7 @@ class Dongman implements API {
     return dom.querySelectorAll('.card_lst li').map((item) {
       final url = '${item.querySelector('a').attributes["href"]}';
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes["src"]}@headers$headers',
         name: '${item.querySelector('.subj').text}',

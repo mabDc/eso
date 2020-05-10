@@ -21,6 +21,7 @@ class Gank implements API {
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     return <SearchItem>[
       SearchItem(
+        tags: <String>[],
         api: this,
         cover: 'http://gank.io/static/images/special/work.png',
         name: '干货集中营',

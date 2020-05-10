@@ -44,6 +44,7 @@ class Qula implements API {
         .querySelectorAll('.search-list li')
         .skip(1)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: null,
               name: '${item.querySelector('.s2').text}'.trim(),

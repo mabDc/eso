@@ -24,6 +24,7 @@ class Duitang implements API {
     return (json["data"]["object_list"] as List).map((item) {
       final covers = item["covers"];
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: covers == null ? null : '${covers[0]}',
         name: '${item["name"]}',

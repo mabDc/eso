@@ -55,6 +55,7 @@ class Onemanhua implements API {
     return AnalyzerByHtml(res.body).getElements(rule.discoverList).map((e) {
       final analyzer = AnalyzerByHtml(e);
       return SearchItem(
+        tags: <String>[],
         cover: analyzer.getString(rule.discoverCover),
         name: analyzer.getString(rule.discoverName),
         author: analyzer.getString(rule.discoverAuthor),
@@ -75,6 +76,7 @@ class Onemanhua implements API {
     return AnalyzerByHtml(res.body).getElements(rule.searchList).map((e) {
       final analyzer = AnalyzerByHtml(e);
       return SearchItem(
+        tags: <String>[],
         cover: analyzer.getString(rule.searchCover),
         name: analyzer.getString(rule.searchName),
         author: analyzer.getString(rule.searchAuthor),

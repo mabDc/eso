@@ -29,6 +29,7 @@ class TencentManga implements API {
     return dom
         .querySelectorAll('.ret-search-list li')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item.querySelector('img').attributes["data-original"]}',
               name: '${item.querySelector('h3 a').text}',
@@ -49,6 +50,7 @@ class TencentManga implements API {
     return dom
         .querySelectorAll('.mod_book_list li')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item.querySelector('img').attributes["data-original"]}',
               name: '${item.querySelector('h4').text}',

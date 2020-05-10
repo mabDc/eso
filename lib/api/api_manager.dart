@@ -4,8 +4,6 @@ import 'package:eso/api/huya.dart';
 import 'package:eso/api/onemanhua.dart';
 import 'package:eso/api/qula.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/model/analyze_rule/analyze_rule.dart';
-import 'package:eso/model/analyze_rule/analyze_url.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';

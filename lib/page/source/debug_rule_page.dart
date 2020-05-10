@@ -6,7 +6,6 @@ import 'package:eso/model/analyze_rule/analyze_url.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
-import '../../api/api.dart';
 
 class DebugRulePage extends StatefulWidget {
   final Rule rule;
@@ -200,21 +199,21 @@ class _DebugRulePageState extends State<DebugRulePage> {
         title: TextField(
           controller: _controller,
           onSubmitted: (value) => parseSearch(),
-          cursorColor: Theme.of(context).primaryTextTheme.title.color,
+          cursorColor: Theme.of(context).primaryTextTheme.headline6.color,
           style: TextStyle(
-            color: Theme.of(context).primaryTextTheme.title.color,
+            color: Theme.of(context).primaryTextTheme.headline6.color,
           ),
           autofocus: true,
           decoration: InputDecoration(
             contentPadding: EdgeInsets.symmetric(horizontal: 10),
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                color: Theme.of(context).primaryTextTheme.title.color,
+                color: Theme.of(context).primaryTextTheme.headline6.color,
               ),
             ),
             focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                color: Theme.of(context).primaryTextTheme.title.color,
+                color: Theme.of(context).primaryTextTheme.headline6.color,
               ),
             ),
           ),

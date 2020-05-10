@@ -80,7 +80,7 @@ class _UiSearchItem extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(context)
                             .textTheme
-                            .body1
+                            .bodyText1
                             .color
                             .withOpacity(0.7),
                       ),
@@ -94,7 +94,7 @@ class _UiSearchItem extends StatelessWidget {
                   style: TextStyle(
                     color: Theme.of(context)
                         .textTheme
-                        .body1
+                        .bodyText1
                         .color
                         .withOpacity(0.7),
                   ),
@@ -112,7 +112,7 @@ class _UiSearchItem extends StatelessWidget {
                     fontSize: 13,
                     color: Theme.of(context)
                         .textTheme
-                        .body1
+                        .bodyText1
                         .color
                         .withOpacity(0.7),
                   ),

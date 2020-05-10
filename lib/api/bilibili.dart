@@ -27,6 +27,7 @@ class Bilibili implements API {
       return (json["data"] as List)
           .where((item) => item["param"] != '0' && item["param"] != '')
           .map((item) => SearchItem(
+                tags: <String>[],
                 api: this,
                 cover: item["cover"] == null ? null : '${item["cover"]}',
                 name: '${item["title"]}',
@@ -52,6 +53,7 @@ class Bilibili implements API {
             item["param"] != '0' &&
             item["param"] != '')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: item["cover"] == null ? null : 'https:${item["cover"]}',
               name: '${item["title"]}',

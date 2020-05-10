@@ -30,6 +30,7 @@ class Audio5sing implements API {
     return dom
         .querySelectorAll('.lists>dl')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item.querySelector('img').attributes["src"]}',
               name: '${item.querySelector('h3').text}'.trim(),
@@ -51,6 +52,7 @@ class Audio5sing implements API {
     final reg = RegExp('<\/?em.*?>');
     return (json["list"] as List)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: null,
               name: '${item["songName"]}'.replaceAll(reg, ''),

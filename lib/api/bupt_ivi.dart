@@ -18,6 +18,7 @@ class BuptIvi implements API {
     if (page > 1) return <SearchItem>[];
     return list
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: 'https://www.bupt.edu.cn/images/logo.png',
               name: item[0],

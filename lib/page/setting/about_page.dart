@@ -151,7 +151,7 @@ class AboutPage extends StatelessWidget {
                                     fontStyle: FontStyle.italic,
                                     color: Theme.of(context)
                                         .primaryTextTheme
-                                        .title
+                                        .headline6
                                         .color,
                                   ),
                                 ),
@@ -161,7 +161,7 @@ class AboutPage extends StatelessWidget {
                                     fontSize: 20,
                                     color: Theme.of(context)
                                         .primaryTextTheme
-                                        .title
+                                        .headline6
                                         .color,
                                   ),
                                 ),

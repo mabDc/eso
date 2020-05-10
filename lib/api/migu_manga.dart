@@ -23,6 +23,7 @@ class MiguManga implements API {
         .querySelectorAll('.classificationList .comic')
         .map((item) {
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes['src']}',
         name: '${item.querySelector('h4').text}',
@@ -43,7 +44,7 @@ class MiguManga implements API {
         .map((pair) => pair.value)
         .join('_');
     return commonParse(
-        'http://www.migudm.cn/comic/list${query == '' ? '' : '_'+query}_p$page/');
+        'http://www.migudm.cn/comic/list${query == '' ? '' : '_' + query}_p$page/');
   }
 
   @override

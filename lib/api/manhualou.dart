@@ -23,6 +23,7 @@ class Manhualou implements API {
     return dom
         .querySelectorAll('#contList li')
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item.querySelector('img').attributes["src"]}',
               name: '${item.querySelector('p').text}',

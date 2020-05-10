@@ -36,6 +36,7 @@ class BilibiliManga implements API {
     final json = jsonDecode(utf8.decode(res.bodyBytes));
     return (json["data"] as List)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item["vertical_cover"]}',
               name: '${item["title"]}',
@@ -59,6 +60,7 @@ class BilibiliManga implements API {
     final json = jsonDecode(utf8.decode(res.bodyBytes));
     return (json["data"]["list"] as List)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: '${item["vertical_cover"]}',
               name: '${item["title"]}'.replaceAll(reg, ''),

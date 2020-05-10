@@ -25,6 +25,7 @@ class Ixs implements API {
         .skip(1)
         .take(dom.length - 2)
         .map((item) => SearchItem(
+              tags: <String>[],
               api: this,
               cover: 'http://r.ixs.cc/image/logo.png',
               name: '${item.querySelector('.n2').text}',
@@ -39,15 +40,14 @@ class Ixs implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
-    String query = params["类型"].value??'';
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
+    String query = params["类型"].value ?? '';
     return commonParse("https://www.ixs.cc/${query}_$page.html");
   }
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    return commonParse(
-        "https://www.ixs.cc/search.htm?keyword=$query&pn=$page");
+    return commonParse("https://www.ixs.cc/search.htm?keyword=$query&pn=$page");
   }
 
   @override
@@ -75,10 +75,11 @@ class Ixs implements API {
             '''<script type="text/javascript">applyChapterSetting();</script>''',
             "").split('<br>');
   }
+
   @override
   List<DiscoverMap> discoverMap() {
     return <DiscoverMap>[
-      DiscoverMap("类型",<DiscoverPair>[
+      DiscoverMap("类型", <DiscoverPair>[
         DiscoverPair("玄幻", "xuanhuan"),
         DiscoverPair("奇幻", "qihuan"),
         DiscoverPair("修真", "xiuzhen"),

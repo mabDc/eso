@@ -21,6 +21,7 @@ class Huba implements API {
     final res = await http.get(url);
     return parse(res.body).querySelectorAll('.mlist li').map((item) {
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes['src']}',
         name: '${item.querySelector('h2').text}'.trim(),
@@ -66,7 +67,7 @@ class Huba implements API {
     final res = await http.get('$url');
     final json = res.body.split('player_data=')[1].split('</script>')[0];
     return <String>[
-      Uri.decodeComponent(utf8.decode(base64.decode(jsonDecode(json)["url"]))) 
+      Uri.decodeComponent(utf8.decode(base64.decode(jsonDecode(json)["url"])))
     ];
   }
 

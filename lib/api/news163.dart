@@ -21,6 +21,7 @@ class News163 implements API {
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     return <SearchItem>[
       SearchItem(
+        tags: <String>[],
         api: this,
         cover:
             'https://ss3.bdstatic.com/yrwDcj7w0QhBkMak8IuT_XF5ehU5bvGh7c50/logopic/ecb601f5df22edd5e7e5dfb6126e0a38_fullsize.jpg',

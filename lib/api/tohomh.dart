@@ -22,6 +22,7 @@ class Tohomh implements API {
     return parse(res.body).querySelectorAll('div.mh-item').map((item) {
       final style = item.querySelector('p.mh-cover').attributes["style"];
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${style.substring(style.indexOf('(') + 1, style.indexOf(')'))}',
         name: '${item.querySelector('h2 a').text}',

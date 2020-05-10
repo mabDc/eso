@@ -19,6 +19,7 @@ class Yinghuaw implements API {
     final res = await http.get(url);
     return parse(res.body).querySelectorAll('.am-list>li').map((item) {
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '${item.querySelector('img').attributes['data-original']}',
         name: '${item.querySelector('h2').text}'.trim(),

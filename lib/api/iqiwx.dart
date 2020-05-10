@@ -19,16 +19,15 @@ class Iqiwx implements API {
 
   @override
   Future<List<SearchItem>> discover(
-      Map<String,DiscoverPair> params, int page, int pageSize) async {
+      Map<String, DiscoverPair> params, int page, int pageSize) async {
     String query = params["类型"].value;
     final res = await http.get('http://www.iqiwx.com/list/${query}_$page.html');
     final body = gbk.decode(res.bodyBytes);
-    return parse(body)
-        .querySelectorAll('#sitebox>dl')
-        .map((item) {
+    return parse(body).querySelectorAll('#sitebox>dl').map((item) {
       final href = item.querySelector('a').attributes["href"];
       final src = item.querySelector('img').attributes["src"];
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: '$src',
         name: '${item.querySelector('h3 a').text}',
@@ -54,6 +53,7 @@ class Iqiwx implements API {
       final td = item.querySelectorAll('td').map((td) => td.text).toList();
       final url = item.querySelector('.even a').attributes["href"];
       return SearchItem(
+        tags: <String>[],
         api: this,
         cover: null,
         name: '${td[0]}',
@@ -102,18 +102,18 @@ class Iqiwx implements API {
     return sb.toString();
   }
 
-    @override
-    List<DiscoverMap> discoverMap() {
-      return <DiscoverMap>[
-        DiscoverMap("类型",<DiscoverPair>[
-          DiscoverPair("玄幻·奇幻", "1"),
-          DiscoverPair("武侠·仙侠", "2"),
-          DiscoverPair("都市·言情", "3"),
-          DiscoverPair("历史·军事", "4"),
-          DiscoverPair("游戏·竞技", "5"),
-          DiscoverPair("科幻·灵异", "6"),
-          DiscoverPair("其他·类型", "7"),
-        ])
-      ];
+  @override
+  List<DiscoverMap> discoverMap() {
+    return <DiscoverMap>[
+      DiscoverMap("类型", <DiscoverPair>[
+        DiscoverPair("玄幻·奇幻", "1"),
+        DiscoverPair("武侠·仙侠", "2"),
+        DiscoverPair("都市·言情", "3"),
+        DiscoverPair("历史·军事", "4"),
+        DiscoverPair("游戏·竞技", "5"),
+        DiscoverPair("科幻·灵异", "6"),
+        DiscoverPair("其他·类型", "7"),
+      ])
+    ];
   }
 }
