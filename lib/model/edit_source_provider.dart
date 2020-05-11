@@ -10,11 +10,13 @@ class EditSourceProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   EditSourceProvider() {
-    _isLoading = true;
     refreshData();
   }
 
   void refreshData() async {
+    _isLoading = true;
+    notifyListeners();
+    await Future.delayed(Duration(milliseconds: 100));
     _rules = await Global.ruleDao.findAllRules();
     _isLoading = false;
     notifyListeners();

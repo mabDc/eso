@@ -194,13 +194,11 @@ class _ChapterPageState extends State<ChapterPage> {
               style: TextStyle(fontSize: 16),
             ),
           ),
-          InkWell(
+          GestureDetector(
             child: Text(
               widget.searchItem.reverseChapter ? "倒序" : "顺序",
               style: TextStyle(
-                color: widget.searchItem.reverseChapter
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).errorColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             onTap: pageController.toggleReverse,

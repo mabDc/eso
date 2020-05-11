@@ -100,10 +100,11 @@ class _EditSourcePageState extends State<EditSourcePage> {
             if (__provider == null) {
               __provider = provider;
             }
-            if (provider.rules == null) {
+            if (provider.isLoading) {
               return LandingPage();
             }
-            return ListView.builder(
+            return ListView.separated(
+              separatorBuilder: (BuildContext context, int index) => Divider(),
               itemCount: provider.rules.length,
               physics: BouncingScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
