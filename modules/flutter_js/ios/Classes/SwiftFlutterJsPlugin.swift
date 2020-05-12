@@ -42,9 +42,9 @@ public class SwiftFlutterJsPlugin: NSObject, FlutterPlugin {
 
                 let resultJsValue: JSValue = jsEngine.evaluateScript(command)
                 if resultJsValue.isArray {
-                    result(dataTypeTurnJson(element: resultJsValue.toArray() as AnyObject))
+                    result(resultJsValue.toArray())
                 } else if resultJsValue.isObject {
-                    result(dataTypeTurnJson(element: resultJsValue.toDictionary() as AnyObject))
+                    result(resultJsValue.toDictionary())
                 } else {
                     result(resultJsValue.toString())
                 }
