@@ -103,7 +103,11 @@ class EditSourceProvider with ChangeNotifier {
   ///菜单列表
   List getMenuList() {
     //ios删除文件导入
-    if (Platform.isIOS) menuList.removeAt(2);
+    if (Platform.isIOS) {
+      menuList.forEach((element) {
+        if (element['type'] == FROM_FILE) menuList.remove(element);
+      });
+    }
     return menuList;
   }
 
