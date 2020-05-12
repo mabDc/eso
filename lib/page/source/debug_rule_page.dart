@@ -1,6 +1,7 @@
 import 'package:eso/database/rule.dart';
-import 'package:eso/model/debug_rule_bloc.dart';
+import 'package:eso/model/debug_rule_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DebugRulePage extends StatefulWidget {
   final Rule rule;
@@ -11,65 +12,77 @@ class DebugRulePage extends StatefulWidget {
 }
 
 class _DebugRulePageState extends State<DebugRulePage> {
-  DebugRuleBloc _bloc;
+  DebugRuleProvider __provider;
+  Widget _page;
+
   @override
   void dispose() {
-    _bloc.close();
+    __provider.dispose();
     super.dispose();
   }
 
   @override
-  void initState() {
-    _bloc = DebugRuleBloc(widget.rule);
-    super.initState();
+  Widget build(BuildContext context) {
+    if (_page == null) {
+      _page = _buildPage(context);
+    }
+    return _page;
   }
 
-  Widget _buildTextField() {
+  Widget _buildPage(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: DebugRuleProvider(
+        widget.rule,
+        Theme.of(context).textTheme.bodyText1.color,
+      ),
+      builder: (BuildContext context, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: _buildTextField(context),
+          ),
+          body: Consumer<DebugRuleProvider>(
+            builder: (context, DebugRuleProvider provider, _) {
+              if (provider.rows.isEmpty) {
+                return Center(
+                  child: Text("请输入关键词开始搜索"),
+                );
+              }
+              return ListView.builder(
+                padding: EdgeInsets.all(8),
+                itemCount: provider.rows.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return provider.rows[index];
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTextField(BuildContext context) {
+    final privider = Provider.of<DebugRuleProvider>(context);
     return TextField(
-      onSubmitted: _bloc.search,
+      onSubmitted: privider.search,
       cursorColor: Theme.of(context).primaryTextTheme.headline6.color,
       style: TextStyle(
         color: Theme.of(context).primaryTextTheme.headline6.color,
       ),
       autofocus: true,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).primaryTextTheme.headline6.color,
           ),
         ),
+        isDense: true,
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).primaryTextTheme.headline6.color,
           ),
         ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _buildTextField(),
-      ),
-      body: StreamBuilder<TextSpan>(
-        stream: _bloc.dataStream, //stream,
-        // initialData: <TextSpan>[
-        //   TextSpan(text: "请输入关键词开始搜索", style: TextStyle(fontSize: 20))
-        // ],
-        builder: (BuildContext context, AsyncSnapshot<TextSpan> snapshot) {
-          if (snapshot.data == null) {
-            return Center(
-              child: Text("请输入关键词开始搜索"),
-            );
-          }
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SelectableText.rich(snapshot.data),
-          );
-        },
       ),
     );
   }

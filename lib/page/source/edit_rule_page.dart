@@ -40,6 +40,10 @@ class _EditRulePageState extends State<EditRulePage> {
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () => _saveRule(context),
+          ),
+          IconButton(
             icon: Icon(Icons.bug_report),
             onPressed: () async {
               if (isLoading) return;
@@ -507,19 +511,19 @@ class _EditRulePageState extends State<EditRulePage> {
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('保存规则'),
-              Icon(
-                Icons.save,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: SAVE,
-        ),
+        // PopupMenuItem(
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: <Widget>[
+        //       Text('保存规则'),
+        //       Icon(
+        //         Icons.save,
+        //         color: primaryColor,
+        //       ),
+        //     ],
+        //   ),
+        //   value: SAVE,
+        // ),
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

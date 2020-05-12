@@ -37,6 +37,10 @@ class EditSourceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void refreshView() {
+    notifyListeners();
+  }
+
   ///启用、禁用
   void toggleEnableSearch(Rule rule, [bool enable]) async {
     if (_isLoading) return;
