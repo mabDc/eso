@@ -27,6 +27,7 @@ abstract class RuleDao {
   @Query("DELETE FROM rule")
   Future<void> clearAllRules();
 
-  @Query('SELECT * FROM rule WHERE name like :name or `group` like :group ORDER BY sort desc')
-  Future<List<Rule>> getRuleByName(String name,String group);
+  @Query(
+      'SELECT * FROM rule WHERE name like :name or `group` like :name ORDER BY sort desc')
+  Future<List<Rule>> getRuleByName(String name);
 }
