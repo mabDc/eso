@@ -7,14 +7,15 @@ class Rule {
   // 基本信息
   @primaryKey
   String id = Uuid().v4();
-  int createTime = DateTime.now().microsecondsSinceEpoch;
-  int modifiedTime = DateTime.now().microsecondsSinceEpoch;
-  String author = '';
+  int createTime = DateTime.now().microsecondsSinceEpoch;//创建时间
+  int modifiedTime = DateTime.now().microsecondsSinceEpoch;//修改时间
+  String author = '';//源作者
   String postScript = '';
-  String name = '';
-  String host = '';
-  int contentType = API.MANGA;
-  int sort = 0;
+  String name = '';//站点名
+  String host = '';//主机
+  int contentType = API.MANGA;//站点类型
+  String group = '';//分组名
+  int sort = 0;//排序值
 
   // bool useCheerio = false;
   bool useCryptoJS = false;
@@ -74,6 +75,7 @@ class Rule {
     author = '';
     name = '';
     host = '';
+    group='';
     postScript = '';
     contentType = API.MANGA;
     sort = 0;
@@ -136,6 +138,7 @@ class Rule {
     this.author,
     this.name,
     this.host,
+    this.group,
     this.postScript,
     this.contentType,
     this.sort,
@@ -188,6 +191,7 @@ class Rule {
     postScript = json['postScript'] ?? defaultRule.postScript;
     name = json['name'] ?? defaultRule.name;
     host = json['host'] ?? defaultRule.host;
+    host = json['group'] ?? defaultRule.group;
     contentType = json['contentType'] ?? defaultRule.contentType;
     sort = json['sort'] ?? defaultRule.sort;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
@@ -264,7 +268,8 @@ class Rule {
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
     author = json['author'] ?? defaultRule.author;
-    postScript = (json['bookSourceGroup'] ?? '' + json['sourceRemark'] ?? '');
+    postScript = (json.containsKey('sourceRemark')?json['sourceRemark']:'');
+    group = ('' + json['bookSourceGroup'] ?? '');
     name = json['bookSourceName'] ?? defaultRule.name;
     host = json['bookSourceUrl'] ?? defaultRule.host;
     contentType = json['contentType'] ?? defaultRule.contentType;

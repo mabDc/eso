@@ -61,7 +61,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide(color: Colors.transparent),
             ),
-            hintText: "搜索",
+            hintText: "搜索名称和分组",
             hintStyle: TextStyle(
               color: Colors.white70,
             ),

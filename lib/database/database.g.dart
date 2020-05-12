@@ -81,7 +81,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `sort` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterUrl` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterUrl` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -109,6 +109,7 @@ class _$RuleDao extends RuleDao {
                   'name': item.name,
                   'host': item.host,
                   'contentType': item.contentType,
+                  'group': item.group,
                   'sort': item.sort,
                   'useCryptoJS': item.useCryptoJS ? 1 : 0,
                   'loadJs': item.loadJs,
@@ -162,6 +163,7 @@ class _$RuleDao extends RuleDao {
                   'name': item.name,
                   'host': item.host,
                   'contentType': item.contentType,
+                  'group': item.group,
                   'sort': item.sort,
                   'useCryptoJS': item.useCryptoJS ? 1 : 0,
                   'loadJs': item.loadJs,
@@ -210,54 +212,55 @@ class _$RuleDao extends RuleDao {
   final QueryAdapter _queryAdapter;
 
   static final _ruleMapper = (Map<String, dynamic> row) => Rule(
-        row['id'],
-        row['createTime'],
-        row['modifiedTime'],
-        row['author'],
-        row['name'],
-        row['host'],
-        row['postScript'],
-        row['contentType'],
-        row['sort'],
-        row['useCryptoJS'] as int != 0,
-        row['loadJs'],
-        row['userAgent'],
-        row['enableDiscover'] as int != 0,
-        row['discoverUrl'],
-        row['discoverItems'],
-        row['discoverList'],
-        row['discoverTags'],
-        row['discoverName'],
-        row['discoverCover'],
-        row['discoverAuthor'],
-        row['discoverChapter'],
-        row['discoverDescription'],
-        row['discoverResult'],
-        row['enableSearch'] as int != 0,
-        row['searchUrl'],
-        row['searchItems'],
-        row['searchList'],
-        row['searchTags'],
-        row['searchName'],
-        row['searchCover'],
-        row['searchAuthor'],
-        row['searchChapter'],
-        row['searchDescription'],
-        row['searchResult'],
-        row['enableMultiRoads'] as int != 0,
-        row['chapterUrl'],
-        row['chapterRoads'],
-        row['chapterRoadName'],
-        row['chapterItems'],
-        row['chapterList'],
-        row['chapterName'],
-        row['chapterCover'],
-        row['chapterLock'],
-        row['chapterTime'],
-        row['chapterResult'],
-        row['contentUrl'],
-        row['contentItems'],
-      );
+    row['id'],
+    row['createTime'],
+    row['modifiedTime'],
+    row['author'],
+    row['name'],
+    row['host'],
+    row['group'],
+    row['postScript'],
+    row['contentType'],
+    row['sort'],
+    row['useCryptoJS'] as int != 0,
+    row['loadJs'],
+    row['userAgent'],
+    row['enableDiscover'] as int != 0,
+    row['discoverUrl'],
+    row['discoverItems'],
+    row['discoverList'],
+    row['discoverTags'],
+    row['discoverName'],
+    row['discoverCover'],
+    row['discoverAuthor'],
+    row['discoverChapter'],
+    row['discoverDescription'],
+    row['discoverResult'],
+    row['enableSearch'] as int != 0,
+    row['searchUrl'],
+    row['searchItems'],
+    row['searchList'],
+    row['searchTags'],
+    row['searchName'],
+    row['searchCover'],
+    row['searchAuthor'],
+    row['searchChapter'],
+    row['searchDescription'],
+    row['searchResult'],
+    row['enableMultiRoads'] as int != 0,
+    row['chapterUrl'],
+    row['chapterRoads'],
+    row['chapterRoadName'],
+    row['chapterItems'],
+    row['chapterList'],
+    row['chapterName'],
+    row['chapterCover'],
+    row['chapterLock'],
+    row['chapterTime'],
+    row['chapterResult'],
+    row['contentUrl'],
+    row['contentItems'],
+  );
 
   final InsertionAdapter<Rule> _ruleInsertionAdapter;
 
@@ -287,6 +290,14 @@ class _$RuleDao extends RuleDao {
   }
 
   @override
+  Future<List<Rule>> getRuleByName(String name, String group) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM rule WHERE name like ? or `group` like ? ORDER BY sort desc',
+        arguments: <dynamic>[name, group],
+        mapper: _ruleMapper);
+  }
+
+  @override
   Future<int> insertOrUpdateRule(Rule rule) {
     return _ruleInsertionAdapter.insertAndReturnId(
         rule, sqflite.ConflictAlgorithm.replace);
@@ -306,10 +317,5 @@ class _$RuleDao extends RuleDao {
   @override
   Future<int> deleteRules(List<Rule> rules) {
     return _ruleDeletionAdapter.deleteListAndReturnChangedRows(rules);
-  }
-  @override
-  Future<List<Rule>> getRuleByName(String name){
-    return _queryAdapter.queryList("SELECT * FROM rule WHERE name like ? ORDER BY sort desc",
-    arguments: <dynamic>[name], mapper: _ruleMapper);
   }
 }
