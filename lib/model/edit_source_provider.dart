@@ -1,13 +1,28 @@
+import 'dart:io' show Platform;
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class EditSourceProvider with ChangeNotifier {
+  static const int ADD_RULE = 0;
+  static const int FROM_FILE = 2;
+  static const int FROM_CLOUD = 3;
+  static const int FROM_YICIYUAN = 4;
+  static const int DELETE_ALL_RULES = 5;
   List<Rule> _rules;
+
   List<Rule> get rules => _rules;
   bool _isLoading;
+
   bool get isLoading => _isLoading;
+  var menuList = [
+    {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
+    {'title': '从异次元链接导入', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
+    {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
+    {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
+    {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
+  ];
 
   EditSourceProvider() {
     refreshData();
@@ -41,9 +56,11 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = false;
   }
 
+  ///清空源
   void deleteAllRules() async {
     if (_isLoading) return;
     _isLoading = true;
+    _rules.clear();
     await Global.ruleDao.clearAllRules();
     notifyListeners();
     _isLoading = false;
@@ -67,7 +84,7 @@ class EditSourceProvider with ChangeNotifier {
 
   ///搜索
   void getRuleListByName(String name) async {
-    _rules = await Global.ruleDao.getRuleByName('%$name%','%$name%');
+    _rules = await Global.ruleDao.getRuleByName('%$name%', '%$name%');
     notifyListeners();
   }
 
@@ -81,6 +98,13 @@ class EditSourceProvider with ChangeNotifier {
     notifyListeners();
     //保存到数据库
     await Global.ruleDao.insertOrUpdateRules(_rules);
+  }
+
+  ///菜单列表
+  List getMenuList() {
+    //ios删除文件导入
+    if (Platform.isIOS) menuList.removeAt(2);
+    return menuList;
   }
 
   @override

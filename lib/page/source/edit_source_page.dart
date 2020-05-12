@@ -159,11 +159,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
   }
 
   PopupMenuButton _buildpopupMenu(BuildContext context) {
-    const ADD_RULE = 0;
-    const FROM_FILE = 2;
-    const FROM_CLOUD = 3;
-    const FROM_YICIYUAN = 4;
-    const DELETE_ALL_RULES = 5;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
@@ -171,93 +166,69 @@ class _EditSourcePageState extends State<EditSourcePage> {
       offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
-          case ADD_RULE:
+          case EditSourceProvider.ADD_RULE:
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => EditRulePage()))
                 .then((value) => __provider.refreshData());
             break;
-          case FROM_FILE:
+          case EditSourceProvider.FROM_FILE:
             Toast.show("从本地文件导入", context);
             break;
-          case FROM_CLOUD:
+          case EditSourceProvider.FROM_CLOUD:
             Toast.show("从网络导入", context);
             break;
-          case FROM_YICIYUAN:
+          case EditSourceProvider.FROM_YICIYUAN:
             fromYiciYuan(context);
             break;
-          case DELETE_ALL_RULES:
-            __provider.deleteAllRules();
+          case EditSourceProvider.DELETE_ALL_RULES:
+            showDialog<Null>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("警告"),
+                    content: Text("是否删除所有站点？"),
+                    actions: [
+                      FlatButton(
+                        child: Text(
+                          "确定",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        onPressed: () => __provider.deleteAllRules(),
+                      ),
+                      FlatButton(
+                        child: Text(
+                          "取消",
+                          style: Theme.of(context).textTheme.subtitle2,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                });
+
             break;
           default:
         }
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('新建规则'),
-              Icon(
-                Icons.code,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: ADD_RULE,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('从异次元链接导入'),
-              Icon(
-                Icons.cloud_download,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_YICIYUAN,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('文件导入'),
-              Icon(
-                Icons.file_download,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_FILE,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('网络导入'),
-              Icon(
-                Icons.cloud_download,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_CLOUD,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('清空源'),
-              Icon(
-                Icons.delete_forever,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: DELETE_ALL_RULES,
-        ),
-      ],
+      itemBuilder: (context) {
+        List<PopupMenuEntry<int>> menuList = [];
+        __provider.getMenuList().forEach((element) {
+          menuList.add(PopupMenuItem(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(element['title']),
+                Icon(
+                  element['icon'],
+                  color: primaryColor,
+                ),
+              ],
+            ),
+            value: element['type'],
+          ));
+        });
+        return menuList;
+      },
     );
   }
 
