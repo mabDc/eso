@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:flutter/foundation.dart';
