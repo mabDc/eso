@@ -122,9 +122,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
     );
   }
 
-  bool _isloadFromYiciYuan = false;
-
-  Future<void> fromYiciYuan(BuildContext context) async {
+  bool _isload = false;
+  Future<void> fromURL(BuildContext context, {type = 'json'}) async {
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
@@ -134,10 +133,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
             hintText: "输入源地址, 回车开始导入",
             contentPadding: EdgeInsets.symmetric(horizontal: 12),
           ),
-          enabled: !_isloadFromYiciYuan,
+          enabled: !_isload,
           onSubmitted: (url) async {
             setState(() {
-              _isloadFromYiciYuan = true;
+              _isload = true;
             });
             url = url.trim();
             Toast.show("输入的地址为$url", context);
@@ -145,16 +144,20 @@ class _EditSourcePageState extends State<EditSourcePage> {
               final res = await http.get("$url");
               final json = jsonDecode(utf8.decode(res.bodyBytes));
               if (json is Map) {
-                await Global.ruleDao
-                    .insertOrUpdateRule(Rule.fromYiCiYuan(json));
+                await Global.ruleDao.insertOrUpdateRule(type.contains('json')
+                    ? Rule.fromJson(json)
+                    : Rule.fromYiCiYuan(json));
               } else if (json is List) {
-                await Global.ruleDao.insertOrUpdateRules(
-                    json.map((rule) => Rule.fromYiCiYuan(rule)).toList());
+                await Global.ruleDao.insertOrUpdateRules(json
+                    .map((rule) => type.contains('json')
+                        ? Rule.fromJson(rule)
+                        : Rule.fromYiCiYuan(rule))
+                    .toList());
               }
             } catch (e) {
               Toast.show("$e", context);
             }
-            _isloadFromYiciYuan = false;
+            _isload = false;
             Navigator.pop(context);
             __provider.refreshData();
           },
@@ -180,10 +183,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
             Toast.show("从本地文件导入", context);
             break;
           case EditSourceProvider.FROM_CLOUD:
-            Toast.show("从网络导入", context);
+            fromURL(context);
             break;
           case EditSourceProvider.FROM_YICIYUAN:
-            fromYiciYuan(context);
+            fromURL(context, type: 'YiCiYuan');
             break;
           case EditSourceProvider.DELETE_ALL_RULES:
             showDialog<Null>(
@@ -199,8 +202,14 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     content: Text("是否删除所有站点？"),
                     actions: [
                       FlatButton(
-                        child: Text("确定", style: TextStyle(color: Colors.red)),
-                        onPressed: () => __provider.deleteAllRules(),
+                        child: Text(
+                          "确定",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        onPressed: () {
+                          __provider.deleteAllRules();
+                          Navigator.of(context).pop();
+                        },
                       ),
                       FlatButton(
                         child: Text(
