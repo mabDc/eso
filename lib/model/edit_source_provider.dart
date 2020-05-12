@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:flutter/foundation.dart';
@@ -84,7 +83,7 @@ class EditSourceProvider with ChangeNotifier {
 
   ///搜索
   void getRuleListByName(String name) async {
-    _rules = await Global.ruleDao.getRuleByName('%$name%', '%$name%');
+    _rules = await Global.ruleDao.getRuleByName('%$name%');
     notifyListeners();
   }
 

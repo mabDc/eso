@@ -145,15 +145,16 @@ class _EditRulePageState extends State<EditRulePage> {
             ],
           ),
         ),
-        _buildEditText(rule.author, '作者(author)', (text) => rule.author = text),
         _buildEditText(rule.name, '名称(name)', (text) => rule.name = text),
+        _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
+        _buildEditText(rule.group, '分组(group)', (text) => rule.group = text),
         _buildEditText(
           rule.postScript,
           '签名档(post script, p.s.)',
           (text) => rule.postScript = text,
           maxLines: null,
         ),
-        _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
+        _buildEditText(rule.author, '作者(author)', (text) => rule.author = text),
         _buildEditText(
           rule.userAgent,
           '用户代理字符串(userAgent)',

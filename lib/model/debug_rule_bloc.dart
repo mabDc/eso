@@ -95,7 +95,8 @@ class DebugRuleBloc {
       _addContent("章节列表个数为0，解析结束！");
     } else {
       _addContent("章节个数", count.toString());
-      parseFirstChapter(chapterList.first, chapterUrl);
+      parseFirstChapter(
+          reversed ? chapterList.last : chapterList.first, chapterUrl);
     }
   }
 
@@ -196,7 +197,7 @@ class DebugRuleBloc {
       return TextSpan(
         text: text,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 14,
           height: 2,
           decorationStyle: TextDecorationStyle.solid,
           decoration: TextDecoration.underline,
@@ -207,7 +208,7 @@ class DebugRuleBloc {
     }
     return TextSpan(
       text: text,
-      style: TextStyle(fontSize: 12, height: 2),
+      style: TextStyle(fontSize: 14, height: 2),
     );
   }
 }
