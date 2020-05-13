@@ -243,11 +243,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
       controller: controller,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        childAspectRatio: 0.8,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        childAspectRatio: 0.65,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
       ),
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(12.0),
       itemCount: items.length + 1,
       itemBuilder: (BuildContext context, int index) {
         if (index == items.length) {

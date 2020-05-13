@@ -27,8 +27,6 @@ class UIImageItem extends StatelessWidget {
       _cover = ss[0];
       headers = (jsonDecode(ss[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
-    print(_cover);
-    print(headers);
     return ClipRRect(
       borderRadius: BorderRadius.circular(3.0),
       child: FadeInImage(
