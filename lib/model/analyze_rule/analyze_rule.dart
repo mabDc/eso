@@ -192,14 +192,11 @@ class AnalyzeRule {
   List<SingleRule> splitRuleReversed(String rule) {
     final ruleList = <SingleRule>[];
     var lastEnd = rule.length;
-    for (var end in ruleTypePattern
-        .allMatches(rule)
-        .map((m) => m.end)
-        .toList()
-        .reversed) {
-      var r = rule.substring(end, lastEnd).trimLeft();
+    for (var m
+        in ruleTypePattern.allMatches(rule).map((m) => m).toList().reversed) {
+      var r = rule.substring(m.start, lastEnd).trimLeft();
       if (r.isEmpty) {
-        lastEnd = end;
+        lastEnd = m.end;
         continue;
       }
       Mode mode;
@@ -233,7 +230,7 @@ class AnalyzeRule {
       } else {
         ruleList.add(SingleRule(mode, r, ""));
       }
-      lastEnd = end;
+      lastEnd = m.end;
     }
     return ruleList;
   }

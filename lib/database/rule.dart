@@ -240,8 +240,11 @@ class Rule {
     final defaultRule = rule ?? Rule.newRule();
     for (final key in json.keys) {
       var s = '${json[key]}';
-      if (s.contains('@css:') || s.contains("@js:") || s.startsWith("\$."))
-        continue;
+      if (s.startsWith("\$.") ||
+          s.startsWith("http") ||
+          s.contains(RegExp("@css:", caseSensitive: false)) ||
+          s.contains(RegExp("@js:", caseSensitive: false)) ||
+          s.contains(RegExp("@json:", caseSensitive: false))) continue;
       final flag = s.startsWith("-");
       if (flag) {
         s = s.substring(1);
@@ -260,7 +263,7 @@ class Rule {
             .replaceAll("id.", "#")
             .replaceAllMapped(RegExp(r"\.(\d+)"),
                 (Match m) => ":nth-of-type(${int.parse(m[1]) + 1})");
-        json[key] = (flag ? "-" : "") + "@css:" + s.trim();
+        json[key] = (flag ? "-" : "") + s.trim();
       }
     }
 
