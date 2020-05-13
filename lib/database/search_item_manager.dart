@@ -13,6 +13,14 @@ class SearchItemManager {
 
   static String genChapterKey(int id) => "chapter$id";
 
+  static List<SearchItem> getSearchItemByType(int contentType){
+    List<SearchItem> searchItem = [];
+    _searchItem.forEach((element) {
+      if (element.ruleContentType == contentType) searchItem.add(element);
+    });
+    return searchItem;
+  }
+
   static bool isFavorite(String url) {
     return _searchItem.any((item) => item.url == url);
   }

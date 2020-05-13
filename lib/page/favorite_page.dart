@@ -5,7 +5,7 @@ import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:eso/ui/round_indicator.dart';
 import '../database/search_item_manager.dart';
 import '../global.dart';
 import '../model/history_manager.dart';
@@ -18,48 +18,95 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<SearchItem> searchItems =
-        List<SearchItem>.from(SearchItemManager.searchItem);
-    if (AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
-      searchItems.add(AudioService().searchItem);
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(Global.appName),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => showSearch(
-              context: context,
-              delegate: SearchPageDelegate(
-                historyManager:
-                    Provider.of<HistoryManager>(context, listen: false),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Theme.of(context).canvasColor,
+          title: TabBar(
+            isScrollable: true,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelColor: Theme.of(context).textTheme.bodyText1.color,
+            unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
+            indicator: RoundTabIndicator(
+                insets: EdgeInsets.only(left: 20, right: 20),
+                borderSide: BorderSide(
+                    width: 4.0, color: Theme.of(context).primaryColor)),
+            tabs: <Widget>[
+              Tab(
+                text: '漫画',
+              ),
+              Tab(
+                text: '动漫',
+              ),
+              Tab(
+                text: '音乐',
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.search,
+                color: Theme.of(context).textTheme.bodyText1.color,
+              ),
+              onPressed: () => showSearch(
+                context: context,
+                delegate: SearchPageDelegate(
+                  historyManager:
+                      Provider.of<HistoryManager>(context, listen: false),
+                ),
               ),
             ),
-          ),
-          IconButton(
-            icon:
-                Provider.of<Profile>(context, listen: false).switchFavoriteStyle
-                    ? Icon(Icons.view_headline)
-                    : Icon(Icons.view_module),
-            onPressed: () => Provider.of<Profile>(context, listen: false)
-                    .switchFavoriteStyle =
-                !Provider.of<Profile>(context, listen: false)
-                    .switchFavoriteStyle,
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(Duration(seconds: 1));
-          return;
-        },
-        child: Provider.of<Profile>(context, listen: false).switchFavoriteStyle
-            ? _buildFavoriteGrid(searchItems)
-            : _buildFavoriteList(searchItems),
+            IconButton(
+              icon: Provider.of<Profile>(context, listen: false)
+                      .switchFavoriteStyle
+                  ? Icon(Icons.view_headline,
+                      color: Theme.of(context).textTheme.bodyText1.color)
+                  : Icon(Icons.view_module,
+                      color: Theme.of(context).textTheme.bodyText1.color),
+              onPressed: () => Provider.of<Profile>(context, listen: false)
+                      .switchFavoriteStyle =
+                  !Provider.of<Profile>(context, listen: false)
+                      .switchFavoriteStyle,
+            ),
+          ],
+        ),
+        body: TabBarView(
+          children: _buildTabPage(context),
+        ),
       ),
     );
+  }
+
+  List<Widget> _buildTabPage(BuildContext context) {
+    List<Widget> list = [];
+    for (int i = 0; i < 5; i++) {
+      if (i == 1 || i == 4) continue;//跳过小说和RSS
+
+      List<SearchItem> searchItems = SearchItemManager.getSearchItemByType(i);
+      if (i == 3) {
+        if (AudioService().searchItem != null &&
+            !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
+          searchItems.add(AudioService().searchItem);
+        }
+      }
+
+      list.add(
+        RefreshIndicator(
+          onRefresh: () async {
+            await Future.delayed(Duration(seconds: 1));
+            return;
+          },
+          child:
+              Provider.of<Profile>(context, listen: false).switchFavoriteStyle
+                  ? _buildFavoriteGrid(searchItems)
+                  : _buildFavoriteList(searchItems),
+        ),
+      );
+    }
+    return list;
   }
 
   Widget _buildFavoriteList(List<SearchItem> searchItems) {
