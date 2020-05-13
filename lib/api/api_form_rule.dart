@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/analyze_rule/analyze_rule.dart';
 import 'package:eso/model/analyze_rule/analyze_url.dart';
 import 'package:eso/utils/input_stream.dart';
+import 'package:flutter_js/flutter_js.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
@@ -37,15 +40,22 @@ class APIFromRUle implements API {
       host: rule.host,
       page: page,
       pageSize: pageSize,
+      ua: rule.userAgent,
     );
-    final list = await AnalyzeRule(
-      InputStream.autoDecode(res.bodyBytes),
-      res.request.url.toString(),
-      rule.host,
-    ).getElements(rule.discoverList);
+    final discoverUrl = res.request.url.toString();
+    final engineId = await FlutterJs.initEngine();
+    await FlutterJs.evaluate(
+        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
+        engineId);
+    if (rule.loadJs.trim().isNotEmpty) {
+      await FlutterJs.evaluate(rule.loadJs, engineId);
+    }
+    final list =
+        await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+            .getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, res.request.url.toString(), rule.host);
+      final analyzer = AnalyzeRule(item, engineId);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
         name: await analyzer.getString(rule.discoverName),
@@ -57,6 +67,7 @@ class APIFromRUle implements API {
         tags: await analyzer.getStringList(rule.discoverTags),
       ));
     }
+    FlutterJs.close(engineId);
     return result;
   }
 
@@ -68,15 +79,22 @@ class APIFromRUle implements API {
       page: page,
       pageSize: pageSize,
       key: query,
+      ua: rule.userAgent,
     );
-    final list = await AnalyzeRule(
-      InputStream.autoDecode(res.bodyBytes),
-      res.request.url.toString(),
-      rule.host,
-    ).getElements(rule.searchList);
+    final searchUrl = res.request.url.toString();
+    final engineId = await FlutterJs.initEngine();
+    await FlutterJs.evaluate(
+        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
+        engineId);
+    if (rule.loadJs.trim().isNotEmpty) {
+      await FlutterJs.evaluate(rule.loadJs, engineId);
+    }
+    final list =
+        await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+            .getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, res.request.url.toString(), rule.host);
+      final analyzer = AnalyzeRule(item, engineId);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
         name: await analyzer.getString(rule.searchName),
@@ -88,6 +106,7 @@ class APIFromRUle implements API {
         tags: await analyzer.getStringList(rule.searchTags),
       ));
     }
+    FlutterJs.close(engineId);
     return result;
   }
 
@@ -100,16 +119,22 @@ class APIFromRUle implements API {
             result: url,
           )
         : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
-
     final reversed = rule.chapterList.startsWith("-");
-    final list = await AnalyzeRule(
-      InputStream.autoDecode(res.bodyBytes),
-      res.request.url.toString(),
-      rule.host,
-    ).getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+    final chapterUrl = res.request.url.toString();
+    final engineId = await FlutterJs.initEngine();
+    await FlutterJs.evaluate(
+        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
+        engineId);
+    if (rule.loadJs.trim().isNotEmpty) {
+      await FlutterJs.evaluate(rule.loadJs, engineId);
+    }
+    final list =
+        await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+            .getElements(
+                reversed ? rule.chapterList.substring(1) : rule.chapterList);
     final result = <ChapterItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, res.request.url.toString(), rule.host);
+      final analyzer = AnalyzeRule(item, engineId);
       final lock = await analyzer.getString(rule.chapterLock);
       var name = await analyzer.getString(rule.chapterName);
       if (lock != null &&
@@ -125,7 +150,7 @@ class APIFromRUle implements API {
         url: await analyzer.getString(rule.chapterResult),
       ));
     }
-
+    FlutterJs.close(engineId);
     return reversed ? result.reversed.toList() : result;
   }
 
@@ -138,12 +163,18 @@ class APIFromRUle implements API {
             result: url,
           )
         : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
-
-    return AnalyzeRule(
-      InputStream.autoDecode(res.bodyBytes),
-      res.request.url.toString(),
-      rule.host,
-    ).getStringList(rule.contentItems);
+    final contentUrl = res.request.url.toString();
+    final engineId = await FlutterJs.initEngine();
+    await FlutterJs.evaluate(
+        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
+        engineId);
+    if (rule.loadJs.trim().isNotEmpty) {
+      await FlutterJs.evaluate(rule.loadJs, engineId);
+    }
+    final temp = AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+        .getStringList(rule.contentItems);
+    FlutterJs.close(engineId);
+    return temp;
   }
 
   @override

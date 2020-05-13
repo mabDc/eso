@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/analyze_rule/analyze_rule.dart';
 import 'package:eso/model/analyze_rule/analyze_url.dart';
 import 'package:eso/utils/input_stream.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_js/flutter_js.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,25 +75,35 @@ class DebugRuleProvider with ChangeNotifier {
     _startTime = DateTime.now();
     rows.clear();
     _beginEvent("搜索");
+    final engineId = await FlutterJs.initEngine();
     try {
       final searchResult = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
         host: rule.host,
         key: value,
+        ua: rule.userAgent,
       );
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
-      final analyzer = AnalyzeRule(
-          InputStream.autoDecode(searchResult.bodyBytes), searchUrl, rule.host);
+      await FlutterJs.evaluate(
+          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
+          engineId);
+      if (rule.loadJs.trim().isNotEmpty) {
+        await FlutterJs.evaluate(rule.loadJs, engineId);
+      }
+      final analyzer =
+          AnalyzeRule(InputStream.autoDecode(searchResult.bodyBytes), engineId);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
+        FlutterJs.close(engineId);
         _addContent("搜索结果列表个数为0，解析结束！");
       } else {
         _addContent("搜索结果个数", resultCount.toString());
-        parseFirstSearch(searchList.first, searchUrl);
+        parseFirstSearch(searchList.first, engineId);
       }
     } catch (e) {
+      FlutterJs.close(engineId);
       rows.add(Row(
         children: [
           Flexible(
@@ -105,112 +118,189 @@ class DebugRuleProvider with ChangeNotifier {
     }
   }
 
-  void parseFirstSearch(dynamic firstItem, String baseUrl) async {
+  void parseFirstSearch(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
-    final analyzer = AnalyzeRule(firstItem, baseUrl, rule.host);
-    _addContent("名称", await analyzer.getString(rule.searchName));
-    _addContent("作者", await analyzer.getString(rule.searchAuthor));
-    _addContent("章节", await analyzer.getString(rule.searchChapter));
-    final coverUrl = await analyzer.getString(rule.searchCover);
-    _addContent("封面", coverUrl, true);
-    //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
-    _addContent("简介", await analyzer.getString(rule.searchDescription));
-    _addContent(
-        "标签", (await analyzer.getStringList(rule.searchTags)).join(", "));
-    final result = await analyzer.getString(rule.searchResult);
-    _addContent("结果", result);
-    parseChapter(result);
+    try {
+      final analyzer = AnalyzeRule(firstItem, engineId);
+      _addContent("名称", await analyzer.getString(rule.searchName));
+      _addContent("作者", await analyzer.getString(rule.searchAuthor));
+      _addContent("章节", await analyzer.getString(rule.searchChapter));
+      final coverUrl = await analyzer.getString(rule.searchCover);
+      _addContent("封面", coverUrl, true);
+      //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
+      _addContent("简介", await analyzer.getString(rule.searchDescription));
+      _addContent(
+          "标签", (await analyzer.getStringList(rule.searchTags)).join(", "));
+      final result = await analyzer.getString(rule.searchResult);
+      _addContent("结果", result);
+      await FlutterJs.close(engineId);
+      parseChapter(result);
+    } catch (e) {
+      FlutterJs.close(engineId);
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          )
+        ],
+      ));
+      _addContent("解析结束！");
+    }
   }
 
   void parseChapter(String result) async {
     _beginEvent("目录");
-    final res = rule.chapterUrl.isNotEmpty
-        ? await AnalyzeUrl.urlRuleParser(
-            rule.chapterUrl,
-            host: rule.host,
-            result: result,
+    final engineId = await FlutterJs.initEngine();
+    try {
+      final res = rule.chapterUrl.isNotEmpty
+          ? await AnalyzeUrl.urlRuleParser(
+              rule.chapterUrl,
+              host: rule.host,
+              result: result,
+              ua: rule.userAgent,
+            )
+          : await AnalyzeUrl.urlRuleParser(result,
+              host: rule.host, ua: rule.userAgent);
+      final chapterUrl = res.request.url.toString();
+      _addContent("地址", chapterUrl, true);
+      final reversed = rule.chapterList.startsWith("-");
+      if (reversed) {
+        _addContent("检测规则以\"-\"开始, 结果将反序");
+      }
+      await FlutterJs.evaluate(
+          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
+          engineId);
+      if (rule.loadJs.trim().isNotEmpty) {
+        await FlutterJs.evaluate(rule.loadJs, engineId);
+      }
+      final chapterList =
+          await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+              .getElements(
+                  reversed ? rule.chapterList.substring(1) : rule.chapterList);
+      final count = chapterList.length;
+      if (count == 0) {
+        FlutterJs.close(engineId);
+        _addContent("章节列表个数为0，解析结束！");
+      } else {
+        _addContent("章节结果个数", count.toString());
+        parseFirstChapter(
+            reversed ? chapterList.last : chapterList.first, engineId);
+      }
+    } catch (e) {
+      FlutterJs.close(engineId);
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
           )
-        : await AnalyzeUrl.urlRuleParser(result, host: rule.host);
-    final chapterUrl = res.request.url.toString();
-    _addContent("地址", chapterUrl, true);
-    final reversed = rule.chapterList.startsWith("-");
-    if (reversed) {
-      _addContent("检测规则以\"-\"开始, 结果将反序");
-    }
-    final chapterList = await AnalyzeRule(
-      InputStream.autoDecode(res.bodyBytes),
-      chapterUrl,
-      rule.host,
-    ).getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
-    final count = chapterList.length;
-    if (count == 0) {
-      _addContent("章节列表个数为0，解析结束！");
-    } else {
-      _addContent("章节结果个数", count.toString());
-      parseFirstChapter(
-          reversed ? chapterList.last : chapterList.first, chapterUrl);
+        ],
+      ));
+      _addContent("解析结束！");
     }
   }
 
-  void parseFirstChapter(dynamic firstItem, String baseUrl) async {
+  void parseFirstChapter(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
-    final analyzer = AnalyzeRule(firstItem, baseUrl, rule.host);
-    final name = await analyzer.getString(rule.chapterName);
-    _addContent("名称(解析)", name);
-    final lock = await analyzer.getString(rule.chapterLock);
-    _addContent("lock标志", lock);
-    if (lock != null &&
-        lock.isNotEmpty &&
-        lock != "undefined" &&
-        lock != "false") {
-      _addContent("名称(显示)", "🔒" + name);
-    } else {
-      _addContent("名称(显示)", name);
+    try {
+      final analyzer = AnalyzeRule(firstItem, engineId);
+      final name = await analyzer.getString(rule.chapterName);
+      _addContent("名称(解析)", name);
+      final lock = await analyzer.getString(rule.chapterLock);
+      _addContent("lock标志", lock);
+      if (lock != null &&
+          lock.isNotEmpty &&
+          lock != "undefined" &&
+          lock != "false") {
+        _addContent("名称(显示)", "🔒" + name);
+      } else {
+        _addContent("名称(显示)", name);
+      }
+      _addContent("时间", await analyzer.getString(rule.chapterTime));
+      final coverUrl = await analyzer.getString(rule.chapterCover);
+      _addContent("封面", coverUrl, true);
+      //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
+      final result = await analyzer.getString(rule.chapterResult);
+      _addContent("结果", result);
+      await FlutterJs.close(engineId);
+      praseContent(result);
+    } catch (e) {
+      FlutterJs.close(engineId);
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          )
+        ],
+      ));
+      _addContent("解析结束！");
     }
-    _addContent("时间", await analyzer.getString(rule.chapterTime));
-    final coverUrl = await analyzer.getString(rule.chapterCover);
-    _addContent("封面", coverUrl, true);
-    //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
-    final result = await analyzer.getString(rule.chapterResult);
-    _addContent("结果", result);
-    praseContent(result);
   }
 
   void praseContent(String result) async {
     _beginEvent("正文");
-    final res = rule.contentUrl.isNotEmpty
-        ? await AnalyzeUrl.urlRuleParser(
-            rule.contentUrl,
-            host: rule.host,
-            result: result,
-          )
-        : await AnalyzeUrl.urlRuleParser(result, host: rule.host);
-    final contentUrl = res.request.url.toString();
-    _addContent("地址", contentUrl, true);
-    final contentItems = await AnalyzeRule(
-      InputStream.autoDecode(res.bodyBytes),
-      contentUrl,
-      rule.host,
-    ).getStringList(rule.contentItems);
-    final count = contentItems.length;
-    if (count == 0) {
-      _addContent("正文结果个数为0，解析结束！");
-    } else {
-      _addContent("正文结果个数", count.toString());
-      final isUrl = rule.contentType == API.MANGA;
-      for (int i = 0; i < count; i++) {
-        rows.add(Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "• [${'0' * (3 - i.toString().length)}$i]: ",
-              style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
-            ),
-            _buildText(contentItems[i], isUrl),
-          ],
-        ));
+    final engineId = await FlutterJs.initEngine();
+    try {
+      final res = rule.contentUrl.isNotEmpty
+          ? await AnalyzeUrl.urlRuleParser(
+              rule.contentUrl,
+              host: rule.host,
+              result: result,
+              ua: rule.userAgent,
+            )
+          : await AnalyzeUrl.urlRuleParser(result, host: rule.host);
+      final contentUrl = res.request.url.toString();
+      _addContent("地址", contentUrl, true);
+      await FlutterJs.evaluate(
+          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)}",
+          engineId);
+      if (rule.loadJs.trim().isNotEmpty) {
+        await FlutterJs.evaluate(rule.loadJs, engineId);
       }
-      notifyListeners();
+      final contentItems =
+          await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+              .getStringList(rule.contentItems);
+      final count = contentItems.length;
+      if (count == 0) {
+        _addContent("正文结果个数为0，解析结束！");
+      } else {
+        _addContent("正文结果个数", count.toString());
+        final isUrl = rule.contentType == API.MANGA;
+        for (int i = 0; i < count; i++) {
+          rows.add(Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "• [${'0' * (3 - i.toString().length)}$i]: ",
+                style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
+              ),
+              _buildText(contentItems[i], isUrl),
+            ],
+          ));
+        }
+        notifyListeners();
+      }
+    } catch (e) {
+      FlutterJs.close(engineId);
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          )
+        ],
+      ));
+      _addContent("解析结束！");
     }
   }
 

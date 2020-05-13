@@ -27,7 +27,7 @@ class AnalyzeUrl {
     };
     if (rule.startsWith("@js:")) {
       // js规则
-      final _idJsEngine = await FlutterJs.initEngine();
+      final _idJsEngine = await FlutterJs.initEngine(101);
       await FlutterJs.initJson(json, _idJsEngine);
       final result = FlutterJs.evaluate(rule, _idJsEngine);
       FlutterJs.close(_idJsEngine);

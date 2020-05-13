@@ -2,6 +2,7 @@ import 'package:jsonpath/json_path.dart';
 
 class AnalyzeByJSonPath {
   final _jsonRulePattern = RegExp(r"(?<={)\$\..+?(?=})");
+  final _jsonRulePattern2 = RegExp(r"\{(\$\.[^\}]+)\}");
   dynamic _ctx;
   dynamic get json => _ctx;
 
@@ -18,13 +19,18 @@ class AnalyzeByJSonPath {
     if (null == rule || rule.isEmpty) return result;
 
     if (rule.contains("{\$.")) {
-      result = rule;
-      var matcher = _jsonRulePattern.allMatches(rule);
-      for (var m in matcher) {
-        result =
-            result.replaceAll("{${m.group(0)}}", getString(m.group(0).trim()));
-      }
-      return result;
+      return rule.splitMapJoin(
+        _jsonRulePattern2,
+        onMatch: (match) => getString(match.group(1)),
+        onNonMatch: (nonMatch) => nonMatch,
+      );
+      // result = rule;
+      // var matcher = _jsonRulePattern.allMatches(rule);
+      // for (var m in matcher) {
+      //   result =
+      //       result.replaceAll("{${m.group(0)}}", getString(m.group(0).trim()));
+      // }
+      // return result;
     }
 
     var rules = <String>[];

@@ -15,9 +15,9 @@ class FlutterJs {
     return version;
   }
 
-  static Future<int> initEngine() async {
-    final int engineId =
-        await _channel.invokeMethod("initEngine", new Random().nextInt(100));
+  static Future<int> initEngine([int id]) async {
+    final int engineId = await _channel.invokeMethod(
+        "initEngine", id ?? new Random().nextInt(100));
     return engineId;
   }
 
