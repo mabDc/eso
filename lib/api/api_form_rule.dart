@@ -177,7 +177,7 @@ class APIFromRUle implements API {
         // await FlutterJs.evaluate(cryptoJS, engineId);
       }
     }
-    final temp = AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+    final temp = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
         .getStringList(rule.contentItems);
     FlutterJs.close(engineId);
     return temp;
