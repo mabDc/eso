@@ -273,23 +273,37 @@ class Rule {
     name = json['bookSourceName'] ?? defaultRule.name;
     host = json['bookSourceUrl'] ?? defaultRule.host;
     contentType = json['contentType'] ?? defaultRule.contentType;
-    sort = json['weight'] ?? defaultRule.sort;
+    sort = json['serialNumber'] ?? defaultRule.sort;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['httpUserAgent'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
     discoverUrl = json['ruleFindUrl'] ?? defaultRule.discoverUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
-    discoverList = json['ruleSearchList'] ?? defaultRule.discoverList;
-    discoverTags = json['ruleSearchKind'] ?? defaultRule.discoverTags;
-    discoverName = json['ruleSearchName'] ?? defaultRule.discoverName;
-    discoverCover = json['ruleSearchCoverUrl'] ?? defaultRule.discoverCover;
-    discoverAuthor = json['ruleSearchAuthor'] ?? defaultRule.discoverAuthor;
-    discoverChapter =
-        json['ruleSearchLastChapter'] ?? defaultRule.discoverChapter;
-    discoverDescription =
-        json['discoverDescription'] ?? defaultRule.discoverDescription;
-    discoverResult = json['ruleSearchNoteUrl'] ?? defaultRule.discoverResult;
+    discoverList = json["ruleFindList"] ??
+        json['ruleSearchList'] ??
+        defaultRule.discoverList;
+    discoverTags = json['ruleFindKind'] ??
+        json['ruleSearchKind'] ??
+        defaultRule.discoverTags;
+    discoverName = json['ruleFindName'] ??
+        json['ruleSearchName'] ??
+        defaultRule.discoverName;
+    discoverCover = json['ruleFindCoverUrl'] ??
+        json['ruleSearchCoverUrl'] ??
+        defaultRule.discoverCover;
+    discoverAuthor = json['ruleFindAuthor'] ??
+        json['ruleSearchAuthor'] ??
+        defaultRule.discoverAuthor;
+    discoverChapter = json['ruleFindLastChapter'] ??
+        json['ruleSearchLastChapter'] ??
+        defaultRule.discoverChapter;
+    discoverDescription = json['ruleFindIntroduce'] ??
+        json['ruleSearchIntroduce'] ??
+        defaultRule.discoverDescription;
+    discoverResult = json['ruleFindUrl'] ??
+        json['ruleSearchNoteUrl'] ??
+        defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
     searchUrl = json['ruleSearchUrl'] ?? defaultRule.searchUrl;
     searchItems = json['searchItems'] ?? defaultRule.searchItems;
@@ -300,7 +314,7 @@ class Rule {
     searchAuthor = json['ruleSearchAuthor'] ?? defaultRule.searchAuthor;
     searchChapter = json['ruleSearchLastChapter'] ?? defaultRule.searchChapter;
     searchDescription =
-        json['searchDescription'] ?? defaultRule.searchDescription;
+        json['ruleSearchIntroduce'] ?? defaultRule.searchDescription;
     searchResult = json['ruleSearchNoteUrl'] ?? defaultRule.searchResult;
     enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;

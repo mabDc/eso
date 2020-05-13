@@ -81,7 +81,7 @@ class DebugRuleProvider with ChangeNotifier {
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
       final analyzer = AnalyzeRule(
-          InputStream.decode(searchResult.bodyBytes), searchUrl, rule.host);
+          InputStream.autoDecode(searchResult.bodyBytes), searchUrl, rule.host);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -133,7 +133,7 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("检测规则以\"-\"开始, 结果将反序");
     }
     final chapterList = await AnalyzeRule(
-      InputStream.decode(res.bodyBytes),
+      InputStream.autoDecode(res.bodyBytes),
       chapterUrl,
       rule.host,
     ).getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
@@ -183,7 +183,7 @@ class DebugRuleProvider with ChangeNotifier {
     final contentUrl = res.request.url.toString();
     _addContent("地址", contentUrl, true);
     final contentItems = await AnalyzeRule(
-      InputStream.decode(res.bodyBytes),
+      InputStream.autoDecode(res.bodyBytes),
       contentUrl,
       rule.host,
     ).getStringList(rule.contentItems);

@@ -7,6 +7,7 @@ import 'package:eso/global.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
+import 'package:eso/ui/ui_dash.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
@@ -107,8 +108,11 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 return LandingPage();
               }
               return ListView.separated(
-                separatorBuilder: (BuildContext context, int index) =>
-                    Divider(),
+                separatorBuilder: (BuildContext context, int index) => UIDash(
+                  color: Colors.black54,
+                  height: 0.5,
+                  dashWidth: 5,
+                ),
                 itemCount: provider.rules.length,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
@@ -177,7 +181,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           case EditSourceProvider.ADD_RULE:
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                .then((value) => __provider.refreshView());
+                .then((value) => __provider.refreshData());
             break;
           case EditSourceProvider.FROM_FILE:
             Toast.show("从本地文件导入", context);
@@ -274,6 +278,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
       actions: [
         IconSlideAction(
           caption: '置顶',
+          color: Colors.blueGrey,
+          icon: Icons.vertical_align_top,
+          onTap: () => provider.setSortMax(rule),
+        ),
+        IconSlideAction(
+          caption: '进入',
           color: Colors.blueGrey,
           icon: Icons.vertical_align_top,
           onTap: () => provider.setSortMax(rule),
