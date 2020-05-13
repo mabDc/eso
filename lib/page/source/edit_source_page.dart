@@ -282,12 +282,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
           icon: Icons.vertical_align_top,
           onTap: () => provider.setSortMax(rule),
         ),
-        IconSlideAction(
-          caption: '进入',
-          color: Colors.blueGrey,
-          icon: Icons.vertical_align_top,
-          onTap: () => provider.setSortMax(rule),
-        ),
       ],
       secondaryActions: <Widget>[
         IconSlideAction(

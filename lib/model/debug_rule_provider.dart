@@ -93,7 +93,12 @@ class DebugRuleProvider with ChangeNotifier {
     } catch (e) {
       rows.add(Row(
         children: [
-          SelectableText("$e\n", style: TextStyle(color: Colors.red, height: 2))
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          )
         ],
       ));
       _addContent("解析结束！");
@@ -173,7 +178,7 @@ class DebugRuleProvider with ChangeNotifier {
 
   void praseContent(String result) async {
     _beginEvent("正文");
-    final res = rule.chapterUrl.isNotEmpty
+    final res = rule.contentUrl.isNotEmpty
         ? await AnalyzeUrl.urlRuleParser(
             rule.contentUrl,
             host: rule.host,

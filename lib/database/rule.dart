@@ -301,7 +301,7 @@ class Rule {
     discoverDescription = json['ruleFindIntroduce'] ??
         json['ruleSearchIntroduce'] ??
         defaultRule.discoverDescription;
-    discoverResult = json['ruleFindUrl'] ??
+    discoverResult = json['ruleFindNoteUrl'] ??
         json['ruleSearchNoteUrl'] ??
         defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;

@@ -65,7 +65,7 @@ class AnalyzeUrl {
 
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
-      var url = "$r['url']".trim();
+      var url = "${r['url']}".trim();
       if (url.startsWith("/")) url = host + url;
       if (method == null || method == 'get') {
         return http.get(url, headers: headers);
