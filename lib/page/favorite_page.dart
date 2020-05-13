@@ -7,10 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/round_indicator.dart';
 import '../database/search_item_manager.dart';
-import '../global.dart';
 import '../model/history_manager.dart';
 import '../model/search_page_delegate.dart';
-import '../ui/ui_shelf_item.dart';
 import 'chapter_page.dart';
 
 class FavoritePage extends StatelessWidget {
@@ -30,18 +28,24 @@ class FavoritePage extends StatelessWidget {
             labelColor: Theme.of(context).textTheme.bodyText1.color,
             unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
             indicator: RoundTabIndicator(
-                insets: EdgeInsets.only(left: 20, right: 20),
+                insets: EdgeInsets.only(left: 2, right: 2),
                 borderSide: BorderSide(
-                    width: 4.0, color: Theme.of(context).primaryColor)),
+                    width: 5.0, color: Theme.of(context).primaryColor)),
             tabs: <Widget>[
-              Tab(
-                text: '漫画',
+              Container(
+                height: 40,
+                alignment: Alignment.center,
+                child:Text("漫画",style: TextStyle(fontWeight:FontWeight.bold),)
               ),
-              Tab(
-                text: '动漫',
+              Container(
+                height: 40,
+                alignment: Alignment.center,
+                child:Text("动漫",style: TextStyle(fontWeight:FontWeight.bold),)
               ),
-              Tab(
-                text: '音乐',
+              Container(
+                height: 40,
+                alignment: Alignment.center,
+                child:Text("音乐",style: TextStyle(fontWeight:FontWeight.bold),)
               ),
             ],
           ),
@@ -59,18 +63,18 @@ class FavoritePage extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              icon: Provider.of<Profile>(context, listen: false)
-                      .switchFavoriteStyle
-                  ? Icon(Icons.view_headline,
-                      color: Theme.of(context).textTheme.bodyText1.color)
-                  : Icon(Icons.view_module,
-                      color: Theme.of(context).textTheme.bodyText1.color),
-              onPressed: () => Provider.of<Profile>(context, listen: false)
-                      .switchFavoriteStyle =
-                  !Provider.of<Profile>(context, listen: false)
-                      .switchFavoriteStyle,
-            ),
+            // IconButton(
+            //   icon: Provider.of<Profile>(context, listen: false)
+            //           .switchFavoriteStyle
+            //       ? Icon(Icons.view_headline,
+            //           color: Theme.of(context).textTheme.bodyText1.color)
+            //       : Icon(Icons.view_module,
+            //           color: Theme.of(context).textTheme.bodyText1.color),
+            //   onPressed: () => Provider.of<Profile>(context, listen: false)
+            //           .switchFavoriteStyle =
+            //       !Provider.of<Profile>(context, listen: false)
+            //           .switchFavoriteStyle,
+            // ),
           ],
         ),
         body: TabBarView(
@@ -99,53 +103,50 @@ class FavoritePage extends StatelessWidget {
             await Future.delayed(Duration(seconds: 1));
             return;
           },
-          child:
-              Provider.of<Profile>(context, listen: false).switchFavoriteStyle
-                  ? _buildFavoriteGrid(searchItems)
-                  : _buildFavoriteList(searchItems),
+          child:_buildFavoriteGrid(searchItems),
         ),
       );
     }
     return list;
   }
 
-  Widget _buildFavoriteList(List<SearchItem> searchItems) {
-    return Padding(
-        padding: EdgeInsets.all(8),
-        child: ListView.separated(
-          separatorBuilder: (context, index) {
-            return SizedBox(
-              height: 8.0,
-            );
-          },
-          itemCount: searchItems.length,
-          itemBuilder: (context, index) {
-            final searchItem = searchItems[index];
-            final longPress =
-                Provider.of<Profile>(context, listen: false).switchLongPress;
-            VoidCallback openChapter = () => Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => ChapterPage(searchItem: searchItem)));
-            VoidCallback openContent = () => Navigator.of(context)
-                .push(ContentPageRoute().route(searchItem));
-            return InkWell(
-              child: UiShelfItem(searchItem: searchItem),
-              onTap: longPress ? openChapter : openContent,
-              onLongPress: longPress ? openContent : openChapter,
-            );
-          },
-        ));
-  }
+  // Widget _buildFavoriteList(List<SearchItem> searchItems) {
+  //   return Padding(
+  //       padding: EdgeInsets.all(8),
+  //       child: ListView.separated(
+  //         separatorBuilder: (context, index) {
+  //           return SizedBox(
+  //             height: 8.0,
+  //           );
+  //         },
+  //         itemCount: searchItems.length,
+  //         itemBuilder: (context, index) {
+  //           final searchItem = searchItems[index];
+  //           final longPress =
+  //               Provider.of<Profile>(context, listen: false).switchLongPress;
+  //           VoidCallback openChapter = () => Navigator.of(context).push(
+  //               MaterialPageRoute(
+  //                   builder: (context) => ChapterPage(searchItem: searchItem)));
+  //           VoidCallback openContent = () => Navigator.of(context)
+  //               .push(ContentPageRoute().route(searchItem));
+  //           return InkWell(
+  //             child: UiShelfItem(searchItem: searchItem),
+  //             onTap: longPress ? openChapter : openContent,
+  //             onLongPress: longPress ? openContent : openChapter,
+  //           );
+  //         },
+  //       ));
+  // }
 
   Widget _buildFavoriteGrid(List<SearchItem> searchItems) {
     return Padding(
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsets.all(12),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 0.8,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+            childAspectRatio: 0.65,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
           ),
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
