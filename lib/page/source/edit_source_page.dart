@@ -291,7 +291,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           onTap: () => Navigator.of(context)
               .push(MaterialPageRoute(
                   builder: (context) => EditRulePage(rule: rule)))
-              .then((value) => provider.refreshView()),
+              .then((value) => provider.refreshData()),
         ),
         IconSlideAction(
           caption: '删除',
