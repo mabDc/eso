@@ -39,7 +39,7 @@ class APIFromRUle implements API {
       pageSize: pageSize,
     );
     final list = await AnalyzeRule(
-      InputStream.decode(res.bodyBytes),
+      InputStream.autoDecode(res.bodyBytes),
       res.request.url.toString(),
       rule.host,
     ).getElements(rule.discoverList);
@@ -70,7 +70,7 @@ class APIFromRUle implements API {
       key: query,
     );
     final list = await AnalyzeRule(
-      InputStream.decode(res.bodyBytes),
+      InputStream.autoDecode(res.bodyBytes),
       res.request.url.toString(),
       rule.host,
     ).getElements(rule.searchList);
@@ -103,7 +103,7 @@ class APIFromRUle implements API {
 
     final reversed = rule.chapterList.startsWith("-");
     final list = await AnalyzeRule(
-      InputStream.decode(res.bodyBytes),
+      InputStream.autoDecode(res.bodyBytes),
       res.request.url.toString(),
       rule.host,
     ).getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
@@ -140,7 +140,7 @@ class APIFromRUle implements API {
         : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
 
     return AnalyzeRule(
-      InputStream.decode(res.bodyBytes),
+      InputStream.autoDecode(res.bodyBytes),
       res.request.url.toString(),
       rule.host,
     ).getStringList(rule.contentItems);

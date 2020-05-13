@@ -7,6 +7,7 @@ import 'package:eso/global.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
+import 'package:eso/ui/ui_dash.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
@@ -40,80 +41,88 @@ class _EditSourcePageState extends State<EditSourcePage> {
   }
 
   Widget _buildPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          cursorColor: Theme.of(context).primaryColor,
-          cursorRadius: Radius.circular(2),
-          selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white24,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.transparent),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.transparent),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.transparent),
-            ),
-            hintText: "搜索名称和分组",
-            hintStyle: TextStyle(
-              color: Colors.white70,
-            ),
-            isDense: true,
-            contentPadding: EdgeInsets.only(bottom: 4),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-              child: Icon(
-                Icons.search,
-                color: Colors.white70,
+    return ChangeNotifierProvider.value(
+      value: EditSourceProvider(),
+      builder: (BuildContext context, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: TextField(
+              cursorColor: Theme.of(context).primaryColor,
+              cursorRadius: Radius.circular(2),
+              selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white24,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
+                hintText:
+                    "搜索名称和分组(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
+                hintStyle: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+                isDense: true,
+                contentPadding: EdgeInsets.only(bottom: 4),
+                prefixIcon: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                  child: Icon(
+                    Icons.search,
+                    color: Colors.white70,
+                  ),
+                ),
+                prefixIconConstraints: BoxConstraints(),
               ),
+              maxLines: 1,
+              style: TextStyle(color: Colors.white, height: 1.25),
+              onSubmitted: (content) {
+                __provider.getRuleListByName(content);
+              },
             ),
-            prefixIconConstraints: BoxConstraints(),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.check_circle),
+                onPressed: () {
+                  __provider.toggleCheckAllRule();
+                },
+              ),
+              _buildpopupMenu(context),
+            ],
           ),
-          maxLines: 1,
-          style: TextStyle(color: Colors.white, height: 1.25),
-          textAlignVertical: TextAlignVertical.bottom,
-          onSubmitted: (content) {
-            __provider.getRuleListByName(content);
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.check_circle),
-            onPressed: () {
-              __provider.toggleCheckAllRule();
+          body: Consumer<EditSourceProvider>(
+            builder: (context, EditSourceProvider provider, _) {
+              if (__provider == null) {
+                __provider = provider;
+              }
+              if (provider.isLoading) {
+                return LandingPage();
+              }
+              return ListView.separated(
+                separatorBuilder: (BuildContext context, int index) => UIDash(
+                  color: Colors.black54,
+                  height: 0.5,
+                  dashWidth: 5,
+                ),
+                itemCount: provider.rules.length,
+                physics: BouncingScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildItem(provider, index);
+                },
+              );
             },
           ),
-          _buildpopupMenu(context),
-        ],
-      ),
-      body: ChangeNotifierProvider.value(
-        value: EditSourceProvider(),
-        child: Consumer<EditSourceProvider>(
-          builder: (context, EditSourceProvider provider, _) {
-            if (__provider == null) {
-              __provider = provider;
-            }
-            if (provider.isLoading) {
-              return LandingPage();
-            }
-            return ListView.separated(
-              separatorBuilder: (BuildContext context, int index) => Divider(),
-              itemCount: provider.rules.length,
-              physics: BouncingScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return _buildItem(provider, index);
-              },
-            );
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -188,7 +197,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Text("警告"),
+                    title: Row(
+                      children: [
+                        Icon(Icons.warning, color: Colors.black),
+                        Text("警告"),
+                      ],
+                    ),
                     content: Text("是否删除所有站点？"),
                     actions: [
                       FlatButton(
@@ -211,7 +225,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     ],
                   );
                 });
-
             break;
           default:
         }
@@ -224,10 +237,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(element['title']),
-                Icon(
-                  element['icon'],
-                  color: primaryColor,
-                ),
+                Icon(element['icon'], color: primaryColor),
               ],
             ),
             value: element['type'],
@@ -251,7 +261,11 @@ class _EditSourcePageState extends State<EditSourcePage> {
           value: rule.enableSearch,
           activeColor: Theme.of(context).primaryColor,
           title: Text('${rule.name}'),
-          subtitle: Text('${rule.host}'),
+          subtitle: Text(
+            '${rule.host}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           onChanged: (value) => provider.toggleEnableSearch(rule),
         ),
         onLongPress: () => Navigator.of(context).push(MaterialPageRoute(

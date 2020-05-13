@@ -6,7 +6,7 @@ class InputStream {
     final str = latin1.decode(bytes);
     if (!str.contains('charset')) return str;
     try {
-      final charset = RegExp("(?<=charset\s*\=\s*[\"']?)[^\"';\s]+")
+      final charset = RegExp(r"""(?<=charset\s*\=\s*["']?)[^"';\s]+""")
           .firstMatch(str)
           .group(0);
       return decode(bytes, charset);
