@@ -78,7 +78,7 @@ class AnalyzeRule {
       result = _getElementsSync(rule.substring(0, position));
     }
     if (position > -1) {
-      FlutterJs.evaluate(
+      await FlutterJs.evaluate(
           "result = ${jsonEncode(result.isNotEmpty ? result : _content)}",
           _idJsEngine);
       return FlutterJs.getList(rule.substring(position + 4), _idJsEngine);
@@ -89,19 +89,17 @@ class AnalyzeRule {
   List<String> _getStringListSync(String rule) {
     var result = <String>[];
     for (var r in splitRuleReversed(rule).reversed) {
+      final replace = replaceListSmart(r.replace);
+      final re = result.isNotEmpty ? result : _content;
       switch (r.mode) {
         case Mode.CSS:
-          result = AnalyzerByHtml(result.isNotEmpty ? result : _content)
-              .getStringList(r.rule);
+          result = replace(AnalyzerByHtml(re).getStringList(r.rule));
           break;
         case Mode.Json:
-          result = AnalyzeByJSonPath(result.isNotEmpty ? result : _content)
-              .getStringList(r.rule);
+          result = replace(AnalyzeByJSonPath(re).getStringList(r.rule));
           break;
         default:
       }
-      result =
-          replaceListSmart(r.replace)(result.isNotEmpty ? result : _content);
     }
     return result;
   }
@@ -120,7 +118,7 @@ class AnalyzeRule {
       result = _getStringListSync(rule.substring(0, position));
     }
     if (position > -1) {
-      FlutterJs.evaluate(
+      await FlutterJs.evaluate(
           "result = ${jsonEncode(result.isNotEmpty ? result : _content)}",
           _idJsEngine);
       return FlutterJs.getStringList(rule.substring(position + 4), _idJsEngine);
@@ -140,18 +138,17 @@ class AnalyzeRule {
     } else {
       var result = "";
       for (var r in splitRuleReversed(rule).reversed) {
+        final replace = replaceSmart(r.replace);
+        final re = result.isNotEmpty ? result : _content;
         switch (r.mode) {
           case Mode.CSS:
-            result = AnalyzerByHtml(result.isNotEmpty ? result : _content)
-                .getString(r.rule);
+            result = replace(AnalyzerByHtml(re).getString(r.rule));
             break;
           case Mode.Json:
-            result = AnalyzeByJSonPath(result.isNotEmpty ? result : _content)
-                .getString(r.rule);
+            result = replace(AnalyzeByJSonPath(re).getString(r.rule));
             break;
           default:
         }
-        result = replaceSmart(r.replace)(result.isNotEmpty ? result : _content);
       }
       return result;
     }
@@ -171,7 +168,7 @@ class AnalyzeRule {
       result = _getStringSync(rule.substring(0, position));
     }
     if (position > -1) {
-      FlutterJs.evaluate(
+      await FlutterJs.evaluate(
           "result = ${jsonEncode(result.isNotEmpty ? result : _content)}",
           _idJsEngine);
       return FlutterJs.getString(rule.substring(position + 4), _idJsEngine);
@@ -195,14 +192,11 @@ class AnalyzeRule {
   List<SingleRule> splitRuleReversed(String rule) {
     final ruleList = <SingleRule>[];
     var lastEnd = rule.length;
-    for (var end in ruleTypePattern
-        .allMatches(rule)
-        .map((m) => m.end)
-        .toList()
-        .reversed) {
-      var r = rule.substring(end, lastEnd).trimLeft();
+    for (var m
+        in ruleTypePattern.allMatches(rule).map((m) => m).toList().reversed) {
+      var r = rule.substring(m.start, lastEnd).trimLeft();
       if (r.isEmpty) {
-        lastEnd = end;
+        lastEnd = m.end;
         continue;
       }
       Mode mode;
@@ -229,14 +223,14 @@ class AnalyzeRule {
         default:
           mode = Mode.CSS;
       }
-      String replace = "";
-      int pSplit = r.indexOf("##");
-      if (pSplit > -1) {
-        r = r.substring(0, pSplit);
-        replace = r.substring(pSplit);
+      final position = r.indexOf("##");
+      if (position > -1) {
+        ruleList.add(SingleRule(
+            mode, r.substring(0, position), r.substring(position + 2)));
+      } else {
+        ruleList.add(SingleRule(mode, r, ""));
       }
-      ruleList.add(SingleRule(mode, r, replace));
-      lastEnd = end;
+      lastEnd = m.end;
     }
     return ruleList;
   }
@@ -246,7 +240,7 @@ class SingleRule {
   final Mode mode;
   final String rule;
   final String replace;
-  SingleRule(this.mode, this.rule, [this.replace = ""]);
+  SingleRule(this.mode, this.rule, this.replace);
 }
 
 enum Mode {

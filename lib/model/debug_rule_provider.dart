@@ -76,6 +76,7 @@ class DebugRuleProvider with ChangeNotifier {
     rows.clear();
     _beginEvent("搜索");
     final engineId = await FlutterJs.initEngine();
+    _addContent("js初始化");
     try {
       final searchResult = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
@@ -91,6 +92,7 @@ class DebugRuleProvider with ChangeNotifier {
       if (rule.loadJs.trim().isNotEmpty) {
         await FlutterJs.evaluate(rule.loadJs, engineId);
       }
+      _addContent("js修改baseUrl");
       final analyzer =
           AnalyzeRule(InputStream.autoDecode(searchResult.bodyBytes), engineId);
       final searchList = await analyzer.getElements(rule.searchList);
@@ -259,11 +261,17 @@ class DebugRuleProvider with ChangeNotifier {
           : await AnalyzeUrl.urlRuleParser(result, host: rule.host);
       final contentUrl = res.request.url.toString();
       _addContent("地址", contentUrl, true);
-      await FlutterJs.evaluate(
-          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)}",
-          engineId);
-      if (rule.loadJs.trim().isNotEmpty) {
-        await FlutterJs.evaluate(rule.loadJs, engineId);
+      if (rule.contentItems.contains("@js:")) {
+        await FlutterJs.evaluate(
+            "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
+            engineId);
+        if (rule.loadJs.trim().isNotEmpty) {
+          await FlutterJs.evaluate(rule.loadJs, engineId);
+        }
+        if (rule.useCryptoJS) {
+          // final cryptoJS = await DefaultAssetBundle.of(context).loadString(Global.cryptoJS);
+          // await FlutterJs.evaluate(cryptoJS, engineId);
+        }
       }
       final contentItems =
           await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)

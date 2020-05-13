@@ -165,11 +165,17 @@ class APIFromRUle implements API {
         : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
     final contentUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
-    await FlutterJs.evaluate(
-        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
-        engineId);
-    if (rule.loadJs.trim().isNotEmpty) {
-      await FlutterJs.evaluate(rule.loadJs, engineId);
+    if (rule.contentItems.contains("@js:")) {
+      await FlutterJs.evaluate(
+          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
+          engineId);
+      if (rule.loadJs.trim().isNotEmpty) {
+        await FlutterJs.evaluate(rule.loadJs, engineId);
+      }
+      if(rule.useCryptoJS){
+        // final cryptoJS = await DefaultAssetBundle.of(context).loadString(Global.cryptoJS);
+        // await FlutterJs.evaluate(cryptoJS, engineId);
+      }
     }
     final temp = AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
         .getStringList(rule.contentItems);
