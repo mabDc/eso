@@ -65,31 +65,7 @@ class AnalyzerByRegexp {
   来定位内容，例：r'(?<=href=")[^"]*'
   */
   String getString(String rule) {
-    var result = "";
-    if (null == rule || rule.isEmpty) return result;
-
-    var rules = <String>[];
-    bool customOrRule = false;
-    if (rule.contains('&&')) {
-      rules = rule.split('&&');
-    } else if (rule.contains('||')) {
-      rules = rule.split('||');
-      customOrRule = true;
-    } else {
-      result = _getList(rule, _string).join('\n');
-      return result;
-    }
-
-    final textS = <String>[];
-    for (var rl in rules) {
-      final temp = getString(rl);
-      if (temp.isNotEmpty) {
-        textS.add(temp);
-        if (customOrRule) break;
-      }
-    }
-
-    return textS.join("\n");
+    return _getList(rule, _string).join(", ");
   }
 
   List<String> getStringList(String rule) {

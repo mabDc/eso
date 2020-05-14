@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:eso/model/analyze_rule/analyze_by_html.dart';
 import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
+import 'package:eso/model/analyze_rule/analyze_by_regexp.dart';
+import 'package:eso/model/analyze_rule/analyze_by_xpath.dart';
 import 'package:flutter_js/flutter_js.dart';
 
 class AnalyzeRule {
@@ -59,6 +61,12 @@ class AnalyzeRule {
         case Mode.Json:
           result = AnalyzeByJSonPath(re).getList(r.rule);
           break;
+        case Mode.XPath:
+          result = AnalyzeByXPath(re).getElements(r.rule);
+          break;
+        case Mode.Regex:
+          result = AnalyzerByRegexp(re).getList(r.rule);
+          break;
         case Mode.JS:
           await FlutterJs.evaluate("result = ${jsonEncode(re)}", _idJsEngine);
           result = await FlutterJs.getList(r.rule, _idJsEngine);
@@ -85,6 +93,12 @@ class AnalyzeRule {
         case Mode.Json:
           result = replace(AnalyzeByJSonPath(re).getStringList(r.rule));
           break;
+        case Mode.XPath:
+          result = replace(AnalyzeByXPath(re).getStringList(r.rule));
+          break;
+        case Mode.Regex:
+          result = replace(AnalyzerByRegexp(re).getStringList(r.rule));
+          break;
         case Mode.JS:
           await FlutterJs.evaluate("result = ${jsonEncode(re)}", _idJsEngine);
           result = await FlutterJs.getStringList(r.rule, _idJsEngine);
@@ -95,22 +109,28 @@ class AnalyzeRule {
     return result;
   }
 
-  String _getStringSync(String rule) {
-    var result = "";
-    for (final r in splitRuleReversed(rule).reversed) {
-      final replace = replaceSmart(r.replace);
-      final re = result.isNotEmpty ? result : _content;
-      switch (r.mode) {
+  String _getStringCustom(String rule, Mode mode, dynamic content) {
+    if (rule.contains("&&")) {
+      return rule.split('&&').map((r) => _getStringCustom(r, mode, content)).join(", ");
+    } else if (rule.contains('||')) {
+      for (final r in rule.split('||')) {
+        final temp = _getStringCustom(r, mode, content);
+        if (temp.isNotEmpty) return temp;
+      }
+    } else {
+      switch (mode) {
         case Mode.CSS:
-          result = replace(AnalyzerByHtml(re).getString(r.rule));
-          break;
+          return AnalyzerByHtml(content).getString(rule).trim();
         case Mode.Json:
-          result = replace(AnalyzeByJSonPath(re).getString(r.rule));
-          break;
+          return AnalyzeByJSonPath(content).getString(rule).trim();
+        case Mode.XPath:
+          return AnalyzeByXPath(content).getString(rule).trim();
+        case Mode.Regex:
+          return AnalyzerByRegexp(content).getString(rule).trim();
         default:
       }
     }
-    return result;
+    return "";
   }
 
   final expressionPattern = RegExp(r"\{\{(.*?)\}\}", dotAll: true);
@@ -134,7 +154,14 @@ class AnalyzeRule {
           (otherRuleIndex == -1 ? rule : rule.substring(0, pRight + 2 + otherRuleIndex))
               .splitMapJoin(
         expressionPattern,
-        onMatch: (onMatch) => _getStringSync(onMatch.group(1)),
+        onMatch: (onMatch) {
+          result = "";
+          for (final r in splitRuleReversed(onMatch.group(1)).reversed) {
+            result = replaceSmart(r.replace)(
+                _getStringCustom(r.rule, r.mode, result.isNotEmpty ? result : _content));
+          }
+          return result;
+        },
         onNonMatch: (nonMatch) => nonMatch,
       );
       if (otherRuleIndex == -1) return result;
@@ -142,20 +169,13 @@ class AnalyzeRule {
     }
 
     for (final r in splitRuleReversed(rule).reversed) {
-      final replace = replaceSmart(r.replace);
-      final re = result.isNotEmpty ? result : _content;
-      switch (r.mode) {
-        case Mode.CSS:
-          result = replace(AnalyzerByHtml(re).getString(r.rule));
-          break;
-        case Mode.Json:
-          result = replace(AnalyzeByJSonPath(re).getString(r.rule));
-          break;
-        case Mode.JS:
-          await FlutterJs.evaluate("result = ${jsonEncode(re)}", _idJsEngine);
-          result = await FlutterJs.getString(r.rule, _idJsEngine);
-          break;
-        default:
+      if (r.mode == Mode.JS) {
+        await FlutterJs.evaluate(
+            "result = ${jsonEncode(result.isNotEmpty ? result : _content)}", _idJsEngine);
+        result = await FlutterJs.getString(r.rule, _idJsEngine);
+      } else {
+        result = replaceSmart(r.replace)(
+            _getStringCustom(r.rule, r.mode, result.isNotEmpty ? result : _content));
       }
     }
     return result;

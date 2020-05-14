@@ -6,9 +6,8 @@ class InputStream {
     final str = utf8.decode(bytes);
     if (!str.contains('charset')) return str;
     try {
-      final charset = RegExp(r"""(?<=charset\s*\=\s*["']?)[^"';\s]+""")
-          .firstMatch(str)
-          .group(0);
+      final charset =
+          RegExp(r"""(?<=charset\s*\=\s*["']?)[^"';\s]+""").firstMatch(str).group(0);
       if (charset.contains(RegExp("utf-?8", caseSensitive: false))) {
         return str;
       }

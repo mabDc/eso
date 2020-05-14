@@ -530,19 +530,6 @@ class _EditRulePageState extends State<EditRulePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('导出到剪贴板'),
-              Icon(
-                Icons.content_copy,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: TO_CLIPBOARD,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
               Text('从异次元导入'),
               Icon(
                 Icons.ac_unit,
@@ -551,6 +538,19 @@ class _EditRulePageState extends State<EditRulePage> {
             ],
           ),
           value: FROM_YICIYUAN,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('导出到剪贴板'),
+              Icon(
+                Icons.content_copy,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: TO_CLIPBOARD,
         ),
         PopupMenuItem(
           child: Row(

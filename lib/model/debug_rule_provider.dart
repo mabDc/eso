@@ -271,7 +271,9 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("正文结果个数为0，解析结束！");
       } else {
         _addContent("正文结果个数", count.toString());
-        final isUrl = rule.contentType == API.MANGA;
+        final isUrl = rule.contentType == API.MANGA ||
+            rule.contentType == API.AUDIO ||
+            rule.contentType == API.VIDEO;
         for (int i = 0; i < count; i++) {
           rows.add(Row(
             crossAxisAlignment: CrossAxisAlignment.start,

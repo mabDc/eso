@@ -52,6 +52,7 @@ dependencies:
   uuid: ^2.0.4
   floor: ^0.12.0
   toast: ^0.1.5
+  xpath_parse: ^1.0.2
 
 dev_dependencies:
   flutter_test:

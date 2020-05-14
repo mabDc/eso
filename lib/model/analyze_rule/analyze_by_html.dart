@@ -34,7 +34,7 @@ class AnalyzerByHtml {
       case 'text':
         return e.text.trim();
       case 'textNodes':
-        return e.children.map((e) => e.text).join("\n").trim();
+        return e.children.map((e) => e.text).join("\n").trim(); // 适用于文字类正文 用换行符
       case 'id':
         return e.id;
       case 'outerHtml':
@@ -49,16 +49,7 @@ class AnalyzerByHtml {
   }
 
   String getString(String rule) {
-    if (rule == null || rule.isEmpty) return "";
-
-    var rules = <String>[];
-    bool customOrRule = false;
-    if (rule.contains('&&')) {
-      rules = rule.split('&&');
-    } else if (rule.contains('||')) {
-      rules = rule.split('||');
-      customOrRule = true;
-    } else if (!rule.contains('@')) {
+    if (!rule.contains('@')) {
       return _getResult(_element, rule);
     } else {
       final split = rule.lastIndexOf("@");
@@ -71,18 +62,6 @@ class AnalyzerByHtml {
       }
       return builder.join('\n');
     }
-
-    final textS = <String>[];
-    for (var rl in rules) {
-      final temp = getString(rl);
-      if (temp.isNotEmpty) {
-        textS.add(temp.trim());
-        if (customOrRule) {
-          break;
-        }
-      }
-    }
-    return textS.join("\n");
   }
 
   List<String> getStringList(String rule) {
