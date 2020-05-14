@@ -123,13 +123,11 @@ class AnalyzeRule {
     if (rule.isEmpty) return result;
 
     // 在第一个 js 规则的前面检测 {{}} 规则
-    final firstJSindex = rule.indexOf("@js:");
-    final pLeft = firstJSindex == -1
-        ? rule.lastIndexOf("{{")
-        : rule.lastIndexOf("{{", firstJSindex);
-    final pRight = firstJSindex == -1
-        ? rule.lastIndexOf("}}")
-        : rule.lastIndexOf("}}", firstJSindex);
+    final pFirstJS = rule.indexOf("@js:");
+    final pLeft =
+        pFirstJS == -1 ? rule.lastIndexOf("{{") : rule.lastIndexOf("{{", pFirstJS);
+    final pRight =
+        pFirstJS == -1 ? rule.lastIndexOf("}}") : rule.lastIndexOf("}}", pFirstJS);
     if (-1 < pLeft && pLeft < pRight) {
       final otherRuleIndex = rule.substring(pRight + 2).indexOf(otherRulePattern);
       result =
