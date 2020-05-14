@@ -126,7 +126,7 @@ class AnalyzeRule {
     return result;
   }
 
-  final expressionPattern = RegExp(r"\{\{.*?\}\}", dotAll: true);
+  final expressionPattern = RegExp(r"\{\{(.*?)\}\}", dotAll: true);
 
   String _getStringSync(String rule) {
     if (rule.contains("{{") && rule.contains("}}")) {

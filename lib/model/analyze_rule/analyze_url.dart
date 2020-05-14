@@ -29,7 +29,7 @@ class AnalyzeUrl {
       // js规则
       final _idJsEngine = await FlutterJs.initEngine(101);
       await FlutterJs.initJson(json, _idJsEngine);
-      final result = FlutterJs.evaluate(rule, _idJsEngine);
+      final result = await FlutterJs.evaluate(rule, _idJsEngine);
       FlutterJs.close(_idJsEngine);
       return _parser(ua, host, result);
     } else {
