@@ -1,83 +1,84 @@
 import 'dart:convert';
 
+import 'package:eso/database/rule.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:http/http.dart' as http;
 
 class AnalyzeUrl {
   static Future<http.Response> urlRuleParser(
-    String rule, {
-    String host = "",
+    String url,
+    Rule rule, {
     String key = "",
     String result = "",
     int page = 1,
     int pageSize = 20,
-    String ua =
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36',
   }) async {
-    rule = rule.trim();
+    url = url.trim();
     Map<String, dynamic> json = {
-      "host": host,
       "key": key,
       "page": page,
+      "host": rule.host,
+      "result": result,
       "pageSize": pageSize,
       "searchKey": key,
       "searchPage": page,
-      "result": result,
-      "ua": ua
     };
-    if (rule.startsWith("@js:")) {
+    if (url.startsWith("@js:")) {
       // js规则
       final _idJsEngine = await FlutterJs.initEngine(101);
       await FlutterJs.initJson(json, _idJsEngine);
-      final result = await FlutterJs.evaluate(rule, _idJsEngine);
+      if (rule.loadJs.trim().isNotEmpty) {
+        await FlutterJs.evaluate(rule.loadJs, _idJsEngine);
+      }
+      final result = await FlutterJs.evaluate(url, _idJsEngine);
       FlutterJs.close(_idJsEngine);
-      return _parser(ua, host, result);
+      return _parser(result, rule);
     } else {
       // 非js规则, 考虑字符串替换
       return _parser(
-          ua,
-          host,
-          rule.replaceAllMapped(
-            RegExp(
-                r"\$result|\$host|\$key|\$page|\$pageSize|searchKey|searchPage"),
+          url.replaceAllMapped(
+            RegExp(r"\$key|\$page|\$host|\$result|\$pageSize|searchKey|searchPage"),
             (m) {
               return '${json[m.group(0).replaceFirst("\$", '')]}';
             },
-          ));
+          ),
+          rule);
     }
   }
 
-  static Future<http.Response> _parser(
-      String ua, String host, dynamic rule) async {
-    if (rule is String) {
-      rule = rule.trim();
-      if (rule.isEmpty) return http.get('$host');
-      if (rule.startsWith("{")) {
-        rule = jsonDecode(rule);
+  static Future<http.Response> _parser(dynamic url, Rule rule) async {
+    if (url is String) {
+      url = url.trim();
+      if (url.isEmpty) return http.get(rule.host);
+      if (url.startsWith("{")) {
+        url = jsonDecode(url);
       }
     }
-    if (rule is Map) {
-      Map<String, dynamic> r =
-          rule.map((k, v) => MapEntry(k.toString().toLowerCase(), v));
+    if (url is Map) {
+      Map<String, dynamic> r = url.map((k, v) => MapEntry(k.toString().toLowerCase(), v));
 
-      Map<String, String> headers = {'User-Agent': ua}
+      Map<String, String> headers = {'User-Agent': rule.userAgent}
         ..addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
-      var url = "${r['url']}".trim();
-      if (url.startsWith("/")) url = host + url;
+      var u = "${r['url']}".trim();
+      if (u.startsWith("/")) {
+        u = rule.host + u;
+      }
       if (method == null || method == 'get') {
-        return http.get(url, headers: headers);
+        return http.get(u, headers: headers);
       }
       if (method == 'post') {
-        return http.post(url, headers: headers, body: body);
+        return http.post(u, headers: headers, body: body);
       }
       throw ('error parser url rule');
     } else {
-      var url = "$rule".trim();
-      if (url.startsWith("/")) url = host + url;
-      return http.get(url);
+      var u = "$url".trim();
+      if (u.startsWith("/")) {
+        u = rule.host + u;
+      }
+      return http.get(u);
     }
   }
 }

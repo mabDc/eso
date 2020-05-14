@@ -80,9 +80,8 @@ class DebugRuleProvider with ChangeNotifier {
     try {
       final searchResult = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
-        host: rule.host,
+        rule,
         key: value,
-        ua: rule.userAgent,
       );
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
@@ -131,8 +130,7 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("封面", coverUrl, true);
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.searchDescription));
-      _addContent(
-          "标签", (await analyzer.getStringList(rule.searchTags)).join(", "));
+      _addContent("标签", (await analyzer.getStringList(rule.searchTags)).join(", "));
       final result = await analyzer.getString(rule.searchResult);
       _addContent("结果", result);
       await FlutterJs.close(engineId);
@@ -160,12 +158,10 @@ class DebugRuleProvider with ChangeNotifier {
       final res = rule.chapterUrl.isNotEmpty
           ? await AnalyzeUrl.urlRuleParser(
               rule.chapterUrl,
-              host: rule.host,
+              rule,
               result: result,
-              ua: rule.userAgent,
             )
-          : await AnalyzeUrl.urlRuleParser(result,
-              host: rule.host, ua: rule.userAgent);
+          : await AnalyzeUrl.urlRuleParser(result, rule);
       final chapterUrl = res.request.url.toString();
       _addContent("地址", chapterUrl, true);
       final reversed = rule.chapterList.startsWith("-");
@@ -180,16 +176,14 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final chapterList =
           await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
-              .getElements(
-                  reversed ? rule.chapterList.substring(1) : rule.chapterList);
+              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
       final count = chapterList.length;
       if (count == 0) {
         FlutterJs.close(engineId);
         _addContent("章节列表个数为0，解析结束！");
       } else {
         _addContent("章节结果个数", count.toString());
-        parseFirstChapter(
-            reversed ? chapterList.last : chapterList.first, engineId);
+        parseFirstChapter(reversed ? chapterList.last : chapterList.first, engineId);
       }
     } catch (e) {
       FlutterJs.close(engineId);
@@ -215,10 +209,7 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("名称(解析)", name);
       final lock = await analyzer.getString(rule.chapterLock);
       _addContent("lock标志", lock);
-      if (lock != null &&
-          lock.isNotEmpty &&
-          lock != "undefined" &&
-          lock != "false") {
+      if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
         _addContent("名称(显示)", "🔒" + name);
       } else {
         _addContent("名称(显示)", name);
@@ -254,11 +245,10 @@ class DebugRuleProvider with ChangeNotifier {
       final res = rule.contentUrl.isNotEmpty
           ? await AnalyzeUrl.urlRuleParser(
               rule.contentUrl,
-              host: rule.host,
+              rule,
               result: result,
-              ua: rule.userAgent,
             )
-          : await AnalyzeUrl.urlRuleParser(result, host: rule.host);
+          : await AnalyzeUrl.urlRuleParser(result, rule);
       final contentUrl = res.request.url.toString();
       _addContent("地址", contentUrl, true);
       if (rule.contentItems.contains("@js:")) {

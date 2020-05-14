@@ -37,10 +37,9 @@ class APIFromRUle implements API {
     if (params.isEmpty) return <SearchItem>[];
     final res = await AnalyzeUrl.urlRuleParser(
       params["分类"].value,
-      host: rule.host,
+      rule,
       page: page,
       pageSize: pageSize,
-      ua: rule.userAgent,
     );
     final discoverUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
@@ -50,9 +49,8 @@ class APIFromRUle implements API {
     if (rule.loadJs.trim().isNotEmpty) {
       await FlutterJs.evaluate(rule.loadJs, engineId);
     }
-    final list =
-        await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
-            .getElements(rule.discoverList);
+    final list = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+        .getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzeRule(item, engineId);
@@ -75,23 +73,20 @@ class APIFromRUle implements API {
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
     final res = await AnalyzeUrl.urlRuleParser(
       rule.searchUrl,
-      host: rule.host,
+      rule,
       page: page,
       pageSize: pageSize,
       key: query,
-      ua: rule.userAgent,
     );
     final searchUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
     await FlutterJs.evaluate(
-        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
-        engineId);
+        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};", engineId);
     if (rule.loadJs.trim().isNotEmpty) {
       await FlutterJs.evaluate(rule.loadJs, engineId);
     }
-    final list =
-        await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
-            .getElements(rule.searchList);
+    final list = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+        .getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzeRule(item, engineId);
@@ -115,10 +110,10 @@ class APIFromRUle implements API {
     final res = rule.chapterUrl.isNotEmpty
         ? await AnalyzeUrl.urlRuleParser(
             rule.chapterUrl,
-            host: rule.host,
+            rule,
             result: url,
           )
-        : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
+        : await AnalyzeUrl.urlRuleParser(url, rule);
     final reversed = rule.chapterList.startsWith("-");
     final chapterUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
@@ -128,19 +123,14 @@ class APIFromRUle implements API {
     if (rule.loadJs.trim().isNotEmpty) {
       await FlutterJs.evaluate(rule.loadJs, engineId);
     }
-    final list =
-        await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
-            .getElements(
-                reversed ? rule.chapterList.substring(1) : rule.chapterList);
+    final list = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+        .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
     final result = <ChapterItem>[];
     for (var item in list) {
       final analyzer = AnalyzeRule(item, engineId);
       final lock = await analyzer.getString(rule.chapterLock);
       var name = await analyzer.getString(rule.chapterName);
-      if (lock != null &&
-          lock.isNotEmpty &&
-          lock != "undefined" &&
-          lock != "false") {
+      if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
         name = "🔒" + name;
       }
       result.add(ChapterItem(
@@ -159,10 +149,10 @@ class APIFromRUle implements API {
     final res = rule.contentUrl.isNotEmpty
         ? await AnalyzeUrl.urlRuleParser(
             rule.contentUrl,
-            host: rule.host,
+            rule,
             result: url,
           )
-        : await AnalyzeUrl.urlRuleParser(url, host: rule.host);
+        : await AnalyzeUrl.urlRuleParser(url, rule);
     final contentUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
     if (rule.contentItems.contains("@js:")) {
@@ -172,7 +162,7 @@ class APIFromRUle implements API {
       if (rule.loadJs.trim().isNotEmpty) {
         await FlutterJs.evaluate(rule.loadJs, engineId);
       }
-      if(rule.useCryptoJS){
+      if (rule.useCryptoJS) {
         // final cryptoJS = await DefaultAssetBundle.of(context).loadString(Global.cryptoJS);
         // await FlutterJs.evaluate(cryptoJS, engineId);
       }
