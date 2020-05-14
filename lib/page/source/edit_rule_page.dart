@@ -40,10 +40,6 @@ class _EditRulePageState extends State<EditRulePage> {
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () => _saveRule(context),
-          ),
-          IconButton(
             icon: Icon(Icons.bug_report),
             onPressed: () async {
               if (isLoading) return;
@@ -51,9 +47,13 @@ class _EditRulePageState extends State<EditRulePage> {
               rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
               await Global.ruleDao.insertOrUpdateRule(rule);
               isLoading = false;
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => DebugRulePage(rule: rule)));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             },
+          ),
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () => _saveRule(context),
           ),
           _buildpopupMenu(context),
         ],
@@ -89,7 +89,7 @@ class _EditRulePageState extends State<EditRulePage> {
     String labelText,
     void Function(String text) onChanged, {
     int minLines = 1,
-    int maxLines = 1,
+    int maxLines,
   }) {
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -121,8 +121,7 @@ class _EditRulePageState extends State<EditRulePage> {
       initiallyExpanded: _infoExpanded,
       onExpansionChanged: (value) => _infoExpanded = value,
       children: [
-        _buildDetailsText(
-            '创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
+        _buildDetailsText('创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
         _buildDetailsText(
             '修改时间：${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}'),
         Padding(
@@ -149,16 +148,35 @@ class _EditRulePageState extends State<EditRulePage> {
             ],
           ),
         ),
-        _buildEditText(rule.name, '名称(name)', (text) => rule.name = text),
-        _buildEditText(rule.host, '域名(host)', (text) => rule.host = text),
-        _buildEditText(rule.group, '分组(group)', (text) => rule.group = text),
+        _buildEditText(
+          rule.name,
+          '名称(name)',
+          (text) => rule.name = text,
+          maxLines: 1,
+        ),
+        _buildEditText(
+          rule.host,
+          '域名(host)',
+          (text) => rule.host = text,
+          maxLines: 1,
+        ),
+        _buildEditText(
+          rule.group,
+          '分组(group)',
+          (text) => rule.group = text,
+          maxLines: 1,
+        ),
+        _buildEditText(
+          rule.author,
+          '作者(author)',
+          (text) => rule.author = text,
+          maxLines: 1,
+        ),
         _buildEditText(
           rule.postScript,
           '签名档(post script, p.s.)',
           (text) => rule.postScript = text,
-          maxLines: null,
         ),
-        _buildEditText(rule.author, '作者(author)', (text) => rule.author = text),
         _buildEditText(
           rule.userAgent,
           '用户代理字符串(userAgent)',
@@ -192,55 +210,46 @@ class _EditRulePageState extends State<EditRulePage> {
           rule.discoverUrl,
           '地址(discoverUrl)',
           (text) => rule.discoverUrl = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverList,
           '列表(discoverList)',
           (text) => rule.discoverList = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverName,
           '名称(discoverName)',
           (text) => rule.discoverName = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverAuthor,
           '作者(discoverAuthor)',
           (text) => rule.discoverAuthor = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverCover,
           '封面(discoverCover)',
           (text) => rule.discoverCover = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverChapter,
           '最新章节(discoverChapter)',
           (text) => rule.discoverChapter = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverDescription,
           '简介(discoverDescription)',
           (text) => rule.discoverDescription = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverTags,
           '标签(discoverTags)',
           (text) => rule.discoverTags = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.discoverResult,
           '结果(discoverResult)',
           (text) => rule.discoverResult = text,
-          maxLines: null,
         ),
       ],
     );
@@ -265,55 +274,46 @@ class _EditRulePageState extends State<EditRulePage> {
           rule.searchUrl,
           '地址(searchUrl)',
           (text) => rule.searchUrl = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchList,
           '列表(searchList)',
           (text) => rule.searchList = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchName,
           '名称(searchName)',
           (text) => rule.searchName = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchAuthor,
           '作者(searchAuthor)',
           (text) => rule.searchAuthor = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchCover,
           '封面(searchCover)',
           (text) => rule.searchCover = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchChapter,
           '最新章节(searchChapter)',
           (text) => rule.searchChapter = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchDescription,
           '简介(searchDescription)',
           (text) => rule.searchDescription = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchTags,
           '标签(searchTags)',
           (text) => rule.searchTags = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.searchResult,
           '结果(searchResult)',
           (text) => rule.searchResult = text,
-          maxLines: null,
         ),
       ],
     );
@@ -338,55 +338,46 @@ class _EditRulePageState extends State<EditRulePage> {
           rule.chapterUrl,
           '地址(chapterUrl)',
           (text) => rule.chapterUrl = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterRoads,
           '线路(chapterRoads)',
           (text) => rule.chapterRoads = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterRoadName,
           '线路名称(chapterRoadName)',
           (text) => rule.chapterRoadName = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterList,
           '章节列表(chapterList)',
           (text) => rule.chapterList = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterName,
           '章节名称(chapterName)',
           (text) => rule.chapterName = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterTime,
           '更新时间(chapterTime)',
           (text) => rule.chapterTime = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterCover,
           '章节封面(chapterCover)',
           (text) => rule.chapterCover = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterLock,
           '章节状态(chapterLock)',
           (text) => rule.chapterLock = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.chapterResult,
           '结果(chapterResult)',
           (text) => rule.chapterResult = text,
-          maxLines: null,
         ),
       ],
     );
@@ -411,13 +402,11 @@ class _EditRulePageState extends State<EditRulePage> {
           rule.contentUrl,
           '地址(contentUrl)',
           (text) => rule.contentUrl = text,
-          maxLines: null,
         ),
         _buildEditText(
           rule.contentItems,
           '内容(contentItems)',
           (text) => rule.contentItems = text,
-          maxLines: null,
         ),
       ],
     );
@@ -504,8 +493,8 @@ class _EditRulePageState extends State<EditRulePage> {
             Toast.show("已保存到剪贴板", context);
             break;
           case DEBUG_WITHOUT_SAVE:
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => DebugRulePage(rule: rule)));
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             break;
           default:
         }
@@ -541,19 +530,6 @@ class _EditRulePageState extends State<EditRulePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('从异次元导入'),
-              Icon(
-                Icons.ac_unit,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_YICIYUAN,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
               Text('导出到剪贴板'),
               Icon(
                 Icons.content_copy,
@@ -562,6 +538,19 @@ class _EditRulePageState extends State<EditRulePage> {
             ],
           ),
           value: TO_CLIPBOARD,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('从异次元导入'),
+              Icon(
+                Icons.ac_unit,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: FROM_YICIYUAN,
         ),
         PopupMenuItem(
           child: Row(
