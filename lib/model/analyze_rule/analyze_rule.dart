@@ -149,10 +149,9 @@ class AnalyzeRule {
     final pRight =
         pFirstJS == -1 ? rule.lastIndexOf("}}") : rule.lastIndexOf("}}", pFirstJS);
     if (-1 < pLeft && pLeft < pRight) {
-      final otherRuleIndex = rule.substring(pRight + 2).indexOf(otherRulePattern);
-      result =
-          (otherRuleIndex == -1 ? rule : rule.substring(0, pRight + 2 + otherRuleIndex))
-              .splitMapJoin(
+      final pOtherRule = rule.substring(pRight + 2).indexOf(otherRulePattern);
+      result = (pOtherRule == -1 ? rule : rule.substring(0, pRight + 2 + pOtherRule))
+          .splitMapJoin(
         expressionPattern,
         onMatch: (onMatch) {
           result = "";
@@ -164,8 +163,8 @@ class AnalyzeRule {
         },
         onNonMatch: (nonMatch) => nonMatch,
       );
-      if (otherRuleIndex == -1) return result;
-      rule = rule.substring(pRight + 2 + otherRuleIndex);
+      if (pOtherRule == -1) return result;
+      rule = rule.substring(pRight + 2 + pOtherRule);
     }
 
     for (final r in splitRuleReversed(rule).reversed) {
