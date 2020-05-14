@@ -206,8 +206,7 @@ class Rule {
     discoverCover = json['discoverCover'] ?? defaultRule.discoverCover;
     discoverAuthor = json['discoverAuthor'] ?? defaultRule.discoverAuthor;
     discoverChapter = json['discoverChapter'] ?? defaultRule.discoverChapter;
-    discoverDescription =
-        json['discoverDescription'] ?? defaultRule.discoverDescription;
+    discoverDescription = json['discoverDescription'] ?? defaultRule.discoverDescription;
     discoverResult = json['discoverResult'] ?? defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
     searchUrl = json['searchUrl'] ?? defaultRule.searchUrl;
@@ -218,8 +217,7 @@ class Rule {
     searchCover = json['searchCover'] ?? defaultRule.searchCover;
     searchAuthor = json['searchAuthor'] ?? defaultRule.searchAuthor;
     searchChapter = json['searchChapter'] ?? defaultRule.searchChapter;
-    searchDescription =
-        json['searchDescription'] ?? defaultRule.searchDescription;
+    searchDescription = json['searchDescription'] ?? defaultRule.searchDescription;
     searchResult = json['searchResult'] ?? defaultRule.searchResult;
     enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
@@ -260,9 +258,9 @@ class Rule {
             .replaceAll("@children", ">*")
             .replaceAll("tag.", "")
             .replaceAll("class.", ".")
-            .replaceAll("id.", "#")
-            .replaceAllMapped(RegExp(r"\.(\d+)"),
-                (Match m) => ":nth-of-type(${int.parse(m[1]) + 1})");
+            .replaceAll("id.", "#");
+        // .replaceAllMapped(RegExp(r"\.(\d+)"), (Match m) => ":nth-of-type(${int.parse(m[1]) + 1})");
+        // ":nth-of-type(${int.parse(m[1]) + 1})" 和 ":nth-child(${m[1]})" 都不好用，先去掉
         json[key] = (flag ? "-" : "") + s.trim();
       }
     }
@@ -283,21 +281,17 @@ class Rule {
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
     discoverUrl = json['ruleFindUrl'] ?? defaultRule.discoverUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
-    discoverList = json["ruleFindList"] ??
-        json['ruleSearchList'] ??
-        defaultRule.discoverList;
-    discoverTags = json['ruleFindKind'] ??
-        json['ruleSearchKind'] ??
-        defaultRule.discoverTags;
-    discoverName = json['ruleFindName'] ??
-        json['ruleSearchName'] ??
-        defaultRule.discoverName;
+    discoverList =
+        json["ruleFindList"] ?? json['ruleSearchList'] ?? defaultRule.discoverList;
+    discoverTags =
+        json['ruleFindKind'] ?? json['ruleSearchKind'] ?? defaultRule.discoverTags;
+    discoverName =
+        json['ruleFindName'] ?? json['ruleSearchName'] ?? defaultRule.discoverName;
     discoverCover = json['ruleFindCoverUrl'] ??
         json['ruleSearchCoverUrl'] ??
         defaultRule.discoverCover;
-    discoverAuthor = json['ruleFindAuthor'] ??
-        json['ruleSearchAuthor'] ??
-        defaultRule.discoverAuthor;
+    discoverAuthor =
+        json['ruleFindAuthor'] ?? json['ruleSearchAuthor'] ?? defaultRule.discoverAuthor;
     discoverChapter = json['ruleFindLastChapter'] ??
         json['ruleSearchLastChapter'] ??
         defaultRule.discoverChapter;
@@ -316,8 +310,7 @@ class Rule {
     searchCover = json['ruleSearchCoverUrl'] ?? defaultRule.searchCover;
     searchAuthor = json['ruleSearchAuthor'] ?? defaultRule.searchAuthor;
     searchChapter = json['ruleSearchLastChapter'] ?? defaultRule.searchChapter;
-    searchDescription =
-        json['ruleSearchIntroduce'] ?? defaultRule.searchDescription;
+    searchDescription = json['ruleSearchIntroduce'] ?? defaultRule.searchDescription;
     searchResult = json['ruleSearchNoteUrl'] ?? defaultRule.searchResult;
     enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;

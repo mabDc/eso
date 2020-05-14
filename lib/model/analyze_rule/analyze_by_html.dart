@@ -32,8 +32,9 @@ class AnalyzerByHtml {
   String _getResult(Element e, String lastRule) {
     switch (lastRule) {
       case 'text':
-      case 'textNodes':
         return e.text.trim();
+      case 'textNodes':
+        return e.children.map((e) => e.text).join("\n").trim();
       case 'id':
         return e.id;
       case 'outerHtml':
@@ -43,7 +44,7 @@ class AnalyzerByHtml {
         return e.innerHtml;
       default:
         final r = e.attributes[lastRule];
-        return null == r || r.isEmpty ? '' : r.trim();
+        return null == r ? '' : r.trim();
     }
   }
 
