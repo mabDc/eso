@@ -140,7 +140,7 @@ class AnalyzeRule {
         onNonMatch: (nonMatch) => nonMatch,
       );
       if (otherRuleIndex == -1) return result;
-      rule = rule.substring(otherRuleIndex);
+      rule = rule.substring(pRight + 2 + otherRuleIndex);
     }
 
     for (final r in splitRuleReversed(rule).reversed) {
@@ -179,11 +179,11 @@ class AnalyzeRule {
   /// 规则从后往前解析
   List<SingleRule> splitRuleReversed(String rule) {
     final ruleList = <SingleRule>[];
-    var lastEnd = rule.length;
+    var lastStart = rule.length;
     for (var m in ruleTypePattern.allMatches(rule).toList().reversed) {
-      var r = rule.substring(m.start, lastEnd).trimLeft();
+      var r = rule.substring(m.start, lastStart).trimLeft();
       if (r.isEmpty) {
-        lastEnd = m.end;
+        lastStart = m.start;
         continue;
       }
       var mode = Mode.CSS;
@@ -223,7 +223,7 @@ class AnalyzeRule {
       } else {
         ruleList.add(SingleRule(mode, r, ""));
       }
-      lastEnd = m.end;
+      lastStart = m.start;
     }
     return ruleList;
   }
