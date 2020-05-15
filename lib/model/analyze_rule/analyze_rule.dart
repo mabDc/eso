@@ -196,6 +196,8 @@ class AnalyzeRule {
   ///
   ///`@css:li` 或 `li`
   ///
+  ///`@xpath://li` 或 `//li`
+  ///
   ///`:regex`
   ///
   /// 规则从后往前解析
