@@ -1,6 +1,7 @@
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
+import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -60,6 +61,12 @@ class _NovelPageState extends State<NovelPage> {
                     },
                     child: _buildContent(provider),
                   ),
+                  provider.showMenu
+                      ? UINovelMenu(
+                          searchItem: widget.searchItem,
+                          loadChapter: provider.loadChapter,
+                        )
+                      : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
                           searchItem: widget.searchItem,
@@ -68,16 +75,16 @@ class _NovelPageState extends State<NovelPage> {
                       : Container(),
                 ],
               ),
-              onLongPress: () => provider.useSelectableText = true,
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
                 if (details.globalPosition.dx > size.width * 3 / 8 &&
                     details.globalPosition.dx < size.width * 5 / 8 &&
                     details.globalPosition.dy > size.height * 3 / 8 &&
-                    details.globalPosition.dy < size.height * 5 / 8) {
-                  provider.showChapter = true;
+                    details.globalPosition.dy < size.height * 5 / 8 &&
+                    !provider.useSelectableText) {
+                  provider.showMenu = !provider.showMenu;
                 } else {
-                  provider.showChapter = false;
+                  // provider.showMenu = false;
                 }
               },
             );
@@ -89,11 +96,6 @@ class _NovelPageState extends State<NovelPage> {
 
   Widget _buildContent(NovelPageProvider provider) {
     final content = '　　' + provider.content.map((s) => s.trim()).join('\n　　');
-    final contentStyle = TextStyle(
-      fontSize: 20,
-      height: 2,
-      color: Colors.black,
-    );
     return Container(
       color: Color(0xFFF5DEB3),
       padding: EdgeInsets.symmetric(horizontal: 12),
@@ -116,8 +118,18 @@ class _NovelPageState extends State<NovelPage> {
                   ),
                   SizedBox(height: 10),
                   provider.useSelectableText
-                      ? SelectableText(content, style: contentStyle)
-                      : Text(content, style: contentStyle),
+                      ? SelectableText(content,
+                          style: TextStyle(
+                            fontSize: 20,
+                            height: 1.94,
+                            color: Colors.black,
+                          ))
+                      : Text(content,
+                          style: TextStyle(
+                            fontSize: 20,
+                            height: 2,
+                            color: Colors.black,
+                          )),
                   UIChapterSeparate(
                     color: Colors.black87,
                     chapterName: widget.searchItem.durChapter,
@@ -132,58 +144,35 @@ class _NovelPageState extends State<NovelPage> {
           SizedBox(
             height: 4,
           ),
-          provider.useSelectableText
-              ? Container()
-              : UIDash(
-                  height: 2,
-                  dashWidth: 6,
-                  color: Colors.black38,
-                ),
-          provider.useSelectableText
-              ? InkWell(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    color: Colors.white70,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          '已进入复制模式，点击退出',
-                          style: TextStyle(color: Colors.black87),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.close, color: Colors.black87),
-                        ),
-                      ],
-                    ),
+          UIDash(
+            height: 2,
+            dashWidth: 6,
+            color: Colors.black38,
+          ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  '${widget.searchItem.durChapter}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.black,
                   ),
-                  onTap: () => provider.useSelectableText = false,
-                )
-              : Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        '${widget.searchItem.durChapter}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 36,
-                      child: Text(
-                        '${provider.progress}%',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
+              ),
+              SizedBox(
+                width: 36,
+                child: Text(
+                  '${provider.progress}%',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
