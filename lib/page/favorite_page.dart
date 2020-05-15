@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/model/profile.dart';
@@ -16,8 +17,14 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tabs = [
+      ["小说", API.NOVEL],
+      ["漫画", API.MANGA],
+      ["音乐", API.NOVEL],
+      ["动漫", API.NOVEL],
+    ];
     return DefaultTabController(
-      length: 3,
+      length: tabs.length,
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -29,25 +36,17 @@ class FavoritePage extends StatelessWidget {
             unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
             indicator: RoundTabIndicator(
                 insets: EdgeInsets.only(left: 2, right: 2),
-                borderSide: BorderSide(
-                    width: 5.0, color: Theme.of(context).primaryColor)),
-            tabs: <Widget>[
-              Container(
-                height: 40,
-                alignment: Alignment.center,
-                child:Text("漫画",style: TextStyle(fontWeight:FontWeight.bold),)
-              ),
-              Container(
-                height: 40,
-                alignment: Alignment.center,
-                child:Text("动漫",style: TextStyle(fontWeight:FontWeight.bold),)
-              ),
-              Container(
-                height: 40,
-                alignment: Alignment.center,
-                child:Text("音乐",style: TextStyle(fontWeight:FontWeight.bold),)
-              ),
-            ],
+                borderSide:
+                    BorderSide(width: 5.0, color: Theme.of(context).primaryColor)),
+            tabs: tabs
+                .map((tab) => Container(
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Text(
+                      tab[0],
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )))
+                .toList(),
           ),
           actions: <Widget>[
             IconButton(
@@ -58,8 +57,7 @@ class FavoritePage extends StatelessWidget {
               onPressed: () => showSearch(
                 context: context,
                 delegate: SearchPageDelegate(
-                  historyManager:
-                      Provider.of<HistoryManager>(context, listen: false),
+                  historyManager: Provider.of<HistoryManager>(context, listen: false),
                 ),
               ),
             ),
@@ -78,36 +76,27 @@ class FavoritePage extends StatelessWidget {
           ],
         ),
         body: TabBarView(
-          children: _buildTabPage(context),
+          children: _buildTabPage(context, tabs),
         ),
       ),
     );
   }
 
-  List<Widget> _buildTabPage(BuildContext context) {
-    List<Widget> list = [];
-    for (int i = 0; i < 5; i++) {
-      if (i == 1 || i == 4) continue;//跳过小说和RSS
-
-      List<SearchItem> searchItems = SearchItemManager.getSearchItemByType(i);
-      if (i == 3) {
-        if (AudioService().searchItem != null &&
-            !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
-          searchItems.add(AudioService().searchItem);
-        }
+  List<Widget> _buildTabPage(BuildContext context, List<List> tabs) {
+    return tabs.map((tab) {
+      List<SearchItem> searchItems = SearchItemManager.getSearchItemByType(tab[1]);
+      if (AudioService().searchItem != null &&
+          !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
+        searchItems.add(AudioService().searchItem);
       }
-
-      list.add(
-        RefreshIndicator(
-          onRefresh: () async {
-            await Future.delayed(Duration(seconds: 1));
-            return;
-          },
-          child:_buildFavoriteGrid(searchItems),
-        ),
+      return RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(Duration(seconds: 1));
+          return;
+        },
+        child: _buildFavoriteGrid(searchItems),
       );
-    }
-    return list;
+    }).toList();
   }
 
   // Widget _buildFavoriteList(List<SearchItem> searchItems) {
@@ -153,11 +142,10 @@ class FavoritePage extends StatelessWidget {
             final searchItem = searchItems[index];
             final longPress =
                 Provider.of<Profile>(context, listen: false).switchLongPress;
-            VoidCallback openChapter = () => Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => ChapterPage(searchItem: searchItem)));
-            VoidCallback openContent = () => Navigator.of(context)
-                .push(ContentPageRoute().route(searchItem));
+            VoidCallback openChapter = () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ChapterPage(searchItem: searchItem)));
+            VoidCallback openContent =
+                () => Navigator.of(context).push(ContentPageRoute().route(searchItem));
             return InkWell(
               child: UIDiscoverItem(searchItem: searchItem),
               onTap: longPress ? openChapter : openContent,
