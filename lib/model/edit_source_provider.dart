@@ -24,15 +24,23 @@ class EditSourceProvider with ChangeNotifier {
     {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
   ];
 
-  EditSourceProvider() {
-    refreshData();
+  EditSourceProvider({type:1}) {
+    refreshData(type:type);
   }
 
-  void refreshData() async {
+  //获取源列表 1所有 2发现
+  void refreshData({type:1}) async {
     _isLoading = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
-    _rules = await Global.ruleDao.findAllRules();
+    switch (type){
+      case 1:
+        _rules = await Global.ruleDao.findAllRules();
+        break;
+      case 2:
+        _rules = await Global.ruleDao.findAllDiscoverRules();
+        break;
+    }
     _isLoading = false;
     notifyListeners();
   }

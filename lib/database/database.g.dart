@@ -279,6 +279,14 @@ class _$RuleDao extends RuleDao {
   }
 
   @override
+  Future<List<Rule>> findAllDiscoverRules() async {
+    return _queryAdapter.queryList('SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc',
+        mapper: _ruleMapper);
+  }
+
+
+
+  @override
   Future<Rule> findMaxSort() async {
     return _queryAdapter.query('SELECT * FROM rule order by sort desc limit 1',
         mapper: _ruleMapper);

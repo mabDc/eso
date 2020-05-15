@@ -23,7 +23,7 @@ class Rule {
   String userAgent = '';
 
   // 发现规则
-  bool enableDiscover = false;
+  bool enableDiscover = true;
   String discoverUrl = '';
   String discoverItems = '';
 
@@ -85,7 +85,7 @@ class Rule {
     userAgent = '';
 
     // 发现规则
-    enableDiscover = false;
+    enableDiscover = true;
     discoverUrl = '';
     discoverItems = '';
 
