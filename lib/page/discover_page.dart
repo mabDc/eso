@@ -12,7 +12,14 @@ class DiscoverPage extends StatelessWidget {
     final allAPI = APIManager.allAPI;
     return Scaffold(
       appBar: AppBar(
-        title: Text('发现'),
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: Theme.of(context).canvasColor,
+        brightness: Theme.of(context).brightness,
+        title: Text(
+          '发现',
+          style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
+        ),
       ),
       body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 6),
@@ -20,27 +27,8 @@ class DiscoverPage extends StatelessWidget {
             separatorBuilder: (context, index) {
               return Container(height: 4);
             },
-            itemCount: allAPI.length + 1,
+            itemCount: allAPI.length,
             itemBuilder: (context, index) {
-              if (index == 0) {
-                return Card(
-                  child: ListTile(
-                    title: Text("test_rule"),
-                    trailing: Switch(
-                      activeColor: Theme.of(context).primaryColor,
-                      value: true,
-                      onChanged: (enable) {},
-                    ),
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DiscoverSearchPage(
-                              originTag: "test_rule",
-                              origin: "test_rule",
-                              discoverMap: <DiscoverMap>[],
-                            ))),
-                  ),
-                );
-              }
-              index = index - 1;
               return Card(
                 child: ListTile(
                   title: Text(allAPI[index].origin),
