@@ -84,7 +84,7 @@ class _NovelPageState extends State<NovelPage> {
                     !provider.useSelectableText) {
                   provider.showMenu = !provider.showMenu;
                 } else {
-                  // provider.showMenu = false;
+                   provider.showChapter = false;
                 }
               },
             );
