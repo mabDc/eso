@@ -5,6 +5,7 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/page/setting/about_page.dart';
 import 'package:eso/ui/ui_discover_item.dart';
+import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/round_indicator.dart';
@@ -162,7 +163,7 @@ class FavoritePage extends StatelessWidget {
             VoidCallback openContent = () => Navigator.of(context)
                 .push(ContentPageRoute().route(searchItem));
             return InkWell(
-              child: UIDiscoverItem(searchItem: searchItem),
+              child: UIFavoriteItem(searchItem: searchItem),
               onTap: longPress ? openChapter : openContent,
               onLongPress: longPress ? openContent : openChapter,
             );
