@@ -37,12 +37,12 @@ class FavoritePage extends StatelessWidget {
             labelColor: Theme.of(context).primaryColor,
             unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
             indicator: RoundTabIndicator(
-                insets: EdgeInsets.only(left: 2, right: 2),
+                insets: EdgeInsets.only(left: 5, right: 5),
                 borderSide: BorderSide(
-                    width: 5.0, color: Theme.of(context).primaryColor)),
+                    width: 3.0, color: Theme.of(context).primaryColor)),
             tabs: tabs
                 .map((tab) => Container(
-                    height: 40,
+                    height: 30,
                     alignment: Alignment.center,
                     child: Text(
                       tab[0],
@@ -148,7 +148,7 @@ class FavoritePage extends StatelessWidget {
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 0.65,
+            childAspectRatio: 0.55,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
           ),
