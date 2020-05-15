@@ -105,7 +105,10 @@ class FavoritePage extends StatelessWidget {
           await Future.delayed(Duration(seconds: 1));
           return;
         },
-        child: _buildFavoriteGrid(searchItems),
+        child: searchItems.length>0?_buildFavoriteGrid(searchItems):Container(
+          alignment: Alignment.center,
+          child: Text("￣へ￣ 还没有收藏哦！"),
+        ),
       );
     }).toList();
   }
