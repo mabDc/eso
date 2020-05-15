@@ -28,53 +28,29 @@ class UIChapterSelect extends StatelessWidget {
       offset = durHeight;
     }
     final primaryColor = Theme.of(context).primaryColor;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Container(
-            height: size.height / 2,
-            width: size.width * 0.85,
-            child: ListView.builder(
-              itemExtent: itemHeight,
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              controller: ScrollController(initialScrollOffset: offset),
-              itemCount: searchItem.chapters.length,
-              itemBuilder: (_, index) {
-                return Container(
-                  height: itemHeight,
-                  child: _buildChapter(index, primaryColor),
-                );
-              },
-            ),
-          ),
+    return Center(
+      child: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
         ),
-        SizedBox(
-          height: 10,
-          width: double.infinity,
-        ),
-        Container(
+        child: Container(
+          height: size.height / 2,
           width: size.width * 0.85,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              RaisedButton(
-                child: Text("上一章"),
-                onPressed: () => loadChapter(searchItem.durChapterIndex - 1),
-              ),
-              RaisedButton(
-                child: Text("下一章"),
-                onPressed: () => loadChapter(searchItem.durChapterIndex + 1),
-              ),
-            ],
+          child: ListView.builder(
+            itemExtent: itemHeight,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            controller: ScrollController(initialScrollOffset: offset),
+            itemCount: searchItem.chapters.length,
+            itemBuilder: (_, index) {
+              return Container(
+                height: itemHeight,
+                child: _buildChapter(index, primaryColor),
+              );
+            },
           ),
         ),
-      ],
+      ),
     );
   }
 

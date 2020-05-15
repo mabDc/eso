@@ -182,16 +182,17 @@ class AnalyzeRule {
 
   final ruleTypePattern = RegExp(r"@css:|@json:|@js:|@xpath:|^", caseSensitive: false);
 
-  /// 形如 rule##replaceRegex##replacement##replaceFirst
+  /// 形如 `rule##replaceRegex##replacement##replaceFirst`
   ///
-  /// 其中 [rule] 可以是 js 或 css 或 jsonpath , 形式如下:
+  /// 其中 `rule` 可以是 `js` 或 `css` 或 `jsonpath` , 形式如下:
   ///
-  ///     @js:js code
-  ///     @json:$.name
-  ///     $.name
-  ///     @css:li
-  ///     li
-  ///     :regex
+  ///`@js:js code`
+  ///
+  ///`@json:$.name` 或 `$.name`
+  ///
+  ///`@css:li` 或 `li`
+  ///
+  ///`:regex`
   ///
   /// 规则从后往前解析
   List<SingleRule> splitRuleReversed(String rule) {

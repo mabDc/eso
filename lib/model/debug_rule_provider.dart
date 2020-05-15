@@ -91,7 +91,7 @@ class DebugRuleProvider with ChangeNotifier {
       if (rule.loadJs.trim().isNotEmpty) {
         await FlutterJs.evaluate(rule.loadJs, engineId);
       }
-      _addContent("js修改baseUrl");
+      _addContent("js预加载");
       final analyzer =
           AnalyzeRule(InputStream.autoDecode(searchResult.bodyBytes), engineId);
       final searchList = await analyzer.getElements(rule.searchList);

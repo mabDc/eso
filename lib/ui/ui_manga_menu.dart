@@ -16,14 +16,7 @@ class UIMangaMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Container(
-          height: MediaQuery.of(context).padding.top,
-          color: Color(0xB0000000),
-        ),
         _buildTopRow(context),
-        Expanded(
-          child: Container(),
-        ),
         _buildBottomRow(context),
       ],
     );
@@ -33,7 +26,7 @@ class UIMangaMenu extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 80,
-      alignment: Alignment.topLeft,
+      alignment: Alignment.topCenter,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -46,7 +39,8 @@ class UIMangaMenu extends StatelessWidget {
           end: Alignment.topCenter,
         ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+          horizontal: 12, vertical: MediaQuery.of(context).padding.top),
       child: Column(
         children: [
           Row(
@@ -98,12 +92,13 @@ class UIMangaMenu extends StatelessWidget {
           InkWell(
             child: Text(
               searchItem.chapters[searchItem.durChapterIndex].url,
-              style: TextStyle(color: Colors.white, ),
+              style: TextStyle(
+                color: Colors.white,
+              ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-            onTap: () =>
-                launch(searchItem.chapters[searchItem.durChapterIndex].url),
+            onTap: () => launch(searchItem.chapters[searchItem.durChapterIndex].url),
           ),
         ],
       ),
@@ -114,7 +109,7 @@ class UIMangaMenu extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 100,
-      alignment: Alignment.bottomLeft,
+      alignment: Alignment.bottomCenter,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [

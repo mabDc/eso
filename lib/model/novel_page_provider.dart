@@ -1,5 +1,6 @@
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:flutter_share/flutter_share.dart';
 
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,16 @@ class NovelPageProvider with ChangeNotifier {
   ScrollController get controller => _controller;
   bool _isLoading;
   bool get isLoading => _isLoading;
+
+  bool _showMenu;
+  bool get showMenu => _showMenu;
+  set showMenu(bool value) {
+    if (_showMenu != value) {
+      _showMenu = value;
+      notifyListeners();
+    }
+  }
+
   bool _showChapter;
   bool get showChapter => _showChapter;
   set showChapter(bool value) {
@@ -35,9 +46,10 @@ class NovelPageProvider with ChangeNotifier {
   NovelPageProvider({this.searchItem}) {
     _isLoading = false;
     _showChapter = false;
+    showMenu = false;
     _useSelectableText = false;
-    _controller = ScrollController(
-        initialScrollOffset: searchItem.durContentIndex.toDouble());
+    _controller =
+        ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
     _progress = 0;
     _controller.addListener(() {
       if (progress > 0 &&
@@ -52,17 +64,25 @@ class NovelPageProvider with ChangeNotifier {
     _initContent();
   }
 
+  void share() async {
+    await FlutterShare.share(
+      title: '亦搜 eso',
+      text:
+          '${searchItem.name.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+      //linkUrl: '${searchItem.url}',
+      chooserTitle: '选择分享的应用',
+    );
+  }
+
   void refreshProgress() {
     searchItem.durContentIndex = _controller.position.pixels.floor();
-    _progress = searchItem.durContentIndex *
-        100 ~/
-        _controller.position.maxScrollExtent;
+    _progress = searchItem.durContentIndex * 100 ~/ _controller.position.maxScrollExtent;
     notifyListeners();
   }
 
   void _initContent() async {
-    _content = await APIManager.getContent(searchItem.originTag,
-        searchItem.chapters[searchItem.durChapterIndex].url);
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     notifyListeners();
   }
 

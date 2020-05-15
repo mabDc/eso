@@ -48,8 +48,8 @@ class _MangaPageState extends State<MangaPage> {
       value: MangaPageProvider(searchItem: widget.searchItem),
       child: Scaffold(
         body: Consumer2<MangaPageProvider, Profile>(
-          builder: (BuildContext context, MangaPageProvider provider,
-              Profile profile, _) {
+          builder:
+              (BuildContext context, MangaPageProvider provider, Profile profile, _) {
             SystemChrome.setEnabledSystemUIOverlays([]);
             if (provider.content == null) {
               return LandingPage();
@@ -90,13 +90,12 @@ class _MangaPageState extends State<MangaPage> {
                 if (details.globalPosition.dx > size.width * 3 / 8 &&
                     details.globalPosition.dx < size.width * 5 / 8 &&
                     details.globalPosition.dy > size.height * 3 / 8 &&
-                    details.globalPosition.dy < size.height * 5 / 8 &&
-                    !provider.showMenu) {
+                    details.globalPosition.dy < size.height * 5 / 8) {
                   // provider.showChapter = true;
-                  provider.showMenu = true;
+                  provider.showMenu = !provider.showMenu;
                 } else {
                   // provider.showChapter = false;
-                  provider.showMenu = false;
+                  // provider.showMenu = false;
                 }
               },
             );
