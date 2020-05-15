@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:intl/intl.dart' as intl;
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -68,19 +69,38 @@ class MangaPageProvider with ChangeNotifier {
     final first = _content[0].split('@headers');
     if (first.length > 1) {
       _content[0] = first[0];
-      _headers =
-          (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+      _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
   }
 
   void _initContent() async {
-    _content = await APIManager.getContent(searchItem.originTag,
-        searchItem.chapters[searchItem.durChapterIndex].url);
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
     notifyListeners();
   }
 
-  loadChapter(int chapterIndex) async {
+  void share() async {
+    await FlutterShare.share(
+      title: '亦搜 eso',
+      text:
+          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+      //linkUrl: '${searchItem.url}',
+      chooserTitle: '选择分享的应用',
+    );
+  }
+
+  DateTime _loadTime;
+  void loadChapteDebounce(int chapterIndex) {
+    _loadTime = DateTime.now();
+    Future.delayed(const Duration(milliseconds: 201), () {
+      if (DateTime.now().difference(_loadTime).inMilliseconds > 200) {
+        loadChapter(chapterIndex);
+      }
+    });
+  }
+
+  Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (isLoading ||
         chapterIndex == searchItem.durChapterIndex ||

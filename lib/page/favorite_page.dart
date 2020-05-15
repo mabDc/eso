@@ -4,7 +4,6 @@ import 'package:eso/model/audio_service.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/page/setting/about_page.dart';
-import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,8 +37,8 @@ class FavoritePage extends StatelessWidget {
             unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
             indicator: RoundTabIndicator(
                 insets: EdgeInsets.only(left: 5, right: 5),
-                borderSide: BorderSide(
-                    width: 3.0, color: Theme.of(context).primaryColor)),
+                borderSide:
+                    BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
             tabs: tabs
                 .map((tab) => Container(
                     height: 30,
@@ -56,8 +55,8 @@ class FavoritePage extends StatelessWidget {
                 Icons.settings,
                 color: Theme.of(context).textTheme.bodyText1.color,
               ),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) => AboutPage())),
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (BuildContext context) => AboutPage())),
             ),
             // IconButton(
             //   icon: Icon(
@@ -95,8 +94,7 @@ class FavoritePage extends StatelessWidget {
 
   List<Widget> _buildTabPage(BuildContext context, List<List> tabs) {
     return tabs.map((tab) {
-      List<SearchItem> searchItems =
-          SearchItemManager.getSearchItemByType(tab[1]);
+      List<SearchItem> searchItems = SearchItemManager.getSearchItemByType(tab[1]);
       if (AudioService().searchItem != null &&
           !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
         searchItems.add(AudioService().searchItem);
@@ -106,10 +104,12 @@ class FavoritePage extends StatelessWidget {
           await Future.delayed(Duration(seconds: 1));
           return;
         },
-        child: searchItems.length>0?_buildFavoriteGrid(searchItems):Container(
-          alignment: Alignment.center,
-          child: Text("￣へ￣ 还没有收藏哦！"),
-        ),
+        child: searchItems.length > 0
+            ? _buildFavoriteGrid(searchItems)
+            : Container(
+                alignment: Alignment.center,
+                child: Text("￣へ￣ 还没有收藏哦！"),
+              ),
       );
     }).toList();
   }
@@ -157,11 +157,10 @@ class FavoritePage extends StatelessWidget {
             final searchItem = searchItems[index];
             final longPress =
                 Provider.of<Profile>(context, listen: false).switchLongPress;
-            VoidCallback openChapter = () => Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => ChapterPage(searchItem: searchItem)));
-            VoidCallback openContent = () => Navigator.of(context)
-                .push(ContentPageRoute().route(searchItem));
+            VoidCallback openChapter = () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ChapterPage(searchItem: searchItem)));
+            VoidCallback openContent =
+                () => Navigator.of(context).push(ContentPageRoute().route(searchItem));
             return InkWell(
               child: UIFavoriteItem(searchItem: searchItem),
               onTap: longPress ? openChapter : openContent,

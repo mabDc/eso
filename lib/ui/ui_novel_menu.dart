@@ -34,38 +34,11 @@ class UINovelMenu extends StatelessWidget {
   }
 
   Widget _buildTopRow(BuildContext context, Color bgColor, Color color) {
-    // return AppBar(
-    //   title: Column(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: <Widget>[
-    //       Text(
-    //         '${searchItem.name}',
-    //         maxLines: 1,
-    //         overflow: TextOverflow.ellipsis,
-    //         style: TextStyle(fontSize: 18),
-    //       ),
-    //       Text(
-    //         '${searchItem.author}',
-    //         overflow: TextOverflow.ellipsis,
-    //         maxLines: 1,
-    //         style: TextStyle(fontSize: 12),
-    //       ),
-    //     ],
-    //   ),
-    //   actions: [
-    //     InkWell(
-    //       child: Icon(Icons.share, size: 26),
-    //       // onTap: provider.share,
-    //     ),
-    //     _buildPopupmenu(context),
-    //   ],
-    // );
     return Container(
       width: double.infinity,
       alignment: Alignment.topLeft,
       decoration: BoxDecoration(color: bgColor),
-      padding: EdgeInsets.fromLTRB(12, 6 + MediaQuery.of(context).padding.top, 12, 6),
+      padding: EdgeInsets.fromLTRB(12, 4 + MediaQuery.of(context).padding.top, 12, 4),
       child: Row(
         children: <Widget>[
           InkWell(

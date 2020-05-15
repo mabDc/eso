@@ -146,29 +146,32 @@ class _NovelPageState extends State<NovelPage> {
             dashWidth: 6,
             color: Colors.black38,
           ),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  '${widget.searchItem.durChapter}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.black,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    '${widget.searchItem.durChapter}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 36,
-                child: Text(
-                  '${provider.progress}%',
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    color: Colors.black,
+                SizedBox(
+                  width: 36,
+                  child: Text(
+                    '${provider.progress}%',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

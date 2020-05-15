@@ -35,10 +35,8 @@ class AboutPage extends StatelessWidget {
                     Divider(),
                     ListTile(
                       title: Text('站点管理'),
-                      onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  EditSourcePage())),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => EditSourcePage())),
                     ),
                   ],
                 ),
@@ -53,29 +51,6 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
-                    SwitchListTile(
-                      title: Text('交换收藏点击和长按效果'),
-                      subtitle: Text(profile.switchLongPress
-                          ? '点击进入目录，长按查看内容'
-                          : '点击查看内容，长按进入目录'),
-                      value: profile.switchLongPress,
-                      onChanged: (value) => profile.switchLongPress = value,
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                    SwitchListTile(
-                      title: Text('漫画右下角显示章节'),
-                      subtitle: Text('也可在漫画中长按切换'),
-                      value: profile.showMangaInfo,
-                      onChanged: (value) => profile.showMangaInfo = value,
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                    SwitchListTile(
-                      title: Text('自动刷新'),
-                      subtitle: Text('软件启动时自动更新收藏'),
-                      value: profile.autoRefresh,
-                      onChanged: (value) => profile.autoRefresh = value,
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
                     ListTile(
                       title: Text('夜间模式'),
                       subtitle: Text('切换夜间模式'),
@@ -88,18 +63,38 @@ class AboutPage extends StatelessWidget {
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => ColorLensPage())),
                     ),
-                    ListTile(
-                      title: Text('备份收藏'),
-                      subtitle: Text(
-                          '备份至 Android/data/com.mabdc.eso/files/backup.txt'),
-                      onTap: () => SearchItemManager.backupItems(),
+                    SwitchListTile(
+                      title: Text('看漫画时显示系统信息'),
+                      subtitle: Text('也可在漫画中长按切换'),
+                      value: profile.showMangaInfo,
+                      onChanged: (value) => profile.showMangaInfo = value,
+                      activeColor: Theme.of(context).primaryColor,
                     ),
-                    ListTile(
-                      title: Text('恢复收藏'),
+                    SwitchListTile(
+                      title: Text('交换收藏点击和长按效果'),
                       subtitle: Text(
-                          '恢复从 Android/data/com.mabdc.eso/files/backup.txt'),
-                      onTap: () => SearchItemManager.restore(),
+                          profile.switchLongPress ? '点击进入目录，长按查看内容' : '点击查看内容，长按进入目录'),
+                      value: profile.switchLongPress,
+                      onChanged: (value) => profile.switchLongPress = value,
+                      activeColor: Theme.of(context).primaryColor,
                     ),
+                    // SwitchListTile(
+                    //   title: Text('自动刷新'),
+                    //   subtitle: Text('软件启动时自动更新收藏'),
+                    //   value: profile.autoRefresh,
+                    //   onChanged: (value) => profile.autoRefresh = value,
+                    //   activeColor: Theme.of(context).primaryColor,
+                    // ),
+                    // ListTile(
+                    //   title: Text('备份收藏'),
+                    //   subtitle: Text('备份至 Android/data/com.mabdc.eso/files/backup.txt'),
+                    //   onTap: () => SearchItemManager.backupItems(),
+                    // ),
+                    // ListTile(
+                    //   title: Text('恢复收藏'),
+                    //   subtitle: Text('恢复从 Android/data/com.mabdc.eso/files/backup.txt'),
+                    //   onTap: () => SearchItemManager.restore(),
+                    // ),
                   ],
                 ),
               ),
@@ -121,14 +116,12 @@ class AboutPage extends StatelessWidget {
                     ListTile(
                       title: Text('问题反馈'),
                       subtitle: Text('https://github.com/mabDc/eso/issues'),
-                      onTap: () =>
-                          launch('https://github.com/mabDc/eso/issues'),
+                      onTap: () => launch('https://github.com/mabDc/eso/issues'),
                     ),
                     ListTile(
                       title: Text('版本 v${Global.appVersion}'),
                       subtitle: Text('https://github.com/mabDc/eso/releases'),
-                      onTap: () =>
-                          launch('https://github.com/mabDc/eso/releases'),
+                      onTap: () => launch('https://github.com/mabDc/eso/releases'),
                     ),
                     Material(
                       color: Theme.of(context).primaryColor,

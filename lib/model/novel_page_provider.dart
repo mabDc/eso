@@ -64,15 +64,7 @@ class NovelPageProvider with ChangeNotifier {
     _initContent();
   }
 
-  void share() async {
-    await FlutterShare.share(
-      title: '亦搜 eso',
-      text:
-          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
-      //linkUrl: '${searchItem.url}',
-      chooserTitle: '选择分享的应用',
-    );
-  }
+  
 
   void refreshProgress() {
     searchItem.durContentIndex = _controller.position.pixels.floor();
@@ -84,6 +76,16 @@ class NovelPageProvider with ChangeNotifier {
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     notifyListeners();
+  }
+
+  void share() async {
+    await FlutterShare.share(
+      title: '亦搜 eso',
+      text:
+          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+      //linkUrl: '${searchItem.url}',
+      chooserTitle: '选择分享的应用',
+    );
   }
 
   DateTime _loadTime;

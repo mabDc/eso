@@ -46,6 +46,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
       builder: (BuildContext context, _) {
         return Scaffold(
           appBar: AppBar(
+            titleSpacing: 0.0,
             title: TextField(
               cursorColor: Theme.of(context).primaryColor,
               cursorRadius: Radius.circular(2),
@@ -74,8 +75,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 isDense: true,
                 contentPadding: EdgeInsets.only(bottom: 4),
                 prefixIcon: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                   child: Icon(
                     Icons.search,
                     color: Colors.white70,
@@ -85,9 +85,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
               ),
               maxLines: 1,
               style: TextStyle(color: Colors.white, height: 1.25),
-              onSubmitted: (content) {
-                __provider.getRuleListByName(content);
-              },
+              onSubmitted: (value) => __provider.getRuleListByName(value),
+              onChanged: (value) => __provider.getRuleListByNameDebounce(value),
             ),
             actions: [
               IconButton(
@@ -289,8 +288,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           color: Colors.black45,
           icon: Icons.create,
           onTap: () => Navigator.of(context)
-              .push(MaterialPageRoute(
-                  builder: (context) => EditRulePage(rule: rule)))
+              .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
               .then((value) => provider.refreshData()),
         ),
         IconSlideAction(

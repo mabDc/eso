@@ -1,5 +1,6 @@
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
+import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
 import 'package:eso/ui/zoom_view.dart';
 import 'package:eso/ui/ui_manga_menu.dart';
@@ -67,15 +68,14 @@ class _MangaPageState extends State<MangaPage> {
                   provider.showMenu
                       ? UIMangaMenu(
                           searchItem: widget.searchItem,
+                        )
+                      : Container(),
+                  provider.showChapter
+                      ? UIChapterSelect(
+                          searchItem: widget.searchItem,
                           loadChapter: provider.loadChapter,
                         )
                       : Container(),
-                  // provider.showChapter
-                  //     ? UIChapterSelect(
-                  //         searchItem: widget.searchItem,
-                  //         loadChapter: provider.loadChapter,
-                  //       )
-                  //     : Container(),
                   profile.showMangaInfo && !provider.showMenu
                       ? UISystemInfo(
                           mangaInfo: provider.searchItem.durChapter,
@@ -91,11 +91,9 @@ class _MangaPageState extends State<MangaPage> {
                     details.globalPosition.dx < size.width * 5 / 8 &&
                     details.globalPosition.dy > size.height * 3 / 8 &&
                     details.globalPosition.dy < size.height * 5 / 8) {
-                  // provider.showChapter = true;
                   provider.showMenu = !provider.showMenu;
                 } else {
-                  // provider.showChapter = false;
-                  // provider.showMenu = false;
+                  provider.showChapter = false;
                 }
               },
             );

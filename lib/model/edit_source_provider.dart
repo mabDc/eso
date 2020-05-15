@@ -24,16 +24,16 @@ class EditSourceProvider with ChangeNotifier {
     {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
   ];
 
-  EditSourceProvider({type:1}) {
-    refreshData(type:type);
+  EditSourceProvider({type: 1}) {
+    refreshData(type: type);
   }
 
   //获取源列表 1所有 2发现
-  void refreshData({type:1}) async {
+  void refreshData({type: 1}) async {
     _isLoading = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
-    switch (type){
+    switch (type) {
       case 1:
         _rules = await Global.ruleDao.findAllRules();
         break;
@@ -90,6 +90,16 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = false;
   }
 
+  DateTime _loadTime;
+  void getRuleListByNameDebounce(String name) {
+    _loadTime = DateTime.now();
+    Future.delayed(const Duration(milliseconds: 301), () {
+      if (DateTime.now().difference(_loadTime).inMilliseconds > 300) {
+        getRuleListByName(name);
+      }
+    });
+  }
+
   ///搜索
   void getRuleListByName(String name) async {
     _rules = await Global.ruleDao.getRuleByName('%$name%');
@@ -112,8 +122,8 @@ class EditSourceProvider with ChangeNotifier {
   List getMenuList() {
     //ios删除文件导入
     if (Platform.isIOS) {
-      for(final item in menuList){
-        if (item['type'] == FROM_FILE){
+      for (final item in menuList) {
+        if (item['type'] == FROM_FILE) {
           menuList.remove(item);
           break;
         }
