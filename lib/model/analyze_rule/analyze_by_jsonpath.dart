@@ -26,7 +26,7 @@ class AnalyzeByJSonPath {
     if (result is List) {
       return result.map((r) => '$r').join(", ");
     } else {
-      return '$result';
+      return result == null ? "" : '$result';
     }
   }
 

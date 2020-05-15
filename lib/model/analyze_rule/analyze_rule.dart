@@ -114,7 +114,7 @@ class AnalyzeRule {
       return rule.splitMapJoin(
         "&&",
         onMatch: (match) => "",
-        onNonMatch: (r) => _getStringCustom(r, mode, content).trim(),
+        onNonMatch: (r) => _getStringCustom(r, mode, content)?.trim() ?? "",
       );
     } else if (rule.contains('||')) {
       for (final r in rule.split('||')) {

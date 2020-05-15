@@ -60,7 +60,7 @@ class AnalyzerByHtml {
         final r = _getResult(e, lastRule);
         if (r.isNotEmpty) builder.add(r.trim());
       }
-      return builder.join('\n');
+      return builder.join(', ');
     }
   }
 
