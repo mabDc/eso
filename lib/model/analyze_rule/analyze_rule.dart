@@ -111,7 +111,11 @@ class AnalyzeRule {
 
   String _getStringCustom(String rule, Mode mode, dynamic content) {
     if (rule.contains("&&")) {
-      return rule.split('&&').map((r) => _getStringCustom(r, mode, content)).join(", ");
+      return rule.splitMapJoin(
+        "&&",
+        onMatch: (match) => "",
+        onNonMatch: (r) => _getStringCustom(r, mode, content).trim(),
+      );
     } else if (rule.contains('||')) {
       for (final r in rule.split('||')) {
         final temp = _getStringCustom(r, mode, content);
