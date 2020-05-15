@@ -9,6 +9,9 @@ abstract class RuleDao {
   @Query('SELECT * FROM rule ORDER BY sort desc')
   Future<List<Rule>> findAllRules();
 
+  @Query('SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc')
+  Future<List<Rule>> findAllDiscoverRules();
+
   @Insert(onConflict: OnConflictStrategy.REPLACE)
   Future<int> insertOrUpdateRule(Rule rule);
 
