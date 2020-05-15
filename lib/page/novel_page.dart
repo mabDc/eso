@@ -62,10 +62,7 @@ class _NovelPageState extends State<NovelPage> {
                     child: _buildContent(provider),
                   ),
                   provider.showMenu
-                      ? UINovelMenu(
-                          searchItem: widget.searchItem,
-                          loadChapter: provider.loadChapter,
-                        )
+                      ? UINovelMenu(searchItem: widget.searchItem)
                       : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
@@ -84,7 +81,7 @@ class _NovelPageState extends State<NovelPage> {
                     !provider.useSelectableText) {
                   provider.showMenu = !provider.showMenu;
                 } else {
-                   provider.showChapter = false;
+                  provider.showChapter = false;
                 }
               },
             );

@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/round_indicator.dart';
 import '../database/search_item_manager.dart';
-import '../model/history_manager.dart';
-import '../model/search_page_delegate.dart';
 import 'chapter_page.dart';
 
 class FavoritePage extends StatelessWidget {

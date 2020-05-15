@@ -3,16 +3,13 @@ import 'package:eso/model/novel_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_seekbar/flutter_seekbar.dart';
-import 'package:flutter_share/flutter_share.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UINovelMenu extends StatelessWidget {
   final SearchItem searchItem;
-  final Function(int) loadChapter;
   const UINovelMenu({
-    this.loadChapter,
     this.searchItem,
     Key key,
   }) : super(key: key);
@@ -204,9 +201,8 @@ class UINovelMenu extends StatelessWidget {
                     progressColor: Theme.of(context).primaryColor,
                     progresseight: 4,
                     afterDragShowSectionText: true,
-                    semanticsLabel: "11",
                     onValueChanged: (progress) {
-                      provider.loadChapter(progress.value.toInt());
+                      provider.loadChapteDebounce(progress.value.toInt());
                     },
                     indicatorRadius: 5,
                   ),

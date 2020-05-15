@@ -68,7 +68,7 @@ class NovelPageProvider with ChangeNotifier {
     await FlutterShare.share(
       title: '亦搜 eso',
       text:
-          '${searchItem.name.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
       //linkUrl: '${searchItem.url}',
       chooserTitle: '选择分享的应用',
     );
@@ -86,6 +86,16 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  DateTime _loadTime;
+  void loadChapteDebounce(int chapterIndex) {
+    _loadTime = DateTime.now();
+    Future.delayed(const Duration(milliseconds: 201), () {
+      if (DateTime.now().difference(_loadTime).inMilliseconds > 200) {
+        loadChapter(chapterIndex);
+      }
+    });
+  }
+
   Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (isLoading ||
@@ -93,7 +103,7 @@ class NovelPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners();
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
     searchItem.durChapterIndex = chapterIndex;
