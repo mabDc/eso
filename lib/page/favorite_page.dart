@@ -20,8 +20,8 @@ class FavoritePage extends StatelessWidget {
     final tabs = [
       ["小说", API.NOVEL],
       ["漫画", API.MANGA],
-      ["音乐", API.NOVEL],
-      ["动漫", API.NOVEL],
+      ["音乐", API.AUDIO],
+      ["动漫", API.VIDEO],
     ];
     return DefaultTabController(
       length: tabs.length,
