@@ -5,6 +5,7 @@ import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
 import 'package:eso/model/analyze_rule/analyze_by_regexp.dart';
 import 'package:eso/model/analyze_rule/analyze_by_xpath.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:html/dom.dart';
 
 class AnalyzeRule {
   final dynamic _content;
@@ -68,7 +69,7 @@ class AnalyzeRule {
           result = AnalyzerByRegexp(re).getList(r.rule);
           break;
         case Mode.JS:
-          await FlutterJs.evaluate("result = ${jsonEncode(re)}", _idJsEngine);
+          await FlutterJs.evaluate(encodeJSCommand(re), _idJsEngine);
           result = await FlutterJs.getList(r.rule, _idJsEngine);
           break;
         default:
@@ -100,7 +101,7 @@ class AnalyzeRule {
           result = replace(AnalyzerByRegexp(re).getStringList(r.rule));
           break;
         case Mode.JS:
-          await FlutterJs.evaluate("result = ${jsonEncode(re)}", _idJsEngine);
+          await FlutterJs.evaluate(encodeJSCommand(re), _idJsEngine);
           result = await FlutterJs.getStringList(r.rule, _idJsEngine);
           break;
         default:
@@ -109,30 +110,38 @@ class AnalyzeRule {
     return result;
   }
 
-  String _getStringCustom(String rule, Mode mode, dynamic content) {
+  String _getStringCustom(String rule,
+      {Mode mode, dynamic content, String Function(String) getString}) {
+    if (getString == null) {
+      switch (mode) {
+        case Mode.CSS:
+          getString = AnalyzerByHtml(content).getString;
+          break;
+        case Mode.Json:
+          getString = AnalyzeByJSonPath(content).getString;
+          break;
+        case Mode.XPath:
+          getString = AnalyzeByXPath(content).getString;
+          break;
+        case Mode.Regex:
+          getString = AnalyzerByRegexp(content).getString;
+          break;
+        default:
+      }
+    }
     if (rule.contains("&&")) {
       return rule.splitMapJoin(
         "&&",
         onMatch: (match) => "",
-        onNonMatch: (r) => _getStringCustom(r, mode, content)?.trim() ?? "",
+        onNonMatch: (r) => _getStringCustom(r, getString: getString)?.trim() ?? "",
       );
     } else if (rule.contains('||')) {
       for (final r in rule.split('||')) {
-        final temp = _getStringCustom(r, mode, content);
+        final temp = _getStringCustom(r, getString: getString);
         if (temp.isNotEmpty) return temp;
       }
     } else {
-      switch (mode) {
-        case Mode.CSS:
-          return AnalyzerByHtml(content).getString(rule).trim();
-        case Mode.Json:
-          return AnalyzeByJSonPath(content).getString(rule).trim();
-        case Mode.XPath:
-          return AnalyzeByXPath(content).getString(rule).trim();
-        case Mode.Regex:
-          return AnalyzerByRegexp(content).getString(rule).trim();
-        default:
-      }
+      return getString(rule).trim();
     }
     return "";
   }
@@ -160,8 +169,11 @@ class AnalyzeRule {
         onMatch: (onMatch) {
           result = "";
           for (final r in splitRuleReversed(onMatch.group(1)).reversed) {
-            result = replaceSmart(r.replace)(
-                _getStringCustom(r.rule, r.mode, result.isNotEmpty ? result : _content));
+            result = replaceSmart(r.replace)(_getStringCustom(
+              r.rule,
+              mode: r.mode,
+              content: result.isNotEmpty ? result : _content,
+            ));
           }
           return result;
         },
@@ -174,21 +186,39 @@ class AnalyzeRule {
     for (final r in splitRuleReversed(rule).reversed) {
       if (r.mode == Mode.JS) {
         await FlutterJs.evaluate(
-            "result = ${jsonEncode(result.isNotEmpty ? result : _content)}", _idJsEngine);
+            encodeJSCommand(result.isNotEmpty ? result : _content), _idJsEngine);
         result = await FlutterJs.getString(r.rule, _idJsEngine);
       } else {
-        result = replaceSmart(r.replace)(
-            _getStringCustom(r.rule, r.mode, result.isNotEmpty ? result : _content));
+        result = replaceSmart(r.replace)(_getStringCustom(
+          r.rule,
+          mode: r.mode,
+          content: result.isNotEmpty ? result : _content,
+        ));
       }
     }
     return result;
+  }
+
+  String encodeJSCommand(dynamic result) {
+    if (result is Document) {
+      return "result = ${jsonEncode(result.outerHtml)};";
+    }
+    if (result is Element) {
+      return "result = ${jsonEncode(result.outerHtml)};";
+    }
+    try {
+      return "result = ${jsonEncode(result)};";
+    } catch (e) {
+      print("error encodeForJS: $e");
+      return "result = ${jsonEncode('$result')};";
+    }
   }
 
   final ruleTypePattern = RegExp(r"@css:|@json:|@js:|@xpath:|^", caseSensitive: false);
 
   /// 形如 `rule##replaceRegex##replacement##replaceFirst`
   ///
-  /// 其中 `rule` 可以是 `js` 或 `css` 或 `jsonpath` , 形式如下:
+  /// 其中 `rule` 可以是 `js` 或 `css` 或 `xpath` 或 `jsonpath` , 形式如下:
   ///
   ///`@js:js code`
   ///
