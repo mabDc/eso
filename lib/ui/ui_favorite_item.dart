@@ -32,13 +32,12 @@ class UIFavoriteItem extends StatelessWidget {
         ),
         Container(
           alignment: Alignment.bottomLeft,
-          margin: EdgeInsets.only(top: 5),
           child: Text(
             '${searchItem.durChapterIndex + 1}话/${searchItem.chaptersCount}话',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.black38,
+              color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
               fontSize: 12,
             ),
           ),
