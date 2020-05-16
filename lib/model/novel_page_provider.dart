@@ -25,6 +25,15 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
+  bool _showSetting;
+  bool get showSetting => _showSetting;
+  set showSetting(bool value) {
+    if (_showSetting != value) {
+      _showSetting = value;
+      notifyListeners();
+    }
+  }
+
   bool _showChapter;
   bool get showChapter => _showChapter;
   set showChapter(bool value) {
@@ -46,7 +55,8 @@ class NovelPageProvider with ChangeNotifier {
   NovelPageProvider({this.searchItem}) {
     _isLoading = false;
     _showChapter = false;
-    showMenu = false;
+    _showMenu = false;
+    _showSetting = false;
     _useSelectableText = false;
     _controller =
         ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
@@ -63,8 +73,6 @@ class NovelPageProvider with ChangeNotifier {
     }
     _initContent();
   }
-
-  
 
   void refreshProgress() {
     searchItem.durContentIndex = _controller.position.pixels.floor();

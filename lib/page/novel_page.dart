@@ -80,6 +80,7 @@ class _NovelPageState extends State<NovelPage> {
                     details.globalPosition.dy < size.height * 5 / 8 &&
                     !provider.useSelectableText) {
                   provider.showMenu = !provider.showMenu;
+                  provider.showSetting = false;
                 } else {
                   provider.showChapter = false;
                 }

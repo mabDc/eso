@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:eso/ui/CurvePainter.dart';
 import 'package:eso/ui/ui_image_item.dart';
@@ -104,8 +105,7 @@ class _ChapterPageState extends State<ChapterPage> {
               alignment: Alignment.bottomCenter,
               children: [
                 CustomPaint(
-                  painter: CurvePainter(
-                      drawColor: Theme.of(context).bottomAppBarColor),
+                  painter: CurvePainter(drawColor: Theme.of(context).bottomAppBarColor),
                   child: Container(),
                 ),
                 Padding(
@@ -115,15 +115,13 @@ class _ChapterPageState extends State<ChapterPage> {
                       Expanded(
                         child: AspectRatio(
                           aspectRatio: 3 / 4,
-                          child: UIImageItem(
-                              cover: pageController.searchItem.cover),
+                          child: UIImageItem(cover: pageController.searchItem.cover),
                         ),
                       ),
                       SizedBox(height: 8),
                       Text(
                         pageController.searchItem.name,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 18),
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                       ),
                       SizedBox(height: 8),
                       Text(
@@ -149,14 +147,12 @@ class _ChapterPageState extends State<ChapterPage> {
                         .map(
                           (tag) => Material(
                             color: Theme.of(context).primaryColor,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(15.0)),
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
                               child: Text(
                                 tag,
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.white),
+                                style: TextStyle(fontSize: 10, color: Colors.white),
                               ),
                             ),
                           ),
@@ -195,11 +191,25 @@ class _ChapterPageState extends State<ChapterPage> {
             ),
           ),
           GestureDetector(
-            child: Text(
-              widget.searchItem.reverseChapter ? "倒序" : "顺序",
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-              ),
+            child: Row(
+              children: [
+                widget.searchItem.reverseChapter
+                    ? Container()
+                    : Transform.rotate(
+                        child: Icon(
+                          Icons.sort,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        angle: pi,
+                      ),
+                Text(
+                  widget.searchItem.reverseChapter ? "倒序" : "顺序",
+                  style: TextStyle(color: Theme.of(context).primaryColor),
+                ),
+                widget.searchItem.reverseChapter
+                    ? Icon(Icons.sort, color: Theme.of(context).primaryColor)
+                    : Container(),
+              ],
             ),
             onTap: pageController.toggleReverse,
           ),
@@ -208,8 +218,7 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget _buildChapter(
-      ChapterPageController pageController, BuildContext context) {
+  Widget _buildChapter(ChapterPageController pageController, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     if (pageController.isLoading) {
       return SliverToBoxAdapter(
@@ -287,8 +296,8 @@ class _ChapterPageState extends State<ChapterPage> {
     // );
   }
 
-  Widget _buildChapterButton(BuildContext context, bool isDurIndex,
-      Widget child, VoidCallback onPress) {
+  Widget _buildChapterButton(
+      BuildContext context, bool isDurIndex, Widget child, VoidCallback onPress) {
     return isDurIndex
         ? RaisedButton(
             padding: EdgeInsets.all(4),

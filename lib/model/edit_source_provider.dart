@@ -16,13 +16,15 @@ class EditSourceProvider with ChangeNotifier {
   bool _isLoading;
 
   bool get isLoading => _isLoading;
-  var menuList = [
+
+  final _menuList = [
     {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
     {'title': '从异次元链接导入', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
-    {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
+    // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
     {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
     {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
   ];
+  List get menuList => _menuList;
 
   EditSourceProvider({type: 1}) {
     refreshData(type: type);
@@ -116,20 +118,6 @@ class EditSourceProvider with ChangeNotifier {
     notifyListeners();
     //保存到数据库
     await Global.ruleDao.insertOrUpdateRules(_rules);
-  }
-
-  ///菜单列表
-  List getMenuList() {
-    //ios删除文件导入
-    if (Platform.isIOS) {
-      for (final item in menuList) {
-        if (item['type'] == FROM_FILE) {
-          menuList.remove(item);
-          break;
-        }
-      }
-    }
-    return menuList;
   }
 
   @override

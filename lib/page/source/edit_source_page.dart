@@ -230,7 +230,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
       },
       itemBuilder: (context) {
         List<PopupMenuEntry<int>> menuList = [];
-        __provider.getMenuList().forEach((element) {
+        __provider.menuList.forEach((element) {
           menuList.add(PopupMenuItem(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

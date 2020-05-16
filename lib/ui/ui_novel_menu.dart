@@ -17,8 +17,9 @@ class UINovelMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final bgColor = Theme.of(context).canvasColor.withOpacity(0.94);
+    final bgColor = Theme.of(context).canvasColor.withOpacity(0.97);
     final color = Theme.of(context).textTheme.bodyText1.color;
+    final provider = Provider.of<NovelPageProvider>(context, listen: false);
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -28,8 +29,113 @@ class UINovelMenu extends StatelessWidget {
               : SystemUiOverlayStyle.light,
           child: _buildTopRow(context, bgColor, color),
         ),
-        _buildBottomRow(context, bgColor, color),
+        provider.showSetting
+            ? _buildSetting(context, bgColor, color)
+            : _buildBottomRow(context, bgColor, color),
       ],
+    );
+  }
+
+  Widget _buildSetting(BuildContext context, Color bgColor, Color color) {
+    return IconTheme(
+      data: IconThemeData(size: 18, color: color),
+      child: Container(
+        width: double.infinity,
+        color: bgColor,
+        padding: EdgeInsets.fromLTRB(25, 10, 15, 20),
+        child: Column(
+          children: [
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: Row(
+                children: <Widget>[
+                  Text("亮度"),
+                  SizedBox(width: 40),
+                  Icon(Icons.brightness_low),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: SeekBar(
+                      value: 0.4,
+                      max: 1,
+                      backgroundColor: color,
+                      progressColor: Theme.of(context).primaryColor,
+                      progresseight: 3,
+                      afterDragShowSectionText: true,
+                      onValueChanged: (progress) {},
+                      indicatorRadius: 4,
+                    ),
+                  ),
+                  SizedBox(width: 6),
+                  Icon(Icons.brightness_high),
+                  SizedBox(width: 10),
+                  Text("长亮"),
+                  Switch(
+                    value: true,
+                    onChanged: (value) => null,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: Row(
+                children: <Widget>[
+                  Text("字号"),
+                  SizedBox(width: 40),
+                  Text("18"),
+                ],
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: Row(
+                children: <Widget>[
+                  Text("高度"),
+                  SizedBox(width: 40),
+                  Text("2"),
+                ],
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: Row(
+                children: <Widget>[
+                  Text("背景"),
+                  SizedBox(width: 40),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
+                        ),
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
+                        ),
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
+                        ),
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
+                        ),
+                        Text("更多"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -61,7 +167,7 @@ class UINovelMenu extends StatelessWidget {
                   '${searchItem.author}',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(fontSize: 12, color: color),
+                  style: TextStyle(fontSize: 12, color: color.withOpacity(0.75)),
                 ),
               ],
             ),
@@ -161,7 +267,7 @@ class UINovelMenu extends StatelessWidget {
                 InkWell(
                   child: Text(
                     '章节',
-                    style: TextStyle(color: color),
+                    style: TextStyle(color: color.withOpacity(0.75)),
                   ),
                   onTap: () => provider.loadChapter(searchItem.durChapterIndex - 1),
                 ),
@@ -172,19 +278,20 @@ class UINovelMenu extends StatelessWidget {
                     max: searchItem.chaptersCount.toDouble(),
                     backgroundColor: color,
                     progressColor: Theme.of(context).primaryColor,
-                    progresseight: 4,
+                    progresseight: 3,
                     afterDragShowSectionText: true,
                     onValueChanged: (progress) {
                       provider.loadChapteDebounce(progress.value.toInt());
                     },
-                    indicatorRadius: 5,
+                    indicatorRadius: 8,
+                    indicatorColor: color.withOpacity(0.9),
                   ),
                 ),
                 SizedBox(width: 10),
                 InkWell(
                   child: Text(
                     '${'0' * (chapterCount.length - (currentCount + 1).toString().length)}${currentCount + 1} / $chapterCount',
-                    style: TextStyle(color: color),
+                    style: TextStyle(color: color.withOpacity(0.75)),
                   ),
                   onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
                 ),
@@ -192,45 +299,52 @@ class UINovelMenu extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(30, 0, 30, 20),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.arrow_back, color: color, size: 28),
-                      Text("上一章", style: TextStyle(color: color))
-                    ],
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.arrow_back, color: color, size: 28),
+                        Text("上一章", style: TextStyle(color: color))
+                      ],
+                    ),
+                    onTap: () => provider.loadChapter(currentCount - 1),
                   ),
-                  onTap: () => provider.loadChapter(currentCount - 1),
                 ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.view_list, color: color, size: 28),
-                      Text("目录", style: TextStyle(color: color))
-                    ],
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.format_list_bulleted, color: color, size: 28),
+                        Text("目录", style: TextStyle(color: color))
+                      ],
+                    ),
+                    onTap: () => provider.showChapter = !provider.showChapter,
                   ),
-                  onTap: () => provider.showChapter = !provider.showChapter,
                 ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.settings, color: color, size: 28),
-                      Text("设置", style: TextStyle(color: color))
-                    ],
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.text_format, color: color, size: 28),
+                        Text("调节", style: TextStyle(color: color))
+                      ],
+                    ),
+                    onTap: () => provider.showSetting = true,
                   ),
-                  onTap: () {},
                 ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.arrow_forward, color: color, size: 28),
-                      Text("下一章", style: TextStyle(color: color))
-                    ],
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.arrow_forward, color: color, size: 28),
+                        Text("下一章", style: TextStyle(color: color))
+                      ],
+                    ),
+                    onTap: () => provider.loadChapter(currentCount + 1),
                   ),
-                  onTap: () => provider.loadChapter(currentCount + 1),
                 ),
               ],
             ),
