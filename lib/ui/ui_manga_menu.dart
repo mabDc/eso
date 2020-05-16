@@ -1,6 +1,5 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
-import 'package:eso/model/novel_page_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_seekbar/flutter_seekbar.dart';

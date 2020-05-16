@@ -94,8 +94,7 @@ class HomePage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           );
         },
       ),
