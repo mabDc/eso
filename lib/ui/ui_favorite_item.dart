@@ -23,7 +23,6 @@ class UIFavoriteItem extends StatelessWidget {
         )),
         Container(
           alignment: Alignment.bottomLeft,
-          margin: EdgeInsets.only(top: 5),
           child: Text(
             '${searchItem.name}'.trim(),
             maxLines: 1,
@@ -32,14 +31,13 @@ class UIFavoriteItem extends StatelessWidget {
         ),
         Container(
           alignment: Alignment.bottomLeft,
-          margin: EdgeInsets.only(top: 5),
           child: Text(
             '${searchItem.durChapterIndex + 1}话/${searchItem.chaptersCount}话',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.black38,
-              fontSize: 12,
+              color: Theme.of(context).textTheme.subtitle1.color,
+              fontSize: 10,
             ),
           ),
         ),

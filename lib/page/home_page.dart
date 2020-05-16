@@ -35,13 +35,16 @@ class HomePage extends StatelessWidget {
                   color: Theme.of(context).canvasColor,
                   shape: CircularNotchedRectangle(),
                   child: Padding(
-                    padding: EdgeInsets.only(top: 5,bottom: 5),
+                    padding: EdgeInsets.symmetric(vertical: 5),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        GestureDetector(
-                            onTap: () => pageSwitch.changePage(0),
+                      children: <Widget>[
+                        Expanded(
+                          child: FlatButton(
+                            onPressed: () => pageSwitch.changePage(0),
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
@@ -55,9 +58,14 @@ class HomePage extends StatelessWidget {
                                       color: getColor(pageSwitch, context, 0)),
                                 )
                               ],
-                            )),
-                        GestureDetector(
-                            onTap: () => pageSwitch.changePage(1),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: FlatButton(
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            onPressed: () => pageSwitch.changePage(1),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
@@ -68,11 +76,12 @@ class HomePage extends StatelessWidget {
                                         color:
                                             getColor(pageSwitch, context, 1)))
                               ],
-                            )),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-
                 );
               },
             ),

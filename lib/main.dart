@@ -21,7 +21,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    debugPaintSizeEnabled = false;
+    //debugPaintSizeEnabled = true;
     return FutureBuilder<bool>(
       future: Global.init(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
