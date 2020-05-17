@@ -188,36 +188,32 @@ class UINovelMenu extends StatelessWidget {
                     height: 50,
                     alignment: Alignment.center,
                     child: Row(
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CircleAvatar(
-                              radius: 18.0,
-                              backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
-                            ),
-                            CircleAvatar(
-                              radius: 18.0,
-                              backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
-                            ),
-                            CircleAvatar(
-                              radius: 18.0,
-                              backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
-                            ),
-                            CircleAvatar(
-                              radius: 18.0,
-                              backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
-                            ),
-                            Container(
-                              width: 60,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                                  border: Border.all(color: color.withOpacity(0.3))),
-                              alignment: Alignment.center,
-                              child: Text("更多"),
-                            ),
-                          ],
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
+                        ),
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
+                        ),
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
+                        ),
+                        CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
+                        ),
+                        Container(
+                          width: 60,
+                          height: 32,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                              border: Border.all(color: color.withOpacity(0.3))),
+                          alignment: Alignment.center,
+                          child: Text("更多"),
                         ),
                       ],
                     ),
