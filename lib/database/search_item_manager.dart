@@ -13,11 +13,25 @@ class SearchItemManager {
 
   static String genChapterKey(int id) => "chapter$id";
 
-  static List<SearchItem> getSearchItemByType(int contentType){
+  /// 根据类型和排序规则取出收藏
+  static List<SearchItem> getSearchItemByType(int contentType,{sortType = SortType.CREATE}){
     List<SearchItem> searchItem = [];
     _searchItem.forEach((element) {
       if (element.ruleContentType == contentType) searchItem.add(element);
     });
+    //排序
+    switch(sortType){
+      case SortType.CREATE:
+        searchItem.sort((a, b) => b.createTime.compareTo(a.createTime));
+        break;
+      case SortType.UPDATE:
+        searchItem.sort((a, b) => b.updateTime.compareTo(a.updateTime));
+        break;
+      case SortType.LASTREAD:
+        searchItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
+        break;
+    }
+    
     return searchItem;
   }
 
@@ -29,6 +43,10 @@ class SearchItemManager {
     if (isFavorite(searchItem.url)) {
       return removeSearchItem(searchItem.url, searchItem.id);
     } else {
+      //添加时间信息
+      searchItem.serCreateTime = DateTime.now();
+      searchItem.serUpdateTime = DateTime.now();
+      searchItem.serLastReadTime = DateTime.now();
       return addSearchItem(searchItem);
     }
   }
@@ -106,4 +124,8 @@ class SearchItemManager {
     }
     return true;
   }
+}
+
+ enum SortType{
+   UPDATE,CREATE,LASTREAD
 }

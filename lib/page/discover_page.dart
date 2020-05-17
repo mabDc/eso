@@ -94,56 +94,5 @@ class _DiscoverPageState extends State<DiscoverPage> {
         ),
       ),
     );
-//    return Slidable(
-//      actionPane: SlidableDrawerActionPane(),
-//      actionExtentRatio: 0.25,
-//      child: InkWell(
-//        onTap: () {
-//          Toast.show(rule.name, context);
-//        },
-//        child: CheckboxListTile(
-//          value: rule.enableSearch,
-//          activeColor: Theme.of(context).primaryColor,
-//          title: Text('${rule.name}'),
-//          subtitle: Text(
-//            '${rule.host}',
-//            maxLines: 1,
-//            overflow: TextOverflow.ellipsis,
-//          ),
-//          onChanged: (value) => provider.toggleEnableSearch(rule),
-//        ),
-//        onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
-//            builder: (context) => DiscoverSearchPage(
-//              originTag: rule.id,
-//              origin: rule.name,
-//              discoverMap: APIFromRUle(rule).discoverMap(),
-//            ))),
-//      ),
-//      actions: [
-//        IconSlideAction(
-//          caption: '置顶',
-//          color: Colors.blueGrey,
-//          icon: Icons.vertical_align_top,
-//          onTap: () => provider.setSortMax(rule),
-//        ),
-//      ],
-//      secondaryActions: <Widget>[
-//        IconSlideAction(
-//          caption: '编辑',
-//          color: Colors.black45,
-//          icon: Icons.create,
-//          onTap: () => Navigator.of(context)
-//              .push(MaterialPageRoute(
-//              builder: (context) => EditRulePage(rule: rule)))
-//              .then((value) => provider.refreshData()),
-//        ),
-//        IconSlideAction(
-//          caption: '删除',
-//          color: Colors.red,
-//          icon: Icons.delete,
-//          onTap: () => provider.deleteRule(rule),
-//        ),
-//      ],
-//    );
   }
 }
