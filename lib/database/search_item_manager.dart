@@ -14,13 +14,14 @@ class SearchItemManager {
   static String genChapterKey(int id) => "chapter$id";
 
   /// 根据类型和排序规则取出收藏
-  static List<SearchItem> getSearchItemByType(int contentType,{sortType = SortType.CREATE}){
+  static List<SearchItem> getSearchItemByType(int contentType,
+      {sortType = SortType.CREATE}) {
     List<SearchItem> searchItem = [];
     _searchItem.forEach((element) {
       if (element.ruleContentType == contentType) searchItem.add(element);
     });
     //排序
-    switch(sortType){
+    switch (sortType) {
       case SortType.CREATE:
         searchItem.sort((a, b) => b.createTime.compareTo(a.createTime));
         break;
@@ -31,7 +32,6 @@ class SearchItemManager {
         searchItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
         break;
     }
-    
     return searchItem;
   }
 
@@ -44,9 +44,9 @@ class SearchItemManager {
       return removeSearchItem(searchItem.url, searchItem.id);
     } else {
       //添加时间信息
-      searchItem.serCreateTime = DateTime.now();
-      searchItem.serUpdateTime = DateTime.now();
-      searchItem.serLastReadTime = DateTime.now();
+      searchItem.createTime = DateTime.now().microsecondsSinceEpoch;
+      searchItem.updateTime = DateTime.now().microsecondsSinceEpoch;
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       return addSearchItem(searchItem);
     }
   }
@@ -66,8 +66,9 @@ class SearchItemManager {
 
   static void initSearchItem() {
     _searchItem = <SearchItem>[];
-    Global.prefs.getStringList(key)?.forEach(
-        (item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
+    Global.prefs
+        .getStringList(key)
+        ?.forEach((item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
   }
 
   static Future<bool> removeSearchItem(String url, int id) async {
@@ -86,17 +87,16 @@ class SearchItemManager {
   }
 
   static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return Global.prefs.setStringList(genChapterKey(id),
-        chapters.map((item) => jsonEncode(item.toJson())).toList());
+    return Global.prefs.setStringList(
+        genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 
   static Future<bool> backupItems() async {
     Directory dir = await getExternalStorageDirectory();
     String s = json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
-      json["chapters"] = getChapter(item.id)
-          .map((chapter) => jsonEncode(chapter.toJson()))
-          .toList();
+      json["chapters"] =
+          getChapter(item.id).map((chapter) => jsonEncode(chapter.toJson())).toList();
       return json;
     }).toList());
     await File(dir.path + '/backup.txt').writeAsString(s);
@@ -112,10 +112,9 @@ class SearchItemManager {
       json.forEach((item) {
         SearchItem searchItem = SearchItem.fromJson(item);
         if (!isFavorite(searchItem.url)) {
-          List<ChapterItem> chapters =
-              (jsonDecode('${item["chapters"]}') as List)
-                  .map((chapter) => ChapterItem.fromJson(chapter))
-                  .toList();
+          List<ChapterItem> chapters = (jsonDecode('${item["chapters"]}') as List)
+              .map((chapter) => ChapterItem.fromJson(chapter))
+              .toList();
           saveChapter(searchItem.id, chapters);
           _searchItem.add(searchItem);
         }
@@ -126,6 +125,4 @@ class SearchItemManager {
   }
 }
 
- enum SortType{
-   UPDATE,CREATE,LASTREAD
-}
+enum SortType { UPDATE, CREATE, LASTREAD }

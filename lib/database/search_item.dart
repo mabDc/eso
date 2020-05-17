@@ -23,9 +23,9 @@ class SearchItem {
   bool reverseChapter;
   List<ChapterItem> chapters;
 
-  DateTime createTime; //收藏时间
-  DateTime updateTime; //更新时间
-  DateTime lastReadTime; //最后阅读时间
+  int createTime; //收藏时间
+  int updateTime; //更新时间
+  int lastReadTime; //最后阅读时间
 
   SearchItem({
     @required this.cover,
@@ -57,18 +57,6 @@ class SearchItem {
     durChapterIndex = 0;
     durContentIndex = 1;
     chapters = null;
-  }
-
-  set serCreateTime(DateTime createTime) {
-    this.createTime = createTime;
-  }
-
-  set serUpdateTime(DateTime updateTime) {
-    this.updateTime = updateTime;
-  }
-
-  set serLastReadTime(DateTime lastReadTime) {
-    this.lastReadTime = lastReadTime;
   }
 
 //  void copyFrom(SearchItem other){
@@ -107,6 +95,9 @@ class SearchItem {
         "chaptersCount": chaptersCount,
         "reverseChapter": reverseChapter,
         "tags": tags != null ? tags.join(", ") : null,
+        "createTime": createTime,
+        "updateTime": updateTime,
+        "lastReadTime": lastReadTime,
       };
 
   SearchItem.fromJson(Map<String, dynamic> json) {
@@ -127,9 +118,9 @@ class SearchItem {
     chaptersCount = json["chaptersCount"];
     reverseChapter = json["reverseChapter"] ?? false;
     //增加时间
-    createTime = json['createTime']??DateTime.now();
-    updateTime = json['updateTime']??DateTime.now();
-    lastReadTime = json['lastReadTime']??DateTime.now();
+    createTime = json['createTime'] ?? DateTime.now().microsecondsSinceEpoch;
+    updateTime = json['updateTime'] ?? DateTime.now().microsecondsSinceEpoch;
+    lastReadTime = json['lastReadTime'] ?? DateTime.now().microsecondsSinceEpoch;
 
     tags = json["tags"]?.split(", ") ?? <String>[];
     chapters = <ChapterItem>[];
