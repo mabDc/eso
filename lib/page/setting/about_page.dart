@@ -63,13 +63,6 @@ class AboutPage extends StatelessWidget {
                           builder: (BuildContext context) => ColorLensPage())),
                     ),
                     SwitchListTile(
-                      title: Text('看漫画时显示系统信息'),
-                      subtitle: Text('也可在漫画中长按切换'),
-                      value: profile.showMangaInfo,
-                      onChanged: (value) => profile.showMangaInfo = value,
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
-                    SwitchListTile(
                       title: Text('交换收藏点击和长按效果'),
                       subtitle: Text(
                           profile.switchLongPress ? '点击进入目录，长按查看内容' : '点击查看内容，长按进入目录'),
@@ -77,6 +70,13 @@ class AboutPage extends StatelessWidget {
                       onChanged: (value) => profile.switchLongPress = value,
                       activeColor: Theme.of(context).primaryColor,
                     ),
+                    // SwitchListTile(
+                    //   title: Text('看漫画时显示系统信息'),
+                    //   subtitle: Text('也可在漫画中长按切换'),
+                    //   value: profile.showMangaInfo,
+                    //   onChanged: (value) => profile.showMangaInfo = value,
+                    //   activeColor: Theme.of(context).primaryColor,
+                    // ),
                     // SwitchListTile(
                     //   title: Text('自动刷新'),
                     //   subtitle: Text('软件启动时自动更新收藏'),

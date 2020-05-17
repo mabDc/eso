@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +19,9 @@ class UIMangaMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final bgColor = Theme.of(context).canvasColor.withOpacity(0.94);
+    final bgColor = Theme.of(context).canvasColor.withOpacity(0.96);
     final color = Theme.of(context).textTheme.bodyText1.color;
+    final provider = Provider.of<MangaPageProvider>(context, listen: false);
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -28,8 +31,128 @@ class UIMangaMenu extends StatelessWidget {
               : SystemUiOverlayStyle.light,
           child: _buildTopRow(context, bgColor, color),
         ),
-        _buildBottomRow(context, bgColor, color),
+        provider.showSetting
+            ? _buildSetting(context, bgColor, color)
+            : _buildBottomRow(context, bgColor, color),
       ],
+    );
+  }
+
+  Widget _buildSetting(BuildContext context, Color bgColor, Color color) {
+    return IconTheme(
+      data: IconThemeData(size: 18, color: color),
+      child: Container(
+        width: double.infinity,
+        color: bgColor,
+        padding: EdgeInsets.fromLTRB(0, 4, 0, 16),
+        child: Column(
+          children: [
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: <Widget>[
+                  Text("亮度"),
+                  SizedBox(width: 10),
+                  Icon(Icons.brightness_low),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: SeekBar(
+                      value: 0.4,
+                      max: 1,
+                      backgroundColor: color,
+                      progressColor: Theme.of(context).primaryColor,
+                      progresseight: 3,
+                      afterDragShowSectionText: true,
+                      onValueChanged: (progress) {},
+                      indicatorRadius: 4,
+                    ),
+                  ),
+                  SizedBox(width: 6),
+                  Icon(Icons.brightness_high),
+                  SizedBox(width: 10),
+                  Text("长亮"),
+                  Switch(
+                    value: true,
+                    onChanged: (value) => null,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: <Widget>[
+                  Text("方向"),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: OutlineButton(
+                      child: Text("左->右", style: TextStyle(color: color)),
+                      onPressed: () => null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: color),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: OutlineButton(
+                      child: Text("右->左", style: TextStyle(color: color)),
+                      onPressed: () => null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: color),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: OutlineButton(
+                      child: Text("上->下", style: TextStyle(color: color)),
+                      onPressed: () => null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: color),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: SwitchListTile(
+                value: false,
+                onChanged: (value) => null,
+                title: Text("横屏"),
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: SwitchListTile(
+                value: true,
+                onChanged: (value) => null,
+                title: Text("全屏浏览"),
+              ),
+            ),
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              child: SwitchListTile(
+                value: false,
+                onChanged: (value) => null,
+                title: Text("音量键翻页"),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -99,6 +222,7 @@ class UIMangaMenu extends StatelessWidget {
             launch(searchItem.chapters[searchItem.durChapterIndex].url);
             break;
           case ADD_ITEM:
+            // TODO: 收藏
             Toast.show("功能未完成，请返回详情页操作", context, duration: 1);
             break;
           default:
@@ -171,12 +295,13 @@ class UIMangaMenu extends StatelessWidget {
                     max: searchItem.chaptersCount.toDouble(),
                     backgroundColor: color,
                     progressColor: Theme.of(context).primaryColor,
-                    progresseight: 4,
+                    progresseight: 3,
                     afterDragShowSectionText: true,
                     onValueChanged: (progress) {
                       provider.loadChapteDebounce(progress.value.toInt());
                     },
-                    indicatorRadius: 5,
+                    indicatorRadius: 8,
+                    indicatorColor: color.withOpacity(0.9),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -207,7 +332,7 @@ class UIMangaMenu extends StatelessWidget {
                 InkWell(
                   child: Column(
                     children: [
-                      Icon(Icons.view_list, color: color, size: 28),
+                      Icon(Icons.format_list_bulleted, color: color, size: 28),
                       Text("目录", style: TextStyle(color: color))
                     ],
                   ),
@@ -220,7 +345,10 @@ class UIMangaMenu extends StatelessWidget {
                       Text("设置", style: TextStyle(color: color))
                     ],
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    provider.showChapter = false;
+                    provider.showSetting = true;
+                  },
                 ),
                 InkWell(
                   child: Column(

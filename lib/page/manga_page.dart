@@ -65,9 +65,10 @@ class _MangaPageState extends State<MangaPage> {
                 alignment: AlignmentDirectional.bottomEnd,
                 children: <Widget>[
                   _buildMangaContent(provider),
-                  provider.showMenu
-                      ? UIMangaMenu(
-                          searchItem: widget.searchItem,
+                  profile.showMangaInfo
+                      ? UISystemInfo(
+                          mangaInfo: provider.searchItem.durChapter,
+                          mangaCount: provider.content.length,
                         )
                       : Container(),
                   provider.showChapter
@@ -76,10 +77,9 @@ class _MangaPageState extends State<MangaPage> {
                           loadChapter: provider.loadChapter,
                         )
                       : Container(),
-                  profile.showMangaInfo && !provider.showMenu
-                      ? UISystemInfo(
-                          mangaInfo: provider.searchItem.durChapter,
-                          mangaCount: provider.content.length,
+                  provider.showMenu
+                      ? UIMangaMenu(
+                          searchItem: widget.searchItem,
                         )
                       : Container(),
                 ],
@@ -92,6 +92,7 @@ class _MangaPageState extends State<MangaPage> {
                     details.globalPosition.dy > size.height * 3 / 8 &&
                     details.globalPosition.dy < size.height * 5 / 8) {
                   provider.showMenu = !provider.showMenu;
+                  provider.showSetting = false;
                 } else {
                   provider.showChapter = false;
                 }

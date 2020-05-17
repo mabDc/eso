@@ -41,11 +41,21 @@ class MangaPageProvider with ChangeNotifier {
     }
   }
 
+  bool _showSetting;
+  bool get showSetting => _showSetting;
+  set showSetting(bool value) {
+    if (_showSetting != value) {
+      _showSetting = value;
+      notifyListeners();
+    }
+  }
+
   MangaPageProvider({this.searchItem}) {
     _bottomTime = _format.format(DateTime.now());
     _isLoading = false;
     _showChapter = false;
     _showMenu = false;
+    _showSetting = false;
     _headers = Map<String, String>();
     _controller = ScrollController();
     _controller.addListener(() {
@@ -107,7 +117,6 @@ class MangaPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
-    notifyListeners();
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
     _setHeaders();

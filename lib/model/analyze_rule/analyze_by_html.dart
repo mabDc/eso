@@ -21,9 +21,9 @@ class AnalyzerByHtml {
     return AnalyzerByHtml(doc);
   }
 
-  Element _querySelector(String selector) {
-    return _element.querySelector(selector);
-  }
+  // Element _querySelector(String selector) {
+  //   return _element.querySelector(selector);
+  // }
 
   List<Element> _querySelectorAll(String selector) {
     return _element.querySelectorAll(selector);

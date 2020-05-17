@@ -6,7 +6,6 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/model/favorite_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 import 'chapter_page.dart';
 
 class FavoriteListPage extends StatefulWidget {

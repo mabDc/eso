@@ -43,9 +43,9 @@ class UINovelMenu extends StatelessWidget {
       data: IconThemeData(size: 18, color: color),
       child: Container(
         width: double.infinity,
-        height: 230,
+        height: 220,
         color: bgColor,
-        padding: EdgeInsets.fromLTRB(25, 10, 25, 20),
+        padding: EdgeInsets.fromLTRB(25, 4, 25, 16),
         child: Row(
           children: [
             Container(
@@ -138,10 +138,10 @@ class UINovelMenu extends StatelessWidget {
                               borderRadius: BorderRadius.all(Radius.circular(18)),
                               border: Border.all(color: color.withOpacity(0.3))),
                           alignment: Alignment.center,
-                          child: 
-                          // Icon(Icons.drag_handle),
-                          Transform.rotate(
-                            angle: pi/2,
+                          child:
+                              // Icon(Icons.drag_handle),
+                              Transform.rotate(
+                            angle: pi / 2,
                             child: Icon(Icons.pause),
                           ),
                         ),
@@ -184,46 +184,42 @@ class UINovelMenu extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      height: 50,
-                      alignment: Alignment.center,
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
-                                ),
-                                CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
-                                ),
-                                CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
-                                ),
-                                CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
-                                ),
-                                Container(
-                                  width: 60,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                                      border: Border.all(color: color.withOpacity(0.3))),
-                                  alignment: Alignment.center,
-                                  child: Text("更多"),
-                                ),
-                              ],
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Row(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CircleAvatar(
+                              radius: 18.0,
+                              backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
                             ),
-                          ),
-                        ],
-                      ),
+                            CircleAvatar(
+                              radius: 18.0,
+                              backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
+                            ),
+                            CircleAvatar(
+                              radius: 18.0,
+                              backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
+                            ),
+                            CircleAvatar(
+                              radius: 18.0,
+                              backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
+                            ),
+                            Container(
+                              width: 60,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                  border: Border.all(color: color.withOpacity(0.3))),
+                              alignment: Alignment.center,
+                              child: Text("更多"),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -283,6 +279,7 @@ class UINovelMenu extends StatelessWidget {
     const TO_CLICPBOARD = 0;
     const LAUCH = 1;
     const SELECTABLE = 2;
+    const ADD_ITEM = 3;
     final primaryColor = Theme.of(context).primaryColor;
     final provider = Provider.of<NovelPageProvider>(context, listen: false);
     return PopupMenuButton<int>(
@@ -303,6 +300,10 @@ class UINovelMenu extends StatelessWidget {
             break;
           case SELECTABLE:
             provider.useSelectableText = !provider.useSelectableText;
+            break;
+          case ADD_ITEM:
+            // TODO: 收藏
+            Toast.show("功能未完成，请返回详情页操作", context, duration: 1);
             break;
           default:
         }
@@ -340,6 +341,19 @@ class UINovelMenu extends StatelessWidget {
             ],
           ),
           value: SELECTABLE,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('加入收藏'),
+              Icon(
+                Icons.add_to_photos,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: ADD_ITEM,
         ),
       ],
     );
@@ -428,7 +442,10 @@ class UINovelMenu extends StatelessWidget {
                         Text("调节", style: TextStyle(color: color))
                       ],
                     ),
-                    onTap: () => provider.showSetting = true,
+                    onTap: () {
+                      provider.showChapter = false;
+                      provider.showSetting = true;
+                    },
                   ),
                 ),
                 Expanded(
