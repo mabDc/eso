@@ -95,10 +95,12 @@ class FavoritePage extends StatelessWidget {
   List<Widget> _buildTabPage(BuildContext context, List<List> tabs) {
     return tabs.map((tab) {
       List<SearchItem> searchItems = SearchItemManager.getSearchItemByType(tab[1]);
-      if (AudioService().searchItem != null &&
+      if (tab[1] == API.AUDIO &&
+          AudioService().searchItem != null &&
           !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
         searchItems.add(AudioService().searchItem);
       }
+
       return RefreshIndicator(
         onRefresh: () async {
           await Future.delayed(Duration(seconds: 1));
