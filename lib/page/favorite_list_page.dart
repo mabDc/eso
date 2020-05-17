@@ -65,7 +65,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                           (tag) => GestureDetector(
                               onTap: () => provider.sortList(tag[1]),
                               child: Material(
-                                color: Theme.of(context).buttonColor,
+                                color: Theme.of(context).bottomAppBarColor,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(15.0)),
                                 child: Padding(
