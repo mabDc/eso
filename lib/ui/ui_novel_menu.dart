@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:flutter/material.dart';
@@ -41,93 +43,187 @@ class UINovelMenu extends StatelessWidget {
       data: IconThemeData(size: 18, color: color),
       child: Container(
         width: double.infinity,
+        height: 230,
         color: bgColor,
-        padding: EdgeInsets.fromLTRB(25, 10, 15, 20),
-        child: Column(
+        padding: EdgeInsets.fromLTRB(25, 10, 25, 20),
+        child: Row(
           children: [
             Container(
-              height: 50,
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Text("亮度"),
-                  SizedBox(width: 40),
-                  Icon(Icons.brightness_low),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: SeekBar(
-                      value: 0.4,
-                      max: 1,
-                      backgroundColor: color,
-                      progressColor: Theme.of(context).primaryColor,
-                      progresseight: 3,
-                      afterDragShowSectionText: true,
-                      onValueChanged: (progress) {},
-                      indicatorRadius: 4,
+              width: 70,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("亮度", style: TextStyle(color: color.withOpacity(0.7))),
+                  Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
+                  Text("高度", style: TextStyle(color: color.withOpacity(0.7))),
+                  Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.brightness_low),
+                        SizedBox(width: 6),
+                        Expanded(
+                          child: SeekBar(
+                            value: 0.4,
+                            max: 1,
+                            backgroundColor: color,
+                            progressColor: Theme.of(context).primaryColor,
+                            progresseight: 3,
+                            afterDragShowSectionText: true,
+                            onValueChanged: (progress) {},
+                            indicatorRadius: 4,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        Icon(Icons.brightness_high),
+                        SizedBox(width: 10),
+                        Text("长亮"),
+                        Switch(
+                          value: true,
+                          onChanged: (value) => null,
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(width: 6),
-                  Icon(Icons.brightness_high),
-                  SizedBox(width: 10),
-                  Text("长亮"),
-                  Switch(
-                    value: true,
-                    onChanged: (value) => null,
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: OutlineButton(
+                            child: Text("小", style: TextStyle(color: color)),
+                            onPressed: () => null,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              side: BorderSide(color: color),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 15),
+                        Text("20"),
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: OutlineButton(
+                            child: Text("大", style: TextStyle(color: color)),
+                            onPressed: () => null,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              side: BorderSide(color: color),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            Container(
-              height: 50,
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Text("字号"),
-                  SizedBox(width: 40),
-                  Text("18"),
-                ],
-              ),
-            ),
-            Container(
-              height: 50,
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Text("高度"),
-                  SizedBox(width: 40),
-                  Text("2"),
-                ],
-              ),
-            ),
-            Container(
-              height: 50,
-              alignment: Alignment.center,
-              child: Row(
-                children: <Widget>[
-                  Text("背景"),
-                  SizedBox(width: 40),
-                  Expanded(
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CircleAvatar(
-                          radius: 18.0,
-                          backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
+                      children: <Widget>[
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(18)),
+                              border: Border.all(color: color.withOpacity(0.3))),
+                          alignment: Alignment.center,
+                          child: 
+                          // Icon(Icons.drag_handle),
+                          Transform.rotate(
+                            angle: pi/2,
+                            child: Icon(Icons.pause),
+                          ),
                         ),
-                        CircleAvatar(
-                          radius: 18.0,
-                          backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(18)),
+                              border: Border.all(color: color.withOpacity(0.3))),
+                          alignment: Alignment.center,
+                          child: Icon(Icons.menu),
                         ),
-                        CircleAvatar(
-                          radius: 18.0,
-                          backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(18)),
+                              border: Border.all(color: color.withOpacity(0.3))),
+                          alignment: Alignment.center,
+                          child: Icon(Icons.view_headline),
                         ),
-                        CircleAvatar(
-                          radius: 18.0,
-                          backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(18)),
+                              border: Border.all(color: color.withOpacity(0.3))),
+                          alignment: Alignment.center,
+                          child: Text("无"),
                         ),
-                        Text("更多"),
+                        Container(
+                          width: 60,
+                          height: 32,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                              border: Border.all(color: color.withOpacity(0.3))),
+                          alignment: Alignment.center,
+                          child: Text("自定义"),
+                        ),
                       ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18.0,
+                                  backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEA, 0xDE),
+                                ),
+                                CircleAvatar(
+                                  radius: 18.0,
+                                  backgroundColor: Color.fromARGB(0xFF, 0xDB, 0xBE, 0x98),
+                                ),
+                                CircleAvatar(
+                                  radius: 18.0,
+                                  backgroundColor: Color.fromARGB(0xFF, 0xC1, 0xEC, 0xC7),
+                                ),
+                                CircleAvatar(
+                                  radius: 18.0,
+                                  backgroundColor: Color.fromARGB(0xFF, 0x37, 0x3A, 0x3F),
+                                ),
+                                Container(
+                                  width: 60,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                                      border: Border.all(color: color.withOpacity(0.3))),
+                                  alignment: Alignment.center,
+                                  child: Text("更多"),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
