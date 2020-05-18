@@ -31,15 +31,15 @@ class UIImageItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(3.0),
       child: FadeInImage(
         placeholder: AssetImage(Global.waitingPath),
-        image: checkUrl(_cover,headers),
+        image: checkUrl(_cover, headers),
         fit: BoxFit.cover,
       ),
     );
   }
 
-  ImageProvider checkUrl(String url,Map<String, String> header) {
+  ImageProvider checkUrl(String url, Map<String, String> header) {
     try {
-      return NetworkImage(url,headers: header);
+      return NetworkImage(url, headers: header);
     } catch (e) {
       return AssetImage(Global.waitingPath);
     }

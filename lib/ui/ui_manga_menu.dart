@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:flutter/material.dart';

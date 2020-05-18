@@ -198,7 +198,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   return AlertDialog(
                     title: Row(
                       children: [
-                        Icon(Icons.warning, color: Colors.black),
                         Text("警告"),
                       ],
                     ),

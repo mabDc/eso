@@ -115,7 +115,7 @@ class Onemanhua implements API {
             .decrypt(Encrypted.fromBase64(utf8.decode(base64.decode(cData))));
 
     final _idJsEngine = await FlutterJs.initEngine();
-    final info = await FlutterJs.getMap("""
+    final info = await FlutterJs.evaluate("""
         $imagesString;
         var info = {mh:mh_info,image: image_info};
         info

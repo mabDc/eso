@@ -74,14 +74,10 @@ class Bainian implements API {
     // analyze by rule
     // 解析流程
     final res = await http.get(url);
-    final json = {
-      "result": res.body,
-      "baseUrl": url,
-    };
     final _idJsEngine = await FlutterJs.initEngine();
     await FlutterJs.evaluate(
         "result = ${jsonEncode(res.body)};baseUrl = ${jsonEncode(url)};", _idJsEngine);
-    return FlutterJs.getStringList("$rule", _idJsEngine);
+    return FlutterJs.evaluate("$rule", _idJsEngine);
     // final res = await http.get(url);
     // final zyurl = RegExp("z_yurl='([^']*)'").firstMatch(res.body)[1];
     // final zimg = RegExp("z_img='([^']*)").firstMatch(res.body)[1];

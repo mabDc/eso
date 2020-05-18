@@ -60,6 +60,7 @@ class EditSourceProvider with ChangeNotifier {
   void deleteRule(Rule rule) async {
     if (_isLoading) return;
     _isLoading = true;
+    _rules.remove(rule);
     await Global.ruleDao.deleteRule(rule);
     notifyListeners();
     _isLoading = false;
