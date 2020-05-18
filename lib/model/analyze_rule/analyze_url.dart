@@ -30,7 +30,7 @@ class AnalyzeUrl {
       if (rule.loadJs.trim().isNotEmpty) {
         await FlutterJs.evaluate(rule.loadJs, _idJsEngine);
       }
-      final result = await FlutterJs.evaluate(url, _idJsEngine);
+      final result = await FlutterJs.evaluate(url.substring(4), _idJsEngine);
       FlutterJs.close(_idJsEngine);
       return _parser(result, rule);
     } else {
@@ -78,7 +78,11 @@ class AnalyzeUrl {
       if (u.startsWith("/")) {
         u = rule.host + u;
       }
-      return http.get(u);
+      if (rule.userAgent.trim().isNotEmpty) {
+        return http.get(u, headers: {'User-Agent': rule.userAgent});
+      } else {
+        return http.get(u);
+      }
     }
   }
 }
