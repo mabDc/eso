@@ -76,7 +76,7 @@ class APIFromRUle implements API {
       rule,
       page: page,
       pageSize: pageSize,
-      key: query,
+      keyword: query,
     );
     final searchUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();

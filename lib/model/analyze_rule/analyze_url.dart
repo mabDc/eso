@@ -8,38 +8,46 @@ class AnalyzeUrl {
   static Future<http.Response> urlRuleParser(
     String url,
     Rule rule, {
-    String key = "",
+    String keyword = "",
     String result = "",
-    int page = 1,
-    int pageSize = 20,
+    int page,
+    int pageSize,
   }) async {
     url = url.trim();
-    Map<String, dynamic> json = {
-      "key": key,
-      "page": page,
-      "host": rule.host,
-      "result": result,
-      "pageSize": pageSize,
-      "searchKey": key,
-      "searchPage": page,
-    };
     if (url.startsWith("@js:")) {
       // js规则
       final _idJsEngine = await FlutterJs.initEngine(101);
-      await FlutterJs.initJson(json, _idJsEngine);
+      await FlutterJs.evaluate('''
+keyword = ${jsonEncode(keyword)};
+page = ${jsonEncode(page)};
+host = ${jsonEncode(rule.host)};
+result = ${jsonEncode(result)};
+pageSize = ${jsonEncode(pageSize)};
+searchKey = ${jsonEncode(keyword)};
+searchPage = ${jsonEncode(page)};
+''', _idJsEngine);
       if (rule.loadJs.trim().isNotEmpty) {
         await FlutterJs.evaluate(rule.loadJs, _idJsEngine);
       }
-      final result = await FlutterJs.evaluate(url.substring(4), _idJsEngine);
+      final re = await FlutterJs.evaluate(url.substring(4), _idJsEngine);
       FlutterJs.close(_idJsEngine);
-      return _parser(result, rule);
+      return _parser(re, rule);
     } else {
       // 非js规则, 考虑字符串替换
+      Map<String, dynamic> json = {
+        "\$keyword": keyword,
+        "\$page": page,
+        "\$host": rule.host,
+        "\$result": result,
+        "\$pageSize": pageSize,
+        "searchKey": keyword,
+        "searchPage": page,
+      };
       return _parser(
           url.replaceAllMapped(
-            RegExp(r"\$key|\$page|\$host|\$result|\$pageSize|searchKey|searchPage"),
+            RegExp(r"\$keyword|\$page|\$host|\$result|\$pageSize|searchKey|searchPage"),
             (m) {
-              return '${json[m.group(0).replaceFirst("\$", '')]}';
+              return '${json[m.group(0)]}';
             },
           ),
           rule);

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
@@ -24,8 +26,7 @@ class Bainian implements API {
         author: '',
         chapter: '${item.querySelector('span').text}',
         description: '${item.querySelector('.red')?.text ?? ''}',
-        url:
-            'https://www.bnmanhua.com${item.querySelector('a').attributes['href']}',
+        url: 'https://www.bnmanhua.com${item.querySelector('a').attributes['href']}',
       );
     }).toList();
   }
@@ -78,7 +79,8 @@ class Bainian implements API {
       "baseUrl": url,
     };
     final _idJsEngine = await FlutterJs.initEngine();
-    await FlutterJs.initJson(json, _idJsEngine);
+    await FlutterJs.evaluate(
+        "result = ${jsonEncode(res.body)};baseUrl = ${jsonEncode(url)};", _idJsEngine);
     return FlutterJs.getStringList("$rule", _idJsEngine);
     // final res = await http.get(url);
     // final zyurl = RegExp("z_yurl='([^']*)'").firstMatch(res.body)[1];

@@ -81,7 +81,9 @@ class DebugRuleProvider with ChangeNotifier {
       final searchResult = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
         rule,
-        key: value,
+        keyword: value,
+        page: 1,
+        pageSize: 20,
       );
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);

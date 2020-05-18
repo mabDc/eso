@@ -21,19 +21,6 @@ class FlutterJs {
     return engineId;
   }
 
-  static Future<bool> initJson(Map<String, dynamic> json, int id) async {
-    await evaluate('''
-var root = typeof self == 'object' && self.self === self && self ||
-          typeof global == 'object' && global.global === global && global ||
-          Function('return this')() ||
-          {};
-var json = ${jsonEncode(json)};
-for(var key in json) {
-  root[key] = json[key];
-}''', id);
-    return true;
-  }
-
   static Future<dynamic> evaluate(String command, int id) async {
     var arguments = {"engineId": id, "command": command};
     final rs = await _channel.invokeMethod("evaluate", arguments);
