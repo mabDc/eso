@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
-import 'package:eso/model/analyze_rule/analyze_by_html.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'api.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
-
+import '../api/analyzer_html.dart';
 import 'package:http/http.dart' as http;
 
 class _Onemanhua {
@@ -52,8 +51,8 @@ class Onemanhua implements API {
     final res = await http.get(
         'https://www.onemanhua.com/show?orderBy=${params["类型"].value}&page=$page');
     final rule = _Onemanhua();
-    return AnalyzerByHtml(res.body).getElements(rule.discoverList).map((e) {
-      final analyzer = AnalyzerByHtml(e);
+    return AnalyzerHtml().parse(res.body).getElements(rule.discoverList).map((e) {
+      final analyzer = AnalyzerHtml().parse(e);
       return SearchItem(
         tags: <String>[],
         cover: analyzer.getString(rule.discoverCover),
@@ -73,8 +72,8 @@ class Onemanhua implements API {
     final res = await http
         .get('https://www.onemanhua.com/search?searchString=$query&page=$page');
     final rule = _Onemanhua();
-    return AnalyzerByHtml(res.body).getElements(rule.searchList).map((e) {
-      final analyzer = AnalyzerByHtml(e);
+    return AnalyzerHtml().parse(res.body).getElements(rule.searchList).map((e) {
+      final analyzer = AnalyzerHtml().parse(e);
       return SearchItem(
         tags: <String>[],
         cover: analyzer.getString(rule.searchCover),
@@ -93,8 +92,8 @@ class Onemanhua implements API {
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get('$url');
     final rule = _Onemanhua();
-    return AnalyzerByHtml(res.body).getElements(rule.chapterList).map((e) {
-      final analyzer = AnalyzerByHtml(e);
+    return AnalyzerHtml().parse(res.body).getElements(rule.chapterList).map((e) {
+      final analyzer = AnalyzerHtml().parse(e);
       return ChapterItem(
         cover: analyzer.getString(rule.chapterCover),
         name: analyzer.getString(rule.chapterName),

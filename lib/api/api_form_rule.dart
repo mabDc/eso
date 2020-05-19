@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/model/analyze_rule/analyze_rule.dart';
-import 'package:eso/model/analyze_rule/analyze_url.dart';
+import 'analyze_url.dart';
 import 'package:eso/utils/input_stream.dart';
 import 'package:flutter_js/flutter_js.dart';
 
@@ -49,11 +49,11 @@ class APIFromRUle implements API {
     if (rule.loadJs.trim().isNotEmpty) {
       await FlutterJs.evaluate(rule.loadJs, engineId);
     }
-    final list = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+    final list = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
         name: await analyzer.getString(rule.discoverName),
@@ -85,11 +85,11 @@ class APIFromRUle implements API {
     if (rule.loadJs.trim().isNotEmpty) {
       await FlutterJs.evaluate(rule.loadJs, engineId);
     }
-    final list = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+    final list = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
         name: await analyzer.getString(rule.searchName),
@@ -123,11 +123,11 @@ class APIFromRUle implements API {
     if (rule.loadJs.trim().isNotEmpty) {
       await FlutterJs.evaluate(rule.loadJs, engineId);
     }
-    final list = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+    final list = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
     final result = <ChapterItem>[];
     for (var item in list) {
-      final analyzer = AnalyzeRule(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId);
       final lock = await analyzer.getString(rule.chapterLock);
       var name = await analyzer.getString(rule.chapterName);
       if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
@@ -167,7 +167,7 @@ class APIFromRUle implements API {
         // await FlutterJs.evaluate(cryptoJS, engineId);
       }
     }
-    final temp = await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+    final temp = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getStringList(rule.contentItems);
     FlutterJs.close(engineId);
     return temp;

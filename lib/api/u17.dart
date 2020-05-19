@@ -1,4 +1,4 @@
-import 'package:eso/model/analyze_rule/analyze_by_jsonpath.dart';
+import 'package:eso/api/analyzer_jsonpath.dart';
 import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
@@ -39,8 +39,8 @@ class U17 implements API {
   Future<List<SearchItem>> commonParse(String url) async {
     final res = await http.get(url);
     final rule = _U17Rule();
-    return AnalyzeByJSonPath(res.body).getList(rule.searchList).map((item) {
-      AnalyzeByJSonPath analyzer = AnalyzeByJSonPath(item);
+    return AnalyzerJSonPath().parse(res.body).getElements(rule.searchList).map((item) {
+      AnalyzerJSonPath analyzer = AnalyzerJSonPath().parse(item);
       return SearchItem(
         cover: analyzer.getString(rule.searchCover),
         name: analyzer.getString(rule.searchName),
@@ -71,8 +71,11 @@ class U17 implements API {
   Future<List<ChapterItem>> chapter(String url) async {
     final res = await http.get(url);
     final rule = _U17Rule();
-    return AnalyzeByJSonPath(res.body).getList(rule.chapterList).map((chapter) {
-      AnalyzeByJSonPath analyzer = AnalyzeByJSonPath(chapter);
+    return AnalyzerJSonPath()
+        .parse(res.body)
+        .getElements(rule.chapterList)
+        .map((chapter) {
+      AnalyzerJSonPath analyzer = AnalyzerJSonPath().parse(chapter);
       final passTime = chapter["pass_time"];
       final time = DateTime.fromMillisecondsSinceEpoch(
           ((passTime is int) ? passTime : int.parse(passTime)) * 1000);
@@ -90,7 +93,7 @@ class U17 implements API {
   @override
   Future<List<String>> content(String url) async {
     final res = await http.get(url);
-    return AnalyzeByJSonPath(res.body).getStringList(_U17Rule().content);
+    return AnalyzerJSonPath().parse(res.body).getStringList(_U17Rule().content);
   }
 
   @override

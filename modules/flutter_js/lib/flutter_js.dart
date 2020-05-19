@@ -31,7 +31,7 @@ class FlutterJs {
     _channel.invokeMethod("close", arguments);
     return true;
   }
-
+  /*
   static Future<String> getString(String command, int id) async {
     final rs = await evaluate(command, id);
     return '$rs' ?? '';
@@ -53,4 +53,5 @@ class FlutterJs {
     if (rs == null) return <dynamic>[];
     return rs as List;
   }
+  */
 }

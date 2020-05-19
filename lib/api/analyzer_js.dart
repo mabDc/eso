@@ -38,7 +38,7 @@ class AnalyzerJS implements Analyzer {
   }
 
   @override
-  Future<List> getElements(String rule) async {
+  Future<dynamic> getElements(String rule) async {
     await FlutterJs.evaluate("result = $_content", _jsEngineId);
     return FlutterJs.evaluate(rule, _jsEngineId);
     // final result = await FlutterJs.evaluate(rule, _jsEngineId);
@@ -51,7 +51,7 @@ class AnalyzerJS implements Analyzer {
   Future<dynamic> getString(String rule) async {
     await FlutterJs.evaluate("result = $_content", _jsEngineId);
     return FlutterJs.evaluate(rule, _jsEngineId);
-    final result = await FlutterJs.evaluate(rule, _jsEngineId);
+    // final result = await FlutterJs.evaluate(rule, _jsEngineId);
     // if (null == result) return "";
     // if (result is List) {
     //   return result
@@ -64,10 +64,10 @@ class AnalyzerJS implements Analyzer {
   }
 
   @override
-  Future<List<String>> getStringList(String rule) async {
+  Future<dynamic> getStringList(String rule) async {
     await FlutterJs.evaluate("result = $_content", _jsEngineId);
     return FlutterJs.evaluate(rule, _jsEngineId);
-    final result = await FlutterJs.evaluate(rule, _jsEngineId);
+    // final result = await FlutterJs.evaluate(rule, _jsEngineId);
     // if (null == result) return <String>[];
     // if (result is List) {
     //   return result

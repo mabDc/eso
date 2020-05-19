@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/model/analyze_rule/analyze_rule.dart';
-import 'package:eso/model/analyze_rule/analyze_url.dart';
+import '../api/analyze_url.dart';
+import '../api/analyzer_manager.dart';
 import 'package:eso/utils/input_stream.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
@@ -95,7 +95,7 @@ class DebugRuleProvider with ChangeNotifier {
       }
       _addContent("js预加载");
       final analyzer =
-          AnalyzeRule(InputStream.autoDecode(searchResult.bodyBytes), engineId);
+          AnalyzerManager(InputStream.autoDecode(searchResult.bodyBytes), engineId);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -114,7 +114,7 @@ class DebugRuleProvider with ChangeNotifier {
               "$e\n",
               style: TextStyle(color: Colors.red, height: 2),
             ),
-          )
+          ),
         ],
       ));
       _addContent("解析结束！");
@@ -124,7 +124,7 @@ class DebugRuleProvider with ChangeNotifier {
   void parseFirstSearch(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzeRule(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId);
       _addContent("名称", await analyzer.getString(rule.searchName));
       _addContent("作者", await analyzer.getString(rule.searchAuthor));
       _addContent("章节", await analyzer.getString(rule.searchChapter));
@@ -177,7 +177,7 @@ class DebugRuleProvider with ChangeNotifier {
         await FlutterJs.evaluate(rule.loadJs, engineId);
       }
       final chapterList =
-          await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+          await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
               .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
       final count = chapterList.length;
       if (count == 0) {
@@ -206,7 +206,7 @@ class DebugRuleProvider with ChangeNotifier {
   void parseFirstChapter(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzeRule(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId);
       final name = await analyzer.getString(rule.chapterName);
       _addContent("名称(解析)", name);
       final lock = await analyzer.getString(rule.chapterLock);
@@ -266,7 +266,7 @@ class DebugRuleProvider with ChangeNotifier {
         }
       }
       final contentItems =
-          await AnalyzeRule(InputStream.autoDecode(res.bodyBytes), engineId)
+          await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
               .getStringList(rule.contentItems);
       final count = contentItems.length;
       if (count == 0) {
