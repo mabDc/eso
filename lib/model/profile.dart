@@ -17,6 +17,10 @@ class Profile with ChangeNotifier {
             'darkMode': "跟随系统",
             'colorName': Global.colors.keys.first,
             'customColor': Global.colors.values.first,
+            'novelFontSize': 20.0,
+            'novelHeight': 2.0,
+            'novelBackgroundColor': 0xFFF5DEB3,
+            'novelFontColor': Colors.black.value,
           }
         : jsonDecode(source);
     fromJson(json);
@@ -30,6 +34,10 @@ class Profile with ChangeNotifier {
   String _colorName;
   int _customColor;
   bool _showMangaInfo;
+  double _novelFontSize;
+  double _novelHeight;
+  int _novelBackgroundColor;
+  int _novelFontColor;
 
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
@@ -39,6 +47,10 @@ class Profile with ChangeNotifier {
   String get colorName => _colorName;
   int get customColor => _customColor;
   bool get showMangaInfo => _showMangaInfo;
+  double get novelFontSize => _novelFontSize;
+  double get novelHeight => _novelHeight;
+  int get novelBackgroundColor => _novelBackgroundColor;
+  int get novelFontColor => _novelFontColor;
 
   set switchFavoriteStyle(bool value) {
     if (value != _switchFavoriteStyle) {
@@ -120,6 +132,47 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set novelFontSize(double value) {
+    if ((value - _novelFontSize).abs() > 0.1) {
+      _novelFontSize = value;
+      _saveProfile(false);
+    }
+  }
+
+  set novelHeight(double value) {
+    if ((value - _novelHeight).abs() > 0.1) {
+      _novelHeight = value;
+      _saveProfile(false);
+    }
+  }
+
+  set novelBackgroundColor(int value) {
+    if (value != _novelBackgroundColor) {
+      _novelBackgroundColor = value;
+      _saveProfile();
+    }
+  }
+
+  set novelFontColor(int value) {
+    if (value != _novelFontColor) {
+      _novelFontColor = value;
+      _saveProfile();
+    }
+  }
+
+  void setnovelColor(int bgColor, int fontColor) {
+    var change = false;
+    if (bgColor != _novelBackgroundColor) {
+      _novelBackgroundColor = bgColor;
+    }
+    if (fontColor != novelFontColor) {
+      _novelFontColor = fontColor;
+    }
+    if (change) {
+      _saveProfile(false);
+    }
+  }
+
   void _saveProfile([bool shouldNotifyListeners = true]) async {
     await Global.prefs.setString(Global.profileKey, jsonEncode(toJson()));
     if (shouldNotifyListeners) {
@@ -160,6 +213,10 @@ class Profile with ChangeNotifier {
     _darkMode = json['darkMode'].toString();
     _colorName = json['colorName'];
     _customColor = json['customColor'];
+    _novelFontSize = json['novelFontSize'] ?? 20.0;
+    _novelHeight = json["novelHeight"] ?? 2.0;
+    _novelBackgroundColor = json["novelBackgroundColor"] ?? 0xFFF5DEB3;
+    _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
   }
 
   Map<String, dynamic> toJson() => {
@@ -171,5 +228,9 @@ class Profile with ChangeNotifier {
         'darkMode': _darkMode,
         'colorName': _colorName,
         'customColor': _customColor,
+        'novelFontSize': _novelFontSize,
+        'novelHeight': _novelHeight,
+        'novelBackgroundColor': _novelBackgroundColor,
+        'novelFontColor': _novelFontColor,
       };
 }

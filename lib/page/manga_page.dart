@@ -51,6 +51,9 @@ class _MangaPageState extends State<MangaPage> {
         body: Consumer2<MangaPageProvider, Profile>(
           builder:
               (BuildContext context, MangaPageProvider provider, Profile profile, _) {
+            if (__provider == null) {
+              __provider = provider;
+            }
             SystemChrome.setEnabledSystemUIOverlays([]);
             if (provider.content == null) {
               return LandingPage();
@@ -71,20 +74,44 @@ class _MangaPageState extends State<MangaPage> {
                           mangaCount: provider.content.length,
                         )
                       : Container(),
+                  provider.showMenu
+                      ? UIMangaMenu(
+                          searchItem: widget.searchItem,
+                        )
+                      : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
                           searchItem: widget.searchItem,
                           loadChapter: provider.loadChapter,
                         )
                       : Container(),
-                  provider.showMenu
-                      ? UIMangaMenu(
-                          searchItem: widget.searchItem,
+                  provider.isLoading
+                      ? Opacity(
+                          opacity: 0.8,
+                          child: Center(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Theme.of(context).canvasColor,
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    "加载中...",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         )
                       : Container(),
                 ],
               ),
-              onLongPress: () => profile.showMangaInfo = !profile.showMangaInfo,
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
                 if (details.globalPosition.dx > size.width * 3 / 8 &&

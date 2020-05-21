@@ -1,4 +1,5 @@
 import 'package:eso/model/novel_page_provider.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
@@ -70,6 +71,31 @@ class _NovelPageState extends State<NovelPage> {
                           loadChapter: provider.loadChapter,
                         )
                       : Container(),
+                  provider.isLoading
+                      ? Opacity(
+                          opacity: 0.8,
+                          child: Center(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Theme.of(context).canvasColor,
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    "加载中...",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(),
                 ],
               ),
               onTapUp: (TapUpDetails details) {
@@ -94,8 +120,9 @@ class _NovelPageState extends State<NovelPage> {
 
   Widget _buildContent(NovelPageProvider provider) {
     final content = '　　' + provider.content.map((s) => s.trim()).join('\n　　');
+    final profile = Provider.of<Profile>(context);
     return Container(
-      color: Color(0xFFF5DEB3),
+      color: Color(profile.novelBackgroundColor),
       padding: EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         children: <Widget>[
@@ -110,7 +137,7 @@ class _NovelPageState extends State<NovelPage> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color(profile.novelFontColor),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -118,15 +145,15 @@ class _NovelPageState extends State<NovelPage> {
                   provider.useSelectableText
                       ? SelectableText(content,
                           style: TextStyle(
-                            fontSize: 20,
-                            height: 1.94,
-                            color: Colors.black,
+                            fontSize: profile.novelFontSize,
+                            height: profile.novelHeight * 0.98,
+                            color: Color(profile.novelFontColor),
                           ))
                       : Text(content,
                           style: TextStyle(
-                            fontSize: 20,
-                            height: 2,
-                            color: Colors.black,
+                            fontSize: profile.novelFontSize,
+                            height: profile.novelHeight,
+                            color: Color(profile.novelFontColor),
                           )),
                   UIChapterSeparate(
                     color: Colors.black87,

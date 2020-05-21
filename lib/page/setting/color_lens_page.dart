@@ -1,5 +1,5 @@
+import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:provider/provider.dart';
 
 import '../../global.dart';
@@ -44,8 +44,7 @@ class ColorLensPage extends StatelessWidget {
           children: <Widget>[
             _buildColorListTile('自定义', color),
             ListTile(
-              leading:
-                  _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
+              leading: _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
               title: _buildSeekBar(
                 Colors.red,
                 color.red,
@@ -53,8 +52,7 @@ class ColorLensPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: _buildColorContainer(
-                  Colors.green.withOpacity(color.green / 255)),
+              leading: _buildColorContainer(Colors.green.withOpacity(color.green / 255)),
               title: _buildSeekBar(
                 Colors.green,
                 color.green,
@@ -62,8 +60,7 @@ class ColorLensPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: _buildColorContainer(
-                  Colors.blue.withOpacity(color.blue / 255)),
+              leading: _buildColorContainer(Colors.blue.withOpacity(color.blue / 255)),
               title: _buildSeekBar(
                 Colors.blue,
                 color.blue,
@@ -76,20 +73,40 @@ class ColorLensPage extends StatelessWidget {
     );
   }
 
-  SeekBar _buildSeekBar(
-      Color color, int value, void Function(int) valueChanged) {
-    return SeekBar(
-      min: 0.0,
-      max: 255.0,
-      value: value.toDouble(),
-      progresseight: 6,
-      showSectionText: true,
-      progressColor: color,
-      backgroundColor: color.withOpacity(0.5),
-      onValueChanged: (ProgressValue progressValue) {
-        valueChanged(progressValue.value.toInt());
-      },
-      afterDragShowSectionText: true,
+  FlutterSlider _buildSeekBar(Color color, int value, void Function(int) valueChanged) {
+    return FlutterSlider(
+      values: [value.toDouble()],
+      max: 255,
+      min: 1,
+      trackBar: FlutterSliderTrackBar(
+        inactiveTrackBar: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: color.withOpacity(0.5),
+        ),
+        activeTrackBar: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: color,
+        ),
+      ),
+      handlerWidth: 8,
+      handlerHeight: 16,
+      handler: FlutterSliderHandler(
+        decoration: BoxDecoration(),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(6),
+            color: color,
+            border: Border.all(color: color.withOpacity(0.65), width: 1),
+          ),
+        ),
+      ),
+      // value: value.toDouble(),
+      // progressWidth: 6,
+      // progressColor: color,
+      // barColor: color.withOpacity(0.5),
+      // onProgressChanged: (progressValue) {
+      //   valueChanged(progressValue.toInt());
+      // },
     );
   }
 

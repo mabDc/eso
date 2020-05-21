@@ -5,8 +5,8 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
+import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:provider/provider.dart';
 
 class AudioPage extends StatefulWidget {
@@ -21,8 +21,7 @@ class AudioPage extends StatefulWidget {
   _AudioPageState createState() => _AudioPageState();
 }
 
-class _AudioPageState extends State<AudioPage>
-    with SingleTickerProviderStateMixin {
+class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMixin {
   Widget _audioPage;
   AudioPageController __provider;
   AnimationController controller;
@@ -43,8 +42,7 @@ class _AudioPageState extends State<AudioPage>
   }
 
   Widget _buildPage() {
-    controller =
-        AnimationController(duration: const Duration(seconds: 30), vsync: this);
+    controller = AnimationController(duration: const Duration(seconds: 30), vsync: this);
     //动画开始、结束、向前移动或向后移动时会调用StatusListener
     controller.forward();
     controller.addStatusListener((status) {
@@ -71,8 +69,7 @@ class _AudioPageState extends State<AudioPage>
       child: Consumer<AudioPageController>(
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
-          final chapter =
-              widget.searchItem.chapters[widget.searchItem.durChapterIndex];
+          final chapter = widget.searchItem.chapters[widget.searchItem.durChapterIndex];
           return Scaffold(
             body: Container(
               height: double.infinity,
@@ -83,8 +80,7 @@ class _AudioPageState extends State<AudioPage>
                     height: double.infinity,
                     width: double.infinity,
                     child: Image.network(
-                      chapter.cover ??
-                          'http://api.52jhs.cn/api/random/api.php?type=pc',
+                      chapter.cover ?? 'http://api.52jhs.cn/api/random/api.php?type=pc',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -98,10 +94,8 @@ class _AudioPageState extends State<AudioPage>
                         height: MediaQuery.of(context).padding.top,
                       ),
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        child:
-                            _buildTopRow(provider, chapter.name, chapter.time),
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        child: _buildTopRow(provider, chapter.name, chapter.time),
                       ),
                       Expanded(
                         child: Container(
@@ -129,8 +123,7 @@ class _AudioPageState extends State<AudioPage>
                       ),
                       Container(
                         height: 100,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: <Widget>[
@@ -155,8 +148,7 @@ class _AudioPageState extends State<AudioPage>
     );
   }
 
-  Widget _buildTopRow(
-      AudioPageController provider, String name, String author) {
+  Widget _buildTopRow(AudioPageController provider, String name, String author) {
     return Row(
       children: <Widget>[
         InkWell(
@@ -221,19 +213,63 @@ class _AudioPageState extends State<AudioPage>
             width: 10,
           ),
           Expanded(
-            child: SeekBar(
-              value: provider.seconds == 0
-                  ? 0
-                  : provider.postionSeconds / provider.seconds,
+            child: FlutterSlider(
+              values: [
+                provider.seconds == 0 ? 0 : provider.postionSeconds / provider.seconds
+              ],
               max: 1,
-              backgroundColor: Colors.white54,
-              progresseight: 4,
-              afterDragShowSectionText: true,
-              onValueChanged: (progress) => provider
-                  .seekSeconds((progress.value * provider.seconds).toInt()),
-              indicatorRadius: 5,
+              min: 0,
+              // onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+              //   provider.brightness = lowerValue / 100;
+              // },
+              // // disabled: provider.isLoading,
+              handlerWidth: 6,
+              handlerHeight: 14,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    color: Theme.of(context).primaryColor,
+                    border: Border.all(
+                        color: Theme.of(context).primaryColor.withOpacity(0.65),
+                        width: 1),
+                  ),
+                ),
+              ),
+              trackBar: FlutterSliderTrackBar(
+                inactiveTrackBar: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Theme.of(context).primaryColor.withOpacity(0.5),
+                ),
+                activeTrackBar: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              // tooltip: FlutterSliderTooltip(
+              //   disableAnimation: true,
+              //   custom: (value) => Container(
+              //     padding: EdgeInsets.all(8),
+              //     color: bgColor,
+              //     child: Text((value as double).toStringAsFixed(0)),
+              //   ),
+              //   positionOffset:
+              //       FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+              // ),
             ),
           ),
+          Expanded(child: Container()
+              // SeekBar(
+              //   value:
+              //       provider.seconds == 0 ? 0 : provider.postionSeconds / provider.seconds,
+              //   barColor: Colors.white54,
+              //   progressWidth: 4,
+              //   onProgressChanged: (progress) =>
+              //       provider.seekSeconds((progress * provider.seconds).toInt()),
+              //   thumbRadius: 5,
+              // ),
+              ),
           SizedBox(
             width: 10,
           ),

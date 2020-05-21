@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
 
 import '../database/chapter_item.dart';
@@ -134,15 +133,16 @@ class BilibiliManga implements API {
     for (int i = 0; i < bytes.length; i++) {
       bytes[i] = bytes[i] ^ key[i % 8];
     }
-    final archive = ZipDecoder().decodeBytes(bytes);
-    final indexData = utf8.decode(archive.first.content);
-    final res3 = await http.post(
-        "$baseUrl/twirp/comic.v1.Comic/ImageToken?device=pc&platform=web",
-        body: jsonEncode({"urls": jsonEncode(jsonDecode(indexData)["pics"])}),
-        headers: headers);
-    return (jsonDecode(res3.body)["data"] as List)
-        .map((token) => '${token["url"]}?token=${token["token"]}')
-        .toList();
+    return [];
+    //final archive = ZipDecoder().decodeBytes(bytes);
+    // final indexData = utf8.decode(archive.first.content);
+    // final res3 = await http.post(
+    //     "$baseUrl/twirp/comic.v1.Comic/ImageToken?device=pc&platform=web",
+    //     body: jsonEncode({"urls": jsonEncode(jsonDecode(indexData)["pics"])}),
+    //     headers: headers);
+    // return (jsonDecode(res3.body)["data"] as List)
+    //     .map((token) => '${token["url"]}?token=${token["token"]}')
+    //     .toList();
   }
 
   @override

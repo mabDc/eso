@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter_share/flutter_share.dart';
-
+import 'package:screen/screen.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
@@ -52,7 +54,38 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
+  double _sysBrightness;
+  double _brightness;
+  double get brightness => _brightness;
+  set brightness(double value) {
+    if ((value - _brightness).abs() > 0.05) {
+      _brightness = value;
+      Screen.setBrightness(brightness);
+    }
+  }
+
+  bool _keepOn;
+  bool get keepOn => _keepOn;
+  set keepOn(bool value) {
+    if (value != _keepOn) {
+      _keepOn = value;
+      Screen.keepOn(_keepOn);
+      notifyListeners();
+    }
+  }
+
+  // bgColor , fontColor
+  final colorList = [
+    [0xfff1f1f1, 0xff373534], //白底
+    [0xfff5ede2, 0xff373328], //浅黄
+    [0xff999c99, 0xff353535], //浅灰
+    [0xff33383d, 0xffc5c4c9], //黑
+    [0xffe3f8e1, 0xff485249]
+  ];
+
   NovelPageProvider({this.searchItem}) {
+    _brightness = 0.5;
+    _keepOn = false;
     _isLoading = false;
     _showChapter = false;
     _showMenu = false;
@@ -81,6 +114,12 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   void _initContent() async {
+    _brightness = await Screen.brightness;
+    if (_brightness > 1) {
+      _brightness = 0.5;
+    }
+    _sysBrightness = _brightness;
+    _keepOn = await Screen.isKeptOn;
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     notifyListeners();
@@ -96,16 +135,6 @@ class NovelPageProvider with ChangeNotifier {
     );
   }
 
-  DateTime _loadTime;
-  void loadChapteDebounce(int chapterIndex) {
-    _loadTime = DateTime.now();
-    Future.delayed(const Duration(milliseconds: 201), () {
-      if (DateTime.now().difference(_loadTime).inMilliseconds > 200) {
-        loadChapter(chapterIndex);
-      }
-    });
-  }
-
   Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (isLoading ||
@@ -113,7 +142,8 @@ class NovelPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
-    // notifyListeners();
+    searchItem.durChapterIndex = chapterIndex;
+    notifyListeners();
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
     searchItem.durChapterIndex = chapterIndex;
@@ -127,6 +157,11 @@ class NovelPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    if (Platform.isAndroid) {
+      Screen.setBrightness(-1.0);
+    } else {
+      Screen.setBrightness(_sysBrightness);
+    }
     content.clear();
     _controller.dispose();
     SearchItemManager.saveSearchItem();

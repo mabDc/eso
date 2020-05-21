@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:screen/screen.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +28,7 @@ class MangaPageProvider with ChangeNotifier {
   String get bottomTime => _bottomTime;
   bool _showChapter;
   bool get showChapter => _showChapter;
+
   set showChapter(bool value) {
     if (_showChapter != value) {
       _showChapter = value;
@@ -50,7 +54,49 @@ class MangaPageProvider with ChangeNotifier {
     }
   }
 
+  double _sysBrightness;
+  double _brightness;
+  double get brightness => _brightness;
+  set brightness(double value) {
+    if ((value - _brightness).abs() > 0.05) {
+      _brightness = value;
+      Screen.setBrightness(brightness);
+    }
+  }
+
+  bool _keepOn;
+  bool get keepOn => _keepOn;
+  set keepOn(bool value) {
+    if (value != _keepOn) {
+      _keepOn = value;
+      Screen.keepOn(_keepOn);
+      notifyListeners();
+    }
+  }
+
+  bool _landscape;
+  bool get landscape => _landscape;
+  set landscape(bool value) {
+    if (value != _landscape) {
+      _landscape = value;
+      if (_landscape) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeRight,
+          DeviceOrientation.landscapeLeft,
+        ]);
+      } else {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+      }
+    }
+  }
+
   MangaPageProvider({this.searchItem}) {
+    _brightness = 0.5;
+    _keepOn = false;
+    _landscape = false;
     _bottomTime = _format.format(DateTime.now());
     _isLoading = false;
     _showChapter = false;
@@ -84,6 +130,12 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   void _initContent() async {
+    _brightness = await Screen.brightness;
+    if (_brightness > 1) {
+      _brightness = 0.5;
+    }
+    _sysBrightness = _brightness;
+    _keepOn = await Screen.isKeptOn;
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
@@ -100,16 +152,6 @@ class MangaPageProvider with ChangeNotifier {
     );
   }
 
-  DateTime _loadTime;
-  void loadChapteDebounce(int chapterIndex) {
-    _loadTime = DateTime.now();
-    Future.delayed(const Duration(milliseconds: 201), () {
-      if (DateTime.now().difference(_loadTime).inMilliseconds > 200) {
-        loadChapter(chapterIndex);
-      }
-    });
-  }
-
   Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (isLoading ||
@@ -117,10 +159,11 @@ class MangaPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
+    searchItem.durChapterIndex = chapterIndex;
+    notifyListeners();
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
     _setHeaders();
-    searchItem.durChapterIndex = chapterIndex;
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     await SearchItemManager.saveSearchItem();
@@ -133,6 +176,17 @@ class MangaPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    if (Platform.isAndroid) {
+      Screen.setBrightness(-1.0);
+    } else {
+      Screen.setBrightness(_sysBrightness);
+    }
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     _timer?.cancel();
     content.clear();
     _controller.dispose();

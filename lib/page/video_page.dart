@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
-import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPage extends StatefulWidget {
@@ -109,8 +108,7 @@ class _VideoPageState extends State<VideoPage> {
         provider.initial = details.globalPosition.dx;
       },
       onPanUpdate: (DragUpdateDetails details) {
-        provider.panSeconds =
-            ((details.globalPosition.dx - provider.initial) ~/ 30) * 5;
+        provider.panSeconds = ((details.globalPosition.dx - provider.initial) ~/ 30) * 5;
         provider.showToastText(provider.panSeconds == 0
             ? '　0　'
             : provider.panSeconds > 0
@@ -124,9 +122,7 @@ class _VideoPageState extends State<VideoPage> {
             height: MediaQuery.of(context).padding.top,
             color: Color(0xB0000000),
           ),
-          provider.showController
-              ? _buildTopRow(context, provider)
-              : Container(),
+          provider.showController ? _buildTopRow(context, provider) : Container(),
           Expanded(
             child: Container(
               child: provider.showToast
@@ -152,9 +148,7 @@ class _VideoPageState extends State<VideoPage> {
               color: Colors.transparent,
             ),
           ),
-          provider.showController
-              ? _buildBottomRow(context, provider)
-              : Container(),
+          provider.showController ? _buildBottomRow(context, provider) : Container(),
         ],
       ),
     );
@@ -258,16 +252,15 @@ class _VideoPageState extends State<VideoPage> {
             width: 10,
           ),
           Expanded(
-            child: SeekBar(
-              value: provider.positionSeconds.toDouble(),
-              max: provider.seconds.toDouble(),
-              backgroundColor: Colors.white54,
-              progresseight: 4,
-              afterDragShowSectionText: true,
-              onValueChanged: (progress) =>
-                  provider.seekTo(Duration(seconds: progress.value.toInt())),
-              indicatorRadius: 5,
-            ),
+            child: Container(),
+            // SeekBar(
+            //   value: provider.positionSeconds/provider.seconds,
+            //   barColor: Colors.white54,
+            //   progressWidth: 4,
+            //   onProgressChanged: (progress) =>
+            //       provider.seekTo(Duration(seconds: progress.toInt())),
+            //   thumbRadius: 5,
+            // ),
           ),
           SizedBox(
             width: 10,

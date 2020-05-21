@@ -1,8 +1,9 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
+import 'package:eso/model/profile.dart';
+import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -37,6 +38,8 @@ class UIMangaMenu extends StatelessWidget {
   }
 
   Widget _buildSetting(BuildContext context, Color bgColor, Color color) {
+    final provider = Provider.of<MangaPageProvider>(context);
+    final profile = Provider.of<Profile>(context);
     return IconTheme(
       data: IconThemeData(size: 18, color: color),
       child: Container(
@@ -53,27 +56,54 @@ class UIMangaMenu extends StatelessWidget {
                 children: <Widget>[
                   Text("亮度"),
                   SizedBox(width: 10),
-                  Icon(Icons.brightness_low),
-                  SizedBox(width: 6),
                   Expanded(
-                    child: SeekBar(
-                      value: 0.4,
-                      max: 1,
-                      backgroundColor: color,
-                      progressColor: Theme.of(context).primaryColor,
-                      progresseight: 3,
-                      afterDragShowSectionText: true,
-                      onValueChanged: (progress) {},
-                      indicatorRadius: 4,
+                    child: FlutterSlider(
+                      values: [provider.brightness * 100],
+                      max: 100,
+                      min: 0,
+                      onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+                        provider.brightness = lowerValue / 100;
+                      },
+                      // disabled: provider.isLoading,
+                      handlerWidth: 6,
+                      handlerHeight: 14,
+                      handler: FlutterSliderHandler(
+                        decoration: BoxDecoration(),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3),
+                            color: bgColor,
+                            border: Border.all(color: color.withOpacity(0.65), width: 1),
+                          ),
+                        ),
+                      ),
+                      trackBar: FlutterSliderTrackBar(
+                        inactiveTrackBar: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: color.withOpacity(0.5),
+                        ),
+                        activeTrackBar: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      tooltip: FlutterSliderTooltip(
+                        disableAnimation: true,
+                        custom: (value) => Container(
+                          padding: EdgeInsets.all(8),
+                          color: bgColor,
+                          child: Text((value as double).toStringAsFixed(0)),
+                        ),
+                        positionOffset:
+                            FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+                      ),
                     ),
                   ),
-                  SizedBox(width: 6),
-                  Icon(Icons.brightness_high),
                   SizedBox(width: 10),
                   Text("长亮"),
                   Switch(
-                    value: true,
-                    onChanged: (value) => null,
+                    value: provider.keepOn,
+                    onChanged: (value) => provider.keepOn = value,
                   ),
                 ],
               ),
@@ -84,8 +114,8 @@ class UIMangaMenu extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: <Widget>[
-                  Text("方向"),
-                  SizedBox(width: 10),
+                  Text("方向(未实现)"),
+                  SizedBox(width: 20),
                   Expanded(
                     child: OutlineButton(
                       child: Text("左->右", style: TextStyle(color: color)),
@@ -125,27 +155,27 @@ class UIMangaMenu extends StatelessWidget {
               height: 50,
               alignment: Alignment.center,
               child: SwitchListTile(
-                value: false,
-                onChanged: (value) => null,
-                title: Text("横屏"),
+                value: provider.landscape,
+                onChanged: (value) => provider.landscape = value,
+                title: Text("切换横屏"),
               ),
             ),
+            // Container(
+            //   height: 50,
+            //   alignment: Alignment.center,
+            //   child: SwitchListTile(
+            //     value: true,
+            //     onChanged: (value) => null,
+            //     title: Text("全屏浏览"),
+            //   ),
+            // ),
             Container(
               height: 50,
               alignment: Alignment.center,
               child: SwitchListTile(
-                value: true,
-                onChanged: (value) => null,
-                title: Text("全屏浏览"),
-              ),
-            ),
-            Container(
-              height: 50,
-              alignment: Alignment.center,
-              child: SwitchListTile(
-                value: false,
-                onChanged: (value) => null,
-                title: Text("音量键翻页"),
+                value: profile.showMangaInfo,
+                onChanged: (value) => profile.showMangaInfo = value,
+                title: Text("显示章节信息"),
               ),
             ),
           ],
@@ -202,6 +232,7 @@ class UIMangaMenu extends StatelessWidget {
     const TO_CLICPBOARD = 0;
     const LAUCH = 1;
     const ADD_ITEM = 2;
+    const REFRESH = 3;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
@@ -221,6 +252,10 @@ class UIMangaMenu extends StatelessWidget {
             break;
           case ADD_ITEM:
             // TODO: 收藏
+            Toast.show("功能未完成，请返回详情页操作", context, duration: 1);
+            break;
+          case REFRESH:
+            // TODO: 重新加载
             Toast.show("功能未完成，请返回详情页操作", context, duration: 1);
             break;
           default:
@@ -251,6 +286,16 @@ class UIMangaMenu extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              Text('重新加载'),
+              Icon(Icons.refresh, color: primaryColor),
+            ],
+          ),
+          value: REFRESH,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
               Text('加入收藏'),
               Icon(
                 Icons.add_to_photos,
@@ -265,8 +310,6 @@ class UIMangaMenu extends StatelessWidget {
   }
 
   Widget _buildBottomRow(BuildContext context, Color bgColor, Color color) {
-    final currentCount = searchItem.durChapterIndex;
-    final chapterCount = searchItem.chaptersCount.toString();
     final provider = Provider.of<MangaPageProvider>(context);
     return Container(
       width: double.infinity,
@@ -288,24 +331,85 @@ class UIMangaMenu extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  child: SeekBar(
-                    value: searchItem.durChapterIndex.toDouble(),
-                    max: searchItem.chaptersCount.toDouble(),
-                    backgroundColor: color,
-                    progressColor: Theme.of(context).primaryColor,
-                    progresseight: 3,
-                    afterDragShowSectionText: true,
-                    onValueChanged: (progress) {
-                      provider.loadChapteDebounce(progress.value.toInt());
+                  child: FlutterSlider(
+                    values: [(searchItem.durChapterIndex + 1) * 1.0],
+                    max: searchItem.chaptersCount * 1.0,
+                    min: 1,
+                    step: FlutterSliderStep(step: 1),
+                    onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+                      provider.loadChapter((lowerValue as double).toInt() - 1);
                     },
-                    indicatorRadius: 8,
-                    indicatorColor: color.withOpacity(0.9),
+                    // disabled: provider.isLoading,
+                    handlerWidth: 6,
+                    handlerHeight: 14,
+                    handler: FlutterSliderHandler(
+                      decoration: BoxDecoration(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(3),
+                          color: bgColor,
+                          border: Border.all(color: color.withOpacity(0.65), width: 1),
+                        ),
+                      ),
+                    ),
+                    trackBar: FlutterSliderTrackBar(
+                      inactiveTrackBar: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: color.withOpacity(0.5),
+                      ),
+                      activeTrackBar: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    touchSize: 30,
+                    tooltip: FlutterSliderTooltip(
+                      disableAnimation: true,
+                      absolutePosition: true,
+                      positionOffset: FlutterSliderTooltipPositionOffset(
+                        top: -20,
+                        right: 160 - MediaQuery.of(context).size.width,
+                      ),
+                      custom: (value) {
+                        final index = (value as double).toInt();
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          color: bgColor,
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                searchItem.chapters[index - 1].name,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "$index / ${searchItem.chaptersCount}",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: color.withOpacity(0.7),
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 SizedBox(width: 10),
                 InkWell(
                   child: Text(
-                    '${'0' * (chapterCount.length - (currentCount + 1).toString().length)}${currentCount + 1} / $chapterCount',
+                    '${searchItem.chaptersCount}',
                     style: TextStyle(color: color),
                   ),
                   onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
@@ -325,7 +429,7 @@ class UIMangaMenu extends StatelessWidget {
                       Text("上一章", style: TextStyle(color: color))
                     ],
                   ),
-                  onTap: () => provider.loadChapter(currentCount - 1),
+                  onTap: () => provider.loadChapter(searchItem.durChapterIndex - 1),
                 ),
                 InkWell(
                   child: Column(
@@ -355,7 +459,7 @@ class UIMangaMenu extends StatelessWidget {
                       Text("下一章", style: TextStyle(color: color))
                     ],
                   ),
-                  onTap: () => provider.loadChapter(currentCount + 1),
+                  onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
                 ),
               ],
             ),
