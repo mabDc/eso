@@ -167,7 +167,7 @@ class UIMangaMenu extends StatelessWidget {
                 value: profile.mangaLandscape,
                 onChanged: (value) {
                   profile.mangaLandscape = value;
-                  provider.landscape = value;
+                  provider.setLandscape(value);
                 },
                 title: Text("横屏"),
               ),
