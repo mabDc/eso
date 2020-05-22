@@ -12,8 +12,7 @@ class FavoriteListProvider with ChangeNotifier {
   get sortType => _sortType;
   get searchList => _searchList;
 
-  FavoriteListProvider(int type) {
-    this.type = type;
+  FavoriteListProvider(this.type) {
     getFavoriteList();
   }
 

@@ -89,14 +89,14 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                   await Future.delayed(Duration(seconds: 1));
                   return;
                 },
-                child: _buildFavoriteGrid(__provider.searchList),
+                child: _buildFavoriteGrid(__provider.searchList, provider),
               ))
             ]);
           });
         });
   }
 
-  Widget _buildFavoriteGrid(List<SearchItem> searchItems) {
+  Widget _buildFavoriteGrid(List<SearchItem> searchItems, FavoriteListProvider provider) {
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 12),
         child: searchItems.length > 0
@@ -112,11 +112,15 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                   final searchItem = searchItems[index];
                   final longPress =
                       Provider.of<Profile>(context, listen: true).switchLongPress;
-                  VoidCallback openChapter = () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => ChapterPage(searchItem: searchItem)));
-                  VoidCallback openContent = () =>
-                      Navigator.of(context).push(ContentPageRoute().route(searchItem));
+                  VoidCallback openChapter = () => Navigator.of(context)
+                      .push(MaterialPageRoute(
+                          builder: (context) => ChapterPage(searchItem: searchItem)))
+                      .then((value) =>
+                          provider.getFavoriteList(sortType: provider.sortType));
+                  VoidCallback openContent = () => Navigator.of(context)
+                      .push(ContentPageRoute().route(searchItem))
+                      .then((value) =>
+                          provider.getFavoriteList(sortType: provider.sortType));
                   return InkWell(
                     child: UIFavoriteItem(searchItem: searchItem),
                     onTap: longPress ? openChapter : openContent,
