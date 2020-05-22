@@ -29,7 +29,7 @@ class UIChapterSelect extends StatelessWidget {
     }
     final primaryColor = Theme.of(context).primaryColor;
     return Opacity(
-      opacity: 0.96,
+      opacity: 0.95,
       child: Center(
         child: Card(
           elevation: 8,

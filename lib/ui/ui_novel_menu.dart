@@ -361,12 +361,19 @@ class UINovelMenu extends StatelessWidget {
             provider.useSelectableText = !provider.useSelectableText;
             break;
           case ADD_ITEM:
-            // TODO: 收藏
-            Toast.show("功能未完成，请返回详情页操作", context, duration: 1);
+            (() async {
+              final success = await provider.addToFavorite();
+              if (null == success) {
+                Toast.show("已在收藏中", context, duration: 1);
+              } else if (success) {
+                Toast.show("添加收藏成功！", context, duration: 1);
+              } else {
+                Toast.show("添加收藏失败！", context, duration: 1);
+              }
+            })();
             break;
           case REFRESH:
-            // TODO: 重新加载
-            Toast.show("功能未完成，请返回详情页操作", context, duration: 1);
+            provider.refreshCurrent();
             break;
           default:
         }

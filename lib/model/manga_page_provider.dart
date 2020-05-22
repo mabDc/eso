@@ -125,8 +125,8 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   void refreshProgress() {
-    searchItem.durContentIndex = _controller.position.pixels.floor();
-    notifyListeners();
+    // searchItem.durContentIndex = _controller.position.pixels.floor();
+    // notifyListeners();
   }
 
   void _setHeaders() {
@@ -189,11 +189,31 @@ class MangaPageProvider with ChangeNotifier {
     _setHeaders();
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _isLoading = false;
     if (searchItem.ruleContentType != API.RSS) {
       _controller.jumpTo(1);
     }
+    notifyListeners();
+  }
+
+  Future<bool> addToFavorite() async {
+    if (SearchItemManager.isFavorite(searchItem.url)) {
+      return null;
+    }
+    return SearchItemManager.addSearchItem(searchItem);
+  }
+
+  void refreshCurrent() async {
+    if (isLoading) return;
+    _isLoading = true;
+    _showChapter = false;
+    notifyListeners();
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -216,6 +236,7 @@ class MangaPageProvider with ChangeNotifier {
     _timer?.cancel();
     content.clear();
     _controller.dispose();
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
     super.dispose();
   }

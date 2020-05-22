@@ -233,7 +233,6 @@ class _ChapterPageState extends State<ChapterPage> {
           .push(ContentPageRoute().route(widget.searchItem))
           .whenComplete(pageController.adjustScroll);
     };
-
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       sliver: SliverGrid(
@@ -245,6 +244,9 @@ class _ChapterPageState extends State<ChapterPage> {
         ),
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
+            final showIndex = widget.searchItem.reverseChapter
+                ? widget.searchItem.chaptersCount - index - 1
+                : index;
             return Container(
               child: _buildChapterButton(
                   context,
@@ -252,13 +254,13 @@ class _ChapterPageState extends State<ChapterPage> {
                   Align(
                     alignment: FractionalOffset.center,
                     child: Text(
-                      '${widget.searchItem.chapters[index].name}'.trim(),
+                      '${widget.searchItem.chapters[showIndex].name}'.trim(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  () => onTap(index)),
+                  () => onTap(showIndex)),
             );
           },
           childCount: pageController.searchItem.chapters.length,

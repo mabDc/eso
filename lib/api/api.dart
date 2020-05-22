@@ -37,9 +37,9 @@ abstract class API {
   static String getRuleContentTypeName(int ruleContentType) {
     switch (ruleContentType) {
       case MANGA:
-        return "漫画";
+        return "图片";
       case NOVEL:
-        return "小说";
+        return "文字";
       case VIDEO:
         return "视频";
       case AUDIO:
@@ -47,7 +47,7 @@ abstract class API {
       case RSS:
         return "RSS";
       default:
-        return "漫画";
+        return "图片";
     }
   }
 

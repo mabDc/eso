@@ -1,5 +1,6 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/video_page_controller.dart';
+import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -56,8 +57,10 @@ class _VideoPageState extends State<VideoPage> {
             return Scaffold(
               body: Column(
                 children: <Widget>[
-                  SizedBox(height: MediaQuery.of(context).padding.top),
-                  _buildTopRow(context, provider),
+                  AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: SystemUiOverlayStyle.light,
+                    child: _buildTopRow(context, provider),
+                  ),
                   SizedBox(height: 30),
                   Text(s, style: TextStyle(fontSize: 18)),
                   SizedBox(height: 30),
@@ -118,10 +121,6 @@ class _VideoPageState extends State<VideoPage> {
       onPanEnd: provider.onPanEnd,
       child: Column(
         children: <Widget>[
-          Container(
-            height: MediaQuery.of(context).padding.top,
-            color: Color(0xB0000000),
-          ),
           provider.showController ? _buildTopRow(context, provider) : Container(),
           Expanded(
             child: Container(
@@ -157,8 +156,6 @@ class _VideoPageState extends State<VideoPage> {
   Widget _buildTopRow(BuildContext context, VideoPageController provider) {
     return Container(
       width: double.infinity,
-      height: 80,
-      alignment: Alignment.topLeft,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -171,7 +168,7 @@ class _VideoPageState extends State<VideoPage> {
           end: Alignment.topCenter,
         ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.fromLTRB(12, 4 + MediaQuery.of(context).padding.top, 12, 4),
       child: Row(
         children: <Widget>[
           InkWell(
@@ -221,10 +218,14 @@ class _VideoPageState extends State<VideoPage> {
   }
 
   Widget _buildBottomRow(BuildContext context, VideoPageController provider) {
+    var now = provider.positionSeconds;
+    if (now < 0) {
+      now = 0;
+    } else if (now > provider.seconds) {
+      now = provider.seconds;
+    }
     return Container(
       width: double.infinity,
-      height: 80,
-      alignment: Alignment.bottomLeft,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -237,7 +238,7 @@ class _VideoPageState extends State<VideoPage> {
           end: Alignment.bottomCenter,
         ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
       child: Row(
         children: <Widget>[
           InkWell(
@@ -252,15 +253,46 @@ class _VideoPageState extends State<VideoPage> {
             width: 10,
           ),
           Expanded(
-            child: Container(),
-            // SeekBar(
-            //   value: provider.positionSeconds/provider.seconds,
-            //   barColor: Colors.white54,
-            //   progressWidth: 4,
-            //   onProgressChanged: (progress) =>
-            //       provider.seekTo(Duration(seconds: progress.toInt())),
-            //   thumbRadius: 5,
-            // ),
+            child: FlutterSlider(
+              values: [now.toDouble()],
+              min: 0,
+              max: provider.seconds.toDouble(),
+              onDragging: (handlerIndex, lowerValue, upperValue) =>
+                  provider.seekTo(Duration(seconds: (lowerValue as double).toInt())),
+              handlerHeight: 12,
+              handlerWidth: 12,
+              handler: FlutterSliderHandler(
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.videocam, color: Colors.green, size: 12),
+                ),
+              ),
+              touchSize: 30,
+              trackBar: FlutterSliderTrackBar(
+                inactiveTrackBar: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white54,
+                ),
+                activeTrackBar: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.white70,
+                ),
+              ),
+              tooltip: FlutterSliderTooltip(
+                disableAnimation: true,
+                custom: (value) => Container(
+                  color: Colors.black26,
+                  padding: EdgeInsets.all(4),
+                  child: Text(
+                    provider.getTimeString((value as double).toInt()),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                positionOffset: FlutterSliderTooltipPositionOffset(left: -10, right: -10),
+              ),
+            ),
           ),
           SizedBox(
             width: 10,

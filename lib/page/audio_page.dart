@@ -36,7 +36,6 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
 
   @override
   void dispose() {
-    controller?.dispose();
     __provider?.dispose();
     super.dispose();
   }
@@ -65,7 +64,7 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
       }
     });
     return ChangeNotifierProvider<AudioPageController>.value(
-      value: AudioPageController(searchItem: widget.searchItem),
+      value: AudioPageController(searchItem: widget.searchItem, controller: controller),
       child: Consumer<AudioPageController>(
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
@@ -88,51 +87,42 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     child: Container(color: Colors.black.withAlpha(30)),
                   ),
-                  Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: MediaQuery.of(context).padding.top,
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        child: _buildTopRow(provider, chapter.name, chapter.time),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Center(
-                            child: RotationTransition(
-                              //设置动画的旋转中心
-                              alignment: Alignment.center,
-                              //动画控制器
-                              turns: controller,
-                              child: Container(
-                                height: 300,
-                                width: 300,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(chapter.cover ??
-                                        'http://api.52jhs.cn/api/random/api.php?type=pc'),
-                                    fit: BoxFit.cover,
+                  SafeArea(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(12),
+                          child: _buildTopRow(provider, chapter.name, chapter.time),
+                        ),
+                        Expanded(
+                          child: Container(
+                            child: Center(
+                              child: RotationTransition(
+                                //设置动画的旋转中心
+                                alignment: Alignment.center,
+                                //动画控制器
+                                turns: controller,
+                                child: Container(
+                                  height: 300,
+                                  width: 300,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      image: NetworkImage(chapter.cover ?? ''),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Container(
-                        height: 100,
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            _buildProgressBar(provider),
-                            _buildBottomController(provider),
-                          ],
-                        ),
-                      ),
-                    ],
+                        _buildProgressBar(provider),
+                        SizedBox(height: 10),
+                        _buildBottomController(provider),
+                        SizedBox(height: 25),
+                      ],
+                    ),
                   ),
                   provider.showChapter
                       ? UIChapterSelect(
@@ -153,7 +143,7 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
       children: <Widget>[
         InkWell(
           child: Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios,
             color: Colors.white,
             size: 26,
           ),
@@ -202,89 +192,56 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildProgressBar(AudioPageController provider) {
-    return Center(
-      child: Row(
-        children: <Widget>[
-          Text(
-            provider.positionDurationText,
-            style: TextStyle(color: Colors.white),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Expanded(
-            child: FlutterSlider(
-              values: [
-                provider.seconds == 0 ? 0 : provider.postionSeconds / provider.seconds
-              ],
-              max: 1,
-              min: 0,
-              // onDragCompleted: (handlerIndex, lowerValue, upperValue) {
-              //   provider.brightness = lowerValue / 100;
-              // },
-              // // disabled: provider.isLoading,
-              handlerWidth: 6,
-              handlerHeight: 14,
-              handler: FlutterSliderHandler(
-                decoration: BoxDecoration(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(3),
-                    color: Theme.of(context).primaryColor,
-                    border: Border.all(
-                        color: Theme.of(context).primaryColor.withOpacity(0.65),
-                        width: 1),
-                  ),
-                ),
+    return Row(
+      children: <Widget>[
+        Container(
+          alignment: Alignment.centerRight,
+          child:
+              Text(provider.positionDurationText, style: TextStyle(color: Colors.white)),
+          width: 52,
+        ),
+        Expanded(
+          child: FlutterSlider(
+            values: [provider.postionSeconds.toDouble()],
+            max: provider.seconds.toDouble(),
+            min: 0,
+            onDragging: (handlerIndex, lowerValue, upperValue) =>
+                provider.seekSeconds((lowerValue as double).toInt()),
+            handlerHeight: 12,
+            handlerWidth: 12,
+            handler: FlutterSliderHandler(
+              child: Container(
+                width: 12,
+                height: 12,
+                alignment: Alignment.center,
+                child: Icon(Icons.audiotrack, color: Colors.green, size: 12),
               ),
-              trackBar: FlutterSliderTrackBar(
-                inactiveTrackBar: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Theme.of(context).primaryColor.withOpacity(0.5),
-                ),
-                activeTrackBar: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              // tooltip: FlutterSliderTooltip(
-              //   disableAnimation: true,
-              //   custom: (value) => Container(
-              //     padding: EdgeInsets.all(8),
-              //     color: bgColor,
-              //     child: Text((value as double).toStringAsFixed(0)),
-              //   ),
-              //   positionOffset:
-              //       FlutterSliderTooltipPositionOffset(left: -20, right: -20),
-              // ),
             ),
-          ),
-          Expanded(child: Container()
-              // SeekBar(
-              //   value:
-              //       provider.seconds == 0 ? 0 : provider.postionSeconds / provider.seconds,
-              //   barColor: Colors.white54,
-              //   progressWidth: 4,
-              //   onProgressChanged: (progress) =>
-              //       provider.seekSeconds((progress * provider.seconds).toInt()),
-              //   thumbRadius: 5,
-              // ),
+            trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.white54,
               ),
-          SizedBox(
-            width: 10,
+              activeTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.white70,
+              ),
+            ),
+            tooltip: FlutterSliderTooltip(disabled: true),
           ),
-          Text(
-            provider.durationText,
-            style: TextStyle(color: Colors.white),
-          ),
-        ],
-      ),
+        ),
+        Container(
+          alignment: Alignment.centerLeft,
+          child: Text(provider.durationText, style: TextStyle(color: Colors.white)),
+          width: 52,
+        ),
+      ],
     );
   }
 
   Widget _buildBottomController(AudioPageController provider) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         InkWell(
           child: Icon(

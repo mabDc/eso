@@ -3,7 +3,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/manga_page.dart';
 import 'package:eso/page/novel_page.dart';
-import 'package:eso/page/rss_page.dart';
+// import 'package:eso/page/rss_page.dart';
 import 'package:eso/page/video_page.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +16,8 @@ class ContentPageRoute {
             return NovelPage(searchItem: searchItem);
           case API.MANGA:
             return MangaPage(searchItem: searchItem);
-          case API.RSS:
-            return RSSPage(searchItem: searchItem);
+          // case API.RSS:
+          //   return RSSPage(searchItem: searchItem);
           case API.VIDEO:
             return VideoPage(searchItem: searchItem);
           case API.AUDIO:

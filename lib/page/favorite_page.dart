@@ -10,10 +10,10 @@ class FavoritePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabs = [
-      ["小说", API.NOVEL],
-      ["漫画", API.MANGA],
-      ["音乐", API.AUDIO],
-      ["动漫", API.VIDEO],
+      ["文字", API.NOVEL],
+      ["图片", API.MANGA],
+      ["音频", API.AUDIO],
+      ["视频", API.VIDEO],
     ];
     return DefaultTabController(
       length: tabs.length,
@@ -52,7 +52,11 @@ class FavoritePage extends StatelessWidget {
           ],
         ),
         body: TabBarView(
-          children: tabs.map((tab) => FavoriteListPage(type: tab[1],)).toList(),
+          children: tabs
+              .map((tab) => FavoriteListPage(
+                    type: tab[1],
+                  ))
+              .toList(),
         ),
       ),
     );

@@ -71,8 +71,8 @@ class AudioService {
     }
   }
 
-  void playNext() => playChapter(
-      _searchItem.durChapterIndex == (_searchItem.chapters.length - 1)
+  void playNext() =>
+      playChapter(_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)
           ? 0
           : _searchItem.durChapterIndex + 1);
 
@@ -82,8 +82,7 @@ class AudioService {
 
   Future<void> playChapter(int chapterIndex, [SearchItem searchItem]) async {
     if (searchItem == null) {
-      if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length)
-        return;
+      if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length) return;
       if (_url != null && _searchItem.durChapterIndex == chapterIndex) {
         replay();
         return;
@@ -108,6 +107,7 @@ class AudioService {
     _searchItem.durChapterIndex = chapterIndex;
     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
     _searchItem.durContentIndex = 1;
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _player.play(_url);
   }

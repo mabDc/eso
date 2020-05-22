@@ -77,7 +77,15 @@ class _MangaPageState extends State<MangaPage> {
               child: Stack(
                 alignment: AlignmentDirectional.bottomEnd,
                 children: <Widget>[
-                  _buildMangaContent(provider, profile),
+                  NotificationListener(
+                    onNotification: (t) {
+                      if (t is ScrollEndNotification) {
+                        provider.refreshProgress();
+                      }
+                      return false;
+                    },
+                    child: _buildMangaContent(provider, profile),
+                  ),
                   profile.showMangaInfo
                       ? UISystemInfo(
                           mangaInfo: provider.searchItem.durChapter,

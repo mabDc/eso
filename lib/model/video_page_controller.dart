@@ -36,8 +36,8 @@ class VideoPageController with ChangeNotifier {
   int get milliseconds => _controller.value.duration.inMilliseconds;
   int get positionMilliseconds => _controller.value.position.inMilliseconds;
 
-  String get duration => _getTimeString(seconds);
-  String get positionDuration => _getTimeString(positionSeconds);
+  String get duration => getTimeString(seconds);
+  String get positionDuration => getTimeString(positionSeconds);
 
   String _toastText;
   String get toastText => _toastText;
@@ -108,8 +108,8 @@ class VideoPageController with ChangeNotifier {
   }
 
   void _initContent() async {
-    _content = await APIManager.getContent(searchItem.originTag,
-        searchItem.chapters[searchItem.durChapterIndex].url);
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     await _setControl();
   }
 
@@ -128,8 +128,7 @@ class VideoPageController with ChangeNotifier {
     await _controller.initialize();
     _audioController?.dispose();
     if (_content.length == 2 && _content[1].substring(0, 5) == 'audio') {
-      _audioController =
-          VideoPlayerController.network(_content[1].substring(5));
+      _audioController = VideoPlayerController.network(_content[1].substring(5));
       await _audioController.initialize();
     }
     await seekTo(Duration(milliseconds: searchItem.durContentIndex));
@@ -168,6 +167,7 @@ class VideoPageController with ChangeNotifier {
     searchItem.durChapterIndex = chapterIndex;
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _isParsing = false;
     await _setControl();
@@ -190,12 +190,11 @@ class VideoPageController with ChangeNotifier {
       }
       await Future.delayed(Duration(seconds: 3));
     } while (
-        (_audioController.value.position.inMilliseconds - positionMilliseconds)
-                .abs() >
+        (_audioController.value.position.inMilliseconds - positionMilliseconds).abs() >
             200);
   }
 
-  String _getTimeString(int all) {
+  String getTimeString(int all) {
     int c = all % 60;
     String s = '${c > 9 ? '' : '0'}$c';
     all = all ~/ 60;
@@ -223,11 +222,9 @@ class VideoPageController with ChangeNotifier {
     notifyListeners();
   }
 
-  void refreshLastTime() =>
-      _lastShowTime = DateTime.now().millisecondsSinceEpoch;
+  void refreshLastTime() => _lastShowTime = DateTime.now().millisecondsSinceEpoch;
 
-  void refreshToastTime() =>
-      _lastToastTime = DateTime.now().millisecondsSinceEpoch;
+  void refreshToastTime() => _lastToastTime = DateTime.now().millisecondsSinceEpoch;
 
   Future<void> seekTo(Duration duration) async {
     refreshLastTime();
@@ -248,8 +245,7 @@ class VideoPageController with ChangeNotifier {
     seekTo(Duration(seconds: positionSeconds));
   }
 
-  void setVideoSpeed(double speed){
-  }
+  void setVideoSpeed(double speed) {}
 
   void showToastText(String text) {
     _toastText = text;
@@ -289,6 +285,7 @@ class VideoPageController with ChangeNotifier {
     ]);
     if (_controller != null) {
       searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       SearchItemManager.saveSearchItem();
     }
     content?.clear();
