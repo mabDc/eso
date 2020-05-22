@@ -32,7 +32,12 @@ class _MangaPageState extends State<MangaPage> {
   @override
   Widget build(BuildContext context) {
     if (page == null) {
-      page = buildPage();
+      final provider = Provider.of<Profile>(context, listen: false);
+      page = buildPage(
+        provider.mangaKeepOn,
+        provider.mangaLandscape,
+        provider.mangaDirection,
+      );
     }
     return page;
   }
@@ -44,9 +49,14 @@ class _MangaPageState extends State<MangaPage> {
     super.dispose();
   }
 
-  Widget buildPage() {
+  Widget buildPage(bool keepOn, bool landscape, int direction) {
     return ChangeNotifierProvider<MangaPageProvider>.value(
-      value: MangaPageProvider(searchItem: widget.searchItem),
+      value: MangaPageProvider(
+        searchItem: widget.searchItem,
+        keepOn: keepOn,
+        landscape: landscape,
+        direction: direction,
+      ),
       child: Scaffold(
         body: Consumer2<MangaPageProvider, Profile>(
           builder:
@@ -67,7 +77,7 @@ class _MangaPageState extends State<MangaPage> {
               child: Stack(
                 alignment: AlignmentDirectional.bottomEnd,
                 children: <Widget>[
-                  _buildMangaContent(provider),
+                  _buildMangaContent(provider, profile),
                   profile.showMangaInfo
                       ? UISystemInfo(
                           mangaInfo: provider.searchItem.durChapter,
@@ -131,10 +141,31 @@ class _MangaPageState extends State<MangaPage> {
     );
   }
 
-  Widget _buildMangaContent(MangaPageProvider provider) {
+  Widget _buildMangaContent(MangaPageProvider provider, Profile profile) {
+    Axis direction;
+    bool reverse;
+    switch (profile.mangaDirection) {
+      case Profile.mangaDirectionTopToBottom:
+        direction = Axis.vertical;
+        reverse = false;
+        break;
+      case Profile.mangaDirectionLeftToRight:
+        direction = Axis.horizontal;
+        reverse = false;
+        break;
+      case Profile.mangaDirectionRightToLeft:
+        direction = Axis.horizontal;
+        reverse = true;
+        break;
+      default:
+        direction = Axis.vertical;
+        reverse = false;
+    }
     return ZoomView(
       child: ListView.builder(
         padding: EdgeInsets.all(0),
+        scrollDirection: direction,
+        reverse: reverse,
         controller: provider.controller,
         itemCount: provider.content.length + 1,
         itemBuilder: (context, index) {

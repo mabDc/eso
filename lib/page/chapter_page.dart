@@ -64,6 +64,7 @@ class _ChapterPageState extends State<ChapterPage> {
   //头部
   Widget _buildAlphaAppbar(ChapterPageController pageController) {
     return AppBar(
+      titleSpacing: 0,
       backgroundColor: Theme.of(context).bottomAppBarColor,
       elevation: 0,
       title: Text(

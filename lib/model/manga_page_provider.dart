@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/profile.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:intl/intl.dart' as intl;
@@ -58,28 +59,25 @@ class MangaPageProvider with ChangeNotifier {
   double _brightness;
   double get brightness => _brightness;
   set brightness(double value) {
-    if ((value - _brightness).abs() > 0.05) {
+    if ((value - _brightness).abs() > 0.005) {
       _brightness = value;
       Screen.setBrightness(brightness);
     }
   }
 
-  bool _keepOn;
-  bool get keepOn => _keepOn;
-  set keepOn(bool value) {
-    if (value != _keepOn) {
-      _keepOn = value;
-      Screen.keepOn(_keepOn);
-      notifyListeners();
+  bool keepOn;
+  void setKeepOn(bool value) {
+    if (value != keepOn) {
+      keepOn = value;
+      Screen.keepOn(keepOn);
     }
   }
 
-  bool _landscape;
-  bool get landscape => _landscape;
-  set landscape(bool value) {
-    if (value != _landscape) {
-      _landscape = value;
-      if (_landscape) {
+  bool landscape;
+  void setLandscape(bool value) {
+    if (value != landscape) {
+      landscape = value;
+      if (landscape) {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.landscapeRight,
           DeviceOrientation.landscapeLeft,
@@ -93,10 +91,20 @@ class MangaPageProvider with ChangeNotifier {
     }
   }
 
-  MangaPageProvider({this.searchItem}) {
+  int direction;
+  void setDirection(int value) {
+    if (value != direction) {
+      notifyListeners();
+    }
+  }
+
+  MangaPageProvider({
+    this.searchItem,
+    this.keepOn = false,
+    this.landscape = false,
+    this.direction = Profile.mangaDirectionTopToBottom,
+  }) {
     _brightness = 0.5;
-    _keepOn = false;
-    _landscape = false;
     _bottomTime = _format.format(DateTime.now());
     _isLoading = false;
     _showChapter = false;
@@ -130,12 +138,27 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   void _initContent() async {
-    _brightness = await Screen.brightness;
-    if (_brightness > 1) {
-      _brightness = 0.5;
+    if (Platform.isAndroid || Platform.isIOS) {
+      _brightness = await Screen.brightness;
+      if (_brightness > 1) {
+        _brightness = 0.5;
+      }
+      _sysBrightness = _brightness;
+      if (keepOn) {
+        Screen.keepOn(keepOn);
+      }
     }
-    _sysBrightness = _brightness;
-    _keepOn = await Screen.isKeptOn;
+    if (landscape) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     _setHeaders();
@@ -176,10 +199,13 @@ class MangaPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    if (Platform.isAndroid) {
-      Screen.setBrightness(-1.0);
-    } else {
-      Screen.setBrightness(_sysBrightness);
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (Platform.isAndroid) {
+        Screen.setBrightness(-1.0);
+      } else {
+        Screen.setBrightness(_sysBrightness);
+      }
+      Screen.keepOn(false);
     }
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,

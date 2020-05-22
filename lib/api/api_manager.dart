@@ -1,85 +1,11 @@
-import 'package:eso/api/api_form_rule.dart';
-import 'package:eso/api/bupt_ivi.dart';
-import 'package:eso/api/huya.dart';
-import 'package:eso/api/onemanhua.dart';
-import 'package:eso/api/qula.dart';
-
+import 'package:eso/api/api_from_rule.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import '../global.dart';
 import 'api.dart';
-import 'audio_5sing.dart';
-import 'bainian.dart';
-import 'bilibili.dart';
-import 'bilibili_manga.dart';
-import 'buka.dart';
-import 'clicli.dart';
-import 'dongman.dart';
-import 'duitang.dart';
-import 'duyidu.dart';
-import 'gank.dart';
-import 'huanyue.dart';
-import 'iqiwx.dart';
-import 'ixs.dart';
-import 'manhuadui.dart';
-import 'manhualou.dart';
-import 'manhuatai.dart';
-import 'mankezhan.dart';
-import 'migu_manga.dart';
-import 'missevan.dart';
-import 'music163.dart';
-import 'news163.dart';
-import 'qidian.dart';
-import 'tencent_manga.dart';
-import 'tohomh.dart';
-import 'u17.dart';
-import 'yinghuaw.dart';
-import 'ymoxuan.dart';
-import 'zzzfun.dart';
 
 class APIManager {
-  static List<API> get allAPI => <API>[
-        BuptIvi(),
-        Huya(),
-        News163(),
-        Gank(),
-        Duitang(),
-        Qula(),
-        Qidian(),
-        Iqiwx(),
-        Ymoxuan(),
-        Ixs(),
-        Duyidu(),
-        Huanyue(),
-        Dongman(),
-        Onemanhua(),
-        Mankezhan(),
-        Manhuatai(),
-        Manhualou(),
-        Manhuadui(),
-        Tohomh(),
-        Buka(),
-        U17(),
-        TencentManga(),
-        BilibiliManga(),
-        MiguManga(),
-        Bainian(),
-        // Huba(),
-        ZZZFun(),
-        Clicli(),
-        Yinghuaw(),
-        Bilibili(),
-        Audio5sing(),
-        Music163(),
-        Missevan(),
-      ];
-
   static Future<API> chooseAPI(String originTag) async {
-    for (API api in allAPI) {
-      if (api.originTag == originTag) {
-        return api;
-      }
-    }
     return APIFromRUle(await Global.ruleDao.findRuleById(originTag));
   }
 

@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class SearchResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allAPI = APIManager.allAPI;
+    final allAPI = <API>[];
     return DefaultTabController(
       length: allAPI.length,
       child: Column(

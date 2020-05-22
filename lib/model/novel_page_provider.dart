@@ -58,34 +58,22 @@ class NovelPageProvider with ChangeNotifier {
   double _brightness;
   double get brightness => _brightness;
   set brightness(double value) {
-    if ((value - _brightness).abs() > 0.05) {
+    if ((value - _brightness).abs() > 0.005) {
       _brightness = value;
       Screen.setBrightness(brightness);
     }
   }
 
-  bool _keepOn;
-  bool get keepOn => _keepOn;
-  set keepOn(bool value) {
-    if (value != _keepOn) {
-      _keepOn = value;
-      Screen.keepOn(_keepOn);
-      notifyListeners();
+  bool keepOn;
+  void setKeepOn(bool value) {
+    if (value != keepOn) {
+      keepOn = value;
+      Screen.keepOn(keepOn);
     }
   }
 
-  // bgColor , fontColor
-  final colorList = [
-    [0xfff1f1f1, 0xff373534], //白底
-    [0xfff5ede2, 0xff373328], //浅黄
-    [0xff999c99, 0xff353535], //浅灰
-    [0xff33383d, 0xffc5c4c9], //黑
-    [0xffe3f8e1, 0xff485249]
-  ];
-
-  NovelPageProvider({this.searchItem}) {
+  NovelPageProvider({this.searchItem, this.keepOn}) {
     _brightness = 0.5;
-    _keepOn = false;
     _isLoading = false;
     _showChapter = false;
     _showMenu = false;
@@ -114,12 +102,16 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   void _initContent() async {
-    _brightness = await Screen.brightness;
-    if (_brightness > 1) {
-      _brightness = 0.5;
+    if (Platform.isAndroid || Platform.isIOS) {
+      _brightness = await Screen.brightness;
+      if (_brightness > 1) {
+        _brightness = 0.5;
+      }
+      _sysBrightness = _brightness;
+      if (keepOn) {
+        Screen.keepOn(keepOn);
+      }
     }
-    _sysBrightness = _brightness;
-    _keepOn = await Screen.isKeptOn;
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     notifyListeners();
@@ -157,10 +149,13 @@ class NovelPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    if (Platform.isAndroid) {
-      Screen.setBrightness(-1.0);
-    } else {
-      Screen.setBrightness(_sysBrightness);
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (Platform.isAndroid) {
+        Screen.setBrightness(-1.0);
+      } else {
+        Screen.setBrightness(_sysBrightness);
+      }
+      Screen.keepOn(false);
     }
     content.clear();
     _controller.dispose();

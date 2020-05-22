@@ -52,17 +52,16 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
           origin: widget.origin,
           discoverMap: widget.discoverMap),
       child: Consumer<DiscoverPageController>(
-        builder:
-            (BuildContext context, DiscoverPageController pageController, _) {
+        builder: (BuildContext context, DiscoverPageController pageController, _) {
           return Scaffold(
             appBar: pageController.showSearchField
                 ? AppBar(
+                    titleSpacing: 0.0,
                     backgroundColor: Colors.white,
                     iconTheme: IconThemeData(color: Colors.grey),
                     actionsIconTheme: IconThemeData(color: Colors.grey),
-                    textTheme: Theme.of(context)
-                        .textTheme
-                        .apply(bodyColor: Colors.black87),
+                    textTheme:
+                        Theme.of(context).textTheme.apply(bodyColor: Colors.black87),
                     leading: IconButton(
                       icon: Icon(Icons.arrow_back),
                       onPressed: pageController.toggleSearching,
@@ -93,6 +92,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                     ),
                   )
                 : AppBar(
+                    titleSpacing: 0.0,
                     title: Text(pageController.title),
                     actions: <Widget>[
                       IconButton(
@@ -109,8 +109,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
             body: Column(
               children: <Widget>[
                 pageController.showFilter
-                    ? (widget.discoverMap == null ||
-                            widget.discoverMap.length == 0)
+                    ? (widget.discoverMap == null || widget.discoverMap.length == 0)
                         ? SizedBox(
                             height: 32,
                             child: Text(
@@ -135,8 +134,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                   flex: 2,
                   child: pageController.isLoading
                       ? LandingPage()
-                      : Provider.of<Profile>(context, listen: false)
-                              .switchDiscoverStyle
+                      : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
                           ? buildDiscoverResultList(
                               pageController.items, pageController.controller)
                           : buildDiscoverResultGrid(
@@ -152,12 +150,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
 
   Widget _buildSwitchStyle(BuildContext context) {
     return IconButton(
-      icon: Provider.of<Profile>(context, listen: false).switchDiscoverStyle
+      icon: Provider.of<Profile>(context, listen: true).switchDiscoverStyle
           ? Icon(Icons.view_module)
           : Icon(Icons.view_headline),
-      onPressed: () =>
-          Provider.of<Profile>(context, listen: false).switchDiscoverStyle =
-              !Provider.of<Profile>(context, listen: false).switchDiscoverStyle,
+      onPressed: () => Provider.of<Profile>(context, listen: false).switchDiscoverStyle =
+          !Provider.of<Profile>(context, listen: false).switchDiscoverStyle,
     );
   }
 
@@ -200,8 +197,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
     );
   }
 
-  Widget buildDiscoverResultList(
-      List<SearchItem> items, ScrollController controller) {
+  Widget buildDiscoverResultList(List<SearchItem> items, ScrollController controller) {
     return ListView.separated(
       separatorBuilder: (context, index) {
         return SizedBox(
@@ -229,16 +225,14 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
         return InkWell(
           child: UiSearchItem(item: searchItem),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ChapterPage(searchItem: searchItem)),
+            MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
           ),
         );
       },
     );
   }
 
-  Widget buildDiscoverResultGrid(
-      List<SearchItem> items, ScrollController controller) {
+  Widget buildDiscoverResultGrid(List<SearchItem> items, ScrollController controller) {
     return GridView.builder(
       controller: controller,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -267,8 +261,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
         return InkWell(
           child: UIDiscoverItem(searchItem: searchItem),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ChapterPage(searchItem: searchItem)),
+            MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
           ),
         );
       },

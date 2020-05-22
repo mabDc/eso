@@ -29,7 +29,7 @@ class _NovelPageState extends State<NovelPage> {
   @override
   Widget build(BuildContext context) {
     if (page == null) {
-      page = buildPage();
+      page = buildPage(Provider.of<Profile>(context, listen: false).novelKeepOn);
     }
     return page;
   }
@@ -40,12 +40,13 @@ class _NovelPageState extends State<NovelPage> {
     super.dispose();
   }
 
-  Widget buildPage() {
+  Widget buildPage(bool keepOn) {
     return ChangeNotifierProvider<NovelPageProvider>.value(
-      value: NovelPageProvider(searchItem: widget.searchItem),
+      value: NovelPageProvider(searchItem: widget.searchItem, keepOn: keepOn),
       child: Scaffold(
-        body: Consumer<NovelPageProvider>(
-          builder: (BuildContext context, NovelPageProvider provider, _) {
+        body: Consumer2<NovelPageProvider, Profile>(
+          builder:
+              (BuildContext context, NovelPageProvider provider, Profile profile, _) {
             __provider = provider;
             if (provider.content == null) {
               return LandingPage();
@@ -60,7 +61,7 @@ class _NovelPageState extends State<NovelPage> {
                       }
                       return false;
                     },
-                    child: _buildContent(provider),
+                    child: _buildContent(provider, profile),
                   ),
                   provider.showMenu
                       ? UINovelMenu(searchItem: widget.searchItem)
@@ -118,9 +119,8 @@ class _NovelPageState extends State<NovelPage> {
     );
   }
 
-  Widget _buildContent(NovelPageProvider provider) {
+  Widget _buildContent(NovelPageProvider provider, Profile profile) {
     final content = '　　' + provider.content.map((s) => s.trim()).join('\n　　');
-    final profile = Provider.of<Profile>(context);
     return Container(
       color: Color(profile.novelBackgroundColor),
       padding: EdgeInsets.symmetric(horizontal: 12),
@@ -172,7 +172,7 @@ class _NovelPageState extends State<NovelPage> {
           UIDash(
             height: 2,
             dashWidth: 6,
-            color: Colors.black38,
+            color: Color(profile.novelFontColor),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -184,7 +184,7 @@ class _NovelPageState extends State<NovelPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Color(profile.novelFontColor),
                     ),
                   ),
                 ),
@@ -194,7 +194,7 @@ class _NovelPageState extends State<NovelPage> {
                     '${provider.progress}%',
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Color(profile.novelFontColor),
                     ),
                   ),
                 ),

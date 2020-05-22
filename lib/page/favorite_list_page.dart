@@ -48,8 +48,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     return ChangeNotifierProvider.value(
         value: FavoriteListProvider(widget.type),
         builder: (BuildContext context, _) {
-          return Consumer<FavoriteListProvider>(
-              builder: (context, provider, _) {
+          return Consumer<FavoriteListProvider>(builder: (context, provider, _) {
             if (__provider == null) {
               __provider = provider;
             }
@@ -65,8 +64,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                               onTap: () => provider.sortList(tag[1]),
                               child: Material(
                                 color: Theme.of(context).bottomAppBarColor,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15.0)),
+                                borderRadius: BorderRadius.all(Radius.circular(15.0)),
                                 child: Padding(
                                   padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
                                   child: Text(
@@ -112,14 +110,13 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                 itemCount: searchItems.length,
                 itemBuilder: (context, index) {
                   final searchItem = searchItems[index];
-                  final longPress = Provider.of<Profile>(context, listen: false)
-                      .switchLongPress;
+                  final longPress =
+                      Provider.of<Profile>(context, listen: true).switchLongPress;
                   VoidCallback openChapter = () => Navigator.of(context).push(
                       MaterialPageRoute(
-                          builder: (context) =>
-                              ChapterPage(searchItem: searchItem)));
-                  VoidCallback openContent = () => Navigator.of(context)
-                      .push(ContentPageRoute().route(searchItem));
+                          builder: (context) => ChapterPage(searchItem: searchItem)));
+                  VoidCallback openContent = () =>
+                      Navigator.of(context).push(ContentPageRoute().route(searchItem));
                   return InkWell(
                     child: UIFavoriteItem(searchItem: searchItem),
                     onTap: longPress ? openChapter : openContent,

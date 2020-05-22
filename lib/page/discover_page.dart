@@ -1,5 +1,6 @@
-import 'package:eso/api/api_form_rule.dart';
+import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/page/discover_search_page.dart';
+import 'package:eso/page/source/edit_source_page.dart';
 import 'package:toast/toast.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
@@ -37,19 +38,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
           appBar: AppBar(
             centerTitle: false,
             elevation: 0,
-            backgroundColor: Theme.of(context).canvasColor,
-            brightness: Theme.of(context).brightness,
-            title: Text(
-              "发现",
-              style:
-                  TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
-            ),
+            title: Text("发现"),
             actions: [
               IconButton(
-                icon: Icon(
-                  Icons.settings,
-                  color: Theme.of(context).textTheme.bodyText1.color,
-                ),
+                icon: Icon(Icons.edit),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => EditSourcePage())),
+              ),
+              IconButton(
+                icon: Icon(Icons.settings),
                 onPressed: () => Toast.show("发现设置", context),
               ),
             ],

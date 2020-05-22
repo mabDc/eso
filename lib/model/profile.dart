@@ -21,10 +21,18 @@ class Profile with ChangeNotifier {
             'novelHeight': 2.0,
             'novelBackgroundColor': 0xFFF5DEB3,
             'novelFontColor': Colors.black.value,
+            'novelKeepOn': false,
+            'mangaKeepOn': false,
+            'mangaLandscape': false,
+            'mangaDirection': mangaDirectionTopToBottom,
           }
         : jsonDecode(source);
     fromJson(json);
   }
+
+  static const mangaDirectionTopToBottom = 0; //'topToBottom';
+  static const mangaDirectionLeftToRight = 1; //'leftToRight';
+  static const mangaDirectionRightToLeft = 2; //'rightToLeft';
 
   bool _switchLongPress;
   bool _switchFavoriteStyle;
@@ -38,6 +46,10 @@ class Profile with ChangeNotifier {
   double _novelHeight;
   int _novelBackgroundColor;
   int _novelFontColor;
+  bool _novelKeepOn;
+  bool _mangaKeepOn;
+  bool _mangaLandscape;
+  int _mangaDirection;
 
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
@@ -51,6 +63,10 @@ class Profile with ChangeNotifier {
   double get novelHeight => _novelHeight;
   int get novelBackgroundColor => _novelBackgroundColor;
   int get novelFontColor => _novelFontColor;
+  bool get novelKeepOn => _novelKeepOn;
+  bool get mangaKeepOn => _mangaKeepOn;
+  bool get mangaLandscape => _mangaLandscape;
+  int get mangaDirection => _mangaDirection;
 
   set switchFavoriteStyle(bool value) {
     if (value != _switchFavoriteStyle) {
@@ -135,14 +151,14 @@ class Profile with ChangeNotifier {
   set novelFontSize(double value) {
     if ((value - _novelFontSize).abs() > 0.1) {
       _novelFontSize = value;
-      _saveProfile(false);
+      _saveProfile();
     }
   }
 
   set novelHeight(double value) {
-    if ((value - _novelHeight).abs() > 0.1) {
+    if ((value - _novelHeight).abs() > 0.05) {
       _novelHeight = value;
-      _saveProfile(false);
+      _saveProfile();
     }
   }
 
@@ -160,16 +176,46 @@ class Profile with ChangeNotifier {
     }
   }
 
-  void setnovelColor(int bgColor, int fontColor) {
+  void setNovelColor(int bgColor, int fontColor) {
     var change = false;
     if (bgColor != _novelBackgroundColor) {
       _novelBackgroundColor = bgColor;
+      change = true;
     }
     if (fontColor != novelFontColor) {
       _novelFontColor = fontColor;
+      change = true;
     }
     if (change) {
+      _saveProfile();
+    }
+  }
+
+  set novelKeepOn(bool value) {
+    if (value != _novelKeepOn) {
+      _novelKeepOn = value;
+      _saveProfile();
+    }
+  }
+
+  set mangaKeepOn(bool value) {
+    if (value != _mangaKeepOn) {
+      _mangaKeepOn = value;
+      _saveProfile();
+    }
+  }
+
+  set mangaLandscape(bool value) {
+    if (value != _mangaLandscape) {
+      _mangaLandscape = value;
       _saveProfile(false);
+    }
+  }
+
+  set mangaDirection(int value) {
+    if (value != _mangaDirection) {
+      _mangaDirection = value;
+      _saveProfile();
     }
   }
 
@@ -191,12 +237,28 @@ class Profile with ChangeNotifier {
       default:
         break;
     }
-    return ThemeData(
+    final theme = ThemeData(
       primaryColor: Color(Global.colors[colorName] ?? customColor),
       bottomAppBarColor: isDarkMode
           ? Color.fromARGB(255, 66, 66, 66)
           : Color.fromARGB(255, 180, 188, 196),
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
+    );
+    return theme.copyWith(
+      appBarTheme: AppBarTheme(
+        color: theme.canvasColor,
+        elevation: 2,
+        brightness: theme.brightness,
+        iconTheme: IconThemeData(
+          color: theme.textTheme.bodyText1.color.withOpacity(0.7),
+        ),
+        actionsIconTheme: IconThemeData(
+          color: theme.textTheme.bodyText1.color.withOpacity(0.7),
+        ),
+      ),
+      primaryTextTheme: TextTheme(
+        headline6: TextStyle(color: theme.textTheme.bodyText1.color.withOpacity(0.8)),
+      ),
     );
   }
 
@@ -217,6 +279,10 @@ class Profile with ChangeNotifier {
     _novelHeight = json["novelHeight"] ?? 2.0;
     _novelBackgroundColor = json["novelBackgroundColor"] ?? 0xFFF5DEB3;
     _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
+    _novelKeepOn = json["novelKeepOn"] ?? false;
+    _mangaKeepOn = json["mangaKeepOn"] ?? false;
+    _mangaLandscape = json["mangaLandscape"] ?? false;
+    _mangaDirection = json['mangaDirection'] ?? mangaDirectionTopToBottom;
   }
 
   Map<String, dynamic> toJson() => {
@@ -232,5 +298,9 @@ class Profile with ChangeNotifier {
         'novelHeight': _novelHeight,
         'novelBackgroundColor': _novelBackgroundColor,
         'novelFontColor': _novelFontColor,
+        'novelKeepOn': _novelKeepOn,
+        'mangaKeepOn': _mangaKeepOn,
+        'mangaLandscape': _mangaLandscape,
+        'mangaDirection': _mangaDirection,
       };
 }

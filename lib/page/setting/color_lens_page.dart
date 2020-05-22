@@ -73,40 +73,79 @@ class ColorLensPage extends StatelessWidget {
     );
   }
 
-  FlutterSlider _buildSeekBar(Color color, int value, void Function(int) valueChanged) {
-    return FlutterSlider(
-      values: [value.toDouble()],
-      max: 255,
-      min: 1,
-      trackBar: FlutterSliderTrackBar(
-        inactiveTrackBar: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: color.withOpacity(0.5),
-        ),
-        activeTrackBar: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          color: color,
-        ),
-      ),
-      handlerWidth: 8,
-      handlerHeight: 16,
-      handler: FlutterSliderHandler(
-        decoration: BoxDecoration(),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
+  Container _buildSeekBar(Color color, int value, void Function(int) valueChanged) {
+    return Container(
+      height: 46,
+      child: FlutterSlider(
+        values: [value.toDouble()],
+        max: 255,
+        min: 0,
+        onDragging: (handlerIndex, lowerValue, upperValue) =>
+            valueChanged((lowerValue as double).toInt()),
+        trackBar: FlutterSliderTrackBar(
+          inactiveTrackBar: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: color.withOpacity(0.4),
+          ),
+          activeTrackBar: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
             color: color,
-            border: Border.all(color: color.withOpacity(0.65), width: 1),
           ),
         ),
+        hatchMark: FlutterSliderHatchMark(
+          labelsDistanceFromTrackBar: 24,
+          linesDistanceFromTrackBar: -4,
+          linesAlignment: FlutterSliderHatchMarkAlignment.left,
+          displayLines: true,
+          density: 0.16,
+          smallLine: FlutterSliderSizedBox(
+              height: 6, width: 1, decoration: BoxDecoration(color: color)),
+          bigLine: FlutterSliderSizedBox(
+              height: 8, width: 2, decoration: BoxDecoration(color: color)),
+          labels: [
+            FlutterSliderHatchMarkLabel(
+              percent: 0,
+              label: Text('0', style: TextStyle(fontSize: 12)),
+            ),
+            FlutterSliderHatchMarkLabel(
+              percent: 5 / 16 * 100,
+              label: Text('50', style: TextStyle(fontSize: 12)),
+            ),
+            FlutterSliderHatchMarkLabel(
+              percent: 10 / 16 * 100,
+              label: Text('A0', style: TextStyle(fontSize: 12)),
+            ),
+            FlutterSliderHatchMarkLabel(
+              percent: 15 / 16 * 100,
+              label: Text('F0', style: TextStyle(fontSize: 12)),
+            ),
+          ],
+        ),
+        handlerWidth: 6,
+        handlerHeight: 14,
+        handler: FlutterSliderHandler(
+          decoration: BoxDecoration(),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: color,
+              border: Border.all(color: color.withOpacity(0.65), width: 1),
+            ),
+          ),
+        ),
+        tooltip: FlutterSliderTooltip(
+          disableAnimation: true,
+          custom: (value) => Container(
+            padding: EdgeInsets.all(8),
+            color: color,
+            child: Text("0x" +
+                (value as double).toInt().toRadixString(16).toUpperCase() +
+                " | " +
+                (value as double).toStringAsFixed(0)),
+          ),
+          positionOffset: FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+        ),
       ),
-      // value: value.toDouble(),
-      // progressWidth: 6,
-      // progressColor: color,
-      // barColor: color.withOpacity(0.5),
-      // onProgressChanged: (progressValue) {
-      //   valueChanged(progressValue.toInt());
-      // },
     );
   }
 

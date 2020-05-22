@@ -100,10 +100,13 @@ class UIMangaMenu extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 10),
-                  Text("长亮"),
+                  Text("常亮"),
                   Switch(
-                    value: provider.keepOn,
-                    onChanged: (value) => provider.keepOn = value,
+                    value: profile.mangaKeepOn,
+                    onChanged: (value) {
+                      profile.mangaKeepOn = value;
+                      provider.setKeepOn(value);
+                    },
                   ),
                 ],
               ),
@@ -114,12 +117,27 @@ class UIMangaMenu extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: <Widget>[
-                  Text("方向(未实现)"),
+                  Text("方向"),
                   SizedBox(width: 20),
                   Expanded(
                     child: OutlineButton(
+                      child: Text("上->下", style: TextStyle(color: color)),
+                      onPressed: () {
+                        profile.mangaDirection = Profile.mangaDirectionTopToBottom;
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: color),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: OutlineButton(
                       child: Text("左->右", style: TextStyle(color: color)),
-                      onPressed: () => null,
+                      onPressed: () {
+                        profile.mangaDirection = Profile.mangaDirectionLeftToRight;
+                      },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
@@ -130,18 +148,9 @@ class UIMangaMenu extends StatelessWidget {
                   Expanded(
                     child: OutlineButton(
                       child: Text("右->左", style: TextStyle(color: color)),
-                      onPressed: () => null,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        side: BorderSide(color: color),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: OutlineButton(
-                      child: Text("上->下", style: TextStyle(color: color)),
-                      onPressed: () => null,
+                      onPressed: () {
+                        profile.mangaDirection = Profile.mangaDirectionRightToLeft;
+                      },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
@@ -155,9 +164,12 @@ class UIMangaMenu extends StatelessWidget {
               height: 50,
               alignment: Alignment.center,
               child: SwitchListTile(
-                value: provider.landscape,
-                onChanged: (value) => provider.landscape = value,
-                title: Text("切换横屏"),
+                value: profile.mangaLandscape,
+                onChanged: (value) {
+                  profile.mangaLandscape = value;
+                  provider.landscape = value;
+                },
+                title: Text("横屏"),
               ),
             ),
             // Container(
@@ -332,8 +344,8 @@ class UIMangaMenu extends StatelessWidget {
                 SizedBox(width: 10),
                 Expanded(
                   child: FlutterSlider(
-                    values: [(searchItem.durChapterIndex + 1) * 1.0],
-                    max: searchItem.chaptersCount * 1.0,
+                    values: [(searchItem.durChapterIndex + 1).toDouble()],
+                    max: searchItem.chaptersCount.toDouble(),
                     min: 1,
                     step: FlutterSliderStep(step: 1),
                     onDragCompleted: (handlerIndex, lowerValue, upperValue) {
@@ -367,6 +379,7 @@ class UIMangaMenu extends StatelessWidget {
                       disableAnimation: true,
                       absolutePosition: true,
                       positionOffset: FlutterSliderTooltipPositionOffset(
+                        left: -20,
                         top: -20,
                         right: 160 - MediaQuery.of(context).size.width,
                       ),
@@ -409,7 +422,7 @@ class UIMangaMenu extends StatelessWidget {
                 SizedBox(width: 10),
                 InkWell(
                   child: Text(
-                    '${searchItem.chaptersCount}',
+                    '共${searchItem.chaptersCount}话',
                     style: TextStyle(color: color),
                   ),
                   onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),

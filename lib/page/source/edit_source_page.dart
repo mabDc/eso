@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:eso/api/api_form_rule.dart';
+import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
-import 'package:eso/ui/ui_dash.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
@@ -53,7 +52,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.white24,
+                fillColor: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.1),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: Colors.transparent),
@@ -69,7 +68,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 hintText:
                     "搜索名称和分组(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
                 hintStyle: TextStyle(
-                  color: Colors.white70,
+                  color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                   fontSize: 12,
                 ),
                 isDense: true,
@@ -78,19 +77,22 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                   child: Icon(
                     Icons.search,
-                    color: Colors.white70,
+                    color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                   ),
                 ),
                 prefixIconConstraints: BoxConstraints(),
               ),
               maxLines: 1,
-              style: TextStyle(color: Colors.white, height: 1.25),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyText1.color,
+                height: 1.25,
+              ),
               onSubmitted: (value) => __provider.getRuleListByName(value),
               onChanged: (value) => __provider.getRuleListByNameDebounce(value),
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.check_circle),
+                icon: Icon(Icons.check_circle_outline),
                 onPressed: () {
                   __provider.toggleCheckAllRule();
                 },
@@ -107,11 +109,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 return LandingPage();
               }
               return ListView.separated(
-                separatorBuilder: (BuildContext context, int index) => UIDash(
-                  color: Colors.black54,
-                  height: 0.5,
-                  dashWidth: 5,
-                ),
+                separatorBuilder: (BuildContext context, int index) => Container(),
+                // UIDash(
+                //   color: Colors.black54,
+                //   height: 0.5,
+                //   dashWidth: 5,
+                // ),
                 itemCount: provider.rules.length,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {

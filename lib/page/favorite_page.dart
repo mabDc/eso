@@ -21,8 +21,6 @@ class FavoritePage extends StatelessWidget {
         appBar: AppBar(
           centerTitle: false,
           elevation: 0,
-          backgroundColor: Theme.of(context).canvasColor,
-          brightness: Theme.of(context).brightness,
           title: TabBar(
             isScrollable: true,
             indicatorSize: TabBarIndicatorSize.label,
