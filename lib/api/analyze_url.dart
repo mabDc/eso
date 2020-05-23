@@ -71,7 +71,13 @@ searchPage = ${jsonEncode(page)};
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
       var u = "${r['url']}".trim();
-      if (u.startsWith("/")) {
+      if (u.startsWith("//")) {
+        if (rule.host.startsWith("https")) {
+          u = "https:" + u;
+        } else {
+          u = "http:" + u;
+        }
+      } else if (u.startsWith("/")) {
         u = rule.host + u;
       }
       if (method == null || method == 'get') {
@@ -83,7 +89,13 @@ searchPage = ${jsonEncode(page)};
       throw ('error parser url rule');
     } else {
       var u = "$url".trim();
-      if (u.startsWith("/")) {
+      if (u.startsWith("//")) {
+        if (rule.host.startsWith("https")) {
+          u = "https:" + u;
+        } else {
+          u = "http:" + u;
+        }
+      } else if (u.startsWith("/")) {
         u = rule.host + u;
       }
       if (rule.userAgent.trim().isNotEmpty) {
