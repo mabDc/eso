@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
@@ -22,6 +23,10 @@ class Profile with ChangeNotifier {
             'novelBackgroundColor': 0xFFF5DEB3,
             'novelFontColor': Colors.black.value,
             'novelKeepOn': false,
+            'novelSortIndex': SortType.CREATE.index,
+            'mangaSortIndex': SortType.CREATE.index,
+            'audioSortIndex': SortType.CREATE.index,
+            'videoSortIndex': SortType.CREATE.index,
             'mangaKeepOn': false,
             'mangaLandscape': false,
             'mangaDirection': mangaDirectionTopToBottom,
@@ -50,6 +55,10 @@ class Profile with ChangeNotifier {
   bool _mangaKeepOn;
   bool _mangaLandscape;
   int _mangaDirection;
+  int _novelSortIndex;
+  int _mangaSortIndex;
+  int _audioSortIndex;
+  int _videoSortIndex;
 
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
@@ -67,6 +76,10 @@ class Profile with ChangeNotifier {
   bool get mangaKeepOn => _mangaKeepOn;
   bool get mangaLandscape => _mangaLandscape;
   int get mangaDirection => _mangaDirection;
+  int get novelSortIndex => _novelSortIndex;
+  int get mangaSortIndex => _mangaSortIndex;
+  int get audioSortIndex => _audioSortIndex;
+  int get videoSortIndex => _videoSortIndex;
 
   set switchFavoriteStyle(bool value) {
     if (value != _switchFavoriteStyle) {
@@ -226,6 +239,34 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set novelSortIndex(int value) {
+    if (value != _novelSortIndex) {
+      _novelSortIndex = value;
+      _saveProfile(false);
+    }
+  }
+
+  set mangaSortIndex(int value) {
+    if (value != _mangaSortIndex) {
+      _mangaSortIndex = value;
+      _saveProfile(false);
+    }
+  }
+
+  set audioSortIndex(int value) {
+    if (value != _audioSortIndex) {
+      _audioSortIndex = value;
+      _saveProfile(false);
+    }
+  }
+
+  set videoSortIndex(int value) {
+    if (value != _videoSortIndex) {
+      _videoSortIndex = value;
+      _saveProfile(false);
+    }
+  }
+
   ThemeData getTheme({bool isDarkMode: false}) {
     switch (darkMode) {
       case "开启":
@@ -283,6 +324,10 @@ class Profile with ChangeNotifier {
     _mangaKeepOn = json["mangaKeepOn"] ?? false;
     _mangaLandscape = json["mangaLandscape"] ?? false;
     _mangaDirection = json['mangaDirection'] ?? mangaDirectionTopToBottom;
+    _novelSortIndex = json["novelSortIndex"] ?? SortType.CREATE.index;
+    _mangaSortIndex = json["mangaSortIndex"] ?? SortType.CREATE.index;
+    _audioSortIndex = json["audioSortIndex"] ?? SortType.CREATE.index;
+    _videoSortIndex = json["videoSortIndex"] ?? SortType.CREATE.index;
   }
 
   Map<String, dynamic> toJson() => {
@@ -302,5 +347,9 @@ class Profile with ChangeNotifier {
         'mangaKeepOn': _mangaKeepOn,
         'mangaLandscape': _mangaLandscape,
         'mangaDirection': _mangaDirection,
+        'novelSortIndex': _novelSortIndex,
+        'mangaSortIndex': _mangaSortIndex,
+        'audioSortIndex': _audioSortIndex,
+        'videoSortIndex': _videoSortIndex,
       };
 }
