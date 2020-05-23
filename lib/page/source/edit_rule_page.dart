@@ -530,7 +530,7 @@ class _EditRulePageState extends State<EditRulePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('从异次元导入'),
+              Text('阅读或异次元'),
               Icon(
                 Icons.ac_unit,
                 color: primaryColor,

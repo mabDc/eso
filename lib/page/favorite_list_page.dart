@@ -10,9 +10,11 @@ import 'chapter_page.dart';
 
 class FavoriteListPage extends StatefulWidget {
   final int type;
+  final SortType sortType;
 
   const FavoriteListPage({
     this.type,
+    this.sortType,
     Key key,
   }) : super(key: key);
 
@@ -46,53 +48,60 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
 
   Widget _buildPage() {
     return ChangeNotifierProvider.value(
-        value: FavoriteListProvider(widget.type),
-        builder: (BuildContext context, _) {
-          return Consumer<FavoriteListProvider>(builder: (context, provider, _) {
+      value: FavoriteListProvider(widget.type, widget.sortType),
+      builder: (BuildContext context, _) {
+        return Consumer<FavoriteListProvider>(
+          builder: (context, provider, _) {
             if (__provider == null) {
               __provider = provider;
             }
-            return Column(children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(left: 12, bottom: 10),
-                child: Wrap(
-                  spacing: 8,
-                  children: sortList
-                      .map(
-                        (tag) => GestureDetector(
-                          onTap: () => provider.sortType = tag[1],
-                          child: Material(
-                            color: Theme.of(context).bottomAppBarColor,
-                            borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
-                              child: Text(
-                                tag[0],
-                                style: TextStyle(
+            return Column(
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  margin: EdgeInsets.only(left: 12, bottom: 10),
+                  child: Wrap(
+                    spacing: 8,
+                    children: sortList
+                        .map(
+                          (tag) => GestureDetector(
+                            onTap: () => provider.sortType = tag[1],
+                            child: Material(
+                              color: Theme.of(context).bottomAppBarColor,
+                              borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
+                                child: Text(
+                                  tag[0],
+                                  style: TextStyle(
                                     fontSize: 10,
                                     color: tag[1] == provider.sortType
                                         ? Theme.of(context).primaryColor
-                                        : Theme.of(context).textTheme.bodyText1.color),
+                                        : Theme.of(context).textTheme.bodyText1.color,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                      .toList(),
+                        )
+                        .toList(),
+                  ),
                 ),
-              ),
-              Expanded(
+                Expanded(
                   child: RefreshIndicator(
-                onRefresh: () async {
-                  await Future.delayed(Duration(seconds: 1));
-                  return;
-                },
-                child: _buildFavoriteGrid(__provider.searchList, provider),
-              ))
-            ]);
-          });
-        });
+                    onRefresh: () async {
+                      await Future.delayed(Duration(seconds: 1));
+                      return;
+                    },
+                    child: _buildFavoriteGrid(__provider.searchList, provider),
+                  ),
+                )
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildFavoriteGrid(List<SearchItem> searchItems, FavoriteListProvider provider) {

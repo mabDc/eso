@@ -20,8 +20,7 @@ class FavoriteListProvider with ChangeNotifier {
 
   final int type;
 
-  FavoriteListProvider(this.type, {SortType sortType}) {
-    _sortType = sortType ?? SortType.CREATE;
+  FavoriteListProvider(this.type, this._sortType) {
     updateList();
   }
 
