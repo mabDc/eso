@@ -86,8 +86,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
             actions: [
               IconButton(
                 icon: Icon(Icons.edit),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => EditSourcePage()))
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(
+                        builder: (BuildContext context) => EditSourcePage()))
                     .then((value) => __provider.refreshData()),
               )
             ],
@@ -125,20 +126,40 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ))),
       child: ListTile(
         title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          textBaseline: TextBaseline.alphabetic,
           children: <Widget>[
-            Text("${rule.name}"),
-            Padding(
-              padding: EdgeInsets.only(left: 5),
-              child: Material(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(5, 1, 5, 1),
-                  child: Text('${rule.ruleTypeName}',
-                      style: TextStyle(fontSize: 10, color: Colors.white)),
+            Flexible(
+              child: Text(
+                "${rule.name}",
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                  textBaseline: TextBaseline.alphabetic,
+                  fontSize: 14,
+                  height: 1,
                 ),
               ),
-            )
+            ),
+            SizedBox(width: 5),
+            Container(
+              height: 14,
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(2),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                ' ${rule.ruleTypeName} ',
+                style: TextStyle(
+                  fontSize: 10,
+                  height: 1.4,
+                  color: Colors.white,
+                  textBaseline: TextBaseline.alphabetic,
+                ),
+              ),
+            ),
           ],
         ),
         subtitle: Text(

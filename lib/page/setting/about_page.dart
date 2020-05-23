@@ -1,4 +1,3 @@
-import 'package:eso/page/source/edit_source_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';

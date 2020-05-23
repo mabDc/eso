@@ -68,7 +68,7 @@ class Rule {
   String contentUrl = '';
   String contentItems = '';
 
-  get ruleTypeName =>API.getRuleContentTypeName(contentType);
+  get ruleTypeName => API.getRuleContentTypeName(contentType);
 
   Rule.newRule() {
     id = Uuid().v4();
