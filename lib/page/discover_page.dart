@@ -145,13 +145,13 @@ class _DiscoverPageState extends State<DiscoverPage> {
             Container(
               height: 14,
               decoration: BoxDecoration(
-                color: Colors.green,
+                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(2),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+              padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
               alignment: Alignment.centerLeft,
               child: Text(
-                ' ${rule.ruleTypeName} ',
+                '${rule.ruleTypeName}',
                 style: TextStyle(
                   fontSize: 10,
                   height: 1.4,
