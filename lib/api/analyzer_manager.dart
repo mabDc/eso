@@ -68,7 +68,7 @@ class AnalyzerManager {
       }
       return result;
     } else if (rule.contains("||")) {
-      for (final rSimple in rule.split("&&")) {
+      for (final rSimple in rule.split("||")) {
         final temp = await _getElements(r, rSimple);
         if (temp.isNotEmpty) return temp;
       }
@@ -120,7 +120,7 @@ class AnalyzerManager {
       }
       return result;
     } else if (rule.contains("||")) {
-      for (final rSimple in rule.split("&&")) {
+      for (final rSimple in rule.split("||")) {
         final temp = await _getStringList(r, rSimple);
         if (temp.isNotEmpty) return temp;
       }
@@ -214,7 +214,7 @@ class AnalyzerManager {
       }
       return rs.join(", ");
     } else if (rule.contains("||")) {
-      for (final rSimple in rule.split("&&")) {
+      for (final rSimple in rule.split("||")) {
         final temp = await _getString(r, rSimple);
         if (temp.isNotEmpty) return temp;
       }
