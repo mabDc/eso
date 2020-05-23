@@ -87,7 +87,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
               IconButton(
                 icon: Icon(Icons.edit),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => EditSourcePage())),
+                    builder: (BuildContext context) => EditSourcePage()))
+                    .then((value) => __provider.refreshData()),
               )
             ],
           ),
@@ -127,7 +128,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           children: <Widget>[
             Text("${rule.name}"),
             Padding(
-              padding: EdgeInsets.only(top:2, left: 5),
+              padding: EdgeInsets.only(left: 5),
               child: Material(
                 color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.all(Radius.circular(3.0)),
