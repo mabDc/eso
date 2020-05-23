@@ -1,24 +1,19 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/profile.dart';
 import 'package:eso/page/setting/about_page.dart';
 import 'package:flutter/material.dart';
 import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
-import 'package:provider/provider.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<Profile>(context);
-    final sortTypes = SortType.values;
     final tabs = [
-      ["文字", API.NOVEL, sortTypes[profile.novelSortIndex]],
-      ["图片", API.MANGA, sortTypes[profile.mangaSortIndex]],
-      ["音频", API.AUDIO, sortTypes[profile.audioSortIndex]],
-      ["视频", API.VIDEO, sortTypes[profile.videoSortIndex]],
+      ["文字", API.NOVEL],
+      ["图片", API.MANGA],
+      ["音频", API.AUDIO],
+      ["视频", API.VIDEO],
     ];
     return DefaultTabController(
       length: tabs.length,
@@ -57,12 +52,7 @@ class FavoritePage extends StatelessWidget {
           ],
         ),
         body: TabBarView(
-          children: tabs
-              .map((tab) => FavoriteListPage(
-                    type: tab[1],
-                    sortType: tab[2],
-                  ))
-              .toList(),
+          children: tabs.map((tab) => FavoriteListPage(type: tab[1])).toList(),
         ),
       ),
     );

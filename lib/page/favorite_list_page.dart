@@ -1,3 +1,4 @@
+import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
@@ -10,11 +11,9 @@ import 'chapter_page.dart';
 
 class FavoriteListPage extends StatefulWidget {
   final int type;
-  final SortType sortType;
 
   const FavoriteListPage({
     this.type,
-    this.sortType,
     Key key,
   }) : super(key: key);
 
@@ -41,14 +40,37 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   @override
   Widget build(BuildContext context) {
     if (_page == null) {
-      _page = _buildPage();
+      final profile = Provider.of<Profile>(context, listen: false);
+      _page = _buildPage(profile);
     }
     return _page;
   }
 
-  Widget _buildPage() {
+  Widget _buildPage(Profile profile) {
+    SortType sortType;
+    void Function(SortType sortType) setSortType;
+    final values = SortType.values;
+    switch (widget.type) {
+      case API.NOVEL:
+        sortType = values[profile.novelSortIndex];
+        setSortType = (SortType sortType) => profile.novelSortIndex = sortType.index;
+        break;
+      case API.MANGA:
+        sortType = values[profile.mangaSortIndex];
+        setSortType = (SortType sortType) => profile.mangaSortIndex = sortType.index;
+        break;
+      case API.AUDIO:
+        sortType = values[profile.audioSortIndex];
+        setSortType = (SortType sortType) => profile.audioSortIndex = sortType.index;
+        break;
+      case API.VIDEO:
+        sortType = values[profile.videoSortIndex];
+        setSortType = (SortType sortType) => profile.videoSortIndex = sortType.index;
+        break;
+      default:
+    }
     return ChangeNotifierProvider.value(
-      value: FavoriteListProvider(widget.type, widget.sortType),
+      value: FavoriteListProvider(widget.type, sortType),
       builder: (BuildContext context, _) {
         return Consumer<FavoriteListProvider>(
           builder: (context, provider, _) {
@@ -65,7 +87,10 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                     children: sortList
                         .map(
                           (tag) => GestureDetector(
-                            onTap: () => provider.sortType = tag[1],
+                            onTap: () {
+                              provider.sortType = tag[1];
+                              setSortType(tag[1]);
+                            },
                             child: Material(
                               color: Theme.of(context).bottomAppBarColor,
                               borderRadius: BorderRadius.all(Radius.circular(15.0)),
