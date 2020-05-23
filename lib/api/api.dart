@@ -3,30 +3,6 @@ import 'package:equatable/equatable.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 
-enum ContentType {
-  MANGA,
-  NOVEL,
-  VIDEO,
-  AUDIO,
-  RSS,
-}
-// static String getRuleContentTypeName(ContentType ruleContentType) {
-//   switch (ruleContentType) {
-//     case ContentType.MANGA:
-//       return "漫画";
-//     case ContentType.NOVEL:
-//       return "小说";
-//     case ContentType.VIDEO:
-//       return "视频";
-//     case ContentType.AUDIO:
-//       return "音频";
-//     case ContentType.RSS:
-//       return "RSS";
-//     default:
-//       return "漫画";
-//   }
-// }
-
 abstract class API {
   static const MANGA = 0;
   static const NOVEL = 1;
