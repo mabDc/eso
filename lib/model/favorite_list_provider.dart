@@ -7,29 +7,31 @@ import 'audio_service.dart';
 
 class FavoriteListProvider with ChangeNotifier {
   List<SearchItem> _searchList;
-  int type;
-  SortType _sortType = SortType.CREATE;
-  get sortType => _sortType;
-  get searchList => _searchList;
+  List<SearchItem> get searchList => _searchList;
 
-  FavoriteListProvider(this.type) {
-    getFavoriteList();
+  SortType _sortType;
+  SortType get sortType => _sortType;
+  set sortType(SortType value) {
+    if (value != sortType) {
+      _sortType = value;
+      updateList();
+    }
   }
 
-  ///获取收藏列表
-  void getFavoriteList({sortType: SortType.CREATE}) async {
-    _searchList = SearchItemManager.getSearchItemByType(type, sortType: sortType);
-    if (type == API.AUDIO && AudioService().searchItem != null &&
+  final int type;
+
+  FavoriteListProvider(this.type, {SortType sortType}) {
+    _sortType = sortType ?? SortType.CREATE;
+    updateList();
+  }
+
+  void updateList() {
+    _searchList = SearchItemManager.getSearchItemByType(type, _sortType);
+    if (type == API.AUDIO &&
+        AudioService().searchItem != null &&
         !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
       _searchList.add(AudioService().searchItem);
     }
-    notifyListeners();
-  }
-
-  ///切换排序
-  void sortList(SortType _sortType) {
-    this._sortType = _sortType;
-    getFavoriteList(sortType: _sortType);
     notifyListeners();
   }
 

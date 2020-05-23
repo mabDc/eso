@@ -14,9 +14,8 @@ class SearchItemManager {
   static String genChapterKey(int id) => "chapter$id";
 
   /// 根据类型和排序规则取出收藏
-  static List<SearchItem> getSearchItemByType(int contentType,
-      {sortType = SortType.CREATE}) {
-    List<SearchItem> searchItem = [];
+  static List<SearchItem> getSearchItemByType(int contentType, SortType sortType) {
+    final searchItem = <SearchItem>[];
     _searchItem.forEach((element) {
       if (element.ruleContentType == contentType) searchItem.add(element);
     });

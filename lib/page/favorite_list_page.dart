@@ -54,35 +54,34 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
             }
             return Column(children: [
               Container(
-                  alignment: Alignment.centerLeft,
-                  margin: EdgeInsets.only(left: 12, bottom: 10),
-                  child: Wrap(
-                    spacing: 8,
-                    children: sortList
-                        .map(
-                          (tag) => GestureDetector(
-                              onTap: () => provider.sortList(tag[1]),
-                              child: Material(
-                                color: Theme.of(context).bottomAppBarColor,
-                                borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
-                                  child: Text(
-                                    tag[0],
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        color: tag[1] == provider.sortType
-                                            ? Theme.of(context).primaryColor
-                                            : Theme.of(context)
-                                                .textTheme
-                                                .bodyText1
-                                                .color),
-                                  ),
-                                ),
-                              )),
-                        )
-                        .toList(),
-                  )),
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(left: 12, bottom: 10),
+                child: Wrap(
+                  spacing: 8,
+                  children: sortList
+                      .map(
+                        (tag) => GestureDetector(
+                          onTap: () => provider.sortType = tag[1],
+                          child: Material(
+                            color: Theme.of(context).bottomAppBarColor,
+                            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
+                              child: Text(
+                                tag[0],
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: tag[1] == provider.sortType
+                                        ? Theme.of(context).primaryColor
+                                        : Theme.of(context).textTheme.bodyText1.color),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
               Expanded(
                   child: RefreshIndicator(
                 onRefresh: () async {
@@ -115,12 +114,10 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                   VoidCallback openChapter = () => Navigator.of(context)
                       .push(MaterialPageRoute(
                           builder: (context) => ChapterPage(searchItem: searchItem)))
-                      .then((value) =>
-                          provider.getFavoriteList(sortType: provider.sortType));
+                      .then((value) => provider.updateList());
                   VoidCallback openContent = () => Navigator.of(context)
                       .push(ContentPageRoute().route(searchItem))
-                      .then((value) =>
-                          provider.getFavoriteList(sortType: provider.sortType));
+                      .then((value) => provider.updateList());
                   return InkWell(
                     child: UIFavoriteItem(searchItem: searchItem),
                     onTap: longPress ? openChapter : openContent,
