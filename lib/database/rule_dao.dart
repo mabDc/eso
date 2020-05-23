@@ -33,4 +33,8 @@ abstract class RuleDao {
   @Query(
       'SELECT * FROM rule WHERE name like :name or `group` like :name ORDER BY sort desc')
   Future<List<Rule>> getRuleByName(String name);
+
+  @Query(
+    'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :name) ORDER BY sort desc')
+  Future<List<Rule>> getDiscoverRuleByName(String name);
 }

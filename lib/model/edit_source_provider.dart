@@ -10,7 +10,7 @@ class EditSourceProvider with ChangeNotifier {
   static const int FROM_YICIYUAN = 4;
   static const int DELETE_ALL_RULES = 5;
   List<Rule> _rules;
-
+  final int type;
   List<Rule> get rules => _rules;
   bool _isLoading;
 
@@ -25,16 +25,16 @@ class EditSourceProvider with ChangeNotifier {
   ];
   List get menuList => _menuList;
 
-  EditSourceProvider({type: 1}) {
-    refreshData(type: type);
+  EditSourceProvider({this.type: 1}) {
+    refreshData();
   }
 
   //获取源列表 1所有 2发现
-  void refreshData({type: 1}) async {
+  void refreshData() async {
     _isLoading = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
-    switch (type) {
+    switch (this.type) {
       case 1:
         _rules = await Global.ruleDao.findAllRules();
         break;
@@ -104,7 +104,14 @@ class EditSourceProvider with ChangeNotifier {
 
   ///搜索
   void getRuleListByName(String name) async {
-    _rules = await Global.ruleDao.getRuleByName('%$name%');
+    switch (this.type) {
+      case 1:
+        _rules = await Global.ruleDao.getRuleByName('%$name%');
+        break;
+      case 2:
+        _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%');
+        break;
+    }
     notifyListeners();
   }
 

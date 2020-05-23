@@ -307,6 +307,15 @@ class _$RuleDao extends RuleDao {
   }
 
   @override
+  Future<List<Rule>> getDiscoverRuleByName(String name) async {
+    return _queryAdapter.queryList(
+      'SELECT * FROM rule WHERE enableDiscover = 1 and (name like ? or `group` like ?) ORDER BY sort desc',
+      arguments: <dynamic>[name, name],
+      mapper: _ruleMapper,
+    );
+  }
+
+  @override
   Future<int> insertOrUpdateRule(Rule rule) {
     return _ruleInsertionAdapter.insertAndReturnId(
         rule, sqflite.ConflictAlgorithm.replace);
