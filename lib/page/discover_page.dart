@@ -89,7 +89,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(
                         builder: (BuildContext context) => EditSourcePage()))
-                    .then((value) => __provider.refreshData()),
+                    .whenComplete(() => __provider.refreshData()),
               )
             ],
           ),

@@ -148,10 +148,10 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                   VoidCallback openChapter = () => Navigator.of(context)
                       .push(MaterialPageRoute(
                           builder: (context) => ChapterPage(searchItem: searchItem)))
-                      .then((value) => provider.updateList());
+                      .whenComplete(() => provider.updateList());
                   VoidCallback openContent = () => Navigator.of(context)
                       .push(ContentPageRoute().route(searchItem))
-                      .then((value) => provider.updateList());
+                      .whenComplete(() => provider.updateList());
                   return InkWell(
                     child: UIFavoriteItem(searchItem: searchItem),
                     onTap: longPress ? openChapter : openContent,
