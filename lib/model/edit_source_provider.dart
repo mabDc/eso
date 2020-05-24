@@ -18,7 +18,7 @@ class EditSourceProvider with ChangeNotifier {
 
   final _menuList = [
     {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
-    {'title': '阅读或异次元导入', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
+    {'title': '从阅读或异次元', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
     // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
     {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
     {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},

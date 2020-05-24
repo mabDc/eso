@@ -221,6 +221,12 @@ class _ChapterPageState extends State<ChapterPage> {
 
   Widget _buildChapter(ChapterPageController pageController, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    var countOfLine = screenWidth ~/ 180;
+    if(countOfLine < 2){
+      countOfLine = 2;
+    }else if(countOfLine > 6){
+      countOfLine = 6;
+    }
     if (pageController.isLoading) {
       return SliverToBoxAdapter(
         child: Container(height: 200, child: LandingPage()),
@@ -237,8 +243,8 @@ class _ChapterPageState extends State<ChapterPage> {
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: (screenWidth - 2 - 16) / 50 / 4,
+          crossAxisCount: countOfLine,
+          childAspectRatio: (screenWidth - 2 - 16) / 50 / countOfLine,
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
         ),
