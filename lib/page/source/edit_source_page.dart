@@ -275,53 +275,5 @@ class EditSourcePage extends StatelessWidget {
           )
           .toList(),
     );
-    // return Consumer<EditSourceProvider>(
-    //   builder: (context, provider, child) => PopupMenuButton<int>(
-    //     elevation: 20,
-    //     icon: Icon(Icons.add),
-    //     offset: Offset(0, 40),
-    //     onSelected: (int value) {
-    //       switch (value) {
-    //         case ADD_RULE:
-    //           Navigator.of(context)
-    //               .push(MaterialPageRoute(builder: (context) => EditRulePage()));
-    //           break;
-    //         case FROM_FILE:
-    //           Toast.show("从本地文件导入", context);
-    //           break;
-    //         case FROM_CLOUD:
-    //           showURLDialog(context, provider, false);
-    //           break;
-    //         case FROM_YICIYUAN:
-    //           showURLDialog(context, provider, true);
-    //           break;
-    //         case DELETE_ALL_RULES:
-    //           showDeleteAllDialog(context, provider);
-    //           break;
-    //         default:
-    //       }
-    //     },
-    //     itemBuilder: (context) => [
-    //       {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
-    //       {'title': '阅读或异次元', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
-    //       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
-    //       {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
-    //       {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
-    //     ]
-    //         .map(
-    //           (element) => PopupMenuItem<int>(
-    //             child: Row(
-    //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //               children: [
-    //                 Text(element['title']),
-    //                 Icon(element['icon'], color: primaryColor),
-    //               ],
-    //             ),
-    //             value: element['type'],
-    //           ),
-    //         )
-    //         .toList(),
-    //   ),
-    // );
   }
 }
