@@ -39,19 +39,16 @@ class AnalyzerJS implements Analyzer {
 
   @override
   Future<dynamic> getElements(String rule) async {
-    await FlutterJs.evaluate("result = $_content", _jsEngineId);
-    return FlutterJs.evaluate(rule, _jsEngineId);
+    return FlutterJs.evaluate("result = $_content;$rule;", _jsEngineId);
   }
 
   @override
   Future<dynamic> getString(String rule) async {
-    await FlutterJs.evaluate("result = $_content", _jsEngineId);
-    return FlutterJs.evaluate(rule, _jsEngineId);
+    return FlutterJs.evaluate("result = $_content;$rule;", _jsEngineId);
   }
 
   @override
   Future<dynamic> getStringList(String rule) async {
-    await FlutterJs.evaluate("result = $_content", _jsEngineId);
-    return FlutterJs.evaluate(rule, _jsEngineId);
+    return FlutterJs.evaluate("result = $_content;$rule;", _jsEngineId);
   }
 }
