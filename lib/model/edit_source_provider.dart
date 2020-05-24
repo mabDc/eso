@@ -1,32 +1,53 @@
+import 'dart:convert';
+
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class EditSourceProvider with ChangeNotifier {
-  static const int ADD_RULE = 0;
-  static const int FROM_FILE = 2;
-  static const int FROM_CLOUD = 3;
-  static const int FROM_YICIYUAN = 4;
-  static const int DELETE_ALL_RULES = 5;
   List<Rule> _rules;
   final int type;
   List<Rule> get rules => _rules;
   bool _isLoading;
-
   bool get isLoading => _isLoading;
 
-  final _menuList = [
-    {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
-    {'title': '从阅读或异次元', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
-    // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
-    {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
-    {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
-  ];
-  List get menuList => _menuList;
+  bool _isLoadingUrl;
+  bool get isLoadingUrl => _isLoadingUrl;
 
-  EditSourceProvider({this.type: 1}) {
+  EditSourceProvider({this.type = 1}) {
+    _isLoadingUrl = false;
     refreshData();
+  }
+
+  Future<int> addFromUrl(String url, bool isFromYICIYUAN) async {
+    if (isLoadingUrl) return 0;
+    _isLoadingUrl = true;
+    notifyListeners();
+    final res = await http.get("$url");
+    final json = jsonDecode(utf8.decode(res.bodyBytes));
+    if (json is Map) {
+      final id = await Global.ruleDao.insertOrUpdateRule(
+          isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
+      if (id != null) {
+        _isLoadingUrl = false;
+        refreshData();
+        return 1;
+      }
+    } else if (json is List) {
+      final ids = await Global.ruleDao.insertOrUpdateRules(json
+          .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
+          .toList());
+      if (ids.length > 0) {
+        _isLoadingUrl = false;
+        refreshData();
+        return ids.length;
+      }
+    }
+    _isLoadingUrl = false;
+    notifyListeners();
+    return 0;
   }
 
   //获取源列表 1所有 2发现
