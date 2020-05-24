@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
+import 'package:flutter/services.dart';
+import '../global.dart';
 import 'analyze_url.dart';
 import 'package:eso/utils/input_stream.dart';
 import 'package:flutter_js/flutter_js.dart';
@@ -163,8 +165,8 @@ class APIFromRUle implements API {
         await FlutterJs.evaluate(rule.loadJs, engineId);
       }
       if (rule.useCryptoJS) {
-        // final cryptoJS = await DefaultAssetBundle.of(context).loadString(Global.cryptoJS);
-        // await FlutterJs.evaluate(cryptoJS, engineId);
+        final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
+        await FlutterJs.evaluate(cryptoJS, engineId);
       }
     }
     final temp = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)

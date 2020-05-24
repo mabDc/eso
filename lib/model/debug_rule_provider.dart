@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/database/rule.dart';
+import 'package:flutter/services.dart';
 import '../api/analyze_url.dart';
 import '../api/analyzer_manager.dart';
 import 'package:eso/utils/input_stream.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../global.dart';
 
 class DebugRuleProvider with ChangeNotifier {
   DateTime _startTime;
@@ -261,8 +264,8 @@ class DebugRuleProvider with ChangeNotifier {
           await FlutterJs.evaluate(rule.loadJs, engineId);
         }
         if (rule.useCryptoJS) {
-          // final cryptoJS = await DefaultAssetBundle.of(context).loadString(Global.cryptoJS);
-          // await FlutterJs.evaluate(cryptoJS, engineId);
+          final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
+          await FlutterJs.evaluate(cryptoJS, engineId);
         }
       }
       final contentItems =
