@@ -6,96 +6,72 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
-import '../model/chapter_page_controller.dart';
+import '../model/chapter_page_provider.dart';
 import 'content_page_manager.dart';
 import 'langding_page.dart';
 
-class ChapterPage extends StatefulWidget {
+class ChapterPage extends StatelessWidget {
   final SearchItem searchItem;
-
-  const ChapterPage({
-    this.searchItem,
-    Key key,
-  }) : super(key: key);
-
-  @override
-  _ChapterPageState createState() => _ChapterPageState();
-}
-
-class _ChapterPageState extends State<ChapterPage> {
-  Widget _page;
-  ChapterPageController __pageController;
-
-  @override
-  void dispose() {
-    __pageController?.dispose();
-    super.dispose();
-  }
+  const ChapterPage({this.searchItem, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (_page == null) {
-      _page = _buildPage(MediaQuery.of(context).size);
-    }
-    return _page;
-  }
-
-  Widget _buildPage(Size size) {
-    return ChangeNotifierProvider.value(
-      value: ChapterPageController(searchItem: widget.searchItem, size: size),
-      child: Consumer<ChapterPageController>(
-        builder: (context, ChapterPageController pageController, _) {
-          return Scaffold(
-            appBar: _buildAlphaAppbar(pageController),
-            body: SafeArea(
-              child: CustomScrollView(
-                slivers: <Widget>[
-                  _comicDetail(pageController),
-                  _buildChapter(pageController, context),
-                ],
-              ),
-            ),
-          );
-        },
+    final size = MediaQuery.of(context).size;
+    return ChangeNotifierProvider<ChapterPageProvider>(
+      create: (context) => ChapterPageProvider(searchItem: searchItem, size: size),
+      builder: (context, child) => Scaffold(
+        appBar: _buildAlphaAppbar(context),
+        body: SafeArea(
+          child: CustomScrollView(
+            slivers: <Widget>[
+              _comicDetail(context),
+              _buildChapter(context),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   //头部
-  Widget _buildAlphaAppbar(ChapterPageController pageController) {
+  Widget _buildAlphaAppbar(BuildContext context) {
+    final provider = Provider.of<ChapterPageProvider>(context, listen: false);
     return AppBar(
       titleSpacing: 0,
       backgroundColor: Theme.of(context).bottomAppBarColor,
       elevation: 0,
       title: Text(
-        widget.searchItem.origin,
+        searchItem.origin,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.refresh),
-          onPressed: pageController.updateChapter,
+          onPressed: provider.updateChapter,
         ),
-        IconButton(
-          icon: SearchItemManager.isFavorite(widget.searchItem.url)
-              ? Icon(Icons.favorite)
-              : Icon(Icons.favorite_border),
-          onPressed: pageController.toggleFavorite,
+        // 加入收藏时需要刷新图标，其他不刷新
+        Consumer<ChapterPageProvider>(
+          builder: (context, provider, child) => IconButton(
+            icon: SearchItemManager.isFavorite(searchItem.url)
+                ? Icon(Icons.favorite)
+                : Icon(Icons.favorite_border),
+            onPressed: provider.toggleFavorite,
+          ),
         ),
         IconButton(
           icon: Icon(Icons.share),
-          onPressed: pageController.share,
+          onPressed: provider.share,
         ),
       ],
     );
   }
 
   //漫画详情
-  Widget _comicDetail(ChapterPageController pageController) {
+  Widget _comicDetail(BuildContext context) {
     // return Padding(
     //   padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
-    //   child: UiSearchItem(item: widget.searchItem),
+    //   child: UiSearchItem(item: searchItem),
     // );
     return SliverList(
       delegate: SliverChildListDelegate(
@@ -116,17 +92,17 @@ class _ChapterPageState extends State<ChapterPage> {
                       Expanded(
                         child: AspectRatio(
                           aspectRatio: 3 / 4,
-                          child: UIImageItem(cover: pageController.searchItem.cover),
+                          child: UIImageItem(cover: searchItem.cover),
                         ),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        pageController.searchItem.name,
+                        searchItem.name,
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        pageController.searchItem.author,
+                        searchItem.author,
                         style: TextStyle(fontSize: 12),
                       ),
                     ],
@@ -135,8 +111,7 @@ class _ChapterPageState extends State<ChapterPage> {
               ],
             ),
           ),
-          pageController.searchItem.tags != null &&
-                  pageController.searchItem.tags.join().isNotEmpty
+          searchItem.tags != null && searchItem.tags.join().isNotEmpty
               ? Container(
                   padding: EdgeInsets.only(
                     top: 14.0,
@@ -144,7 +119,7 @@ class _ChapterPageState extends State<ChapterPage> {
                   child: Wrap(
                     spacing: 8,
                     alignment: WrapAlignment.center,
-                    children: pageController.searchItem.tags
+                    children: searchItem.tags
                         .map(
                           (tag) => Material(
                             color: Theme.of(context).primaryColor,
@@ -166,143 +141,119 @@ class _ChapterPageState extends State<ChapterPage> {
             padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
             alignment: Alignment.centerLeft,
             child: Text(
-              widget.searchItem.description,
+              searchItem.description,
               style: TextStyle(fontSize: 12),
             ),
           ),
-          _sortWidget(pageController)
+          _sortWidget(context)
         ],
       ),
     );
   }
 
   //排序
-  Widget _sortWidget(ChapterPageController pageController) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.black)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              '全部章节(${widget.searchItem.chapters?.length ?? 0})',
-              style: TextStyle(fontSize: 16),
+  Widget _sortWidget(BuildContext context) {
+    final theme = Theme.of(context);
+    return Consumer<ChapterPageProvider>(
+      builder: (context, provider, child) => Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.black)),
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                '全部章节(${searchItem.chapters?.length ?? 0})',
+                style: TextStyle(fontSize: 16),
+              ),
             ),
-          ),
-          GestureDetector(
-            child: Row(
-              children: [
-                widget.searchItem.reverseChapter
-                    ? Container()
-                    : Transform.rotate(
-                        child: Icon(
-                          Icons.sort,
-                          color: Theme.of(context).primaryColor,
+            GestureDetector(
+              child: Row(
+                children: [
+                  searchItem.reverseChapter
+                      ? Container()
+                      : Transform.rotate(
+                          child: Icon(
+                            Icons.sort,
+                            color: theme.primaryColor,
+                          ),
+                          angle: pi,
                         ),
-                        angle: pi,
-                      ),
-                Text(
-                  widget.searchItem.reverseChapter ? "倒序" : "顺序",
-                  style: TextStyle(color: Theme.of(context).primaryColor),
-                ),
-                widget.searchItem.reverseChapter
-                    ? Icon(Icons.sort, color: Theme.of(context).primaryColor)
-                    : Container(),
-              ],
+                  Text(
+                    searchItem.reverseChapter ? "倒序" : "顺序",
+                    style: TextStyle(color: theme.primaryColor),
+                  ),
+                  searchItem.reverseChapter
+                      ? Icon(Icons.sort, color: theme.primaryColor)
+                      : Container(),
+                ],
+              ),
+              onTap: provider.toggleReverse,
             ),
-            onTap: pageController.toggleReverse,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildChapter(ChapterPageController pageController, BuildContext context) {
+  Widget _buildChapter(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     var countOfLine = screenWidth ~/ 180;
-    if(countOfLine < 2){
+    if (countOfLine < 2) {
       countOfLine = 2;
-    }else if(countOfLine > 6){
+    } else if (countOfLine > 6) {
       countOfLine = 6;
     }
-    if (pageController.isLoading) {
-      return SliverToBoxAdapter(
-        child: Container(height: 200, child: LandingPage()),
-      );
-    }
-
-    void Function(int index) onTap = (int index) {
-      pageController.changeChapter(index);
-      Navigator.of(context)
-          .push(ContentPageRoute().route(widget.searchItem))
-          .whenComplete(pageController.adjustScroll);
-    };
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      sliver: SliverGrid(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: countOfLine,
-          childAspectRatio: (screenWidth - 2 - 16) / 50 / countOfLine,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (BuildContext context, int index) {
-            final showIndex = widget.searchItem.reverseChapter
-                ? widget.searchItem.chaptersCount - index - 1
-                : index;
-            return Container(
-              child: _buildChapterButton(
-                  context,
-                  widget.searchItem.durChapterIndex == index,
-                  Align(
-                    alignment: FractionalOffset.center,
-                    child: Text(
-                      '${widget.searchItem.chapters[showIndex].name}'.trim(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  () => onTap(showIndex)),
-            );
-          },
-          childCount: pageController.searchItem.chapters.length,
-        ),
-      ),
+    return Consumer<ChapterPageProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return SliverToBoxAdapter(
+            child: Container(height: 200, child: LandingPage()),
+          );
+        }
+        void Function(int index) onTap = (int index) {
+          provider.changeChapter(index);
+          Navigator.of(context)
+              .push(ContentPageRoute().route(searchItem))
+              .whenComplete(provider.adjustScroll);
+        };
+        return SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          sliver: SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: countOfLine,
+              childAspectRatio: (screenWidth - 2 - 16) / 50 / countOfLine,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                final showIndex = searchItem.reverseChapter
+                    ? searchItem.chaptersCount - index - 1
+                    : index;
+                return Container(
+                  child: _buildChapterButton(
+                      context,
+                      searchItem.durChapterIndex == index,
+                      Align(
+                        alignment: FractionalOffset.center,
+                        child: Text(
+                          '${searchItem.chapters[showIndex].name}'.trim(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      () => onTap(showIndex)),
+                );
+              },
+              childCount: searchItem.chapters.length,
+            ),
+          ),
+        );
+      },
     );
-
-    // return GridView.builder(
-    //   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-    //   physics: NeverScrollableScrollPhysics(),
-    //   shrinkWrap: true,
-    //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    //     crossAxisCount: 4,
-    //     childAspectRatio: (screenWidth - 2 - 16) / 50 / 4,
-    //     mainAxisSpacing: 8,
-    //     crossAxisSpacing: 8,
-    //   ),
-    //   itemBuilder: (BuildContext context, int index) {
-    //     return Container(
-    //       child: _buildChapterButton(
-    //           context,
-    //           widget.searchItem.durChapterIndex == index,
-    //           Align(
-    //             alignment: FractionalOffset.center,
-    //             child: Text(
-    //               '${widget.searchItem.chapters[index].name}'.trim(),
-    //               maxLines: 1,
-    //               overflow: TextOverflow.ellipsis,
-    //               textAlign: TextAlign.center,
-    //             ),
-    //           ),
-    //           () => onTap(index)),
-    //     );
-    //   },
-    //   itemCount: widget.searchItem.chapters.length,
-    // );
   }
 
   Widget _buildChapterButton(

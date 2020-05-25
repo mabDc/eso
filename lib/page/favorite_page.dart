@@ -9,7 +9,7 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = [
+    const tabs = [
       ["文字", API.NOVEL],
       ["图片", API.MANGA],
       ["音频", API.AUDIO],

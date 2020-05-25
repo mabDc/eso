@@ -1,6 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
-import 'package:eso/model/chapter_page_controller.dart';
+import 'package:eso/model/chapter_page_provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class SearchItem {
@@ -52,7 +52,7 @@ class SearchItem {
       ruleContentType = api.ruleContentType;
     }
     id = DateTime.now().millisecondsSinceEpoch;
-    chapterListStyle = ChapterPageController.BigList;
+    chapterListStyle = ChapterPageProvider.BigList;
     durChapter = "";
     durChapterIndex = 0;
     durContentIndex = 1;

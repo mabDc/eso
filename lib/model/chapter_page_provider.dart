@@ -6,7 +6,7 @@ import '../api/api_manager.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
 
-class ChapterPageController with ChangeNotifier {
+class ChapterPageProvider with ChangeNotifier {
   final Size size;
   final SearchItem searchItem;
   ScrollController _controller;
@@ -35,8 +35,9 @@ class ChapterPageController with ChangeNotifier {
     }
   }
 
-  ChapterPageController({@required this.searchItem, @required this.size}) {
-    _controller = ScrollController(initialScrollOffset: _calcHeight);
+  ChapterPageProvider({@required this.searchItem, @required this.size}) {
+    // _controller = ScrollController(initialScrollOffset: _calcHeight);
+    _controller = ScrollController();
     _isLoading = false;
     if (searchItem.chapters == null) {
       _isLoading = true;
@@ -47,41 +48,42 @@ class ChapterPageController with ChangeNotifier {
     }
   }
 
-  double get _calcHeight {
-    if (searchItem.chapters == null) return 0.0;
-    double itemHeight;
-    int lineNum;
-    switch (searchItem.chapterListStyle) {
-      case BigList:
-        lineNum = 1;
-        itemHeight = 66;
-        break;
-      case SmallList:
-        lineNum = 2;
-        itemHeight = 52;
-        break;
-      case Grid:
-        lineNum = 5;
-        itemHeight = 47;
-        break;
-    }
-    final durHeight = searchItem.durChapterIndex ~/ lineNum * itemHeight;
-    double height = searchItem.chapters.length ~/ lineNum * itemHeight;
-    if (searchItem.chapters.length % lineNum > 0) {
-      height += itemHeight;
-    }
-    final screenHeight = size.height - 246;
-    if (height < screenHeight) {
-      return 1.0;
-    }
-    if ((height - durHeight) < screenHeight) {
-      return height - screenHeight;
-    }
-    return durHeight;
-  }
+  // double get _calcHeight {
+  //   if (searchItem.chapters == null) return 0.0;
+  //   double itemHeight;
+  //   int lineNum;
+  //   switch (searchItem.chapterListStyle) {
+  //     case BigList:
+  //       lineNum = 1;
+  //       itemHeight = 66;
+  //       break;
+  //     case SmallList:
+  //       lineNum = 2;
+  //       itemHeight = 52;
+  //       break;
+  //     case Grid:
+  //       lineNum = 5;
+  //       itemHeight = 47;
+  //       break;
+  //   }
+  //   final durHeight = searchItem.durChapterIndex ~/ lineNum * itemHeight;
+  //   double height = searchItem.chapters.length ~/ lineNum * itemHeight;
+  //   if (searchItem.chapters.length % lineNum > 0) {
+  //     height += itemHeight;
+  //   }
+  //   final screenHeight = size.height - 246;
+  //   if (height < screenHeight) {
+  //     return 1.0;
+  //   }
+  //   if ((height - durHeight) < screenHeight) {
+  //     return height - screenHeight;
+  //   }
+  //   return durHeight;
+  // }
 
   void adjustScroll() {
-    _controller.jumpTo(_calcHeight);
+    //_controller.jumpTo(_calcHeight);
+    notifyListeners();
   }
 
   void initChapters() async {

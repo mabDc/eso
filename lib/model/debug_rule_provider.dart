@@ -18,7 +18,14 @@ class DebugRuleProvider with ChangeNotifier {
   final Rule rule;
   final Color textColor;
   DebugRuleProvider(this.rule, this.textColor);
+  
   final rows = <Row>[];
+  @override
+  void dispose() {
+    rows.clear();
+    super.dispose();
+  }
+
   Widget _buildText(String s, [bool isUrl = false]) {
     return Flexible(
       child: isUrl
@@ -307,11 +314,5 @@ class DebugRuleProvider with ChangeNotifier {
       ));
       _addContent("解析结束！");
     }
-  }
-
-  @override
-  void dispose() {
-    rows.clear();
-    super.dispose();
   }
 }
