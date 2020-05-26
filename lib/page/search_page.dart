@@ -20,6 +20,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
+    searchCount = 0;
+    rulesCount = 0;
     return ChangeNotifierProvider(
       create: (context) => SearchProvider(),
       builder: (context, child) => Scaffold(
@@ -70,15 +72,24 @@ class _SearchPageState extends State<SearchPage> {
         ),
         body: Consumer<SearchProvider>(
           builder: (context, provider, child) {
-            if (provider.searchList.length == 0) {
-              return Container();
+            if (provider.searchList.length == 0 && rulesCount == 0) {
+              return Center(
+                child: Text("input key and submit to search"),
+              );
             }
             return ListView.separated(
               padding: EdgeInsets.all(8),
               separatorBuilder: (context, index) => SizedBox(height: 8),
-              itemCount: provider.searchList.length,
+              itemCount: provider.searchList.length + 1,
               itemBuilder: (BuildContext context, int index) {
-                return UiSearchItem(item: provider.searchList[index]);
+                if (index == 0) {
+                  return Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text("搜索进度 $searchCount / $rulesCount"),
+                  );
+                }
+                return UiSearchItem(item: provider.searchList[index - 1]);
               },
             );
           },
@@ -96,10 +107,12 @@ class SearchProvider with ChangeNotifier {
   void search(String value) async {
     print("search $value");
     searchList.clear();
-    notifyListeners();
     query = value;
     final rules =
         (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+    searchCount = 0;
+    rulesCount = rules.length;
+    notifyListeners();
     // 0 -> 0
     // 1-5 -> 1
     // 6-10 -> 2
@@ -108,7 +121,10 @@ class SearchProvider with ChangeNotifier {
       final count = rules.length - 1 - i;
       asyncParse(
         searchList,
-        () => notifyListeners(),
+        () {
+          searchCount++;
+          notifyListeners();
+        },
         List.generate(
           count < 0 ? 0 : count ~/ threadCount + 1,
           (j) => rules[j * threadCount + i].id,
@@ -125,9 +141,15 @@ class SearchProvider with ChangeNotifier {
 }
 
 String query = "";
+int searchCount = 0;
+int rulesCount = 0;
+
 //这里以计算斐波那契数列为例，返回的值是Future，因为是异步的
 void asyncParse(
-    List<SearchItem> searchList, VoidCallback callback, List<String> ids) async {
+  List<SearchItem> searchList,
+  VoidCallback callback,
+  List<String> ids,
+) async {
   //首先创建一个ReceivePort，为什么要创建这个？
   //因为创建isolate所需的参数，必须要有SendPort，SendPort需要ReceivePort来创建
   final response = new ReceivePort();
@@ -140,8 +162,13 @@ void asyncParse(
   final answer = new ReceivePort();
   //获得数据并返回
   answer.listen((message) {
-    searchList.addAll((message as List).map((json) => SearchItem.fromJson(json)));
-    callback();
+    if (message is String) {
+      print(message);
+      callback();
+    } else {
+      searchList.addAll((message as List).map((json) => SearchItem.fromJson(json)));
+      callback();
+    }
   });
   //发送数据
   sendPort.send([ids, answer.sendPort]);
@@ -162,11 +189,10 @@ void _isolate(SendPort initialReplyTo) {
     for (final id in ids) {
       try {
         final api = APIFromRUle(await database.ruleDao.findRuleById(id));
-        print(api.rule.name);
         final items = await api.search(query, 0, 20);
         send.send(items.map((e) => e.toJson()).toList());
       } catch (e) {
-        print(e);
+        send.send("$e");
       }
     }
   });
