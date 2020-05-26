@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
@@ -7,6 +8,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 import '../../api/api.dart';
+
+/// 快速输入符号List
+// ignore: non_constant_identifier_names
+final FAST_INPUT_LIST = [
+  '@',
+  '&',
+  '|',
+  '%',
+  '/',
+  ':',
+  '[',
+  ']',
+  '{',
+  '}',
+  '<',
+  '>',
+  '\\',
+  '\$',
+  '#',
+  '!',
+  '.',
+  'href',
+  'src',
+  'textNodes',
+  'xpath',
+  'json',
+  'css',
+  'id',
+  'class',
+  'tag',
+];
 
 class EditRulePage extends StatefulWidget {
   final Rule rule;
@@ -18,7 +50,8 @@ class EditRulePage extends StatefulWidget {
   _EditRulePageState createState() => _EditRulePageState();
 }
 
-class _EditRulePageState extends State<EditRulePage> {
+class _EditRulePageState extends State<EditRulePage>
+    with WidgetsBindingObserver {
   var isLoading = false;
   Color primaryColor;
   Rule rule;
@@ -27,6 +60,8 @@ class _EditRulePageState extends State<EditRulePage> {
   bool _searchExpanded = true;
   bool _chapterExpanded = true;
   bool _contentExpanded = true;
+  bool _isHideFastInput = true;
+
   @override
   Widget build(BuildContext context) {
     primaryColor = Theme.of(context).primaryColor;
@@ -35,6 +70,15 @@ class _EditRulePageState extends State<EditRulePage> {
       _discoverExpanded = rule.enableDiscover;
       _searchExpanded = rule.enableSearch;
     }
+
+    KeyboardVisibility.onChange.listen((visible) {
+      if (mounted) {
+        setState(() {
+          _isHideFastInput = !visible;
+        });
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
@@ -47,8 +91,8 @@ class _EditRulePageState extends State<EditRulePage> {
               rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
               await Global.ruleDao.insertOrUpdateRule(rule);
               isLoading = false;
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => DebugRulePage(rule: rule)));
             },
           ),
           IconButton(
@@ -58,13 +102,43 @@ class _EditRulePageState extends State<EditRulePage> {
           _buildpopupMenu(context),
         ],
       ),
-      body: ListView(
-        children: [
-          _buildInfo(context),
-          _buildDiscover(context),
-          _buildSearch(context),
-          _buildChapter(context),
-          _buildContent(context),
+      body: Flex(
+        direction: Axis.vertical,
+        children: <Widget>[
+          Expanded(
+              child: ListView(
+            children: [
+              _buildInfo(context),
+              _buildDiscover(context),
+              _buildSearch(context),
+              _buildChapter(context),
+              _buildContent(context),
+            ],
+          )),
+          Offstage(
+              offstage: _isHideFastInput,
+              child: Container(
+                height: 45,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: FAST_INPUT_LIST.length,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      child: Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Text(FAST_INPUT_LIST[index],
+                              style: TextStyle(fontSize: 18))),
+                      onTap: () {
+                        //获取输入框
+                        ///
+                        ///
+                        ///
+                      },
+                    );
+                  },
+                ),
+              ))
         ],
       ),
     );
@@ -121,7 +195,8 @@ class _EditRulePageState extends State<EditRulePage> {
       initiallyExpanded: _infoExpanded,
       onExpansionChanged: (value) => _infoExpanded = value,
       children: [
-        _buildDetailsText('创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
+        _buildDetailsText(
+            '创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
         _buildDetailsText(
             '修改时间：${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}'),
         Padding(
@@ -493,8 +568,8 @@ class _EditRulePageState extends State<EditRulePage> {
             Toast.show("已保存到剪贴板", context);
             break;
           case DEBUG_WITHOUT_SAVE:
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => DebugRulePage(rule: rule)));
             break;
           default:
         }
