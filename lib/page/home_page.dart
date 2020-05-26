@@ -1,3 +1,4 @@
+import 'package:eso/page/search_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,8 +14,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: PageSwitch(Global.currentHomePage),
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => PageSwitch(Global.currentHomePage),
       child: Consumer<PageSwitch>(
         builder: (BuildContext context, PageSwitch pageSwitch, Widget widget) {
           Global.currentHomePage = pageSwitch.currentIndex;
@@ -54,8 +55,8 @@ class HomePage extends StatelessWidget {
                                 ),
                                 Text(
                                   "收藏",
-                                  style: TextStyle(
-                                      color: getColor(pageSwitch, context, 0)),
+                                  style:
+                                      TextStyle(color: getColor(pageSwitch, context, 0)),
                                 )
                               ],
                             ),
@@ -73,8 +74,7 @@ class HomePage extends StatelessWidget {
                                     color: getColor(pageSwitch, context, 1)),
                                 Text("发现",
                                     style: TextStyle(
-                                        color:
-                                            getColor(pageSwitch, context, 1)))
+                                        color: getColor(pageSwitch, context, 1)))
                               ],
                             ),
                           ),
@@ -88,11 +88,11 @@ class HomePage extends StatelessWidget {
             floatingActionButton: FloatingActionButton(
               elevation: 0,
               backgroundColor: Theme.of(context).primaryColor,
-              onPressed: () {},
-              child: Icon(
-                Icons.search,
-                color: Colors.white,
-              ),
+              onPressed: () => Navigator.of(context)
+                  .push(
+                      MaterialPageRoute(builder: (BuildContext context) => SearchPage()))
+                  .whenComplete(() => pageSwitch.refreshList()),
+              child: Icon(Icons.search, color: Colors.white),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           );

@@ -24,6 +24,10 @@ class PageSwitch with ChangeNotifier {
     }
   }
 
+  void refreshList(){
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
