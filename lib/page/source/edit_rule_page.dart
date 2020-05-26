@@ -50,8 +50,7 @@ class EditRulePage extends StatefulWidget {
   _EditRulePageState createState() => _EditRulePageState();
 }
 
-class _EditRulePageState extends State<EditRulePage>
-    with WidgetsBindingObserver {
+class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver {
   var isLoading = false;
   Color primaryColor;
   Rule rule;
@@ -91,8 +90,8 @@ class _EditRulePageState extends State<EditRulePage>
               rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
               await Global.ruleDao.insertOrUpdateRule(rule);
               isLoading = false;
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => DebugRulePage(rule: rule)));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             },
           ),
           IconButton(
@@ -130,10 +129,15 @@ class _EditRulePageState extends State<EditRulePage>
                           child: Text(FAST_INPUT_LIST[index],
                               style: TextStyle(fontSize: 18))),
                       onTap: () {
-                        //获取输入框
-                        ///
-                        ///
-                        ///
+                        final textSelection = controller.selection;
+                        controller.text =
+                            controller.text.substring(0, textSelection.end) +
+                                FAST_INPUT_LIST[index] +
+                                controller.text.substring(textSelection.end);
+                        controller.selection = textSelection.copyWith(
+                          baseOffset: textSelection.end + FAST_INPUT_LIST[index].length,
+                          extentOffset: textSelection.end + FAST_INPUT_LIST[index].length,
+                        );
                       },
                     );
                   },
@@ -158,6 +162,8 @@ class _EditRulePageState extends State<EditRulePage>
     );
   }
 
+  TextEditingController controller;
+
   Widget _buildEditText(
     String text,
     String labelText,
@@ -165,12 +171,17 @@ class _EditRulePageState extends State<EditRulePage>
     int minLines = 1,
     int maxLines,
   }) {
+    final con = TextEditingController(text: text);
     return Padding(
       padding: const EdgeInsets.all(12),
       child: TextField(
+        focusNode: FocusNode()
+          ..addListener(() {
+            controller = con;
+          }),
         minLines: minLines,
         maxLines: maxLines,
-        controller: TextEditingController(text: text),
+        controller: con,
         decoration: InputDecoration(
           labelText: labelText,
           border: OutlineInputBorder(
@@ -195,8 +206,7 @@ class _EditRulePageState extends State<EditRulePage>
       initiallyExpanded: _infoExpanded,
       onExpansionChanged: (value) => _infoExpanded = value,
       children: [
-        _buildDetailsText(
-            '创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
+        _buildDetailsText('创建时间：${DateTime.fromMicrosecondsSinceEpoch(rule.createTime)}'),
         _buildDetailsText(
             '修改时间：${DateTime.fromMicrosecondsSinceEpoch(rule.modifiedTime)}'),
         Padding(
@@ -568,8 +578,8 @@ class _EditRulePageState extends State<EditRulePage>
             Toast.show("已保存到剪贴板", context);
             break;
           case DEBUG_WITHOUT_SAVE:
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => DebugRulePage(rule: rule)));
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             break;
           default:
         }
