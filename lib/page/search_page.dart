@@ -86,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
                   return Container(
                     height: 50,
                     alignment: Alignment.center,
-                    child: Text("搜索进度 $searchCount / $rulesCount"),
+                    child: Text("search progress $searchCount / $rulesCount"),
                   );
                 }
                 return UiSearchItem(item: provider.searchList[index - 1]);
@@ -100,16 +100,36 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 class SearchProvider with ChangeNotifier {
-  final int threadCount;
+  int _threadCount;
+  int get threadCount => _threadCount;
+  set threadCount(int value) {
+    if (threadCount != value) {
+      _threadCount = value;
+      notifyListeners();
+    }
+  }
+
   final List<SearchItem> searchList = <SearchItem>[];
-  SearchProvider({this.threadCount = 5});
+  final isolates = <FlutterIsolate>[];
+  final keys = Map<String, bool>();
+  var keySuffix = 0;
+  SearchProvider({int threadCount = 5}) {
+    _threadCount = threadCount;
+  }
 
   void search(String value) async {
+    keys.forEach((key, value) => keys[key] = false);
     print("search $value");
     searchList.clear();
+    isolates.forEach((isolate) {
+      isolate.pause();
+      isolate.kill();
+    });
+    isolates.clear();
+    keySuffix++;
     query = value;
     final rules =
-        (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+        (await Global.ruleDao.findAllRules()); //.where((e) => e.enableSearch).toList();
     searchCount = 0;
     rulesCount = rules.length;
     notifyListeners();
@@ -119,7 +139,8 @@ class SearchProvider with ChangeNotifier {
     // 11-15 -> 3
     for (var i = 0; i < threadCount; i++) {
       final count = rules.length - 1 - i;
-      asyncParse(
+      keys.addAll({"$keySuffix$i": true});
+      isolates.add(await asyncParse(
         searchList,
         () {
           searchCount++;
@@ -129,13 +150,17 @@ class SearchProvider with ChangeNotifier {
           count < 0 ? 0 : count ~/ threadCount + 1,
           (j) => rules[j * threadCount + i].id,
         ),
-      );
+        "$keySuffix$i",
+        keys,
+      ));
     }
   }
 
   @override
   void dispose() {
     searchList.clear();
+    isolates.forEach((isolate) => isolate.kill());
+    isolates.clear();
     super.dispose();
   }
 }
@@ -145,33 +170,38 @@ int searchCount = 0;
 int rulesCount = 0;
 
 //这里以计算斐波那契数列为例，返回的值是Future，因为是异步的
-void asyncParse(
+Future<FlutterIsolate> asyncParse(
   List<SearchItem> searchList,
   VoidCallback callback,
   List<String> ids,
+  String key,
+  Map<String, bool> keys,
 ) async {
   //首先创建一个ReceivePort，为什么要创建这个？
   //因为创建isolate所需的参数，必须要有SendPort，SendPort需要ReceivePort来创建
   final response = new ReceivePort();
   //开始创建isolate,Isolate.spawn函数是isolate.dart里的代码,_isolate是我们自己实现的函数
   //_isolate是创建isolate必须要的参数。
-  await FlutterIsolate.spawn(_isolate, response.sendPort);
+  final isolate = await FlutterIsolate.spawn(_isolate, response.sendPort);
   //获取sendPort来发送数据
   final sendPort = await response.first as SendPort;
   //接收消息的ReceivePort
   final answer = new ReceivePort();
   //获得数据并返回
   answer.listen((message) {
-    if (message is String) {
-      print(message);
-      callback();
-    } else {
-      searchList.addAll((message as List).map((json) => SearchItem.fromJson(json)));
-      callback();
+    if (keys[key]) {
+      if (message is String) {
+        print(message);
+        callback();
+      } else {
+        searchList.addAll((message as List).map((json) => SearchItem.fromJson(json)));
+        callback();
+      }
     }
   });
   //发送数据
   sendPort.send([ids, answer.sendPort]);
+  return isolate as FlutterIsolate;
 }
 
 //创建isolate必须要的参数
