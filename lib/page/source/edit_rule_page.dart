@@ -129,12 +129,14 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                           child: Text(FAST_INPUT_LIST[index],
                               style: TextStyle(fontSize: 18))),
                       onTap: () {
-                        final textSelection = controller.selection;
-                        controller.text =
-                            controller.text.substring(0, textSelection.end) +
-                                FAST_INPUT_LIST[index] +
-                                controller.text.substring(textSelection.end);
-                        controller.selection = textSelection.copyWith(
+                        final textSelection = currentController.selection;
+                        currentController.text = currentController.text.replaceRange(
+                          textSelection.start,
+                          textSelection.end,
+                          FAST_INPUT_LIST[index],
+                        );
+                        currentOnChanged(currentController.text);
+                        currentController.selection = textSelection.copyWith(
                           baseOffset: textSelection.end + FAST_INPUT_LIST[index].length,
                           extentOffset: textSelection.end + FAST_INPUT_LIST[index].length,
                         );
@@ -162,7 +164,8 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     );
   }
 
-  TextEditingController controller;
+  TextEditingController currentController;
+  void Function(String text) currentOnChanged;
 
   Widget _buildEditText(
     String text,
@@ -171,17 +174,18 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     int minLines = 1,
     int maxLines,
   }) {
-    final con = TextEditingController(text: text);
+    final controller = TextEditingController(text: text);
     return Padding(
       padding: const EdgeInsets.all(12),
       child: TextField(
         focusNode: FocusNode()
           ..addListener(() {
-            controller = con;
+            currentController = controller;
+            currentOnChanged = onChanged;
           }),
         minLines: minLines,
         maxLines: maxLines,
-        controller: con,
+        controller: controller,
         decoration: InputDecoration(
           labelText: labelText,
           border: OutlineInputBorder(
