@@ -5,6 +5,7 @@ import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/database.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
@@ -20,8 +21,10 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
-    searchCount = 0;
+    successCount = 0;
+    failureCount = 0;
     rulesCount = 0;
+    final theme = Theme.of(context);
     return ChangeNotifierProvider(
       create: (context) => SearchProvider(),
       builder: (context, child) => Scaffold(
@@ -69,27 +72,122 @@ class _SearchPageState extends State<SearchPage> {
             ),
             onSubmitted: Provider.of<SearchProvider>(context, listen: false).search,
           ),
+          actions: [
+            Center(
+              child: DropdownButton<int>(
+                items: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+                    .map((count) => DropdownMenuItem<int>(
+                          child: Text('$count'),
+                          value: count,
+                        ))
+                    .toList(),
+                isDense: true,
+                underline: Container(),
+                value: context.select((SearchProvider provider) => provider.threadCount),
+                onChanged: (value) => Provider.of<SearchProvider>(context, listen: false)
+                    .threadCount = value,
+              ),
+            ),
+          ],
         ),
         body: Consumer<SearchProvider>(
           builder: (context, provider, child) {
             if (provider.searchList.length == 0 && rulesCount == 0) {
-              return Center(
-                child: Text("input key and submit to search"),
+              return Column(
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      FlatButton(
+                        onPressed: () => provider.searchOption = SearchOption.None,
+                        child: Text(
+                          "无",
+                          style: provider.searchOption == SearchOption.None
+                              ? TextStyle(color: theme.primaryColor)
+                              : TextStyle(),
+                        ),
+                      ),
+                      FlatButton(
+                        onPressed: () => provider.searchOption = SearchOption.Normal,
+                        child: Text(
+                          "普通",
+                          style: provider.searchOption == SearchOption.Normal
+                              ? TextStyle(color: theme.primaryColor)
+                              : TextStyle(),
+                        ),
+                      ),
+                      FlatButton(
+                        onPressed: () => provider.searchOption = SearchOption.Accurate,
+                        child: Text(
+                          "精确",
+                          style: provider.searchOption == SearchOption.Accurate
+                              ? TextStyle(color: theme.primaryColor)
+                              : TextStyle(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Text("input key and submit to search"),
+                  )
+                ],
               );
             }
+            final searchList = provider.searchOption == SearchOption.None
+                ? provider.searchList
+                : provider.searchOption == SearchOption.Normal
+                    ? provider.searchList
+                        .where((item) => item.name.contains(query))
+                        .toList()
+                    : provider.searchList.where((item) => item.name == query).toList();
             return ListView.separated(
               padding: EdgeInsets.all(8),
               separatorBuilder: (context, index) => SizedBox(height: 8),
-              itemCount: provider.searchList.length + 1,
+              itemCount: searchList.length + 2,
               itemBuilder: (BuildContext context, int index) {
-                if (index == 0) {
+                if (index == 1) {
                   return Container(
                     height: 50,
                     alignment: Alignment.center,
-                    child: Text("search progress $searchCount / $rulesCount"),
+                    child: Text(
+                        "$successCount(successes)/$failureCount(failures)/$rulesCount(all)"),
                   );
                 }
-                return UiSearchItem(item: provider.searchList[index - 1]);
+                if (index == 0) {
+                  return Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      FlatButton(
+                        onPressed: () => provider.searchOption = SearchOption.None,
+                        child: Text(
+                          "无",
+                          style: provider.searchOption == SearchOption.None
+                              ? TextStyle(color: theme.primaryColor)
+                              : TextStyle(),
+                        ),
+                      ),
+                      FlatButton(
+                        onPressed: () => provider.searchOption = SearchOption.Normal,
+                        child: Text(
+                          "普通",
+                          style: provider.searchOption == SearchOption.Normal
+                              ? TextStyle(color: theme.primaryColor)
+                              : TextStyle(),
+                        ),
+                      ),
+                      FlatButton(
+                        onPressed: () => provider.searchOption = SearchOption.Accurate,
+                        child: Text(
+                          "精确",
+                          style: provider.searchOption == SearchOption.Accurate
+                              ? TextStyle(color: theme.primaryColor)
+                              : TextStyle(),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return UiSearchItem(item: searchList[index - 2]);
               },
             );
           },
@@ -98,6 +196,8 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
+
+enum SearchOption { Normal, None, Accurate }
 
 class SearchProvider with ChangeNotifier {
   int _threadCount;
@@ -109,12 +209,22 @@ class SearchProvider with ChangeNotifier {
     }
   }
 
+  SearchOption _searchOption;
+  SearchOption get searchOption => _searchOption;
+  set searchOption(SearchOption value) {
+    if (_searchOption != value) {
+      value = _searchOption;
+      notifyListeners();
+    }
+  }
+
   final List<SearchItem> searchList = <SearchItem>[];
   final isolates = <FlutterIsolate>[];
   final keys = Map<String, bool>();
   var keySuffix = 0;
   SearchProvider({int threadCount = 5}) {
-    _threadCount = threadCount;
+    _threadCount = threadCount ?? 5;
+    _searchOption = SearchOption.Normal;
   }
 
   void search(String value) async {
@@ -130,7 +240,8 @@ class SearchProvider with ChangeNotifier {
     query = value;
     final rules =
         (await Global.ruleDao.findAllRules()); //.where((e) => e.enableSearch).toList();
-    searchCount = 0;
+    successCount = 0;
+    failureCount = 0;
     rulesCount = rules.length;
     notifyListeners();
     // 0 -> 0
@@ -143,7 +254,11 @@ class SearchProvider with ChangeNotifier {
       isolates.add(await asyncParse(
         searchList,
         () {
-          searchCount++;
+          successCount++;
+          notifyListeners();
+        },
+        () {
+          failureCount++;
           notifyListeners();
         },
         List.generate(
@@ -159,20 +274,25 @@ class SearchProvider with ChangeNotifier {
   @override
   void dispose() {
     searchList.clear();
-    isolates.forEach((isolate) => isolate.kill());
+    isolates.forEach((isolate) {
+      isolate.pause();
+      isolate.kill();
+    });
     isolates.clear();
     super.dispose();
   }
 }
 
 String query = "";
-int searchCount = 0;
+int successCount = 0;
+int failureCount = 0;
 int rulesCount = 0;
 
 //这里以计算斐波那契数列为例，返回的值是Future，因为是异步的
 Future<FlutterIsolate> asyncParse(
   List<SearchItem> searchList,
-  VoidCallback callback,
+  VoidCallback successCallback,
+  VoidCallback failureCallback,
   List<String> ids,
   String key,
   Map<String, bool> keys,
@@ -192,10 +312,10 @@ Future<FlutterIsolate> asyncParse(
     if (keys[key]) {
       if (message is String) {
         print(message);
-        callback();
+        failureCallback();
       } else {
         searchList.addAll((message as List).map((json) => SearchItem.fromJson(json)));
-        callback();
+        successCallback();
       }
     }
   });
