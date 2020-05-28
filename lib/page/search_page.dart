@@ -2,14 +2,15 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:eso/api/api_from_rule.dart';
-import 'package:eso/database/database.dart';
+import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
-import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:provider/provider.dart';
+
+import 'chapter_page.dart';
 
 class SearchPage extends StatefulWidget {
   SearchPage({Key key}) : super(key: key);
@@ -21,9 +22,6 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
-    successCount = 0;
-    failureCount = 0;
-    rulesCount = 0;
     final theme = Theme.of(context);
     return ChangeNotifierProvider(
       create: (context) => SearchProvider(),
@@ -92,7 +90,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
         body: Consumer<SearchProvider>(
           builder: (context, provider, child) {
-            if (provider.searchList.length == 0 && rulesCount == 0) {
+            if (provider.searchListNone.length == 0 && provider.rulesCount == 0) {
               return Column(
                 children: [
                   Wrap(
@@ -134,12 +132,11 @@ class _SearchPageState extends State<SearchPage> {
               );
             }
             final searchList = provider.searchOption == SearchOption.None
-                ? provider.searchList
+                ? provider.searchListNone
                 : provider.searchOption == SearchOption.Normal
-                    ? provider.searchList
-                        .where((item) => item.name.contains(query))
-                        .toList()
-                    : provider.searchList.where((item) => item.name == query).toList();
+                    ? provider.searchListNormal
+                    : provider.searchListAccurate;
+            final count = searchList.length;
             return ListView.separated(
               padding: EdgeInsets.all(8),
               separatorBuilder: (context, index) => SizedBox(height: 8),
@@ -150,7 +147,7 @@ class _SearchPageState extends State<SearchPage> {
                     height: 50,
                     alignment: Alignment.center,
                     child: Text(
-                        "$successCount(successes)/$failureCount(failures)/$rulesCount(all)"),
+                        "${provider.successCount}(successes)/${provider.failureCount}(failures)/${provider.rulesCount}(all)/$count(current)"),
                   );
                 }
                 if (index == 0) {
@@ -187,7 +184,15 @@ class _SearchPageState extends State<SearchPage> {
                     ],
                   );
                 }
-                return UiSearchItem(item: searchList[index - 2]);
+                return InkWell(
+                  child: UiSearchItem(item: searchList[index - 2]),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ChapterPage(searchItem: searchList[index - 2]),
+                    ),
+                  ),
+                );
               },
             );
           },
@@ -213,139 +218,102 @@ class SearchProvider with ChangeNotifier {
   SearchOption get searchOption => _searchOption;
   set searchOption(SearchOption value) {
     if (_searchOption != value) {
-      value = _searchOption;
+      _searchOption = value;
       notifyListeners();
     }
   }
 
-  final List<SearchItem> searchList = <SearchItem>[];
-  final isolates = <FlutterIsolate>[];
-  final keys = Map<String, bool>();
-  var keySuffix = 0;
+  int _rulesCount;
+  int get rulesCount => _rulesCount;
+  int _successCount;
+  int get successCount => _successCount;
+  int _failureCount;
+  int get failureCount => _failureCount;
+
+  final List<SearchItem> searchListNone = <SearchItem>[];
+  final List<SearchItem> searchListNormal = <SearchItem>[];
+  final List<SearchItem> searchListAccurate = <SearchItem>[];
+  final List<FlutterIsolate> _isolates = <FlutterIsolate>[];
+  List<Rule> _rules;
+  List<ReceivePort> _answers;
+  List<SendPort> _sendPorts;
+
+  final _keys = Map<String, bool>();
+  var _keySuffix = 0;
   SearchProvider({int threadCount = 5}) {
     _threadCount = threadCount ?? 5;
     _searchOption = SearchOption.Normal;
+    _rulesCount = 0;
+    _successCount = 0;
+    _failureCount = 0;
+    init();
   }
 
-  void search(String value) async {
-    keys.forEach((key, value) => keys[key] = false);
-    print("search $value");
-    searchList.clear();
-    isolates.forEach((isolate) {
+  void init() async {
+    _rules = (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+    _rulesCount = _rules.length;
+    notifyListeners();
+  }
+
+  void search(String keyword) async {
+    _keys.forEach((key, value) => _keys[key] = false);
+    _isolates.forEach((isolate) {
       isolate.pause();
       isolate.kill();
     });
-    isolates.clear();
-    keySuffix++;
-    query = value;
-    final rules =
-        (await Global.ruleDao.findAllRules()); //.where((e) => e.enableSearch).toList();
-    successCount = 0;
-    failureCount = 0;
-    rulesCount = rules.length;
+    print("search $keyword");
+    searchListNone.clear();
+    searchListNormal.clear();
+    searchListAccurate.clear();
+    _keySuffix++;
+    _successCount = 0;
+    _failureCount = 0;
     notifyListeners();
-    // 0 -> 0
-    // 1-5 -> 1
-    // 6-10 -> 2
-    // 11-15 -> 3
     for (var i = 0; i < threadCount; i++) {
-      final count = rules.length - 1 - i;
-      keys.addAll({"$keySuffix$i": true});
-      isolates.add(await asyncParse(
-        searchList,
-        () {
-          successCount++;
-          notifyListeners();
-        },
-        () {
-          failureCount++;
-          notifyListeners();
-        },
-        List.generate(
-          count < 0 ? 0 : count ~/ threadCount + 1,
-          (j) => rules[j * threadCount + i].id,
-        ),
-        "$keySuffix$i",
-        keys,
-      ));
+      final count = _rules.length - 1 - i;
+      _keys.addAll({"$_keySuffix$i": true});
+      final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
+      // 立即执行 按线程
+      (() async {
+        for (var j = 0; j < realCount; j++) {
+          await APIFromRUle(_rules[j * threadCount + i]).searchBackground(
+            keyword,
+            1,
+            20,
+            engineId: int.parse('$_keySuffix$i'),
+            searchListNone: searchListNone,
+            searchListNormal: searchListNormal,
+            searchListAccurate: searchListAccurate,
+            successCallback: () {
+              _successCount++;
+              notifyListeners();
+            },
+            failureCallback: () {
+              _failureCount++;
+              notifyListeners();
+            },
+            key: '$_keySuffix$i',
+            keys: _keys,
+            isolates: _isolates,
+          );
+        }
+      })();
     }
   }
 
   @override
   void dispose() {
-    searchList.clear();
-    isolates.forEach((isolate) {
+    searchListNone.clear();
+    searchListNormal.clear();
+    searchListAccurate.clear();
+    _keys.forEach((key, value) => _keys[key] = false);
+    _isolates.forEach((isolate) {
       isolate.pause();
       isolate.kill();
     });
-    isolates.clear();
+    _isolates.clear();
     super.dispose();
   }
-}
-
-String query = "";
-int successCount = 0;
-int failureCount = 0;
-int rulesCount = 0;
-
-//这里以计算斐波那契数列为例，返回的值是Future，因为是异步的
-Future<FlutterIsolate> asyncParse(
-  List<SearchItem> searchList,
-  VoidCallback successCallback,
-  VoidCallback failureCallback,
-  List<String> ids,
-  String key,
-  Map<String, bool> keys,
-) async {
-  //首先创建一个ReceivePort，为什么要创建这个？
-  //因为创建isolate所需的参数，必须要有SendPort，SendPort需要ReceivePort来创建
-  final response = new ReceivePort();
-  //开始创建isolate,Isolate.spawn函数是isolate.dart里的代码,_isolate是我们自己实现的函数
-  //_isolate是创建isolate必须要的参数。
-  final isolate = await FlutterIsolate.spawn(_isolate, response.sendPort);
-  //获取sendPort来发送数据
-  final sendPort = await response.first as SendPort;
-  //接收消息的ReceivePort
-  final answer = new ReceivePort();
-  //获得数据并返回
-  answer.listen((message) {
-    if (keys[key]) {
-      if (message is String) {
-        print(message);
-        failureCallback();
-      } else {
-        searchList.addAll((message as List).map((json) => SearchItem.fromJson(json)));
-        successCallback();
-      }
-    }
-  });
-  //发送数据
-  sendPort.send([ids, answer.sendPort]);
-  return isolate as FlutterIsolate;
-}
-
-//创建isolate必须要的参数
-void _isolate(SendPort initialReplyTo) {
-  final port = new ReceivePort();
-  //绑定
-  initialReplyTo.send(port.sendPort);
-  //监听
-  port.listen((message) async {
-    //获取数据并解析
-    final ids = message[0] as List<String>;
-    final send = message[1] as SendPort;
-    //返回结果
-    final database = await $FloorAppDatabase.databaseBuilder('eso_database.db').build();
-    for (final id in ids) {
-      try {
-        final api = APIFromRUle(await database.ruleDao.findRuleById(id));
-        final items = await api.search(query, 0, 20);
-        send.send(items.map((e) => e.toJson()).toList());
-      } catch (e) {
-        send.send("$e");
-      }
-    }
-  });
 }
 
 // //这里以计算斐波那契数列为例，返回的值是Future，因为是异步的

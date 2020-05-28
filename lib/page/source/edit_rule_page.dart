@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+// import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
@@ -59,7 +59,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   bool _searchExpanded = true;
   bool _chapterExpanded = true;
   bool _contentExpanded = true;
-  bool _isHideFastInput = true;
+  // bool _isHideFastInput = true;
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +70,13 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _searchExpanded = rule.enableSearch;
     }
 
-    KeyboardVisibility.onChange.listen((visible) {
-      if (mounted) {
-        setState(() {
-          _isHideFastInput = !visible;
-        });
-      }
-    });
+    // KeyboardVisibility.onChange.listen((visible) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _isHideFastInput = !visible;
+    //     });
+    //   }
+    // });
 
     return Scaffold(
       appBar: AppBar(
@@ -115,7 +115,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             ],
           )),
           Offstage(
-              offstage: _isHideFastInput,
+              offstage: false, //_isHideFastInput,
               child: Container(
                 height: 45,
                 child: ListView.builder(

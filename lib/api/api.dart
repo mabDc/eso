@@ -45,6 +45,45 @@ abstract class API {
   List<DiscoverMap> discoverMap();
 }
 
+class BaseAPI implements API {
+  String _origin;
+  String _originTag;
+  int _ruleContentType;
+
+  BaseAPI({String origin, String originTag, int ruleContentType}) {
+    _origin = origin;
+    _originTag = originTag;
+    _ruleContentType = ruleContentType;
+  }
+
+  String get origin => _origin;
+
+  String get originTag => _originTag;
+
+  int get ruleContentType => _ruleContentType;
+
+  Future<List<SearchItem>> discover(
+      Map<String, DiscoverPair> params, int page, int pageSize) {
+    return null;
+  }
+
+  Future<List<SearchItem>> search(String query, int page, int pageSize) {
+    return null;
+  }
+
+  Future<List<ChapterItem>> chapter(String url) {
+    return null;
+  }
+
+  Future<List<String>> content(String url) {
+    return null;
+  }
+
+  List<DiscoverMap> discoverMap() {
+    return null;
+  }
+}
+
 class DiscoverMap {
   final String name;
   final List<DiscoverPair> pairs;

@@ -65,8 +65,10 @@ searchPage = ${jsonEncode(page)};
     if (url is Map) {
       Map<String, dynamic> r = url.map((k, v) => MapEntry(k.toString().toLowerCase(), v));
 
-      Map<String, String> headers = {'User-Agent': rule.userAgent}
-        ..addAll(Map<String, String>.from(r['headers'] ?? Map()));
+      Map<String, String> headers = {
+        'User-Agent': rule.userAgent ??
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+      }..addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
@@ -101,7 +103,10 @@ searchPage = ${jsonEncode(page)};
       if (rule.userAgent.trim().isNotEmpty) {
         return http.get(u, headers: {'User-Agent': rule.userAgent});
       } else {
-        return http.get(u);
+        return http.get(u, headers: {
+          'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+        });
       }
     }
   }

@@ -25,7 +25,10 @@ class EditSourceProvider with ChangeNotifier {
     if (isLoadingUrl) return 0;
     _isLoadingUrl = true;
     notifyListeners();
-    final res = await http.get("$url");
+    final res = await http.get("$url", headers: {
+      'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+    });
     final json = jsonDecode(utf8.decode(res.bodyBytes));
     if (json is Map) {
       final id = await Global.ruleDao.insertOrUpdateRule(

@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
 import '../global.dart';
 import 'analyze_url.dart';
 import 'package:eso/utils/input_stream.dart';
@@ -107,6 +110,47 @@ class APIFromRUle implements API {
     return result;
   }
 
+  Future<bool> searchBackground(
+    String query,
+    int page,
+    int pageSize, {
+    int engineId,
+    List<SearchItem> searchListNone,
+    List<SearchItem> searchListNormal,
+    List<SearchItem> searchListAccurate,
+    VoidCallback successCallback,
+    VoidCallback failureCallback,
+    String key,
+    Map<String, bool> keys,
+    List<FlutterIsolate> isolates,
+  }) async {
+    final res = await AnalyzeUrl.urlRuleParser(
+      rule.searchUrl,
+      rule,
+      page: page,
+      pageSize: pageSize,
+      keyword: query,
+    );
+    final searchUrl = res.request.url.toString();
+    final isolate = await backgroundParseSearch(
+      searchListNone: searchListNone,
+      searchListNormal: searchListNormal,
+      searchListAccurate: searchListAccurate,
+      successCallback: successCallback,
+      failureCallback: failureCallback,
+      rule: rule,
+      api: this,
+      searchUrl: searchUrl,
+      content: InputStream.autoDecode(res.bodyBytes),
+      keyword: query,
+      engineId: engineId,
+      key: key,
+      keys: keys,
+    );
+    isolates.add(isolate);
+    return true;
+  }
+
   @override
   Future<List<ChapterItem>> chapter(String url) async {
     final res = rule.chapterUrl.isNotEmpty
@@ -189,4 +233,131 @@ class APIFromRUle implements API {
       DiscoverMap("分类", pairs),
     ];
   }
+}
+
+Future<FlutterIsolate> backgroundParseSearch({
+  List<SearchItem> searchListNone,
+  List<SearchItem> searchListNormal,
+  List<SearchItem> searchListAccurate,
+  VoidCallback successCallback,
+  VoidCallback failureCallback,
+  Rule rule,
+  API api,
+  String searchUrl,
+  String content,
+  String keyword,
+  int engineId,
+  String key,
+  Map<String, bool> keys,
+}) async {
+  //首先创建一个ReceivePort，为什么要创建这个？
+  //因为创建isolate所需的参数，必须要有SendPort，SendPort需要ReceivePort来创建
+  final response = new ReceivePort();
+  //开始创建isolate,Isolate.spawn函数是isolate.dart里的代码,_isolate是我们自己实现的函数
+  //_isolate是创建isolate必须要的参数。
+  //创建导致内存泄漏，应该创建一次!!
+  final isolate = await FlutterIsolate.spawn(_isolate, response.sendPort);
+  //获取sendPort来发送数据
+  final sendPort = await response.first as SendPort;
+  //接收消息的ReceivePort
+  final answer = new ReceivePort();
+  //获得数据并返回
+  answer.listen((message) {
+    if (keys[key]) {
+      if (message is String) {
+        print(message);
+        failureCallback();
+        (isolate as FlutterIsolate)
+          ..pause()
+          ..kill();
+      } else {
+        (message as List).forEach((json) {
+          final item = SearchItem.fromJson(json);
+          searchListNone.add(item);
+          if (item.name.contains(keyword)) {
+            searchListNormal.add(item);
+            if (item.name == keyword) {
+              searchListAccurate.add(item);
+            }
+          }
+        });
+        successCallback();
+        (isolate as FlutterIsolate)
+          ..pause()
+          ..kill();
+      }
+    }
+  });
+  //发送数据
+  sendPort.send([
+    engineId,
+    api.ruleContentType,
+    Map<String, String>.of({
+      "host": rule.host,
+      "searchUrl": searchUrl,
+      "loadJs": rule.loadJs,
+      "content": content,
+      "searchList": rule.searchList,
+      "searchCover": rule.searchCover,
+      "searchName": rule.searchName,
+      "searchAuthor": rule.searchAuthor,
+      "searchChapter": rule.searchChapter,
+      "searchDescription": rule.searchDescription,
+      "searchResult": rule.searchResult,
+      "searchTags": rule.searchTags,
+      "origin": api.origin,
+      "originTag": api.originTag,
+    }),
+    answer.sendPort,
+  ]);
+  return isolate as FlutterIsolate;
+}
+
+//创建isolate必须要的参数
+void _isolate(SendPort initialReplyTo) {
+  final port = new ReceivePort();
+  //绑定
+  initialReplyTo.send(port.sendPort);
+  //监听
+  port.listen((message) async {
+    final _engineId = message[0] as int;
+    final ruleContentType = message[1] as int;
+    final ruleApiJson = message[2] as Map<String, String>;
+    final send = message[3] as SendPort;
+    //返回结果
+    try {
+      final engineId = await FlutterJs.initEngine(_engineId);
+      await FlutterJs.evaluate(
+          "host = ${jsonEncode(ruleApiJson["host"])}; baseUrl = ${jsonEncode(ruleApiJson["searchUrl"])};",
+          engineId);
+      if (ruleApiJson["loadJs"].trim().isNotEmpty) {
+        await FlutterJs.evaluate(ruleApiJson["loadJs"], engineId);
+      }
+      final list = await AnalyzerManager(ruleApiJson["content"], engineId).getElements(
+        ruleApiJson["searchList"],
+      );
+      final result = <Map<String, dynamic>>[];
+      for (var item in list) {
+        final analyzer = AnalyzerManager(item, engineId);
+        result.add(SearchItem(
+          cover: await analyzer.getString(ruleApiJson["searchCover"]),
+          name: await analyzer.getString(ruleApiJson["searchName"]),
+          author: await analyzer.getString(ruleApiJson["searchAuthor"]),
+          chapter: await analyzer.getString(ruleApiJson["searchChapter"]),
+          description: await analyzer.getString(ruleApiJson["searchDescription"]),
+          url: await analyzer.getString(ruleApiJson["searchResult"]),
+          api: BaseAPI(
+            origin: ruleApiJson["origin"],
+            originTag: ruleApiJson["originTag"],
+            ruleContentType: ruleContentType,
+          ),
+          tags: await analyzer.getStringList(ruleApiJson["searchTags"]),
+        ).toJson());
+      }
+      await FlutterJs.close(engineId);
+      send.send(result);
+    } catch (e) {
+      send.send("$e");
+    }
+  });
 }
