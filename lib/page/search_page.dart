@@ -235,8 +235,6 @@ class SearchProvider with ChangeNotifier {
   final List<SearchItem> searchListAccurate = <SearchItem>[];
   final List<FlutterIsolate> _isolates = <FlutterIsolate>[];
   List<Rule> _rules;
-  List<ReceivePort> _answers;
-  List<SendPort> _sendPorts;
 
   final _keys = Map<String, bool>();
   var _keySuffix = 0;

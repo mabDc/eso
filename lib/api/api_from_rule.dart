@@ -272,7 +272,7 @@ Future<FlutterIsolate> backgroundParseSearch({
           ..kill();
       } else {
         (message as List).forEach((json) {
-          final item = SearchItem.fromJson(json);
+          final item = SearchItem.fromJson(json)..chapters = null;
           searchListNone.add(item);
           if (item.name.contains(keyword)) {
             searchListNormal.add(item);
