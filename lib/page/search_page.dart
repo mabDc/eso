@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:eso/api/api_from_rule.dart';
@@ -7,7 +6,6 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:provider/provider.dart';
 
 import 'chapter_page.dart';
@@ -73,7 +71,7 @@ class _SearchPageState extends State<SearchPage> {
           actions: [
             Center(
               child: DropdownButton<int>(
-                items: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+                items: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
                     .map((count) => DropdownMenuItem<int>(
                           child: Text('$count'),
                           value: count,
@@ -229,21 +227,22 @@ class SearchProvider with ChangeNotifier {
   int get successCount => _successCount;
   int _failureCount;
   int get failureCount => _failureCount;
+  List<Rule> _rules;
 
   final List<SearchItem> searchListNone = <SearchItem>[];
   final List<SearchItem> searchListNormal = <SearchItem>[];
   final List<SearchItem> searchListAccurate = <SearchItem>[];
-  final List<FlutterIsolate> _isolates = <FlutterIsolate>[];
-  List<Rule> _rules;
 
   final _keys = Map<String, bool>();
-  var _keySuffix = 0;
-  SearchProvider({int threadCount = 5}) {
-    _threadCount = threadCount ?? 5;
+  int _keySuffix;
+  SearchProvider({int threadCount = 10}) {
+    _threadCount = threadCount ?? 10;
     _searchOption = SearchOption.Normal;
     _rulesCount = 0;
     _successCount = 0;
     _failureCount = 0;
+    _rules = <Rule>[];
+    _keySuffix = 0;
     init();
   }
 
@@ -255,10 +254,7 @@ class SearchProvider with ChangeNotifier {
 
   void search(String keyword) async {
     _keys.forEach((key, value) => _keys[key] = false);
-    _isolates.forEach((isolate) {
-      isolate.pause();
-      isolate.kill();
-    });
+    await Future.delayed(Duration(milliseconds: 300));
     print("search $keyword");
     searchListNone.clear();
     searchListNormal.clear();
@@ -272,47 +268,154 @@ class SearchProvider with ChangeNotifier {
       _keys.addAll({"$_keySuffix$i": true});
       final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
       // 立即执行 按线程
-      (() async {
+      ((String key) async {
         for (var j = 0; j < realCount; j++) {
-          await APIFromRUle(_rules[j * threadCount + i]).searchBackground(
-            keyword,
-            1,
-            20,
-            engineId: int.parse('$_keySuffix$i'),
-            searchListNone: searchListNone,
-            searchListNormal: searchListNormal,
-            searchListAccurate: searchListAccurate,
-            successCallback: () {
+          if (_keys[key]) {
+            try {
+              (await APIFromRUle(_rules[j * threadCount + i]).search(keyword, 1, 20))
+                  .forEach((item) {
+                if (_keys[key]) {
+                  searchListNone.add(item);
+                  if (item.name.contains(keyword)) {
+                    searchListNormal.add(item);
+                    if (item.name == keyword) {
+                      searchListAccurate.add(item);
+                    }
+                  }
+                }
+              });
               _successCount++;
               notifyListeners();
-            },
-            failureCallback: () {
+            } catch (e) {
+              print(e);
               _failureCount++;
               notifyListeners();
-            },
-            key: '$_keySuffix$i',
-            keys: _keys,
-            isolates: _isolates,
-          );
+            }
+          }
         }
-      })();
+      })("$_keySuffix$i");
     }
   }
 
   @override
   void dispose() {
+    _keys.forEach((key, value) => _keys[key] = false);
     searchListNone.clear();
     searchListNormal.clear();
     searchListAccurate.clear();
-    _keys.forEach((key, value) => _keys[key] = false);
-    _isolates.forEach((isolate) {
-      isolate.pause();
-      isolate.kill();
-    });
-    _isolates.clear();
     super.dispose();
   }
 }
+
+// class SearchProvider with ChangeNotifier {
+//   int _threadCount;
+//   int get threadCount => _threadCount;
+//   set threadCount(int value) {
+//     if (threadCount != value) {
+//       _threadCount = value;
+//       notifyListeners();
+//     }
+//   }
+
+//   SearchOption _searchOption;
+//   SearchOption get searchOption => _searchOption;
+//   set searchOption(SearchOption value) {
+//     if (_searchOption != value) {
+//       _searchOption = value;
+//       notifyListeners();
+//     }
+//   }
+
+//   int _rulesCount;
+//   int get rulesCount => _rulesCount;
+//   int _successCount;
+//   int get successCount => _successCount;
+//   int _failureCount;
+//   int get failureCount => _failureCount;
+
+//   final List<SearchItem> searchListNone = <SearchItem>[];
+//   final List<SearchItem> searchListNormal = <SearchItem>[];
+//   final List<SearchItem> searchListAccurate = <SearchItem>[];
+//   final List<FlutterIsolate> _isolates = <FlutterIsolate>[];
+//   List<Rule> _rules;
+
+//   final _keys = Map<String, bool>();
+//   var _keySuffix = 0;
+//   SearchProvider({int threadCount = 5}) {
+//     _threadCount = threadCount ?? 5;
+//     _searchOption = SearchOption.Normal;
+//     _rulesCount = 0;
+//     _successCount = 0;
+//     _failureCount = 0;
+//     init();
+//   }
+
+//   void init() async {
+//     _rules = (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+//     _rulesCount = _rules.length;
+//     notifyListeners();
+//   }
+
+//   void search(String keyword) async {
+//     _keys.forEach((key, value) => _keys[key] = false);
+//     _isolates.forEach((isolate) {
+//       isolate.pause();
+//       isolate.kill();
+//     });
+//     print("search $keyword");
+//     searchListNone.clear();
+//     searchListNormal.clear();
+//     searchListAccurate.clear();
+//     _keySuffix++;
+//     _successCount = 0;
+//     _failureCount = 0;
+//     notifyListeners();
+//     for (var i = 0; i < threadCount; i++) {
+//       final count = _rules.length - 1 - i;
+//       _keys.addAll({"$_keySuffix$i": true});
+//       final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
+//       // 立即执行 按线程
+//       (() async {
+//         for (var j = 0; j < realCount; j++) {
+//           await APIFromRUle(_rules[j * threadCount + i]).searchBackground(
+//             keyword,
+//             1,
+//             20,
+//             engineId: int.parse('$_keySuffix$i'),
+//             searchListNone: searchListNone,
+//             searchListNormal: searchListNormal,
+//             searchListAccurate: searchListAccurate,
+//             successCallback: () {
+//               _successCount++;
+//               notifyListeners();
+//             },
+//             failureCallback: () {
+//               _failureCount++;
+//               notifyListeners();
+//             },
+//             key: '$_keySuffix$i',
+//             keys: _keys,
+//             isolates: _isolates,
+//           );
+//         }
+//       })();
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     searchListNone.clear();
+//     searchListNormal.clear();
+//     searchListAccurate.clear();
+//     _keys.forEach((key, value) => _keys[key] = false);
+//     _isolates.forEach((isolate) {
+//       isolate.pause();
+//       isolate.kill();
+//     });
+//     _isolates.clear();
+//     super.dispose();
+//   }
+// }
 
 // //这里以计算斐波那契数列为例，返回的值是Future，因为是异步的
 // void asyncFibonacci(int n) async {
