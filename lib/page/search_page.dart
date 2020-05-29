@@ -325,12 +325,11 @@ class SearchProvider with ChangeNotifier {
       final count = _rules.length - 1 - i;
       _keys.addAll({"$_keySuffix$i": true});
       final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
-      // 立即执行 按线程
       ((String key) async {
         for (var j = 0; j < realCount; j++) {
           if (_keys[key]) {
             try {
-              (await APIFromRUle(_rules[j * threadCount + i], int.parse(key + "j"))
+              (await APIFromRUle(_rules[j * threadCount + i], int.parse("$key$j"))
                       .search(keyword, 1, 20))
                   .forEach((item) {
                 if (_keys[key]) {
