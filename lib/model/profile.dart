@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../global.dart';
 
+enum SearchOption { Normal, None, Accurate }
+
 class Profile with ChangeNotifier {
   Profile() {
     final source = Global.prefs.getString(Global.profileKey);
@@ -30,6 +32,8 @@ class Profile with ChangeNotifier {
             'mangaKeepOn': false,
             'mangaLandscape': false,
             'mangaDirection': mangaDirectionTopToBottom,
+            'searchCount': 10,
+            'searchOption': SearchOption.Normal.index,
           }
         : jsonDecode(source);
     fromJson(json);
@@ -59,6 +63,8 @@ class Profile with ChangeNotifier {
   int _mangaSortIndex;
   int _audioSortIndex;
   int _videoSortIndex;
+  int _searchCount;
+  int _searchOption;
 
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
@@ -80,6 +86,8 @@ class Profile with ChangeNotifier {
   int get mangaSortIndex => _mangaSortIndex;
   int get audioSortIndex => _audioSortIndex;
   int get videoSortIndex => _videoSortIndex;
+  int get searchCount => _searchCount;
+  int get searchOption => _searchOption;
 
   set switchFavoriteStyle(bool value) {
     if (value != _switchFavoriteStyle) {
@@ -267,6 +275,20 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set searchCount(int value) {
+    if (value != _searchCount) {
+      _searchCount = value;
+      _saveProfile(false);
+    }
+  }
+
+  set searchOption(int value) {
+    if (value != _searchOption) {
+      _searchOption = value;
+      _saveProfile(false);
+    }
+  }
+
   ThemeData getTheme({bool isDarkMode: false}) {
     switch (darkMode) {
       case "开启":
@@ -328,6 +350,8 @@ class Profile with ChangeNotifier {
     _mangaSortIndex = json["mangaSortIndex"] ?? SortType.CREATE.index;
     _audioSortIndex = json["audioSortIndex"] ?? SortType.CREATE.index;
     _videoSortIndex = json["videoSortIndex"] ?? SortType.CREATE.index;
+    _searchCount = json["searchCount"] ?? 10;
+    _searchOption = json["searchOption"] ?? SearchOption.Normal.index;
   }
 
   Map<String, dynamic> toJson() => {
@@ -351,5 +375,7 @@ class Profile with ChangeNotifier {
         'mangaSortIndex': _mangaSortIndex,
         'audioSortIndex': _audioSortIndex,
         'videoSortIndex': _videoSortIndex,
+        'searchCount': _searchCount,
+        'searchOption': _searchOption,
       };
 }

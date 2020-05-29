@@ -4,7 +4,7 @@ import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
-import 'package:eso/page/langding_page.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,8 +22,12 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final profile = Provider.of<Profile>(context, listen: false);
     return ChangeNotifierProvider(
-      create: (context) => SearchProvider(),
+      create: (context) => SearchProvider(
+        threadCount: profile.searchCount,
+        searchOption: SearchOption.values[profile.searchOption],
+      ),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
           titleSpacing: 0,
@@ -73,7 +77,7 @@ class _SearchPageState extends State<SearchPage> {
         body: Consumer<SearchProvider>(
           builder: (context, provider, child) {
             if (provider.searchListNone.length == 0 && provider.rulesCount == 0) {
-              return Center(child: Text('初始化...'));
+              return Center(child: Text('正在初始化或者尚未可搜索源'));
             }
             final searchList = provider.searchOption == SearchOption.None
                 ? provider.searchListNone
@@ -97,7 +101,10 @@ class _SearchPageState extends State<SearchPage> {
                             child: Text("过滤条件"),
                           ),
                           FlatButton(
-                            onPressed: () => provider.searchOption = SearchOption.None,
+                            onPressed: () {
+                              provider.searchOption = SearchOption.None;
+                              profile.searchOption = SearchOption.None.index;
+                            },
                             child: Text(
                               "无",
                               style: provider.searchOption == SearchOption.None
@@ -106,7 +113,10 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           FlatButton(
-                            onPressed: () => provider.searchOption = SearchOption.Normal,
+                            onPressed: () {
+                              provider.searchOption = SearchOption.Normal;
+                              profile.searchOption = SearchOption.Normal.index;
+                            },
                             child: Text(
                               "普通",
                               style: provider.searchOption == SearchOption.Normal
@@ -115,8 +125,10 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           FlatButton(
-                            onPressed: () =>
-                                provider.searchOption = SearchOption.Accurate,
+                            onPressed: () {
+                              provider.searchOption = SearchOption.Accurate;
+                              profile.searchOption = SearchOption.Accurate.index;
+                            },
                             child: Text(
                               "精确",
                               style: provider.searchOption == SearchOption.Accurate
@@ -126,11 +138,11 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           FlatButton(
                             onPressed: null,
-                            child: Text("线程数"),
+                            child: Text("并发数"),
                           ),
                           Center(
                             child: DropdownButton<int>(
-                              items: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+                              items: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
                                   .map((count) => DropdownMenuItem<int>(
                                         child: Text('$count'),
                                         value: count,
@@ -140,9 +152,11 @@ class _SearchPageState extends State<SearchPage> {
                               underline: Container(),
                               value: context.select(
                                   (SearchProvider provider) => provider.threadCount),
-                              onChanged: (value) =>
-                                  Provider.of<SearchProvider>(context, listen: false)
-                                      .threadCount = value,
+                              onChanged: (value) {
+                                Provider.of<SearchProvider>(context, listen: false)
+                                    .threadCount = value;
+                                profile.searchCount = value;
+                              },
                             ),
                           )
                         ],
@@ -167,7 +181,7 @@ class _SearchPageState extends State<SearchPage> {
                                 value: progress,
                                 backgroundColor: Colors.grey,
                               ),
-                              Text((progress * 100).toStringAsFixed(0))
+                              Text((progress * 100).toStringAsFixed(0)),
                             ],
                           ),
                         ),
@@ -246,8 +260,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 }
 
-enum SearchOption { Normal, None, Accurate }
-
 class SearchProvider with ChangeNotifier {
   int _threadCount;
   int get threadCount => _threadCount;
@@ -281,9 +293,9 @@ class SearchProvider with ChangeNotifier {
 
   final _keys = Map<String, bool>();
   int _keySuffix;
-  SearchProvider({int threadCount = 10}) {
+  SearchProvider({int threadCount, SearchOption searchOption}) {
     _threadCount = threadCount ?? 10;
-    _searchOption = SearchOption.Normal;
+    _searchOption = searchOption ?? SearchOption.Normal;
     _rulesCount = 0;
     _successCount = 0;
     _failureCount = 0;
@@ -318,7 +330,7 @@ class SearchProvider with ChangeNotifier {
         for (var j = 0; j < realCount; j++) {
           if (_keys[key]) {
             try {
-              (await APIFromRUle(_rules[j * threadCount + i], int.parse(key))
+              (await APIFromRUle(_rules[j * threadCount + i], int.parse(key + "j"))
                       .search(keyword, 1, 20))
                   .forEach((item) {
                 if (_keys[key]) {
