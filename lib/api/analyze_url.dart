@@ -16,7 +16,7 @@ class AnalyzeUrl {
     url = url.trim();
     if (url.startsWith("@js:")) {
       // js规则
-      final _idJsEngine = await FlutterJs.initEngine(101);
+      final _idJsEngine = await FlutterJs.initEngine(99999);
       await FlutterJs.evaluate('''
 keyword = ${jsonEncode(keyword)};
 page = ${jsonEncode(page)};

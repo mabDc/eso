@@ -17,6 +17,7 @@ class APIFromRUle implements API {
   String _origin;
   String _originTag;
   int _ruleContentType;
+  int _engineId;
 
   @override
   String get origin => _origin;
@@ -27,7 +28,8 @@ class APIFromRUle implements API {
   @override
   int get ruleContentType => _ruleContentType;
 
-  APIFromRUle(this.rule) {
+  APIFromRUle(this.rule, [int engineId]) {
+    _engineId = engineId;
     _origin = rule.name;
     _originTag = rule.id;
     _ruleContentType = rule.contentType;
@@ -44,7 +46,7 @@ class APIFromRUle implements API {
       pageSize: pageSize,
     );
     final discoverUrl = res.request.url.toString();
-    final engineId = await FlutterJs.initEngine();
+    final engineId = await FlutterJs.initEngine(_engineId);
     await FlutterJs.evaluate(
         "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
         engineId);

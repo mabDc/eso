@@ -272,7 +272,8 @@ class SearchProvider with ChangeNotifier {
         for (var j = 0; j < realCount; j++) {
           if (_keys[key]) {
             try {
-              (await APIFromRUle(_rules[j * threadCount + i]).search(keyword, 1, 20))
+              (await APIFromRUle(_rules[j * threadCount + i], int.parse(key))
+                      .search(keyword, 1, 20))
                   .forEach((item) {
                 if (_keys[key]) {
                   searchListNone.add(item);
