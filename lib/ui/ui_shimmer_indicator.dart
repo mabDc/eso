@@ -34,7 +34,6 @@ class ShimmerHeader extends RefreshIndicator {
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _ShimmerHeaderState();
   }
 }
@@ -46,7 +45,6 @@ class _ShimmerHeaderState extends RefreshIndicatorState<ShimmerHeader>
 
   @override
   void initState() {
-    // TODO: implement initState
     _scaleController = AnimationController(vsync: this);
     _fadeController = AnimationController(vsync: this);
     super.initState();
@@ -54,7 +52,6 @@ class _ShimmerHeaderState extends RefreshIndicatorState<ShimmerHeader>
 
   @override
   void onOffsetChange(double offset) {
-    // TODO: implement onOffsetChange
     if (!floating) {
       _scaleController.value = offset / configuration.headerTriggerDistance;
       _fadeController.value = offset / configuration.footerTriggerDistance;
@@ -63,8 +60,6 @@ class _ShimmerHeaderState extends RefreshIndicatorState<ShimmerHeader>
 
   @override
   Widget buildContent(BuildContext context, RefreshStatus mode) {
-    // TODO: implement buildContent
-
     final Widget body = ScaleTransition(
       scale: _scaleController,
       child: FadeTransition(
@@ -116,7 +111,6 @@ class ShimmerFooter extends LoadIndicator {
 
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _ShimmerFooterState();
   }
 }
@@ -124,8 +118,6 @@ class ShimmerFooter extends LoadIndicator {
 class _ShimmerFooterState extends LoadIndicatorState<ShimmerFooter> {
   @override
   Widget buildContent(BuildContext context, LoadStatus mode) {
-    // TODO: implement buildContent
-
     final Widget body = mode == LoadStatus.failed
         ? widget.failed
         : mode == LoadStatus.noMore

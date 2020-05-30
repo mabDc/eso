@@ -1,7 +1,6 @@
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
-import 'package:eso/ui/ui_chapter_separate.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +30,7 @@ class _NovelPageState extends State<NovelPage> {
   @override
   Widget build(BuildContext context) {
     if (page == null) {
-      page =
-          buildPage(Provider.of<Profile>(context, listen: false).novelKeepOn);
+      page = buildPage(Provider.of<Profile>(context, listen: false).novelKeepOn);
     }
     return page;
   }
@@ -48,8 +46,8 @@ class _NovelPageState extends State<NovelPage> {
       value: NovelPageProvider(searchItem: widget.searchItem, keepOn: keepOn),
       child: Scaffold(
         body: Consumer2<NovelPageProvider, Profile>(
-          builder: (BuildContext context, NovelPageProvider provider,
-              Profile profile, _) {
+          builder:
+              (BuildContext context, NovelPageProvider provider, Profile profile, _) {
             __provider = provider;
             if (provider.content == null) {
               return LandingPage();
@@ -84,8 +82,7 @@ class _NovelPageState extends State<NovelPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 color: Theme.of(context).canvasColor,
                               ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 42, vertical: 20),
+                              padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -277,13 +274,11 @@ class _NovelPageState extends State<NovelPage> {
                     ],
                   ),
                   onRefresh: () async {
-                    await provider
-                        .loadChapter(provider.searchItem.durChapterIndex - 1);
+                    await provider.loadChapterHideLoading(true);
                     _refreshController.refreshCompleted();
                   },
                   onLoading: () async {
-                    await provider
-                        .loadChapter(provider.searchItem.durChapterIndex + 1);
+                    await provider.loadChapterHideLoading(false);
                     _refreshController.loadComplete();
                   }),
             ),

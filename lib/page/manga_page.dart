@@ -61,8 +61,8 @@ class _MangaPageState extends State<MangaPage> {
       ),
       child: Scaffold(
         body: Consumer2<MangaPageProvider, Profile>(
-          builder: (BuildContext context, MangaPageProvider provider,
-              Profile profile, _) {
+          builder:
+              (BuildContext context, MangaPageProvider provider, Profile profile, _) {
             if (__provider == null) {
               __provider = provider;
             }
@@ -165,7 +165,7 @@ class _MangaPageState extends State<MangaPage> {
               builder: (BuildContext context, RefreshStatus mode) {
                 Widget body;
                 if (mode == RefreshStatus.idle) {
-                  body =  Text("滑动加载上一章");
+                  body = Text("滑动加载上一章");
                 } else if (mode == RefreshStatus.refreshing) {
                   body = CupertinoActivityIndicator();
                 } else if (mode == RefreshStatus.failed) {
@@ -206,13 +206,11 @@ class _MangaPageState extends State<MangaPage> {
             enablePullUp: true,
             child: _buildMangaContent(provider, profile),
             onRefresh: () async {
-              await provider
-                  .loadChapter(provider.searchItem.durChapterIndex - 1);
+              await provider.loadChapterHideLoading(true);
               _refreshController.refreshCompleted();
             },
             onLoading: () async {
-              await provider
-                  .loadChapter(provider.searchItem.durChapterIndex + 1);
+              await provider.loadChapterHideLoading(false);
               _refreshController.loadComplete();
             }),
       ),

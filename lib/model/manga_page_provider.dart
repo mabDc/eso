@@ -175,6 +175,29 @@ class MangaPageProvider with ChangeNotifier {
     );
   }
 
+  bool _hideLoading = false;
+  Future<void> loadChapterHideLoading(bool lastChapter) async {
+    _showChapter = false;
+    if (isLoading || _hideLoading) return;
+    final loadIndex =
+        lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
+    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
+    _hideLoading = true;
+    searchItem.durChapterIndex = loadIndex;
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[loadIndex].url);
+    _setHeaders();
+    searchItem.durChapter = searchItem.chapters[loadIndex].name;
+    searchItem.durContentIndex = 1;
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    await SearchItemManager.saveSearchItem();
+    _hideLoading = false;
+    if (searchItem.ruleContentType != API.RSS) {
+      _controller.jumpTo(1);
+    }
+    notifyListeners();
+  }
+
   Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (isLoading ||

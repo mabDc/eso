@@ -127,6 +127,27 @@ class NovelPageProvider with ChangeNotifier {
     );
   }
 
+  bool _hideLoading = false;
+
+  Future<void> loadChapterHideLoading(bool lastChapter) async {
+    _showChapter = false;
+    if (isLoading || _hideLoading) return;
+    final loadIndex =
+        lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
+    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
+    _hideLoading = true;
+    searchItem.durChapterIndex = loadIndex;
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[loadIndex].url);
+    searchItem.durChapter = searchItem.chapters[loadIndex].name;
+    searchItem.durContentIndex = 1;
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    await SearchItemManager.saveSearchItem();
+    _hideLoading = false;
+    _controller.jumpTo(1);
+    notifyListeners();
+  }
+
   Future<void> loadChapter(int chapterIndex) async {
     _showChapter = false;
     if (isLoading ||
@@ -138,7 +159,6 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
     _content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
-    searchItem.durChapterIndex = chapterIndex;
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
