@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
+import 'ui_fade_in_image.dart';
 
 class UIImageItem extends StatelessWidget {
   final String cover;
@@ -29,19 +30,20 @@ class UIImageItem extends StatelessWidget {
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(3.0),
-      child: FadeInImage(
-        placeholder: AssetImage(Global.waitingPath),
-        image: checkUrl(_cover, headers),
-        fit: BoxFit.cover,
-      ),
+      child: UIFadeInImage(url: _cover, header: headers),
+      // child: FadeInImage(
+      //   placeholder: AssetImage(Global.waitingPath),
+      //   image: checkUrl(_cover, headers),
+      //   fit: BoxFit.cover,
+      // ),
     );
   }
 
-  ImageProvider checkUrl(String url, Map<String, String> header) {
-    try {
-      return NetworkImage(url, headers: header);
-    } catch (e) {
-      return AssetImage(Global.waitingPath);
-    }
-  }
+  // ImageProvider checkUrl(String url, Map<String, String> header) {
+  //   try {
+  //     return NetworkImage(url, headers: header);
+  //   } catch (e) {
+  //     return AssetImage(Global.nowayPath);
+  //   }
+  // }
 }

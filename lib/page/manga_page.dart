@@ -2,15 +2,16 @@ import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_chapter_separate.dart';
-import 'package:eso/ui/zoom_view.dart';
+import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/ui_manga_menu.dart';
 import 'package:eso/ui/ui_system_info.dart';
+import 'package:eso/ui/zoom_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:toast/toast.dart';
 
 import '../database/search_item.dart';
-import '../global.dart';
 import 'langding_page.dart';
 
 class MangaPage extends StatefulWidget {
@@ -59,8 +60,8 @@ class _MangaPageState extends State<MangaPage> {
       ),
       child: Scaffold(
         body: Consumer2<MangaPageProvider, Profile>(
-          builder:
-              (BuildContext context, MangaPageProvider provider, Profile profile, _) {
+          builder: (BuildContext context, MangaPageProvider provider,
+              Profile profile, _) {
             if (__provider == null) {
               __provider = provider;
             }
@@ -112,7 +113,10 @@ class _MangaPageState extends State<MangaPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 color: Theme.of(context).canvasColor,
                               ),
-                              padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 42,
+                                vertical: 20,
+                              ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -186,21 +190,31 @@ class _MangaPageState extends State<MangaPage> {
             );
           }
           final path = '${provider.content[index]}';
-          return FadeInImage(
-            placeholder: AssetImage(Global.waitingPath),
-            image: checkUrl(path, provider.headers),
-            fit: BoxFit.fitWidth,
+          return InkWell(
+            onLongPress: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ZoomView(
+                    child: Center(
+                      child: UIFadeInImage(url: path, header: provider.headers),
+                    ),
+                  ),
+                ),
+              );
+              (() async {
+                await Clipboard.setData(ClipboardData(text: path));
+                Toast.show("已复制图片地址", context);
+              })();
+            },
+            // child: FadeInImage(
+            //   placeholder: AssetImage(Global.waitingPath),
+            //   image: checkUrl(path, provider.headers),
+            //   fit: BoxFit.fitWidth,
+            // ),
+            child: UIFadeInImage(url: path, header: provider.headers),
           );
         },
       ),
     );
-  }
-
-  ImageProvider checkUrl(String url, Map<String, String> header) {
-    try {
-      return NetworkImage(url, headers: header);
-    } catch (e) {
-      return AssetImage(Global.waitingPath);
-    }
   }
 }
