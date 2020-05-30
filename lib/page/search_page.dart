@@ -243,7 +243,10 @@ class _SearchPageState extends State<SearchPage> {
                 }
 
                 return InkWell(
-                  child: UiSearchItem(item: searchList[index - 2]),
+                  child: UiSearchItem(
+                    item: searchList[index - 2],
+                    showType: true,
+                  ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) =>

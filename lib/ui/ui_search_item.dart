@@ -1,24 +1,28 @@
+import 'package:eso/api/api.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
 
 class UiSearchItem extends StatelessWidget {
   final SearchItem item;
+  final bool showType;
 
   const UiSearchItem({
     @required this.item,
+    this.showType = false,
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return _UiSearchItem(
-      origin: item.origin,
+      origin: showType ? item.origin : "",
       cover: item.cover,
       name: item.name,
       author: item.author,
       chapter: item.chapter,
       description: item.description,
+      contentTypeName: showType ? API.getRuleContentTypeName(item.ruleContentType) : "",
     );
   }
 }
@@ -30,6 +34,7 @@ class _UiSearchItem extends StatelessWidget {
   final String author;
   final String chapter;
   final String description;
+  final String contentTypeName;
 
   const _UiSearchItem({
     this.origin,
@@ -38,6 +43,7 @@ class _UiSearchItem extends StatelessWidget {
     this.author,
     this.chapter,
     this.description,
+    this.contentTypeName,
     Key key,
   }) : super(key: key);
 
@@ -78,13 +84,30 @@ class _UiSearchItem extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Theme.of(context)
-                            .textTheme
-                            .bodyText1
-                            .color
-                            .withOpacity(0.7),
+                        color:
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                       ),
                     ),
+                    contentTypeName != null && contentTypeName.isNotEmpty
+                        ? Container(
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '$contentTypeName',
+                              style: TextStyle(
+                                fontSize: 10,
+                                height: 1.4,
+                                color: Colors.white,
+                                textBaseline: TextBaseline.alphabetic,
+                              ),
+                            ),
+                          )
+                        : Container(),
                   ],
                 ),
                 Text(
@@ -92,11 +115,7 @@ class _UiSearchItem extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        .color
-                        .withOpacity(0.7),
+                    color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                   ),
                 ),
                 Text(
@@ -110,11 +129,7 @@ class _UiSearchItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        .color
-                        .withOpacity(0.7),
+                    color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                   ),
                 ),
               ],
