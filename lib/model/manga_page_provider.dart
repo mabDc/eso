@@ -94,6 +94,7 @@ class MangaPageProvider with ChangeNotifier {
   int direction;
   void setDirection(int value) {
     if (value != direction) {
+      direction = value;
       notifyListeners();
     }
   }
