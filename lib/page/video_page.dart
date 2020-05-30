@@ -1,6 +1,7 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/video_page_controller.dart';
 import 'package:eso/utils/flutter_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +65,7 @@ class _VideoPageState extends State<VideoPage> {
                   SizedBox(height: 30),
                   Text(s, style: TextStyle(fontSize: 18)),
                   SizedBox(height: 30),
-                  CircularProgressIndicator(),
+                  CupertinoActivityIndicator(),
                 ],
               ),
             );

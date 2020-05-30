@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
@@ -7,7 +8,7 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: SizedBox(width: 200,child: LinearProgressIndicator(),),
+        child: SizedBox(width: 200,child: CupertinoActivityIndicator(),),
       ),
     );
   }

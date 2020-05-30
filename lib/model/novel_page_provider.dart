@@ -82,12 +82,12 @@ class NovelPageProvider with ChangeNotifier {
     _controller =
         ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
     _progress = 0;
-    _controller.addListener(() {
-      if (progress > 0 &&
-          _controller.position.pixels == _controller.position.maxScrollExtent) {
-        loadChapter(searchItem.durChapterIndex + 1);
-      }
-    });
+//    _controller.addListener(() {
+//      if (progress > 0 &&
+//          _controller.position.pixels == _controller.position.maxScrollExtent) {
+//        loadChapter(searchItem.durChapterIndex + 1);
+//      }
+//    });
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);

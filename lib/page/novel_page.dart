@@ -6,6 +6,7 @@ import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../database/search_item.dart';
 import '../ui/ui_dash.dart';
@@ -26,10 +27,12 @@ class NovelPage extends StatefulWidget {
 class _NovelPageState extends State<NovelPage> {
   Widget page;
   NovelPageProvider __provider;
+
   @override
   Widget build(BuildContext context) {
     if (page == null) {
-      page = buildPage(Provider.of<Profile>(context, listen: false).novelKeepOn);
+      page =
+          buildPage(Provider.of<Profile>(context, listen: false).novelKeepOn);
     }
     return page;
   }
@@ -45,8 +48,8 @@ class _NovelPageState extends State<NovelPage> {
       value: NovelPageProvider(searchItem: widget.searchItem, keepOn: keepOn),
       child: Scaffold(
         body: Consumer2<NovelPageProvider, Profile>(
-          builder:
-              (BuildContext context, NovelPageProvider provider, Profile profile, _) {
+          builder: (BuildContext context, NovelPageProvider provider,
+              Profile profile, _) {
             __provider = provider;
             if (provider.content == null) {
               return LandingPage();
@@ -81,11 +84,12 @@ class _NovelPageState extends State<NovelPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 color: Theme.of(context).canvasColor,
                               ),
-                              padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 42, vertical: 20),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  CircularProgressIndicator(),
+                                  CupertinoActivityIndicator(),
                                   SizedBox(height: 20),
                                   Text(
                                     "加载中...",
@@ -119,51 +123,169 @@ class _NovelPageState extends State<NovelPage> {
     );
   }
 
+  RefreshController _refreshController = RefreshController();
+
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
     final content = '　　' + provider.content.map((s) => s.trim()).join('\n　　');
+    final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
       padding: EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         children: <Widget>[
           Expanded(
-            child: SingleChildScrollView(
-              controller: provider.controller,
-              padding: EdgeInsets.only(top: 100),
-              child: Column(
-                children: <Widget>[
-                  SelectableText(
-                    '${widget.searchItem.durChapter}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(profile.novelFontColor),
-                    ),
-                    textAlign: TextAlign.center,
+            child: RefreshConfiguration(
+              enableBallisticLoad: false,
+              child: SmartRefresher(
+                  header: CustomHeader(
+                    builder: (BuildContext context, RefreshStatus mode) {
+                      Widget body;
+                      if (mode == RefreshStatus.idle) {
+                        body = Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.arrow_downward, color: fontColor),
+                            Text(
+                              "下拉加载上一章",
+                              style: TextStyle(color: fontColor),
+                            ),
+                          ],
+                        );
+                      } else if (mode == RefreshStatus.refreshing) {
+                        body = CupertinoActivityIndicator();
+                      } else if (mode == RefreshStatus.failed) {
+                        body = Text(
+                          "加载失败！请重试！",
+                          style: TextStyle(color: fontColor),
+                        );
+                      } else if (mode == RefreshStatus.canRefresh) {
+                        body = Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.arrow_upward, color: fontColor),
+                            Text(
+                              "松手加载上一章!",
+                              style: TextStyle(color: fontColor),
+                            )
+                          ],
+                        );
+                      } else {
+                        body = Text(
+                          "加载完成或没有更多数据",
+                          style: TextStyle(color: fontColor),
+                        );
+                      }
+                      return Container(
+                        height: 60.0,
+                        child: Center(child: body),
+                      );
+                    },
                   ),
-                  SizedBox(height: 10),
-                  provider.useSelectableText
-                      ? SelectableText(content,
+                  footer: CustomFooter(
+                    builder: (BuildContext context, LoadStatus mode) {
+                      Widget body;
+                      if (mode == LoadStatus.idle) {
+                        body = Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.arrow_upward, color: fontColor),
+                            Text(
+                              "上拉加载下一章",
+                              style: TextStyle(color: fontColor),
+                            ),
+                          ],
+                        );
+                      } else if (mode == LoadStatus.loading) {
+                        body = CupertinoActivityIndicator();
+                      } else if (mode == LoadStatus.failed) {
+                        body = Text(
+                          "加载失败！请重试！",
+                          style: TextStyle(color: fontColor),
+                        );
+                      } else if (mode == LoadStatus.canLoading) {
+                        body = Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.arrow_downward, color: fontColor),
+                            Text(
+                              "松手加载下一章!",
+                              style: TextStyle(color: fontColor),
+                            )
+                          ],
+                        );
+                      } else {
+                        body = Text(
+                          "加载完成或没有更多数据",
+                          style: TextStyle(color: fontColor),
+                        );
+                      }
+                      return Container(
+                        height: 60.0,
+                        alignment: Alignment.center,
+                        child: body,
+                      );
+                    },
+                  ),
+                  controller: _refreshController,
+                  enablePullUp: true,
+                  child: ListView(
+                    controller: provider.controller,
+                    padding: EdgeInsets.only(top: 100),
+                    children: <Widget>[
+                      SelectableText(
+                        '${widget.searchItem.durChapter}',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: fontColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 10),
+                      provider.useSelectableText
+                          ? SelectableText(content,
+                              style: TextStyle(
+                                fontSize: profile.novelFontSize,
+                                height: profile.novelHeight * 0.98,
+                                color: fontColor,
+                              ))
+                          : Text(content,
+                              style: TextStyle(
+                                fontSize: profile.novelFontSize,
+                                height: profile.novelHeight,
+                                color: fontColor,
+                              )),
+                      Container(
+                        alignment: Alignment.topLeft,
+                        padding: EdgeInsets.only(
+                          top: 50,
+                          left: 32,
+                          right: 10,
+                          bottom: 30,
+                        ),
+                        child: Text(
+                          "当前章节已结束\n${provider.searchItem.durChapter}",
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: profile.novelFontSize,
-                            height: profile.novelHeight * 0.98,
-                            color: Color(profile.novelFontColor),
-                          ))
-                      : Text(content,
-                          style: TextStyle(
-                            fontSize: profile.novelFontSize,
-                            height: profile.novelHeight,
-                            color: Color(profile.novelFontColor),
-                          )),
-                  UIChapterSeparate(
-                    color: Colors.black87,
-                    chapterName: widget.searchItem.durChapter,
-                    isLastChapter: widget.searchItem.durChapterIndex ==
-                        (widget.searchItem.chaptersCount - 1),
-                    isLoading: provider.isLoading,
-                  )
-                ],
-              ),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            height: 2,
+                            color: fontColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  onRefresh: () async {
+                    await provider
+                        .loadChapter(provider.searchItem.durChapterIndex - 1);
+                    _refreshController.refreshCompleted();
+                  },
+                  onLoading: () async {
+                    await provider
+                        .loadChapter(provider.searchItem.durChapterIndex + 1);
+                    _refreshController.loadComplete();
+                  }),
             ),
           ),
           SizedBox(
@@ -172,7 +294,7 @@ class _NovelPageState extends State<NovelPage> {
           UIDash(
             height: 2,
             dashWidth: 6,
-            color: Color(profile.novelFontColor),
+            color: fontColor,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -183,9 +305,7 @@ class _NovelPageState extends State<NovelPage> {
                     '${widget.searchItem.durChapter}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Color(profile.novelFontColor),
-                    ),
+                    style: TextStyle(color: fontColor),
                   ),
                 ),
                 SizedBox(
@@ -194,7 +314,7 @@ class _NovelPageState extends State<NovelPage> {
                     '${provider.progress}%',
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                      color: Color(profile.novelFontColor),
+                      color: fontColor,
                     ),
                   ),
                 ),

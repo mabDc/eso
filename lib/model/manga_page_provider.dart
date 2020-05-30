@@ -112,11 +112,11 @@ class MangaPageProvider with ChangeNotifier {
     _showSetting = false;
     _headers = Map<String, String>();
     _controller = ScrollController();
-    _controller.addListener(() {
-      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        loadChapter(searchItem.durChapterIndex + 1);
-      }
-    });
+//    _controller.addListener(() {
+//      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+//        loadChapter(searchItem.durChapterIndex + 1);
+//      }
+//    });
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
