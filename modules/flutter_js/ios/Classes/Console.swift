@@ -47,12 +47,12 @@ import JavaScriptCore
 }
 
 @objc protocol HttpJSExport : JSExport {
-    func get(_ urlString: String) -> String
+    func getString(_ urlString: String) -> String
 }
 
 @objc class Http : NSObject, HttpJSExport, JSInsert {
     // https://stackoverflow.com/questions/39985984/how-to-return-http-result-synchronously-in-swift3
-    func get(_ urlString: String) -> String {
+    func getString(_ urlString: String) -> String {
         let url = URL(string: urlString)!
         var dataStringOrNil: String?
         let semaphore = DispatchSemaphore(value: 0)
