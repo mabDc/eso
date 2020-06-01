@@ -86,22 +86,26 @@ searchPage = ${jsonEncode(page)};
         u = rule.host + u;
       }
       if (r['charset'] != null) {
-        final charset = "${r['charset']}";
-        if (charset.contains("gbk")) {
-          u = u.replaceAll(
-              keyword,
-              gbk
-                  .encode(keyword)
-                  .map((code) => urlEncode(code.toRadixString(16).toUpperCase()))
-                  .join());
-        } else {
-          u = u.replaceAll(
-              keyword,
-              Encoding.getByName(charset)
-                  .encode(keyword)
-                  .map((code) => urlEncode(code.toRadixString(16).toUpperCase()))
-                  .join());
+        String _urlEncode(String s) {
+          if (s.length % 2 == 1) {
+            s = '0$s';
+          }
+          final sb = StringBuffer();
+          for (int i = 0; i < s.length; i += 2) {
+            sb.write('%${s[i]}${s[i + 1]}');
+          }
+          return sb.toString();
         }
+
+        final encoding = "${r['charset']}".contains("gbk")
+            ? gbk
+            : Encoding.getByName("${r['charset']}");
+        u = u.replaceAll(
+            keyword,
+            encoding
+                .encode(keyword)
+                .map((code) => _urlEncode(code.toRadixString(16).toUpperCase()))
+                .join());
       }
       if (method == null || method == 'get') {
         return http.get(u, headers: headers);
@@ -130,16 +134,5 @@ searchPage = ${jsonEncode(page)};
         });
       }
     }
-  }
-
-  String urlEncode(String s) {
-    if (s.length % 2 == 1) {
-      s = '0$s';
-    }
-    final sb = StringBuffer();
-    for (int i = 0; i < s.length; i += 2) {
-      sb.write('%${s[i]}${s[i + 1]}');
-    }
-    return sb.toString();
   }
 }
