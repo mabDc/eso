@@ -131,11 +131,11 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   void _setHeaders() {
+    if (_content.length == 0) return;
     final first = _content[0].split('@headers');
-    if (first.length > 1) {
-      _content[0] = first[0];
-      _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
-    }
+    if (first.length == 1) return;
+    _content[0] = first[0];
+    _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
   }
 
   void _initContent() async {
