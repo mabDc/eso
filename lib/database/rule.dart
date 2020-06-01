@@ -240,16 +240,16 @@ class Rule {
     final defaultRule = rule ?? Rule.newRule();
     for (final key in json.keys) {
       var s = '${json[key]}';
-      if (s.startsWith("\$.") ||
+      if (s.startsWith("\$") ||
           s.startsWith("http") ||
-          s.contains(RegExp("@css:", caseSensitive: false)) ||
-          s.contains(RegExp("@js:", caseSensitive: false)) ||
-          s.contains(RegExp("@json:", caseSensitive: false))) continue;
+          s.startsWith(":") ||
+          s.startsWith("@") ||
+          s.startsWith("/")) continue;
       final flag = s.startsWith("-");
       if (flag) {
         s = s.substring(1);
       }
-      if (s.contains(RegExp(r"img|text|href|tag\.|class\.|id\."))) {
+      if (s.startsWith("tag") || s.startsWith("class") || s.startsWith("id")) {
         s = s
             .replaceAll(RegExp(r"(?<!\|)\|(?!\|)"), "||")
             .replaceAll(RegExp(r"(?<!&)&(?!&)"), "&&")
