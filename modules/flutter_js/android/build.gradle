@@ -43,6 +43,6 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //implementation 'com.github.seven332:quickjs-android:89ba8b6b8f'
-    //implementation 'com.github.abner.oasis-jsbridge-android:oasis-jsbridge-quickjs:0.9.68'
-    implementation 'com.github.mabDc:oasis-jsbridge-android:0.9.77'
+    implementation "com.github.abner.oasis-jsbridge-android:oasis-jsbridge-quickjs:0.9.68"
+    implementation "com.squareup.okhttp3:okhttp:4.6.0"
 }
