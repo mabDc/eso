@@ -50,8 +50,10 @@ class APIFromRUle implements API {
     await FlutterJs.evaluate(
         "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
         engineId);
-    if (rule.loadJs.trim().isNotEmpty) {
-      await FlutterJs.evaluate(rule.loadJs, engineId);
+    if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+      final cryptoJS =
+          rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+      await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
     }
     final list = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getElements(rule.discoverList);
@@ -86,8 +88,10 @@ class APIFromRUle implements API {
     final engineId = await FlutterJs.initEngine();
     await FlutterJs.evaluate(
         "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};", engineId);
-    if (rule.loadJs.trim().isNotEmpty) {
-      await FlutterJs.evaluate(rule.loadJs, engineId);
+    if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+      final cryptoJS =
+          rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+      await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
     }
     final list = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getElements(rule.searchList);
@@ -165,8 +169,10 @@ class APIFromRUle implements API {
     await FlutterJs.evaluate(
         "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
         engineId);
-    if (rule.loadJs.trim().isNotEmpty) {
-      await FlutterJs.evaluate(rule.loadJs, engineId);
+    if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+      final cryptoJS =
+          rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+      await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
     }
     final list = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
         .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
@@ -204,12 +210,10 @@ class APIFromRUle implements API {
       await FlutterJs.evaluate(
           "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
           engineId);
-      if (rule.loadJs.trim().isNotEmpty) {
-        await FlutterJs.evaluate(rule.loadJs, engineId);
-      }
-      if (rule.useCryptoJS) {
-        final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
-        await FlutterJs.evaluate(cryptoJS, engineId);
+      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
     }
     final temp = await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)

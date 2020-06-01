@@ -35,13 +35,12 @@ import JavaScriptCore
     func insert(_ jsContext: JSContext) {
         jsContext.setObject(self, forKeyedSubscript:"$console" as (NSCopying & NSObjectProtocol))
         jsContext.evaluateScript(
-            "var console = {" +
+            "console = {" +
                 "log: function() { $console.outputArguments(0, arguments); }," +
                 "info: function() { $console.outputArguments(1, arguments); }," +
                 "warn: function() { $console.outputArguments(2, arguments); }," +
                 "error: function() { $console.outputArguments(3, arguments); }" +
-            "};" +
-            "if (global) { global.console = console; }"
+            "};"
         )
     }
 }
@@ -82,6 +81,5 @@ import JavaScriptCore
 
     func insert(_ jsContext: JSContext) {
         jsContext.setObject(self, forKeyedSubscript:"http" as (NSCopying & NSObjectProtocol))
-        jsContext.evaluateScript("if (global) { global.http = http; }")
     }
 }

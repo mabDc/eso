@@ -13,6 +13,7 @@ import '../../api/api.dart';
 // ignore: non_constant_identifier_names
 final FAST_INPUT_LIST = [
   '@',
+  '`',
   '&',
   '|',
   '%',
@@ -27,17 +28,15 @@ final FAST_INPUT_LIST = [
   '\\',
   '\$',
   '#',
-  '!',
   '.',
+  'text',
   'href',
   'src',
-  'textNodes',
-  'xpath',
-  'json',
-  'css',
-  'id',
-  'class',
-  'tag',
+  'result',
+  'lastResult',
+  '\$keyword',
+  '\$page',
+  '\$pageSize',
 ];
 
 class EditRulePage extends StatefulWidget {
@@ -69,7 +68,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _discoverExpanded = rule.enableDiscover;
       _searchExpanded = rule.enableSearch;
     }
-
     // KeyboardVisibility.onChange.listen((visible) {
     //   if (mounted) {
     //     setState(() {
@@ -77,7 +75,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     //     });
     //   }
     // });
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
@@ -419,7 +416,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           value: rule.enableMultiRoads,
           onChanged: (value) {
             setState(() {
-              rule.enableSearch = value;
+              rule.enableMultiRoads = value;
             });
           },
         ),
@@ -483,7 +480,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           value: rule.useCryptoJS,
           onChanged: (value) {
             setState(() {
-              rule.enableSearch = value;
+              rule.useCryptoJS = value;
             });
           },
         ),

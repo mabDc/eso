@@ -18,7 +18,7 @@ class DebugRuleProvider with ChangeNotifier {
   final Rule rule;
   final Color textColor;
   DebugRuleProvider(this.rule, this.textColor);
-  
+
   final rows = <Row>[];
   @override
   void dispose() {
@@ -100,8 +100,10 @@ class DebugRuleProvider with ChangeNotifier {
       await FlutterJs.evaluate(
           "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
           engineId);
-      if (rule.loadJs.trim().isNotEmpty) {
-        await FlutterJs.evaluate(rule.loadJs, engineId);
+      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
       _addContent("js预加载");
       final analyzer =
@@ -183,8 +185,10 @@ class DebugRuleProvider with ChangeNotifier {
       await FlutterJs.evaluate(
           "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
           engineId);
-      if (rule.loadJs.trim().isNotEmpty) {
-        await FlutterJs.evaluate(rule.loadJs, engineId);
+      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
       final chapterList =
           await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
@@ -267,12 +271,10 @@ class DebugRuleProvider with ChangeNotifier {
         await FlutterJs.evaluate(
             "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
             engineId);
-        if (rule.loadJs.trim().isNotEmpty) {
-          await FlutterJs.evaluate(rule.loadJs, engineId);
-        }
-        if (rule.useCryptoJS) {
-          final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
-          await FlutterJs.evaluate(cryptoJS, engineId);
+        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+          final cryptoJS =
+              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
         }
       }
       final contentItems =
