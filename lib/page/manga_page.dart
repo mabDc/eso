@@ -171,9 +171,9 @@ class _MangaPageState extends State<MangaPage> {
                 } else if (mode == RefreshStatus.refreshing) {
                   body = CupertinoActivityIndicator();
                 } else if (mode == RefreshStatus.failed) {
-                  body = Text("加载失败！请重试！");
+                  body = Text("加载失败!请重试!");
                 } else if (mode == RefreshStatus.canRefresh) {
-                  body = Text("释放加载上一章");
+                  body = Text("释放加载上一章!");
                 } else {
                   body = Text("加载完成或没有更多数据");
                 }
@@ -212,9 +212,9 @@ class _MangaPageState extends State<MangaPage> {
                 } else if (mode == LoadStatus.loading) {
                   body = CupertinoActivityIndicator();
                 } else if (mode == LoadStatus.failed) {
-                  body = Text("加载失败！请重试！");
+                  body = Text("加载失败!请重试!");
                 } else if (mode == LoadStatus.canLoading) {
-                  body = Text("松手加载下一章");
+                  body = Text("松手加载下一章!");
                 } else {
                   body = Text("加载完成或没有更多数据");
                 }

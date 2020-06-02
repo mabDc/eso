@@ -152,7 +152,7 @@ class _NovelPageState extends State<NovelPage> {
                         body = CupertinoActivityIndicator();
                       } else if (mode == RefreshStatus.failed) {
                         body = Text(
-                          "加载失败！请重试！",
+                          "加载失败!请重试!",
                           style: TextStyle(color: fontColor),
                         );
                       } else if (mode == RefreshStatus.canRefresh) {
@@ -196,7 +196,7 @@ class _NovelPageState extends State<NovelPage> {
                         body = CupertinoActivityIndicator();
                       } else if (mode == LoadStatus.failed) {
                         body = Text(
-                          "加载失败！请重试！",
+                          "加载失败!请重试!",
                           style: TextStyle(color: fontColor),
                         );
                       } else if (mode == LoadStatus.canLoading) {
