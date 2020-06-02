@@ -52,7 +52,7 @@ class _SearchPageState extends State<SearchPage> {
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
-              hintText: "search keyword",
+              hintText: "请输入关键词",
               hintStyle: TextStyle(
                 color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                 fontSize: 12,

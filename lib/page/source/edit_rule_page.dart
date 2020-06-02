@@ -44,6 +44,10 @@ final FAST_INPUT_LIST = [
   '\$pageSize',
   '\$host',
   '\$result',
+  'headers',
+  'User-Agent',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+  'Mozilla/5.0 (Linux; Android 9; MIX 2 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/80.0.3987.99 Mobile Safari/537.36',
 ];
 
 class EditRulePage extends StatefulWidget {
@@ -129,9 +133,13 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       child: Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Text(FAST_INPUT_LIST[index],
-                              style: TextStyle(fontSize: 18))),
+                        padding: EdgeInsets.all(12),
+                        child: Text(
+                          FAST_INPUT_LIST[index],
+                          style: TextStyle(fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       onTap: () {
                         final textSelection = currentController.selection;
                         currentController.text = currentController.text.replaceRange(
