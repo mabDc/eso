@@ -144,7 +144,7 @@ class _SearchPageState extends State<SearchPage> {
                             profile.searchOption = SearchOption.None.index;
                           },
                           child: Container(
-                            width: 52,
+                            width: 55,
                             alignment: Alignment.center,
                             child: Text(
                               "无",
@@ -160,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
                             profile.searchOption = SearchOption.Normal.index;
                           },
                           child: Container(
-                            width: 52,
+                            width: 55,
                             alignment: Alignment.center,
                             child: Text(
                               "普通",
@@ -176,7 +176,7 @@ class _SearchPageState extends State<SearchPage> {
                             profile.searchOption = SearchOption.Accurate.index;
                           },
                           child: Container(
-                            width: 52,
+                            width: 55,
                             alignment: Alignment.center,
                             child: Text(
                               "精确",
