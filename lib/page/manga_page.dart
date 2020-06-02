@@ -267,18 +267,6 @@ class _MangaPageState extends State<MangaPage> {
         }
         final path = '${provider.content[index]}';
         return GestureDetector(
-          onTapUp: (TapUpDetails details) {
-            final size = MediaQuery.of(context).size;
-            if (details.globalPosition.dx > size.width * 3 / 8 &&
-                details.globalPosition.dx < size.width * 5 / 8 &&
-                details.globalPosition.dy > size.height * 3 / 8 &&
-                details.globalPosition.dy < size.height * 5 / 8) {
-              provider.showMenu = !provider.showMenu;
-              provider.showSetting = false;
-            } else {
-              provider.showChapter = false;
-            }
-          },
           onLongPress: () {
             Navigator.of(context).push(
               MaterialPageRoute(
