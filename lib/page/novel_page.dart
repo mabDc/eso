@@ -240,18 +240,24 @@ class _NovelPageState extends State<NovelPage> {
                       ),
                       SizedBox(height: 10),
                       provider.useSelectableText
-                          ? SelectableText(content,
+                          ? SelectableText(
+                              content,
                               style: TextStyle(
                                 fontSize: profile.novelFontSize,
                                 height: profile.novelHeight * 0.98,
                                 color: fontColor,
-                              ))
-                          : Text(content,
+                              ),
+                              textAlign: TextAlign.justify,
+                            )
+                          : Text(
+                              content,
                               style: TextStyle(
                                 fontSize: profile.novelFontSize,
                                 height: profile.novelHeight,
                                 color: fontColor,
-                              )),
+                              ),
+                              textAlign: TextAlign.justify,
+                            ),
                       Container(
                         alignment: Alignment.topLeft,
                         padding: EdgeInsets.only(

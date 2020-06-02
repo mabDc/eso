@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
@@ -171,9 +173,30 @@ class _MangaPageState extends State<MangaPage> {
                 } else if (mode == RefreshStatus.failed) {
                   body = Text("加载失败！请重试！");
                 } else if (mode == RefreshStatus.canRefresh) {
-                  body = Text("松手加载上一章！");
+                  body = Text("释放加载上一章");
                 } else {
                   body = Text("加载完成或没有更多数据");
+                }
+                final angle = profile.mangaDirection == Profile.mangaDirectionLeftToRight
+                    ? pi / 2 * 3
+                    : profile.mangaDirection == Profile.mangaDirectionRightToLeft
+                        ? pi / 2
+                        : 0;
+                if (angle > 0) {
+                  return Container(
+                    height: 60.0,
+                    alignment: Alignment.center,
+                    child: Transform.rotate(
+                      angle: angle,
+                      child: Container(
+                        height: 260,
+                        width: 260,
+                        padding: EdgeInsets.only(top: 200),
+                        alignment: Alignment.center,
+                        child: body,
+                      ),
+                    ),
+                  );
                 }
                 return Container(
                   height: 60.0,
@@ -191,9 +214,24 @@ class _MangaPageState extends State<MangaPage> {
                 } else if (mode == LoadStatus.failed) {
                   body = Text("加载失败！请重试！");
                 } else if (mode == LoadStatus.canLoading) {
-                  body = Text("松手加载下一章!");
+                  body = Text("松手加载下一章");
                 } else {
                   body = Text("加载完成或没有更多数据");
+                }
+                final angle = profile.mangaDirection == Profile.mangaDirectionLeftToRight
+                    ? pi / 2 * 3
+                    : profile.mangaDirection == Profile.mangaDirectionRightToLeft
+                        ? pi / 2
+                        : 0;
+                if (angle > 0) {
+                  return Container(
+                    height: 60.0,
+                    alignment: Alignment.center,
+                    child: Transform.rotate(
+                      angle: angle,
+                      child: body,
+                    ),
+                  );
                 }
                 return Container(
                   height: 60.0,
