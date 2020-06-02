@@ -287,7 +287,7 @@ class _SearchPageState extends State<SearchPage> {
                 ),
                 Expanded(
                   child: provider.searchListNone.length == 0 && provider.rulesCount == 0
-                      ? Center(child: Text('正在初始化或者尚无可搜索源'))
+                      ? Center(child: Text('尚无可搜索源'))
                       : ListView.separated(
                           padding: EdgeInsets.all(8),
                           separatorBuilder: (context, index) => SizedBox(height: 8),
