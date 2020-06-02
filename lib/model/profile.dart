@@ -29,6 +29,10 @@ class Profile with ChangeNotifier {
             'mangaSortIndex': SortType.CREATE.index,
             'audioSortIndex': SortType.CREATE.index,
             'videoSortIndex': SortType.CREATE.index,
+            'novelEnableSearch': true,
+            'mangaEnableSearch': true,
+            'audioEnableSearch': true,
+            'videoEnableSearch': true,
             'mangaKeepOn': false,
             'mangaLandscape': false,
             'mangaDirection': mangaDirectionTopToBottom,
@@ -63,6 +67,10 @@ class Profile with ChangeNotifier {
   int _mangaSortIndex;
   int _audioSortIndex;
   int _videoSortIndex;
+  bool _novelEnableSearch;
+  bool _mangaEnableSearch;
+  bool _audioEnableSearch;
+  bool _videoEnableSearch;
   int _searchCount;
   int _searchOption;
 
@@ -86,6 +94,10 @@ class Profile with ChangeNotifier {
   int get mangaSortIndex => _mangaSortIndex;
   int get audioSortIndex => _audioSortIndex;
   int get videoSortIndex => _videoSortIndex;
+  bool get novelEnableSearch => _novelEnableSearch;
+  bool get mangaEnableSearch => _mangaEnableSearch;
+  bool get audioEnableSearch => _audioEnableSearch;
+  bool get videoEnableSearch => _videoEnableSearch;
   int get searchCount => _searchCount;
   int get searchOption => _searchOption;
 
@@ -275,6 +287,34 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set novelEnableSearch(bool value) {
+    if (value != _novelEnableSearch) {
+      _novelEnableSearch = value;
+      _saveProfile(false);
+    }
+  }
+
+  set mangaEnableSearch(bool value) {
+    if (value != _mangaEnableSearch) {
+      _mangaEnableSearch = value;
+      _saveProfile(false);
+    }
+  }
+
+  set audioEnableSearch(bool value) {
+    if (value != _audioEnableSearch) {
+      _audioEnableSearch = value;
+      _saveProfile(false);
+    }
+  }
+
+  set videoEnableSearch(bool value) {
+    if (value != _videoEnableSearch) {
+      _videoEnableSearch = value;
+      _saveProfile(false);
+    }
+  }
+
   set searchCount(int value) {
     if (value != _searchCount) {
       _searchCount = value;
@@ -352,6 +392,10 @@ class Profile with ChangeNotifier {
     _videoSortIndex = json["videoSortIndex"] ?? SortType.CREATE.index;
     _searchCount = json["searchCount"] ?? 10;
     _searchOption = json["searchOption"] ?? SearchOption.Normal.index;
+    _novelEnableSearch = json['novelEnableSearch'] ?? true;
+    _mangaEnableSearch = json['mangaEnableSearch'] ?? true;
+    _audioEnableSearch = json['audioEnableSearch'] ?? true;
+    _videoEnableSearch = json['videoEnableSearch'] ?? true;
   }
 
   Map<String, dynamic> toJson() => {
@@ -377,5 +421,9 @@ class Profile with ChangeNotifier {
         'videoSortIndex': _videoSortIndex,
         'searchCount': _searchCount,
         'searchOption': _searchOption,
+        'novelEnableSearch': _novelEnableSearch,
+        'mangaEnableSearch': _mangaEnableSearch,
+        'audioEnableSearch': _audioEnableSearch,
+        'videoEnableSearch': _videoEnableSearch,
       };
 }

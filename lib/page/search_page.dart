@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
@@ -27,6 +28,7 @@ class _SearchPageState extends State<SearchPage> {
       create: (context) => SearchProvider(
         threadCount: profile.searchCount,
         searchOption: SearchOption.values[profile.searchOption],
+        profile: profile,
       ),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
@@ -76,17 +78,15 @@ class _SearchPageState extends State<SearchPage> {
         ),
         body: Consumer<SearchProvider>(
           builder: (context, provider, child) {
-            if (provider.searchListNone.length == 0 && provider.rulesCount == 0) {
-              return Center(child: Text('正在初始化或者尚未可搜索源'));
-            }
             final searchList = provider.searchOption == SearchOption.None
                 ? provider.searchListNone
                 : provider.searchOption == SearchOption.Normal
                     ? provider.searchListNormal
                     : provider.searchListAccurate;
             final count = searchList.length;
-            final progress =
-                (provider.successCount + provider.failureCount) / provider.rulesCount;
+            final progress = provider.rulesCount == 0.0
+                ? 0.0
+                : (provider.successCount + provider.failureCount) / provider.rulesCount;
             return Column(
               children: [
                 FittedBox(
@@ -97,42 +97,93 @@ class _SearchPageState extends State<SearchPage> {
                       children: [
                         FlatButton(
                           onPressed: null,
-                          child: Text("过滤条件"),
+                          child: Text("规则选择"),
                         ),
+                        Checkbox(
+                          value: provider.novelEnableSearch,
+                          activeColor: Theme.of(context).primaryColor,
+                          onChanged: (value) => provider.novelEnableSearch = value,
+                        ),
+                        Text(API.getRuleContentTypeName(API.NOVEL)),
+                        Checkbox(
+                          value: provider.mangaEnableSearch,
+                          activeColor: Theme.of(context).primaryColor,
+                          onChanged: (value) => provider.mangaEnableSearch = value,
+                        ),
+                        Text(API.getRuleContentTypeName(API.MANGA)),
+                        Checkbox(
+                          value: provider.audioEnableSearch,
+                          activeColor: Theme.of(context).primaryColor,
+                          onChanged: (value) => provider.audioEnableSearch = value,
+                        ),
+                        Text(API.getRuleContentTypeName(API.AUDIO)),
+                        Checkbox(
+                          value: provider.videoEnableSearch,
+                          activeColor: Theme.of(context).primaryColor,
+                          onChanged: (value) => provider.videoEnableSearch = value,
+                        ),
+                        Text(API.getRuleContentTypeName(API.VIDEO)),
+                        SizedBox(width: 10),
+                      ],
+                    ),
+                  ),
+                ),
+                FittedBox(
+                  child: Container(
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: Row(
+                      children: [
                         FlatButton(
-                          onPressed: () {
+                          onPressed: null,
+                          child: Text("结果过滤"),
+                        ),
+                        InkWell(
+                          onTap: () {
                             provider.searchOption = SearchOption.None;
                             profile.searchOption = SearchOption.None.index;
                           },
-                          child: Text(
-                            "无",
-                            style: provider.searchOption == SearchOption.None
-                                ? TextStyle(color: theme.primaryColor)
-                                : TextStyle(),
+                          child: Container(
+                            width: 52,
+                            alignment: Alignment.center,
+                            child: Text(
+                              "无",
+                              style: provider.searchOption == SearchOption.None
+                                  ? TextStyle(color: theme.primaryColor)
+                                  : TextStyle(),
+                            ),
                           ),
                         ),
-                        FlatButton(
-                          onPressed: () {
+                        InkWell(
+                          onTap: () {
                             provider.searchOption = SearchOption.Normal;
                             profile.searchOption = SearchOption.Normal.index;
                           },
-                          child: Text(
-                            "普通",
-                            style: provider.searchOption == SearchOption.Normal
-                                ? TextStyle(color: theme.primaryColor)
-                                : TextStyle(),
+                          child: Container(
+                            width: 52,
+                            alignment: Alignment.center,
+                            child: Text(
+                              "普通",
+                              style: provider.searchOption == SearchOption.Normal
+                                  ? TextStyle(color: theme.primaryColor)
+                                  : TextStyle(),
+                            ),
                           ),
                         ),
-                        FlatButton(
-                          onPressed: () {
+                        InkWell(
+                          onTap: () {
                             provider.searchOption = SearchOption.Accurate;
                             profile.searchOption = SearchOption.Accurate.index;
                           },
-                          child: Text(
-                            "精确",
-                            style: provider.searchOption == SearchOption.Accurate
-                                ? TextStyle(color: theme.primaryColor)
-                                : TextStyle(),
+                          child: Container(
+                            width: 52,
+                            alignment: Alignment.center,
+                            child: Text(
+                              "精确",
+                              style: provider.searchOption == SearchOption.Accurate
+                                  ? TextStyle(color: theme.primaryColor)
+                                  : TextStyle(),
+                            ),
                           ),
                         ),
                         FlatButton(
@@ -157,7 +208,8 @@ class _SearchPageState extends State<SearchPage> {
                               profile.searchCount = value;
                             },
                           ),
-                        )
+                        ),
+                        SizedBox(width: 10),
                       ],
                     ),
                   ),
@@ -234,25 +286,27 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
                 Expanded(
-                  child: ListView.separated(
-                    padding: EdgeInsets.all(8),
-                    separatorBuilder: (context, index) => SizedBox(height: 8),
-                    itemCount: searchList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        child: UiSearchItem(
-                          item: searchList[index],
-                          showType: true,
+                  child: provider.searchListNone.length == 0 && provider.rulesCount == 0
+                      ? Center(child: Text('正在初始化或者尚无可搜索源'))
+                      : ListView.separated(
+                          padding: EdgeInsets.all(8),
+                          separatorBuilder: (context, index) => SizedBox(height: 8),
+                          itemCount: searchList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return InkWell(
+                              child: UiSearchItem(
+                                item: searchList[index],
+                                showType: true,
+                              ),
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ChapterPage(searchItem: searchList[index]),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ChapterPage(searchItem: searchList[index]),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                 ),
               ],
             );
@@ -289,6 +343,10 @@ class SearchProvider with ChangeNotifier {
   int _failureCount;
   int get failureCount => _failureCount;
   List<Rule> _rules;
+  List<Rule> _novelRules;
+  List<Rule> _mangaRules;
+  List<Rule> _audioRules;
+  List<Rule> _videoRules;
 
   final List<SearchItem> searchListNone = <SearchItem>[];
   final List<SearchItem> searchListNormal = <SearchItem>[];
@@ -296,7 +354,9 @@ class SearchProvider with ChangeNotifier {
 
   final _keys = Map<String, bool>();
   int _keySuffix;
-  SearchProvider({int threadCount, SearchOption searchOption}) {
+  Profile _profile;
+  SearchProvider({int threadCount, SearchOption searchOption, Profile profile}) {
+    _profile = profile;
     _threadCount = threadCount ?? 10;
     _searchOption = searchOption ?? SearchOption.Normal;
     _rulesCount = 0;
@@ -307,10 +367,69 @@ class SearchProvider with ChangeNotifier {
     init();
   }
 
-  void init() async {
-    _rules = (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+  bool get novelEnableSearch => _profile.novelEnableSearch;
+  bool get mangaEnableSearch => _profile.mangaEnableSearch;
+  bool get audioEnableSearch => _profile.audioEnableSearch;
+  bool get videoEnableSearch => _profile.videoEnableSearch;
+
+  set novelEnableSearch(bool value) {
+    if (value != _profile.novelEnableSearch) {
+      _profile.novelEnableSearch = value;
+      updateRules();
+    }
+  }
+
+  set mangaEnableSearch(bool value) {
+    if (value != _profile.mangaEnableSearch) {
+      _profile.mangaEnableSearch = value;
+      updateRules();
+    }
+  }
+
+  set audioEnableSearch(bool value) {
+    if (value != _profile.audioEnableSearch) {
+      _profile.audioEnableSearch = value;
+      updateRules();
+    }
+  }
+
+  set videoEnableSearch(bool value) {
+    if (value != _profile.videoEnableSearch) {
+      _profile.videoEnableSearch = value;
+      updateRules();
+    }
+  }
+
+  void updateRules() {
+    if (null != _rules) {
+      _rules.clear();
+    } else {
+      _rules = <Rule>[];
+    }
+    if (_profile.novelEnableSearch) {
+      _rules.addAll(_novelRules);
+    }
+    if (_profile.mangaEnableSearch) {
+      _rules.addAll(_mangaRules);
+    }
+    if (_profile.audioEnableSearch) {
+      _rules.addAll(_audioRules);
+    }
+    if (_profile.videoEnableSearch) {
+      _rules.addAll(_videoRules);
+    }
     _rulesCount = _rules.length;
     notifyListeners();
+  }
+
+  void init() async {
+    final rules =
+        (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+    _novelRules = rules.where((r) => r.contentType == API.NOVEL).toList();
+    _mangaRules = rules.where((r) => r.contentType == API.MANGA).toList();
+    _audioRules = rules.where((r) => r.contentType == API.AUDIO).toList();
+    _videoRules = rules.where((r) => r.contentType == API.VIDEO).toList();
+    updateRules();
   }
 
   void search(String keyword) async {
