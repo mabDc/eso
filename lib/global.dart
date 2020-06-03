@@ -9,6 +9,7 @@ class Global with ChangeNotifier {
   static const appVersion = '1.12.0';
 
   static const waitingPath = "lib/assets/waiting.png";
+  static const logoPath = "lib/assets/eso_logo.png";
   static const nowayPath = "lib/assets/noway.png";
   static const errorPath = "lib/assets/error.png";
   static const cheerioFile = "lib/assets/cheerio.min.js";
@@ -31,7 +32,7 @@ class Global with ChangeNotifier {
     SearchItemManager.initSearchItem();
     final _database = await $FloorAppDatabase.databaseBuilder('eso_database.db').build();
     _ruleDao = _database.ruleDao;
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(Duration(seconds: 10));
     return true;
   }
 
