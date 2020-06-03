@@ -269,11 +269,11 @@ class AnalyzerManager {
   ///
   /// `@js:js code`
   ///
-  /// `@json:$.name` 或 `$.name`
+  /// `@json:$.name` 或 `$.name`（省略`@json:`）
   ///
-  /// `@css:li` 或 `li`
+  /// `@css:li` 或 `li`（省略`@css:`）
   ///
-  /// `@xpath://li` 或 `//li`
+  /// `@xpath://li` 或 `//li`（省略`@xpath:`）
   ///
   /// `:regex`
   ///
