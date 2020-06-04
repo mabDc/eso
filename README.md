@@ -2,15 +2,22 @@
 
 亦搜，亦看，亦闻
 
-## Getting Started
+## 简介
 
-This project is a starting point for a Flutter application.
+支持多来源的自定义阅读器与播放器。
 
-A few resources to get you started if this is your first Flutter project:
+## 亦搜
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+多种来源，有搜索，有发现
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 亦看
+
+看文字，看小说，看图片，看壁纸，看漫画，看视频
+
+## 亦闻
+
+听故事，听有声，听音乐，听英语
+
+## 亦
+
+更多功能由君想象。
