@@ -47,15 +47,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 filled: true,
                 fillColor: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.1),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(color: Colors.transparent),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(color: Colors.transparent),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(color: Colors.transparent),
                 ),
                 hintText:
@@ -65,9 +65,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   fontSize: 12,
                 ),
                 isDense: true,
-                contentPadding: EdgeInsets.only(bottom: 4),
+                contentPadding: EdgeInsets.only(bottom: 7, top: 7),
                 prefixIcon: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                  padding: const EdgeInsets.only(left: 6, right: 2),
                   child: Icon(
                     Icons.search,
                     color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
@@ -78,7 +78,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
               maxLines: 1,
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyText1.color,
-                height: 1.25,
               ),
               onSubmitted: (value) => __provider.getRuleListByName(value),
               onChanged: (value) => __provider.getRuleListByNameDebounce(value),

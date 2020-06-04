@@ -25,21 +25,21 @@ class EditSourcePage extends StatelessWidget {
           titleSpacing: 0.0,
           title: TextField(
             cursorColor: Theme.of(context).primaryColor,
-            cursorRadius: Radius.circular(2),
+            cursorRadius: Radius.circular(4),
             selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
             decoration: InputDecoration(
               filled: true,
               fillColor: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.1),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide(color: Colors.transparent),
               ),
               hintText:
@@ -49,9 +49,9 @@ class EditSourcePage extends StatelessWidget {
                 fontSize: 12,
               ),
               isDense: true,
-              contentPadding: EdgeInsets.only(bottom: 4),
+              contentPadding: EdgeInsets.only(bottom: 7, top: 7),
               prefixIcon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                padding: const EdgeInsets.only(left: 6, right: 2),
                 child: Icon(
                   Icons.search,
                   color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
@@ -62,7 +62,6 @@ class EditSourcePage extends StatelessWidget {
             maxLines: 1,
             style: TextStyle(
               color: Theme.of(context).textTheme.bodyText1.color,
-              height: 1.25,
             ),
             onSubmitted:
                 Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
