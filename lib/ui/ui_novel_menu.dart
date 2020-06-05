@@ -41,8 +41,6 @@ class UINovelMenu extends StatelessWidget {
   Widget _buildSetting(BuildContext context, Color bgColor, Color color) {
     final provider = Provider.of<NovelPageProvider>(context);
     final profile = Provider.of<Profile>(context);
-    final buttonWidth =
-        (MediaQuery.of(context).size.width - 120 - 4 * 36 - 60) / 4 + 2 * 36;
     final colors = [
       [0xfff1f1f1, 0xff373534], //白底
       [0xfff5ede2, 0xff373328], //浅黄
@@ -51,7 +49,7 @@ class UINovelMenu extends StatelessWidget {
       [0xff999c99, 0xff353535], //浅灰
       [0xff33383d, 0xffc5c4c9], //黑
     ];
-    final styles = ["滚动", "滑动", "覆盖", "仿真", "无"];
+    final styles = ["滚动", "滑动", "无动画翻页"]; //["滚动", "滑动", "覆盖", "仿真", "无"];
     return IconTheme(
       data: IconThemeData(size: 22, color: color),
       child: Container(
@@ -136,7 +134,7 @@ class UINovelMenu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          child: Icon(Icons.remove_circle_outline),
+                          child: Icon(Icons.remove),
                           onTap: () => null,
                         ),
                         Container(
@@ -165,7 +163,7 @@ class UINovelMenu extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          child: Icon(Icons.add_circle_outline),
+                          child: Icon(Icons.add),
                           onTap: () => null,
                         ),
                       ],
@@ -181,7 +179,7 @@ class UINovelMenu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          child: Icon(Icons.remove_circle_outline),
+                          child: Icon(Icons.remove),
                           onTap: () => null,
                         ),
                         Container(
@@ -210,7 +208,7 @@ class UINovelMenu extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          child: Icon(Icons.add_circle_outline),
+                          child: Icon(Icons.add),
                           onTap: () => null,
                         ),
                       ],
@@ -233,7 +231,7 @@ class UINovelMenu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          child: Icon(Icons.remove_circle_outline),
+                          child: Icon(Icons.remove),
                           onTap: () => profile.novelFontSize -= 2,
                         ),
                         Container(
@@ -262,7 +260,7 @@ class UINovelMenu extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          child: Icon(Icons.add_circle_outline),
+                          child: Icon(Icons.add),
                           onTap: () => profile.novelFontSize += 2,
                         ),
                       ],
@@ -278,7 +276,7 @@ class UINovelMenu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          child: Icon(Icons.remove_circle_outline),
+                          child: Icon(Icons.remove),
                           onTap: () => profile.novelHeight -= 0.5,
                         ),
                         Container(
@@ -307,7 +305,7 @@ class UINovelMenu extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          child: Icon(Icons.add_circle_outline),
+                          child: Icon(Icons.add),
                           onTap: () => profile.novelHeight += 0.5,
                         ),
                       ],
@@ -330,7 +328,7 @@ class UINovelMenu extends StatelessWidget {
                       children: styles
                           .map((style) => Container(
                                 height: 32,
-                                width: 30.0 + style.length * 15,
+                                width: 32.0 + style.length * 14,
                                 child: OutlineButton(
                                   child: Text(style, style: TextStyle(color: color)),
                                   onPressed: () => null,

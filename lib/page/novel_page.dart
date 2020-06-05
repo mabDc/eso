@@ -294,7 +294,7 @@ class _NovelPageState extends State<NovelPage> {
                       SelectableText(
                         '${widget.searchItem.durChapter}',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: profile.novelFontSize + 2,
                           fontWeight: FontWeight.bold,
                           color: fontColor,
                         ),
