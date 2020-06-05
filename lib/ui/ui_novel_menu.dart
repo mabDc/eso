@@ -53,7 +53,7 @@ class UINovelMenu extends StatelessWidget {
     ];
     final styles = ["滚动", "滑动", "覆盖", "仿真", "无"];
     return IconTheme(
-      data: IconThemeData(size: 18, color: color),
+      data: IconThemeData(size: 22, color: color),
       child: Container(
         width: double.infinity,
         color: bgColor,
@@ -65,7 +65,7 @@ class UINovelMenu extends StatelessWidget {
               child: Row(
                 children: <Widget>[
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("亮度", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
@@ -126,70 +126,96 @@ class UINovelMenu extends StatelessWidget {
             Container(
               height: 40,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("段距", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                  Icon(Icons.add),
-                  Container(
-                    width: 40,
-                    height: 32,
-                    alignment: Alignment.center,
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          child: Icon(Icons.remove_circle_outline),
+                          onTap: () => null,
+                        ),
+                        Container(
+                          width: 40,
+                          height: 32,
+                          alignment: Alignment.center,
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                            ],
+                            controller: TextEditingController(
+                              text: "0", //profile.novelFontSize.toStringAsFixed(0),
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "0", //profile.novelFontSize.toStringAsFixed(0),
+                              isDense: true,
+                              contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                            ),
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.center,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                null, //profile.novelFontSize = double.parse(value),
+                          ),
+                        ),
+                        InkWell(
+                          child: Icon(Icons.add_circle_outline),
+                          onTap: () => null,
+                        ),
                       ],
-                      controller: TextEditingController(
-                        text: "0.0", //profile.novelFontSize.toStringAsFixed(0),
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "0.0", //profile.novelFontSize.toStringAsFixed(0),
-                        isDense: true,
-                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
-                      ),
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (value) =>
-                          null, //profile.novelFontSize = double.parse(value),
                     ),
                   ),
-                  Icon(Icons.remove),
+                  SizedBox(width: 20),
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("边距", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                  Icon(Icons.add),
-                  Container(
-                    width: 40,
-                    height: 32,
-                    alignment: Alignment.center,
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          child: Icon(Icons.remove_circle_outline),
+                          onTap: () => null,
+                        ),
+                        Container(
+                          width: 40,
+                          height: 32,
+                          alignment: Alignment.center,
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                            ],
+                            controller: TextEditingController(
+                              text: "0", //profile.novelFontSize.toStringAsFixed(0),
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "0", //profile.novelFontSize.toStringAsFixed(0),
+                              isDense: true,
+                              contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                            ),
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.center,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                null, //profile.novelFontSize = double.parse(value),
+                          ),
+                        ),
+                        InkWell(
+                          child: Icon(Icons.add_circle_outline),
+                          onTap: () => null,
+                        ),
                       ],
-                      controller: TextEditingController(
-                        text: "0.0", //profile.novelFontSize.toStringAsFixed(0),
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "0.0", //profile.novelFontSize.toStringAsFixed(0),
-                        isDense: true,
-                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
-                      ),
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (value) =>
-                          null, //profile.novelFontSize = double.parse(value),
                     ),
                   ),
-                  Icon(Icons.remove),
                 ],
               ),
             ),
@@ -199,134 +225,154 @@ class UINovelMenu extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                  Icon(Icons.add),
-                  Container(
-                    width: 40,
-                    height: 32,
-                    alignment: Alignment.center,
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          child: Icon(Icons.remove_circle_outline),
+                          onTap: () => profile.novelFontSize -= 2,
+                        ),
+                        Container(
+                          width: 40,
+                          height: 32,
+                          alignment: Alignment.center,
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                            ],
+                            controller: TextEditingController(
+                              text: profile.novelFontSize.toStringAsFixed(0),
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: profile.novelFontSize.toStringAsFixed(0),
+                              isDense: true,
+                              contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                            ),
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.center,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                profile.novelFontSize = double.parse(value),
+                          ),
+                        ),
+                        InkWell(
+                          child: Icon(Icons.add_circle_outline),
+                          onTap: () => profile.novelFontSize += 2,
+                        ),
                       ],
-                      controller: TextEditingController(
-                        text: profile.novelFontSize.toStringAsFixed(0),
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: profile.novelFontSize.toStringAsFixed(0),
-                        isDense: true,
-                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
-                      ),
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (value) => profile.novelFontSize = double.parse(value),
                     ),
                   ),
-                  Icon(Icons.remove),
+                  SizedBox(width: 20),
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("行高", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                  Icon(Icons.add),
-                  Container(
-                    width: 40,
-                    height: 32,
-                    alignment: Alignment.center,
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        TextInputFormatterRegExp(RegExp(r'^\d?(\.\d?)?$')),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          child: Icon(Icons.remove_circle_outline),
+                          onTap: () => profile.novelHeight -= 0.5,
+                        ),
+                        Container(
+                          width: 40,
+                          height: 32,
+                          alignment: Alignment.center,
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              TextInputFormatterRegExp(RegExp(r'^\d?(\.\d?)?$')),
+                            ],
+                            controller: TextEditingController(
+                              text: profile.novelHeight.toStringAsFixed(1),
+                            ),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: profile.novelHeight.toStringAsFixed(1),
+                              isDense: true,
+                              contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                            ),
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.center,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (value) =>
+                                profile.novelHeight = double.parse(value),
+                          ),
+                        ),
+                        InkWell(
+                          child: Icon(Icons.add_circle_outline),
+                          onTap: () => profile.novelHeight += 0.5,
+                        ),
                       ],
-                      controller: TextEditingController(
-                        text: profile.novelHeight.toStringAsFixed(1),
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: profile.novelHeight.toStringAsFixed(1),
-                        isDense: true,
-                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
-                      ),
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (value) => profile.novelHeight = double.parse(value),
                     ),
                   ),
-                  Icon(Icons.remove),
                 ],
               ),
             ),
             Container(
               height: 40,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("翻页", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                ]..addAll(styles.map((style) => Container(
-                      height: 32,
-                      width: 24.0 + style.length * 18,
-                      child: OutlineButton(
-                        child: Text(style, style: TextStyle(color: color)),
-                        onPressed: () => null,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          side: BorderSide(color: color),
-                        ),
-                      ),
-                    ))),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: styles
+                          .map((style) => Container(
+                                height: 32,
+                                width: 30.0 + style.length * 15,
+                                child: OutlineButton(
+                                  child: Text(style, style: TextStyle(color: color)),
+                                  onPressed: () => null,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    side: BorderSide(color: color),
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
             Container(
               height: 40,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: 40,
+                    width: 50,
                     child: Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                ]..addAll(colors.map((color) => InkWell(
-                      child: CircleAvatar(
-                        radius: 18.0,
-                        backgroundColor: Color(color[0]),
-                      ),
-                      onTap: () => profile.setNovelColor(color[0], color[1]),
-                    ))),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: colors
+                          .map((color) => InkWell(
+                                child: CircleAvatar(
+                                  radius: 18.0,
+                                  backgroundColor: Color(color[0]),
+                                ),
+                                onTap: () => profile.setNovelColor(color[0], color[1]),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-
-        // Row(
-        //   children: [
-        //     Container(
-        //       width: 50,
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.start,
-        //         children: [
-        //           Text("段距", style: TextStyle(color: color.withOpacity(0.7))),
-        //           Text("边距", style: TextStyle(color: color.withOpacity(0.7))),
-        //           Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
-        //           Text("高度", style: TextStyle(color: color.withOpacity(0.7))),
-        //           Text("翻页", style: TextStyle(color: color.withOpacity(0.7))),
-        //           Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
-        //         ],
-        //       ),
-        //     ),
-        //     Expanded(
-        //       child:
-
-        //     ),
-        //   ],
-        // ),
       ),
     );
   }

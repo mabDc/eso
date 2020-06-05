@@ -183,19 +183,26 @@ class Profile with ChangeNotifier {
 
   set novelFontSize(double value) {
     if ((value - _novelFontSize).abs() > 0.1) {
-      if (value > 70) {
-        value = 70;
+      if (value > 40) {
+        _novelFontSize = 40;
       } else if (value < 10) {
-        value = 10;
+        _novelFontSize = 10;
+      } else {
+        _novelFontSize = value;
       }
-      _novelFontSize = value;
       _saveProfile();
     }
   }
 
   set novelHeight(double value) {
     if ((value - _novelHeight).abs() > 0.05) {
-      _novelHeight = value;
+      if (value > 3) {
+        _novelHeight = 3;
+      } else if (value < 1) {
+        _novelHeight = 1;
+      } else {
+        _novelHeight = value;
+      }
       _saveProfile();
     }
   }
