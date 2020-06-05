@@ -111,7 +111,16 @@ searchPage = ${jsonEncode(page)};
         return http.get(u, headers: headers);
       }
       if (method == 'post') {
-        return http.post(u, headers: headers, body: body);
+        return http.post(
+          u,
+          headers: headers,
+          body: body,
+          encoding: r['charset'] != null
+              ? "${r['charset']}".contains("gbk")
+                  ? gbk
+                  : Encoding.getByName("${r['charset']}")
+              : null,
+        );
       }
       throw ('error parser url rule');
     } else {
