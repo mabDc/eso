@@ -123,15 +123,14 @@ class _NovelPageState extends State<NovelPage> {
   }
 
   RefreshController _refreshController = RefreshController();
-
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
     final paragraphs = provider.content
         .join("\n")
         .split(RegExp(r"\n\s*"))
         .map((s) => "　　" + s.trimLeft())
         .toList();
-    final width = MediaQuery.of(context).size.width - 24;
-    final offset = Offset(width, 10);
+    final width = MediaQuery.of(context).size.width - 32;
+    final offset = Offset(width, 6);
     final tp = TextPainter(textDirection: TextDirection.ltr);
     final lines = <Line>[];
     for (var paragraph in paragraphs) {
@@ -290,7 +289,7 @@ class _NovelPageState extends State<NovelPage> {
                   child: ListView(
                     controller: provider.controller,
                     padding:
-                        EdgeInsets.fromLTRB(12, 100, 0, 0), //右侧padding设置为0，用spacing控制
+                        EdgeInsets.fromLTRB(16, 100, 0, 0), //右侧padding设置为0，用spacing控制
                     children: <Widget>[
                       SelectableText(
                         '${widget.searchItem.durChapter}',

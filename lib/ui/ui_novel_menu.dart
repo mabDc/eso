@@ -43,248 +43,290 @@ class UINovelMenu extends StatelessWidget {
     final profile = Provider.of<Profile>(context);
     final buttonWidth =
         (MediaQuery.of(context).size.width - 120 - 4 * 36 - 60) / 4 + 2 * 36;
+    final colors = [
+      [0xfff1f1f1, 0xff373534], //白底
+      [0xfff5ede2, 0xff373328], //浅黄
+      [0xFFF5DEB3, 0xff373328], //黄
+      [0xffe3f8e1, 0xff485249], //绿
+      [0xff999c99, 0xff353535], //浅灰
+      [0xff33383d, 0xffc5c4c9], //黑
+    ];
+    final styles = ["滚动", "滑动", "覆盖", "仿真", "无"];
     return IconTheme(
       data: IconThemeData(size: 18, color: color),
       child: Container(
         width: double.infinity,
-        height: 220,
         color: bgColor,
-        padding: EdgeInsets.fromLTRB(25, 4, 25, 16),
-        child: Row(
+        padding: EdgeInsets.fromLTRB(20, 4, 20, 16),
+        child: Column(
           children: [
             Container(
-              width: 70,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("亮度", style: TextStyle(color: color.withOpacity(0.7))),
-                  Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
-                  Text("高度", style: TextStyle(color: color.withOpacity(0.7))),
-                  Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
+              height: 40,
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 40,
+                    child: Text("亮度", style: TextStyle(color: color.withOpacity(0.7))),
+                  ),
+                  Expanded(
+                    child: FlutterSlider(
+                      values: [provider.brightness * 100],
+                      max: 100,
+                      min: 0,
+                      onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+                        provider.brightness = lowerValue / 100;
+                      },
+                      // disabled: provider.isLoading,
+                      handlerWidth: 6,
+                      handlerHeight: 14,
+                      handler: FlutterSliderHandler(
+                        decoration: BoxDecoration(),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3),
+                            color: bgColor,
+                            border: Border.all(color: color.withOpacity(0.65), width: 1),
+                          ),
+                        ),
+                      ),
+                      trackBar: FlutterSliderTrackBar(
+                        inactiveTrackBar: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: color.withOpacity(0.5),
+                        ),
+                        activeTrackBar: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      tooltip: FlutterSliderTooltip(
+                        disableAnimation: true,
+                        custom: (value) => Container(
+                          padding: EdgeInsets.all(8),
+                          color: bgColor,
+                          child: Text((value as double).toStringAsFixed(0)),
+                        ),
+                        positionOffset:
+                            FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Text("常亮"),
+                  Switch(
+                    value: profile.novelKeepOn,
+                    onChanged: (value) {
+                      profile.novelKeepOn = value;
+                      provider.setKeepOn(value);
+                    },
+                  ),
                 ],
               ),
             ),
-            Expanded(
-              child: Column(
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    width: 40,
+                    child: Text("段距", style: TextStyle(color: color.withOpacity(0.7))),
+                  ),
+                  Icon(Icons.add),
+                  Container(
+                    width: 40,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                      ],
+                      controller: TextEditingController(
+                        text: "0.0", //profile.novelFontSize.toStringAsFixed(0),
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "0.0", //profile.novelFontSize.toStringAsFixed(0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                      ),
+                      textAlign: TextAlign.center,
+                      textAlignVertical: TextAlignVertical.center,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (value) =>
+                          null, //profile.novelFontSize = double.parse(value),
+                    ),
+                  ),
+                  Icon(Icons.remove),
+                  Container(
+                    width: 40,
+                    child: Text("边距", style: TextStyle(color: color.withOpacity(0.7))),
+                  ),
+                  Icon(Icons.add),
+                  Container(
+                    width: 40,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                      ],
+                      controller: TextEditingController(
+                        text: "0.0", //profile.novelFontSize.toStringAsFixed(0),
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "0.0", //profile.novelFontSize.toStringAsFixed(0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                      ),
+                      textAlign: TextAlign.center,
+                      textAlignVertical: TextAlignVertical.center,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (value) =>
+                          null, //profile.novelFontSize = double.parse(value),
+                    ),
+                  ),
+                  Icon(Icons.remove),
+                ],
+              ),
+            ),
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    width: 40,
+                    child: Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
+                  ),
+                  Icon(Icons.add),
+                  Container(
+                    width: 40,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
+                      ],
+                      controller: TextEditingController(
+                        text: profile.novelFontSize.toStringAsFixed(0),
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: profile.novelFontSize.toStringAsFixed(0),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                      ),
+                      textAlign: TextAlign.center,
+                      textAlignVertical: TextAlignVertical.center,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (value) => profile.novelFontSize = double.parse(value),
+                    ),
+                  ),
+                  Icon(Icons.remove),
+                  Container(
+                    width: 40,
+                    child: Text("行高", style: TextStyle(color: color.withOpacity(0.7))),
+                  ),
+                  Icon(Icons.add),
+                  Container(
+                    width: 40,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        TextInputFormatterRegExp(RegExp(r'^\d?(\.\d?)?$')),
+                      ],
+                      controller: TextEditingController(
+                        text: profile.novelHeight.toStringAsFixed(1),
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: profile.novelHeight.toStringAsFixed(1),
+                        isDense: true,
+                        contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+                      ),
+                      textAlign: TextAlign.center,
+                      textAlignVertical: TextAlignVertical.center,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (value) => profile.novelHeight = double.parse(value),
+                    ),
+                  ),
+                  Icon(Icons.remove),
+                ],
+              ),
+            ),
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: FlutterSlider(
-                            values: [provider.brightness * 100],
-                            max: 100,
-                            min: 0,
-                            onDragCompleted: (handlerIndex, lowerValue, upperValue) {
-                              provider.brightness = lowerValue / 100;
-                            },
-                            // disabled: provider.isLoading,
-                            handlerWidth: 6,
-                            handlerHeight: 14,
-                            handler: FlutterSliderHandler(
-                              decoration: BoxDecoration(),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(3),
-                                  color: bgColor,
-                                  border: Border.all(
-                                      color: color.withOpacity(0.65), width: 1),
-                                ),
-                              ),
-                            ),
-                            trackBar: FlutterSliderTrackBar(
-                              inactiveTrackBar: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: color.withOpacity(0.5),
-                              ),
-                              activeTrackBar: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                            tooltip: FlutterSliderTooltip(
-                              disableAnimation: true,
-                              custom: (value) => Container(
-                                padding: EdgeInsets.all(8),
-                                color: bgColor,
-                                child: Text((value as double).toStringAsFixed(0)),
-                              ),
-                              positionOffset: FlutterSliderTooltipPositionOffset(
-                                  left: -20, right: -20),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text("常亮"),
-                        Switch(
-                          value: profile.novelKeepOn,
-                          onChanged: (value) {
-                            profile.novelKeepOn = value;
-                            provider.setKeepOn(value);
-                          },
-                        ),
-                      ],
-                    ),
+                    width: 40,
+                    child: Text("翻页", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
+                ]..addAll(styles.map((style) => Container(
+                      height: 32,
+                      width: 24.0 + style.length * 18,
+                      child: OutlineButton(
+                        child: Text(style, style: TextStyle(color: color)),
+                        onPressed: () => null,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: BorderSide(color: color),
+                        ),
+                      ),
+                    ))),
+              ),
+            ),
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          width: buttonWidth,
-                          child: OutlineButton(
-                            child: Text("小", style: TextStyle(color: color)),
-                            onPressed: () => profile.novelFontSize -= 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              side: BorderSide(color: color),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: buttonWidth,
-                          child: OutlineButton(
-                            child: Text("大", style: TextStyle(color: color)),
-                            onPressed: () => profile.novelFontSize += 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              side: BorderSide(color: color),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 60,
-                          height: 36,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
-                              border: Border.all(color: color.withOpacity(0.3))),
-                          alignment: Alignment.center,
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
-                            ],
-                            controller: TextEditingController(
-                              text: profile.novelFontSize.toStringAsFixed(0),
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: profile.novelFontSize.toStringAsFixed(0),
-                            ),
-                            textAlign: TextAlign.center,
-                            textAlignVertical: TextAlignVertical.center,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (value) =>
-                                profile.novelFontSize = double.parse(value),
-                          ),
-                        ),
-                      ],
-                    ),
+                    width: 40,
+                    child: Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
-                  Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        [3.0, Icons.drag_handle],
-                        [2.5, Icons.menu],
-                        [2.0, Icons.view_headline],
-                        [1.5, Icons.format_align_justify],
-                      ]
-                          .map<Widget>(
-                            (e) => InkWell(
-                              onTap: () => profile.novelHeight = e[0],
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(18)),
-                                    border: Border.all(color: color.withOpacity(0.3))),
-                                alignment: Alignment.center,
-                                child: Icon(e[1]),
-                                //     Transform.rotate(
-                                //   angle: pi / 2,
-                                //   child: Icon(Icons.pause),
-                                // ),
-                              ),
-                            ),
-                          )
-                          .toList()
-                            ..add(
-                              Container(
-                                width: 60,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                                    border: Border.all(color: color.withOpacity(0.3))),
-                                alignment: Alignment.center,
-                                child: TextField(
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[
-                                    TextInputFormatterRegExp(RegExp(r'^\d?(\.\d?)?$')),
-                                  ],
-                                  controller: TextEditingController(
-                                    text: profile.novelHeight.toStringAsFixed(1),
-                                  ),
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: profile.novelHeight.toStringAsFixed(1),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  textInputAction: TextInputAction.done,
-                                  onSubmitted: (value) =>
-                                      profile.novelHeight = double.parse(value),
-                                ),
-                              ),
-                            ),
-                    ),
-                  ),
-                  Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          [0xfff1f1f1, 0xff373534], //白底
-                          [0xfff5ede2, 0xff373328], //浅黄
-                          [0xFFF5DEB3, 0xff373328], //黄
-                          [0xffe3f8e1, 0xff485249], //绿
-                          [0xff999c99, 0xff353535], //浅灰
-                          [0xff33383d, 0xffc5c4c9], //黑
-                        ]
-                            .map<Widget>(
-                              (color) => InkWell(
-                                child: CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundColor: Color(color[0]),
-                                ),
-                                onTap: () => profile.setNovelColor(color[0], color[1]),
-                              ),
-                            )
-                            .toList()
-                        // ..add(Container(
-                        //   width: 60,
-                        //   height: 30,
-                        //   decoration: BoxDecoration(
-                        //       borderRadius: BorderRadius.all(Radius.circular(16)),
-                        //       border: Border.all(color: color.withOpacity(0.3))),
-                        //   alignment: Alignment.center,
-                        //   child: Text("更多"),
-                        // ))
-                        ),
-                  ),
-                ],
+                ]..addAll(colors.map((color) => InkWell(
+                      child: CircleAvatar(
+                        radius: 18.0,
+                        backgroundColor: Color(color[0]),
+                      ),
+                      onTap: () => profile.setNovelColor(color[0], color[1]),
+                    ))),
               ),
             ),
           ],
         ),
+
+        // Row(
+        //   children: [
+        //     Container(
+        //       width: 50,
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.start,
+        //         children: [
+        //           Text("段距", style: TextStyle(color: color.withOpacity(0.7))),
+        //           Text("边距", style: TextStyle(color: color.withOpacity(0.7))),
+        //           Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
+        //           Text("高度", style: TextStyle(color: color.withOpacity(0.7))),
+        //           Text("翻页", style: TextStyle(color: color.withOpacity(0.7))),
+        //           Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
+        //         ],
+        //       ),
+        //     ),
+        //     Expanded(
+        //       child:
+
+        //     ),
+        //   ],
+        // ),
       ),
     );
   }
