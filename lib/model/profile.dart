@@ -183,6 +183,7 @@ class Profile with ChangeNotifier {
 
   set novelFontSize(double value) {
     if ((value - _novelFontSize).abs() > 0.1) {
+      if (value > 70) value = 70;
       _novelFontSize = value;
       _saveProfile();
     }

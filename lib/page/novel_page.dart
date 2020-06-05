@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
@@ -123,11 +125,70 @@ class _NovelPageState extends State<NovelPage> {
   RefreshController _refreshController = RefreshController();
 
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
-    final content = '　　' + provider.content.map((s) => s.trim()).join('\n　　');
+    final paragraphs = provider.content
+        .join("\n")
+        .split(RegExp(r"\n\s*"))
+        .map((s) => "　　" + s.trimLeft())
+        .toList();
+    final width = MediaQuery.of(context).size.width - 24;
+    final offset = Offset(width, 10);
+    final tp = TextPainter(textDirection: TextDirection.ltr);
+    final lines = <Line>[];
+    for (var paragraph in paragraphs) {
+      bool firstLine = true;
+      while (true) {
+        var firstPos = 1;
+        if (firstLine) {
+          firstPos = 3;
+          firstLine = false;
+        }
+        tp.text = TextSpan(
+          text: paragraph,
+          style: TextStyle(
+            fontSize: profile.novelFontSize,
+            height: profile.novelHeight,
+          ),
+        );
+        tp.layout(maxWidth: width);
+        final pos = tp.getPositionForOffset(offset).offset;
+        final text = paragraph.substring(0, pos);
+        paragraph = paragraph.substring(pos);
+        if (paragraph.isEmpty) {
+          // 最后一行调整宽度保证单行显示
+          if (width - tp.width - profile.novelFontSize < 0) {
+            //字号最大只能70 保证一行至少3个字符
+            lines.add(Line(text: text.substring(0, firstPos)));
+            lines.add(Line(
+              text: text.substring(firstPos, text.length - 1),
+              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+            ));
+            lines.add(Line(text: text.substring(text.length - 1)));
+          } else {
+            lines.add(Line(text: text));
+          }
+          lines.add(Line(text: "\n"));
+          break;
+        }
+        tp.text = TextSpan(
+          text: text,
+          style: TextStyle(
+            fontSize: profile.novelFontSize,
+            height: profile.novelHeight,
+          ),
+        );
+        tp.layout();
+        lines.add(Line(text: text.substring(0, firstPos)));
+        lines.add(Line(
+          text: text.substring(firstPos, text.length - 1),
+          letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+        ));
+        lines.add(Line(text: text.substring(text.length - 1)));
+        lines.add(Line(text: "\n"));
+      }
+    }
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
-      padding: EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         children: <Widget>[
           Expanded(
@@ -153,6 +214,7 @@ class _NovelPageState extends State<NovelPage> {
                       } else if (mode == RefreshStatus.failed) {
                         body = Text(
                           "加载失败!请重试!",
+                          textAlign: TextAlign.justify,
                           style: TextStyle(color: fontColor),
                         );
                       } else if (mode == RefreshStatus.canRefresh) {
@@ -227,7 +289,8 @@ class _NovelPageState extends State<NovelPage> {
                   enablePullUp: true,
                   child: ListView(
                     controller: provider.controller,
-                    padding: EdgeInsets.only(top: 100),
+                    padding:
+                        EdgeInsets.fromLTRB(12, 100, 0, 0), //右侧padding设置为0，用spacing控制
                     children: <Widget>[
                       SelectableText(
                         '${widget.searchItem.durChapter}',
@@ -241,7 +304,7 @@ class _NovelPageState extends State<NovelPage> {
                       SizedBox(height: 10),
                       provider.useSelectableText
                           ? SelectableText(
-                              content,
+                              paragraphs.join("\n"),
                               style: TextStyle(
                                 fontSize: profile.novelFontSize,
                                 height: profile.novelHeight * 0.98,
@@ -249,14 +312,20 @@ class _NovelPageState extends State<NovelPage> {
                               ),
                               textAlign: TextAlign.justify,
                             )
-                          : Text(
-                              content,
-                              style: TextStyle(
-                                fontSize: profile.novelFontSize,
-                                height: profile.novelHeight,
-                                color: fontColor,
+                          : RichText(
+                              text: TextSpan(
+                                children: lines
+                                    .map((line) => TextSpan(
+                                          text: line.text,
+                                          style: TextStyle(
+                                            fontSize: profile.novelFontSize,
+                                            height: profile.novelHeight,
+                                            color: fontColor,
+                                            letterSpacing: line.letterSpacing,
+                                          ),
+                                        ))
+                                    .toList(),
                               ),
-                              textAlign: TextAlign.justify,
                             ),
                       Container(
                         alignment: Alignment.topLeft,
@@ -326,4 +395,10 @@ class _NovelPageState extends State<NovelPage> {
       ),
     );
   }
+}
+
+class Line {
+  final String text;
+  final double letterSpacing;
+  Line({this.text, this.letterSpacing});
 }
