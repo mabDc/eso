@@ -22,6 +22,9 @@ class Profile with ChangeNotifier {
             'customColor': Global.colors.values.first,
             'novelFontSize': 20.0,
             'novelHeight': 2.0,
+            'novelEdgePadding': 10,
+            'novelParagraphPadding': 0,
+            'novelPageSwitch': NovelScroll,
             'novelBackgroundColor': 0xFFF5DEB3,
             'novelFontColor': Colors.black.value,
             'novelKeepOn': false,
@@ -35,7 +38,7 @@ class Profile with ChangeNotifier {
             'videoEnableSearch': true,
             'mangaKeepOn': false,
             'mangaLandscape': false,
-            'mangaDirection': mangaDirectionTopToBottom,
+            'mangaDirection': MangaDirectionTopToBottom,
             'searchCount': 10,
             'searchOption': SearchOption.Normal.index,
           }
@@ -43,9 +46,15 @@ class Profile with ChangeNotifier {
     fromJson(json);
   }
 
-  static const mangaDirectionTopToBottom = 0; //'topToBottom';
-  static const mangaDirectionLeftToRight = 1; //'leftToRight';
-  static const mangaDirectionRightToLeft = 2; //'rightToLeft';
+  static const MangaDirectionTopToBottom = 0; //'topToBottom';
+  static const MangaDirectionLeftToRight = 1; //'leftToRight';
+  static const MangaDirectionRightToLeft = 2; //'rightToLeft';
+
+  static const NovelScroll = 0;
+  static const NovelSlide = 1;
+  static const NovelCover = 2;
+  static const NovelSimulation = 3;
+  static const NovelNone = 4;
 
   bool _switchLongPress;
   bool _switchFavoriteStyle;
@@ -57,6 +66,9 @@ class Profile with ChangeNotifier {
   bool _showMangaInfo;
   double _novelFontSize;
   double _novelHeight;
+  double _novelEdgePadding;
+  double _novelParagraphPadding;
+  int _novelPageSwitch;
   int _novelBackgroundColor;
   int _novelFontColor;
   bool _novelKeepOn;
@@ -84,6 +96,9 @@ class Profile with ChangeNotifier {
   bool get showMangaInfo => _showMangaInfo;
   double get novelFontSize => _novelFontSize;
   double get novelHeight => _novelHeight;
+  double get novelEdgePadding => _novelEdgePadding;
+  double get novelParagraphPadding => _novelParagraphPadding;
+  int get novelPageSwitch => _novelPageSwitch;
   int get novelBackgroundColor => _novelBackgroundColor;
   int get novelFontColor => _novelFontColor;
   bool get novelKeepOn => _novelKeepOn;
@@ -203,6 +218,39 @@ class Profile with ChangeNotifier {
       } else {
         _novelHeight = value;
       }
+      _saveProfile();
+    }
+  }
+
+  set novelEdgePadding(double value) {
+    if ((value - _novelEdgePadding).abs() > 0.1) {
+      if (value > 60) {
+        _novelEdgePadding = 60;
+      } else if (value < 10) {
+        _novelEdgePadding = 10;
+      } else {
+        _novelEdgePadding = value;
+      }
+      _saveProfile();
+    }
+  }
+
+  set novelParagraphPadding(double value) {
+    if ((value - _novelParagraphPadding).abs() > 0.05) {
+      if (_novelParagraphPadding > 50) {
+        _novelParagraphPadding = 50;
+      } else if (value < 0) {
+        _novelParagraphPadding = 0;
+      } else {
+        _novelParagraphPadding = value;
+      }
+      _saveProfile();
+    }
+  }
+
+  set novelPageSwitch(int value) {
+    if (value != _novelPageSwitch) {
+      _novelPageSwitch = value;
       _saveProfile();
     }
   }
@@ -394,10 +442,13 @@ class Profile with ChangeNotifier {
     _novelHeight = json["novelHeight"] ?? 2.0;
     _novelBackgroundColor = json["novelBackgroundColor"] ?? 0xFFF5DEB3;
     _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
+    _novelEdgePadding = json["novelEdgePadding"] ?? 10;
+    _novelParagraphPadding = json["novelParagraphPadding"] ?? 0;
+    _novelPageSwitch = json["novelPageSwitch"] ?? NovelScroll;
     _novelKeepOn = json["novelKeepOn"] ?? false;
     _mangaKeepOn = json["mangaKeepOn"] ?? false;
     _mangaLandscape = json["mangaLandscape"] ?? false;
-    _mangaDirection = json['mangaDirection'] ?? mangaDirectionTopToBottom;
+    _mangaDirection = json['mangaDirection'] ?? MangaDirectionTopToBottom;
     _novelSortIndex = json["novelSortIndex"] ?? SortType.CREATE.index;
     _mangaSortIndex = json["mangaSortIndex"] ?? SortType.CREATE.index;
     _audioSortIndex = json["audioSortIndex"] ?? SortType.CREATE.index;
@@ -437,5 +488,8 @@ class Profile with ChangeNotifier {
         'mangaEnableSearch': _mangaEnableSearch,
         'audioEnableSearch': _audioEnableSearch,
         'videoEnableSearch': _videoEnableSearch,
+        'novelEdgePadding': _novelEdgePadding,
+        'novelParagraphPadding': _novelParagraphPadding,
+        'novelPageSwitch': _novelPageSwitch,
       };
 }

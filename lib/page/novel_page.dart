@@ -122,6 +122,10 @@ class _NovelPageState extends State<NovelPage> {
     );
   }
 
+  Widget _buidContentPages(BuildContext context) {
+    return Container();
+  }
+
   RefreshController _refreshController = RefreshController();
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
     final paragraphs = provider.content

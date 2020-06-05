@@ -49,7 +49,13 @@ class UINovelMenu extends StatelessWidget {
       [0xff999c99, 0xff353535], //浅灰
       [0xff33383d, 0xffc5c4c9], //黑
     ];
-    final styles = ["滚动", "滑动", "无动画翻页"]; //["滚动", "滑动", "覆盖", "仿真", "无"];
+    final styles = [
+      ["滚动", Profile.NovelScroll],
+      ["滑动", Profile.NovelSlide],
+      // ["覆盖", Profile.NovelCover],
+      // ["仿真", Profile.NovelSimulation],
+      ["无翻页动画", Profile.NovelNone],
+    ];
     return IconTheme(
       data: IconThemeData(size: 22, color: color),
       child: Container(
@@ -135,7 +141,7 @@ class UINovelMenu extends StatelessWidget {
                       children: [
                         InkWell(
                           child: Icon(Icons.remove),
-                          onTap: () => null,
+                          onTap: () => profile.novelParagraphPadding -= 5,
                         ),
                         Container(
                           width: 40,
@@ -147,11 +153,11 @@ class UINovelMenu extends StatelessWidget {
                               TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
                             ],
                             controller: TextEditingController(
-                              text: "0", //profile.novelFontSize.toStringAsFixed(0),
+                              text: profile.novelParagraphPadding.toStringAsFixed(0),
                             ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: "0", //profile.novelFontSize.toStringAsFixed(0),
+                              hintText: profile.novelParagraphPadding.toStringAsFixed(0),
                               isDense: true,
                               contentPadding: EdgeInsets.only(bottom: 4, top: 4),
                             ),
@@ -159,12 +165,12 @@ class UINovelMenu extends StatelessWidget {
                             textAlignVertical: TextAlignVertical.center,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (value) =>
-                                null, //profile.novelFontSize = double.parse(value),
+                                profile.novelParagraphPadding = double.parse(value),
                           ),
                         ),
                         InkWell(
                           child: Icon(Icons.add),
-                          onTap: () => null,
+                          onTap: () => profile.novelParagraphPadding += 5,
                         ),
                       ],
                     ),
@@ -180,7 +186,7 @@ class UINovelMenu extends StatelessWidget {
                       children: [
                         InkWell(
                           child: Icon(Icons.remove),
-                          onTap: () => null,
+                          onTap: () => profile.novelEdgePadding -= 5,
                         ),
                         Container(
                           width: 40,
@@ -192,11 +198,11 @@ class UINovelMenu extends StatelessWidget {
                               TextInputFormatterRegExp(RegExp(r'^\d{0,2}$')),
                             ],
                             controller: TextEditingController(
-                              text: "0", //profile.novelFontSize.toStringAsFixed(0),
+                              text: profile.novelEdgePadding.toStringAsFixed(0),
                             ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: "0", //profile.novelFontSize.toStringAsFixed(0),
+                              hintText: profile.novelEdgePadding.toStringAsFixed(0),
                               isDense: true,
                               contentPadding: EdgeInsets.only(bottom: 4, top: 4),
                             ),
@@ -204,12 +210,12 @@ class UINovelMenu extends StatelessWidget {
                             textAlignVertical: TextAlignVertical.center,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (value) =>
-                                null, //profile.novelFontSize = double.parse(value),
+                                profile.novelEdgePadding = double.parse(value),
                           ),
                         ),
                         InkWell(
                           child: Icon(Icons.add),
-                          onTap: () => null,
+                          onTap: () => profile.novelEdgePadding += 5,
                         ),
                       ],
                     ),
@@ -328,10 +334,10 @@ class UINovelMenu extends StatelessWidget {
                       children: styles
                           .map((style) => Container(
                                 height: 32,
-                                width: 32.0 + style.length * 14,
+                                width: 32.0 + (style[0] as String).length * 14,
                                 child: OutlineButton(
-                                  child: Text(style, style: TextStyle(color: color)),
-                                  onPressed: () => null,
+                                  child: Text(style[0], style: TextStyle(color: color)),
+                                  onPressed: () => profile.novelPageSwitch = style[1],
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30.0),
                                     side: BorderSide(color: color),
@@ -399,12 +405,14 @@ class UINovelMenu extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18, color: color),
                 ),
-                Text(
-                  '${searchItem.author}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(fontSize: 12, color: color.withOpacity(0.75)),
-                ),
+                searchItem.author.isEmpty
+                    ? Text(
+                        '${searchItem.author}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(fontSize: 12, color: color.withOpacity(0.75)),
+                      )
+                    : Container(),
               ],
             ),
           ),

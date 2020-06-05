@@ -177,9 +177,9 @@ class _MangaPageState extends State<MangaPage> {
                 } else {
                   body = Text("加载完成或没有更多数据");
                 }
-                final angle = profile.mangaDirection == Profile.mangaDirectionLeftToRight
+                final angle = profile.mangaDirection == Profile.MangaDirectionLeftToRight
                     ? pi / 2 * 3
-                    : profile.mangaDirection == Profile.mangaDirectionRightToLeft
+                    : profile.mangaDirection == Profile.MangaDirectionRightToLeft
                         ? pi / 2
                         : 0;
                 if (angle > 0) {
@@ -218,9 +218,9 @@ class _MangaPageState extends State<MangaPage> {
                 } else {
                   body = Text("加载完成或没有更多数据");
                 }
-                final angle = profile.mangaDirection == Profile.mangaDirectionLeftToRight
+                final angle = profile.mangaDirection == Profile.MangaDirectionLeftToRight
                     ? pi / 2 * 3
-                    : profile.mangaDirection == Profile.mangaDirectionRightToLeft
+                    : profile.mangaDirection == Profile.MangaDirectionRightToLeft
                         ? pi / 2
                         : 0;
                 if (angle > 0) {
@@ -259,15 +259,15 @@ class _MangaPageState extends State<MangaPage> {
     Axis direction;
     bool reverse;
     switch (profile.mangaDirection) {
-      case Profile.mangaDirectionTopToBottom:
+      case Profile.MangaDirectionTopToBottom:
         direction = Axis.vertical;
         reverse = false;
         break;
-      case Profile.mangaDirectionLeftToRight:
+      case Profile.MangaDirectionLeftToRight:
         direction = Axis.horizontal;
         reverse = false;
         break;
-      case Profile.mangaDirectionRightToLeft:
+      case Profile.MangaDirectionRightToLeft:
         direction = Axis.horizontal;
         reverse = true;
         break;
