@@ -13,65 +13,51 @@ import '../database/search_item.dart';
 import '../ui/ui_dash.dart';
 import 'langding_page.dart';
 
-class NovelPage extends StatefulWidget {
+class NovelPage extends StatelessWidget {
   final SearchItem searchItem;
-
-  const NovelPage({
-    this.searchItem,
-    Key key,
-  }) : super(key: key);
-
-  @override
-  _NovelPageState createState() => _NovelPageState();
-}
-
-class _NovelPageState extends State<NovelPage> {
-  Widget page;
-  NovelPageProvider __provider;
+  const NovelPage({this.searchItem, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (page == null) {
-      page = buildPage(Provider.of<Profile>(context, listen: false).novelKeepOn);
-    }
-    return page;
-  }
-
-  @override
-  void dispose() {
-    __provider?.dispose();
-    super.dispose();
-  }
-
-  Widget buildPage(bool keepOn) {
-    return ChangeNotifierProvider<NovelPageProvider>.value(
-      value: NovelPageProvider(searchItem: widget.searchItem, keepOn: keepOn),
-      child: Scaffold(
+    RefreshController refreshController = RefreshController();
+    return ChangeNotifierProvider<NovelPageProvider>(
+      create: (BuildContext context) => NovelPageProvider(
+        searchItem: searchItem,
+        keepOn: Provider.of<Profile>(context, listen: false).novelKeepOn,
+      ),
+      builder: (context, child) => Scaffold(
         body: Consumer2<NovelPageProvider, Profile>(
           builder:
               (BuildContext context, NovelPageProvider provider, Profile profile, _) {
-            __provider = provider;
-            if (provider.content == null) {
+            if (provider.paragraphs == null) {
               return LandingPage();
+            }
+            Widget content = Center(child: Text("暂不支持"));
+            switch (profile.novelPageSwitch) {
+              case Profile.NovelScroll:
+                content = NotificationListener(
+                  onNotification: (t) {
+                    if (t is ScrollEndNotification) {
+                      provider.refreshProgress();
+                    }
+                    return false;
+                  },
+                  child: _buildContent(context, provider, profile, refreshController),
+                );
+                break;
+              case Profile.NovelNone:
+                content = _buildContentNone(context, provider, profile);
+                break;
+              default:
             }
             return GestureDetector(
               child: Stack(
                 children: <Widget>[
-                  NotificationListener(
-                    onNotification: (t) {
-                      if (t is ScrollEndNotification) {
-                        provider.refreshProgress();
-                      }
-                      return false;
-                    },
-                    child: _buildContent(provider, profile),
-                  ),
-                  provider.showMenu
-                      ? UINovelMenu(searchItem: widget.searchItem)
-                      : Container(),
+                  content,
+                  provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
-                          searchItem: widget.searchItem,
+                          searchItem: searchItem,
                           loadChapter: provider.loadChapter,
                         )
                       : Container(),
@@ -113,6 +99,8 @@ class _NovelPageState extends State<NovelPage> {
                   provider.showSetting = false;
                 } else {
                   provider.showChapter = false;
+                  if (details.globalPosition.dx > size.width * 3 / 4) {
+                  } else if (details.globalPosition.dx < size.width * 1 / 4) {}
                 }
               },
             );
@@ -122,22 +110,184 @@ class _NovelPageState extends State<NovelPage> {
     );
   }
 
-  Widget _buidContentPages(BuildContext context) {
-    return Container();
+  Widget _buildContentNone(
+      BuildContext context, NovelPageProvider provider, Profile profile) {
+    final width = MediaQuery.of(context).size.width - profile.novelEdgePadding * 2 - 10;
+    final offset = Offset(width, 6);
+    final tp = TextPainter(textDirection: TextDirection.ltr);
+    final spans = <TextSpan>[];
+    final height = MediaQuery.of(context).size.height -
+        profile.novelEdgePadding * 2 -
+        30 -
+        MediaQuery.of(context).padding.top -
+        profile.novelFontSize;
+    final oneLineHeight = profile.novelFontSize * profile.novelHeight;
+    double currentHeight = 0;
+    final fontColor = Color(profile.novelFontColor);
+    for (var paragraph in provider.paragraphs) {
+      bool firstLine = true;
+      while (currentHeight < height) {
+        var firstPos = 1;
+        if (firstLine) {
+          firstPos = 3;
+          firstLine = false;
+        }
+        tp.text = TextSpan(
+          text: paragraph,
+          style: TextStyle(
+            fontSize: profile.novelFontSize,
+            height: profile.novelHeight,
+            color: fontColor,
+          ),
+        );
+        tp.layout(maxWidth: width);
+        final pos = tp.getPositionForOffset(offset).offset;
+        final text = paragraph.substring(0, pos);
+        paragraph = paragraph.substring(pos);
+        if (paragraph.isEmpty) {
+          // 最后一行调整宽度保证单行显示
+          if (width - tp.width - profile.novelFontSize < 0) {
+            spans.add(TextSpan(
+                text: text.substring(0, firstPos),
+                style: TextStyle(
+                  fontSize: profile.novelFontSize,
+                  color: fontColor,
+                  height: profile.novelHeight,
+                )));
+            spans.add(TextSpan(
+                text: text.substring(firstPos, text.length - 1),
+                style: TextStyle(
+                  fontSize: profile.novelFontSize,
+                  color: fontColor,
+                  height: profile.novelHeight,
+                  letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+                )));
+            spans.add(TextSpan(
+                text: text.substring(text.length - 1),
+                style: TextStyle(
+                  fontSize: profile.novelFontSize,
+                  color: fontColor,
+                  height: profile.novelHeight,
+                )));
+          } else {
+            spans.add(TextSpan(
+                text: text,
+                style: TextStyle(
+                  fontSize: profile.novelFontSize,
+                  height: profile.novelHeight,
+                  color: fontColor,
+                )));
+          }
+          spans.add(TextSpan(text: "\n"));
+          //段间距
+          spans.add(TextSpan(
+              text: " \n",
+              style: TextStyle(
+                height: profile.novelParagraphPadding / 10,
+                color: fontColor,
+                fontSize: 10,
+              )));
+          currentHeight += oneLineHeight;
+          currentHeight += profile.novelParagraphPadding;
+          break;
+        }
+        tp.text = TextSpan(
+          text: text,
+          style: TextStyle(
+            fontSize: profile.novelFontSize,
+            color: fontColor,
+            height: profile.novelHeight,
+          ),
+        );
+        tp.layout();
+        spans.add(TextSpan(
+            text: text.substring(0, firstPos),
+            style: TextStyle(
+              fontSize: profile.novelFontSize,
+              color: fontColor,
+              height: profile.novelHeight,
+            )));
+        spans.add(TextSpan(
+            text: text.substring(firstPos, text.length - 1),
+            style: TextStyle(
+              fontSize: profile.novelFontSize,
+              color: fontColor,
+              height: profile.novelHeight,
+              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+            )));
+        spans.add(TextSpan(
+            text: text.substring(text.length - 1),
+            style: TextStyle(
+              color: fontColor,
+              fontSize: profile.novelFontSize,
+              height: profile.novelHeight,
+            )));
+        spans.add(TextSpan(text: "\n"));
+        currentHeight += oneLineHeight;
+      }
+    }
+
+    return Container(
+      color: Color(profile.novelBackgroundColor),
+      padding: EdgeInsets.only(
+        // left: profile.novelEdgePadding,
+        top: MediaQuery.of(context).padding.top, //profile.novelEdgePadding,
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.zero,
+              color: Colors.amber,
+              child: RichText(text: TextSpan(children: spans)),
+            ),
+          ),
+          SizedBox(
+            height: 4,
+          ),
+          UIDash(
+            height: 2,
+            dashWidth: 6,
+            color: fontColor,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            height: 24,
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    '${searchItem.durChapter}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: fontColor),
+                  ),
+                ),
+                SizedBox(
+                  width: 36,
+                  child: Text(
+                    '${provider.progress}%',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      color: fontColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  RefreshController _refreshController = RefreshController();
-  Widget _buildContent(NovelPageProvider provider, Profile profile) {
-    final paragraphs = provider.content
-        .join("\n")
-        .split(RegExp(r"\n\s*"))
-        .map((s) => "　　" + s.trimLeft())
-        .toList();
-    final width = MediaQuery.of(context).size.width - 32;
+  Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
+      RefreshController refreshController) {
+    final width = MediaQuery.of(context).size.width - profile.novelEdgePadding * 2;
     final offset = Offset(width, 6);
     final tp = TextPainter(textDirection: TextDirection.ltr);
     final lines = <Line>[];
-    for (var paragraph in paragraphs) {
+    for (var paragraph in provider.paragraphs) {
       bool firstLine = true;
       while (true) {
         var firstPos = 1;
@@ -288,15 +438,15 @@ class _NovelPageState extends State<NovelPage> {
                       );
                     },
                   ),
-                  controller: _refreshController,
+                  controller: refreshController,
                   enablePullUp: true,
                   child: ListView(
                     controller: provider.controller,
-                    padding:
-                        EdgeInsets.fromLTRB(16, 100, 0, 0), //右侧padding设置为0，用spacing控制
+                    padding: EdgeInsets.fromLTRB(
+                        profile.novelEdgePadding, 100, 0, 0), //右侧padding设置为0，用spacing控制
                     children: <Widget>[
                       SelectableText(
-                        '${widget.searchItem.durChapter}',
+                        '${searchItem.durChapter}',
                         style: TextStyle(
                           fontSize: profile.novelFontSize + 2,
                           fontWeight: FontWeight.bold,
@@ -307,7 +457,7 @@ class _NovelPageState extends State<NovelPage> {
                       SizedBox(height: 10),
                       provider.useSelectableText
                           ? SelectableText(
-                              paragraphs.join("\n"),
+                              provider.paragraphs.join("\n"),
                               style: TextStyle(
                                 fontSize: profile.novelFontSize,
                                 height: profile.novelHeight * 0.98,
@@ -353,11 +503,11 @@ class _NovelPageState extends State<NovelPage> {
                   ),
                   onRefresh: () async {
                     await provider.loadChapterHideLoading(true);
-                    _refreshController.refreshCompleted();
+                    refreshController.refreshCompleted();
                   },
                   onLoading: () async {
                     await provider.loadChapterHideLoading(false);
-                    _refreshController.loadComplete();
+                    refreshController.loadComplete();
                   }),
             ),
           ),
@@ -375,7 +525,7 @@ class _NovelPageState extends State<NovelPage> {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    '${widget.searchItem.durChapter}',
+                    '${searchItem.durChapter}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: fontColor),

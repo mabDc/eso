@@ -236,7 +236,7 @@ class Profile with ChangeNotifier {
   }
 
   set novelParagraphPadding(double value) {
-    if ((value - _novelParagraphPadding).abs() > 0.05) {
+    if ((value - _novelParagraphPadding).abs() > 0.1) {
       if (_novelParagraphPadding > 50) {
         _novelParagraphPadding = 50;
       } else if (value < 0) {

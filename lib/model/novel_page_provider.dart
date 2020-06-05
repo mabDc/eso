@@ -11,8 +11,8 @@ class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   int _progress;
   int get progress => _progress;
-  List<String> _content;
-  List<String> get content => _content;
+  List<String> _paragraphs;
+  List<String> get paragraphs => _paragraphs;
   ScrollController _controller;
   ScrollController get controller => _controller;
   bool _isLoading;
@@ -112,8 +112,13 @@ class NovelPageProvider with ChangeNotifier {
         Screen.keepOn(keepOn);
       }
     }
-    _content = await APIManager.getContent(
+    final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+    _paragraphs = content
+        .join("\n")
+        .split(RegExp(r"\n\s*"))
+        .map((s) => "　　" + s.trimLeft())
+        .toList();
     notifyListeners();
   }
 
@@ -137,8 +142,13 @@ class NovelPageProvider with ChangeNotifier {
     if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
     _hideLoading = true;
     searchItem.durChapterIndex = loadIndex;
-    _content = await APIManager.getContent(
+    final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[loadIndex].url);
+    _paragraphs = content
+        .join("\n")
+        .split(RegExp(r"\n\s*"))
+        .map((s) => "　　" + s.trimLeft())
+        .toList();
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -157,8 +167,13 @@ class NovelPageProvider with ChangeNotifier {
     _isLoading = true;
     searchItem.durChapterIndex = chapterIndex;
     notifyListeners();
-    _content = await APIManager.getContent(
+    final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
+    _paragraphs = content
+        .join("\n")
+        .split(RegExp(r"\n\s*"))
+        .map((s) => "　　" + s.trimLeft())
+        .toList();
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -173,8 +188,13 @@ class NovelPageProvider with ChangeNotifier {
     _isLoading = true;
     _showChapter = false;
     notifyListeners();
-    _content = await APIManager.getContent(
+    final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+    _paragraphs = content
+        .join("\n")
+        .split(RegExp(r"\n\s*"))
+        .map((s) => "　　" + s.trimLeft())
+        .toList();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     _isLoading = false;
     notifyListeners();
@@ -197,7 +217,7 @@ class NovelPageProvider with ChangeNotifier {
       }
       Screen.keepOn(false);
     }
-    content.clear();
+    _paragraphs.clear();
     _controller.dispose();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();

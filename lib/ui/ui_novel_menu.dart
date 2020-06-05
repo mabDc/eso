@@ -52,9 +52,9 @@ class UINovelMenu extends StatelessWidget {
     final styles = [
       ["滚动", Profile.NovelScroll],
       ["滑动", Profile.NovelSlide],
-      // ["覆盖", Profile.NovelCover],
-      // ["仿真", Profile.NovelSimulation],
-      ["无翻页动画", Profile.NovelNone],
+      ["覆盖", Profile.NovelCover],
+      ["仿真", Profile.NovelSimulation],
+      ["无", Profile.NovelNone],
     ];
     return IconTheme(
       data: IconThemeData(size: 22, color: color),
