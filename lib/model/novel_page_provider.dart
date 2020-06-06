@@ -75,15 +75,16 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-  NovelPageProvider({this.searchItem, this.keepOn}) {
+  final double height;
+  NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
     _brightness = 0.5;
     _isLoading = false;
     _showChapter = false;
     _showMenu = false;
     _showSetting = false;
     _useSelectableText = false;
-    _controller =
-        ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
+    _controller = ScrollController();
+    // ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
     _progress = 0;
 //    _controller.addListener(() {
 //      if (progress > 0 &&
@@ -95,16 +96,18 @@ class NovelPageProvider with ChangeNotifier {
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
-    _initContent();
+    _initContent(profile);
   }
 
   void refreshProgress() {
-    searchItem.durContentIndex = _controller.position.pixels.floor();
-    _progress = searchItem.durContentIndex * 100 ~/ _controller.position.maxScrollExtent;
+    searchItem.durContentIndex =
+        (_controller.position.pixels * 10000 / _controller.position.maxScrollExtent)
+            .floor();
+    _progress = searchItem.durContentIndex ~/ 100;
     notifyListeners();
   }
 
-  void _initContent() async {
+  void _initContent(Profile profile) async {
     if (Platform.isAndroid || Platform.isIOS) {
       _brightness = await Screen.brightness;
       if (_brightness > 1) {
@@ -122,6 +125,7 @@ class NovelPageProvider with ChangeNotifier {
         .split(RegExp(r"\n\s*"))
         .map((s) => "　　" + s.trimLeft())
         .toList();
+    _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
     notifyListeners();
   }
 
@@ -157,7 +161,9 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _hideLoading = false;
-    _controller.jumpTo(1);
+    if (_readSetting?.pageSwitch == Profile.NovelScroll) {
+      _controller.jumpTo(1);
+    }
     notifyListeners();
   }
 
@@ -168,7 +174,6 @@ class NovelPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
-    searchItem.durChapterIndex = chapterIndex;
     notifyListeners();
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
@@ -182,7 +187,10 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _isLoading = false;
-    _controller.jumpTo(1);
+    searchItem.durChapterIndex = chapterIndex;
+    if (_readSetting?.pageSwitch == Profile.NovelScroll) {
+      _controller.jumpTo(1);
+    }
     notifyListeners();
   }
 
@@ -201,6 +209,66 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     _isLoading = false;
     notifyListeners();
+  }
+
+  int _currentPage;
+  int get currentPage => _currentPage;
+  void tapNextPage() {
+    if (_readSetting.pageSwitch == Profile.NovelScroll) {
+      final leftHeight =
+          _controller.position.maxScrollExtent - _controller.position.pixels;
+      if (leftHeight > height) {
+        _controller.animateTo(
+          _controller.position.pixels + height,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
+      } else if (leftHeight < 50) {
+        loadChapter(searchItem.durChapterIndex + 1);
+      } else {
+        _controller.animateTo(
+          _controller.position.maxScrollExtent - 40,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
+      }
+    } else {
+      if (_currentPage < _spans.length) {
+        _currentPage++;
+        searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
+        notifyListeners();
+      } else {
+        loadChapter(searchItem.durChapterIndex + 1);
+      }
+    }
+  }
+
+  void tapLastPage() {
+    if (_readSetting.pageSwitch == Profile.NovelScroll) {
+      if (_controller.position.pixels > height) {
+        _controller.animateTo(
+          _controller.position.pixels - height,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
+      } else if (_controller.position.pixels < 10) {
+        loadChapter(searchItem.durChapterIndex - 1);
+      } else {
+        _controller.animateTo(
+          1,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
+      }
+    } else {
+      if (_currentPage > 1) {
+        _currentPage--;
+        searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
+        notifyListeners();
+      } else {
+        loadChapter(searchItem.durChapterIndex + 1);
+      }
+    }
   }
 
   Future<bool> addToFavorite() async {
@@ -231,13 +299,30 @@ class NovelPageProvider with ChangeNotifier {
   List<List<TextSpan>> get spans => _spans;
   List<List<TextSpan>> updateSpans(List<List<TextSpan>> spans) {
     _spans = spans;
+    _currentPage = (searchItem.durContentIndex * spans.length / 10000).round();
+    if (_currentPage < 1) {
+      _currentPage = 1;
+    } else if (_currentPage > _spans.length) {
+      _currentPage = _spans.length;
+    }
     return _spans;
+  }
+
+  List<TextSpan> _spansFlat;
+  List<TextSpan> get spansFlat => _spansFlat;
+  List<TextSpan> updateSpansFlat(List<List<TextSpan>> spans) {
+    _spansFlat = spans.expand((span) => span).toList();
+    return _spansFlat;
   }
 
   ReadSetting _readSetting;
   bool didUpdateReadSetting(Profile profile) {
-    if (null == _readSetting || _readSetting.didUpdate(profile)) {
-      _readSetting = ReadSetting.fromProfile(profile);
+    if (_readSetting.durChapterIndex != searchItem.durChapterIndex) {
+      _currentPage = 1;
+    }
+    if ((null == _spansFlat && null == _spans) ||
+        _readSetting.didUpdate(profile, searchItem.durChapterIndex)) {
+      _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
       return true;
     }
     return false;
@@ -256,8 +341,9 @@ class ReadSetting {
   double edgePadding;
   double paragraphPadding;
   int pageSwitch;
+  int durChapterIndex;
 
-  ReadSetting.fromProfile(Profile profile) {
+  ReadSetting.fromProfile(Profile profile, this.durChapterIndex) {
     fontSize = profile.novelFontSize;
     height = profile.novelHeight;
     edgePadding = profile.novelEdgePadding;
@@ -265,12 +351,13 @@ class ReadSetting {
     pageSwitch = profile.novelPageSwitch;
   }
 
-  bool didUpdate(Profile profile) {
+  bool didUpdate(Profile profile, int durChapterIndex) {
     if ((fontSize - profile.novelFontSize).abs() < 0.1 &&
         (height - profile.novelHeight).abs() < 0.05 &&
         (edgePadding - profile.novelEdgePadding).abs() < 0.1 &&
         (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
-        pageSwitch == profile.novelPageSwitch) {
+        pageSwitch == profile.novelPageSwitch &&
+        this.durChapterIndex == durChapterIndex) {
       return false;
     }
     return true;

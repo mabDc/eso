@@ -20,10 +20,14 @@ class NovelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     RefreshController refreshController = RefreshController();
+    final profile = Provider.of<Profile>(context, listen: false);
+    final height = MediaQuery.of(context).size.height - 32 - 2 * profile.novelEdgePadding;
     return ChangeNotifierProvider<NovelPageProvider>(
       create: (BuildContext context) => NovelPageProvider(
         searchItem: searchItem,
-        keepOn: Provider.of<Profile>(context, listen: false).novelKeepOn,
+        keepOn: profile.novelKeepOn,
+        profile: profile,
+        height: height,
       ),
       builder: (context, child) => Scaffold(
         body: Consumer2<NovelPageProvider, Profile>(
@@ -99,8 +103,13 @@ class NovelPage extends StatelessWidget {
                   provider.showSetting = false;
                 } else {
                   provider.showChapter = false;
-                  if (details.globalPosition.dx > size.width * 3 / 4) {
-                  } else if (details.globalPosition.dx < size.width * 1 / 4) {}
+                  if (details.globalPosition.dx > size.width * 3 / 4 &&
+                      details.globalPosition.dy > size.height / 2) {
+                    provider.tapNextPage();
+                  } else if (details.globalPosition.dx < size.width * 1 / 4 &&
+                      details.globalPosition.dy < size.height / 2) {
+                    provider.tapLastPage();
+                  }
                 }
               },
             );
@@ -122,7 +131,8 @@ class NovelPage extends StatelessWidget {
         MediaQuery.of(context).padding.top -
         oneLineHeight;
     final fontColor = Color(profile.novelFontColor);
-    final spans = <TextSpan>[
+    final spanss = <List<TextSpan>>[];
+    var currentSpans = <TextSpan>[
       TextSpan(
         text: searchItem.durChapter,
         style: TextStyle(
@@ -141,11 +151,16 @@ class NovelPage extends StatelessWidget {
             fontSize: 10,
           )),
     ];
-    double currentHeight =
+    var currentHeight =
         (profile.novelFontSize + 2) * profile.novelHeight + profile.novelParagraphPadding;
+    bool firstLine = true;
     for (var paragraph in provider.paragraphs) {
-      bool firstLine = true;
-      while (currentHeight < height) {
+      while (true) {
+        if (currentHeight >= height) {
+          spanss.add(currentSpans);
+          currentHeight = 0;
+          currentSpans = <TextSpan>[];
+        }
         var firstPos = 1;
         if (firstLine) {
           firstPos = 3;
@@ -166,14 +181,14 @@ class NovelPage extends StatelessWidget {
         if (paragraph.isEmpty) {
           // 最后一行调整宽度保证单行显示
           if (width - tp.width - profile.novelFontSize < 0) {
-            spans.add(TextSpan(
+            currentSpans.add(TextSpan(
                 text: text.substring(0, firstPos),
                 style: TextStyle(
                   fontSize: profile.novelFontSize,
                   color: fontColor,
                   height: profile.novelHeight,
                 )));
-            spans.add(TextSpan(
+            currentSpans.add(TextSpan(
                 text: text.substring(firstPos, text.length - 1),
                 style: TextStyle(
                   fontSize: profile.novelFontSize,
@@ -181,7 +196,7 @@ class NovelPage extends StatelessWidget {
                   height: profile.novelHeight,
                   letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
                 )));
-            spans.add(TextSpan(
+            currentSpans.add(TextSpan(
                 text: text.substring(text.length - 1),
                 style: TextStyle(
                   fontSize: profile.novelFontSize,
@@ -189,7 +204,7 @@ class NovelPage extends StatelessWidget {
                   height: profile.novelHeight,
                 )));
           } else {
-            spans.add(TextSpan(
+            currentSpans.add(TextSpan(
                 text: text,
                 style: TextStyle(
                   fontSize: profile.novelFontSize,
@@ -197,9 +212,9 @@ class NovelPage extends StatelessWidget {
                   color: fontColor,
                 )));
           }
-          spans.add(TextSpan(text: "\n"));
+          currentSpans.add(TextSpan(text: "\n"));
           //段间距
-          spans.add(TextSpan(
+          currentSpans.add(TextSpan(
               text: " \n",
               style: TextStyle(
                 height: profile.novelParagraphPadding / 10,
@@ -208,6 +223,7 @@ class NovelPage extends StatelessWidget {
               )));
           currentHeight += oneLineHeight;
           currentHeight += profile.novelParagraphPadding;
+          firstLine = true;
           break;
         }
         tp.text = TextSpan(
@@ -219,14 +235,14 @@ class NovelPage extends StatelessWidget {
           ),
         );
         tp.layout();
-        spans.add(TextSpan(
+        currentSpans.add(TextSpan(
             text: text.substring(0, firstPos),
             style: TextStyle(
               fontSize: profile.novelFontSize,
               color: fontColor,
               height: profile.novelHeight,
             )));
-        spans.add(TextSpan(
+        currentSpans.add(TextSpan(
             text: text.substring(firstPos, text.length - 1),
             style: TextStyle(
               fontSize: profile.novelFontSize,
@@ -234,18 +250,19 @@ class NovelPage extends StatelessWidget {
               height: profile.novelHeight,
               letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
             )));
-        spans.add(TextSpan(
+        currentSpans.add(TextSpan(
             text: text.substring(text.length - 1),
             style: TextStyle(
               color: fontColor,
               fontSize: profile.novelFontSize,
               height: profile.novelHeight,
             )));
-        spans.add(TextSpan(text: "\n"));
+        currentSpans.add(TextSpan(text: "\n"));
         currentHeight += oneLineHeight;
       }
     }
-    return <List<TextSpan>>[spans];
+    spanss.add(currentSpans);
+    return spanss;
   }
 
   Widget _buildContentNone(
@@ -253,7 +270,7 @@ class NovelPage extends StatelessWidget {
     final spanss = provider.didUpdateReadSetting(profile)
         ? provider.updateSpans(_buildSpans(context, provider, profile))
         : provider.spans;
-    final spans = spanss[0];
+    final spans = spanss[provider.currentPage - 1];
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
@@ -297,7 +314,7 @@ class NovelPage extends StatelessWidget {
                 SizedBox(
                   width: 36,
                   child: Text(
-                    '${provider.progress}%',
+                    '${provider.currentPage}/${spanss.length}',
                     textAlign: TextAlign.right,
                     style: TextStyle(
                       color: fontColor,
@@ -315,8 +332,8 @@ class NovelPage extends StatelessWidget {
   Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
       RefreshController refreshController) {
     final spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(_buildSpans(context, provider, profile))
-        : provider.spans;
+        ? provider.updateSpansFlat(_buildSpans(context, provider, profile))
+        : provider.spansFlat;
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
@@ -437,7 +454,7 @@ class NovelPage extends StatelessWidget {
                             )
                           : RichText(
                               text: TextSpan(
-                                children: spans.expand((span) => span).toList(),
+                                children: spans,
                               ),
                             ),
                       Container(
