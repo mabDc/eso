@@ -110,20 +110,39 @@ class NovelPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContentNone(
+  List<List<TextSpan>> _buildSpans(
       BuildContext context, NovelPageProvider provider, Profile profile) {
     final width = MediaQuery.of(context).size.width - profile.novelEdgePadding * 2 - 10;
     final offset = Offset(width, 6);
     final tp = TextPainter(textDirection: TextDirection.ltr);
-    final spans = <TextSpan>[];
+    final oneLineHeight = profile.novelFontSize * profile.novelHeight;
     final height = MediaQuery.of(context).size.height -
         profile.novelEdgePadding * 2 -
-        30 -
+        32 -
         MediaQuery.of(context).padding.top -
-        profile.novelFontSize;
-    final oneLineHeight = profile.novelFontSize * profile.novelHeight;
-    double currentHeight = 0;
+        oneLineHeight;
     final fontColor = Color(profile.novelFontColor);
+    final spans = <TextSpan>[
+      TextSpan(
+        text: searchItem.durChapter,
+        style: TextStyle(
+          fontSize: profile.novelFontSize + 2,
+          color: fontColor,
+          height: profile.novelHeight,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      TextSpan(text: "\n"),
+      TextSpan(
+          text: " \n",
+          style: TextStyle(
+            height: profile.novelParagraphPadding / 10,
+            color: fontColor,
+            fontSize: 10,
+          )),
+    ];
+    double currentHeight =
+        (profile.novelFontSize + 2) * profile.novelHeight + profile.novelParagraphPadding;
     for (var paragraph in provider.paragraphs) {
       bool firstLine = true;
       while (currentHeight < height) {
@@ -226,7 +245,16 @@ class NovelPage extends StatelessWidget {
         currentHeight += oneLineHeight;
       }
     }
+    return <List<TextSpan>>[spans];
+  }
 
+  Widget _buildContentNone(
+      BuildContext context, NovelPageProvider provider, Profile profile) {
+    final spanss = provider.didUpdateReadSetting(profile)
+        ? provider.updateSpans(_buildSpans(context, provider, profile))
+        : provider.spans;
+    final spans = spanss[0];
+    final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
       padding: EdgeInsets.only(
@@ -237,8 +265,11 @@ class NovelPage extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              padding: EdgeInsets.zero,
-              color: Colors.amber,
+              padding: EdgeInsets.only(
+                left: profile.novelEdgePadding + 5,
+                top: profile.novelEdgePadding,
+              ),
+              width: double.infinity,
               child: RichText(text: TextSpan(children: spans)),
             ),
           ),
@@ -252,7 +283,7 @@ class NovelPage extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            height: 24,
+            height: 26,
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -281,72 +312,11 @@ class NovelPage extends StatelessWidget {
     );
   }
 
-  List<Line> _buildLines(
-      BuildContext context, NovelPageProvider provider, Profile profile) {
-    final width = MediaQuery.of(context).size.width - profile.novelEdgePadding * 2;
-    final offset = Offset(width, 6);
-    final tp = TextPainter(textDirection: TextDirection.ltr);
-    final lines = <Line>[];
-    for (var paragraph in provider.paragraphs) {
-      bool firstLine = true;
-      while (true) {
-        var firstPos = 1;
-        if (firstLine) {
-          firstPos = 3;
-          firstLine = false;
-        }
-        tp.text = TextSpan(
-          text: paragraph,
-          style: TextStyle(
-            fontSize: profile.novelFontSize,
-            height: profile.novelHeight,
-          ),
-        );
-        tp.layout(maxWidth: width);
-        final pos = tp.getPositionForOffset(offset).offset;
-        final text = paragraph.substring(0, pos);
-        paragraph = paragraph.substring(pos);
-        if (paragraph.isEmpty) {
-          // 最后一行调整宽度保证单行显示
-          if (width - tp.width - profile.novelFontSize < 0) {
-            //字号最大只能70 保证一行至少3个字符
-            lines.add(Line(text: text.substring(0, firstPos)));
-            lines.add(Line(
-              text: text.substring(firstPos, text.length - 1),
-              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
-            ));
-            lines.add(Line(text: text.substring(text.length - 1)));
-          } else {
-            lines.add(Line(text: text));
-          }
-          lines.add(Line(text: "\n"));
-          break;
-        }
-        tp.text = TextSpan(
-          text: text,
-          style: TextStyle(
-            fontSize: profile.novelFontSize,
-            height: profile.novelHeight,
-          ),
-        );
-        tp.layout();
-        lines.add(Line(text: text.substring(0, firstPos)));
-        lines.add(Line(
-          text: text.substring(firstPos, text.length - 1),
-          letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
-        ));
-        lines.add(Line(text: text.substring(text.length - 1)));
-        lines.add(Line(text: "\n"));
-      }
-    }
-    return lines;
-  }
-
   Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
       RefreshController refreshController) {
-    final lines = provider.didUpdateReadSetting(profile)
-        ? provider.updateLines(_buildLines(context, provider, profile))
-        : provider.lines;
+    final spans = provider.didUpdateReadSetting(profile)
+        ? provider.updateSpans(_buildSpans(context, provider, profile))
+        : provider.spans;
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
@@ -450,19 +420,11 @@ class NovelPage extends StatelessWidget {
                   enablePullUp: true,
                   child: ListView(
                     controller: provider.controller,
-                    padding: EdgeInsets.fromLTRB(
-                        profile.novelEdgePadding, 100, 0, 0), //右侧padding设置为0，用spacing控制
+                    padding: EdgeInsets.only(
+                      left: profile.novelEdgePadding + 5,
+                      top: profile.novelEdgePadding,
+                    ), //右侧padding设置为0，用spacing控制
                     children: <Widget>[
-                      SelectableText(
-                        '${searchItem.durChapter}',
-                        style: TextStyle(
-                          fontSize: profile.novelFontSize + 2,
-                          fontWeight: FontWeight.bold,
-                          color: fontColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 10),
                       provider.useSelectableText
                           ? SelectableText(
                               provider.paragraphs.join("\n"),
@@ -475,17 +437,7 @@ class NovelPage extends StatelessWidget {
                             )
                           : RichText(
                               text: TextSpan(
-                                children: lines
-                                    .map((line) => TextSpan(
-                                          text: line.text,
-                                          style: TextStyle(
-                                            fontSize: profile.novelFontSize,
-                                            height: profile.novelHeight,
-                                            color: fontColor,
-                                            letterSpacing: line.letterSpacing,
-                                          ),
-                                        ))
-                                    .toList(),
+                                children: spans.expand((span) => span).toList(),
                               ),
                             ),
                       Container(

@@ -227,11 +227,11 @@ class NovelPageProvider with ChangeNotifier {
     super.dispose();
   }
 
-  List<Line> _lines;
-  List<Line> get lines => _lines;
-  List<Line> updateLines(List<Line> lines) {
-    _lines = lines;
-    return _lines;
+  List<List<TextSpan>> _spans;
+  List<List<TextSpan>> get spans => _spans;
+  List<List<TextSpan>> updateSpans(List<List<TextSpan>> spans) {
+    _spans = spans;
+    return _spans;
   }
 
   ReadSetting _readSetting;
