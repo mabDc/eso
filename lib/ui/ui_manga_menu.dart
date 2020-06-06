@@ -123,7 +123,7 @@ class UIMangaMenu extends StatelessWidget {
                     child: OutlineButton(
                       child: Text("上->下", style: TextStyle(color: color)),
                       onPressed: () {
-                        profile.mangaDirection = Profile.MangaDirectionTopToBottom;
+                        profile.mangaDirection = Profile.mangaDirectionTopToBottom;
                       },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
@@ -136,7 +136,7 @@ class UIMangaMenu extends StatelessWidget {
                     child: OutlineButton(
                       child: Text("左->右", style: TextStyle(color: color)),
                       onPressed: () {
-                        profile.mangaDirection = Profile.MangaDirectionLeftToRight;
+                        profile.mangaDirection = Profile.mangaDirectionLeftToRight;
                       },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
@@ -149,7 +149,7 @@ class UIMangaMenu extends StatelessWidget {
                     child: OutlineButton(
                       child: Text("右->左", style: TextStyle(color: color)),
                       onPressed: () {
-                        profile.mangaDirection = Profile.MangaDirectionRightToLeft;
+                        profile.mangaDirection = Profile.mangaDirectionRightToLeft;
                       },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),

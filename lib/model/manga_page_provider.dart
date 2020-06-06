@@ -103,7 +103,7 @@ class MangaPageProvider with ChangeNotifier {
     this.searchItem,
     this.keepOn = false,
     this.landscape = false,
-    this.direction = Profile.MangaDirectionTopToBottom,
+    this.direction = Profile.mangaDirectionTopToBottom,
   }) {
     _brightness = 0.5;
     _bottomTime = _format.format(DateTime.now());

@@ -19,6 +19,7 @@ class Global with ChangeNotifier {
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
   static const testRuleKey = "testRule";
+  static const fullSpace = "　";
 
   static SharedPreferences _prefs;
   static SharedPreferences get prefs => _prefs;

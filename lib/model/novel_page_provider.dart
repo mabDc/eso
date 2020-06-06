@@ -120,11 +120,7 @@ class NovelPageProvider with ChangeNotifier {
     }
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _paragraphs = content
-        .join("\n")
-        .split(RegExp(r"\n\s*"))
-        .map((s) => "　　" + s.trimLeft())
-        .toList();
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
     notifyListeners();
   }
@@ -151,17 +147,13 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.durChapterIndex = loadIndex;
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[loadIndex].url);
-    _paragraphs = content
-        .join("\n")
-        .split(RegExp(r"\n\s*"))
-        .map((s) => "　　" + s.trimLeft())
-        .toList();
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _hideLoading = false;
-    if (_readSetting?.pageSwitch == Profile.NovelScroll) {
+    if (_readSetting?.pageSwitch == Profile.novelScroll) {
       _controller.jumpTo(1);
     }
     notifyListeners();
@@ -177,18 +169,14 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
-    _paragraphs = content
-        .join("\n")
-        .split(RegExp(r"\n\s*"))
-        .map((s) => "　　" + s.trimLeft())
-        .toList();
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _isLoading = false;
     searchItem.durChapterIndex = chapterIndex;
-    if (_readSetting?.pageSwitch == Profile.NovelScroll) {
+    if (_readSetting?.pageSwitch == Profile.novelScroll) {
       _controller.jumpTo(1);
     }
     notifyListeners();
@@ -201,11 +189,7 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _paragraphs = content
-        .join("\n")
-        .split(RegExp(r"\n\s*"))
-        .map((s) => "　　" + s.trimLeft())
-        .toList();
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     _isLoading = false;
     notifyListeners();
@@ -214,7 +198,7 @@ class NovelPageProvider with ChangeNotifier {
   int _currentPage;
   int get currentPage => _currentPage;
   void tapNextPage() {
-    if (_readSetting.pageSwitch == Profile.NovelScroll) {
+    if (_readSetting.pageSwitch == Profile.novelScroll) {
       final leftHeight =
           _controller.position.maxScrollExtent - _controller.position.pixels;
       if (leftHeight > height) {
@@ -244,7 +228,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   void tapLastPage() {
-    if (_readSetting.pageSwitch == Profile.NovelScroll) {
+    if (_readSetting.pageSwitch == Profile.novelScroll) {
       if (_controller.position.pixels > height) {
         _controller.animateTo(
           _controller.position.pixels - height,
@@ -338,25 +322,31 @@ class Line {
 class ReadSetting {
   double fontSize;
   double height;
-  double edgePadding;
+  double topPadding;
+  double leftPadding;
   double paragraphPadding;
   int pageSwitch;
+  int indentation;
   int durChapterIndex;
 
   ReadSetting.fromProfile(Profile profile, this.durChapterIndex) {
     fontSize = profile.novelFontSize;
     height = profile.novelHeight;
-    edgePadding = profile.novelEdgePadding;
+    leftPadding = profile.novelLeftPadding;
+    topPadding = profile.novelTopPadding;
     paragraphPadding = profile.novelParagraphPadding;
     pageSwitch = profile.novelPageSwitch;
+    indentation = profile.novelIndentation;
   }
 
   bool didUpdate(Profile profile, int durChapterIndex) {
     if ((fontSize - profile.novelFontSize).abs() < 0.1 &&
         (height - profile.novelHeight).abs() < 0.05 &&
-        (edgePadding - profile.novelEdgePadding).abs() < 0.1 &&
+        (topPadding - profile.novelLeftPadding).abs() < 0.1 &&
+        (leftPadding - profile.novelTopPadding).abs() < 0.1 &&
         (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
         pageSwitch == profile.novelPageSwitch &&
+        indentation == profile.novelIndentation &&
         this.durChapterIndex == durChapterIndex) {
       return false;
     }

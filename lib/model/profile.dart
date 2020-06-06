@@ -22,9 +22,11 @@ class Profile with ChangeNotifier {
             'customColor': Global.colors.values.first,
             'novelFontSize': 20.0,
             'novelHeight': 2.0,
-            'novelEdgePadding': 10,
+            'novelTopPadding': 5,
+            'novelLeftPadding': 10,
             'novelParagraphPadding': 0,
-            'novelPageSwitch': NovelScroll,
+            'novelPageSwitch': novelScroll,
+            'novelIndentation': 2,
             'novelBackgroundColor': 0xFFF5DEB3,
             'novelFontColor': Colors.black.value,
             'novelKeepOn': false,
@@ -38,7 +40,7 @@ class Profile with ChangeNotifier {
             'videoEnableSearch': true,
             'mangaKeepOn': false,
             'mangaLandscape': false,
-            'mangaDirection': MangaDirectionTopToBottom,
+            'mangaDirection': mangaDirectionTopToBottom,
             'searchCount': 10,
             'searchOption': SearchOption.Normal.index,
           }
@@ -46,15 +48,15 @@ class Profile with ChangeNotifier {
     fromJson(json);
   }
 
-  static const MangaDirectionTopToBottom = 0; //'topToBottom';
-  static const MangaDirectionLeftToRight = 1; //'leftToRight';
-  static const MangaDirectionRightToLeft = 2; //'rightToLeft';
+  static const mangaDirectionTopToBottom = 0; //'topToBottom';
+  static const mangaDirectionLeftToRight = 1; //'leftToRight';
+  static const mangaDirectionRightToLeft = 2; //'rightToLeft';
 
-  static const NovelScroll = 0;
-  static const NovelSlide = 1;
-  static const NovelCover = 2;
-  static const NovelSimulation = 3;
-  static const NovelNone = 4;
+  static const novelScroll = 0;
+  static const novelSlide = 1;
+  static const novelCover = 2;
+  static const novelSimulation = 3;
+  static const novelNone = 4;
 
   bool _switchLongPress;
   bool _switchFavoriteStyle;
@@ -66,9 +68,11 @@ class Profile with ChangeNotifier {
   bool _showMangaInfo;
   double _novelFontSize;
   double _novelHeight;
-  double _novelEdgePadding;
+  double _novelTopPadding;
+  double _novelLeftPadding;
   double _novelParagraphPadding;
   int _novelPageSwitch;
+  int _novelIndentation;
   int _novelBackgroundColor;
   int _novelFontColor;
   bool _novelKeepOn;
@@ -96,9 +100,11 @@ class Profile with ChangeNotifier {
   bool get showMangaInfo => _showMangaInfo;
   double get novelFontSize => _novelFontSize;
   double get novelHeight => _novelHeight;
-  double get novelEdgePadding => _novelEdgePadding;
+  double get novelTopPadding => _novelTopPadding;
+  double get novelLeftPadding => _novelLeftPadding;
   double get novelParagraphPadding => _novelParagraphPadding;
   int get novelPageSwitch => _novelPageSwitch;
+  int get novelIndentation => _novelIndentation;
   int get novelBackgroundColor => _novelBackgroundColor;
   int get novelFontColor => _novelFontColor;
   bool get novelKeepOn => _novelKeepOn;
@@ -222,14 +228,27 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set novelEdgePadding(double value) {
-    if ((value - _novelEdgePadding).abs() > 0.1) {
+  set novelTopPadding(double value) {
+    if ((value - _novelTopPadding).abs() > 0.1) {
       if (value > 50) {
-        _novelEdgePadding = 50;
+        _novelTopPadding = 50;
       } else if (value < 5) {
-        _novelEdgePadding = 5;
+        _novelTopPadding = 5;
       } else {
-        _novelEdgePadding = value;
+        _novelTopPadding = value;
+      }
+      _saveProfile();
+    }
+  }
+
+  set novelLeftPadding(double value) {
+    if ((value - _novelLeftPadding).abs() > 0.1) {
+      if (value > 50) {
+        _novelLeftPadding = 50;
+      } else if (value < 5) {
+        _novelLeftPadding = 5;
+      } else {
+        _novelLeftPadding = value;
       }
       _saveProfile();
     }
@@ -251,6 +270,19 @@ class Profile with ChangeNotifier {
   set novelPageSwitch(int value) {
     if (value != _novelPageSwitch) {
       _novelPageSwitch = value;
+      _saveProfile();
+    }
+  }
+
+  set novelIndentation(int value) {
+    if (value != _novelIndentation) {
+      if (value > 4) {
+        _novelIndentation = 4;
+      } else if (value < 0) {
+        _novelIndentation = 0;
+      } else {
+        _novelIndentation = value;
+      }
       _saveProfile();
     }
   }
@@ -442,13 +474,15 @@ class Profile with ChangeNotifier {
     _novelHeight = json["novelHeight"] ?? 2.0;
     _novelBackgroundColor = json["novelBackgroundColor"] ?? 0xFFF5DEB3;
     _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
-    _novelEdgePadding = json["novelEdgePadding"] ?? 10;
+    _novelTopPadding = json["novelTopPadding"] ?? 5;
+    _novelLeftPadding = json["novelLeftPadding"] ?? 10;
     _novelParagraphPadding = json["novelParagraphPadding"] ?? 0;
-    _novelPageSwitch = json["novelPageSwitch"] ?? NovelScroll;
+    _novelPageSwitch = json["novelPageSwitch"] ?? novelScroll;
+    _novelIndentation = json["novelIndentation"] ?? 2;
     _novelKeepOn = json["novelKeepOn"] ?? false;
     _mangaKeepOn = json["mangaKeepOn"] ?? false;
     _mangaLandscape = json["mangaLandscape"] ?? false;
-    _mangaDirection = json['mangaDirection'] ?? MangaDirectionTopToBottom;
+    _mangaDirection = json['mangaDirection'] ?? mangaDirectionTopToBottom;
     _novelSortIndex = json["novelSortIndex"] ?? SortType.CREATE.index;
     _mangaSortIndex = json["mangaSortIndex"] ?? SortType.CREATE.index;
     _audioSortIndex = json["audioSortIndex"] ?? SortType.CREATE.index;
@@ -488,8 +522,10 @@ class Profile with ChangeNotifier {
         'mangaEnableSearch': _mangaEnableSearch,
         'audioEnableSearch': _audioEnableSearch,
         'videoEnableSearch': _videoEnableSearch,
-        'novelEdgePadding': _novelEdgePadding,
+        'novelTopPadding': _novelTopPadding,
+        'novelLeftPadding': _novelLeftPadding,
         'novelParagraphPadding': _novelParagraphPadding,
         'novelPageSwitch': _novelPageSwitch,
+        'novelIndentation': _novelIndentation,
       };
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:eso/global.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
@@ -21,7 +22,7 @@ class NovelPage extends StatelessWidget {
   Widget build(BuildContext context) {
     RefreshController refreshController = RefreshController();
     final profile = Provider.of<Profile>(context, listen: false);
-    final height = MediaQuery.of(context).size.height - 32 - 2 * profile.novelEdgePadding;
+    final height = MediaQuery.of(context).size.height - 32 - 2 * profile.novelTopPadding;
     return ChangeNotifierProvider<NovelPageProvider>(
       create: (BuildContext context) => NovelPageProvider(
         searchItem: searchItem,
@@ -38,7 +39,7 @@ class NovelPage extends StatelessWidget {
             }
             Widget content = Center(child: Text("暂不支持"));
             switch (profile.novelPageSwitch) {
-              case Profile.NovelScroll:
+              case Profile.novelScroll:
                 content = NotificationListener(
                   onNotification: (t) {
                     if (t is ScrollEndNotification) {
@@ -49,13 +50,14 @@ class NovelPage extends StatelessWidget {
                   child: _buildContent(context, provider, profile, refreshController),
                 );
                 break;
-              case Profile.NovelNone:
+              case Profile.novelNone:
                 content = _buildContentNone(context, provider, profile);
                 break;
               default:
             }
             return GestureDetector(
               child: Stack(
+                fit: StackFit.expand,
                 children: <Widget>[
                   content,
                   provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
@@ -92,6 +94,19 @@ class NovelPage extends StatelessWidget {
                       : Container(),
                 ],
               ),
+              onHorizontalDragEnd: (DragEndDetails details) {
+                if (details.primaryVelocity.abs() > 100) {
+                  if (provider.showSetting) {
+                    provider.showSetting = false;
+                  } else if (provider.showMenu) {
+                    provider.showMenu = false;
+                  } else if (details.primaryVelocity > 100) {
+                    provider.tapLastPage();
+                  } else {
+                    provider.tapNextPage();
+                  }
+                }
+              },
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
                 if (details.globalPosition.dx > size.width * 3 / 8 &&
@@ -103,12 +118,14 @@ class NovelPage extends StatelessWidget {
                   provider.showSetting = false;
                 } else {
                   provider.showChapter = false;
-                  if (details.globalPosition.dx > size.width * 3 / 4 &&
-                      details.globalPosition.dy > size.height / 2) {
-                    provider.tapNextPage();
-                  } else if (details.globalPosition.dx < size.width * 1 / 4 &&
-                      details.globalPosition.dy < size.height / 2) {
-                    provider.tapLastPage();
+                  if (!provider.showSetting && !provider.showMenu) {
+                    if (details.globalPosition.dx > size.width * 3 / 4 &&
+                        details.globalPosition.dy > size.height * 3 / 8) {
+                      provider.tapNextPage();
+                    } else if (details.globalPosition.dx < size.width * 1 / 4 &&
+                        details.globalPosition.dy < size.height * 5 / 8) {
+                      provider.tapLastPage();
+                    }
                   }
                 }
               },
@@ -121,17 +138,32 @@ class NovelPage extends StatelessWidget {
 
   List<List<TextSpan>> _buildSpans(
       BuildContext context, NovelPageProvider provider, Profile profile) {
-    final width = MediaQuery.of(context).size.width - profile.novelEdgePadding * 2 - 10;
+    final width = MediaQuery.of(context).size.width - profile.novelLeftPadding * 2;
     final offset = Offset(width, 6);
     final tp = TextPainter(textDirection: TextDirection.ltr);
     final oneLineHeight = profile.novelFontSize * profile.novelHeight;
     final height = MediaQuery.of(context).size.height -
-        profile.novelEdgePadding * 2 -
+        profile.novelTopPadding * 2 -
         32 -
         MediaQuery.of(context).padding.top -
         oneLineHeight;
     final fontColor = Color(profile.novelFontColor);
     final spanss = <List<TextSpan>>[];
+
+    final newLine = TextSpan(text: "\n");
+    final paragraphPadding = TextSpan(
+        text: " \n",
+        style: TextStyle(
+          height: profile.novelParagraphPadding / 10,
+          color: fontColor,
+          fontSize: 10,
+        ));
+    final commonStyle = TextStyle(
+      fontSize: profile.novelFontSize,
+      height: profile.novelHeight,
+      color: fontColor,
+    );
+
     var currentSpans = <TextSpan>[
       TextSpan(
         text: searchItem.durChapter,
@@ -142,18 +174,14 @@ class NovelPage extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      TextSpan(text: "\n"),
-      TextSpan(
-          text: " \n",
-          style: TextStyle(
-            height: profile.novelParagraphPadding / 10,
-            color: fontColor,
-            fontSize: 10,
-          )),
+      newLine,
+      paragraphPadding,
     ];
-    var currentHeight =
-        (profile.novelFontSize + 2) * profile.novelHeight + profile.novelParagraphPadding;
+    tp.text = TextSpan(children: currentSpans);
+    tp.layout(maxWidth: width);
+    var currentHeight = tp.height;
     bool firstLine = true;
+    final indentation = Global.fullSpace * profile.novelIndentation;
     for (var paragraph in provider.paragraphs) {
       while (true) {
         if (currentHeight >= height) {
@@ -165,15 +193,9 @@ class NovelPage extends StatelessWidget {
         if (firstLine) {
           firstPos = 3;
           firstLine = false;
+          paragraph = indentation + paragraph;
         }
-        tp.text = TextSpan(
-          text: paragraph,
-          style: TextStyle(
-            fontSize: profile.novelFontSize,
-            height: profile.novelHeight,
-            color: fontColor,
-          ),
-        );
+        tp.text = TextSpan(text: paragraph, style: commonStyle);
         tp.layout(maxWidth: width);
         final pos = tp.getPositionForOffset(offset).offset;
         final text = paragraph.substring(0, pos);
@@ -182,12 +204,9 @@ class NovelPage extends StatelessWidget {
           // 最后一行调整宽度保证单行显示
           if (width - tp.width - profile.novelFontSize < 0) {
             currentSpans.add(TextSpan(
-                text: text.substring(0, firstPos),
-                style: TextStyle(
-                  fontSize: profile.novelFontSize,
-                  color: fontColor,
-                  height: profile.novelHeight,
-                )));
+              text: text.substring(0, firstPos),
+              style: commonStyle,
+            ));
             currentSpans.add(TextSpan(
                 text: text.substring(firstPos, text.length - 1),
                 style: TextStyle(
@@ -197,12 +216,9 @@ class NovelPage extends StatelessWidget {
                   letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
                 )));
             currentSpans.add(TextSpan(
-                text: text.substring(text.length - 1),
-                style: TextStyle(
-                  fontSize: profile.novelFontSize,
-                  color: fontColor,
-                  height: profile.novelHeight,
-                )));
+              text: text.substring(text.length - 1),
+              style: commonStyle,
+            ));
           } else {
             currentSpans.add(TextSpan(
                 text: text,
@@ -212,15 +228,8 @@ class NovelPage extends StatelessWidget {
                   color: fontColor,
                 )));
           }
-          currentSpans.add(TextSpan(text: "\n"));
-          //段间距
-          currentSpans.add(TextSpan(
-              text: " \n",
-              style: TextStyle(
-                height: profile.novelParagraphPadding / 10,
-                color: fontColor,
-                fontSize: 10,
-              )));
+          currentSpans.add(newLine);
+          currentSpans.add(paragraphPadding);
           currentHeight += oneLineHeight;
           currentHeight += profile.novelParagraphPadding;
           firstLine = true;
@@ -236,12 +245,9 @@ class NovelPage extends StatelessWidget {
         );
         tp.layout();
         currentSpans.add(TextSpan(
-            text: text.substring(0, firstPos),
-            style: TextStyle(
-              fontSize: profile.novelFontSize,
-              color: fontColor,
-              height: profile.novelHeight,
-            )));
+          text: text.substring(0, firstPos),
+          style: commonStyle,
+        ));
         currentSpans.add(TextSpan(
             text: text.substring(firstPos, text.length - 1),
             style: TextStyle(
@@ -251,13 +257,10 @@ class NovelPage extends StatelessWidget {
               letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
             )));
         currentSpans.add(TextSpan(
-            text: text.substring(text.length - 1),
-            style: TextStyle(
-              color: fontColor,
-              fontSize: profile.novelFontSize,
-              height: profile.novelHeight,
-            )));
-        currentSpans.add(TextSpan(text: "\n"));
+          text: text.substring(text.length - 1),
+          style: commonStyle,
+        ));
+        currentSpans.add(newLine);
         currentHeight += oneLineHeight;
       }
     }
@@ -266,33 +269,29 @@ class NovelPage extends StatelessWidget {
   }
 
   Widget _buildContentNone(
-      BuildContext context, NovelPageProvider provider, Profile profile) {
+      BuildContext context, NovelPageProvider provider, Profile profile,
+      {int pageIndex}) {
     final spanss = provider.didUpdateReadSetting(profile)
         ? provider.updateSpans(_buildSpans(context, provider, profile))
         : provider.spans;
-    final spans = spanss[provider.currentPage - 1];
+    final spans = spanss[pageIndex ?? (provider.currentPage - 1)];
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
-      padding: EdgeInsets.only(
-        // left: profile.novelEdgePadding,
-        top: MediaQuery.of(context).padding.top, //profile.novelEdgePadding,
-      ),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Column(
         children: [
           Expanded(
             child: Container(
               padding: EdgeInsets.only(
-                left: profile.novelEdgePadding + 5,
-                top: profile.novelEdgePadding,
+                left: profile.novelLeftPadding,
+                top: profile.novelTopPadding,
               ),
               width: double.infinity,
               child: RichText(text: TextSpan(children: spans)),
             ),
           ),
-          SizedBox(
-            height: 4,
-          ),
+          SizedBox(height: 4),
           UIDash(
             height: 2,
             dashWidth: 6,
@@ -312,7 +311,7 @@ class NovelPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: 36,
+                  width: 40,
                   child: Text(
                     '${provider.currentPage}/${spanss.length}',
                     textAlign: TextAlign.right,
@@ -337,6 +336,7 @@ class NovelPage extends StatelessWidget {
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Column(
         children: <Widget>[
           Expanded(
@@ -438,9 +438,9 @@ class NovelPage extends StatelessWidget {
                   child: ListView(
                     controller: provider.controller,
                     padding: EdgeInsets.only(
-                      left: profile.novelEdgePadding + 5,
-                      top: profile.novelEdgePadding,
-                    ), //右侧padding设置为0，用spacing控制
+                      left: profile.novelLeftPadding,
+                      top: profile.novelTopPadding,
+                    ),
                     children: <Widget>[
                       provider.useSelectableText
                           ? SelectableText(
