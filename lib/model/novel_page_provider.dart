@@ -250,7 +250,7 @@ class NovelPageProvider with ChangeNotifier {
         searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
         notifyListeners();
       } else {
-        loadChapter(searchItem.durChapterIndex + 1);
+        loadChapter(searchItem.durChapterIndex - 1);
       }
     }
   }
