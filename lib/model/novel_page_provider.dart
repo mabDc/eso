@@ -7,6 +7,8 @@ import 'package:screen/screen.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
+import 'profile.dart';
+
 class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   int _progress;
@@ -20,6 +22,7 @@ class NovelPageProvider with ChangeNotifier {
 
   bool _showMenu;
   bool get showMenu => _showMenu;
+
   set showMenu(bool value) {
     if (_showMenu != value) {
       _showMenu = value;
@@ -222,5 +225,54 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
     super.dispose();
+  }
+
+  List<Line> _lines;
+  List<Line> get lines => _lines;
+  List<Line> updateLines(List<Line> lines) {
+    _lines = lines;
+    return _lines;
+  }
+
+  ReadSetting _readSetting;
+  bool didUpdateReadSetting(Profile profile) {
+    if (null == _readSetting || _readSetting.didUpdate(profile)) {
+      _readSetting = ReadSetting.fromProfile(profile);
+      return true;
+    }
+    return false;
+  }
+}
+
+class Line {
+  final String text;
+  final double letterSpacing;
+  Line({this.text, this.letterSpacing});
+}
+
+class ReadSetting {
+  double fontSize;
+  double height;
+  double edgePadding;
+  double paragraphPadding;
+  int pageSwitch;
+
+  ReadSetting.fromProfile(Profile profile) {
+    fontSize = profile.novelFontSize;
+    height = profile.novelHeight;
+    edgePadding = profile.novelEdgePadding;
+    paragraphPadding = profile.novelParagraphPadding;
+    pageSwitch = profile.novelPageSwitch;
+  }
+
+  bool didUpdate(Profile profile) {
+    if ((fontSize - profile.novelFontSize).abs() < 0.1 &&
+        (height - profile.novelHeight).abs() < 0.05 &&
+        (edgePadding - profile.novelEdgePadding).abs() < 0.1 &&
+        (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
+        pageSwitch == profile.novelPageSwitch) {
+      return false;
+    }
+    return true;
   }
 }

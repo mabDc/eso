@@ -224,10 +224,10 @@ class Profile with ChangeNotifier {
 
   set novelEdgePadding(double value) {
     if ((value - _novelEdgePadding).abs() > 0.1) {
-      if (value > 60) {
-        _novelEdgePadding = 60;
-      } else if (value < 10) {
-        _novelEdgePadding = 10;
+      if (value > 50) {
+        _novelEdgePadding = 50;
+      } else if (value < 5) {
+        _novelEdgePadding = 5;
       } else {
         _novelEdgePadding = value;
       }

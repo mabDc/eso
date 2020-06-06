@@ -281,8 +281,8 @@ class NovelPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
-      RefreshController refreshController) {
+  List<Line> _buildLines(
+      BuildContext context, NovelPageProvider provider, Profile profile) {
     final width = MediaQuery.of(context).size.width - profile.novelEdgePadding * 2;
     final offset = Offset(width, 6);
     final tp = TextPainter(textDirection: TextDirection.ltr);
@@ -339,6 +339,14 @@ class NovelPage extends StatelessWidget {
         lines.add(Line(text: "\n"));
       }
     }
+    return lines;
+  }
+
+  Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
+      RefreshController refreshController) {
+    final lines = provider.didUpdateReadSetting(profile)
+        ? provider.updateLines(_buildLines(context, provider, profile))
+        : provider.lines;
     final fontColor = Color(profile.novelFontColor);
     return Container(
       color: Color(profile.novelBackgroundColor),
@@ -548,10 +556,4 @@ class NovelPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class Line {
-  final String text;
-  final double letterSpacing;
-  Line({this.text, this.letterSpacing});
 }
