@@ -22,7 +22,10 @@ class NovelPage extends StatelessWidget {
   Widget build(BuildContext context) {
     RefreshController refreshController = RefreshController();
     final profile = Provider.of<Profile>(context, listen: false);
-    final height = MediaQuery.of(context).size.height - 32 - 2 * profile.novelTopPadding;
+    final height = MediaQuery.of(context).size.height -
+        32 -
+        2 * profile.novelTopPadding -
+        profile.novelFontSize * profile.novelHeight;
     return ChangeNotifierProvider<NovelPageProvider>(
       create: (BuildContext context) => NovelPageProvider(
         searchItem: searchItem,
@@ -53,11 +56,17 @@ class NovelPage extends StatelessWidget {
               case Profile.novelNone:
                 content = _buildContentNone(context, provider, profile);
                 break;
+              case Profile.novelSlide:
+              case Profile.novelHorizontalSlide:
+                content = _buildContentSlide(context, provider, profile, Axis.horizontal);
+                break;
+              case Profile.novelVerticalSlide:
+                content = _buildContentSlide(context, provider, profile, Axis.vertical);
+                break;
               default:
             }
             return GestureDetector(
               child: Stack(
-                fit: StackFit.expand,
                 children: <Widget>[
                   content,
                   provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
@@ -94,16 +103,38 @@ class NovelPage extends StatelessWidget {
                       : Container(),
                 ],
               ),
+              // onHorizontalDragDown: (_) => print("onHorizontalDragDown"),
+              // onHorizontalDragCancel: () => print("onHorizontalDragCancel"),
+              // onHorizontalDragStart: (_) => print("onHorizontalDragStart"),
+              // onHorizontalDragUpdate: (_) => print("onHorizontalDragUpdate"),
               onHorizontalDragEnd: (DragEndDetails details) {
+                // print("onHorizontalDragEnd");
                 if (details.primaryVelocity.abs() > 100) {
                   if (provider.showSetting) {
                     provider.showSetting = false;
                   } else if (provider.showMenu) {
                     provider.showMenu = false;
-                  } else if (details.primaryVelocity > 100) {
-                    provider.tapLastPage();
-                  } else {
-                    provider.tapNextPage();
+                  } else if (profile.novelPageSwitch == Profile.novelNone) {
+                    if (details.primaryVelocity > 0) {
+                      provider.tapLastPage();
+                    } else {
+                      provider.tapNextPage();
+                    }
+                  }
+                }
+              },
+              onVerticalDragEnd: (DragEndDetails details) {
+                if (details.primaryVelocity.abs() > 100) {
+                  if (provider.showSetting) {
+                    provider.showSetting = false;
+                  } else if (provider.showMenu) {
+                    provider.showMenu = false;
+                  } else if (profile.novelPageSwitch == Profile.novelNone) {
+                    if (details.primaryVelocity > 0) {
+                      provider.tapLastPage();
+                    } else {
+                      provider.tapNextPage();
+                    }
                   }
                 }
               },
@@ -119,10 +150,10 @@ class NovelPage extends StatelessWidget {
                 } else {
                   provider.showChapter = false;
                   if (!provider.showSetting && !provider.showMenu) {
-                    if (details.globalPosition.dx > size.width * 3 / 4 &&
+                    if (details.globalPosition.dx > size.width * 5 / 8 &&
                         details.globalPosition.dy > size.height * 3 / 8) {
                       provider.tapNextPage();
-                    } else if (details.globalPosition.dx < size.width * 1 / 4 &&
+                    } else if (details.globalPosition.dx < size.width * 3 / 8 &&
                         details.globalPosition.dy < size.height * 5 / 8) {
                       provider.tapLastPage();
                     }
@@ -268,14 +299,55 @@ class NovelPage extends StatelessWidget {
     return spanss;
   }
 
-  Widget _buildContentNone(
-      BuildContext context, NovelPageProvider provider, Profile profile,
-      {int pageIndex}) {
+  Widget _buildContentSlide(
+    BuildContext context,
+    NovelPageProvider provider,
+    Profile profile,
+    Axis axis,
+  ) {
     final spanss = provider.didUpdateReadSetting(profile)
         ? provider.updateSpans(_buildSpans(context, provider, profile))
         : provider.spans;
-    final spans = spanss[pageIndex ?? (provider.currentPage - 1)];
     final fontColor = Color(profile.novelFontColor);
+    return PageView(
+      key: Key("novelPagePageView${axis.index}${searchItem.durChapterIndex}"), //必须
+      controller: provider.pageController,
+      scrollDirection: axis,
+      physics: BouncingScrollPhysics(),
+      children: List.generate(
+          spanss.length,
+          (index) => _buildOnePage(
+                context,
+                profile,
+                spanss[index],
+                '${index + 1}/${spanss.length}',
+                fontColor,
+              )),
+      onPageChanged: (index) => provider.currentPage = index,
+    );
+  }
+
+  Widget _buildContentNone(
+      BuildContext context, NovelPageProvider provider, Profile profile) {
+    final spanss = provider.didUpdateReadSetting(profile)
+        ? provider.updateSpans(_buildSpans(context, provider, profile))
+        : provider.spans;
+    return _buildOnePage(
+      context,
+      profile,
+      spanss[provider.currentPage - 1],
+      '${provider.currentPage}/${spanss.length}',
+      Color(profile.novelFontColor),
+    );
+  }
+
+  Container _buildOnePage(
+    BuildContext context,
+    Profile profile,
+    List<TextSpan> spans,
+    String pageInfo,
+    Color fontColor,
+  ) {
     return Container(
       color: Color(profile.novelBackgroundColor),
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
@@ -298,9 +370,10 @@ class NovelPage extends StatelessWidget {
             color: fontColor,
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
             height: 26,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Expanded(
                   child: Text(
@@ -310,14 +383,11 @@ class NovelPage extends StatelessWidget {
                     style: TextStyle(color: fontColor),
                   ),
                 ),
-                SizedBox(
-                  width: 40,
-                  child: Text(
-                    '${provider.currentPage}/${spanss.length}',
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      color: fontColor,
-                    ),
+                Text(
+                  '$pageInfo',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: fontColor,
                   ),
                 ),
               ],
@@ -443,14 +513,12 @@ class NovelPage extends StatelessWidget {
                     ),
                     children: <Widget>[
                       provider.useSelectableText
-                          ? SelectableText(
-                              provider.paragraphs.join("\n"),
-                              style: TextStyle(
-                                fontSize: profile.novelFontSize,
-                                height: profile.novelHeight * 0.98,
-                                color: fontColor,
+                          ? FittedBox(
+                              child: SelectableText.rich(
+                                TextSpan(
+                                  children: spans,
+                                ),
                               ),
-                              textAlign: TextAlign.justify,
                             )
                           : RichText(
                               text: TextSpan(
@@ -496,8 +564,9 @@ class NovelPage extends StatelessWidget {
             dashWidth: 6,
             color: fontColor,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
+            height: 26,
             child: Row(
               children: <Widget>[
                 Expanded(

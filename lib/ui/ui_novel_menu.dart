@@ -51,9 +51,11 @@ class UINovelMenu extends StatelessWidget {
     ];
     final styles = [
       ["滚动", Profile.novelScroll],
-      ["滑动", Profile.novelSlide],
-      ["覆盖", Profile.novelCover],
-      ["仿真", Profile.novelSimulation],
+      // ["滑动", Profile.novelSlide],
+      // ["覆盖", Profile.novelCover],
+      // ["仿真", Profile.novelSimulation],
+      ["上下滑动", Profile.novelVerticalSlide],
+      ["左右滑动", Profile.novelHorizontalSlide],
       ["无", Profile.novelNone],
     ];
     return IconTheme(

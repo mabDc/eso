@@ -146,6 +146,15 @@ class _MangaPageState extends State<MangaPage> {
                   }
                 }
               },
+              onVerticalDragEnd: (DragEndDetails details) {
+                if (details.primaryVelocity.abs() > 100) {
+                  if (provider.showSetting) {
+                    provider.showSetting = false;
+                  } else if (provider.showMenu) {
+                    provider.showMenu = false;
+                  }
+                }
+              },
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
                 if (details.globalPosition.dx > size.width * 3 / 8 &&

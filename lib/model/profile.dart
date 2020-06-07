@@ -57,6 +57,8 @@ class Profile with ChangeNotifier {
   static const novelCover = 2;
   static const novelSimulation = 3;
   static const novelNone = 4;
+  static const novelVerticalSlide = 5;
+  static const novelHorizontalSlide = 6;
 
   bool _switchLongPress;
   bool _switchFavoriteStyle;

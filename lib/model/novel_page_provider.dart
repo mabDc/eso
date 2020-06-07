@@ -76,6 +76,10 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   final double height;
+
+  PageController _pageController;
+  PageController get pageController => _pageController;
+
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
     _brightness = 0.5;
     _isLoading = false;
@@ -84,14 +88,8 @@ class NovelPageProvider with ChangeNotifier {
     _showSetting = false;
     _useSelectableText = false;
     _controller = ScrollController();
-    // ScrollController(initialScrollOffset: searchItem.durContentIndex.toDouble());
+    _needPageJumpTo = false;
     _progress = 0;
-//    _controller.addListener(() {
-//      if (progress > 0 &&
-//          _controller.position.pixels == _controller.position.maxScrollExtent) {
-//        loadChapter(searchItem.durChapterIndex + 1);
-//      }
-//    });
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
@@ -197,6 +195,13 @@ class NovelPageProvider with ChangeNotifier {
 
   int _currentPage;
   int get currentPage => _currentPage;
+  set currentPage(int value) {
+    if (value >= 0 && value < spans.length) {
+      _currentPage = value + 1;
+      searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
+    }
+  }
+
   void tapNextPage() {
     if (_readSetting.pageSwitch == Profile.novelScroll) {
       final leftHeight =
@@ -204,23 +209,33 @@ class NovelPageProvider with ChangeNotifier {
       if (leftHeight > height) {
         _controller.animateTo(
           _controller.position.pixels + height,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.ease,
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
         );
       } else if (leftHeight < 50) {
         loadChapter(searchItem.durChapterIndex + 1);
       } else {
         _controller.animateTo(
           _controller.position.maxScrollExtent - 40,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.ease,
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
         );
       }
-    } else {
+    } else if (_readSetting.pageSwitch == Profile.novelNone) {
       if (_currentPage < _spans.length) {
         _currentPage++;
         searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
         notifyListeners();
+      } else {
+        loadChapter(searchItem.durChapterIndex + 1);
+      }
+    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
+        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
+      if (_currentPage < _spans.length) {
+        _currentPage++;
+        searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
+        _pageController.animateToPage(_currentPage - 1,
+            duration: Duration(milliseconds: 400), curve: Curves.easeInOut);
       } else {
         loadChapter(searchItem.durChapterIndex + 1);
       }
@@ -232,25 +247,35 @@ class NovelPageProvider with ChangeNotifier {
       if (_controller.position.pixels > height) {
         _controller.animateTo(
           _controller.position.pixels - height,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.ease,
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
         );
       } else if (_controller.position.pixels < 10) {
         loadChapter(searchItem.durChapterIndex - 1);
       } else {
         _controller.animateTo(
           1,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.ease,
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
         );
       }
-    } else {
+    } else if (_readSetting.pageSwitch == Profile.novelNone) {
       if (_currentPage > 1) {
         _currentPage--;
         searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
         notifyListeners();
       } else {
         loadChapter(searchItem.durChapterIndex - 1);
+      }
+    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
+        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
+      if (_currentPage > 1) {
+        _currentPage--;
+        searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
+        _pageController.animateToPage(_currentPage - 1,
+            duration: Duration(milliseconds: 400), curve: Curves.easeInOut);
+      } else {
+        loadChapter(searchItem.durChapterIndex + 1);
       }
     }
   }
@@ -272,8 +297,11 @@ class NovelPageProvider with ChangeNotifier {
       }
       Screen.keepOn(false);
     }
-    _paragraphs.clear();
-    _controller.dispose();
+    _paragraphs?.clear();
+    _pageController?.dispose();
+    spans?.clear();
+    spansFlat?.clear();
+    _controller?.dispose();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
     super.dispose();
@@ -289,6 +317,16 @@ class NovelPageProvider with ChangeNotifier {
     } else if (_currentPage > _spans.length) {
       _currentPage = _spans.length;
     }
+    if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
+        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
+      if (_pageController != null && _needPageJumpTo) {
+        _pageController.jumpToPage(_currentPage - 1);
+      } else {
+        final temp = _pageController;
+        _pageController = PageController(initialPage: _currentPage - 1);
+        Future.delayed(Duration(seconds: 1), () => temp?.dispose());
+      }
+    }
     return _spans;
   }
 
@@ -299,24 +337,28 @@ class NovelPageProvider with ChangeNotifier {
     return _spansFlat;
   }
 
+  bool _needPageJumpTo;
   ReadSetting _readSetting;
   bool didUpdateReadSetting(Profile profile) {
     if (_readSetting.durChapterIndex != searchItem.durChapterIndex) {
       _currentPage = 1;
+      _readSetting.durChapterIndex = searchItem.durChapterIndex;
+      _needPageJumpTo = false;
+      return true;
+    }
+    if (_readSetting.pageSwitch != profile.novelPageSwitch) {
+      _readSetting.pageSwitch = profile.novelPageSwitch;
+      _needPageJumpTo = false;
+      return true;
     }
     if ((null == _spansFlat && null == _spans) ||
         _readSetting.didUpdate(profile, searchItem.durChapterIndex)) {
       _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
+      _needPageJumpTo = true;
       return true;
     }
     return false;
   }
-}
-
-class Line {
-  final String text;
-  final double letterSpacing;
-  Line({this.text, this.letterSpacing});
 }
 
 class ReadSetting {
@@ -342,8 +384,8 @@ class ReadSetting {
   bool didUpdate(Profile profile, int durChapterIndex) {
     if ((fontSize - profile.novelFontSize).abs() < 0.1 &&
         (height - profile.novelHeight).abs() < 0.05 &&
-        (topPadding - profile.novelLeftPadding).abs() < 0.1 &&
-        (leftPadding - profile.novelTopPadding).abs() < 0.1 &&
+        (leftPadding - profile.novelLeftPadding).abs() < 0.1 &&
+        (topPadding - profile.novelTopPadding).abs() < 0.1 &&
         (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
         pageSwitch == profile.novelPageSwitch &&
         indentation == profile.novelIndentation &&
