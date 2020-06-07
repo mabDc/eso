@@ -56,7 +56,6 @@ class NovelPage extends StatelessWidget {
               case Profile.novelNone:
                 content = _buildContentNone(context, provider, profile);
                 break;
-              case Profile.novelSlide:
               case Profile.novelHorizontalSlide:
                 content = _buildContentSlide(context, provider, profile, Axis.horizontal);
                 break;
