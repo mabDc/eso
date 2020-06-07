@@ -275,7 +275,7 @@ class NovelPageProvider with ChangeNotifier {
         _pageController.animateToPage(_currentPage - 1,
             duration: Duration(milliseconds: 400), curve: Curves.easeInOut);
       } else {
-        loadChapter(searchItem.durChapterIndex + 1);
+        loadChapter(searchItem.durChapterIndex - 1);
       }
     }
   }

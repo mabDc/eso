@@ -22,10 +22,7 @@ class NovelPage extends StatelessWidget {
   Widget build(BuildContext context) {
     RefreshController refreshController = RefreshController();
     final profile = Provider.of<Profile>(context, listen: false);
-    final height = MediaQuery.of(context).size.height -
-        32 -
-        2 * profile.novelTopPadding -
-        profile.novelFontSize * profile.novelHeight;
+    final height = MediaQuery.of(context).size.height - 100;
     return ChangeNotifierProvider<NovelPageProvider>(
       create: (BuildContext context) => NovelPageProvider(
         searchItem: searchItem,
