@@ -195,12 +195,12 @@ class AnalyzerManager {
     if (r.analyzer is AnalyzerJS) {
       final temp = await r.analyzer.getString(rule);
       if (temp is List) {
-        // 使用逗号空格分隔
+        /// 使用双半角空格分隔
         return temp
             .where((s) => null != s)
             .map((s) => '$s'.trim())
             .where((s) => s.isNotEmpty)
-            .join(", ");
+            .join("  ");
       } else if (null != temp) {
         return '$temp'.trim();
       }
@@ -212,7 +212,7 @@ class AnalyzerManager {
         final temp = await _getString(r, rSimple);
         if (temp.isNotEmpty) rs.add(temp);
       }
-      return rs.join(", ");
+      return rs.join("  ");
     } else if (rule.contains("||")) {
       for (final rSimple in rule.split("||")) {
         final temp = await _getString(r, rSimple);
@@ -221,12 +221,12 @@ class AnalyzerManager {
     } else {
       final temp = await r.analyzer.getString(rule);
       if (temp is List) {
-        // 使用逗号空格分隔
+        /// 使用双半角空格分隔
         result = temp
             .where((s) => null != s)
             .map((s) => '$s'.trim())
             .where((s) => s.isNotEmpty)
-            .join(", ");
+            .join("  ");
       } else if (null != temp) {
         result = '$temp'.trim();
       }

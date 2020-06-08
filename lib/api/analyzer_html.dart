@@ -49,24 +49,15 @@ class AnalyzerHtml implements Analyzer {
   }
 
   @override
-  String getString(String rule) {
-    if (!rule.contains('@')) {
-      return _getResult(_element, rule);
-    } else {
-      final split = rule.lastIndexOf("@");
-      final lastRule = rule.substring(split + 1);
-      final elementList = _element.querySelectorAll(rule.substring(0, split));
-      final builder = <String>[];
-      for (var e in elementList) {
-        final r = _getResult(e, lastRule);
-        if (r.isNotEmpty) builder.add(r.trim());
-      }
-      return builder.join(', ');
-    }
+  List<String> getString(String rule) {
+    return getStringList(rule);
   }
 
   @override
   List<String> getStringList(String rule) {
+    if (!rule.contains('@')) {
+      return <String>[_getResult(_element, rule)];
+    }
     final result = <String>[];
     final split = rule.lastIndexOf("@");
     final lastRule = rule.substring(split + 1);
