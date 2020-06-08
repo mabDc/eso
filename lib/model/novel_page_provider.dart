@@ -142,19 +142,18 @@ class NovelPageProvider with ChangeNotifier {
         lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
     if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
     _hideLoading = true;
-    searchItem.durChapterIndex = loadIndex;
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[loadIndex].url);
     _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    searchItem.durChapterIndex = loadIndex;
     await SearchItemManager.saveSearchItem();
     _hideLoading = false;
     if (_readSetting?.pageSwitch == Profile.novelScroll) {
       _controller.jumpTo(1);
     }
-    notifyListeners();
   }
 
   Future<void> loadChapter(int chapterIndex) async {
@@ -171,9 +170,9 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    searchItem.durChapterIndex = chapterIndex;
     await SearchItemManager.saveSearchItem();
     _isLoading = false;
-    searchItem.durChapterIndex = chapterIndex;
     if (_readSetting?.pageSwitch == Profile.novelScroll) {
       _controller.jumpTo(1);
     }

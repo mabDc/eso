@@ -136,11 +136,12 @@ class NovelPage extends StatelessWidget {
               },
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
-                if (details.globalPosition.dx > size.width * 3 / 8 &&
-                    details.globalPosition.dx < size.width * 5 / 8 &&
-                    details.globalPosition.dy > size.height * 3 / 8 &&
-                    details.globalPosition.dy < size.height * 5 / 8 &&
-                    !provider.useSelectableText) {
+                if (
+                    //!provider.useSelectableText &&
+                    details.globalPosition.dx > size.width * 3 / 8 &&
+                        details.globalPosition.dx < size.width * 5 / 8 &&
+                        details.globalPosition.dy > size.height * 3 / 8 &&
+                        details.globalPosition.dy < size.height * 5 / 8) {
                   provider.showMenu = !provider.showMenu;
                   provider.showSetting = false;
                 } else {
@@ -361,9 +362,9 @@ class NovelPage extends StatelessWidget {
           ),
           SizedBox(height: 4),
           UIDash(
-            height: 2,
-            dashWidth: 6,
-            color: fontColor,
+            height: 1,
+            dashWidth: 2,
+            color: fontColor.withOpacity(0.7),
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
@@ -509,11 +510,9 @@ class NovelPage extends StatelessWidget {
                     ),
                     children: <Widget>[
                       provider.useSelectableText
-                          ? FittedBox(
-                              child: SelectableText.rich(
-                                TextSpan(
-                                  children: spans,
-                                ),
+                          ? SelectableText.rich(
+                              TextSpan(
+                                children: spans,
                               ),
                             )
                           : RichText(
@@ -556,9 +555,9 @@ class NovelPage extends StatelessWidget {
             height: 4,
           ),
           UIDash(
-            height: 2,
-            dashWidth: 6,
-            color: fontColor,
+            height: 1,
+            dashWidth: 2,
+            color: fontColor.withOpacity(0.7),
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
@@ -566,21 +565,28 @@ class NovelPage extends StatelessWidget {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: Text(
-                    '${searchItem.durChapter}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: fontColor),
-                  ),
+                  child: provider.useSelectableText
+                      ? InkWell(
+                          child: Text(
+                            ' x 退出复制模式',
+                            style: TextStyle(
+                              color: fontColor,
+                            ),
+                          ),
+                          onTap: () => provider.useSelectableText = false,
+                        )
+                      : Text(
+                          '${searchItem.durChapter}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: fontColor),
+                        ),
                 ),
-                SizedBox(
-                  width: 36,
-                  child: Text(
-                    '${provider.progress}%',
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      color: fontColor,
-                    ),
+                Text(
+                  '${provider.progress}%',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: fontColor,
                   ),
                 ),
               ],

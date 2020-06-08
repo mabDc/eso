@@ -552,6 +552,8 @@ class UINovelMenu extends StatelessWidget {
             break;
           case SELECTABLE:
             provider.useSelectableText = !provider.useSelectableText;
+            provider.showSetting = false;
+            provider.showMenu = false;
             break;
           case ADD_ITEM:
             (() async {
