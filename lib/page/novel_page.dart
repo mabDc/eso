@@ -240,6 +240,7 @@ class NovelPage extends StatelessWidget {
               padding: EdgeInsets.only(
                 left: profile.novelLeftPadding,
                 top: profile.novelTopPadding,
+                right: profile.novelLeftPadding - 5,
               ),
               width: double.infinity,
               child: RichText(text: TextSpan(children: spans)),
@@ -392,6 +393,7 @@ class NovelPage extends StatelessWidget {
                     padding: EdgeInsets.only(
                       left: profile.novelLeftPadding,
                       top: profile.novelTopPadding,
+                      right: profile.novelLeftPadding - 5,
                     ),
                     physics: BouncingScrollPhysics(),
                     children: <Widget>[
@@ -615,7 +617,6 @@ class NovelPage extends StatelessWidget {
           text: text.substring(text.length - 1),
           style: commonStyle,
         ));
-        currentSpans.add(newLine);
         currentHeight += oneLineHeight;
       }
     }

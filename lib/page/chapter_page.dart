@@ -193,14 +193,17 @@ class ChapterPage extends StatelessWidget {
               color: fontColor,
               letterSpacing: (width - tp.width) / text.length,
             )));
-        spans.add(newLine);
       }
     }
     if (spans.length > 1) {
       spans.removeLast();
     }
     return Container(
-      padding: const EdgeInsets.only(top: 14.0, left: horizontalPadding),
+      padding: const EdgeInsets.only(
+        top: 14.0,
+        left: horizontalPadding,
+        right: horizontalPadding - 5,
+      ),
       child: RichText(text: TextSpan(children: spans)),
     );
   }
