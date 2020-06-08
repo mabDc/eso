@@ -40,7 +40,8 @@ class Global with ChangeNotifier {
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
 
   static Map<String, int> get colors => {
-        // "自定义": 0xFFEF3A6E,
+        // "自定义": 0xFF4BB0A0,
+        "冰青色": 0xFF4BB0A0,
         "酷安绿": 0xFF4BAF4F,
         "知乎蓝": 0xFF1F96F2,
         "哔哩粉": 0xFFFA7298,
