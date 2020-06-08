@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:eso/global.dart';
 import 'package:eso/ui/CurvePainter.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
