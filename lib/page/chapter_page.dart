@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:eso/global.dart';
 import 'package:eso/ui/CurvePainter.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,7 @@ class ChapterPage extends StatelessWidget {
     //   padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
     //   child: UiSearchItem(item: searchItem),
     // );
+
     return SliverList(
       delegate: SliverChildListDelegate(
         [
@@ -137,17 +139,70 @@ class ChapterPage extends StatelessWidget {
                   ),
                 )
               : Container(),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              searchItem.description,
-              style: TextStyle(fontSize: 12),
-            ),
-          ),
+          _buildDescription(context, searchItem.description),
           _sortWidget(context)
         ],
       ),
+    );
+  }
+
+  Widget _buildDescription(BuildContext context, String description) {
+    const horizontalPadding = 20.0;
+    final fontSize = 12.0;
+    final paragraphPadding = 10.0;
+    final width = MediaQuery.of(context).size.width - 2 * horizontalPadding;
+    final offset = Offset(width, 6);
+    final fontColor = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
+    final style = TextStyle(fontSize: fontSize, color: fontColor);
+    final paragraphs =
+        description.split(RegExp(r"^\s*|\n\s*")).map((s) => s.trimLeft()).toList();
+    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final spans = <TextSpan>[];
+    final newLine = TextSpan(text: "\n");
+    for (var paragraph in paragraphs) {
+      while (paragraph.isNotEmpty) {
+        tp.text = TextSpan(text: paragraph, style: style);
+        tp.layout(maxWidth: width);
+        final pos = tp.getPositionForOffset(offset).offset;
+        final text = paragraph.substring(0, pos);
+        paragraph = paragraph.substring(pos);
+        if (paragraph.isEmpty) {
+          // 最后一行调整宽度保证单行显示
+          if (width - tp.width - fontSize < 0) {
+            spans.add(TextSpan(
+                text: text,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: fontColor,
+                  letterSpacing: (width - tp.width) / text.length,
+                )));
+          } else {
+            spans.add(TextSpan(text: text, style: style));
+          }
+          spans.add(newLine);
+          spans.add(TextSpan(
+              text: " ", style: TextStyle(height: 1, fontSize: paragraphPadding)));
+          spans.add(newLine);
+          break;
+        }
+        tp.text = TextSpan(text: text, style: style);
+        tp.layout();
+        spans.add(TextSpan(
+            text: text,
+            style: TextStyle(
+              fontSize: fontSize,
+              color: fontColor,
+              letterSpacing: (width - tp.width) / text.length,
+            )));
+        spans.add(newLine);
+      }
+    }
+    if (spans.length > 1) {
+      spans.removeLast();
+    }
+    return Container(
+      padding: const EdgeInsets.only(top: 14.0, left: horizontalPadding),
+      child: RichText(text: TextSpan(children: spans)),
     );
   }
 

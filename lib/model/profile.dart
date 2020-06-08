@@ -20,11 +20,11 @@ class Profile with ChangeNotifier {
             'darkMode': "跟随系统",
             'colorName': Global.colors.keys.first,
             'customColor': Global.colors.values.first,
-            'novelFontSize': 20.0,
-            'novelHeight': 2.0,
+            'novelFontSize': 18.0,
+            'novelHeight': 1.5,
             'novelTopPadding': 5.0,
-            'novelLeftPadding': 10.0,
-            'novelParagraphPadding': 0.0,
+            'novelLeftPadding': 15.0,
+            'novelParagraphPadding': 20.0,
             'novelPageSwitch': novelScroll,
             'novelIndentation': 2,
             'novelBackgroundColor': 0xFFF5DEB3,
@@ -472,13 +472,13 @@ class Profile with ChangeNotifier {
     _darkMode = json['darkMode'].toString();
     _colorName = json['colorName'];
     _customColor = json['customColor'];
-    _novelFontSize = json['novelFontSize'] ?? 20.0;
-    _novelHeight = json["novelHeight"] ?? 2.0;
+    _novelFontSize = json['novelFontSize'] ?? 18.0;
+    _novelHeight = json["novelHeight"] ?? 1.5;
     _novelBackgroundColor = json["novelBackgroundColor"] ?? 0xFFF5DEB3;
     _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
     _novelTopPadding = json["novelTopPadding"] ?? 5.0;
-    _novelLeftPadding = json["novelLeftPadding"] ?? 10.0;
-    _novelParagraphPadding = json["novelParagraphPadding"] ?? 0.0;
+    _novelLeftPadding = json["novelLeftPadding"] ?? 15.0;
+    _novelParagraphPadding = json["novelParagraphPadding"] ?? 20.0;
     _novelPageSwitch = json["novelPageSwitch"] ?? novelScroll;
     _novelIndentation = json["novelIndentation"] ?? 2;
     _novelKeepOn = json["novelKeepOn"] ?? false;

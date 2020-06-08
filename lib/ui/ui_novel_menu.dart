@@ -551,9 +551,13 @@ class UINovelMenu extends StatelessWidget {
             launch(searchItem.chapters[searchItem.durChapterIndex].url);
             break;
           case SELECTABLE:
-            provider.useSelectableText = !provider.useSelectableText;
-            provider.showSetting = false;
-            provider.showMenu = false;
+            if (provider.useSelectableText) {
+              provider.useSelectableText = false;
+            } else {
+              provider.useSelectableText = true;
+              provider.showSetting = false;
+              provider.showMenu = false;
+            }
             break;
           case ADD_ITEM:
             (() async {

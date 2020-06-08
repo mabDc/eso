@@ -53,6 +53,9 @@ class NovelPage extends StatelessWidget {
               case Profile.novelNone:
                 content = _buildContentNone(context, provider, profile);
                 break;
+              case Profile.novelCover:
+                content = _buildContentCover(context, provider, profile);
+                break;
               case Profile.novelHorizontalSlide:
                 content = _buildContentSlide(context, provider, profile, Axis.horizontal);
                 break;
@@ -164,136 +167,18 @@ class NovelPage extends StatelessWidget {
     );
   }
 
-  List<List<TextSpan>> _buildSpans(
+  Widget _buildContentCover(
       BuildContext context, NovelPageProvider provider, Profile profile) {
-    final width = MediaQuery.of(context).size.width - profile.novelLeftPadding * 2;
-    final offset = Offset(width, 6);
-    final tp = TextPainter(textDirection: TextDirection.ltr);
-    final oneLineHeight = profile.novelFontSize * profile.novelHeight;
-    final height = MediaQuery.of(context).size.height -
-        profile.novelTopPadding * 2 -
-        32 -
-        MediaQuery.of(context).padding.top -
-        oneLineHeight;
-    final fontColor = Color(profile.novelFontColor);
-    final spanss = <List<TextSpan>>[];
-
-    final newLine = TextSpan(text: "\n");
-    final paragraphPadding = TextSpan(
-        text: " \n",
-        style: TextStyle(
-          height: profile.novelParagraphPadding / 10,
-          color: fontColor,
-          fontSize: 10,
-        ));
-    final commonStyle = TextStyle(
-      fontSize: profile.novelFontSize,
-      height: profile.novelHeight,
-      color: fontColor,
+    final spanss = provider.didUpdateReadSetting(profile)
+        ? provider.updateSpans(_buildSpans(context, provider, profile))
+        : provider.spans;
+    return _buildOnePage(
+      context,
+      profile,
+      spanss[provider.currentPage - 1],
+      '${provider.currentPage}/${spanss.length}',
+      Color(profile.novelFontColor),
     );
-
-    var currentSpans = <TextSpan>[
-      TextSpan(
-        text: searchItem.durChapter,
-        style: TextStyle(
-          fontSize: profile.novelFontSize + 2,
-          color: fontColor,
-          height: profile.novelHeight,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      newLine,
-      paragraphPadding,
-    ];
-    tp.text = TextSpan(children: currentSpans);
-    tp.layout(maxWidth: width);
-    var currentHeight = tp.height;
-    bool firstLine = true;
-    final indentation = Global.fullSpace * profile.novelIndentation;
-    for (var paragraph in provider.paragraphs) {
-      while (true) {
-        if (currentHeight >= height) {
-          spanss.add(currentSpans);
-          currentHeight = 0;
-          currentSpans = <TextSpan>[];
-        }
-        var firstPos = 1;
-        if (firstLine) {
-          firstPos = 3;
-          firstLine = false;
-          paragraph = indentation + paragraph;
-        }
-        tp.text = TextSpan(text: paragraph, style: commonStyle);
-        tp.layout(maxWidth: width);
-        final pos = tp.getPositionForOffset(offset).offset;
-        final text = paragraph.substring(0, pos);
-        paragraph = paragraph.substring(pos);
-        if (paragraph.isEmpty) {
-          // 最后一行调整宽度保证单行显示
-          if (width - tp.width - profile.novelFontSize < 0) {
-            currentSpans.add(TextSpan(
-              text: text.substring(0, firstPos),
-              style: commonStyle,
-            ));
-            currentSpans.add(TextSpan(
-                text: text.substring(firstPos, text.length - 1),
-                style: TextStyle(
-                  fontSize: profile.novelFontSize,
-                  color: fontColor,
-                  height: profile.novelHeight,
-                  letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
-                )));
-            currentSpans.add(TextSpan(
-              text: text.substring(text.length - 1),
-              style: commonStyle,
-            ));
-          } else {
-            currentSpans.add(TextSpan(
-                text: text,
-                style: TextStyle(
-                  fontSize: profile.novelFontSize,
-                  height: profile.novelHeight,
-                  color: fontColor,
-                )));
-          }
-          currentSpans.add(newLine);
-          currentSpans.add(paragraphPadding);
-          currentHeight += oneLineHeight;
-          currentHeight += profile.novelParagraphPadding;
-          firstLine = true;
-          break;
-        }
-        tp.text = TextSpan(
-          text: text,
-          style: TextStyle(
-            fontSize: profile.novelFontSize,
-            color: fontColor,
-            height: profile.novelHeight,
-          ),
-        );
-        tp.layout();
-        currentSpans.add(TextSpan(
-          text: text.substring(0, firstPos),
-          style: commonStyle,
-        ));
-        currentSpans.add(TextSpan(
-            text: text.substring(firstPos, text.length - 1),
-            style: TextStyle(
-              fontSize: profile.novelFontSize,
-              color: fontColor,
-              height: profile.novelHeight,
-              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
-            )));
-        currentSpans.add(TextSpan(
-          text: text.substring(text.length - 1),
-          style: commonStyle,
-        ));
-        currentSpans.add(newLine);
-        currentHeight += oneLineHeight;
-      }
-    }
-    spanss.add(currentSpans);
-    return spanss;
   }
 
   Widget _buildContentSlide(
@@ -508,6 +393,7 @@ class NovelPage extends StatelessWidget {
                       left: profile.novelLeftPadding,
                       top: profile.novelTopPadding,
                     ),
+                    physics: BouncingScrollPhysics(),
                     children: <Widget>[
                       provider.useSelectableText
                           ? SelectableText.rich(
@@ -595,5 +481,145 @@ class NovelPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 文字排版部分
+  List<List<TextSpan>> _buildSpans(
+      BuildContext context, NovelPageProvider provider, Profile profile) {
+    final width = MediaQuery.of(context).size.width - profile.novelLeftPadding * 2;
+    final offset = Offset(width, 6);
+    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final oneLineHeight = profile.novelFontSize * profile.novelHeight;
+    final height = MediaQuery.of(context).size.height -
+        profile.novelTopPadding * 2 -
+        32 -
+        MediaQuery.of(context).padding.top -
+        oneLineHeight;
+    final fontColor = Color(profile.novelFontColor);
+    final spanss = <List<TextSpan>>[];
+
+    final newLine = TextSpan(text: "\n");
+    final commonStyle = TextStyle(
+      fontSize: profile.novelFontSize,
+      height: profile.novelHeight,
+      color: fontColor,
+    );
+
+    var currentSpans = <TextSpan>[
+      TextSpan(
+        text: searchItem.durChapter,
+        style: TextStyle(
+          fontSize: profile.novelFontSize + 2,
+          color: fontColor,
+          height: profile.novelHeight,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      newLine,
+      TextSpan(
+          text: " ",
+          style: TextStyle(
+            height: 1,
+            color: fontColor,
+            fontSize: profile.novelParagraphPadding,
+          )),
+      newLine,
+    ];
+    tp.text = TextSpan(children: currentSpans);
+    tp.layout(maxWidth: width);
+    var currentHeight = tp.height;
+    bool firstLine = true;
+    final indentation = Global.fullSpace * profile.novelIndentation;
+    for (var paragraph in provider.paragraphs) {
+      while (true) {
+        if (currentHeight >= height) {
+          spanss.add(currentSpans);
+          currentHeight = 0;
+          currentSpans = <TextSpan>[];
+        }
+        var firstPos = 1;
+        if (firstLine) {
+          firstPos = 3;
+          firstLine = false;
+          paragraph = indentation + paragraph;
+        }
+        tp.text = TextSpan(text: paragraph, style: commonStyle);
+        tp.layout(maxWidth: width);
+        final pos = tp.getPositionForOffset(offset).offset;
+        final text = paragraph.substring(0, pos);
+        paragraph = paragraph.substring(pos);
+        if (paragraph.isEmpty) {
+          // 最后一行调整宽度保证单行显示
+          if (width - tp.width - profile.novelFontSize < 0) {
+            currentSpans.add(TextSpan(
+              text: text.substring(0, firstPos),
+              style: commonStyle,
+            ));
+            currentSpans.add(TextSpan(
+                text: text.substring(firstPos, text.length - 1),
+                style: TextStyle(
+                  fontSize: profile.novelFontSize,
+                  color: fontColor,
+                  height: profile.novelHeight,
+                  letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+                )));
+            currentSpans.add(TextSpan(
+              text: text.substring(text.length - 1),
+              style: commonStyle,
+            ));
+          } else {
+            currentSpans.add(TextSpan(
+                text: text,
+                style: TextStyle(
+                  fontSize: profile.novelFontSize,
+                  height: profile.novelHeight,
+                  color: fontColor,
+                )));
+          }
+          currentSpans.add(newLine);
+          currentSpans.add(TextSpan(
+              text: " ",
+              style: TextStyle(
+                height: 1,
+                color: fontColor,
+                fontSize: profile.novelParagraphPadding,
+              )));
+          currentSpans.add(newLine);
+          currentHeight += oneLineHeight;
+          currentHeight += profile.novelParagraphPadding;
+          firstLine = true;
+          break;
+        }
+        tp.text = TextSpan(
+          text: text,
+          style: TextStyle(
+            fontSize: profile.novelFontSize,
+            color: fontColor,
+            height: profile.novelHeight,
+          ),
+        );
+        tp.layout();
+        currentSpans.add(TextSpan(
+          text: text.substring(0, firstPos),
+          style: commonStyle,
+        ));
+        currentSpans.add(TextSpan(
+            text: text.substring(firstPos, text.length - 1),
+            style: TextStyle(
+              fontSize: profile.novelFontSize,
+              color: fontColor,
+              height: profile.novelHeight,
+              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+            )));
+        currentSpans.add(TextSpan(
+          text: text.substring(text.length - 1),
+          style: commonStyle,
+        ));
+        currentSpans.add(newLine);
+        currentHeight += oneLineHeight;
+      }
+    }
+    spanss.add(currentSpans);
+    return spanss;
   }
 }
