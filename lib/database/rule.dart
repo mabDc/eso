@@ -275,7 +275,9 @@ class Rule {
     group = json['bookSourceGroup'] ?? defaultRule.group;
     name = json['bookSourceName'] ?? defaultRule.name;
     host = json['bookSourceUrl'] ?? defaultRule.host;
-    contentType = json['contentType'] ?? defaultRule.contentType;
+    contentType = json['contentType'] ?? json['bookSourceType'] == 'CARTOON'
+        ? API.MANGA
+        : json['bookSourceType'] == '' ? API.NOVEL : defaultRule.contentType;
     sort = json['serialNumber'] ?? defaultRule.sort;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
