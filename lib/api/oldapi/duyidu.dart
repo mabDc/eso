@@ -1,7 +1,7 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
+import 'package:gbk2utf8/gbk2utf8.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:fast_gbk/fast_gbk.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 

@@ -172,12 +172,53 @@ class NovelPage extends StatelessWidget {
     final spanss = provider.didUpdateReadSetting(profile)
         ? provider.updateSpans(_buildSpans(context, provider, profile))
         : provider.spans;
-    return _buildOnePage(
+    // return AnimatedCrossFade(
+    //   crossFadeState:
+    //       provider.showChapter ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+    //   duration: Duration(seconds: 1),
+    //   firstChild: _buildOnePage(
+    //     context,
+    //     profile,
+    //     spanss[0],
+    //     '1/${spanss.length}',
+    //     Color(profile.novelFontColor),
+    //   ),
+    //   secondChild: _buildOnePage(
+    //     context,
+    //     profile,
+    //     spanss[1],
+    //     '2/${spanss.length}',
+    //     Color(profile.novelFontColor),
+    //   ),
+    //   firstCurve: Curves.linear,
+    //   secondCurve: Curves.linear,
+    // );
+    
+    final nextPage = _buildOnePage(
       context,
       profile,
-      spanss[provider.currentPage - 1],
-      '${provider.currentPage}/${spanss.length}',
+      spanss[1],
+      '2/${spanss.length}',
       Color(profile.novelFontColor),
+    );
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => Builder(
+            builder: (BuildContext context) {
+              Future.delayed(Duration(seconds: 2), () => Navigator.of(context).pop());
+              return Scaffold(body: nextPage);
+            },
+          ),
+        ));
+      },
+      child: _buildOnePage(
+        context,
+        profile,
+        spanss[provider.currentPage - 1],
+        '${provider.currentPage}/${spanss.length}',
+        Color(profile.novelFontColor),
+      ),
     );
   }
 

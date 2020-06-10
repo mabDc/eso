@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
-import 'package:fast_gbk/fast_gbk.dart';
+import 'package:gbk2utf8/gbk2utf8.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:http/http.dart' as http;
 
