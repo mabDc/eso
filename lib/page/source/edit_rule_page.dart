@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-// import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
@@ -12,6 +11,7 @@ import '../../api/api.dart';
 /// 快速输入符号List
 // ignore: non_constant_identifier_names
 final FAST_INPUT_LIST = [
+  'url模版',
   '@',
   '`',
   '"',
@@ -33,17 +33,13 @@ final FAST_INPUT_LIST = [
   'text',
   'href',
   'src',
+  'keyword',
+  'page',
+  'pageSize',
+  'host',
   'result',
   'lastResult',
-  'url',
   'method',
-  'charset',
-  'gbk',
-  '\$keyword',
-  '\$page',
-  '\$pageSize',
-  '\$host',
-  '\$result',
   'headers',
   'User-Agent',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
@@ -69,7 +65,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   bool _searchExpanded = true;
   bool _chapterExpanded = true;
   bool _contentExpanded = true;
-  // bool _isHideFastInput = true;
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +74,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _discoverExpanded = rule.enableDiscover;
       _searchExpanded = rule.enableSearch;
     }
-    // KeyboardVisibility.onChange.listen((visible) {
-    //   if (mounted) {
-    //     setState(() {
-    //       _isHideFastInput = !visible;
-    //     });
-    //   }
-    // });
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
@@ -141,16 +129,27 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                         ),
                       ),
                       onTap: () {
+                        final fastText = FAST_INPUT_LIST[index] == '地址模版'
+                            ? r'''@js:
+(() => {
+  var url = `/xx${keyword}xx${page}`;
+  var method = "get"; // or "post"
+  var body = {};
+  var headers = {};
+  // var encoding = "gbk";
+  return {url, method, body, headers};
+})();'''
+                            : FAST_INPUT_LIST[index];
                         final textSelection = currentController.selection;
                         currentController.text = currentController.text.replaceRange(
                           textSelection.start,
                           textSelection.end,
-                          FAST_INPUT_LIST[index],
+                          fastText,
                         );
                         currentOnChanged(currentController.text);
                         currentController.selection = textSelection.copyWith(
-                          baseOffset: textSelection.end + FAST_INPUT_LIST[index].length,
-                          extentOffset: textSelection.end + FAST_INPUT_LIST[index].length,
+                          baseOffset: textSelection.end + fastText.length,
+                          extentOffset: textSelection.end + fastText.length,
                         );
                       },
                     );

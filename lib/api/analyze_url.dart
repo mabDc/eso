@@ -69,7 +69,7 @@ searchPage = ${jsonEncode(page)};
       Map<String, dynamic> r = url.map((k, v) => MapEntry(k.toString().toLowerCase(), v));
 
       Map<String, String> headers = {
-        'User-Agent': rule.userAgent ??
+        'user-agent': rule.userAgent ??
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
       }..addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
@@ -85,7 +85,7 @@ searchPage = ${jsonEncode(page)};
       } else if (u.startsWith("/")) {
         u = rule.host + u;
       }
-      if (r['charset'] != null) {
+      if (r['encoding'] != null) {
         String _urlEncode(String s) {
           if (s.length % 2 == 1) {
             s = '0$s';
@@ -97,9 +97,9 @@ searchPage = ${jsonEncode(page)};
           return sb.toString();
         }
 
-        final encoding = "${r['charset']}".contains("gbk")
+        final encoding = "${r['encoding']}".contains("gbk")
             ? gbk
-            : Encoding.getByName("${r['charset']}");
+            : Encoding.getByName("${r['encoding']}");
         u = u.replaceAll(
             keyword,
             encoding
@@ -115,10 +115,10 @@ searchPage = ${jsonEncode(page)};
           u,
           headers: headers,
           body: body,
-          encoding: r['charset'] != null
-              ? "${r['charset']}".contains("gbk")
+          encoding: r['encoding'] != null
+              ? "${r['encoding']}".contains("gbk")
                   ? gbk
-                  : Encoding.getByName("${r['charset']}")
+                  : Encoding.getByName("${r['encoding']}")
               : null,
         );
       }
@@ -135,10 +135,10 @@ searchPage = ${jsonEncode(page)};
         u = rule.host + u;
       }
       if (rule.userAgent.trim().isNotEmpty) {
-        return http.get(u, headers: {'User-Agent': rule.userAgent});
+        return http.get(u, headers: {'user-agent': rule.userAgent});
       } else {
         return http.get(u, headers: {
-          'User-Agent':
+          'user-agent':
               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
         });
       }

@@ -295,6 +295,7 @@ class _MangaPageState extends State<MangaPage> {
     }
     return ListView.builder(
       padding: EdgeInsets.all(0),
+      physics: BouncingScrollPhysics(),
       scrollDirection: direction,
       reverse: reverse,
       controller: provider.controller,
