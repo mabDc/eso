@@ -118,7 +118,7 @@ class NovelPageProvider with ChangeNotifier {
     }
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
     notifyListeners();
   }
@@ -144,7 +144,7 @@ class NovelPageProvider with ChangeNotifier {
     _hideLoading = true;
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[loadIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -166,7 +166,7 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[chapterIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -186,7 +186,7 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
     final content = await APIManager.getContent(
         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*"));
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     _isLoading = false;
     notifyListeners();
