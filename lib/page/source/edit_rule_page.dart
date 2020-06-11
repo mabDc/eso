@@ -11,7 +11,7 @@ import '../../api/api.dart';
 /// 快速输入符号List
 // ignore: non_constant_identifier_names
 final FAST_INPUT_LIST = [
-  'url模版',
+  '地址模版',
   '@',
   '`',
   '"',
