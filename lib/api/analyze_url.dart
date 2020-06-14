@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
-import 'package:gbk2utf8/gbk2utf8.dart';
+import 'package:fast_gbk/fast_gbk.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:http/http.dart' as http;
 
@@ -97,7 +97,7 @@ searchPage = ${jsonEncode(page)};
           return sb.toString();
         }
 
-        final encoding = "${r['encoding']}".contains("gbk")
+        final encoding = "${r['encoding']}".contains("gb")
             ? gbk
             : Encoding.getByName("${r['encoding']}");
         u = u.replaceAll(
@@ -116,7 +116,7 @@ searchPage = ${jsonEncode(page)};
           headers: headers,
           body: body,
           encoding: r['encoding'] != null
-              ? "${r['encoding']}".contains("gbk")
+              ? "${r['encoding']}".contains("gb")
                   ? gbk
                   : Encoding.getByName("${r['encoding']}")
               : null,

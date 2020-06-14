@@ -5,7 +5,7 @@ import 'package:eso/database/rule.dart';
 import 'package:flutter/services.dart';
 import '../api/analyze_url.dart';
 import '../api/analyzer_manager.dart';
-import 'package:eso/utils/input_stream.dart';
+import 'package:eso/utils/decode_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:intl/intl.dart';
@@ -106,8 +106,10 @@ class DebugRuleProvider with ChangeNotifier {
         await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
       _addContent("js预加载");
-      final analyzer =
-          AnalyzerManager(InputStream.autoDecode(searchResult.bodyBytes), engineId);
+      final analyzer = AnalyzerManager(
+          DecodeBody()
+              .decode(searchResult.bodyBytes, searchResult.headers["content-type"]),
+          engineId);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -190,9 +192,9 @@ class DebugRuleProvider with ChangeNotifier {
             rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
         await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
-      final chapterList =
-          await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
-              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+      final chapterList = await AnalyzerManager(
+              DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+          .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
       final count = chapterList.length;
       if (count == 0) {
         FlutterJs.close(engineId);
@@ -277,9 +279,9 @@ class DebugRuleProvider with ChangeNotifier {
           await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
         }
       }
-      final contentItems =
-          await AnalyzerManager(InputStream.autoDecode(res.bodyBytes), engineId)
-              .getStringList(rule.contentItems);
+      final contentItems = await AnalyzerManager(
+              DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+          .getStringList(rule.contentItems);
       final count = contentItems.length;
       if (count == 0) {
         _addContent("正文结果个数为0，解析结束！");
