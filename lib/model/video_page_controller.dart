@@ -10,6 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import 'package:dlna/dlna.dart';
+import 'package:eso/utils/dlna_util.dart';
+import 'package:wakelock/wakelock.dart';
+
 class VideoPageController with ChangeNotifier {
   // const
   final SearchItem searchItem;
@@ -179,6 +183,19 @@ class VideoPageController with ChangeNotifier {
     }
   }
 
+  void openDLNA(BuildContext context) {
+    if (_content == null || _content.isEmpty) return;
+    DLNAUtil.instance.start(context,
+      title: searchItem.name + ' - ' + searchItem.durChapter,
+      url: _content[0],
+      videoType: VideoObject.VIDEO_MP4,
+      onPlay: () {
+        if (isPlaying)
+          playOrPause();
+      }
+    );
+  }
+
   void _syncController() async {
     if (_audioController == null) return;
     do {
@@ -211,10 +228,14 @@ class VideoPageController with ChangeNotifier {
     if (isPlaying) {
       _controller.pause();
       _audioController?.pause();
+
+      Wakelock.enable();
       showToastText('暂停');
     } else {
       _controller.play();
       _audioController?.play();
+
+      Wakelock.disable();
       showToastText('播放');
     }
     refreshLastTime();

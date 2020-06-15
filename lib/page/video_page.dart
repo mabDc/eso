@@ -196,6 +196,17 @@ class _VideoPageState extends State<VideoPage> {
           ),
           InkWell(
             child: Icon(
+              Icons.airplay,
+              color: Colors.white,
+              size: 26,
+            ),
+            onTap: () => provider.openDLNA(context),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            child: Icon(
               Icons.open_in_new,
               color: Colors.white,
               size: 26,
