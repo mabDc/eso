@@ -5,6 +5,7 @@ import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
+import 'package:eso/ui/search_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,47 +39,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
         return Scaffold(
           appBar: AppBar(
             centerTitle: false,
-            elevation: 0,
-            title: TextField(
-              cursorColor: Theme.of(context).primaryColor,
-              cursorRadius: Radius.circular(2),
-              selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: Colors.transparent),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: Colors.transparent),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: Colors.transparent),
-                ),
-                hintText:
-                    "搜索发现站点(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
-                hintStyle: TextStyle(
-                  color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-                  fontSize: 12,
-                ),
-                isDense: true,
-                contentPadding: EdgeInsets.only(bottom: 7, top: 7),
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.only(left: 6, right: 2),
-                  child: Icon(
-                    Icons.search,
-                    color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-                  ),
-                ),
-                prefixIconConstraints: BoxConstraints(),
-              ),
-              maxLines: 1,
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1.color,
-              ),
+            title: SearchEdit(
+              hintText:
+                  "搜索发现站点(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
               onSubmitted: (value) => __provider.getRuleListByName(value),
               onChanged: (value) => __provider.getRuleListByNameDebounce(value),
             ),

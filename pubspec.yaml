@@ -56,6 +56,7 @@ dependencies:
 
   dlna: ^0.0.5
   wakelock: ^0.1.4+1
+  package_info: ^0.4.1
 
 dev_dependencies:
   flutter_test:

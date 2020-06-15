@@ -434,8 +434,11 @@ class Profile with ChangeNotifier {
       default:
         break;
     }
+    final _color = Color(Global.colors[colorName] ?? customColor);
     final theme = ThemeData(
       primaryColor: Color(Global.colors[colorName] ?? customColor),
+      primaryColorDark: Global.colorLight(_color, -0.25),
+      primaryColorLight: Global.colorLight(_color, 0.25),
       bottomAppBarColor: isDarkMode
           ? Color.fromARGB(255, 66, 66, 66)
           : Color.fromARGB(255, 180, 188, 196),
@@ -444,14 +447,19 @@ class Profile with ChangeNotifier {
     return theme.copyWith(
       appBarTheme: AppBarTheme(
         color: theme.canvasColor,
-        elevation: 2,
+        elevation: Global.elevation,
         brightness: theme.brightness,
         iconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
+          size: 12,
         ),
         actionsIconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
+          size: 12,
         ),
+      ),
+      cardTheme: CardTheme(
+        elevation: Global.elevation,
       ),
       primaryTextTheme: TextTheme(
         headline6: TextStyle(color: theme.textTheme.bodyText1.color.withOpacity(0.8)),

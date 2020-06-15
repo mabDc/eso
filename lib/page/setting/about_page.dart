@@ -1,6 +1,8 @@
+import 'package:eso/page/source/edit_source_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info/package_info.dart';
 
 import '../../global.dart';
 import '../../model/profile.dart';
@@ -10,15 +12,27 @@ import 'color_lens_page.dart';
 class AboutPage extends StatelessWidget {
   const AboutPage({Key key}) : super(key: key);
 
+  /// 包信息
+  static PackageInfo info;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('APP'),
+        title: StatefulBuilder(builder: (context, state) {
+          if (info == null) {
+            PackageInfo.fromPlatform().then((value) {
+              info = value;
+              state(() => info);
+            });
+          }
+          return Text(info?.appName ?? '');
+        })
       ),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(
+            padding: const EdgeInsets.all(8.0),
             children: <Widget>[
               // Card(
               //   child: Column(
@@ -48,6 +62,12 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
+                    ListTile(
+                      title: Text('源管理'),
+                      subtitle: Text('添加、删除、修改您的数据源'),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => EditSourcePage())),
+                    ),
                     ListTile(
                       title: Text('夜间模式'),
                       subtitle: Text('切换夜间模式'),
@@ -95,6 +115,7 @@ class AboutPage extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(height: 4),
               Card(
                 child: Column(
                   children: <Widget>[
@@ -139,20 +160,14 @@ class AboutPage extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 100,
                                     fontStyle: FontStyle.italic,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline6
-                                        .color,
+                                    color: Theme.of(context).cardColor,
                                   ),
                                 ),
                                 Text(
                                   '亦搜，亦看，亦闻',
                                   style: TextStyle(
                                     fontSize: 20,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline6
-                                        .color,
+                                    color: Theme.of(context).primaryColorLight,
                                   ),
                                 ),
                               ],

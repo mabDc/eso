@@ -5,6 +5,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
+import 'package:eso/ui/search_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
@@ -23,46 +24,9 @@ class EditSourcePage extends StatelessWidget {
       builder: (context, child) => Scaffold(
         appBar: AppBar(
           titleSpacing: 0.0,
-          title: TextField(
-            cursorColor: Theme.of(context).primaryColor,
-            cursorRadius: Radius.circular(4),
-            selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.1),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              hintText:
-                  "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
-              hintStyle: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-                fontSize: 12,
-              ),
-              isDense: true,
-              contentPadding: EdgeInsets.only(bottom: 7, top: 7),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(left: 6, right: 2),
-                child: Icon(
-                  Icons.search,
-                  color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-                ),
-              ),
-              prefixIconConstraints: BoxConstraints(),
-            ),
-            maxLines: 1,
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyText1.color,
-            ),
+          title: SearchEdit(
+            hintText:
+                "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
             onSubmitted:
                 Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
             onChanged: Provider.of<EditSourceProvider>(context, listen: false)
@@ -230,10 +194,10 @@ class EditSourcePage extends StatelessWidget {
     const int DELETE_ALL_RULES = 5;
     const list = [
       {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
-      {'title': '阅读或异次元', 'icon': Icons.cloud_download, 'type': FROM_YICIYUAN},
+      {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
       {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
-      {'title': '清空源', 'icon': Icons.delete_forever, 'type': DELETE_ALL_RULES},
+      {'title': '清空源', 'icon': Icons.clear_all, 'type': DELETE_ALL_RULES},
     ];
     return PopupMenuButton<int>(
       elevation: 20,
@@ -267,7 +231,7 @@ class EditSourcePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(element['title']),
-                  Icon(element['icon'], color: primaryColor),
+                  Icon(element['icon'], color: primaryColor, size: 16),
                 ],
               ),
               value: element['type'],

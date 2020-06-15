@@ -6,8 +6,10 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/model/favorite_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../global.dart';
 import 'chapter_page.dart';
 
+/// 收藏夹列表页
 class FavoriteListPage extends StatelessWidget {
   final int type;
   const FavoriteListPage({this.type, Key key}) : super(key: key);
@@ -21,19 +23,23 @@ class FavoriteListPage extends StatelessWidget {
     switch (type) {
       case API.NOVEL:
         sortType = values[profile.novelSortIndex];
-        setSortType = (SortType sortType) => profile.novelSortIndex = sortType.index;
+        setSortType =
+            (SortType sortType) => profile.novelSortIndex = sortType.index;
         break;
       case API.MANGA:
         sortType = values[profile.mangaSortIndex];
-        setSortType = (SortType sortType) => profile.mangaSortIndex = sortType.index;
+        setSortType =
+            (SortType sortType) => profile.mangaSortIndex = sortType.index;
         break;
       case API.AUDIO:
         sortType = values[profile.audioSortIndex];
-        setSortType = (SortType sortType) => profile.audioSortIndex = sortType.index;
+        setSortType =
+            (SortType sortType) => profile.audioSortIndex = sortType.index;
         break;
       case API.VIDEO:
         sortType = values[profile.videoSortIndex];
-        setSortType = (SortType sortType) => profile.videoSortIndex = sortType.index;
+        setSortType =
+            (SortType sortType) => profile.videoSortIndex = sortType.index;
         break;
       default:
     }
@@ -51,35 +57,40 @@ class FavoriteListPage extends StatelessWidget {
             margin: EdgeInsets.only(left: 12, bottom: 10),
             child: Wrap(
               spacing: 8,
-              children: menuList
-                  .map(
-                    (tag) => GestureDetector(
-                      onTap: () {
-                        Provider.of<FavoriteListProvider>(context, listen: false)
-                            .sortType = tag[1];
-                        setSortType(tag[1]);
-                      },
-                      child: Material(
-                        color: Theme.of(context).bottomAppBarColor,
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
-                          child: Text(
-                            tag[0],
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: tag[1] ==
-                                      context.select((FavoriteListProvider provider) =>
-                                          provider.sortType)
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).textTheme.bodyText1.color,
-                            ),
+              children: menuList.map(
+                (tag) {
+                  final _isSelect = tag[1] ==
+                      context.select(
+                          (FavoriteListProvider provider) => provider.sortType);
+                  return GestureDetector(
+                    onTap: () {
+                      Provider.of<FavoriteListProvider>(context, listen: false)
+                          .sortType = tag[1];
+                      setSortType(tag[1]);
+                    },
+                    child: Material(
+                      color: _isSelect
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).cardColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                          side: BorderSide(width: Global.borderSize, color: Theme.of(context).primaryColorLight)),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
+                        child: Text(
+                          tag[0],
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: _isSelect
+                                ? Theme.of(context).cardColor
+                                : Theme.of(context).textTheme.bodyText1.color,
                           ),
                         ),
                       ),
                     ),
-                  )
-                  .toList(),
+                  );
+                },
+              ).toList(),
             ),
           ),
           Expanded(
@@ -103,7 +114,14 @@ class FavoriteListPage extends StatelessWidget {
         if (searchItems.length == 0) {
           return Container(
             alignment: Alignment.center,
-            child: Text("￣へ￣ 还没有收藏哦！"),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.mood_bad, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                SizedBox(height: 12),
+                Text("还没有收藏哦!", style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color.withAlpha(50)))
+              ],
+            ),
           );
         }
         return GridView.builder(
@@ -117,7 +135,8 @@ class FavoriteListPage extends StatelessWidget {
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
             final searchItem = searchItems[index];
-            final longPress = Provider.of<Profile>(context, listen: true).switchLongPress;
+            final longPress =
+                Provider.of<Profile>(context, listen: true).switchLongPress;
             VoidCallback openChapter = () => Navigator.of(context)
                 .push(MaterialPageRoute(
                     builder: (context) => ChapterPage(searchItem: searchItem)))

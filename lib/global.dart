@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +39,15 @@ class Global with ChangeNotifier {
   }
 
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
+
+  /// 默认材质高度
+  static double elevation = 0.5;
+
+  /// 默认分隔线高度
+  static double lineSize = 0.35;
+
+  /// 默认按钮边框大小
+  static double borderSize = 0.5;
 
   static Map<String, int> get colors => {
         // "自定义": 0xFF4BB0A0,
@@ -189,4 +199,17 @@ class Global with ChangeNotifier {
         "暗蓝色": 0xFF000080,
         "海军色": 0xFF000000,
       };
+
+
+  /// 颜色亮度调节, offset 取值为 -1 ~ 1 之间
+  static Color colorLight(Color value, double offset) {
+        int v = (offset * 255).round();
+        if (v > 0) {
+              return Color.fromARGB(value.alpha, min(255, value.red + v),
+                  min(255, value.green + v), min(255, value.blue + v));
+        } else {
+              return Color.fromARGB(value.alpha, max(0, value.red + v),
+                  max(0, value.green + v), max(0, value.blue + v));
+        }
+  }
 }
