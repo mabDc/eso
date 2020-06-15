@@ -321,7 +321,7 @@ class ChapterPage extends StatelessWidget {
             elevation: 0,
             onPressed: onPress,
             color: Theme.of(context).primaryColor,
-            textColor: Theme.of(context).primaryTextTheme.headline6.color,
+            textColor: Theme.of(context).cardColor,
             child: child,
           )
         : RaisedButton(
