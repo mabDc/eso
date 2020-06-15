@@ -58,6 +58,15 @@ class DLNAUtil {
 
   StateSetter _state;
 
+  /// 释放
+  static release() {
+    if (_instance == null) return;
+    _instance.manager.release();
+    _instance.manager = null;
+    _instance = null;
+  }
+
+  /// 开始投屏
   start(BuildContext context, {String title, @required String url, String videoType = VideoObject.VIDEO_MP4, VoidCallback onPlay}) async {
     if (url == null || url.isEmpty) return null;
 
