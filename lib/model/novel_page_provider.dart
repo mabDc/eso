@@ -116,11 +116,44 @@ class NovelPageProvider with ChangeNotifier {
         Screen.keepOn(keepOn);
       }
     }
-    final content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+    await freshContentWithCache();
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
     notifyListeners();
+  }
+
+  Map<int, List<String>> _cache;
+  Future<bool> freshContentWithCache() async {
+    final index = searchItem.durChapterIndex;
+
+    /// 检查当前章节
+    if (_cache == null) {
+      final content = await APIManager.getContent(
+        searchItem.originTag,
+        searchItem.chapters[index].url,
+      );
+      _cache = {index: content.join("\n").split(RegExp(r"\n\s*|\s{2,}"))};
+    } else if (_cache[index] == null) {
+      final content = await APIManager.getContent(
+        searchItem.originTag,
+        searchItem.chapters[index].url,
+      );
+      _cache[index] = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+    }
+    _paragraphs = _cache[index];
+
+    /// 缓存下一个章节
+    if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
+      Future.delayed(Duration(milliseconds: 100), () async {
+        if (_cache[index + 1] == null) {
+          final content = await APIManager.getContent(
+            searchItem.originTag,
+            searchItem.chapters[index + 1].url,
+          );
+          _cache[index + 1] = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+        }
+      });
+    }
+    return true;
   }
 
   void share() async {
@@ -142,9 +175,7 @@ class NovelPageProvider with ChangeNotifier {
         lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
     if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
     _hideLoading = true;
-    final content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[loadIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+    await freshContentWithCache();
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -164,9 +195,7 @@ class NovelPageProvider with ChangeNotifier {
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
     notifyListeners();
-    final content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[chapterIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+    await freshContentWithCache();
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
