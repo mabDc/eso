@@ -16,14 +16,14 @@ class UIDiscoverItem extends StatelessWidget {
       direction: Axis.vertical,
       children: <Widget>[
         Expanded(
-            child: Container(
-          width: double.infinity,
-          height: 150,
-          child: UIImageItem(cover: searchItem.cover),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(4),
+            child: UIImageItem(cover: searchItem.cover),
         )),
         Container(
           alignment: Alignment.bottomLeft,
-          margin: EdgeInsets.only(top: 5),
+          margin: EdgeInsets.only(top: 4, bottom: 2, left: 4),
           child: Text(
             '${searchItem.name}'.trim(),
             maxLines: 1,

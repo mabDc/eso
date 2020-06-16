@@ -5,6 +5,7 @@ import 'package:eso/model/discover_page_controller.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
+import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -198,24 +199,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
   }
 
   Widget buildDiscoverResultList(List<SearchItem> items, ScrollController controller) {
-    return ListView.separated(
-      separatorBuilder: (context, index) {
-        return SizedBox(
-          height: 8.0,
-        );
-      },
+    return ListView.builder(
       controller: controller,
-      padding: EdgeInsets.all(8.0),
       itemCount: items.length + 1,
       itemBuilder: (BuildContext context, int index) {
         if (index == items.length) {
-          return Align(
-            alignment: Alignment(0, -0.5),
-            child: Text(
-              '加载下一页...',
-              style: TextStyle(fontSize: 20),
-            ),
-          );
+          return LoadMoreView(msg: "加载下一页...");
         }
         SearchItem searchItem = items[index];
         if (SearchItemManager.isFavorite(searchItem.url)) {
@@ -223,7 +212,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
               .firstWhere((item) => item.url == searchItem.url);
         }
         return InkWell(
-          child: UiSearchItem(item: searchItem),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: UiSearchItem(item: searchItem),
+          ),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
           ),
@@ -238,20 +230,14 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         childAspectRatio: 0.65,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
+        mainAxisSpacing: 0,
+        crossAxisSpacing: 0,
       ),
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(6.0),
       itemCount: items.length + 1,
       itemBuilder: (BuildContext context, int index) {
         if (index == items.length) {
-          return Align(
-            alignment: Alignment(0, -0.5),
-            child: Text(
-              '加载下一页...',
-              style: TextStyle(fontSize: 20),
-            ),
-          );
+          return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
         }
         SearchItem searchItem = items[index];
         if (SearchItemManager.isFavorite(searchItem.url)) {
@@ -259,7 +245,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
               .firstWhere((item) => item.url == searchItem.url);
         }
         return InkWell(
-          child: UIDiscoverItem(searchItem: searchItem),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+            child: UIDiscoverItem(searchItem: searchItem),
+          ),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
           ),

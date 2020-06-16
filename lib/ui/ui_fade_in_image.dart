@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../global.dart';
+import 'widgets/fade_in_imageex.dart';
+import 'widgets/image_place_holder.dart';
 
 class UIFadeInImage extends StatefulWidget {
   final String url;
@@ -26,8 +28,8 @@ class _UIFadeInImageState extends State<UIFadeInImage> {
     if (error == true) {
       return Image.asset(Global.nowayPath, fit: BoxFit.cover,);
     }
-    final image = FadeInImage(
-      placeholder: AssetImage(Global.waitingPath),
+    final image = FadeInImageEx(
+      placeholder: ImagePlaceHolder(),
       image: NetworkImage(widget.url, headers: widget.header),
       fit: BoxFit.cover,
     );
