@@ -1,5 +1,6 @@
 
 import 'package:dlna/dlna.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -58,6 +59,8 @@ class DLNAUtil {
 
   StateSetter _state;
 
+  DLNADevice curDevice;
+
   /// 释放
   static release() {
     if (_instance == null) return;
@@ -80,79 +83,117 @@ class DLNAUtil {
           child: StatefulBuilder(builder: (context, StateSetter state) {
             _state = state;
             var children = <Widget>[];
-            children.addAll([
-              Text("DLNA 投屏", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 12),
-            ]);
             if (_devices.isEmpty)
               children.add(Text("没有可投屏的设备", style: TextStyle(color: Colors.grey)));
             else {
               _devices.forEach((e) {
-                children.add(ListTile(
-                  title: Text(e.deviceName),
-                  subtitle: Text(e.description.toString()),
-                  onTap: () async {
-                    await manager.actStop();
-                    PlayMode playMode = PlayMode.NORMAL;
-                    await manager.actSetPlayMode(playMode);
-                    manager.setDevice(e);
+                children.add(Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    title: Text(e.deviceName),
+                    selected: curDevice == e,
+                    // subtitle: Text(e.description.toString()),
+                    onTap: () async {
+                      try {
+                        await manager.actStop();
+                      } catch (e) {}
+                      try {
+                        PlayMode playMode = PlayMode.NORMAL;
+                        await manager.actSetPlayMode(playMode);
+                        manager.setDevice(e);
 
-                    var video = VideoObject(title ?? "", url, videoType ?? VideoObject.VIDEO_MP4);
-                    video.refreshPosition = true;
-                    await manager.actSetVideoUrl(video);
-                    await manager.actPlay();
+                        var _type = videoType;
+                        if (Utils.empty(_type)) {
+                          if (url.indexOf('.mp4') > 1)
+                            _type = VideoObject.VIDEO_MP4;
+                          else if (url.indexOf('.m3u8') > 1)
+                            _type = VideoObject.VIDEO_H264;
+                          else if (url.indexOf('.avi') > 1)
+                            _type = VideoObject.VIDEO_AVI;
+                          if (Utils.empty(_type)) _type = VideoObject.VIDEO_MP4;
+                        }
 
-                    if (onPlay != null) onPlay();
-                  },
+                        var video = VideoObject(title ?? "", url, _type);
+                        video.refreshPosition = true;
+                        await manager.actSetVideoUrl(video);
+                        await manager.actPlay();
+
+                        curDevice = e;
+                        _update();
+
+                      } catch (e) {
+                        print(e);
+                        return;
+                      }
+                      if (onPlay != null) onPlay();
+                    },
+                  ),
                 ));
               });
             }
 
-            children.addAll([
-              SizedBox(height: 16),
-              ButtonTheme(
-                textTheme: ButtonTextTheme.accent,
-                minWidth: 50,
-                child: Material(
-                  color: Colors.transparent,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      FlatButton(child: Text(isSearching ? "停止搜索" : "搜索设备"), onPressed: () async {
-                        if (!isSearching) {
-                          if (_devices.isEmpty)
-                            manager.startSearch();
-                          else {
-                            _devices.clear();
-                            manager.forceSearch();
-                          }
-                          isSearching = true;
-                          _update();
-                        } else {
-                          manager.stopSearch();
-                          isSearching = false;
-                          _update();
-                        }
-                      }),
-                      Expanded(child: Container()),
-                      IconButton(icon: Icon(Icons.pause, color: _devices.isEmpty ? Colors.grey : Theme.of(context).accentColor), onPressed: _devices.isEmpty ? null : () {
-                        manager.actPause();
-                      }),
-                      IconButton(icon: Icon(Icons.stop, color: _devices.isEmpty ? Colors.grey : Theme.of(context).accentColor), onPressed: _devices.isEmpty ? null : () {
-                        manager.actStop();
-                      })
-                    ],
-                  ),
-                ),
-              )
-            ]);
+//            var _makeDevice = (String name) {
+//              var item = DLNADevice();
+//              item.description = DLNADescription();
+//              item.description.friendlyName = name;
+//              return item;
+//            };
 
             return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: children
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("DLNA 投屏", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 300),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: children,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ButtonTheme(
+                  textTheme: ButtonTextTheme.accent,
+                  minWidth: 50,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        FlatButton(child: Text(isSearching ? "停止搜索" : "搜索设备"), onPressed: () async {
+                          if (!isSearching) {
+                            if (_devices.isEmpty)
+                              manager.startSearch();
+                            else {
+                              _devices.clear();
+                              manager.forceSearch();
+                            }
+                            isSearching = true;
+                            _update();
+                          } else {
+                            manager.stopSearch();
+                            isSearching = false;
+                            _update();
+                          }
+                        }),
+                        Expanded(child: Container()),
+                        IconButton(icon: Icon(Icons.pause, color: _devices.isEmpty ? Colors.grey : Theme.of(context).accentColor), onPressed: _devices.isEmpty ? null : () {
+                          manager.actPause();
+                        }),
+                        IconButton(icon: Icon(Icons.stop, color: _devices.isEmpty ? Colors.grey : Theme.of(context).accentColor), onPressed: _devices.isEmpty ? null : () {
+                          manager.actStop();
+                        })
+                      ],
+                    ),
+                  ),
+                )
+              ],
             );
+
           }),
         ),
       );
