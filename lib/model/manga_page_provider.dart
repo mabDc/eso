@@ -189,9 +189,9 @@ class MangaPageProvider with ChangeNotifier {
     if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
       Future.delayed(Duration(milliseconds: 100), () async {
         if (_cache[index + 1] == null) {
-          _cache[index] = await APIManager.getContent(
+          _cache[index+1] = await APIManager.getContent(
             searchItem.originTag,
-            searchItem.chapters[index].url,
+            searchItem.chapters[index+1].url,
           );
         }
       });
