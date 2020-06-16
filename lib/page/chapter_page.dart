@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/global.dart';
-import 'package:eso/ui/CurvePainter.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,39 +24,38 @@ class ChapterPage extends StatelessWidget {
     return ChangeNotifierProvider<ChapterPageProvider>(
       create: (context) => ChapterPageProvider(searchItem: searchItem, size: size),
       builder: (context, child) => Scaffold(
-        body: Stack(
-          children: [
-            NotificationListener(
-              child: CustomScrollView(
-                // physics: BouncingScrollPhysics(),
-                slivers: <Widget>[
-                  _comicDetail(context),
-                  _buildChapter(context),
-                ],
-              ),
-              onNotification: ((ScrollUpdateNotification n) {
-                if (n.depth == 0 && n.metrics.pixels <= 200.0) {
-                  opacity = min(n.metrics.pixels, 100.0) / 100.0;
-                  if (opacity < 0) opacity = 0;
-                  if (opacity > 1) opacity = 1;
-                  if (state != null) state(() => null);
-                }
-                return true;
-              }),
+          body: Stack(
+        children: [
+          NotificationListener(
+            child: CustomScrollView(
+              // physics: BouncingScrollPhysics(),
+              slivers: <Widget>[
+                _comicDetail(context),
+                _buildChapter(context),
+              ],
             ),
-            StatefulBuilder(
-              builder: (context, _state) {
-                state = _state;
-                return Container(
-                  child: _buildAlphaAppbar(context),
-                  color: Theme.of(context).primaryColor.withOpacity(opacity),
-                  height: topHeight,
-                );
-              },
-            )
-          ],
-        )
-      ),
+            onNotification: ((ScrollUpdateNotification n) {
+              if (n.depth == 0 && n.metrics.pixels <= 200.0) {
+                opacity = min(n.metrics.pixels, 100.0) / 100.0;
+                if (opacity < 0) opacity = 0;
+                if (opacity > 1) opacity = 1;
+                if (state != null) state(() => null);
+              }
+              return true;
+            }),
+          ),
+          StatefulBuilder(
+            builder: (context, _state) {
+              state = _state;
+              return Container(
+                child: _buildAlphaAppbar(context),
+                color: Theme.of(context).primaryColor.withOpacity(opacity),
+                height: topHeight,
+              );
+            },
+          )
+        ],
+      )),
     );
   }
 
@@ -70,7 +68,8 @@ class ChapterPage extends StatelessWidget {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      textTheme: _textTheme.copyWith(headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
+      textTheme: _textTheme.copyWith(
+          headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       iconTheme: _iconTheme.copyWith(color: Colors.white70),
       actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
       title: Text(
@@ -122,19 +121,29 @@ class ChapterPage extends StatelessWidget {
                             aspectRatio: 3 / 4,
                             child: Container(
                               child: UIImageItem(cover: searchItem.cover),
-                              decoration: BoxDecoration(
-                                boxShadow: [BoxShadow(blurRadius: 8, color: Colors.white70)]
-                              ),
+                              decoration: BoxDecoration(boxShadow: [
+                                BoxShadow(blurRadius: 8, color: Colors.white70)
+                              ]),
                             ),
                           ),
                         ),
                         SizedBox(height: 12),
-                        Text(searchItem.name, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18,
-                            shadows: [Shadow(blurRadius: 5, color: Colors.white)])),
+                        Text(
+                          searchItem.name,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.bodyText1.color,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                            shadows: [Shadow(blurRadius: 2, color: Colors.grey)],
+                          ),
+                        ),
                         SizedBox(height: 4),
                         Text(
                           searchItem.author,
-                          style: TextStyle(fontSize: 12, color: Theme.of(context).appBarTheme.color.withOpacity(0.5)),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).textTheme.bodyText1.color,
+                          ),
                         ),
                       ],
                     ),
@@ -229,8 +238,7 @@ class ChapterPage extends StatelessWidget {
     if (spans.length > 1) {
       spans.removeLast();
     }
-    if (spans.length == 0)
-      return SizedBox(height: 16);
+    if (spans.length == 0) return SizedBox(height: 16);
     return Container(
       padding: const EdgeInsets.only(
         top: 16.0,
@@ -246,46 +254,40 @@ class ChapterPage extends StatelessWidget {
   Widget _sortWidget(BuildContext context) {
     final theme = Theme.of(context);
     return Consumer<ChapterPageProvider>(
-      builder: (context, provider, child) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor, width: Global.borderSize)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 4),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  '全部章节(${searchItem.chapters?.length ?? 0})',
-                  style: TextStyle(fontSize: 16),
-                ),
+      builder: (context, provider, child) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                '全部章节(${searchItem.chapters?.length ?? 0})',
+                style: TextStyle(fontSize: 16),
               ),
-              GestureDetector(
-                child: Row(
-                  children: [
-                    searchItem.reverseChapter
-                        ? Container()
-                        : Transform.rotate(
-                      child: Icon(
-                        Icons.sort,
-                        color: theme.primaryColor,
-                      ),
-                      angle: pi,
-                    ),
-                    Text(
-                      searchItem.reverseChapter ? "倒序" : "顺序",
-                      style: TextStyle(color: theme.primaryColor),
-                    ),
-                    searchItem.reverseChapter
-                        ? Icon(Icons.sort, color: theme.primaryColor)
-                        : Container(),
-                  ],
-                ),
-                onTap: provider.toggleReverse,
+            ),
+            GestureDetector(
+              child: Row(
+                children: [
+                  searchItem.reverseChapter
+                      ? Container()
+                      : Transform.rotate(
+                          child: Icon(
+                            Icons.sort,
+                            color: theme.primaryColor,
+                          ),
+                          angle: pi,
+                        ),
+                  Text(
+                    searchItem.reverseChapter ? "倒序" : "顺序",
+                    style: TextStyle(color: theme.primaryColor),
+                  ),
+                  searchItem.reverseChapter
+                      ? Icon(Icons.sort, color: theme.primaryColor)
+                      : Container(),
+                ],
               ),
-            ],
-          ),
+              onTap: provider.toggleReverse,
+            ),
+          ],
         ),
       ),
     );
@@ -306,8 +308,11 @@ class ChapterPage extends StatelessWidget {
               .whenComplete(provider.adjustScroll);
         };
         return SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: searchItem.ruleContentType == 1 ? 8 : 20, vertical: 8),
-          sliver: searchItem.ruleContentType == 1 ? _buildListView(context, onTap) : _buildGridView(context, onTap),
+          padding: EdgeInsets.symmetric(
+              horizontal: searchItem.ruleContentType == 1 ? 8 : 20, vertical: 8),
+          sliver: searchItem.ruleContentType == 1
+              ? _buildListView(context, onTap)
+              : _buildGridView(context, onTap),
         );
       },
     );
@@ -316,11 +321,13 @@ class ChapterPage extends StatelessWidget {
   Widget _buildListView(BuildContext context, Function(int index) onTap) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
-        final showIndex = searchItem.reverseChapter
-            ? searchItem.chaptersCount - index - 1
-            : index;
+        final showIndex =
+            searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
         return ListTile(
-          title: Text('${searchItem.chapters[showIndex].name}'.trim(), style: TextStyle(fontSize: 15), maxLines: 1, overflow: TextOverflow.ellipsis),
+          title: Text('${searchItem.chapters[showIndex].name}'.trim(),
+              style: TextStyle(fontSize: 15),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
           dense: true,
           selected: showIndex == searchItem.durChapterIndex,
           onTap: () => onTap(showIndex),
@@ -345,10 +352,9 @@ class ChapterPage extends StatelessWidget {
         crossAxisSpacing: 8,
       ),
       delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-          final showIndex = searchItem.reverseChapter
-              ? searchItem.chaptersCount - index - 1
-              : index;
+        (BuildContext context, int index) {
+          final showIndex =
+              searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
           return Container(
             child: _buildChapterButton(
                 context,
@@ -362,7 +368,7 @@ class ChapterPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                    () => onTap(showIndex)),
+                () => onTap(showIndex)),
           );
         },
         childCount: searchItem.chapters.length,
@@ -370,7 +376,8 @@ class ChapterPage extends StatelessWidget {
     );
   }
 
-  Widget _buildChapterButton(BuildContext context, bool isDurIndex, Widget child, VoidCallback onPress) {
+  Widget _buildChapterButton(
+      BuildContext context, bool isDurIndex, Widget child, VoidCallback onPress) {
     return isDurIndex
         ? RaisedButton(
             padding: EdgeInsets.all(4),
@@ -378,7 +385,9 @@ class ChapterPage extends StatelessWidget {
             onPressed: onPress,
             color: Theme.of(context).primaryColor,
             textColor: Theme.of(context).canvasColor,
-            shape: RoundedRectangleBorder(side: BorderSide(color: Theme.of(context).primaryColorDark, width: Global.borderSize)),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(
+                    color: Theme.of(context).primaryColorDark, width: Global.borderSize)),
             child: child,
           )
         : RaisedButton(
@@ -387,7 +396,9 @@ class ChapterPage extends StatelessWidget {
             onPressed: onPress,
             color: Theme.of(context).canvasColor,
             textColor: Theme.of(context).textTheme.bodyText1.color,
-            shape: RoundedRectangleBorder(side: BorderSide(color: Theme.of(context).dividerColor, width: Global.borderSize)),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(
+                    color: Theme.of(context).dividerColor, width: Global.borderSize)),
             child: child,
           );
   }
@@ -412,7 +423,7 @@ class ArcBannerImage extends StatelessWidget {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              color: Colors.black.withOpacity(0.25),
+              color: Theme.of(context).bottomAppBarColor.withOpacity(0.8),
               height: height,
             ),
           ),
@@ -433,13 +444,13 @@ class ArcClipper extends CustomClipper<Path> {
 
     var firstControlPoint = Offset(size.width / 4, size.height);
     var firstPoint = Offset(size.width / 2, size.height);
-    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstPoint.dx, firstPoint.dy);
+    path.quadraticBezierTo(
+        firstControlPoint.dx, firstControlPoint.dy, firstPoint.dx, firstPoint.dy);
 
     var secondControlPoint = Offset(size.width - (size.width / 4), size.height);
     var secondPoint = Offset(size.width, size.height - widget.arcH);
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondPoint.dx, secondPoint.dy);
+    path.quadraticBezierTo(
+        secondControlPoint.dx, secondControlPoint.dy, secondPoint.dx, secondPoint.dy);
 
     path.lineTo(size.width, 0.0);
     path.close();

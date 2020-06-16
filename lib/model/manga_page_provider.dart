@@ -152,7 +152,7 @@ class MangaPageProvider with ChangeNotifier {
         DeviceOrientation.portraitDown,
       ]);
     }
-    freshContentWithCache();
+    await freshContentWithCache();
     notifyListeners();
   }
 
@@ -218,7 +218,7 @@ class MangaPageProvider with ChangeNotifier {
     if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
     _hideLoading = true;
     searchItem.durChapterIndex = loadIndex;
-    freshContentWithCache();
+    await freshContentWithCache();
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -239,7 +239,7 @@ class MangaPageProvider with ChangeNotifier {
     _isLoading = true;
     searchItem.durChapterIndex = chapterIndex;
     notifyListeners();
-    freshContentWithCache();
+    await freshContentWithCache();
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
