@@ -5,7 +5,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
-import 'package:eso/ui/search_edit.dart';
+import 'file:///D:/Documents/Desktop/MyBookshelf/eso/lib/ui/widgets/search_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';

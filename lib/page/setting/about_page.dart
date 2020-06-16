@@ -143,6 +143,7 @@ class AboutPage extends StatelessWidget {
                     ),
                     Material(
                       color: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5.0), bottomRight: Radius.circular(5.0))),
                       child: InkWell(
                         onTap: () => showAboutDialog(
                           context: context,

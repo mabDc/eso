@@ -114,6 +114,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               offstage: false, //_isHideFastInput,
               child: Container(
                 height: 45,
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Theme.of(context).dividerColor, width: Global.lineSize))
+                ),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: FAST_INPUT_LIST.length,
@@ -121,7 +124,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
                       child: Padding(
-                        padding: EdgeInsets.all(12),
+                        padding: EdgeInsets.all(10),
                         child: Text(
                           FAST_INPUT_LIST[index],
                           style: TextStyle(fontSize: 18),
