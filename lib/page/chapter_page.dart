@@ -17,18 +17,42 @@ class ChapterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final topHeight = kToolbarHeight + MediaQuery.of(context).padding.top;
+    StateSetter state;
+    double opacity = 0.0;
+
     return ChangeNotifierProvider<ChapterPageProvider>(
       create: (context) => ChapterPageProvider(searchItem: searchItem, size: size),
       builder: (context, child) => Scaffold(
-        appBar: _buildAlphaAppbar(context),
-        body: SafeArea(
-          child: CustomScrollView(
-            slivers: <Widget>[
-              _comicDetail(context),
-              _buildChapter(context),
-            ],
-          ),
-        ),
+        body: Stack(
+          children: [
+            NotificationListener(
+              child: CustomScrollView(
+                slivers: <Widget>[
+                  _comicDetail(context),
+                  _buildChapter(context),
+                ],
+              ),
+              onNotification: ((ScrollUpdateNotification n) {
+                if (n.depth == 0 && n.metrics.pixels <= 200.0) {
+                  opacity = min(n.metrics.pixels, 100.0) / 100.0;
+                  if (state != null) state(() => null);
+                }
+                return true;
+              }),
+            ),
+            StatefulBuilder(
+              builder: (context, _state) {
+                state = _state;
+                return Container(
+                  child: _buildAlphaAppbar(context),
+                  color: Theme.of(context).primaryColor.withOpacity(opacity),
+                  height: topHeight,
+                );
+              },
+            )
+          ],
+        )
       ),
     );
   }
@@ -36,10 +60,16 @@ class ChapterPage extends StatelessWidget {
   //头部
   Widget _buildAlphaAppbar(BuildContext context) {
     final provider = Provider.of<ChapterPageProvider>(context, listen: false);
+    final _theme = Theme.of(context).appBarTheme;
+    final _textTheme = Theme.of(context).primaryTextTheme;
+    final _iconTheme = Theme.of(context).primaryIconTheme;
+
     return AppBar(
-      titleSpacing: 0,
-      backgroundColor: Theme.of(context).bottomAppBarColor,
       elevation: 0,
+      backgroundColor: Colors.transparent,
+      textTheme: _textTheme.copyWith(headline6: _textTheme.headline6.copyWith(color: _theme.color)),
+      iconTheme: _iconTheme.copyWith(color: _theme.color),
+      actionsIconTheme: _iconTheme.copyWith(color: _theme.color),
       title: Text(
         searchItem.origin,
         maxLines: 1,
@@ -69,48 +99,46 @@ class ChapterPage extends StatelessWidget {
 
   //漫画详情
   Widget _comicDetail(BuildContext context) {
-    // return Padding(
-    //   padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
-    //   child: UiSearchItem(item: searchItem),
-    // );
-
     return SliverList(
       delegate: SliverChildListDelegate(
         [
-          Container(
-            height: 250,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                CustomPaint(
-                  painter: CurvePainter(drawColor: Theme.of(context).bottomAppBarColor),
-                  child: Container(),
-                ),
-                Padding(
+          Stack(
+            children: [
+              ArcBannerImage(searchItem.cover),
+              SizedBox(
+                height: 290,
+                width: double.infinity,
+                child: Container(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: AspectRatio(
-                          aspectRatio: 3 / 4,
-                          child: UIImageItem(cover: searchItem.cover),
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 45),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 3 / 4,
+                            child: Container(
+                              child: UIImageItem(cover: searchItem.cover),
+                              decoration: BoxDecoration(
+                                boxShadow: [BoxShadow(blurRadius: 8, color: Colors.white70)]
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        searchItem.name,
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        searchItem.author,
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
+                        SizedBox(height: 12),
+                        Text(searchItem.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18,
+                            shadows: [Shadow(blurRadius: 5, color: Colors.white)])),
+                        SizedBox(height: 4),
+                        Text(
+                          searchItem.author,
+                          style: TextStyle(fontSize: 12, color: Theme.of(context).appBarTheme.color.withOpacity(0.5)),
+                        ),
+                      ],
+                    ),
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
           searchItem.tags != null && searchItem.tags.join().isNotEmpty
               ? Container(
@@ -333,4 +361,62 @@ class ChapterPage extends StatelessWidget {
             child: child,
           );
   }
+}
+
+class ArcBannerImage extends StatelessWidget {
+  ArcBannerImage(this.imageUrl, {this.arcH = 30.0, this.height = 300.0});
+  final String imageUrl;
+  final double height, arcH;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: ArcClipper(this),
+      child: Stack(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: height,
+            child: UIImageItem(cover: imageUrl, radius: null, fit: BoxFit.cover),
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              color: Colors.black.withOpacity(0.25),
+              height: height,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ArcClipper extends CustomClipper<Path> {
+  final ArcBannerImage widget;
+  ArcClipper(this.widget);
+
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0.0, size.height - widget.arcH);
+
+    var firstControlPoint = Offset(size.width / 4, size.height);
+    var firstPoint = Offset(size.width / 2, size.height);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
+        firstPoint.dx, firstPoint.dy);
+
+    var secondControlPoint = Offset(size.width - (size.width / 4), size.height);
+    var secondPoint = Offset(size.width, size.height - widget.arcH);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
+        secondPoint.dx, secondPoint.dy);
+
+    path.lineTo(size.width, 0.0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

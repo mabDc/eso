@@ -7,9 +7,13 @@ import 'ui_fade_in_image.dart';
 
 class UIImageItem extends StatelessWidget {
   final String cover;
+  final double radius;
+  final BoxFit fit;
 
   const UIImageItem({
     this.cover,
+    this.radius = 3.0,
+    this.fit,
     Key key,
   }) : super(key: key);
 
@@ -28,14 +32,10 @@ class UIImageItem extends StatelessWidget {
       _cover = ss[0];
       headers = (jsonDecode(ss[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
+    if (radius == null || radius <= 0.0) return UIFadeInImage(url: _cover, header: headers, fit: fit);
     return ClipRRect(
       borderRadius: BorderRadius.circular(3.0),
-      child: UIFadeInImage(url: _cover, header: headers),
-      // child: FadeInImage(
-      //   placeholder: AssetImage(Global.waitingPath),
-      //   image: checkUrl(_cover, headers),
-      //   fit: BoxFit.cover,
-      // ),
+      child: UIFadeInImage(url: _cover, header: headers, fit: fit),
     );
   }
 
