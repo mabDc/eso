@@ -130,14 +130,6 @@ class MangaPageProvider with ChangeNotifier {
     // notifyListeners();
   }
 
-  void _setHeaders() {
-    if (_content.length == 0) return;
-    final first = _content[0].split('@headers');
-    if (first.length == 1) return;
-    _content[0] = first[0];
-    _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
-  }
-
   void _initContent() async {
     if (Platform.isAndroid || Platform.isIOS) {
       _brightness = await Screen.brightness;
@@ -160,10 +152,51 @@ class MangaPageProvider with ChangeNotifier {
         DeviceOrientation.portraitDown,
       ]);
     }
-    _content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _setHeaders();
+    freshContentWithCache();
     notifyListeners();
+  }
+
+  void _setHeaders() {
+    if (_content.length == 0) return;
+    final first = _content[0].split('@headers');
+    if (first.length == 1) return;
+    _content[0] = first[0];
+    _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+  }
+
+  Map<int, List<String>> _cache;
+  Future<bool> freshContentWithCache() async {
+    final index = searchItem.durChapterIndex;
+
+    /// 检查当前章节
+    if (_cache == null) {
+      _cache = {
+        index: await APIManager.getContent(
+          searchItem.originTag,
+          searchItem.chapters[index].url,
+        ),
+      };
+    } else if (_cache[index] == null) {
+      _cache[index] = await APIManager.getContent(
+        searchItem.originTag,
+        searchItem.chapters[index].url,
+      );
+    }
+    _content = _cache[index];
+    _setHeaders();
+
+    /// 缓存下一个章节
+    if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
+      Future.delayed(Duration(milliseconds: 100), () async {
+        if (_cache[index + 1] == null) {
+          _cache[index] = await APIManager.getContent(
+            searchItem.originTag,
+            searchItem.chapters[index].url,
+          );
+        }
+      });
+    }
+    return true;
   }
 
   void share() async {
@@ -185,9 +218,7 @@ class MangaPageProvider with ChangeNotifier {
     if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
     _hideLoading = true;
     searchItem.durChapterIndex = loadIndex;
-    _content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[loadIndex].url);
-    _setHeaders();
+    freshContentWithCache();
     searchItem.durChapter = searchItem.chapters[loadIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -208,9 +239,7 @@ class MangaPageProvider with ChangeNotifier {
     _isLoading = true;
     searchItem.durChapterIndex = chapterIndex;
     notifyListeners();
-    _content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[chapterIndex].url);
-    _setHeaders();
+    freshContentWithCache();
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -261,6 +290,7 @@ class MangaPageProvider with ChangeNotifier {
     content.clear();
     _controller.dispose();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    _cache.clear();
     SearchItemManager.saveSearchItem();
     super.dispose();
   }

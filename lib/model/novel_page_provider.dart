@@ -332,6 +332,7 @@ class NovelPageProvider with ChangeNotifier {
     _controller?.dispose();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
+    _cache.clear();
     super.dispose();
   }
 
