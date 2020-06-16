@@ -20,6 +20,9 @@ class UIDiscoverItem extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(4),
             child: UIImageItem(cover: searchItem.cover),
+            decoration: BoxDecoration(
+              boxShadow: <BoxShadow>[BoxShadow(offset: Offset(4, 4), blurRadius: 3)]
+            ),
         )),
         Container(
           alignment: Alignment.bottomLeft,
