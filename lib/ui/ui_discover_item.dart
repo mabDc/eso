@@ -21,7 +21,7 @@ class UIDiscoverItem extends StatelessWidget {
             margin: const EdgeInsets.all(4),
             child: UIImageItem(cover: searchItem.cover),
             decoration: BoxDecoration(
-              boxShadow: <BoxShadow>[BoxShadow(offset: Offset(1, 1), color: Colors.black45, blurRadius: 3)]
+              border: Border.all(color: Theme.of(context).dividerColor, width: 0.1)
             ),
         )),
         Container(
