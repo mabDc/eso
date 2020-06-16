@@ -91,9 +91,15 @@ class ChapterPageProvider with ChangeNotifier {
         await APIManager.getChapter(searchItem.originTag, searchItem.url);
     searchItem.durChapterIndex = 0;
     searchItem.durContentIndex = 1;
-    searchItem.durChapter = searchItem.chapters.first?.name;
-    searchItem.chaptersCount = searchItem.chapters.length;
-    searchItem.chapter = searchItem.chapters.last?.name;
+    if (searchItem.chapters.isEmpty) {
+      searchItem.durChapter = '';
+      searchItem.chaptersCount = 0;
+      searchItem.chapter = '';
+    } else {
+      searchItem.durChapter = searchItem.chapters?.first?.name ?? '';
+      searchItem.chaptersCount = searchItem.chapters?.length ?? 0;
+      searchItem.chapter = searchItem.chapters?.last?.name;
+    }
     _isLoading = false;
     notifyListeners();
   }

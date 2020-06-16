@@ -6,6 +6,7 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
+import 'package:eso/ui/widgets/search_edit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -78,17 +79,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                             ),
                             _buildSwitchStyle(context),
                           ],
-                    title: TextField(
+                    title: SearchEdit(
                       controller: pageController.queryController,
                       autofocus: true,
-                      decoration: InputDecoration(
-                        hintStyle: TextStyle(color: Colors.black87),
-                        hintText: '搜索 ${widget.origin}',
-                        border: InputBorder.none,
-                      ),
-                      style: TextStyle(color: Colors.black87),
-                      cursorColor: Theme.of(context).primaryColor,
-                      textInputAction: TextInputAction.search,
+                      hintText: '搜索 ${widget.origin}',
                       onSubmitted: (query) => pageController.search(),
                     ),
                   )
@@ -204,7 +198,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
       itemCount: items.length + 1,
       itemBuilder: (BuildContext context, int index) {
         if (index == items.length) {
-          return LoadMoreView(msg: "加载下一页...");
+          return LoadMoreView(msg: "正在加载...");
         }
         SearchItem searchItem = items[index];
         if (SearchItemManager.isFavorite(searchItem.url)) {

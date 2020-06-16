@@ -451,11 +451,11 @@ class Profile with ChangeNotifier {
         brightness: theme.brightness,
         iconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
-          size: 12,
+          size: 16,
         ),
         actionsIconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
-          size: 12,
+          size: 16,
         ),
       ),
       cardTheme: CardTheme(
