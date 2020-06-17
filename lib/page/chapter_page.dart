@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:eso/api/api.dart';
 import 'package:eso/global.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
@@ -319,7 +320,7 @@ class ChapterPage extends StatelessWidget {
         return SliverPadding(
           padding: EdgeInsets.symmetric(
               horizontal: searchItem.ruleContentType == 1 ? 8 : 20, vertical: 8),
-          sliver: searchItem.ruleContentType == 1
+          sliver: searchItem.ruleContentType == API.NOVEL
               ? _buildListView(context, onTap)
               : _buildGridView(context, onTap),
         );

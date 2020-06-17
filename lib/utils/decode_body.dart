@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 class DecodeBody {
   String decode(Uint8List bodyBytes, String contentType) {
+    if (bodyBytes == null || bodyBytes.isEmpty) return '';
     if (contentType == null || !contentType.contains("charset")) {
       return _autoDecode(bodyBytes);
     }
@@ -27,7 +28,6 @@ class DecodeBody {
   }
 
   String _autoDecode(Uint8List bodyBytes) {
-    if (bodyBytes == null || bodyBytes.isEmpty) return '';
     var srcIndex = 0;
     final sb = StringBuffer();
     while (true) {
