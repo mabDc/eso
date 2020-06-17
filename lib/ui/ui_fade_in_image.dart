@@ -29,8 +29,13 @@ class _UIFadeInImageState extends State<UIFadeInImage> {
     if (error == true) {
       return Image.asset(Global.nowayPath, fit: widget.fit ?? BoxFit.cover);
     }
-    final image = FadeInImageEx(
-      placeholder: ImagePlaceHolder(),
+    // final image = FadeInImageEx(
+    //   placeholder: ImagePlaceHolder(),
+    //   image: NetworkImage(widget.url, headers: widget.header),
+    //   fit: widget.fit ?? BoxFit.cover,
+    // );
+    final image = FadeInImage(
+      placeholder: AssetImage(Global.waitingPath),
       image: NetworkImage(widget.url, headers: widget.header),
       fit: widget.fit ?? BoxFit.cover,
     );

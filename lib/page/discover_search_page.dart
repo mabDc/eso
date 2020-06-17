@@ -31,7 +31,8 @@ class DiscoverSearchPage extends StatefulWidget {
   _DiscoverSearchPageState createState() => _DiscoverSearchPageState();
 }
 
-class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTickerProviderStateMixin {
+class _DiscoverSearchPageState extends State<DiscoverSearchPage>
+    with SingleTickerProviderStateMixin {
   Widget _discover;
   DiscoverPageController __pageController;
   TabController _tabController;
@@ -99,28 +100,21 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
                         icon: Icon(Icons.search),
                         onPressed: pageController.toggleSearching,
                       ),
-//                      IconButton(
-//                        icon: Icon(Icons.filter_list),
-//                        onPressed: pageController.toggleDiscoverFilter,
-//                      ),
+                    //  IconButton(
+                    //    icon: Icon(Icons.filter_list),
+                    //    onPressed: pageController.toggleDiscoverFilter,
+                    //  ),
                       _buildSwitchStyle(context),
                     ],
                     bottom: _buildAppBarBottom(context, pageController),
                   ),
-            body: Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 2,
-                  child: pageController.isLoading
-                      ? LandingPage()
-                      : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
-                          ? buildDiscoverResultList(
-                              pageController.items, pageController.controller)
-                          : buildDiscoverResultGrid(
-                              pageController.items, pageController.controller),
-                ),
-              ],
-            ),
+            body: pageController.isLoading
+                ? LandingPage()
+                : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
+                    ? buildDiscoverResultList(
+                        pageController.items, pageController.controller)
+                    : buildDiscoverResultGrid(
+                        pageController.items, pageController.controller),
           );
         },
       ),
