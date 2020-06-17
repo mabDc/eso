@@ -7,6 +7,7 @@ import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:eso/ui/widgets/search_edit.dart';
+import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,12 +31,15 @@ class DiscoverSearchPage extends StatefulWidget {
   _DiscoverSearchPageState createState() => _DiscoverSearchPageState();
 }
 
-class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
+class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTickerProviderStateMixin {
   Widget _discover;
   DiscoverPageController __pageController;
+  TabController _tabController;
+
   @override
   void dispose() {
     __pageController?.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -55,17 +59,17 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
           discoverMap: widget.discoverMap),
       child: Consumer<DiscoverPageController>(
         builder: (BuildContext context, DiscoverPageController pageController, _) {
+          final _iconTheme = Theme.of(context).primaryIconTheme;
+          final _textTheme = Theme.of(context).textTheme;
+          final _color = _textTheme.bodyText1.color.withOpacity(0.4);
           return Scaffold(
             appBar: pageController.showSearchField
                 ? AppBar(
                     titleSpacing: 0.0,
-                    backgroundColor: Colors.white,
-                    iconTheme: IconThemeData(color: Colors.grey),
-                    actionsIconTheme: IconThemeData(color: Colors.grey),
-                    textTheme:
-                        Theme.of(context).textTheme.apply(bodyColor: Colors.black87),
-                    leading: IconButton(
-                      icon: Icon(Icons.arrow_back),
+                    backgroundColor: Theme.of(context).appBarTheme.color,
+                    iconTheme: _iconTheme.copyWith(color: _color),
+                    actionsIconTheme: _iconTheme.copyWith(color: _color),
+                    leading: BackButton(
                       onPressed: pageController.toggleSearching,
                     ),
                     actions: pageController.queryController.text == ''
@@ -85,6 +89,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                       hintText: '搜索 ${widget.origin}',
                       onSubmitted: (query) => pageController.search(),
                     ),
+                    bottom: _buildAppBarBottom(context, pageController),
                   )
                 : AppBar(
                     titleSpacing: 0.0,
@@ -94,37 +99,16 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
                         icon: Icon(Icons.search),
                         onPressed: pageController.toggleSearching,
                       ),
-                      IconButton(
-                        icon: Icon(Icons.filter_list),
-                        onPressed: pageController.toggleDiscoverFilter,
-                      ),
+//                      IconButton(
+//                        icon: Icon(Icons.filter_list),
+//                        onPressed: pageController.toggleDiscoverFilter,
+//                      ),
                       _buildSwitchStyle(context),
                     ],
+                    bottom: _buildAppBarBottom(context, pageController),
                   ),
             body: Column(
               children: <Widget>[
-                pageController.showFilter
-                    ? (widget.discoverMap == null || widget.discoverMap.length == 0)
-                        ? SizedBox(
-                            height: 32,
-                            child: Text(
-                              '暂无更多发现',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          )
-                        : Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Column(
-                              children: widget.discoverMap
-                                  .map((map) => _buildDropdown(
-                                      map,
-                                      Theme.of(context).primaryColor,
-                                      pageController.getDiscoverPair(map.name),
-                                      pageController.selectDiscoverPair))
-                                  .toList(),
-                            ),
-                          )
-                    : Container(),
                 Expanded(
                   flex: 2,
                   child: pageController.isLoading
@@ -138,6 +122,35 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> {
               ],
             ),
           );
+        },
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBarBottom(BuildContext context, DiscoverPageController pageController) {
+    if (pageController == null)
+      return null;
+    if (widget.discoverMap == null || widget.discoverMap.length == 0 || widget.discoverMap.first?.pairs == null)
+      return null;
+    if (widget.discoverMap.first.pairs.length <= 1)
+      return null;
+    final _map = widget.discoverMap.first;
+    final pairs = widget.discoverMap.first.pairs;
+    if (_tabController == null) {
+      _tabController = TabController(length: pairs.length, vsync: this);
+    }
+    return SizedBar(
+      height: 50,
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabs: pairs.map((e) => Container(child: Text(e.name ?? ''), alignment: Alignment.center)).toList(),
+        indicatorColor: Theme.of(context).primaryColor,
+        labelColor: Theme.of(context).primaryColor,
+        unselectedLabelColor: Colors.black87,
+        indicatorPadding: const EdgeInsets.only(left: 8, right: 8),
+        onTap: (index) {
+          pageController.selectDiscoverPair(_map.name, pairs[index]);
         },
       ),
     );
