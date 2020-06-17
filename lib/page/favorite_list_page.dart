@@ -125,12 +125,12 @@ class FavoriteListPage extends StatelessWidget {
           );
         }
         return GridView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: 6),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             childAspectRatio: 0.55,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
+            mainAxisSpacing: 0,
+            crossAxisSpacing: 0,
           ),
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
@@ -145,7 +145,10 @@ class FavoriteListPage extends StatelessWidget {
                 .push(ContentPageRoute().route(searchItem))
                 .whenComplete(() => provider.updateList());
             return InkWell(
-              child: UIFavoriteItem(searchItem: searchItem),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                child: UIFavoriteItem(searchItem: searchItem),
+              ),
               onTap: longPress ? openChapter : openContent,
               onLongPress: longPress ? openContent : openChapter,
             );

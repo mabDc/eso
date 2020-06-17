@@ -45,6 +45,7 @@ class FavoritePage extends StatelessWidget {
               icon: Icon(
                 Icons.settings,
                 color: Theme.of(context).textTheme.bodyText1.color,
+                size: 20,
               ),
               onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (BuildContext context) => AboutPage())),

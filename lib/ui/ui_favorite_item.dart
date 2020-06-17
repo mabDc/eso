@@ -26,11 +26,14 @@ class UIFavoriteItem extends StatelessWidget {
       direction: Axis.vertical,
       children: <Widget>[
         Expanded(
-            child: Container(
-          width: double.infinity,
-          height: 150,
-          child: UIImageItem(cover: searchItem.cover),
+          child: Container(
+            width: double.infinity,
+            child: UIImageItem(cover: searchItem.cover),
+            decoration: BoxDecoration(
+              boxShadow: [BoxShadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black12)]
+            ),
         )),
+        SizedBox(height: 6),
         Container(
           alignment: Alignment.bottomLeft,
           child: Text(
@@ -46,11 +49,12 @@ class UIFavoriteItem extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Theme.of(context).textTheme.subtitle1.color.withOpacity(0.7),
+              color: Theme.of(context).hintColor,
               fontSize: 10,
             ),
           ),
         ),
+        SizedBox(height: 6),
       ],
     );
   }
