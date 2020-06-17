@@ -319,7 +319,9 @@ class ChapterPage extends StatelessWidget {
         };
         return SliverPadding(
           padding: EdgeInsets.symmetric(
-              horizontal: searchItem.ruleContentType == 1 ? 8 : 20, vertical: 8),
+            horizontal: searchItem.ruleContentType == API.NOVEL ? 8 : 20,
+            vertical: 8,
+          ),
           sliver: searchItem.ruleContentType == API.NOVEL
               ? _buildListView(context, onTap)
               : _buildGridView(context, onTap),
@@ -397,7 +399,8 @@ class ChapterPage extends StatelessWidget {
             textColor: Theme.of(context).canvasColor,
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).primaryColorDark, width: Global.borderSize), borderRadius: BorderRadius.circular(3.0)),
+                    color: Theme.of(context).primaryColorDark, width: Global.borderSize),
+                borderRadius: BorderRadius.circular(3.0)),
             child: child,
           )
         : RaisedButton(
@@ -408,7 +411,8 @@ class ChapterPage extends StatelessWidget {
             textColor: Theme.of(context).textTheme.bodyText1.color,
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).dividerColor, width: Global.borderSize), borderRadius: BorderRadius.circular(3.0)),
+                    color: Theme.of(context).dividerColor, width: Global.borderSize),
+                borderRadius: BorderRadius.circular(3.0)),
             child: child,
           );
   }
