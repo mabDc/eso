@@ -28,7 +28,7 @@ class ChapterPage extends StatelessWidget {
         children: [
           NotificationListener(
             child: CustomScrollView(
-              // physics: BouncingScrollPhysics(),
+              // physics: RangeMaintainingScrollPhysics(),
               slivers: <Widget>[
                 _comicDetail(context),
                 _buildChapter(context),
@@ -99,8 +99,16 @@ class ChapterPage extends StatelessWidget {
     );
   }
 
+  static double lastTopHeight = 0.0;
+
   //漫画详情
   Widget _comicDetail(BuildContext context) {
+    double _top = MediaQuery.of(context).padding.top;
+    if (_top <= 0) {
+      _top = lastTopHeight;
+    } else {
+      lastTopHeight = _top;
+    }
     return SliverList(
       delegate: SliverChildListDelegate(
         [
@@ -108,11 +116,12 @@ class ChapterPage extends StatelessWidget {
             children: [
               ArcBannerImage(searchItem.cover),
               SizedBox(
-                height: 290,
+                height: 270 + _top,
                 width: double.infinity,
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
-                  child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: _top),
                     child: Column(
                       children: [
                         SizedBox(height: 45),
