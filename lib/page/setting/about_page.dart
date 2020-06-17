@@ -18,17 +18,15 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: StatefulBuilder(builder: (context, state) {
-          if (info == null) {
-            PackageInfo.fromPlatform().then((value) {
-              info = value;
-              state(() => info);
-            });
-          }
-          return Text(info?.appName ?? '');
-        })
-      ),
+      appBar: AppBar(title: StatefulBuilder(builder: (context, state) {
+        if (info == null) {
+          PackageInfo.fromPlatform().then((value) {
+            info = value;
+            state(() => info);
+          });
+        }
+        return Text(info?.appName ?? '');
+      })),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(
@@ -141,9 +139,19 @@ class AboutPage extends StatelessWidget {
                       subtitle: Text('https://github.com/mabDc/eso/releases'),
                       onTap: () => launch('https://github.com/mabDc/eso/releases'),
                     ),
+                    ListTile(
+                      title: Text('规则编写说明'),
+                      subtitle:
+                          Text('http://106.13.192.208/gitlab/WL/eso_source/wiki/规则编写'),
+                      onTap: () => launch(
+                          'http://106.13.192.208/gitlab/WL/eso_source/wiki/%E8%A7%84%E5%88%99%E7%BC%96%E5%86%99'),
+                    ),
                     Material(
                       color: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4.0), bottomRight: Radius.circular(4.0))),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(4.0),
+                              bottomRight: Radius.circular(4.0))),
                       child: InkWell(
                         onTap: () => showAboutDialog(
                           context: context,
