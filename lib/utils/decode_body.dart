@@ -27,6 +27,7 @@ class DecodeBody {
   }
 
   String _autoDecode(Uint8List bodyBytes) {
+    if (bodyBytes == null || bodyBytes.isEmpty) return '';
     var srcIndex = 0;
     final sb = StringBuffer();
     while (true) {

@@ -5,9 +5,11 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
+import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 
 class AudioPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -79,7 +81,7 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
                     height: double.infinity,
                     width: double.infinity,
                     child: Image.network(
-                      chapter.cover ?? 'http://api.52jhs.cn/api/random/api.php?type=pc',
+                      Utils.empty(chapter.cover) ? defaultImage : chapter.cover,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -107,11 +109,13 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
                                   width: 300,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    image: DecorationImage(
+                                    color: Utils.empty(chapter.cover) ? Colors.black26 : null,
+                                    image: Utils.empty(chapter.cover) ? null : DecorationImage(
                                       image: NetworkImage(chapter.cover ?? ''),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
+                                  child: Utils.empty(chapter.cover) ? Icon(Icons.audiotrack, color: Colors.white30, size: 200) : null,
                                 ),
                               ),
                             ),
@@ -141,16 +145,12 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
   Widget _buildTopRow(AudioPageController provider, String name, String author) {
     return Row(
       children: <Widget>[
-        InkWell(
-          child: Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-            size: 26,
-          ),
-          onTap: () => Navigator.of(context).pop(),
+        Material(
+          color: Colors.transparent,
+          child: BackButton(color: Colors.white70),
         ),
         SizedBox(
-          width: 10,
+          width: 6,
         ),
         Expanded(
           child: Column(
@@ -182,8 +182,8 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
         InkWell(
           child: Icon(
             Icons.share,
-            color: Colors.white,
-            size: 26,
+            color: Colors.white70,
+            size: 20,
           ),
           onTap: provider.share,
         ),
@@ -292,4 +292,23 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
       ],
     );
   }
+
+
+  final String defaultImage = _defaultBackgroundImage[Random().nextInt(_defaultBackgroundImage.length * 3) % _defaultBackgroundImage.length];
+
+  static const List<String> _defaultBackgroundImage = <String>[
+    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1862395032,4159614935&fm=26&gp=0.jpg',
+    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=320821615,459299112&fm=26&gp=0.jpg',
+    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3709840964,4011199584&fm=26&gp=0.jpg',
+    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=159400530,2390750984&fm=26&gp=0.jpg',
+    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2942281081,4061453531&fm=26&gp=0.jpg',
+    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3708202986,3174435156&fm=11&gp=0.jpg',
+    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2516210555,70809240&fm=26&gp=0.jpg',
+    'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3096080338,1387947480&fm=11&gp=0.jpg',
+    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=884602971,918446192&fm=11&gp=0.jpg',
+    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2623678637,572331041&fm=26&gp=0.jpg',
+    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2585876590,437169879&fm=11&gp=0.jpg',
+    'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1086362054,1110846781&fm=11&gp=0.jpg',
+    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2900641615,456703263&fm=26&gp=0.jpg',
+  ];
 }

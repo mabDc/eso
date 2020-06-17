@@ -79,20 +79,20 @@ class ChapterPage extends StatelessWidget {
       ),
       actions: <Widget>[
         IconButton(
-          icon: Icon(Icons.refresh),
+          icon: Icon(Icons.refresh, size: 20),
           onPressed: provider.updateChapter,
         ),
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
           builder: (context, provider, child) => IconButton(
             icon: SearchItemManager.isFavorite(searchItem.url)
-                ? Icon(Icons.favorite)
-                : Icon(Icons.favorite_border),
+                ? Icon(Icons.favorite, size: 20)
+                : Icon(Icons.favorite_border, size: 20),
             onPressed: provider.toggleFavorite,
           ),
         ),
         IconButton(
-          icon: Icon(Icons.share),
+          icon: Icon(Icons.share, size: 20),
           onPressed: provider.share,
         ),
       ],
@@ -387,7 +387,7 @@ class ChapterPage extends StatelessWidget {
             textColor: Theme.of(context).canvasColor,
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).primaryColorDark, width: Global.borderSize)),
+                    color: Theme.of(context).primaryColorDark, width: Global.borderSize), borderRadius: BorderRadius.circular(3.0)),
             child: child,
           )
         : RaisedButton(
@@ -398,7 +398,7 @@ class ChapterPage extends StatelessWidget {
             textColor: Theme.of(context).textTheme.bodyText1.color,
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).dividerColor, width: Global.borderSize)),
+                    color: Theme.of(context).dividerColor, width: Global.borderSize), borderRadius: BorderRadius.circular(3.0)),
             child: child,
           );
   }
