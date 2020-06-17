@@ -30,7 +30,7 @@ class DecodeBody {
   String _autoDecode(Uint8List bodyBytes) {
     var srcIndex = 0;
     final sb = StringBuffer();
-    while (true) {
+    while (srcIndex < bodyBytes.length) {
       final byte = bodyBytes[srcIndex++];
       if (byte < 0x80) {
         sb.writeCharCode(byte);

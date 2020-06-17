@@ -29,7 +29,7 @@ class ChapterPage extends StatelessWidget {
         children: [
           NotificationListener(
             child: CustomScrollView(
-              // physics: RangeMaintainingScrollPhysics(),
+              physics: ClampingScrollPhysics(),
               slivers: <Widget>[
                 _comicDetail(context),
                 _buildChapter(context),
