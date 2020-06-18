@@ -161,8 +161,8 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         buildPopButton(context, Text("保存图像", style: TextStyle(color: Colors.black87, fontSize: 16)), isLast: false, onTap: () {
-                          saveImage(CachedNetworkImageProvider(widget.items[currentIndex].url));
                           Navigator.of(context).pop();
+                          saveImage(CachedNetworkImageProvider(widget.items[currentIndex].url));
                         }),
                         buildPopButton(context, Text("复制图像地址", style: TextStyle(color: Colors.black87, fontSize: 16)), isLast: false, isFirst: false, onTap: () async {
                           await Clipboard.setData(ClipboardData(text: widget.items[currentIndex].url));
@@ -189,11 +189,12 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   /// 保存图像
   saveImage(CachedNetworkImageProvider provider) async {
     // 检查并请求权限
-    PermissionStatus status = await PermissionHandler().checkPermissionStatus(PermissionGroup.storage);
-    if (PermissionStatus.granted != status) {
-      PermissionHandler().requestPermissions(<PermissionGroup>[
-        PermissionGroup.storage,
-      ]);
+    if (await Permission.storage.status != PermissionStatus.granted) {
+      var _status = await Permission.storage.request();
+      if (_status != PermissionStatus.granted) {
+        Toast.show("授权失败", context);
+        return;
+      }
     }
 
     // 获取文件或图片
