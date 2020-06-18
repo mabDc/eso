@@ -77,7 +77,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
           final _color = _textTheme.bodyText1.color.withOpacity(0.4);
 
           List<Widget> children = [];
-          if (pairs != null && pairs.isNotEmpty) {
+          if (pageController.showSearchField) {
+            children.add(KeepAliveWidget(
+              wantKeepAlive: true,
+              child: _buildListView(context, pageController, pageController.items.last),
+            ));
+          } else if (pairs != null && pairs.isNotEmpty) {
             for (var i = 0; i < pairs.length; i++) {
               children.add(KeepAliveWidget(
                 wantKeepAlive: true,
@@ -158,7 +163,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
   }
 
   PreferredSizeWidget _buildAppBarBottom(BuildContext context, DiscoverPageController pageController) {
-    if (pageController == null)
+    if (pageController == null || pageController.showSearchField)
       return null;
     if (pairs == null || pairs.isEmpty || pairs.length <= 1)
       return null;
@@ -202,6 +207,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
         itemCount: items.length + 1,
         itemBuilder: (BuildContext context, int index) {
           if (index == items.length) {
+            if (item.length == 0 && item.pair == null && !item.isLoading)
+              return Container();
             if (item.more)
               return LoadMoreView(msg: "正在加载...");
             return Container();
@@ -240,6 +247,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
         itemCount: items.length + 1,
         itemBuilder: (BuildContext context, int index) {
           if (index == items.length) {
+            if (item.length == 0 && item.pair == null && !item.isLoading)
+              return Container();
             if (item.more)
               return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
             return Container();
