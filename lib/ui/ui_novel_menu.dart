@@ -428,22 +428,27 @@ class UINovelMenu extends StatelessWidget {
                     child: Text("翻页", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: styles
-                          .map((style) => Container(
-                                height: 32,
-                                width: 32.0 + (style[0] as String).length * 14,
-                                child: OutlineButton(
-                                  child: Text(style[0], style: TextStyle(color: color)),
-                                  onPressed: () => profile.novelPageSwitch = style[1],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    side: BorderSide(color: color),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: BouncingScrollPhysics(),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: styles
+                            .map((style) => Container(
+                          height: 26,
+                          width: 32.0 + (style[0] as String).length * 14,
+                          margin: const EdgeInsets.only(right: 4),
+                          child: OutlineButton(
+                            child: Text(style[0], style: TextStyle(color: color)),
+                            onPressed: () => profile.novelPageSwitch = style[1],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              side: BorderSide(color: color),
+                            ),
+                          ),
+                        ))
+                            .toList(),
+                      ),
                     ),
                   ),
                 ],
@@ -488,11 +493,7 @@ class UINovelMenu extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(12, 4 + MediaQuery.of(context).padding.top, 12, 4),
       child: Row(
         children: <Widget>[
-          InkWell(
-            child: Icon(Icons.arrow_back_ios, color: color, size: 26),
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          SizedBox(width: 10),
+          BackButton(),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -517,7 +518,7 @@ class UINovelMenu extends StatelessWidget {
           ),
           SizedBox(width: 10),
           InkWell(
-            child: Icon(Icons.share, color: color, size: 26),
+            child: Icon(Icons.share, color: color, size: 20),
             onTap: Provider.of<NovelPageProvider>(context, listen: false).share,
           ),
           _buildPopupmenu(context, bgColor, color),
@@ -536,7 +537,7 @@ class UINovelMenu extends StatelessWidget {
     final provider = Provider.of<NovelPageProvider>(context, listen: false);
     return PopupMenuButton<int>(
       elevation: 20,
-      icon: Icon(Icons.more_vert, color: color, size: 26),
+      icon: Icon(Icons.more_vert, color: color),
       color: bgColor,
       offset: Offset(0, 40),
       onSelected: (int value) {

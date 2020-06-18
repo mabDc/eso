@@ -484,7 +484,7 @@ class NovelPage extends StatelessWidget {
             height: 4,
           ),
           UIDash(
-            height: 1,
+            height: Global.lineSize,
             dashWidth: 2,
             color: fontColor.withOpacity(0.7),
           ),
