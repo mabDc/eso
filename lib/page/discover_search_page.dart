@@ -36,11 +36,25 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
   DiscoverPageController __pageController;
   TabController _tabController;
 
+  DiscoverMap map;
+  List<DiscoverPair> pairs = [];
+
   @override
   void dispose() {
     __pageController?.dispose();
     _tabController?.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.discoverMap == null || widget.discoverMap.length == 0 || widget.discoverMap.first?.pairs == null)
+      return null;
+    if (widget.discoverMap.first.pairs.length <= 1)
+      return null;
+    map = widget.discoverMap.first;
+    pairs = widget.discoverMap.first.pairs;
   }
 
   @override
@@ -62,6 +76,14 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
           final _iconTheme = Theme.of(context).primaryIconTheme;
           final _textTheme = Theme.of(context).textTheme;
           final _color = _textTheme.bodyText1.color.withOpacity(0.4);
+
+          List<Widget> children = [];
+          if (pairs != null && pairs.isNotEmpty) {
+            for (var i = 0; i < pairs.length; i++) {
+              children.add(_buildListView(context, pageController, pageController.items[i]));
+            }
+          }
+
           return Scaffold(
             appBar: pageController.showSearchField
                 ? AppBar(
@@ -110,14 +132,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
             body: Column(
               children: <Widget>[
                 Expanded(
-                  flex: 2,
-                  child: pageController.isLoading
-                      ? LandingPage()
-                      : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
-                          ? buildDiscoverResultList(
-                              pageController.items, pageController.controller)
-                          : buildDiscoverResultGrid(
-                              pageController.items, pageController.controller),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: children,
+                  ),
                 ),
               ],
             ),
@@ -127,17 +145,26 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
     );
   }
 
+  Widget _buildListView(BuildContext context, DiscoverPageController pageController, ListDataItem item) {
+    return item.isLoading
+        ? LandingPage()
+        : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
+        ? buildDiscoverResultList(
+        item.items, item.controller)
+        : buildDiscoverResultGrid(
+        item.items, item.controller);
+  }
+
   PreferredSizeWidget _buildAppBarBottom(BuildContext context, DiscoverPageController pageController) {
     if (pageController == null)
       return null;
-    if (widget.discoverMap == null || widget.discoverMap.length == 0 || widget.discoverMap.first?.pairs == null)
+    if (pairs == null || pairs.isEmpty || pairs.length <= 1)
       return null;
-    if (widget.discoverMap.first.pairs.length <= 1)
-      return null;
-    final _map = widget.discoverMap.first;
-    final pairs = widget.discoverMap.first.pairs;
     if (_tabController == null) {
       _tabController = TabController(length: pairs.length, vsync: this);
+      _tabController.addListener(() {
+        _select(pageController, _tabController.index);
+      });
     }
     return SizedBar(
       height: 50,
@@ -150,7 +177,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
         unselectedLabelColor: Colors.black87,
         indicatorPadding: const EdgeInsets.only(left: 8, right: 8),
         onTap: (index) {
-          pageController.selectDiscoverPair(_map.name, pairs[index]);
+          _select(pageController, index);
         },
       ),
     );
@@ -163,45 +190,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
           : Icon(Icons.view_headline),
       onPressed: () => Provider.of<Profile>(context, listen: false).switchDiscoverStyle =
           !Provider.of<Profile>(context, listen: false).switchDiscoverStyle,
-    );
-  }
-
-  Widget _buildDropdown(DiscoverMap map, Color color, DiscoverPair value,
-      Function(String, DiscoverPair) select) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          height: 34,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '${map.name} ',
-            style: TextStyle(
-              fontSize: 16,
-              color: color,
-            ),
-          ),
-        ),
-        Expanded(
-          child: ButtonTheme(
-            alignedDropdown: true,
-            child: DropdownButton<DiscoverPair>(
-              isExpanded: true,
-              isDense: true,
-              underline: Container(),
-              value: value,
-              items: map.pairs
-                  .map((pair) => DropdownMenuItem<DiscoverPair>(
-                        child: Text(pair.name),
-                        value: pair,
-                      ))
-                  .toList(),
-              onChanged: (value) => select(map.name, value),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -262,5 +250,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
         );
       },
     );
+  }
+
+  /// 切换到指定分类
+  _select(DiscoverPageController pageController, int index) {
+    pageController.selectDiscoverPair(map.name, pairs[index]);
   }
 }
