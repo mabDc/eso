@@ -26,6 +26,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   StreamSubscription stream;
   bool lastAudioPlaying = false;
+  StateSetter _audioState;
 
   @override
   void initState() {
@@ -34,7 +35,8 @@ class _HomePageState extends State<HomePage> {
     stream = eventBus.on<AudioStateEvent>().listen((event) {
       if (lastAudioPlaying != AudioService.isPlaying) {
         lastAudioPlaying = AudioService.isPlaying;
-        if (this.mounted) setState(() {});
+        if (this.mounted && _audioState != null)
+          _audioState(() => null);
       }
     });
   }
@@ -63,12 +65,15 @@ class _HomePageState extends State<HomePage> {
             physics: new NeverScrollableScrollPhysics(), //禁止主页左右滑动
           );
           return Scaffold(
-            body: AudioService.isPlaying ? Stack(
+            body: Stack(
               children: [
                 _pageView,
-                _buildAudioView(context),
+                StatefulBuilder(builder: (context, state) {
+                  _audioState = state;
+                  return _buildAudioView(context);
+                }),
               ],
-            ): _pageView,
+            ),
             bottomNavigationBar: Consumer<Profile>(
               builder: (BuildContext context, Profile profile, Widget widget) {
                 //bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -142,6 +147,8 @@ class _HomePageState extends State<HomePage> {
   }
   
   Widget _buildAudioView(BuildContext context) {
+    if (!AudioService.isPlaying)
+      return SizedBox();
     final chapter = AudioService().curChapter;
     final Widget _view = Container(
       width: 40,
