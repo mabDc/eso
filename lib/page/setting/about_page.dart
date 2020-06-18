@@ -134,46 +134,77 @@ class AboutPage extends StatelessWidget {
                       onTap: () => launch(
                           'http://106.13.192.208/gitlab/WL/eso_source/wiki/%E8%A7%84%E5%88%99%E7%BC%96%E5%86%99'),
                     ),
-                    Material(
-                      color: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(4.0),
-                              bottomRight: Radius.circular(4.0))),
-                      child: InkWell(
-                        onTap: () => showAboutDialog(
-                          context: context,
-                          applicationVersion: Global.appVersion,
-                        ),
-                        child: SizedBox(
-                          height: 260,
-                          width: double.infinity,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  'ESO',
-                                  style: TextStyle(
-                                    fontSize: 100,
-                                    fontStyle: FontStyle.italic,
-                                    color: Theme.of(context).cardColor,
-                                  ),
-                                ),
-                                Text(
-                                  '亦搜，亦看，亦闻',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Theme.of(context).primaryColorLight,
-                                  ),
-                                ),
-                              ],
+                  ],
+                ),
+              ),
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '主要开发者',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('mabdc'),
+                      subtitle: Text('https://github.com/mabDc'),
+                      onTap: () => launch('https://github.com/mabDc'),
+                    ),
+                    ListTile(
+                      title: Text('DaguDuiyuan'),
+                      subtitle: Text('https://github.com/DaguDuiyuan'),
+                      onTap: () => launch('https://github.com/DaguDuiyuan'),
+                    ),
+                    ListTile(
+                      title: Text('yangyxd'),
+                      subtitle: Text('https://github.com/yangyxd'),
+                      onTap: () => launch('https://github.com/yangyxd'),
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                child: Material(
+                  color: Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(4.0),
+                          bottomRight: Radius.circular(4.0))),
+                  child: InkWell(
+                    onTap: () => showAboutDialog(
+                      context: context,
+                      applicationVersion: Global.appVersion,
+                    ),
+                    child: SizedBox(
+                      height: 260,
+                      width: double.infinity,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              'ESO',
+                              style: TextStyle(
+                                fontSize: 100,
+                                fontStyle: FontStyle.italic,
+                                color: Theme.of(context).cardColor,
+                              ),
                             ),
-                          ),
+                            Text(
+                              '亦搜，亦看，亦闻',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Theme.of(context).primaryColorLight,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
