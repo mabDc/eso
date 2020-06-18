@@ -178,10 +178,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
-        tabs: pairs.map((e) => Container(child: Text(e.name ?? ''), alignment: Alignment.center)).toList(),
+        tabs: pairs.map((e) => Tab(text: e.name ?? '')).toList(),
         indicatorColor: Theme.of(context).primaryColor,
         labelColor: Theme.of(context).primaryColor,
-        unselectedLabelColor: Colors.black87,
+        unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
         indicatorPadding: const EdgeInsets.only(left: 8, right: 8),
         onTap: (index) {
           _select(pageController, index);
