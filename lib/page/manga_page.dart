@@ -7,6 +7,7 @@ import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/ui_manga_menu.dart';
 import 'package:eso/ui/ui_system_info.dart';
 import 'package:eso/ui/zoom_view.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,7 @@ import 'package:toast/toast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../database/search_item.dart';
 import 'langding_page.dart';
+import 'photo_view_page.dart';
 
 class MangaPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -325,19 +327,10 @@ class _MangaPageState extends State<MangaPage> {
         final path = '${provider.content[index]}';
         return GestureDetector(
           onLongPress: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ZoomView(
-                  child: Center(
-                    child: UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 350),
-                  ),
-                ),
-              ),
-            );
-            (() async {
-              await Clipboard.setData(ClipboardData(text: path));
-              Toast.show("已复制图片地址", context);
-            })();
+            Utils.startPageWait(context, PhotoViewPage(
+              items: provider.content.map((e) => PhotoItem(e, headers: provider.headers)).toList(),
+              index: index,
+            ));
           },
           // child: FadeInImage(
           //   placeholder: AssetImage(Global.waitingPath),

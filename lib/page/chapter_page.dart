@@ -2,7 +2,9 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:eso/api/api.dart';
 import 'package:eso/global.dart';
+import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_image_item.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -143,7 +145,12 @@ class _ChapterPageState extends State<ChapterPage> {
                           child: AspectRatio(
                             aspectRatio: 3 / 4,
                             child: Container(
-                              child: UIImageItem(cover: searchItem.cover),
+                              child: GestureDetector(
+                                child: UIImageItem(cover: searchItem.cover),
+                                onTap: () {
+                                  Utils.startPageWait(context, PhotoViewPage(items: [PhotoItem(searchItem.cover)]));
+                                },
+                              ),
                               decoration: BoxDecoration(boxShadow: [
                                 BoxShadow(blurRadius: 8, color: Colors.white70)
                               ]),
