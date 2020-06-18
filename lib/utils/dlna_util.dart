@@ -41,6 +41,10 @@ class DLNAUtil {
             _instance._update();
           },
           onPlayProgress: (position) {
+            if (_instance.onPlayProgress != null) {
+              _instance.onPlayProgress(position);
+              return;
+            }
             print('播放进度: ' + _time2Str(DateTime.now().millisecondsSinceEpoch) + ' / ' + position.relTime);
           }
       ));
@@ -61,11 +65,14 @@ class DLNAUtil {
 
   DLNADevice curDevice;
 
+  Function(PositionInfo positionInfo) onPlayProgress;
+
   /// 释放
   static release() {
     if (_instance == null) return;
     _instance.manager.release();
     _instance.manager = null;
+    _instance.onPlayProgress = null;
     _instance = null;
   }
 
@@ -74,33 +81,47 @@ class DLNAUtil {
     if (url == null || url.isEmpty) return null;
 
     showDialog(context: context, builder: (context) {
+      String errMsg;
+
       return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
         child: Container(
           color: Colors.white,
-          margin: const EdgeInsets.all(16),
+          margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
           child: StatefulBuilder(builder: (context, StateSetter state) {
             _state = state;
             var children = <Widget>[];
             if (_devices.isEmpty)
-              children.add(Text("没有可投屏的设备", style: TextStyle(color: Colors.grey)));
+              children.add(Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Text(isSearching ? "正在搜索设备..." : "没有可投屏的设备", style: TextStyle(color: Colors.grey)),
+              ));
             else {
+              if (!Utils.empty(errMsg))
+                children.add(Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                  child: Text(errMsg, style: TextStyle(color: Colors.redAccent)),
+                ));
+
               _devices.forEach((e) {
                 children.add(Material(
                   color: Colors.transparent,
                   child: ListTile(
-                    title: Text(e.deviceName),
+                    title: Text(e.deviceName, style: TextStyle(fontSize: 15)),
+                    dense: true,
                     selected: curDevice == e,
                     // subtitle: Text(e.description.toString()),
                     onTap: () async {
                       try {
-                        await manager.actStop();
+                        if (curDevice != null)
+                          await manager.actStop();
                       } catch (e) {}
                       try {
                         PlayMode playMode = PlayMode.NORMAL;
                         await manager.actSetPlayMode(playMode);
                         manager.setDevice(e);
+                        await Utils.sleep(200);
 
                         var _type = videoType;
                         if (Utils.empty(_type)) {
@@ -115,12 +136,15 @@ class DLNAUtil {
 
                         var video = VideoObject(title ?? "", url, _type);
                         video.refreshPosition = true;
-                        await manager.actSetVideoUrl(video);
-                        await manager.actPlay();
 
-                        curDevice = e;
-                        _update();
-
+                        var result = await manager.actSetVideoUrl(video);
+                        if (result.success) {
+                          curDevice = e;
+                          _update();
+                        } else {
+                          errMsg = '投屏失败：' + result.errorMessage;
+                          _update();
+                        }
                       } catch (e) {
                         print(e);
                         return;
@@ -139,6 +163,8 @@ class DLNAUtil {
 //              return item;
 //            };
 
+            final _btnColor = curDevice == null ? Colors.grey : Theme.of(context).accentColor;
+
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +172,7 @@ class DLNAUtil {
                 Text("DLNA 投屏", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 SizedBox(height: 16),
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 300),
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 260),
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -181,10 +207,13 @@ class DLNAUtil {
                           }
                         }),
                         Expanded(child: Container()),
-                        IconButton(icon: Icon(Icons.pause, color: _devices.isEmpty ? Colors.grey : Theme.of(context).accentColor), onPressed: _devices.isEmpty ? null : () {
+                        IconButton(icon: Icon(Icons.play_arrow, color: _btnColor), onPressed: curDevice == null ? null : () {
+                          manager.actPlay();
+                        }),
+                        IconButton(icon: Icon(Icons.pause, color: _btnColor), onPressed: curDevice == null ? null : () {
                           manager.actPause();
                         }),
-                        IconButton(icon: Icon(Icons.stop, color: _devices.isEmpty ? Colors.grey : Theme.of(context).accentColor), onPressed: _devices.isEmpty ? null : () {
+                        IconButton(icon: Icon(Icons.stop, color: _btnColor), onPressed: curDevice == null ? null : () {
                           manager.actStop();
                         })
                       ],

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/audio_service.dart';
 import 'package:flutter/services.dart';
 // import 'package:wakelock/wakelock.dart';
 
@@ -136,6 +137,7 @@ class VideoPageController with ChangeNotifier {
       await _audioController.initialize();
     }
     await seekTo(Duration(milliseconds: searchItem.durContentIndex));
+    AudioService.stop();
     _controller.play();
     _syncController();
     if (_timer == null) {
@@ -232,6 +234,7 @@ class VideoPageController with ChangeNotifier {
       Wakelock.enable();
       showToastText('暂停');
     } else {
+      AudioService.stop();
       _controller.play();
       _audioController?.play();
 

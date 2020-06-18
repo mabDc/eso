@@ -57,6 +57,7 @@ dependencies:
   dlna: ^0.0.5
   wakelock: ^0.1.4+1
   cached_network_image: ^2.2.0+1
+  event_bus:  ^1.1.1
 
 dev_dependencies:
   flutter_test:

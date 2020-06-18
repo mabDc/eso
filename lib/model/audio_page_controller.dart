@@ -26,9 +26,7 @@ class AudioPageController with ChangeNotifier {
     }
   }
 
-  final AnimationController controller;
-
-  AudioPageController({@required SearchItem searchItem, this.controller}) {
+  AudioPageController({@required SearchItem searchItem}) {
     // init
     _audioService = AudioService();
     _showChapter = false;
@@ -83,11 +81,6 @@ class AudioPageController with ChangeNotifier {
 
   void playOrPause() async {
     await _audioService.playOrPause();
-    if (controller.isAnimating) {
-      controller.stop();
-    } else {
-      controller.forward();
-    }
     notifyListeners();
   }
 
@@ -103,7 +96,6 @@ class AudioPageController with ChangeNotifier {
   @override
   void dispose() async {
     _timer?.cancel();
-    controller?.dispose();
     super.dispose();
   }
 }

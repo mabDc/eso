@@ -5,6 +5,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
+import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +24,9 @@ class AudioPage extends StatefulWidget {
   _AudioPageState createState() => _AudioPageState();
 }
 
-class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMixin {
+class _AudioPageState extends State<AudioPage> {
   Widget _audioPage;
   AudioPageController __provider;
-  AnimationController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -43,30 +43,8 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildPage() {
-    controller = AnimationController(duration: const Duration(seconds: 30), vsync: this);
-    //动画开始、结束、向前移动或向后移动时会调用StatusListener
-    controller.forward();
-    controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        //动画从 controller.forward() 正向执行 结束时会回调此方法
-        print("status is completed");
-        //重置起点
-        controller.reset();
-        //开启
-        controller.forward();
-      } else if (status == AnimationStatus.dismissed) {
-        //动画从 controller.reverse() 反向执行 结束时会回调此方法
-        print("status is dismissed");
-      } else if (status == AnimationStatus.forward) {
-        print("status is forward");
-        //执行 controller.forward() 会回调此状态
-      } else if (status == AnimationStatus.reverse) {
-        //执行 controller.reverse() 会回调此状态
-        print("status is reverse");
-      }
-    });
     return ChangeNotifierProvider<AudioPageController>.value(
-      value: AudioPageController(searchItem: widget.searchItem, controller: controller),
+      value: AudioPageController(searchItem: widget.searchItem),
       child: Consumer<AudioPageController>(
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
@@ -92,32 +70,27 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
                   SafeArea(
                     child: Column(
                       children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.all(12),
-                          child: _buildTopRow(provider, chapter.name, chapter.time),
-                        ),
+                        _buildAppBar(provider, chapter.name, chapter.time),
                         Expanded(
                           child: Container(
                             child: Center(
-                              child: RotationTransition(
-                                //设置动画的旋转中心
-                                alignment: Alignment.center,
-                                //动画控制器
-                                turns: controller,
-                                child: Container(
-                                  height: 300,
-                                  width: 300,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Utils.empty(chapter.cover) ? Colors.black26 : null,
-                                    image: Utils.empty(chapter.cover) ? null : DecorationImage(
-                                      image: NetworkImage(chapter.cover ?? ''),
-                                      fit: BoxFit.cover,
+                              child: SizedBox(
+                                width: 300,
+                                height: 300,
+                                child: AnimationRotateView(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Utils.empty(chapter.cover) ? Colors.black26 : null,
+                                      image: Utils.empty(chapter.cover) ? null : DecorationImage(
+                                        image: NetworkImage(chapter.cover ?? ''),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
+                                    child: Utils.empty(chapter.cover) ? Icon(Icons.audiotrack, color: Colors.white30, size: 200) : null,
                                   ),
-                                  child: Utils.empty(chapter.cover) ? Icon(Icons.audiotrack, color: Colors.white30, size: 200) : null,
                                 ),
-                              ),
+                              )
                             ),
                           ),
                         ),
@@ -142,52 +115,46 @@ class _AudioPageState extends State<AudioPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildTopRow(AudioPageController provider, String name, String author) {
-    return Row(
-      children: <Widget>[
-        Material(
-          color: Colors.transparent,
-          child: BackButton(color: Colors.white70),
-        ),
-        SizedBox(
-          width: 6,
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                '$name',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white70,
-                ),
-              ),
-              Text(
-                '$author',
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: 10,
-        ),
-        InkWell(
-          child: Icon(
-            Icons.share,
-            color: Colors.white70,
-            size: 20,
-          ),
-          onTap: provider.share,
-        ),
+  Widget _buildAppBar(AudioPageController provider, String name, String author) {
+    final _iconTheme = Theme.of(context).primaryIconTheme;
+    final _textTheme = Theme.of(context).primaryTextTheme;
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      brightness: Brightness.dark,
+      iconTheme: _iconTheme.copyWith(color: Colors.white70),
+      textTheme: _textTheme.copyWith(headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
+      actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.share, size: 20),
+          onPressed: provider.share,
+        )
       ],
+      titleSpacing: 0,
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '$name',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white70,
+            ),
+          ),
+          Text(
+            '$author',
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.white70,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

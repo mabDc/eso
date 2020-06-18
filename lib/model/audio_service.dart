@@ -1,15 +1,32 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/api/api_manager.dart';
+import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/evnts/audio_state_event.dart';
+import 'package:eso/utils.dart';
 
 class AudioService {
   static const int REPEAT_ALL = 2;
   static const int REPEAT_ONE = 1;
   static const int REPEAT_NONE = 0;
 
-  static final AudioService _audioService = AudioService._internal();
-  factory AudioService() => _audioService;
+  static AudioService __internal;
+
+  static AudioService getAudioService() {
+    if (__internal == null)
+      __internal = AudioService._internal();
+    return __internal;
+  }
+
+  factory AudioService() => getAudioService();
+
+  static bool get isPlaying => __internal != null && __internal.__isPlaying;
+
+  static Future<void> stop() async {
+    if (!isPlaying) return;
+    await __internal._player.stop();
+  }
 
   AudioService._internal() {
     if (_player == null) {
@@ -26,6 +43,7 @@ class AudioService {
       });
       _player.onPlayerStateChanged.listen((AudioPlayerState s) {
         _playerState = s;
+        eventBus.fire(AudioStateEvent(_searchItem, s));
       });
       _player.onPlayerCompletion.listen((event) {
         switch (_repeatMode) {
@@ -49,6 +67,11 @@ class AudioService {
     await _player.seek(Duration.zero);
     return _player.resume();
   }
+
+  /// 是否正在播放
+  bool get __isPlaying => _playerState != AudioPlayerState.STOPPED &&
+      _playerState != AudioPlayerState.COMPLETED &&
+      _playerState != AudioPlayerState.PAUSED;
 
   Future<int> play() async {
     switch (_playerState) {
@@ -138,6 +161,10 @@ class AudioService {
 
   AudioPlayerState _playerState;
   AudioPlayerState get playerState => _playerState;
+
+  /// 当前播放的节目
+  ChapterItem get curChapter => _durChapterIndex < 0 || _durChapterIndex >= (_searchItem?.chapters?.length ?? 0) ? null : _searchItem.chapters[_durChapterIndex];
+
 
   void dispose() {
     try {
