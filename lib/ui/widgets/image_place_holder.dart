@@ -3,9 +3,15 @@ import 'package:flutter/material.dart';
 import '../../global.dart';
 
 class ImagePlaceHolder extends StatelessWidget {
+  final double height;
+  final double width;
+  const ImagePlaceHolder({Key key, this.height, this.width}): super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
+      width: width,
       padding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor.withOpacity(0.1),

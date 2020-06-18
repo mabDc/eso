@@ -329,7 +329,7 @@ class _MangaPageState extends State<MangaPage> {
               MaterialPageRoute(
                 builder: (context) => ZoomView(
                   child: Center(
-                    child: UIFadeInImage(url: path, header: provider.headers),
+                    child: UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 350),
                   ),
                 ),
               ),
@@ -344,7 +344,7 @@ class _MangaPageState extends State<MangaPage> {
           //   image: checkUrl(path, provider.headers),
           //   fit: BoxFit.fitWidth,
           // ),
-          child: UIFadeInImage(url: path, header: provider.headers),
+          child: UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 300),
         );
       },
     );

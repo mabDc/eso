@@ -7,8 +7,9 @@ import 'widgets/image_place_holder.dart';
 class UIFadeInImage extends StatefulWidget {
   final String url;
   final Map<String, String> header;
+  final double placeHolderHeight;
   final BoxFit fit;
-  UIFadeInImage({this.url, this.header, this.fit, Key key}) : super(key: key);
+  UIFadeInImage({this.url, this.header, this.fit, this.placeHolderHeight, Key key}) : super(key: key);
 
   @override
   _UIFadeInImageState createState() => _UIFadeInImageState();
@@ -30,7 +31,7 @@ class _UIFadeInImageState extends State<UIFadeInImage> {
       imageUrl: widget.url,
       httpHeaders: widget.header,
       placeholder: (context, url) {
-        return ImagePlaceHolder();
+        return ImagePlaceHolder(height: widget.placeHolderHeight);
       },
       fit: widget.fit ?? BoxFit.cover,
       errorWidget: (context, url, err) {
