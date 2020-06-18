@@ -5,6 +5,7 @@ import 'package:eso/model/discover_page_controller.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
+import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:eso/ui/widgets/search_edit.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
@@ -51,8 +52,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
     super.initState();
     if (widget.discoverMap == null || widget.discoverMap.length == 0 || widget.discoverMap.first?.pairs == null)
       return null;
-    if (widget.discoverMap.first.pairs.length <= 1)
-      return null;
     map = widget.discoverMap.first;
     pairs = widget.discoverMap.first.pairs;
   }
@@ -80,7 +79,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
           List<Widget> children = [];
           if (pairs != null && pairs.isNotEmpty) {
             for (var i = 0; i < pairs.length; i++) {
-              children.add(_buildListView(context, pageController, pageController.items[i]));
+              children.add(KeepAliveWidget(
+                wantKeepAlive: true,
+                child: _buildListView(context, pageController, pageController.items[i]),
+              ));
             }
           }
 
@@ -132,7 +134,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
             body: Column(
               children: <Widget>[
                 Expanded(
-                  child: TabBarView(
+                  child: children.isEmpty ? Container() : children.length == 1 ? children.first : TabBarView(
                     controller: _tabController,
                     children: children,
                   ),
@@ -150,9 +152,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
         ? LandingPage()
         : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
         ? buildDiscoverResultList(
-        item.items, item.controller)
+        item.items, pageController, item)
         : buildDiscoverResultGrid(
-        item.items, item.controller);
+        item.items, pageController, item);
   }
 
   PreferredSizeWidget _buildAppBarBottom(BuildContext context, DiscoverPageController pageController) {
@@ -193,63 +195,83 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
     );
   }
 
-  Widget buildDiscoverResultList(List<SearchItem> items, ScrollController controller) {
-    return ListView.builder(
-      controller: controller,
-      itemCount: items.length + 1,
-      itemBuilder: (BuildContext context, int index) {
-        if (index == items.length) {
-          return LoadMoreView(msg: "正在加载...");
-        }
-        SearchItem searchItem = items[index];
-        if (SearchItemManager.isFavorite(searchItem.url)) {
-          searchItem = SearchItemManager.searchItem
-              .firstWhere((item) => item.url == searchItem.url);
-        }
-        return InkWell(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: UiSearchItem(item: searchItem),
-          ),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
-          ),
-        );
-      },
+  Widget buildDiscoverResultList(List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
+    return RefreshIndicator(
+      child: ListView.builder(
+        controller: item.controller,
+        itemCount: items.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == items.length) {
+            if (item.more)
+              return LoadMoreView(msg: "正在加载...");
+            return Container();
+          }
+          SearchItem searchItem = items[index];
+          if (SearchItemManager.isFavorite(searchItem.url)) {
+            searchItem = SearchItemManager.searchItem
+                .firstWhere((item) => item.url == searchItem.url);
+          }
+          return InkWell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: UiSearchItem(item: searchItem),
+            ),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
+            ),
+          );
+        },
+      ),
+      onRefresh: () async => await onRefresh(pageController, item),
     );
   }
 
-  Widget buildDiscoverResultGrid(List<SearchItem> items, ScrollController controller) {
-    return GridView.builder(
-      controller: controller,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.65,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 0,
+  Widget buildDiscoverResultGrid(List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
+    return RefreshIndicator(
+      child: GridView.builder(
+        controller: item.controller,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 0.65,
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+        ),
+        padding: const EdgeInsets.all(6.0),
+        itemCount: items.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == items.length) {
+            if (item.more)
+              return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
+            return Container();
+          }
+          SearchItem searchItem = items[index];
+          if (SearchItemManager.isFavorite(searchItem.url)) {
+            searchItem = SearchItemManager.searchItem
+                .firstWhere((item) => item.url == searchItem.url);
+          }
+          return InkWell(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+              child: UIDiscoverItem(searchItem: searchItem),
+            ),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
+            ),
+          );
+        },
       ),
-      padding: const EdgeInsets.all(6.0),
-      itemCount: items.length + 1,
-      itemBuilder: (BuildContext context, int index) {
-        if (index == items.length) {
-          return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
-        }
-        SearchItem searchItem = items[index];
-        if (SearchItemManager.isFavorite(searchItem.url)) {
-          searchItem = SearchItemManager.searchItem
-              .firstWhere((item) => item.url == searchItem.url);
-        }
-        return InkWell(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-            child: UIDiscoverItem(searchItem: searchItem),
-          ),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
-          ),
-        );
-      },
+      onRefresh: () async => await onRefresh(pageController, item),
     );
+  }
+
+  onRefresh(DiscoverPageController pageController, ListDataItem item) async {
+    if (item.isLoading) return;
+    if (pageController.showSearchField)
+      await pageController.search();
+    else {
+      item.page = 1;
+      await pageController.fetchData(item);
+    }
   }
 
   /// 切换到指定分类

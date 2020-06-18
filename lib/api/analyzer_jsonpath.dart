@@ -20,16 +20,20 @@ class AnalyzerJSonPath implements Analyzer {
   @override
   dynamic getElements(String rule) {
     final result = <dynamic>[];
-    final res = JPath.compile(rule).search(_ctx);
-    if (null == res) return result;
-    if (res is List) {
-      if (res[0] is List) {
-        res.forEach((r) => result.addAll(r));
-      } else {
-        result.addAll(res);
+    try {
+      final res = JPath.compile(rule).search(_ctx);
+      if (null == res) return result;
+      if (res is List) {
+        if (res[0] is List) {
+          res.forEach((r) => result.addAll(r));
+        } else {
+          result.addAll(res);
+        }
       }
+      return result;
+    } catch (e) {
+      return result;
     }
-    return result;
   }
 
   @override

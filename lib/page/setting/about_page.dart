@@ -2,7 +2,6 @@ import 'package:eso/page/source/edit_source_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info/package_info.dart';
 
 import '../../global.dart';
 import '../../model/profile.dart';
@@ -12,23 +11,10 @@ import 'color_lens_page.dart';
 class AboutPage extends StatelessWidget {
   const AboutPage({Key key}) : super(key: key);
 
-  /// 包信息
-  static PackageInfo info;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: StatefulBuilder(builder: (context, state) {
-          if (info == null) {
-            PackageInfo.fromPlatform().then((value) {
-              info = value;
-              state(() => info);
-            });
-          }
-          return Text(info?.appName ?? '');
-        })
-      ),
+      appBar: AppBar(title: Text(Global.appName)),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(
@@ -141,9 +127,19 @@ class AboutPage extends StatelessWidget {
                       subtitle: Text('https://github.com/mabDc/eso/releases'),
                       onTap: () => launch('https://github.com/mabDc/eso/releases'),
                     ),
+                    ListTile(
+                      title: Text('规则编写说明'),
+                      subtitle:
+                          Text('http://106.13.192.208/gitlab/WL/eso_source/wiki/规则编写'),
+                      onTap: () => launch(
+                          'http://106.13.192.208/gitlab/WL/eso_source/wiki/%E8%A7%84%E5%88%99%E7%BC%96%E5%86%99'),
+                    ),
                     Material(
                       color: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(4.0), bottomRight: Radius.circular(4.0))),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(4.0),
+                              bottomRight: Radius.circular(4.0))),
                       child: InkWell(
                         onTap: () => showAboutDialog(
                           context: context,

@@ -57,7 +57,7 @@ class DiscoverPageController with ChangeNotifier {
       item.pair = element;
       item.controller = ScrollController();
       item.controller.addListener(() {
-        if (item.controller.position.pixels == item.controller.position.maxScrollExtent) {
+        if (item.more && item.controller.position.pixels == item.controller.position.maxScrollExtent) {
           loadMore(item);
         }
       });
@@ -78,7 +78,9 @@ class DiscoverPageController with ChangeNotifier {
     if(_discoverParams[name] != pair){
       _discoverParams[name]= pair;
       var index = _items.indexWhere((element) => element.pair == pair);
-      _discover(_items[index]);
+      var item = _items[index];
+      if (item.length == 0)
+        _discover(item);
     }
   }
 
@@ -113,6 +115,7 @@ class DiscoverPageController with ChangeNotifier {
       item.items.addAll(newItems);
     }
     item.isLoading = false;
+    item.more = newItems.length > 0;
     notifyListeners();
     return;
   }
@@ -122,11 +125,11 @@ class DiscoverPageController with ChangeNotifier {
   //   return fetchData();
   // }
 
-  void search() async {
+  search() async {
     _showSearchResult = true;
     var item = searchItem;
     item.page = 1;
-    return fetchData(item);
+    return await fetchData(item);
   }
 
   void _discover(ListDataItem item) {
@@ -168,13 +171,14 @@ class DiscoverPageController with ChangeNotifier {
 }
 
 class ListDataItem {
-  ListDataItem({this.items, this.pair, this.controller, this.page = 1, this.isLoading = false});
+  ListDataItem({this.items, this.pair, this.more = true, this.controller, this.page = 1, this.isLoading = false});
 
   DiscoverPair pair;
   ScrollController controller;
   List<SearchItem> items;
   int page;
   bool isLoading;
+  bool more;
 
   void dispose() {
     if (controller != null) controller.dispose();

@@ -1,7 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
-import 'widgets/fade_in_imageex.dart';
 import 'widgets/image_place_holder.dart';
 
 class UIFadeInImage extends StatefulWidget {
@@ -26,25 +26,37 @@ class _UIFadeInImageState extends State<UIFadeInImage> {
   @override
   Widget build(BuildContext context) {
     // 避免error为null
-    if (error == true) {
-      return Image.asset(Global.nowayPath, fit: widget.fit ?? BoxFit.cover);
-    }
-    final image = FadeInImageEx(
-      placeholder: ImagePlaceHolder(),
-      image: NetworkImage(widget.url, headers: widget.header),
+    return CachedNetworkImage(
+      imageUrl: widget.url,
+      httpHeaders: widget.header,
+      placeholder: (context, url) {
+        return ImagePlaceHolder();
+      },
       fit: widget.fit ?? BoxFit.cover,
+      errorWidget: (context, url, err) {
+        return Image.asset(Global.nowayPath, fit: widget.fit ?? BoxFit.cover);
+      },
     );
-    final ImageStream stream = image.image.resolve(ImageConfiguration.empty);
-    stream.addListener(
-      ImageStreamListener(
-        (_, __) {},
-        onError: (dynamic exception, StackTrace stackTrace) {
-          setState(() {
-            error = true;
-          });
-        },
-      ),
-    );
-    return image;
+//    if (error == true) {
+//      return Image.asset(Global.nowayPath, fit: widget.fit ?? BoxFit.cover);
+//    }
+//
+//    final image = FadeInImage(
+//      placeholder: AssetImage(Global.waitingPath),
+//      image: NetworkImage(widget.url, headers: widget.header),
+//      fit: widget.fit ?? BoxFit.cover,
+//    );
+//    final ImageStream stream = image.image.resolve(ImageConfiguration.empty);
+//    stream.addListener(
+//      ImageStreamListener(
+//        (_, __) {},
+//        onError: (dynamic exception, StackTrace stackTrace) {
+//          setState(() {
+//            error = true;
+//          });
+//        },
+//      ),
+//    );
+//    return image;
   }
 }
