@@ -72,8 +72,7 @@ class _AudioPageState extends State<AudioPage> {
                       children: <Widget>[
                         _buildAppBar(provider, chapter.name, chapter.time),
                         Expanded(
-                          child: Container(
-                            child: Center(
+                          child: Center(
                               child: SizedBox(
                                 width: 300,
                                 height: 300,
@@ -91,7 +90,6 @@ class _AudioPageState extends State<AudioPage> {
                                   ),
                                 ),
                               )
-                            ),
                           ),
                         ),
                         _buildProgressBar(provider),

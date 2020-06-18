@@ -10,6 +10,11 @@ class PageSwitch with ChangeNotifier {
     if(_currentIndex == null){
       _currentIndex = 0;
     }
+    updatePageController();
+  }
+
+  void updatePageController() {
+    _pageController?.dispose();
     _pageController = PageController(initialPage: _currentIndex);
   }
 

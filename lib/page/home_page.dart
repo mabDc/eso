@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
       child: Consumer<PageSwitch>(
         builder: (BuildContext context, PageSwitch pageSwitch, Widget widget) {
           Global.currentHomePage = pageSwitch.currentIndex;
+          pageSwitch.updatePageController();
           final _pageView = PageView(
             controller: pageSwitch.pageController,
             children: <Widget>[
