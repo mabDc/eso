@@ -79,8 +79,10 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                   },
                   itemCount: count,
                   loadingBuilder: (context, event) {
-                    return SizedBox(width: 50, height: 50,
-                      child: CircularProgressIndicator(strokeWidth: 1.0)
+                    return Center(
+                      child: SizedBox(width: 50, height: 50,
+                          child: CircularProgressIndicator(strokeWidth: 1.0, valueColor: AlwaysStoppedAnimation<Color>(Colors.white30))
+                      ),
                     );
                   },
                   backgroundDecoration: null,

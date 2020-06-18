@@ -45,7 +45,10 @@ class DiscoverPageController with ChangeNotifier {
     _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
-    initItems(discoverMap.first.pairs);
+    if (discoverMap.isEmpty)
+      initItems([]);
+    else
+      initItems(discoverMap.first.pairs);
     fetchData(_items.first);
   }
 
@@ -95,7 +98,7 @@ class DiscoverPageController with ChangeNotifier {
   }
 
   Future<void> fetchData(ListDataItem item, {needShowLoading = false}) async {
-    if (item == null || item.isLoading) return;
+    if (item == null || item.isLoading || discoverMap.isEmpty) return;
     item.isLoading = true;
     if(needShowLoading){
       notifyListeners();
