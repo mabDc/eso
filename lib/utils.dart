@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 export 'package:cached_network_image/cached_network_image.dart';
 
@@ -38,4 +40,30 @@ class Utils {
     return await Navigator.push(context, rote);
   }
 
+  static String _downloadPath;
+
+  /// 提取文件名（不包含路径和扩展名）
+  static String getFileName(final String file) {
+    return path.basenameWithoutExtension(file);
+  }
+
+  /// 检测路径是否存在
+  static bool existPath(final String _path) {
+    return Directory(_path).existsSync();
+  }
+
+  /// 获取下载目录
+  static Future<String> getDownloadsPath() async {
+    if (Platform.isIOS)
+      return (await getApplicationDocumentsDirectory()).path;
+    else {
+      if (_downloadPath == null) {
+        _downloadPath = (await getExternalStorageDirectory()).path;
+        if (!(existPath(_downloadPath)))
+          _downloadPath = (await getTemporaryDirectory()).path;
+      }
+      print("downloadPath: $_downloadPath");
+      return _downloadPath;
+    }
+  }
 }
