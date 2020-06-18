@@ -7,6 +7,7 @@ import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -67,7 +68,12 @@ class NovelPage extends StatelessWidget {
             return GestureDetector(
               child: Stack(
                 children: <Widget>[
-                  content,
+                  AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: Theme.of(context).brightness == Brightness.light
+                        ? SystemUiOverlayStyle.dark
+                        : SystemUiOverlayStyle.light,
+                    child: content,
+                  ),
                   provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
