@@ -74,7 +74,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                     return PhotoViewGalleryPageOptions(
                       //imageProvider: NetworkImage(item.url),
                       imageProvider: CachedNetworkImageProvider(item.url, headers: item.headers),
-                      heroAttributes: widget.heroTag != null ? PhotoViewHeroAttributes(tag: widget.heroTag) : null,
+                      heroAttributes: widget.heroTag != null && widget.index == index ? PhotoViewHeroAttributes(tag: widget.heroTag) : null,
                     );
                   },
                   itemCount: count,
@@ -100,30 +100,38 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
             onLongPress: doLongPress,
             //onSecondaryLongPress: doLongPress,
           ),
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 30,
-            width: MediaQuery.of(context).size.width,
-            child: Center(
-              child: Text("${currentIndex + 1} / $count",
-                  style: TextStyle(color: Theme.of(context).canvasColor.withOpacity(0.7), fontSize: 16)),
-            ),
-          ),
-          Positioned(
-            right: 10,
-            top: MediaQuery.of(context).padding.top + 15,
-            child: IconButton(
-              icon: Icon(Icons.close, color: Colors.white.withAlpha(80)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+          SafeArea(
+            child: Row(
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: BackButton(color: Colors.white54),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                ),
+                Expanded(
+                  child: Text("${currentIndex + 1} / $count",
+                      style: TextStyle(color: Colors.white70, fontSize: 16), textAlign: TextAlign.center),
+                ),
+                Material(
+                  color: Colors.transparent,
+                  child: IconButton(
+                    icon: Icon(Icons.more_vert, color: Colors.white54),
+                    onPressed: doLongPress,
+                    tooltip: "菜单",
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                ),
+              ],
             ),
           ),
           Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                width: count >= 6 ? 200 : count < 3 ? 50 : 100,
+                width: count >= 9 ? MediaQuery.of(context).size.width - 80 : count >= 6 ? 200 : count < 3 ? 50 : 100,
                 height: count == 1 ? 0 : 50,
-                child: Row(
+                child: count < 2 ? null : Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: List.generate(
                     count,
@@ -151,8 +159,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
         context: context,
         barrierDismissible: true,
         builder: (context) {
-          return Material(
-            color: Colors.transparent,
+          return Container(
             child: Stack(
               children: <Widget>[
                 Positioned(
