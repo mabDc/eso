@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:eso/global.dart';
@@ -6,6 +7,7 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -32,11 +34,12 @@ class NovelPage extends StatelessWidget {
         height: height,
       ),
       builder: (context, child) => Scaffold(
+        backgroundColor: Color(profile.novelBackgroundColor),
         body: Consumer2<NovelPageProvider, Profile>(
           builder:
               (BuildContext context, NovelPageProvider provider, Profile profile, _) {
             if (provider.paragraphs == null) {
-              return LandingPage();
+              return LandingPage(color: Color(profile.novelBackgroundColor));
             }
             Widget content = Center(child: Text("暂不支持"));
             switch (profile.novelPageSwitch) {
@@ -65,14 +68,28 @@ class NovelPage extends StatelessWidget {
                 break;
               default:
             }
+            final _lightens = Global.lightness(Color(profile.novelBackgroundColor));
             return GestureDetector(
               child: Stack(
                 children: <Widget>[
                   AnnotatedRegion<SystemUiOverlayStyle>(
-                    value: Theme.of(context).brightness == Brightness.light
+                    value: _lightens > 128 || _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
                         ? SystemUiOverlayStyle.dark
                         : SystemUiOverlayStyle.light,
                     child: content,
+                  ),
+                  // ios不支持原生键监听
+                  provider.isLoading || provider.showMenu || !Platform.isAndroid ? SizedBox() : RawKeyboardListener(
+                    focusNode: FocusNode(),
+                    autofocus: true,
+                    onKey: (event) {
+                      if (event.logicalKey.keyId == LogicalKeyboardKey.audioVolumeUp.keyId && event is RawKeyUpEvent) {
+                        provider.tapLastPage();
+                      } else if (event.logicalKey.keyId == LogicalKeyboardKey.audioVolumeDown.keyId && event is RawKeyUpEvent) {
+                        provider.tapNextPage();
+                      }
+                    },
+                    child: Container(),
                   ),
                   provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
                   provider.showChapter
@@ -242,7 +259,8 @@ class NovelPage extends StatelessWidget {
       key: Key("novelPagePageView${axis.index}${searchItem.durChapterIndex}"), //必须
       controller: provider.pageController,
       scrollDirection: axis,
-      physics: BouncingScrollPhysics(),
+      physics: PageScrollPhysics(parent: BouncingScrollPhysics()),
+      dragStartBehavior: DragStartBehavior.down,
       children: List.generate(
           spanss.length,
           (index) => _buildOnePage(
@@ -290,7 +308,7 @@ class NovelPage extends StatelessWidget {
                 right: profile.novelLeftPadding - 5,
               ),
               width: double.infinity,
-              child: RichText(text: TextSpan(children: spans)),
+              child: RichText(text: TextSpan(children: spans, style: TextStyle(color: fontColor))),
             ),
           ),
           SizedBox(height: 4),
@@ -544,14 +562,14 @@ class NovelPage extends StatelessWidget {
         32 -
         MediaQuery.of(context).padding.top -
         oneLineHeight;
-    final fontColor = Color(profile.novelFontColor);
+    //final fontColor = Color(profile.novelFontColor);
     final spanss = <List<TextSpan>>[];
 
     final newLine = TextSpan(text: "\n");
     final commonStyle = TextStyle(
       fontSize: profile.novelFontSize,
       height: profile.novelHeight,
-      color: fontColor,
+      //color: fontColor,
     );
 
     var currentSpans = <TextSpan>[
@@ -559,7 +577,7 @@ class NovelPage extends StatelessWidget {
         text: searchItem.durChapter,
         style: TextStyle(
           fontSize: profile.novelFontSize + 2,
-          color: fontColor,
+          //color: fontColor,
           height: profile.novelHeight,
           fontWeight: FontWeight.bold,
         ),
@@ -569,7 +587,7 @@ class NovelPage extends StatelessWidget {
           text: " ",
           style: TextStyle(
             height: 1,
-            color: fontColor,
+            //color: fontColor,
             fontSize: profile.novelParagraphPadding,
           )),
       newLine,
@@ -608,7 +626,7 @@ class NovelPage extends StatelessWidget {
                 text: text.substring(firstPos, text.length - 1),
                 style: TextStyle(
                   fontSize: profile.novelFontSize,
-                  color: fontColor,
+                  //color: fontColor,
                   height: profile.novelHeight,
                   letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
                 )));
@@ -622,7 +640,7 @@ class NovelPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: profile.novelFontSize,
                   height: profile.novelHeight,
-                  color: fontColor,
+                  //color: fontColor,
                 )));
           }
           currentSpans.add(newLine);
@@ -630,7 +648,7 @@ class NovelPage extends StatelessWidget {
               text: " ",
               style: TextStyle(
                 height: 1,
-                color: fontColor,
+                //color: fontColor,
                 fontSize: profile.novelParagraphPadding,
               )));
           currentSpans.add(newLine);
@@ -643,7 +661,7 @@ class NovelPage extends StatelessWidget {
           text: text,
           style: TextStyle(
             fontSize: profile.novelFontSize,
-            color: fontColor,
+            //color: fontColor,
             height: profile.novelHeight,
           ),
         );
@@ -656,7 +674,7 @@ class NovelPage extends StatelessWidget {
             text: text.substring(firstPos, text.length - 1),
             style: TextStyle(
               fontSize: profile.novelFontSize,
-              color: fontColor,
+              //color: fontColor,
               height: profile.novelHeight,
               letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
             )));

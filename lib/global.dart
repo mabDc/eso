@@ -212,4 +212,10 @@ class Global with ChangeNotifier {
                   max(0, value.green + v), max(0, value.blue + v));
         }
   }
+
+  /// 返回该颜色的亮度, 亮度值介于 0 - 255之间
+  static double lightness(Color color) {
+     return 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue;
+  }
+
 }

@@ -42,12 +42,13 @@ class UINovelMenu extends StatelessWidget {
     final provider = Provider.of<NovelPageProvider>(context);
     final profile = Provider.of<Profile>(context);
     final colors = [
-      [0xfff1f1f1, 0xff373534], //白底
-      [0xfff5ede2, 0xff373328], //浅黄
-      [0xFFF5DEB3, 0xff373328], //黄
-      [0xffe3f8e1, 0xff485249], //绿
-      [0xff999c99, 0xff353535], //浅灰
-      [0xff33383d, 0xffc5c4c9], //黑
+      [const Color(0xfff1f1f1), const Color(0xff373534)], //白底
+      [const Color(0xfff5ede2), const Color(0xff373328)], //浅黄
+      [const Color(0xFFF5DEB3), const Color(0xff373328)], //黄
+      [const Color(0xffe3f8e1), const Color(0xff485249)], //绿
+      [const Color(0xff999c99), const Color(0xff353535)], //浅灰
+      [const Color(0xff33383d), const Color(0xffc5c4c9)], //黑
+      [const Color(0xff010203), const Color(0x3fffffff)], //纯黑
     ];
     final styles = [
       ["滚动", Profile.novelScroll],
@@ -468,8 +469,8 @@ class UINovelMenu extends StatelessWidget {
                       children: colors
                           .map((color) => InkWell(
                                 child: CircleAvatar(
-                                  radius: 18.0,
-                                  backgroundColor: Color(color[0]),
+                                  radius: 16.0,
+                                  backgroundColor: color[0],
                                 ),
                                 onTap: () => profile.setNovelColor(color[0], color[1]),
                               ))

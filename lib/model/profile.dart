@@ -303,14 +303,14 @@ class Profile with ChangeNotifier {
     }
   }
 
-  void setNovelColor(int bgColor, int fontColor) {
+  void setNovelColor(Color bgColor, Color fontColor) {
     var change = false;
-    if (bgColor != _novelBackgroundColor) {
-      _novelBackgroundColor = bgColor;
+    if (bgColor.value != _novelBackgroundColor) {
+      _novelBackgroundColor = bgColor.value;
       change = true;
     }
-    if (fontColor != novelFontColor) {
-      _novelFontColor = fontColor;
+    if (fontColor.value != novelFontColor) {
+      _novelFontColor = fontColor.value;
       change = true;
     }
     if (change) {
