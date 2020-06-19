@@ -127,17 +127,19 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   Map<int, List<String>> _cache;
-  Future<bool> freshContentWithCache() async {
+  Future<bool> freshContentWithCache([VoidCallback onWait]) async {
     final index = searchItem.durChapterIndex;
 
     /// 检查当前章节
     if (_cache == null) {
+      if (onWait != null) onWait();
       final content = await APIManager.getContent(
         searchItem.originTag,
         searchItem.chapters[index].url,
       );
       _cache = {index: content.join("\n").split(RegExp(r"\n\s*|\s{2,}"))};
     } else if (_cache[index] == null) {
+      if (onWait != null) onWait();
       final content = await APIManager.getContent(
         searchItem.originTag,
         searchItem.chapters[index].url,
@@ -199,8 +201,7 @@ class NovelPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return;
     _isLoading = true;
-    notifyListeners();
-    await freshContentWithCache();
+    await freshContentWithCache(() => notifyListeners());
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
