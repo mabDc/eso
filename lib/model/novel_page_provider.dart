@@ -252,7 +252,7 @@ class NovelPageProvider with ChangeNotifier {
       await loadChapter(searchItem.durChapterIndex - 1);
     } else if (value > spans.length && searchItem.durChapterIndex < searchItem.chapters.length - 1) {
       await loadChapter(searchItem.durChapterIndex + 1);
-      _pageController.jumpToPage(1);
+      //_pageController.jumpToPage(1);
     }
     _autoSwitchPageing = false;
   }
