@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/global.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
@@ -80,7 +82,10 @@ class NovelPageProvider with ChangeNotifier {
   PageController _pageController;
   PageController get pageController => _pageController;
 
+  Profile _profile;
+
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
+    _profile = profile;
     _brightness = 0.5;
     _isLoading = false;
     _showChapter = false;
@@ -187,7 +192,7 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-  Future<void> loadChapter(int chapterIndex) async {
+  Future<void> loadChapter(int chapterIndex, [bool notify = true]) async {
     _showChapter = false;
     if (isLoading ||
         chapterIndex == searchItem.durChapterIndex ||
@@ -205,7 +210,8 @@ class NovelPageProvider with ChangeNotifier {
     if (_readSetting?.pageSwitch == Profile.novelScroll) {
       _controller.jumpTo(1);
     }
-    notifyListeners();
+    if (notify == true)
+      notifyListeners();
   }
 
   void refreshCurrent() async {
@@ -224,10 +230,30 @@ class NovelPageProvider with ChangeNotifier {
   int _currentPage;
   int get currentPage => _currentPage;
   set currentPage(int value) {
-    if (value >= 0 && value < spans.length) {
+    if (value > 0 && value < spans.length) {
       _currentPage = value + 1;
       searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
+    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
+        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
+      if (_autoSwitchPageing) return;
+      _autoSwitchPageing = true;
+      _currentPage = value;
+      _autoSwitchPage(value);
     }
+  }
+
+  bool _needJumpToLastPage = false;
+  bool _autoSwitchPageing = false;
+
+  void _autoSwitchPage(int value) async {
+    if (value <= 0 && searchItem.durChapterIndex > 0) {
+      _needJumpToLastPage = true;
+      await loadChapter(searchItem.durChapterIndex - 1);
+    } else if (value > spans.length && searchItem.durChapterIndex < searchItem.chapters.length - 1) {
+      await loadChapter(searchItem.durChapterIndex + 1);
+      _pageController.jumpToPage(1);
+    }
+    _autoSwitchPageing = false;
   }
 
   void tapNextPage() {
@@ -332,13 +358,13 @@ class NovelPageProvider with ChangeNotifier {
     _controller?.dispose();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
-    _cache.clear();
+    _cache?.clear();
     super.dispose();
   }
 
   List<List<TextSpan>> _spans;
   List<List<TextSpan>> get spans => _spans;
-  List<List<TextSpan>> updateSpans(List<List<TextSpan>> spans) {
+  List<List<TextSpan>> updateSpans(List<List<TextSpan>> spans, {int initialPage}) {
     _spans = spans;
     _currentPage = (searchItem.durContentIndex * spans.length / 10000).round();
     if (_currentPage < 1) {
@@ -346,13 +372,21 @@ class NovelPageProvider with ChangeNotifier {
     } else if (_currentPage > _spans.length) {
       _currentPage = _spans.length;
     }
+    if (_needJumpToLastPage) {
+      _currentPage = _spans.length;
+      _needJumpToLastPage = false;
+    }
+
+    if (searchItem.durChapterIndex > 0)
+      _currentPage++;
+
     if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
         _readSetting.pageSwitch == Profile.novelVerticalSlide) {
       if (_pageController != null && _needPageJumpTo) {
         _pageController.jumpToPage(_currentPage - 1);
       } else {
         final temp = _pageController;
-        _pageController = PageController(initialPage: _currentPage - 1);
+        _pageController = PageController(initialPage: initialPage ?? _currentPage - 1);
         Future.delayed(Duration(seconds: 1), () => temp?.dispose());
       }
     }
@@ -387,6 +421,147 @@ class NovelPageProvider with ChangeNotifier {
       return true;
     }
     return false;
+  }
+
+  /// 文字排版部分
+  List<List<TextSpan>> buildSpans(NovelPageProvider provider, Profile profile) {
+    final __profile = profile ?? _profile;
+    if (_profile != __profile) _profile = __profile;
+    MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
+    final width = mediaQueryData.size.width - __profile.novelLeftPadding * 2;
+    final offset = Offset(width, 6);
+    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final oneLineHeight = __profile.novelFontSize * __profile.novelHeight;
+    final height = mediaQueryData.size.height -
+        __profile.novelTopPadding * 2 -
+        32 -
+        mediaQueryData.padding.top -
+        oneLineHeight;
+    //final fontColor = Color(__profile.novelFontColor);
+    final spanss = <List<TextSpan>>[];
+
+    final newLine = TextSpan(text: "\n");
+    final commonStyle = TextStyle(
+      fontSize: __profile.novelFontSize,
+      height: __profile.novelHeight,
+      //color: fontColor,
+    );
+
+    var currentSpans = <TextSpan>[
+      TextSpan(
+        text: searchItem.durChapter,
+        style: TextStyle(
+          fontSize: __profile.novelFontSize + 2,
+          //color: fontColor,
+          height: __profile.novelHeight,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      newLine,
+      TextSpan(
+          text: " ",
+          style: TextStyle(
+            height: 1,
+            //color: fontColor,
+            fontSize: __profile.novelParagraphPadding,
+          )),
+      newLine,
+    ];
+    tp.text = TextSpan(children: currentSpans);
+    tp.layout(maxWidth: width);
+    var currentHeight = tp.height;
+    bool firstLine = true;
+    final indentation = Global.fullSpace * __profile.novelIndentation;
+    for (var paragraph in provider.paragraphs) {
+      while (true) {
+        if (currentHeight >= height) {
+          spanss.add(currentSpans);
+          currentHeight = 0;
+          currentSpans = <TextSpan>[];
+        }
+        var firstPos = 1;
+        if (firstLine) {
+          firstPos = 3;
+          firstLine = false;
+          paragraph = indentation + paragraph;
+        }
+        tp.text = TextSpan(text: paragraph, style: commonStyle);
+        tp.layout(maxWidth: width);
+        final pos = tp.getPositionForOffset(offset).offset;
+        final text = paragraph.substring(0, pos);
+        paragraph = paragraph.substring(pos);
+        if (paragraph.isEmpty) {
+          // 最后一行调整宽度保证单行显示
+          if (width - tp.width - __profile.novelFontSize < 0) {
+            currentSpans.add(TextSpan(
+              text: text.substring(0, firstPos),
+              style: commonStyle,
+            ));
+            currentSpans.add(TextSpan(
+                text: text.substring(firstPos, text.length - 1),
+                style: TextStyle(
+                  fontSize: __profile.novelFontSize,
+                  //color: fontColor,
+                  height: __profile.novelHeight,
+                  letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+                )));
+            currentSpans.add(TextSpan(
+              text: text.substring(text.length - 1),
+              style: commonStyle,
+            ));
+          } else {
+            currentSpans.add(TextSpan(
+                text: text,
+                style: TextStyle(
+                  fontSize: __profile.novelFontSize,
+                  height: __profile.novelHeight,
+                  //color: fontColor,
+                )));
+          }
+          currentSpans.add(newLine);
+          currentSpans.add(TextSpan(
+              text: " ",
+              style: TextStyle(
+                height: 1,
+                //color: fontColor,
+                fontSize: __profile.novelParagraphPadding,
+              )));
+          currentSpans.add(newLine);
+          currentHeight += oneLineHeight;
+          currentHeight += __profile.novelParagraphPadding;
+          firstLine = true;
+          break;
+        }
+        tp.text = TextSpan(
+          text: text,
+          style: TextStyle(
+            fontSize: __profile.novelFontSize,
+            //color: fontColor,
+            height: __profile.novelHeight,
+          ),
+        );
+        tp.layout();
+        currentSpans.add(TextSpan(
+          text: text.substring(0, firstPos),
+          style: commonStyle,
+        ));
+        currentSpans.add(TextSpan(
+            text: text.substring(firstPos, text.length - 1),
+            style: TextStyle(
+              fontSize: __profile.novelFontSize,
+              //color: fontColor,
+              height: __profile.novelHeight,
+              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+            )));
+        currentSpans.add(TextSpan(
+          text: text.substring(text.length - 1),
+          style: commonStyle,
+        ));
+        currentHeight += oneLineHeight;
+      }
+    }
+    spanss.add(currentSpans);
+    return spanss;
   }
 }
 
