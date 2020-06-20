@@ -5,6 +5,7 @@ import 'package:eso/global.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:toast/toast.dart';
 import '../../api/api.dart';
 
@@ -91,9 +92,18 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             },
           ),
           IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () => _saveRule(context),
+            icon: Icon(Icons.share),
+            onPressed: () => FlutterShare.share(
+              title: '亦搜 eso',
+              text: jsonEncode(rule.toJson()),
+              //linkUrl: '${searchItem.url}',
+              chooserTitle: '选择分享的应用',
+            ),
           ),
+          // IconButton(
+          //   icon: Icon(Icons.save),
+          //   onPressed: () => _saveRule(context),
+          // ),
           _buildpopupMenu(context),
         ],
       ),
@@ -115,8 +125,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               child: Container(
                 height: 45,
                 decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Theme.of(context).dividerColor, width: Global.lineSize))
-                ),
+                    border: Border(
+                        top: BorderSide(
+                            color: Theme.of(context).dividerColor,
+                            width: Global.lineSize))),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: FAST_INPUT_LIST.length,
@@ -575,6 +587,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const TO_CLIPBOARD = 2;
     const DEBUG_WITHOUT_SAVE = 3;
     const FROM_YICIYUAN = 4;
+    const TO_SHARE = 5;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       elevation: 20,
@@ -599,23 +612,18 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             break;
+          case TO_SHARE:
+            FlutterShare.share(
+              title: '亦搜 eso',
+              text: jsonEncode(rule.toJson()),
+              //linkUrl: '${searchItem.url}',
+              chooserTitle: '选择分享的应用',
+            );
+            break;
           default:
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-        // PopupMenuItem(
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: <Widget>[
-        //       Text('保存规则'),
-        //       Icon(
-        //         Icons.save,
-        //         color: primaryColor,
-        //       ),
-        //     ],
-        //   ),
-        //   value: SAVE,
-        // ),
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -642,6 +650,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           ),
           value: FROM_YICIYUAN,
         ),
+        // PopupMenuItem(
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: <Widget>[
+        //       Text('分享规则至'),
+        //       Icon(
+        //         Icons.share,
+        //         color: primaryColor,
+        //       ),
+        //     ],
+        //   ),
+        //   value: TO_CLIPBOARD,
+        // ),
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -667,6 +688,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             ],
           ),
           value: DEBUG_WITHOUT_SAVE,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('保存规则'),
+              Icon(
+                Icons.save,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: SAVE,
         ),
       ],
     );

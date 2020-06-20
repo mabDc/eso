@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:eso/api/api_from_rule.dart';
@@ -6,7 +7,9 @@ import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/ui/widgets/search_edit.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -34,8 +37,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
           title: SearchEdit(
             hintText:
                 "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
-            onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
-                .getRuleListByName,
+            onSubmitted:
+                Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
             onChanged: Provider.of<EditSourceProvider>(context, listen: false)
                 .getRuleListByNameDebounce,
           ),
@@ -47,8 +50,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
             ),
             _buildpopupMenu(
               context,
-              context.select(
-                  (EditSourceProvider provider) => provider.isLoadingUrl),
+              context.select((EditSourceProvider provider) => provider.isLoadingUrl),
               Provider.of<EditSourceProvider>(context, listen: false),
             ),
           ],
@@ -59,8 +61,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               return LandingPage();
             }
             return ListView.separated(
-              separatorBuilder: (BuildContext context, int index) =>
-                  Container(),
+              separatorBuilder: (BuildContext context, int index) => Container(),
               itemCount: provider.rules.length,
               physics: BouncingScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
@@ -73,8 +74,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
     );
   }
 
-  Widget _buildItem(
-      BuildContext context, EditSourceProvider provider, Rule rule) {
+  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
     return Slidable(
       key: Key(rule.host),
       controller: slidableController,
@@ -91,10 +91,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-//          leading: Checkbox(
-//              value: rule.enableSearch,
-//              activeColor: Colors.amber,
-//          ),
+          //  leading: Checkbox(
+          //      value: rule.enableSearch,
+          //      activeColor: Colors.amber,
+          //  ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -104,17 +104,17 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       .push(MaterialPageRoute(
                           builder: (context) => EditRulePage(rule: rule)))
                       .whenComplete(() => provider.refreshData())),
-              Checkbox(
-                value: rule.enableSearch,
-                onChanged: null,
-              )
+              // Checkbox(
+              //   value: rule.enableSearch,
+              //   onChanged: null,
+              // )
             ],
           ),
           onTap: () {
             SlidableState activeState = slidableController.activeState;
-            if (activeState!=null&&!activeState.overallMoveAnimation.isDismissed){
+            if (activeState != null && !activeState.overallMoveAnimation.isDismissed) {
               slidableController.activeState.close();
-            }else{
+            } else {
               provider.toggleEnableSearch(rule);
             }
           },
@@ -237,19 +237,51 @@ class _EditSourcePageState extends State<EditSourcePage> {
     );
   }
 
+  Future<bool> _addFromClipBoard(
+      BuildContext context, EditSourceProvider provider, bool showEditPage) async {
+    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    try {
+      final rule = Rule.fromJson(jsonDecode(text.text));
+      if (provider.rules.any((r) => r.id == rule.id)) {
+        await Global.ruleDao.insertOrUpdateRule(rule);
+        provider.rules.removeWhere((r) => r.id == rule.id);
+        provider.rules.add(rule);
+        Toast.show("更新成功", context);
+      } else {
+        provider.rules.add(rule);
+        Toast.show("添加成功", context);
+      }
+      if (showEditPage) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
+            .whenComplete(() => provider.refreshData());
+      } else {
+        provider.refreshData(false);
+      }
+      return true;
+    } catch (e) {
+      Toast.show("失败！" + e.toString(), context, duration: 2);
+      return false;
+    }
+  }
+
   Widget _buildpopupMenu(
       BuildContext context, bool isLoadingUrl, EditSourceProvider provider) {
     final primaryColor = Theme.of(context).primaryColor;
     const int ADD_RULE = 0;
+    const int ADD_FROM_CLIPBOARD = 1;
     const int FROM_FILE = 2;
     const int FROM_CLOUD = 3;
     const int FROM_YICIYUAN = 4;
     const int DELETE_ALL_RULES = 5;
+    const int FROM_CLIPBOARD = 6;
     const list = [
-      {'title': '新建规则', 'icon': Icons.code, 'type': ADD_RULE},
-      {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
+      {'title': '新建空白规则', 'icon': Icons.code, 'type': ADD_RULE},
+      {'title': '从剪贴板新建', 'icon': Icons.note_add, 'type': ADD_FROM_CLIPBOARD},
+      {'title': '粘贴单条规则', 'icon': Icons.content_paste, 'type': FROM_CLIPBOARD},
+      // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
-      {'title': '网络导入', 'icon': Icons.cloud_download, 'type': FROM_CLOUD},
+      {'title': '网络导入', 'icon': Icons.cloud_queue, 'type': FROM_CLOUD},
       {'title': '清空源', 'icon': Icons.clear_all, 'type': DELETE_ALL_RULES},
     ];
     return PopupMenuButton<int>(
@@ -260,7 +292,14 @@ class _EditSourcePageState extends State<EditSourcePage> {
         switch (value) {
           case ADD_RULE:
             Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => EditRulePage()));
+                .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                .whenComplete(() => provider.refreshData());
+            break;
+          case ADD_FROM_CLIPBOARD:
+            _addFromClipBoard(context, provider, true);
+            break;
+          case FROM_CLIPBOARD:
+            _addFromClipBoard(context, provider, false);
             break;
           case FROM_FILE:
             Toast.show("从本地文件导入", context);

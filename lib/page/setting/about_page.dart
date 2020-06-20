@@ -128,11 +128,11 @@ class AboutPage extends StatelessWidget {
                       onTap: () => launch('https://github.com/mabDc/eso/releases'),
                     ),
                     ListTile(
-                      title: Text('规则编写说明'),
-                      subtitle:
-                          Text('http://106.13.192.208/gitlab/WL/eso_source/wiki/规则编写'),
+                      title: Text('规则说明及规则获取地址'),
+                      subtitle: Text(
+                          'https://github.com/mabDc/eso_source/blob/master/README.md'),
                       onTap: () => launch(
-                          'http://106.13.192.208/gitlab/WL/eso_source/wiki/%E8%A7%84%E5%88%99%E7%BC%96%E5%86%99'),
+                          'https://github.com/mabDc/eso_source/blob/master/README.md'),
                     ),
                   ],
                 ),
