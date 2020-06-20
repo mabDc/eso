@@ -73,24 +73,31 @@ class NovelPage extends StatelessWidget {
               child: Stack(
                 children: <Widget>[
                   AnnotatedRegion<SystemUiOverlayStyle>(
-                    value: _lightens > 128 || _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
+                    value: _lightens > 128 ||
+                            _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
                         ? SystemUiOverlayStyle.dark
                         : SystemUiOverlayStyle.light,
                     child: content,
                   ),
                   // ios不支持原生键监听
-                  provider.isLoading || provider.showMenu || !Platform.isAndroid ? SizedBox() : RawKeyboardListener(
-                    focusNode: FocusNode(),
-                    autofocus: true,
-                    onKey: (event) {
-                      if (event.logicalKey.keyId == LogicalKeyboardKey.audioVolumeUp.keyId && event is RawKeyUpEvent) {
-                        provider.tapLastPage();
-                      } else if (event.logicalKey.keyId == LogicalKeyboardKey.audioVolumeDown.keyId && event is RawKeyUpEvent) {
-                        provider.tapNextPage();
-                      }
-                    },
-                    child: Container(),
-                  ),
+                  provider.isLoading || provider.showMenu || !Platform.isAndroid
+                      ? SizedBox()
+                      : RawKeyboardListener(
+                          focusNode: FocusNode(),
+                          autofocus: true,
+                          onKey: (event) {
+                            if (event.logicalKey.keyId ==
+                                    LogicalKeyboardKey.audioVolumeUp.keyId &&
+                                event is RawKeyUpEvent) {
+                              provider.tapLastPage();
+                            } else if (event.logicalKey.keyId ==
+                                    LogicalKeyboardKey.audioVolumeDown.keyId &&
+                                event is RawKeyUpEvent) {
+                              provider.tapNextPage();
+                            }
+                          },
+                          child: Container(),
+                        ),
                   provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
@@ -216,7 +223,7 @@ class NovelPage extends StatelessWidget {
     //   firstCurve: Curves.linear,
     //   secondCurve: Curves.linear,
     // );
-    
+
     final nextPage = _buildOnePage(
       context,
       profile,
@@ -261,17 +268,16 @@ class NovelPage extends StatelessWidget {
       );
     };
     var children = <Widget>[];
-    if (provider.searchItem.durChapterIndex > 0)
-      children.add(_buildEmptyPage());
+    if (provider.searchItem.durChapterIndex > 0) children.add(_buildEmptyPage());
     children.addAll(List.generate(
         spanss.length,
-            (index) => _buildOnePage(
-          context,
-          profile,
-          spanss[index],
-          '${index + 1}/${spanss.length}',
-          fontColor,
-        )));
+        (index) => _buildOnePage(
+              context,
+              profile,
+              spanss[index],
+              '${index + 1}/${spanss.length}',
+              fontColor,
+            )));
     if (provider.searchItem.durChapterIndex < provider.searchItem.chapters.length - 1)
       children.add(_buildEmptyPage());
     return PageView(
@@ -322,7 +328,12 @@ class NovelPage extends StatelessWidget {
                 right: profile.novelLeftPadding - 5,
               ),
               width: double.infinity,
-              child: RichText(text: TextSpan(children: spans, style: TextStyle(color: fontColor))),
+              child: RichText(
+                text: TextSpan(
+                  children: spans,
+                  style: TextStyle(color: fontColor),
+                ),
+              ),
             ),
           ),
           SizedBox(height: 4),
@@ -481,10 +492,12 @@ class NovelPage extends StatelessWidget {
                               TextSpan(
                                 children: spans,
                               ),
+                              style: TextStyle(color: fontColor),
                             )
                           : RichText(
                               text: TextSpan(
                                 children: spans,
+                                style: TextStyle(color: fontColor),
                               ),
                             ),
                       Container(
@@ -563,5 +576,4 @@ class NovelPage extends StatelessWidget {
       ),
     );
   }
-
 }
