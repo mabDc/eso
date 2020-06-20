@@ -14,8 +14,15 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../discover_search_page.dart';
 
 //图源编辑
-class EditSourcePage extends StatelessWidget {
+class EditSourcePage extends StatefulWidget {
   const EditSourcePage({Key key}) : super(key: key);
+
+  @override
+  _EditSourcePageState createState() => _EditSourcePageState();
+}
+
+class _EditSourcePageState extends State<EditSourcePage> {
+  final SlidableController slidableController = SlidableController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +34,8 @@ class EditSourcePage extends StatelessWidget {
           title: SearchEdit(
             hintText:
                 "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
-            onSubmitted:
-                Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
+            onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
+                .getRuleListByName,
             onChanged: Provider.of<EditSourceProvider>(context, listen: false)
                 .getRuleListByNameDebounce,
           ),
@@ -40,7 +47,8 @@ class EditSourcePage extends StatelessWidget {
             ),
             _buildpopupMenu(
               context,
-              context.select((EditSourceProvider provider) => provider.isLoadingUrl),
+              context.select(
+                  (EditSourceProvider provider) => provider.isLoadingUrl),
               Provider.of<EditSourceProvider>(context, listen: false),
             ),
           ],
@@ -51,7 +59,8 @@ class EditSourcePage extends StatelessWidget {
               return LandingPage();
             }
             return ListView.separated(
-              separatorBuilder: (BuildContext context, int index) => Container(),
+              separatorBuilder: (BuildContext context, int index) =>
+                  Container(),
               // UIDash(
               //   color: Colors.black54,
               //   height: 0.5,
@@ -69,54 +78,96 @@ class EditSourcePage extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
+  Widget _buildItem(
+      BuildContext context, EditSourceProvider provider, Rule rule) {
     return Slidable(
+      key: Key(rule.host),
+      controller: slidableController,
       actionPane: SlidableDrawerActionPane(),
-      actionExtentRatio: 0.25,
+      actionExtentRatio: 0.2,
+      showAllActionsThreshold: 0.2,
+      movementDuration: Duration(milliseconds: 100),
+      closeOnScroll: true,
       child: InkWell(
-        onTap: () {
-          Toast.show(rule.name, context);
-        },
-        child: CheckboxListTile(
-          value: rule.enableSearch,
-          activeColor: Theme.of(context).primaryColor,
+        child: ListTile(
           title: Text('${rule.name}'),
           subtitle: Text(
-            '${rule.host}',
+            rule.author == '' ? '${rule.host}' : '@${rule.author}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          onChanged: (value) => provider.toggleEnableSearch(rule),
+//          leading: Checkbox(
+//              value: rule.enableSearch,
+//              activeColor: Colors.amber,
+//          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.create),
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(
+                          builder: (context) => EditRulePage(rule: rule)))
+                      .whenComplete(() => provider.refreshData())),
+              Checkbox(
+                value: rule.enableSearch,
+                onChanged: null,
+              )
+            ],
+          ),
+          onTap: () => provider.toggleEnableSearch(rule),
+          onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DiscoverSearchPage(
+                    originTag: rule.id,
+                    origin: rule.name,
+                    discoverMap: APIFromRUle(rule).discoverMap(),
+                  ))),
         ),
-        onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DiscoverSearchPage(
-                  originTag: rule.id,
-                  origin: rule.name,
-                  discoverMap: APIFromRUle(rule).discoverMap(),
-                ))),
       ),
-      actions: [
-        IconSlideAction(
-          caption: '置顶',
-          color: Colors.blueGrey,
-          icon: Icons.vertical_align_top,
-          onTap: () => provider.setSortMax(rule),
-        ),
-      ],
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: '编辑',
+          caption: '置顶',
           color: Colors.black45,
-          icon: Icons.create,
-          onTap: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-              .whenComplete(() => provider.refreshData()),
+          icon: Icons.vertical_align_top,
+          onTap: () => provider.setSortMax(rule),
         ),
         IconSlideAction(
           caption: '删除',
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () => provider.deleteRule(rule),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Row(
+                      children: [
+                        Text("警告"),
+                      ],
+                    ),
+                    content: Text("是否删除该站点？"),
+                    actions: [
+                      FlatButton(
+                        child: Text(
+                          "确定",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        onPressed: () {
+                          provider.deleteRule(rule);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: Text(
+                          "取消",
+                          style: Theme.of(context).textTheme.subtitle2,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                });
+          },
         ),
       ],
     );
