@@ -61,11 +61,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
             return ListView.separated(
               separatorBuilder: (BuildContext context, int index) =>
                   Container(),
-              // UIDash(
-              //   color: Colors.black54,
-              //   height: 0.5,
-              //   dashWidth: 5,
-              // ),
               itemCount: provider.rules.length,
               physics: BouncingScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
@@ -115,7 +110,14 @@ class _EditSourcePageState extends State<EditSourcePage> {
               )
             ],
           ),
-          onTap: () => provider.toggleEnableSearch(rule),
+          onTap: () {
+            SlidableState activeState = slidableController.activeState;
+            if (activeState!=null&&!activeState.overallMoveAnimation.isDismissed){
+              slidableController.activeState.close();
+            }else{
+              provider.toggleEnableSearch(rule);
+            }
+          },
           onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DiscoverSearchPage(
                     originTag: rule.id,
