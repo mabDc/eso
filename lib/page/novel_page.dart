@@ -6,6 +6,7 @@ import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
+import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,9 @@ class NovelPage extends StatelessWidget {
                   provider.showChapter
                       ? UIChapterSelect(
                           searchItem: searchItem,
-                          loadChapter: provider.loadChapter,
+                          loadChapter: (index) {
+                            provider.switchChapter(profile, index);
+                          },
                         )
                       : Container(),
                   provider.isLoading
@@ -193,7 +196,7 @@ class NovelPage extends StatelessWidget {
   Widget _buildContentCover(
       BuildContext context, NovelPageProvider provider, Profile profile) {
     final spanss = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(provider.buildSpans(provider, profile))
+        ? provider.updateSpans(NovelPageProvider.buildSpans(profile, provider.searchItem, provider.paragraphs))
         : provider.spans;
     // return AnimatedCrossFade(
     //   crossFadeState:
@@ -221,6 +224,7 @@ class NovelPage extends StatelessWidget {
       context,
       profile,
       spanss[1],
+      searchItem.durChapter,
       '2/${spanss.length}',
       Color(profile.novelFontColor),
     );
@@ -239,6 +243,7 @@ class NovelPage extends StatelessWidget {
         context,
         profile,
         spanss[provider.currentPage - 1],
+        searchItem.durChapter,
         '${provider.currentPage}/${spanss.length}',
         Color(profile.novelFontColor),
       ),
@@ -251,39 +256,32 @@ class NovelPage extends StatelessWidget {
     Profile profile,
     Axis axis,
   ) {
-    final spanss = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(provider.buildSpans(provider, profile))
-        : provider.spans;
     final fontColor = Color(profile.novelFontColor);
-    var _buildEmptyPage = () {
-      return Container(
-        color: Color(profile.novelBackgroundColor),
+    if (provider.pageController == null)
+      provider.pageController = ChapterPageController(
+        chapter: provider.searchItem.durChapterIndex,
+        maxChapter: provider.searchItem.chapters?.length ?? 0,
+        initialPage: provider.searchItem.durContentIndex,
+        onBuildSpans: (chapter, data) async {
+          var _spans = NovelPageProvider.buildSpans(profile, searchItem, data);
+          provider.updateSpans(_spans);
+          return _spans;
+        },
+        onLoadChapter: (chapter, isCurChapter) async {
+          return await provider.loadChapter(chapter, notify: isCurChapter, changeCurChapter: isCurChapter);
+        },
       );
-    };
-    var children = <Widget>[];
-    if (provider.searchItem.durChapterIndex > 0)
-      children.add(_buildEmptyPage());
-    children.addAll(List.generate(
-        spanss.length,
-            (index) => _buildOnePage(
-          context,
-          profile,
-          spanss[index],
-          '${index + 1}/${spanss.length}',
-          fontColor,
-        )));
-    if (provider.searchItem.durChapterIndex < provider.searchItem.chapters.length - 1)
-      children.add(_buildEmptyPage());
-    return PageView(
-      key: Key("novelPagePageView${axis.index}${searchItem.durChapterIndex}"), //必须
+    return ChapterPageView(
       controller: provider.pageController,
       scrollDirection: axis,
-      allowImplicitScrolling: true,
-      physics: PageScrollPhysics(parent: BouncingScrollPhysics()),
-      dragStartBehavior: DragStartBehavior.down,
-      children: children,
+      builder: (context, chapter, index, pageCount, spans) {
+        return _buildOnePage(context, profile, spans,
+            chapter == searchItem.durChapterIndex ? searchItem.durChapter : searchItem.chapters[chapter].name,
+            '${index + 1}/$pageCount',
+            fontColor);
+      },
       onPageChanged: (index) {
-        provider.currentPage = index;
+        provider.searchItem.durContentIndex = index;
       },
     );
   }
@@ -291,12 +289,13 @@ class NovelPage extends StatelessWidget {
   Widget _buildContentNone(
       BuildContext context, NovelPageProvider provider, Profile profile) {
     final spanss = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(provider.buildSpans(provider, profile))
+        ? provider.updateSpans(NovelPageProvider.buildSpans(profile, provider.searchItem, provider.paragraphs))
         : provider.spans;
     return _buildOnePage(
       context,
       profile,
       spanss[provider.currentPage - 1],
+      searchItem.durChapter,
       '${provider.currentPage}/${spanss.length}',
       Color(profile.novelFontColor),
     );
@@ -306,6 +305,7 @@ class NovelPage extends StatelessWidget {
     BuildContext context,
     Profile profile,
     List<TextSpan> spans,
+    String chapterName,
     String pageInfo,
     Color fontColor,
   ) {
@@ -339,7 +339,7 @@ class NovelPage extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    '${searchItem.durChapter}',
+                    '$chapterName',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: fontColor),
@@ -363,7 +363,7 @@ class NovelPage extends StatelessWidget {
   Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
       RefreshController refreshController) {
     final spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpansFlat(provider.buildSpans(provider, profile))
+        ? provider.updateSpans(NovelPageProvider.buildSpans(profile, provider.searchItem, provider.paragraphs))
         : provider.spansFlat;
     final fontColor = Color(profile.novelFontColor);
     return Container(

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
+import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
@@ -79,10 +80,11 @@ class NovelPageProvider with ChangeNotifier {
 
   final double height;
 
-  PageController _pageController;
-  PageController get pageController => _pageController;
+  ChapterPageController _pageController;
+  ChapterPageController get pageController => _pageController;
+    set pageController(value) => _pageController = value;
 
-  Profile _profile;
+  static Profile _profile;
 
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
     _profile = profile;
@@ -93,21 +95,12 @@ class NovelPageProvider with ChangeNotifier {
     _showSetting = false;
     _useSelectableText = false;
     _controller = ScrollController();
-    _needPageJumpTo = false;
     _progress = 0;
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent(profile);
-  }
-
-  void refreshProgress() {
-    searchItem.durContentIndex =
-        (_controller.position.pixels * 10000 / _controller.position.maxScrollExtent)
-            .floor();
-    _progress = searchItem.durContentIndex ~/ 100;
-    notifyListeners();
   }
 
   void _initContent(Profile profile) async {
@@ -121,13 +114,34 @@ class NovelPageProvider with ChangeNotifier {
         Screen.keepOn(keepOn);
       }
     }
-    await freshContentWithCache();
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
+    _paragraphs = await loadContent();
     notifyListeners();
   }
 
   Map<int, List<String>> _cache;
-  Future<bool> freshContentWithCache([VoidCallback onWait]) async {
+
+  /// 切换章节
+  switchChapter(Profile profile, int index) async {
+    switch (profile.novelPageSwitch) {
+      case Profile.novelHorizontalSlide:
+      case Profile.novelVerticalSlide:
+        pageController.toChapter(index, toFirst: true);
+        break;
+      default:
+        this._paragraphs = await loadChapter(index);
+        break;
+    }
+  }
+
+  /// 刷新当前章节
+  void refreshCurrent() async {
+    if (await loadChapter(searchItem.durChapterIndex, useCache: false, changeCurChapter: false) != null)
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+  }
+
+  /// 加载章节内容
+  Future<List<String>> loadContent({bool useCache = true, VoidCallback onWait}) async {
     final index = searchItem.durChapterIndex;
 
     /// 检查当前章节
@@ -146,7 +160,6 @@ class NovelPageProvider with ChangeNotifier {
       );
       _cache[index] = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     }
-    _paragraphs = _cache[index];
 
     /// 缓存下一个章节
     if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
@@ -160,101 +173,56 @@ class NovelPageProvider with ChangeNotifier {
         }
       });
     }
-    return true;
+
+    return _cache[index];
   }
 
-  void share() async {
-    await FlutterShare.share(
-      title: '亦搜 eso',
-      text:
-          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
-      //linkUrl: '${searchItem.url}',
-      chooserTitle: '选择分享的应用',
-    );
-  }
-
-  bool _hideLoading = false;
-
-  Future<void> loadChapterHideLoading(bool lastChapter) async {
-    _showChapter = false;
-    if (isLoading || _hideLoading) return;
-    final loadIndex =
-        lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
-    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
-    _hideLoading = true;
-    await freshContentWithCache();
-    searchItem.durChapter = searchItem.chapters[loadIndex].name;
-    searchItem.durContentIndex = 1;
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-    searchItem.durChapterIndex = loadIndex;
-    await SearchItemManager.saveSearchItem();
-    _hideLoading = false;
-    if (_readSetting?.pageSwitch == Profile.novelScroll) {
-      _controller.jumpTo(1);
-    }
-  }
-
-  Future<void> loadChapter(int chapterIndex, [bool notify = true]) async {
+  /// 加载指定章节
+  Future<List<String>> loadChapter(int chapterIndex, {bool useCache = true, bool notify = true, bool changeCurChapter = true}) async {
     _showChapter = false;
     if (isLoading ||
-        chapterIndex == searchItem.durChapterIndex ||
         chapterIndex < 0 ||
-        chapterIndex >= searchItem.chapters.length) return;
-    _isLoading = true;
-    await freshContentWithCache(() => notifyListeners());
+        chapterIndex >= searchItem.chapters.length) return null;
+    if (notify) _isLoading = true;
+    var _data = await loadContent(useCache: useCache, onWait: () {
+      if (notify) notifyListeners();
+    });
+    if (changeCurChapter)
+      await updateSearchItem(chapterIndex);
+    if (notify) {
+      _isLoading = false;
+      notifyListeners();
+    }
+    return _data;
+  }
+
+  /// 加载上一章或下一章，不显示loading
+  loadChapterHideLoading(bool lastChapter) async {
+    final loadIndex =
+      lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
+    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length)
+      return;
+    await loadChapter(loadIndex, notify: false, changeCurChapter: true);
+  }
+
+  /// 更新当前章节信息
+  updateSearchItem(int chapterIndex) async {
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     searchItem.durChapterIndex = chapterIndex;
     await SearchItemManager.saveSearchItem();
-    _isLoading = false;
-    if (_readSetting?.pageSwitch == Profile.novelScroll) {
-      _controller.jumpTo(1);
-    }
-    if (notify == true)
-      notifyListeners();
   }
 
-  void refreshCurrent() async {
-    if (isLoading) return;
-    _isLoading = true;
-    _showChapter = false;
-    notifyListeners();
-    final content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-    _isLoading = false;
-    notifyListeners();
-  }
 
   int _currentPage;
+  /// 当前页
   int get currentPage => _currentPage;
   set currentPage(int value) {
     if (value > 0 && value < spans.length) {
       _currentPage = value + 1;
       searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
-    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
-        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      if (_autoSwitchPageing) return;
-      _autoSwitchPageing = true;
-      _currentPage = value;
-      _autoSwitchPage(value);
     }
-  }
-
-  bool _needJumpToLastPage = false;
-  bool _autoSwitchPageing = false;
-
-  void _autoSwitchPage(int value) async {
-    if (value <= 0 && searchItem.durChapterIndex > 0) {
-      _needJumpToLastPage = true;
-      await loadChapter(searchItem.durChapterIndex - 1);
-    } else if (value > spans.length && searchItem.durChapterIndex < searchItem.chapters.length - 1) {
-      await loadChapter(searchItem.durChapterIndex + 1);
-      //_pageController.jumpToPage(1);
-    }
-    _autoSwitchPageing = false;
   }
 
   void tapNextPage() {
@@ -286,14 +254,7 @@ class NovelPageProvider with ChangeNotifier {
       }
     } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
         _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      if (_currentPage < _spans.length) {
-        _currentPage++;
-        searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
-        _pageController.animateToPage(_currentPage - 1,
-            duration: Duration(milliseconds: 400), curve: Curves.easeInOut);
-      } else {
-        loadChapter(searchItem.durChapterIndex + 1);
-      }
+      _pageController.nextPage(duration: Duration(milliseconds: 200), curve: Curves.easeIn);
     }
   }
 
@@ -324,14 +285,7 @@ class NovelPageProvider with ChangeNotifier {
       }
     } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
         _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      if (_currentPage > 1) {
-        _currentPage--;
-        searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
-        _pageController.animateToPage(_currentPage - 1,
-            duration: Duration(milliseconds: 400), curve: Curves.easeInOut);
-      } else {
-        loadChapter(searchItem.durChapterIndex - 1);
-      }
+      _pageController.previousPage(duration: Duration(milliseconds: 200), curve: Curves.easeOut);
     }
   }
 
@@ -373,24 +327,7 @@ class NovelPageProvider with ChangeNotifier {
     } else if (_currentPage > _spans.length) {
       _currentPage = _spans.length;
     }
-    if (_needJumpToLastPage) {
-      _currentPage = _spans.length;
-      _needJumpToLastPage = false;
-    }
 
-    if (searchItem.durChapterIndex > 0)
-      _currentPage++;
-
-    if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
-        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      if (_pageController != null && _needPageJumpTo) {
-        _pageController.jumpToPage(_currentPage - 1);
-      } else {
-        final temp = _pageController;
-        _pageController = PageController(initialPage: initialPage ?? _currentPage - 1);
-        Future.delayed(Duration(seconds: 1), () => temp?.dispose());
-      }
-    }
     return _spans;
   }
 
@@ -401,33 +338,32 @@ class NovelPageProvider with ChangeNotifier {
     return _spansFlat;
   }
 
-  bool _needPageJumpTo;
   ReadSetting _readSetting;
   bool didUpdateReadSetting(Profile profile) {
     if (_readSetting.durChapterIndex != searchItem.durChapterIndex) {
       _currentPage = 1;
       _readSetting.durChapterIndex = searchItem.durChapterIndex;
-      _needPageJumpTo = false;
       return true;
     }
     if (_readSetting.pageSwitch != profile.novelPageSwitch) {
       _readSetting.pageSwitch = profile.novelPageSwitch;
-      _needPageJumpTo = false;
       return true;
     }
     if ((null == _spansFlat && null == _spans) ||
         _readSetting.didUpdate(profile, searchItem.durChapterIndex)) {
       _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
-      _needPageJumpTo = true;
+      print(_readSetting.durChapterIndex);
       return true;
     }
     return false;
   }
 
   /// 文字排版部分
-  List<List<TextSpan>> buildSpans(NovelPageProvider provider, Profile profile) {
+  static List<List<TextSpan>> buildSpans(Profile profile, SearchItem searchItem, List<String> paragraphs) {
+    if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile ?? _profile;
     if (_profile != __profile) _profile = __profile;
+
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
     final width = mediaQueryData.size.width - __profile.novelLeftPadding * 2;
     final offset = Offset(width, 6);
@@ -473,7 +409,7 @@ class NovelPageProvider with ChangeNotifier {
     var currentHeight = tp.height;
     bool firstLine = true;
     final indentation = Global.fullSpace * __profile.novelIndentation;
-    for (var paragraph in provider.paragraphs) {
+    for (var paragraph in paragraphs) {
       while (true) {
         if (currentHeight >= height) {
           spanss.add(currentSpans);
@@ -564,6 +500,26 @@ class NovelPageProvider with ChangeNotifier {
     spanss.add(currentSpans);
     return spanss;
   }
+
+
+  void refreshProgress() {
+    searchItem.durContentIndex =
+        (_controller.position.pixels * 10000 / _controller.position.maxScrollExtent)
+            .floor();
+    _progress = searchItem.durContentIndex ~/ 100;
+    notifyListeners();
+  }
+
+  void share() async {
+    await FlutterShare.share(
+      title: '亦搜 eso',
+      text:
+      '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+      //linkUrl: '${searchItem.url}',
+      chooserTitle: '选择分享的应用',
+    );
+  }
+
 }
 
 class ReadSetting {
