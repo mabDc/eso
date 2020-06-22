@@ -25,36 +25,42 @@ class EditSourceProvider with ChangeNotifier {
     if (isLoadingUrl) return 0;
     _isLoadingUrl = true;
     notifyListeners();
-    final res = await http.get("$url", headers: {
-      'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
-    });
-    final json = jsonDecode(utf8.decode(res.bodyBytes));
-    if (json is Map) {
-      final id = await Global.ruleDao.insertOrUpdateRule(
-          isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
-      if (id != null) {
-        _isLoadingUrl = false;
-        refreshData();
-        return 1;
+    try {
+      final res = await http.get("$url", headers: {
+        'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+      });
+      final json = jsonDecode(utf8.decode(res.bodyBytes));
+      if (json is Map) {
+        final id = await Global.ruleDao.insertOrUpdateRule(
+            isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
+        if (id != null) {
+          _isLoadingUrl = false;
+          refreshData();
+          return 1;
+        }
+      } else if (json is List) {
+        final ids = await Global.ruleDao.insertOrUpdateRules(json
+            .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
+            .toList());
+        if (ids.length > 0) {
+          _isLoadingUrl = false;
+          refreshData();
+          return ids.length;
+        }
       }
-    } else if (json is List) {
-      final ids = await Global.ruleDao.insertOrUpdateRules(json
-          .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
-          .toList());
-      if (ids.length > 0) {
-        _isLoadingUrl = false;
-        refreshData();
-        return ids.length;
-      }
-    }
+    } catch (e) {}
     _isLoadingUrl = false;
     notifyListeners();
     return 0;
   }
 
   //获取源列表 1所有 2发现
-  void refreshData() async {
+  void refreshData([bool reFindAllRules = true]) async {
+    if (!reFindAllRules) {
+      notifyListeners();
+      return;
+    }
     _isLoading = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));

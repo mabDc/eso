@@ -12,6 +12,7 @@ import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:eso/ui/round_indicator.dart';
 
 import 'chapter_page.dart';
 import 'langding_page.dart';
@@ -179,10 +180,13 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
         controller: _tabController,
         isScrollable: true,
         tabs: pairs.map((e) => Tab(text: e.name ?? '')).toList(),
-        indicatorColor: Theme.of(context).primaryColor,
+        indicatorSize: TabBarIndicatorSize.label,
+        indicator: RoundTabIndicator(
+            insets: EdgeInsets.only(left: 5, right: 5),
+            borderSide:
+            BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
         labelColor: Theme.of(context).primaryColor,
         unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
-        indicatorPadding: const EdgeInsets.only(left: 8, right: 8),
         onTap: (index) {
           _select(pageController, index);
         },

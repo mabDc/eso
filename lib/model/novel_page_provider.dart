@@ -187,8 +187,18 @@ class NovelPageProvider with ChangeNotifier {
     var _data = await loadContent(useCache: useCache, onWait: () {
       if (notify) notifyListeners();
     });
-    if (changeCurChapter)
+    if (changeCurChapter) {
+      _paragraphs = _data;
       await updateSearchItem(chapterIndex);
+    }
+
+    if (changeCurChapter) {
+      // 滚动模式
+      if (_readSetting?.pageSwitch == Profile.novelScroll) {
+        _controller.jumpTo(1);
+      }
+    }
+
     if (notify) {
       _isLoading = false;
       notifyListeners();

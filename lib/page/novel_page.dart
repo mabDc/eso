@@ -261,7 +261,7 @@ class NovelPage extends StatelessWidget {
       provider.pageController = ChapterPageController(
         chapter: provider.searchItem.durChapterIndex,
         maxChapter: provider.searchItem.chapters?.length ?? 0,
-        initialPage: provider.searchItem.durContentIndex,
+        initialPage: provider.currentPage,
         onBuildSpans: (chapter, data) async {
           var _spans = NovelPageProvider.buildSpans(profile, searchItem, data);
           provider.updateSpans(_spans);
@@ -281,7 +281,7 @@ class NovelPage extends StatelessWidget {
             fontColor);
       },
       onPageChanged: (index) {
-        provider.searchItem.durContentIndex = index;
+        provider.currentPage = index;
       },
     );
   }
@@ -363,7 +363,7 @@ class NovelPage extends StatelessWidget {
   Widget _buildContent(BuildContext context, NovelPageProvider provider, Profile profile,
       RefreshController refreshController) {
     final spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(NovelPageProvider.buildSpans(profile, provider.searchItem, provider.paragraphs))
+        ? provider.updateSpansFlat(NovelPageProvider.buildSpans(profile, provider.searchItem, provider.paragraphs))
         : provider.spansFlat;
     final fontColor = Color(profile.novelFontColor);
     return Container(

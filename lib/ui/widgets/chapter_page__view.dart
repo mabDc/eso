@@ -131,6 +131,7 @@ class ChapterPageView extends StatefulWidget {
     @required this.builder,
     this.dragStartBehavior = DragStartBehavior.start,
     this.reverse = false,
+    this.pageSnapping = true,
     this.onPageChanged,
   }): controller = controller ?? _defaultPageController,
       super(key: key);
@@ -141,6 +142,7 @@ class ChapterPageView extends StatefulWidget {
   final ChapterWidgetBuilder builder;
   final ValueChanged<int> onPageChanged;
   final DragStartBehavior dragStartBehavior;
+  final bool pageSnapping;
 
   @override
   State<StatefulWidget> createState() => _ChapterPageViewState();
@@ -177,7 +179,7 @@ class _ChapterPageViewState extends State<ChapterPageView> {
   @override
   Widget build(BuildContext context) {
     final AxisDirection axisDirection = _getDirection(context);
-    final ScrollPhysics physics = _kPagePhysics.applyTo(BouncingScrollPhysics());
+    final ScrollPhysics physics = widget.pageSnapping ? _kPagePhysics.applyTo(BouncingScrollPhysics()) : BouncingScrollPhysics();
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification notification) {
         if (notification.depth == 0 && widget.onPageChanged != null && notification is ScrollUpdateNotification) {
