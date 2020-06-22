@@ -327,9 +327,9 @@ class NovelPage extends StatelessWidget {
           ),
           SizedBox(height: 4),
           UIDash(
-            height: 1,
+            height: Global.lineSize,
             dashWidth: 2,
-            color: fontColor.withOpacity(0.7),
+            color: fontColor.withOpacity(0.5),
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
@@ -524,7 +524,7 @@ class NovelPage extends StatelessWidget {
           UIDash(
             height: Global.lineSize,
             dashWidth: 2,
-            color: fontColor.withOpacity(0.7),
+            color: fontColor.withOpacity(0.5),
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
