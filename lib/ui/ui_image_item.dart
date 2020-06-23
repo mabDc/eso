@@ -9,11 +9,13 @@ class UIImageItem extends StatelessWidget {
   final String cover;
   final double radius;
   final BoxFit fit;
+  final String hero;
 
   const UIImageItem({
     this.cover,
     this.radius = 3.0,
     this.fit,
+    this.hero,
     Key key,
   }) : super(key: key);
 
@@ -33,9 +35,14 @@ class UIImageItem extends StatelessWidget {
       headers = (jsonDecode(ss[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
     }
     if (radius == null || radius <= 0.0) return UIFadeInImage(url: _cover, header: headers, fit: fit);
-    return ClipRRect(
+    final _child = ClipRRect(
       borderRadius: BorderRadius.circular(3.0),
       child: UIFadeInImage(url: _cover, header: headers, fit: fit),
+    );
+    if (hero == null || hero.isEmpty) return _child;
+    return Hero(
+      child: _child,
+      tag: hero,
     );
   }
 

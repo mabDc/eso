@@ -19,7 +19,7 @@ class UIDiscoverItem extends StatelessWidget {
           child: Container(
             width: double.infinity,
             margin: const EdgeInsets.all(4),
-            child: UIImageItem(cover: searchItem.cover),
+            child: UIImageItem(cover: searchItem.cover, hero: "${searchItem.name}.${searchItem.cover}"),
             decoration: BoxDecoration(
               border: Border.all(color: Theme.of(context).dividerColor, width: 0.1)
             ),

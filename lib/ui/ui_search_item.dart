@@ -62,7 +62,7 @@ class _UiSearchItem extends StatelessWidget {
             SizedBox(
               width: 80,
               height: 104,
-              child: UIImageItem(cover: cover),
+              child: UIImageItem(cover: cover, hero: '$name.$cover'),
             ),
             SizedBox(
               width: 8,

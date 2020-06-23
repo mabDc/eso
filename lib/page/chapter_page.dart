@@ -146,7 +146,7 @@ class _ChapterPageState extends State<ChapterPage> {
                             aspectRatio: 3 / 4,
                             child: Container(
                               child: GestureDetector(
-                                child: UIImageItem(cover: searchItem.cover),
+                                child: UIImageItem(cover: searchItem.cover, hero: '${searchItem.name}.${searchItem.cover}'),
                                 onTap: () {
                                   Utils.startPageWait(context, PhotoViewPage(items: [PhotoItem(searchItem.cover)]));
                                 },
