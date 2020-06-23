@@ -69,7 +69,8 @@ class AudioService {
   }
 
   /// 是否正在播放
-  bool get __isPlaying => _playerState != AudioPlayerState.STOPPED &&
+  bool get __isPlaying => _playerState != null &&
+      _playerState != AudioPlayerState.STOPPED &&
       _playerState != AudioPlayerState.COMPLETED &&
       _playerState != AudioPlayerState.PAUSED;
 
