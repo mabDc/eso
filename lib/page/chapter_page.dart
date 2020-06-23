@@ -148,7 +148,7 @@ class _ChapterPageState extends State<ChapterPage> {
                               child: GestureDetector(
                                 child: UIImageItem(cover: searchItem.cover, hero: '${searchItem.name}.${searchItem.cover}'),
                                 onTap: () {
-                                  Utils.startPageWait(context, PhotoViewPage(items: [PhotoItem(searchItem.cover)]));
+                                  Utils.startPageWait(context, PhotoViewPage(items: [PhotoItem(searchItem.cover)], heroTag: '${searchItem.name}.${searchItem.cover}'));
                                 },
                               ),
                               decoration: BoxDecoration(boxShadow: [
