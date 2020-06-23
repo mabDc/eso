@@ -7,7 +7,8 @@ import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
-import 'package:eso/ui/widgets/search_edit.dart';
+import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -74,12 +75,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
               if (provider.isLoading) {
                 return LandingPage();
               }
-              return ListView.builder(
-                itemCount: provider.rules.length,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildItem(provider, index);
-                },
+              return KeyboardDismissBehaviorView(
+                child: ListView.builder(
+                  itemCount: provider.rules.length,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildItem(provider, index);
+                  },
+                ),
               );
             },
           ),
@@ -118,13 +121,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Widget _buildpopupMenu(BuildContext context, EditSourceProvider provider) {
     final primaryColor = Theme.of(context).primaryColor;
-    const int ADD_RULE = 0;
-    const int ADD_FROM_CLIPBOARD = 1;
-    const int FROM_CLIPBOARD = 6;
     const list = [
       {'title': '新建空白规则', 'icon': Icons.code, 'type': ADD_RULE},
       {'title': '从剪贴板新建', 'icon': Icons.note_add, 'type': ADD_FROM_CLIPBOARD},
       {'title': '粘贴单条规则', 'icon': Icons.content_paste, 'type': FROM_CLIPBOARD},
+      {'title': '网络导入', 'icon': Icons.cloud_queue, 'type': FROM_CLOUD},
     ];
     return PopupMenuButton<int>(
       elevation: 20,
@@ -142,6 +143,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
             break;
           case FROM_CLIPBOARD:
             _addFromClipBoard(context, provider, false);
+            break;
+          case FROM_CLOUD:
+            EditSourcePage.showURLDialog(context, provider.isLoadingUrl, provider, false);
             break;
           default:
         }
@@ -165,60 +169,67 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Widget _buildItem(EditSourceProvider provider, int index) {
     final rule = provider.rules[index];
-    return InkWell(
+    Widget _child = ListTile(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => DiscoverSearchPage(
-                originTag: rule.id,
-                origin: rule.name,
-                discoverMap: APIFromRUle(rule).discoverMap(),
-              ))),
+            originTag: rule.id,
+            origin: rule.name,
+            discoverMap: APIFromRUle(rule).discoverMap(),
+          ))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
           .whenComplete(() => provider.refreshData()),
-      child: ListTile(
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          textBaseline: TextBaseline.alphabetic,
-          children: <Widget>[
-            Flexible(
-              child: Text(
-                "${rule.name}",
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(
-                  textBaseline: TextBaseline.alphabetic,
-                  fontSize: 14,
-                  height: 1,
-                ),
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        textBaseline: TextBaseline.alphabetic,
+        children: <Widget>[
+          Flexible(
+            child: Text(
+              "${rule.name}",
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                textBaseline: TextBaseline.alphabetic,
+                fontSize: 14,
+                height: 1,
               ),
             ),
-            SizedBox(width: 5),
-            Container(
-              height: 14,
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '${rule.ruleTypeName}',
-                style: TextStyle(
-                  fontSize: 10,
-                  height: 1.4,
-                  color: Colors.white,
-                  textBaseline: TextBaseline.alphabetic,
-                ),
+          ),
+          SizedBox(width: 5),
+          Container(
+            height: 14,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '${rule.ruleTypeName}',
+              style: TextStyle(
+                fontSize: 10,
+                height: 1.4,
+                color: Colors.white,
+                textBaseline: TextBaseline.alphabetic,
               ),
             ),
-          ],
-        ),
-        subtitle: Text(
-          '${rule.host}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+          ),
+        ],
       ),
+      subtitle: Text(
+        '${rule.host}',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+    if (index < provider.rules.length - 1)
+      return _child;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _child,
+        SizedBox(height: 30)
+      ],
     );
   }
 }

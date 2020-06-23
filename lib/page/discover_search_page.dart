@@ -7,7 +7,7 @@ import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
-import 'package:eso/ui/widgets/search_edit.dart';
+import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

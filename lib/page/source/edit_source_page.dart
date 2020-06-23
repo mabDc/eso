@@ -6,7 +6,9 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
-import 'package:eso/ui/widgets/search_edit.dart';
+import 'package:eso/ui/edit/bottom_input_border.dart';
+import 'package:eso/ui/edit/edit_view.dart';
+import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,12 +18,90 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../discover_search_page.dart';
 
+const int ADD_RULE = 0;
+const int ADD_FROM_CLIPBOARD = 1;
+const int FROM_FILE = 2;
+const int FROM_CLOUD = 3;
+const int FROM_YICIYUAN = 4;
+const int DELETE_ALL_RULES = 5;
+const int FROM_CLIPBOARD = 6;
+
 //图源编辑
 class EditSourcePage extends StatefulWidget {
   const EditSourcePage({Key key}) : super(key: key);
 
   @override
   _EditSourcePageState createState() => _EditSourcePageState();
+
+  static void showURLDialog(
+      BuildContext context,
+      bool isLoadingUrl,
+      EditSourceProvider provider,
+      bool isYICIYUAN,
+      ) async {
+    var onSubmitted = (url) async {
+      Toast.show("开始导入$url", context, duration: 1);
+      final count = await provider.addFromUrl(url.trim(), isYICIYUAN);
+      Toast.show("导入完成，一共$count条", context, duration: 1);
+      Navigator.pop(context);
+    };
+    final TextEditingController _controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Theme.of(context).canvasColor,
+        title: Text("网络导入"),
+        content: EditView(
+          autofocus: true,
+          controller: _controller,
+          hint: "输入源地址, 回车开始导入",
+          border: BottomInputBorder(Theme.of(context).dividerColor),
+          enabled: !isLoadingUrl,
+          onSubmitted: (url) => onSubmitted(url),
+        ),
+        actions: <Widget>[
+          FlatButton(child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)), onPressed: () => Navigator.pop(context)),
+          FlatButton(child: Text('确定'), onPressed: () => onSubmitted(_controller.text)),
+        ],
+      ),
+    );
+  }
+
+  static void showDeleteAllDialog(BuildContext context, EditSourceProvider provider) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Text("警告"),
+            ],
+          ),
+          content: Text("是否删除所有站点？"),
+          actions: [
+            FlatButton(
+              child: Text(
+                "取消",
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              child: Text(
+                "确定",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                provider.deleteAllRules();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
 
 class _EditSourcePageState extends State<EditSourcePage> {
@@ -142,13 +222,16 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Row(
-                      children: [
-                        Text("警告"),
-                      ],
-                    ),
+                    title: Text("警告"),
                     content: Text("是否删除该站点？"),
                     actions: [
+                      FlatButton(
+                        child: Text(
+                          "取消",
+                          style: TextStyle(color: Theme.of(context).hintColor),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                       FlatButton(
                         child: Text(
                           "确定",
@@ -159,81 +242,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
                           Navigator.of(context).pop();
                         },
                       ),
-                      FlatButton(
-                        child: Text(
-                          "取消",
-                          style: Theme.of(context).textTheme.subtitle2,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
                     ],
                   );
                 });
           },
         ),
       ],
-    );
-  }
-
-  void showURLDialog(
-    BuildContext context,
-    bool isLoadingUrl,
-    EditSourceProvider provider,
-    bool isYICIYUAN,
-  ) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => Dialog(
-        child: TextField(
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: "输入源地址, 回车开始导入",
-            contentPadding: EdgeInsets.symmetric(horizontal: 12),
-          ),
-          enabled: !isLoadingUrl,
-          onSubmitted: (url) async {
-            Toast.show("开始导入$url", context, duration: 1);
-            final count = await provider.addFromUrl(url.trim(), isYICIYUAN);
-            Toast.show("导入完成，一共$count条", context, duration: 1);
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    );
-  }
-
-  void showDeleteAllDialog(BuildContext context, EditSourceProvider provider) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Text("警告"),
-            ],
-          ),
-          content: Text("是否删除所有站点？"),
-          actions: [
-            FlatButton(
-              child: Text(
-                "确定",
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                provider.deleteAllRules();
-                Navigator.of(context).pop();
-              },
-            ),
-            FlatButton(
-              child: Text(
-                "取消",
-                style: Theme.of(context).textTheme.subtitle2,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -268,13 +282,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
   Widget _buildpopupMenu(
       BuildContext context, bool isLoadingUrl, EditSourceProvider provider) {
     final primaryColor = Theme.of(context).primaryColor;
-    const int ADD_RULE = 0;
-    const int ADD_FROM_CLIPBOARD = 1;
-    const int FROM_FILE = 2;
-    const int FROM_CLOUD = 3;
-    const int FROM_YICIYUAN = 4;
-    const int DELETE_ALL_RULES = 5;
-    const int FROM_CLIPBOARD = 6;
     const list = [
       {'title': '新建空白规则', 'icon': Icons.code, 'type': ADD_RULE},
       {'title': '从剪贴板新建', 'icon': Icons.note_add, 'type': ADD_FROM_CLIPBOARD},
@@ -305,13 +312,13 @@ class _EditSourcePageState extends State<EditSourcePage> {
             Toast.show("从本地文件导入", context);
             break;
           case FROM_CLOUD:
-            showURLDialog(context, isLoadingUrl, provider, false);
+            EditSourcePage.showURLDialog(context, isLoadingUrl, provider, false);
             break;
           case FROM_YICIYUAN:
-            showURLDialog(context, isLoadingUrl, provider, true);
+            EditSourcePage.showURLDialog(context, isLoadingUrl, provider, true);
             break;
           case DELETE_ALL_RULES:
-            showDeleteAllDialog(context, provider);
+            EditSourcePage.showDeleteAllDialog(context, provider);
             break;
           default:
         }

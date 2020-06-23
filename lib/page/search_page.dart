@@ -7,7 +7,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
-import 'package:eso/ui/widgets/search_edit.dart';
+import 'package:eso/ui/edit/search_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
