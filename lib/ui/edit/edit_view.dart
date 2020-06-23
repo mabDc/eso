@@ -78,10 +78,12 @@ class _EditViewState extends State<EditView> {
     _controller = widget.controller ?? TextEditingController();
     if (widget.value != null)
       _controller.text = widget.value;
-    _controller.selection = TextSelection(
-      baseOffset: widget.value == null ? 0 : widget.value.length,
-      extentOffset: widget.value == null ? 0 : widget.value.length,
-    );
+    if (widget.value != null && widget.value.isNotEmpty) {
+      _controller.selection = TextSelection(
+        baseOffset: widget.value == null ? 0 : widget.value.length,
+        extentOffset: widget.value == null ? 0 : widget.value.length,
+      );
+    }
     _focusNode = widget.focusNode ?? FocusNode();
     if (widget.onFocusChanged != null) {
       _focusListener = () {
@@ -105,10 +107,12 @@ class _EditViewState extends State<EditView> {
     if (oldWidget.value != widget.value) {
       _controller.text = widget.value;
       // print("didUpdateWidget: " + widget.value);
-      _controller.selection = TextSelection(
-        baseOffset: widget.value == null ? 0 : widget.value.length,
-        extentOffset: widget.value == null ? 0 : widget.value.length,
-      );
+      if (widget.value != null && widget.value.isNotEmpty) {
+        _controller.selection = TextSelection(
+          baseOffset: widget.value == null ? 0 : widget.value.length,
+          extentOffset: widget.value == null ? 0 : widget.value.length,
+        );
+      }
     }
   }
 
