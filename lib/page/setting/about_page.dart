@@ -1,4 +1,5 @@
 import 'package:eso/page/source/edit_source_page.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +15,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(Global.appName)),
+      appBar: AppBarEx(title: Text(Global.appName)),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(

@@ -20,6 +20,7 @@ class EditView extends StatefulWidget {
     this.textAlign,
     this.style,
     this.hintStyle,
+    this.cursorColor,
     this.inputFormatters,
     this.textInputAction,
     this.readOnly = false,
@@ -51,6 +52,7 @@ class EditView extends StatefulWidget {
   final bool obscureText;
   final bool dense;
   final int maxLength;
+  final Color cursorColor;
   final TextAlign textAlign;
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -126,6 +128,7 @@ class _EditViewState extends State<EditView> {
     isEmpty = _controller.text.isEmpty;
     return TextField(
         key: widget.key,
+        cursorColor: widget.cursorColor,
         textAlign: widget.textAlign == null ? TextAlign.left : widget.textAlign,
         textAlignVertical: TextAlignVertical.center,
         controller: _controller,

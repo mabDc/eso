@@ -9,6 +9,7 @@ import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +46,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       value: EditSourceProvider(type: 2),
       builder: (BuildContext context, _) {
         return Scaffold(
-          appBar: AppBar(
+          appBar: AppBarEx(
             centerTitle: false,
             title: SearchEdit(
               hintText:
@@ -120,16 +121,16 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   Widget _buildpopupMenu(BuildContext context, EditSourceProvider provider) {
-    final primaryColor = Theme.of(context).primaryColor;
+    final popupIconColor = Theme.of(context).primaryColor;
     const list = [
-      {'title': '新建空白规则', 'icon': Icons.code, 'type': ADD_RULE},
-      {'title': '从剪贴板新建', 'icon': Icons.note_add, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '粘贴单条规则', 'icon': Icons.content_paste, 'type': FROM_CLIPBOARD},
-      {'title': '网络导入', 'icon': Icons.cloud_queue, 'type': FROM_CLOUD},
+      {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
+      {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
+      {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
     ];
     return PopupMenuButton<int>(
       elevation: 20,
-      icon: Icon(Icons.add),
+      icon: Icon(FIcons.plus),
       offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
@@ -157,7 +158,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(element['title']),
-                  Icon(element['icon'], color: primaryColor, size: 16),
+                  Icon(element['icon'], color: popupIconColor),
                 ],
               ),
               value: element['type'],

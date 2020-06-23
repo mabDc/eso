@@ -116,7 +116,7 @@ class _AudioPageState extends State<AudioPage> {
   Widget _buildAppBar(AudioPageController provider, String name, String author) {
     final _iconTheme = Theme.of(context).primaryIconTheme;
     final _textTheme = Theme.of(context).primaryTextTheme;
-    return AppBar(
+    return AppBarEx(
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       brightness: Brightness.dark,
@@ -124,8 +124,8 @@ class _AudioPageState extends State<AudioPage> {
       textTheme: _textTheme.copyWith(headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
       actions: [
-        IconButton(
-          icon: Icon(Icons.share, size: 20),
+        AppBarButton(
+          icon: Icon(Icons.share),
           onPressed: provider.share,
         )
       ],

@@ -1,5 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/fonticons_icons.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/model/profile.dart';
@@ -74,7 +75,7 @@ class FavoriteListPage extends StatelessWidget {
                           : Theme.of(context).cardColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          side: BorderSide(width: Global.borderSize, color: Theme.of(context).primaryColorLight)),
+                          side: BorderSide(width: Global.borderSize, color: _isSelect ? Theme.of(context).primaryColor : Theme.of(context).dividerColor)),
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
                         child: Text(
@@ -117,7 +118,7 @@ class FavoriteListPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.mood_bad, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                Icon(FIcons.smile, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
                 SizedBox(height: 12),
                 Text("还没有收藏哦!", style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color.withAlpha(50)))
               ],

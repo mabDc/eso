@@ -1,3 +1,4 @@
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import '../model/history_manager.dart';
 import '../page/search_result_page.dart';
@@ -45,7 +46,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
       return <Widget>[];
     } else {
       return <Widget>[
-        IconButton(
+        AppBarButton(
           icon: Icon(Icons.clear),
           onPressed: () {
             query = "";
@@ -77,7 +78,7 @@ class SearchPageDelegate extends SearchDelegate<String> {
             child: Row(
               children: <Widget>[
                 Expanded(child: Text("搜索历史")),
-                IconButton(
+                AppBarButton(
                   icon: Icon(Icons.delete_sweep),
                   onPressed: () {
                     (() async {

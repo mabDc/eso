@@ -9,6 +9,7 @@ import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -94,12 +95,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
 
           return Scaffold(
             appBar: pageController.showSearchField
-                ? AppBar(
+                ? AppBarEx(
                     titleSpacing: 0.0,
                     backgroundColor: Theme.of(context).appBarTheme.color,
                     iconTheme: _iconTheme.copyWith(color: _color),
                     actionsIconTheme: _iconTheme.copyWith(color: _color),
-                    leading: BackButton(
+                    leading: AppBarEx.buildLeading(context,
                       onPressed: pageController.toggleSearching,
                     ),
                     actions: pageController.queryController.text == ''
@@ -107,8 +108,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
                             _buildSwitchStyle(context),
                           ]
                         : <Widget>[
-                            IconButton(
-                              icon: Icon(Icons.clear),
+                            AppBarButton(
+                              icon: Icon(FIcons.x),
                               onPressed: pageController.clearInputText,
                             ),
                             _buildSwitchStyle(context),
@@ -121,12 +122,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
                     ),
                     bottom: _buildAppBarBottom(context, pageController),
                   )
-                : AppBar(
+                : AppBarEx(
                     titleSpacing: 0.0,
                     title: Text(pageController.title),
                     actions: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.search),
+                      AppBarButton(
+                        icon: Icon(FIcons.search),
                         onPressed: pageController.toggleSearching,
                       ),
 //                      IconButton(
@@ -195,10 +196,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
   }
 
   Widget _buildSwitchStyle(BuildContext context) {
-    return IconButton(
+    return AppBarButton(
       icon: Provider.of<Profile>(context, listen: true).switchDiscoverStyle
-          ? Icon(Icons.view_module)
-          : Icon(Icons.view_headline),
+          ? Icon(FIcons.grid)
+          : Icon(FIcons.list),
       onPressed: () => Provider.of<Profile>(context, listen: false).switchDiscoverStyle =
           !Provider.of<Profile>(context, listen: false).switchDiscoverStyle,
     );

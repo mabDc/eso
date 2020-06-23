@@ -79,7 +79,7 @@ class _ChapterPageState extends State<ChapterPage> {
     final _textTheme = Theme.of(context).primaryTextTheme;
     final _iconTheme = Theme.of(context).primaryIconTheme;
 
-    return AppBar(
+    return AppBarEx(
       elevation: 0,
       backgroundColor: Colors.transparent,
       textTheme: _textTheme.copyWith(
@@ -94,21 +94,21 @@ class _ChapterPageState extends State<ChapterPage> {
       brightness: Brightness.dark,
       titleSpacing: 0.0,
       actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.refresh, size: 20),
+        AppBarButton(
+          icon: Icon(Icons.refresh),
           onPressed: provider.updateChapter,
         ),
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
-          builder: (context, provider, child) => IconButton(
+          builder: (context, provider, child) => AppBarButton(
             icon: SearchItemManager.isFavorite(searchItem.url)
-                ? Icon(Icons.favorite, size: 20)
-                : Icon(Icons.favorite_border, size: 20),
+                ? Icon(Icons.favorite)
+                : Icon(Icons.favorite_border),
             onPressed: provider.toggleFavorite,
           ),
         ),
-        IconButton(
-          icon: Icon(Icons.share, size: 20),
+        AppBarButton(
+          icon: Icon(Icons.share),
           onPressed: provider.share,
         ),
       ],

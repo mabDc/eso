@@ -1,5 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/page/setting/about_page.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
@@ -18,7 +19,7 @@ class FavoritePage extends StatelessWidget {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: AppBarEx(
           centerTitle: false,
           elevation: 0,
           title: TabBar(
@@ -41,14 +42,10 @@ class FavoritePage extends StatelessWidget {
                 .toList(),
           ),
           actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.settings,
-                color: Theme.of(context).textTheme.bodyText1.color,
-                size: 20,
-              ),
-              onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (BuildContext context) => AboutPage())),
+            AppBarButton(
+              icon: Icon(FIcons.settings),
+              tooltip: "设置",
+              onPressed: () => Utils.startPageWait(context, AboutPage()),
             ),
           ],
         ),

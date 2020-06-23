@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -76,10 +77,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _searchExpanded = rule.enableSearch;
     }
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBarEx(
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
-          IconButton(
+          AppBarButton(
             icon: Icon(Icons.bug_report),
             onPressed: () async {
               if (isLoading) return;
@@ -91,7 +92,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                   MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             },
           ),
-          IconButton(
+          AppBarButton(
             icon: Icon(Icons.share),
             onPressed: () => FlutterShare.share(
               title: '亦搜 eso',

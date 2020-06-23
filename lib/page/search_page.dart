@@ -8,6 +8,7 @@ import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +33,7 @@ class _SearchPageState extends State<SearchPage> {
         profile: profile,
       ),
       builder: (context, child) => Scaffold(
-        appBar: AppBar(
+        appBar: AppBarEx(
           titleSpacing: 0,
           title: SearchEdit(
             hintText: "请输入关键词",

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/ui/edit/bottom_input_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
@@ -436,12 +438,12 @@ class Profile with ChangeNotifier {
     }
     final _color = Color(Global.colors[colorName] ?? customColor);
     final theme = ThemeData(
-      primaryColor: Color(Global.colors[colorName] ?? customColor),
+      primaryColor: _color,
       primaryColorDark: Global.colorLight(_color, -0.25),
       primaryColorLight: Global.colorLight(_color, 0.25),
-      bottomAppBarColor: isDarkMode
-          ? Color.fromARGB(255, 66, 66, 66)
-          : Color.fromARGB(255, 180, 188, 196),
+      toggleableActiveColor: _color,
+      dividerColor: isDarkMode ? Colors.white10 : Colors.black12,
+      bottomAppBarColor: isDarkMode ? Color(0xff424242) : Color(0xffb4bcc4),
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
     );
     return theme.copyWith(
@@ -451,11 +453,11 @@ class Profile with ChangeNotifier {
         brightness: theme.brightness,
         iconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
-          size: 16,
+          size: 19,
         ),
         actionsIconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
-          size: 16,
+          size: 19,
         ),
       ),
       cardTheme: CardTheme(
@@ -463,6 +465,9 @@ class Profile with ChangeNotifier {
       ),
       primaryTextTheme: TextTheme(
         headline6: TextStyle(color: theme.textTheme.bodyText1.color.withOpacity(0.8)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: BottomInputBorder(theme.dividerColor, width: Global.borderSize),
       ),
     );
   }

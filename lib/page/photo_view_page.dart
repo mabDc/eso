@@ -115,7 +115,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                 ),
                 Material(
                   color: Colors.transparent,
-                  child: IconButton(
+                  child: AppBarButton(
                     icon: Icon(Icons.more_vert, color: Colors.white54),
                     onPressed: doLongPress,
                     tooltip: "菜单",

@@ -9,6 +9,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 export 'package:cached_network_image/cached_network_image.dart';
+export 'fonticons_icons.dart';
+export 'ui/widgets/app_bar_button.dart';
+export 'ui/widgets/app_bar_ex.dart';
 
 /// 事件bus
 EventBus eventBus = EventBus();

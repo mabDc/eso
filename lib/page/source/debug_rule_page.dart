@@ -1,5 +1,6 @@
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/debug_rule_provider.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +14,7 @@ class DebugRulePage extends StatelessWidget {
     return ChangeNotifierProvider<DebugRuleProvider>(
       create: (_) => DebugRuleProvider(rule, textColor),
       builder: (context, child) => Scaffold(
-        appBar: AppBar(
+        appBar: AppBarEx(
           title: _buildTextField(
             context,
             Provider.of<DebugRuleProvider>(context, listen: false).search,

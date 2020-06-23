@@ -112,7 +112,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
     return ChangeNotifierProvider<EditSourceProvider>(
       create: (context) => EditSourceProvider(),
       builder: (context, child) => Scaffold(
-        appBar: AppBar(
+        appBar: AppBarEx(
           titleSpacing: 0.0,
           title: SearchEdit(
             hintText:
@@ -123,7 +123,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 .getRuleListByNameDebounce,
           ),
           actions: [
-            IconButton(
+            AppBarButton(
               icon: Icon(Icons.check_circle_outline),
               onPressed: Provider.of<EditSourceProvider>(context, listen: false)
                   .toggleCheckAllRule,
@@ -178,7 +178,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              IconButton(
+              AppBarButton(
                   icon: Icon(Icons.create),
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(

@@ -73,3 +73,7 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/
+  fonts:
+    - family: fonticons
+      fonts:
+        - asset: fonts/fonticons.ttf

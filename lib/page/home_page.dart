@@ -5,6 +5,7 @@ import 'package:eso/model/audio_service.dart';
 import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/search_page.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
+import 'package:eso/ui/widgets/bottom_bar_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,8 +36,7 @@ class _HomePageState extends State<HomePage> {
     stream = eventBus.on<AudioStateEvent>().listen((event) {
       if (lastAudioPlaying != AudioService.isPlaying) {
         lastAudioPlaying = AudioService.isPlaying;
-        if (this.mounted && _audioState != null)
-          _audioState(() => null);
+        if (this.mounted && _audioState != null) _audioState(() => null);
       }
     });
   }
@@ -87,41 +87,19 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         Expanded(
-                          child: FlatButton(
-                            onPressed: () => pageSwitch.changePage(0),
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.library_books,
-                                  color: getColor(pageSwitch, context, 0),
-                                ),
-                                Text(
-                                  "收藏",
-                                  style:
-                                  TextStyle(color: getColor(pageSwitch, context, 0)),
-                                )
-                              ],
-                            ),
-                          ),
+                          child: BottomBarButton(
+                            icon: Icon(FIcons.heart),
+                            child: Text("收藏"),
+                            selected: pageSwitch.currentIndex == 0,
+                            onPressed: () => pageSwitch.changePage(0)
+                          )
                         ),
                         Expanded(
-                          child: FlatButton(
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onPressed: () => pageSwitch.changePage(1),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(Icons.satellite,
-                                    color: getColor(pageSwitch, context, 1)),
-                                Text("发现",
-                                    style: TextStyle(
-                                        color: getColor(pageSwitch, context, 1)))
-                              ],
-                            ),
+                          child: BottomBarButton(
+                              icon: Icon(FIcons.compass),
+                              child: Text("发现"),
+                              selected: pageSwitch.currentIndex == 1,
+                              onPressed: () => pageSwitch.changePage(1)
                           ),
                         ),
                       ],
@@ -131,13 +109,11 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             floatingActionButton: FloatingActionButton(
-              elevation: 0,
+              //elevation: 0,
               backgroundColor: Theme.of(context).primaryColor,
-              onPressed: () => Navigator.of(context)
-                  .push(
-                  MaterialPageRoute(builder: (BuildContext context) => SearchPage()))
+              onPressed: () => Utils.startPageWait(context, SearchPage())
                   .whenComplete(() => pageSwitch.refreshList()),
-              child: Icon(Icons.search, color: Theme.of(context).canvasColor),
+              child: Icon(FIcons.search, color: Theme.of(context).canvasColor),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           );
@@ -145,10 +121,9 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-  
+
   Widget _buildAudioView(BuildContext context) {
-    if (!AudioService.isPlaying)
-      return SizedBox();
+    if (!AudioService.isPlaying) return SizedBox();
     final chapter = AudioService().curChapter;
     final Widget _view = Container(
       width: 40,
@@ -156,27 +131,35 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withOpacity(0.2),
           borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: Theme.of(context).primaryColorLight.withOpacity(0.8), width: 0.5)
-      ),
+          border: Border.all(
+              color: Theme.of(context).primaryColorLight.withOpacity(0.8),
+              width: 0.5)),
       child: AnimationRotateView(
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            image: Utils.empty(chapter?.cover) ? null : DecorationImage(
-              image: NetworkImage(chapter.cover ?? ''),
-              fit: BoxFit.cover,
-            ),
+            image: Utils.empty(chapter?.cover)
+                ? null
+                : DecorationImage(
+                    image: NetworkImage(chapter.cover ?? ''),
+                    fit: BoxFit.cover,
+                  ),
           ),
-          child: Utils.empty(chapter?.cover) ? Icon(Icons.audiotrack, color: Colors.black12, size: 24) : Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Theme.of(context).primaryColorLight.withOpacity(0.8), width: 0.35)
-            ),
-          ),
+          child: Utils.empty(chapter?.cover)
+              ? Icon(Icons.audiotrack, color: Colors.black12, size: 24)
+              : Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).canvasColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: Theme.of(context)
+                              .primaryColorLight
+                              .withOpacity(0.8),
+                          width: 0.35)),
+                ),
         ),
       ),
     );
@@ -184,21 +167,22 @@ class _HomePageState extends State<HomePage> {
       right: 16,
       bottom: MediaQuery.of(context).padding.bottom + 16,
       child: InkWell(
-        child: chapter != null ? Tooltip(
-          child: _view,
-          message: '正在播放: ' + chapter.name ?? '',
-        ): _view,
-        onTap: chapter == null ? null : () {
-          Utils.startPageWait(context, AudioPage(searchItem: AudioService().searchItem));
-        },
+        child: chapter != null
+            ? Tooltip(
+                child: _view,
+                message: '正在播放: ' + chapter.name ?? '',
+              )
+            : _view,
+        onTap: chapter == null
+            ? null
+            : () {
+                Utils.startPageWait(
+                    context, AudioPage(searchItem: AudioService().searchItem));
+              },
       ),
     );
   }
 
-  Color getColor(PageSwitch pageSwitch, BuildContext context, int value) {
-    return pageSwitch.currentIndex == value
-        ? Theme.of(context).primaryColor
-        : Theme.of(context).textTheme.bodyText1.color;
-  }
+
 }
 
