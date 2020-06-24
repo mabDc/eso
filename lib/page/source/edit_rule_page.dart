@@ -93,7 +93,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             },
           ),
           AppBarButton(
-            icon: Icon(Icons.share),
+            icon: Icon(FIcons.share_2),
             onPressed: () => FlutterShare.share(
               title: '亦搜 eso',
               text: jsonEncode(rule.toJson()),
@@ -591,8 +591,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const TO_SHARE = 5;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
-      elevation: 20,
-      icon: Icon(Icons.more_vert),
+      icon: Icon(FIcons.more_vertical),
       offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
@@ -631,7 +630,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             children: <Widget>[
               Text('从剪贴板导入'),
               Icon(
-                Icons.content_paste,
+                FIcons.clipboard,
                 color: primaryColor,
               ),
             ],
@@ -644,7 +643,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             children: <Widget>[
               Text('阅读或异次元'),
               Icon(
-                Icons.ac_unit,
+                FIcons.book_open,
                 color: primaryColor,
               ),
             ],
@@ -670,7 +669,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             children: <Widget>[
               Text('导出到剪贴板'),
               Icon(
-                Icons.content_copy,
+                FIcons.copy,
                 color: primaryColor,
               ),
             ],
@@ -696,7 +695,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             children: <Widget>[
               Text('保存规则'),
               Icon(
-                Icons.save,
+                FIcons.save,
                 color: primaryColor,
               ),
             ],

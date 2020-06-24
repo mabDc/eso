@@ -89,6 +89,7 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: BottomBarButton(
                             icon: Icon(FIcons.heart),
+                            splashColor: Colors.transparent,
                             child: Text("收藏"),
                             selected: pageSwitch.currentIndex == 0,
                             onPressed: () => pageSwitch.changePage(0)
@@ -97,6 +98,7 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: BottomBarButton(
                               icon: Icon(FIcons.compass),
+                              splashColor: Colors.transparent,
                               child: Text("发现"),
                               selected: pageSwitch.currentIndex == 1,
                               onPressed: () => pageSwitch.changePage(1)

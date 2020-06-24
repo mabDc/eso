@@ -1,5 +1,6 @@
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/debug_rule_provider.dart';
+import 'package:eso/ui/edit/edit_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class DebugRulePage extends StatelessWidget {
           builder: (context, DebugRuleProvider provider, _) {
             if (provider.rows.isEmpty) {
               return Center(
-                child: Text("请输入关键词开始搜索"),
+                child: Icon(FIcons.cpu, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
               );
             }
             return ListView.builder(
@@ -41,27 +42,16 @@ class DebugRulePage extends StatelessWidget {
   }
 
   Widget _buildTextField(BuildContext context, void Function(String) onSubmitted) {
-    return TextField(
+    return EditView(
       onSubmitted: onSubmitted,
       cursorColor: Theme.of(context).primaryTextTheme.headline6.color,
       style: TextStyle(
         color: Theme.of(context).primaryTextTheme.headline6.color,
       ),
       autofocus: true,
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryTextTheme.headline6.color,
-          ),
-        ),
-        isDense: true,
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryTextTheme.headline6.color,
-          ),
-        ),
-      ),
+      hint: "请输入关键词开始搜索",
+      maxLines: 1,
+      textInputAction: TextInputAction.search,
     );
   }
 }

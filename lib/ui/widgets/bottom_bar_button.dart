@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 
 class BottomBarButton extends StatelessWidget {
 
-  const BottomBarButton({Key key, this.child, this.icon, this.color, this.selected = false, VoidCallback onTap, VoidCallback onPressed}) :
+  const BottomBarButton({Key key, this.child, this.icon, this.color, this.splashColor, this.selected = false, VoidCallback onTap, VoidCallback onPressed}) :
         onPressed = onPressed ?? onTap,
         super(key: key);
 
   final VoidCallback onPressed;
+  final Color splashColor;
   final Widget child;
   final Color color;
   final Icon icon;
@@ -19,7 +20,7 @@ class BottomBarButton extends StatelessWidget {
     return ButtonTheme(
       minWidth: 40,
       child: FlatButton(
-        //splashColor: Colors.transparent,
+        splashColor: splashColor,
         highlightColor: Colors.transparent,
         padding: const EdgeInsets.all(8),
         onPressed: onPressed,
