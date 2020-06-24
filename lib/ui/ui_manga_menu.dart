@@ -1,6 +1,8 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
+import 'package:eso/ui/widgets/bottom_bar_button.dart';
+import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -197,46 +199,18 @@ class UIMangaMenu extends StatelessWidget {
   }
 
   Widget _buildTopRow(BuildContext context, Color bgColor, Color color) {
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.topLeft,
-      decoration: BoxDecoration(color: bgColor),
-      padding: EdgeInsets.fromLTRB(12, 4 + MediaQuery.of(context).padding.top, 12, 4),
-      child: Row(
-        children: <Widget>[
-          InkWell(
-            child: Icon(Icons.arrow_back_ios, color: color, size: 26),
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '${searchItem.name}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18, color: color),
-                ),
-                Text(
-                  '${searchItem.author}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(fontSize: 12, color: color),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 10),
-          InkWell(
-            child: Icon(Icons.share, color: color, size: 26),
-            onTap: Provider.of<MangaPageProvider>(context, listen: false).share,
-          ),
-          _buildPopupmenu(context, bgColor, color),
-        ],
-      ),
+    return AppBarEx(
+      titleSpacing: 0,
+      titleText: searchItem.name,
+      subTitleText: searchItem.author,
+      actions: [
+        AppBarButton(
+          icon: Icon(FIcons.share_2),
+          tooltip: "分享",
+          onPressed: () => Provider.of<MangaPageProvider>(context, listen: false).share
+        ),
+        _buildPopupmenu(context, bgColor, color),
+      ],
     );
   }
 
@@ -249,7 +223,7 @@ class UIMangaMenu extends StatelessWidget {
     final provider = Provider.of<MangaPageProvider>(context, listen: false);
     return PopupMenuButton<int>(
       elevation: 20,
-      icon: Icon(Icons.more_vert, color: color, size: 26),
+      icon: Icon(FIcons.more_vertical, color: color),
       color: bgColor,
       offset: Offset(0, 40),
       onSelected: (int value) {
@@ -265,6 +239,11 @@ class UIMangaMenu extends StatelessWidget {
             break;
           case ADD_ITEM:
             (() async {
+              if (provider.isFavorite) {
+                await provider.removeFormFavorite();
+                Toast.show("取消收藏成功！", context, duration: 1);
+                return;
+              }
               final success = await provider.addToFavorite();
               if (null == success) {
                 Toast.show("已在收藏中", context, duration: 1);
@@ -287,7 +266,7 @@ class UIMangaMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('复制原地址'),
-              Icon(Icons.content_copy, color: primaryColor),
+              Icon(FIcons.copy, color: primaryColor),
             ],
           ),
           value: TO_CLICPBOARD,
@@ -297,7 +276,7 @@ class UIMangaMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('查看原页面'),
-              Icon(Icons.launch, color: primaryColor),
+              Icon(FIcons.external_link, color: primaryColor),
             ],
           ),
           value: LAUCH,
@@ -307,7 +286,7 @@ class UIMangaMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('重新加载'),
-              Icon(Icons.refresh, color: primaryColor),
+              Icon(FIcons.rotate_cw, color: primaryColor),
             ],
           ),
           value: REFRESH,
@@ -316,9 +295,9 @@ class UIMangaMenu extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('加入收藏'),
+              Text(provider.isFavorite ? "取消收藏" : '加入收藏'),
               Icon(
-                Icons.add_to_photos,
+                provider.isFavorite ? FIcons.trash : FIcons.heart,
                 color: primaryColor,
               ),
             ],
@@ -397,19 +376,19 @@ class UIMangaMenu extends StatelessWidget {
                           width: MediaQuery.of(context).size.width,
                           color: bgColor,
                           padding: EdgeInsets.all(16),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                searchItem.chapters[index - 1].name,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                              Expanded(
+                                child: Text(
+                                  searchItem.chapters[index - 1].name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10,
                               ),
                               Text(
                                 "$index / ${searchItem.chaptersCount}",
@@ -438,51 +417,38 @@ class UIMangaMenu extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(30, 0, 30, 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.arrow_back, color: color, size: 28),
-                      Text("上一章", style: TextStyle(color: color))
-                    ],
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BottomBarButton(
+                    icon: Icon(FIcons.arrow_left, color: color, size: 25),
+                    child: Text("上一章", style: TextStyle(color: color)),
+                    onPressed: () => provider.loadChapter(searchItem.durChapterIndex - 1),
                   ),
-                  onTap: () => provider.loadChapter(searchItem.durChapterIndex - 1),
-                ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.format_list_bulleted, color: color, size: 28),
-                      Text("目录", style: TextStyle(color: color))
-                    ],
+                  BottomBarButton(
+                    icon: Icon(FIcons.list, color: color, size: 25),
+                    child: Text("目录", style: TextStyle(color: color)),
+                    onTap: () => provider.showChapter = !provider.showChapter,
                   ),
-                  onTap: () => provider.showChapter = !provider.showChapter,
-                ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.settings, color: color, size: 28),
-                      Text("设置", style: TextStyle(color: color))
-                    ],
+                  BottomBarButton(
+                    icon: Icon(FIcons.settings, color: color, size: 25),
+                    child: Text("设置", style: TextStyle(color: color)),
+                    onTap: () {
+                      provider.showChapter = false;
+                      provider.showSetting = true;
+                    },
                   ),
-                  onTap: () {
-                    provider.showChapter = false;
-                    provider.showSetting = true;
-                  },
-                ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.arrow_forward, color: color, size: 28),
-                      Text("下一章", style: TextStyle(color: color))
-                    ],
+                  BottomBarButton(
+                    icon: Icon(FIcons.arrow_right, color: color, size: 25),
+                    child: Text("下一章", style: TextStyle(color: color)),
+                    onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
                   ),
-                  onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

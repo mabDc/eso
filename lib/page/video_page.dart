@@ -1,5 +1,6 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/video_page_controller.dart';
+import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +64,10 @@ class _VideoPageState extends State<VideoPage> {
                     child: _buildTopRow(context, provider),
                   ),
                   SizedBox(height: 30),
-                  Text(s, style: TextStyle(fontSize: 18)),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: Text(s, style: TextStyle(fontSize: 16)),
+                  ),
                   SizedBox(height: 30),
                   CupertinoActivityIndicator(),
                 ],
@@ -171,18 +175,9 @@ class _VideoPageState extends State<VideoPage> {
       ),
       padding: EdgeInsets.fromLTRB(12, 4 + MediaQuery.of(context).padding.top, 12, 4),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          InkWell(
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 26,
-            ),
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          SizedBox(
-            width: 10,
-          ),
+          AppBarEx.buildLeading(context, color: Colors.white),
           Expanded(
             child: Text(
               '${widget.searchItem.durChapter}'.trim(),
@@ -191,39 +186,13 @@ class _VideoPageState extends State<VideoPage> {
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.white,
+                height: 1.45
               ),
             ),
           ),
-          InkWell(
-            child: Icon(
-              Icons.airplay,
-              color: Colors.white,
-              size: 26,
-            ),
-            onTap: () => provider.openDLNA(context),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          InkWell(
-            child: Icon(
-              Icons.open_in_new,
-              color: Colors.white,
-              size: 26,
-            ),
-            onTap: provider.openWith,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          InkWell(
-            child: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 26,
-            ),
-            onTap: () => provider.showChapter = !provider.showChapter,
-          ),
+          AppBarButton(icon: Icon(FIcons.airplay), color: Colors.white, tooltip: "DLNA投屏", onTap: () => provider.openDLNA(context)),
+          AppBarButton(icon: Icon(FIcons.external_link), color: Colors.white, tooltip: "在外部打开", onTap: provider.openWith),
+          AppBarButton(icon: Icon(FIcons.list), color: Colors.white, tooltip: "播放列表", onTap: () => provider.showChapter = !provider.showChapter),
         ],
       ),
     );
@@ -257,7 +226,7 @@ class _VideoPageState extends State<VideoPage> {
             child: Icon(
               provider.isPlaying ? Icons.pause : Icons.play_arrow,
               color: Colors.white,
-              size: 26,
+              size: 25,
             ),
             onTap: provider.playOrPause,
           ),
@@ -316,14 +285,7 @@ class _VideoPageState extends State<VideoPage> {
           SizedBox(
             width: 10,
           ),
-          InkWell(
-            child: Icon(
-              Icons.screen_rotation,
-              color: Colors.white,
-              size: 26,
-            ),
-            onTap: provider.toggleRotation,
-          ),
+          AppBarButton(icon: Icon(Icons.screen_rotation), color: Colors.white, minWidth: 35, tooltip: "旋转", onTap: provider.toggleRotation),
         ],
       ),
     );

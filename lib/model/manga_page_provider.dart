@@ -251,11 +251,16 @@ class MangaPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool get isFavorite => SearchItemManager.isFavorite(searchItem.url);
+
   Future<bool> addToFavorite() async {
-    if (SearchItemManager.isFavorite(searchItem.url)) {
-      return null;
-    }
-    return SearchItemManager.addSearchItem(searchItem);
+    if (isFavorite) return null;
+    return await SearchItemManager.addSearchItem(searchItem);
+  }
+
+  Future<bool> removeFormFavorite() async {
+    if (!isFavorite) return true;
+    return await SearchItemManager.removeSearchItem(searchItem.url, searchItem.id);
   }
 
   void refreshCurrent() async {

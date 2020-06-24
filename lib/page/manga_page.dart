@@ -12,12 +12,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../database/search_item.dart';
 import 'langding_page.dart';
 import 'photo_view_page.dart';
 
+/// 漫画显示页面
 class MangaPage extends StatefulWidget {
   final SearchItem searchItem;
 

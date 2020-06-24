@@ -1,5 +1,6 @@
 import 'package:eso/fonticons_icons.dart';
 import 'package:eso/ui/widgets/app_bar_button.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
 /// 扩展一个 AppBar 方便自定义
@@ -8,7 +9,9 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
     Key key,
     this.leading,
     this.automaticallyImplyLeading = true,
-    this.title,
+    Widget title,
+    String titleText,
+    String subTitleText,
     this.actions,
     this.flexibleSpace,
     this.bottom,
@@ -31,6 +34,7 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
         assert(titleSpacing != null),
         assert(toolbarOpacity != null),
         assert(bottomOpacity != null),
+        title = title ?? buildTitle(title: titleText, subTitle: subTitleText),
         preferredSize = Size.fromHeight(kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0)),
         super(key: key);
 
@@ -91,7 +95,38 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
       tooltip: MaterialLocalizations
           .of(context)
           .backButtonTooltip,
+      iconSize: 24,
       onPressed: onPressed ?? () => Navigator.maybePop(context),
     ) : null;
+  }
+
+  static Widget buildTitle({
+    String title,
+    String subTitle,
+    Color color,
+    CrossAxisAlignment alignment = CrossAxisAlignment.start
+  }) {
+    final _subTitle = Utils.empty(subTitle) ? null : Text(
+      subTitle,
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      style: TextStyle(fontSize: 12, color: color),
+    );
+    final _title = Utils.empty(title) ? null : Text(
+      title,
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      style: TextStyle(color: color, fontSize: 18) ,
+    );
+    if (_subTitle == null) return _title;
+    if (_title == null) return _subTitle;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: alignment ?? CrossAxisAlignment.start,
+      children: [
+        _title,
+        _subTitle,
+      ],
+    );
   }
 }

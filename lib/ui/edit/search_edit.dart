@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:eso/fonticons_icons.dart';
 import 'package:flutter/material.dart';
 
 /// 搜索框
@@ -51,8 +52,8 @@ class SearchEdit extends StatelessWidget {
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 12, right: 6),
           child: Icon(
-            Icons.search,
-            color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.3),
+            FIcons.search,
+            color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.2),
           ),
         ),
         prefixIconConstraints: BoxConstraints(),

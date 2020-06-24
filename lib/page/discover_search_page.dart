@@ -127,6 +127,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
                     title: Text(pageController.title),
                     actions: <Widget>[
                       AppBarButton(
+                        tooltip: "搜索",
                         icon: Icon(FIcons.search),
                         onPressed: pageController.toggleSearching,
                       ),
@@ -197,6 +198,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
 
   Widget _buildSwitchStyle(BuildContext context) {
     return AppBarButton(
+      tooltip: "切换显示",
       icon: Provider.of<Profile>(context, listen: true).switchDiscoverStyle
           ? Icon(FIcons.grid)
           : Icon(FIcons.list),

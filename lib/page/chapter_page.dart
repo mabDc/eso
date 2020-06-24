@@ -63,7 +63,7 @@ class _ChapterPageState extends State<ChapterPage> {
                   state = _state;
                   return Container(
                     child: _buildAlphaAppbar(context),
-                    color: Theme.of(context).primaryColor.withOpacity(opacity),
+                    //color: Theme.of(context).primaryColor.withOpacity(opacity),
                     height: topHeight,
                   );
                 },
@@ -80,8 +80,8 @@ class _ChapterPageState extends State<ChapterPage> {
     final _iconTheme = Theme.of(context).primaryIconTheme;
 
     return AppBarEx(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(opacity),
       textTheme: _textTheme.copyWith(
           headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       iconTheme: _iconTheme.copyWith(color: Colors.white70),
@@ -95,7 +95,8 @@ class _ChapterPageState extends State<ChapterPage> {
       titleSpacing: 0.0,
       actions: <Widget>[
         AppBarButton(
-          icon: Icon(Icons.refresh),
+          icon: Icon(FIcons.rotate_cw),
+          tooltip: "刷新",
           onPressed: provider.updateChapter,
         ),
         // 加入收藏时需要刷新图标，其他不刷新
@@ -104,11 +105,12 @@ class _ChapterPageState extends State<ChapterPage> {
             icon: SearchItemManager.isFavorite(searchItem.url)
                 ? Icon(Icons.favorite)
                 : Icon(Icons.favorite_border),
+            iconSize: 21,
             onPressed: provider.toggleFavorite,
           ),
         ),
         AppBarButton(
-          icon: Icon(Icons.share),
+          icon: Icon(FIcons.share_2),
           onPressed: provider.share,
         ),
       ],
@@ -132,7 +134,7 @@ class _ChapterPageState extends State<ChapterPage> {
             children: [
               ArcBannerImage(searchItem.cover),
               SizedBox(
-                height: 270 + _top,
+                height: 300 + _top,
                 width: double.infinity,
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
@@ -298,12 +300,9 @@ class _ChapterPageState extends State<ChapterPage> {
               child: Row(
                 children: [
                   searchItem.reverseChapter
-                      ? Container()
+                      ? SizedBox()
                       : Transform.rotate(
-                    child: Icon(
-                      Icons.sort,
-                      color: theme.primaryColor,
-                    ),
+                    child: Icon(Icons.sort, color: theme.primaryColor,size: 18),
                     angle: pi,
                   ),
                   Text(
@@ -311,8 +310,8 @@ class _ChapterPageState extends State<ChapterPage> {
                     style: TextStyle(color: theme.primaryColor),
                   ),
                   searchItem.reverseChapter
-                      ? Icon(Icons.sort, color: theme.primaryColor)
-                      : Container(),
+                      ? Icon(Icons.sort, color: theme.primaryColor, size: 18)
+                      : SizedBox(),
                 ],
               ),
               onTap: provider.toggleReverse,
@@ -439,7 +438,7 @@ class _ChapterPageState extends State<ChapterPage> {
 }
 
 class ArcBannerImage extends StatelessWidget {
-  ArcBannerImage(this.imageUrl, {this.arcH = 30.0, this.height = 300.0});
+  ArcBannerImage(this.imageUrl, {this.arcH = 30.0, this.height = 335.0});
   final String imageUrl;
   final double height, arcH;
 
