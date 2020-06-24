@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:toast/toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
 
 /// 快速输入符号List
@@ -81,6 +82,20 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           AppBarButton(
+            icon: Icon(FIcons.help_circle),
+            onPressed: () =>
+                launch('https://github.com/mabDc/eso_source/blob/master/README.md'),
+          ),
+          AppBarButton(
+            icon: Icon(FIcons.share_2),
+            onPressed: () => FlutterShare.share(
+              title: '亦搜 eso',
+              text: jsonEncode(rule.toJson()),
+              //linkUrl: '${searchItem.url}',
+              chooserTitle: '选择分享的应用',
+            ),
+          ),
+          AppBarButton(
             icon: Icon(Icons.bug_report),
             onPressed: () async {
               if (isLoading) return;
@@ -91,15 +106,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             },
-          ),
-          AppBarButton(
-            icon: Icon(FIcons.share_2),
-            onPressed: () => FlutterShare.share(
-              title: '亦搜 eso',
-              text: jsonEncode(rule.toJson()),
-              //linkUrl: '${searchItem.url}',
-              chooserTitle: '选择分享的应用',
-            ),
           ),
           // IconButton(
           //   icon: Icon(Icons.save),
@@ -589,6 +595,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const DEBUG_WITHOUT_SAVE = 3;
     const FROM_YICIYUAN = 4;
     const TO_SHARE = 5;
+    const SOURCE_HELP = 6;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       icon: Icon(FIcons.more_vertical),
@@ -619,6 +626,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               //linkUrl: '${searchItem.url}',
               chooserTitle: '选择分享的应用',
             );
+            break;
+          case SOURCE_HELP:
+            launch('https://github.com/mabDc/eso_source/blob/master/README.md');
             break;
           default:
         }
@@ -702,6 +712,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           ),
           value: SAVE,
         ),
+        // PopupMenuItem(
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: <Widget>[
+        //       Text('规则说明'),
+        //       Icon(
+        //         FIcons.help_circle,
+        //         color: primaryColor,
+        //       ),
+        //     ],
+        //   ),
+        //   value: SOURCE_HELP,
+        // ),
       ],
     );
   }

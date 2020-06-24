@@ -108,30 +108,32 @@ class AboutPage extends StatelessWidget {
                   children: <Widget>[
                     ListTile(
                       title: Text(
-                        '关于',
+                        '联系&帮助',
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
                     Divider(),
                     ListTile(
-                      title: Text('开源地址'),
-                      subtitle: Text('https://github.com/mabDc/eso'),
-                      onTap: () => launch('https://github.com/mabDc/eso'),
+                      title: Text('亦搜①群'),
+                      subtitle: Text('1106156709'),
+                      //Flutter 跳转(打开)QQ聊天对话和QQ群聊
+                      //https://www.jianshu.com/p/8dc54ef6329c
+                      onTap: () => launch(
+                          'mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${1106156709}&card_type=group&source=qrcode'),
                     ),
                     ListTile(
-                      title: Text('问题反馈'),
-                      subtitle: Text('https://github.com/mabDc/eso/issues'),
-                      onTap: () => launch('https://github.com/mabDc/eso/issues'),
+                      title: Text('规则获取'),
+                      subtitle: Text('https://github.com/mabDc/eso_source/'),
+                      onTap: () => launch('https://github.com/mabDc/eso_source/'),
                     ),
                     ListTile(
-                      title: Text('版本 v${Global.appVersion}'),
-                      subtitle: Text('https://github.com/mabDc/eso/releases'),
-                      onTap: () => launch('https://github.com/mabDc/eso/releases'),
-                    ),
-                    ListTile(
-                      title: Text('规则说明及规则获取地址'),
-                      subtitle: Text(
-                          'https://github.com/mabDc/eso_source/blob/master/README.md'),
+                      title: Text('规则说明'),
+                      subtitle: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                            'https://github.com/mabDc/eso_source/blob/master/README.md'),
+                      ),
                       onTap: () => launch(
                           'https://github.com/mabDc/eso_source/blob/master/README.md'),
                     ),
@@ -167,11 +169,40 @@ class AboutPage extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '项目',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('开源地址'),
+                      subtitle: Text('https://github.com/mabDc/eso'),
+                      onTap: () => launch('https://github.com/mabDc/eso'),
+                    ),
+                    ListTile(
+                      title: Text('问题反馈'),
+                      subtitle: Text('https://github.com/mabDc/eso/issues'),
+                      onTap: () => launch('https://github.com/mabDc/eso/issues'),
+                    ),
+                    ListTile(
+                      title: Text('版本 v${Global.appVersion}'),
+                      subtitle: Text('https://github.com/mabDc/eso/releases'),
+                      onTap: () => launch('https://github.com/mabDc/eso/releases'),
+                    ),
+                  ],
+                ),
+              ),
+
               Card(
                 child: Material(
                   color: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
                   child: InkWell(
                     onTap: () => showAboutDialog(
                       context: context,
