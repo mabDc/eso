@@ -90,7 +90,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
             for (var i = 0; i < map.length; i++) {
               children.add(KeepAliveWidget(
                 wantKeepAlive: true,
-                child: _buildListView(context, pageController, pageController.items[i]),
+                child: _buildListView(
+                    context, pageController, pageController.items[i], map[i], i),
               ));
             }
           }
@@ -124,6 +125,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                       onSubmitted: (query) => pageController.search(),
                     ),
                     bottom: _buildAppBarBottom(context, pageController),
+                    preferredHeight: 32,
                   )
                 : AppBarEx(
                     titleSpacing: 0.0,
@@ -141,34 +143,86 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                       _buildSwitchStyle(context),
                     ],
                     bottom: _buildAppBarBottom(context, pageController),
+                    preferredHeight: 32,
                   ),
-            body: Column(
-              children: <Widget>[
-                Expanded(
-                  child: children.isEmpty
-                      ? Container()
-                      : children.length == 1
-                          ? children.first
-                          : TabBarView(
-                              controller: _tabController,
-                              children: children,
-                            ),
-                ),
-              ],
-            ),
+            body: children.isEmpty
+                ? Container()
+                : children.length == 1
+                    ? children.first
+                    : TabBarView(
+                        controller: _tabController,
+                        children: children,
+                      ),
           );
         },
       ),
     );
   }
 
+  Widget buildPairButton(
+      DiscoverPair pair, Color color, DiscoverPageController pageController, int index) {
+    return Container(
+      height: 24,
+      width: 20.0 + 12 * pair.name.length,
+      margin: EdgeInsets.fromLTRB(4, 10, 4, 0),
+      child: OutlineButton(
+        child: Text(
+          pair.name,
+          style: TextStyle(fontSize: 12),
+        ),
+        padding: EdgeInsets.zero,
+        textColor: color,
+        onPressed: () => _select(pageController, index, pair),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        borderSide: color != null ? BorderSide(color: color) : null,
+      ),
+    );
+  }
+
   Widget _buildListView(
-      BuildContext context, DiscoverPageController pageController, ListDataItem item) {
-    return item.isLoading
-        ? LandingPage()
-        : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
-            ? buildDiscoverResultList(item.items, pageController, item)
-            : buildDiscoverResultGrid(item.items, pageController, item);
+      BuildContext context, DiscoverPageController pageController, ListDataItem item,
+      [DiscoverMap map, int index]) {
+    final pairs = map?.pairs;
+    if (pairs == null || pairs.isEmpty || pairs.length == 1) {
+      if (item.isLoading) {
+        return LandingPage();
+      }
+      return Provider.of<Profile>(context, listen: false).switchDiscoverStyle
+          ? buildDiscoverResultList(item.items, pageController, item)
+          : buildDiscoverResultGrid(item.items, pageController, item);
+    }
+    Color primaryColor = Theme.of(context).primaryColor;
+    final discoverPair = pageController.discoverParams[map.name];
+    if (item.isLoading) {
+      return Column(
+        children: [
+          Wrap(
+            children: pairs
+                .map((pair) => buildPairButton(pair,
+                    pair == discoverPair ? primaryColor : null, pageController, index))
+                .toList(),
+          ),
+          Expanded(child: LandingPage())
+        ],
+      );
+    }
+    return Column(
+      children: [
+        Wrap(
+          children: pairs
+              .map((pair) => buildPairButton(pair,
+                  pair == discoverPair ? primaryColor : null, pageController, index))
+              .toList(),
+        ),
+        Expanded(
+          child: Provider.of<Profile>(context, listen: false).switchDiscoverStyle
+              ? buildDiscoverResultList(item.items, pageController, item)
+              : buildDiscoverResultGrid(item.items, pageController, item),
+        )
+      ],
+    );
   }
 
   PreferredSizeWidget _buildAppBarBottom(
@@ -182,7 +236,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       });
     }
     return SizedBar(
-      height: 50,
+      height: 42,
       child: TabBar(
         controller: _tabController,
         isScrollable: true,

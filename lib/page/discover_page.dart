@@ -104,6 +104,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         Toast.show("更新成功", context);
       } else {
         provider.rules.add(rule);
+        await Global.ruleDao.insertOrUpdateRule(rule);
         Toast.show("添加成功", context);
       }
       if (showEditPage) {

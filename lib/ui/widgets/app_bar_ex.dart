@@ -28,14 +28,16 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
     this.toolbarOpacity = 1.0,
     this.bottomOpacity = 1.0,
-  }) : assert(automaticallyImplyLeading != null),
+    double preferredHeight,
+  })  : assert(automaticallyImplyLeading != null),
         assert(elevation == null || elevation >= 0.0),
         assert(primary != null),
         assert(titleSpacing != null),
         assert(toolbarOpacity != null),
         assert(bottomOpacity != null),
         title = title ?? buildTitle(title: titleText, subTitle: subTitleText),
-        preferredSize = Size.fromHeight(kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0)),
+        preferredSize = Size.fromHeight(
+            kToolbarHeight + (preferredHeight ?? bottom?.preferredSize?.height ?? 0.0)),
         super(key: key);
 
   final Color backgroundColor;
@@ -86,38 +88,40 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  static Widget buildLeading(BuildContext context, {Color color, VoidCallback onPressed}) {
-    final bool canPop = ModalRoute
-        .of(context)
-        ?.canPop ?? false;
-    return canPop ? AppBarButton(
-      icon: Icon(FIcons.chevron_left, color: color),
-      tooltip: MaterialLocalizations
-          .of(context)
-          .backButtonTooltip,
-      iconSize: 24,
-      onPressed: onPressed ?? () => Navigator.maybePop(context),
-    ) : null;
+  static Widget buildLeading(BuildContext context,
+      {Color color, VoidCallback onPressed}) {
+    final bool canPop = ModalRoute.of(context)?.canPop ?? false;
+    return canPop
+        ? AppBarButton(
+            icon: Icon(FIcons.chevron_left, color: color),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            iconSize: 24,
+            onPressed: onPressed ?? () => Navigator.maybePop(context),
+          )
+        : null;
   }
 
-  static Widget buildTitle({
-    String title,
-    String subTitle,
-    Color color,
-    CrossAxisAlignment alignment = CrossAxisAlignment.start
-  }) {
-    final _subTitle = Utils.empty(subTitle) ? null : Text(
-      subTitle,
-      overflow: TextOverflow.ellipsis,
-      maxLines: 1,
-      style: TextStyle(fontSize: 12, color: color),
-    );
-    final _title = Utils.empty(title) ? null : Text(
-      title,
-      overflow: TextOverflow.ellipsis,
-      maxLines: 1,
-      style: TextStyle(color: color, fontSize: 18) ,
-    );
+  static Widget buildTitle(
+      {String title,
+      String subTitle,
+      Color color,
+      CrossAxisAlignment alignment = CrossAxisAlignment.start}) {
+    final _subTitle = Utils.empty(subTitle)
+        ? null
+        : Text(
+            subTitle,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: TextStyle(fontSize: 12, color: color),
+          );
+    final _title = Utils.empty(title)
+        ? null
+        : Text(
+            title,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: TextStyle(color: color, fontSize: 18),
+          );
     if (_subTitle == null) return _title;
     if (_title == null) return _subTitle;
     return Column(

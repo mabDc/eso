@@ -10,9 +10,11 @@ class DiscoverPageController with ChangeNotifier {
 
   /// private
   bool _showSearchResult;
-  Map<String, DiscoverPair> _discoverParams;
 
   /// private set, public get
+  Map<String, DiscoverPair> _discoverParams;
+  Map<String, DiscoverPair> get discoverParams => _discoverParams;
+
   String get title => _title;
   String _title;
 
@@ -45,14 +47,11 @@ class DiscoverPageController with ChangeNotifier {
     _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
-    if (discoverMap.isEmpty)
-      initItems([]);
-    else
-      initItems(discoverMap.first.pairs);
+    initItems();
     fetchData(_items.first);
   }
 
-  void initItems(List<DiscoverPair> pairs) {
+  void initItems() {
     if (_items != null) return;
     _items = <ListDataItem>[];
     final _addItem = (DiscoverPair element) {
@@ -82,12 +81,16 @@ class DiscoverPageController with ChangeNotifier {
     if (_discoverParams[name] != pair) {
       if (pair == null) {
         pair = _discoverParams[name];
+        var index = _items.indexWhere((element) => element.pair == pair);
+        var item = _items[index];
+        if (item.length == 0) _discover(item);
       } else {
         _discoverParams[name] = pair;
+        var index = discoverMap.indexWhere((element) => element.name == name);
+        var item = _items[index];
+        item.pair = pair;
+        _discover(item);
       }
-      var index = _items.indexWhere((element) => element.pair == pair);
-      var item = _items[index];
-      if (item.length == 0) _discover(item);
     }
   }
 
