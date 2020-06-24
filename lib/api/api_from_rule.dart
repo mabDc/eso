@@ -187,16 +187,26 @@ class APIFromRUle implements API {
 
   @override
   List<DiscoverMap> discoverMap() {
-    final pairs = <DiscoverPair>[];
+    final map = <DiscoverMap>[];
+    final table = {};
     for (var url in rule.discoverUrl.split(RegExp(r"\n+|&&"))) {
       final d = url.split("::");
       if (d.length == 2) {
-        pairs.add(DiscoverPair(d[0].trim(), d[1].trim()));
+        map.add(DiscoverMap(d[0].trim(), <DiscoverPair>[
+          DiscoverPair("全部", d[1].trim()),
+        ]));
+      } else if (d.length == 3) {
+        final tab = d[0].trim();
+        if (table[tab] == null) {
+          table[tab] = map.length;
+          map.add(DiscoverMap(d[0].trim(), <DiscoverPair>[
+            DiscoverPair(d[1].trim(), d[2].trim()),
+          ]));
+        } else {
+          map[table[tab]].pairs.add(DiscoverPair(d[1].trim(), d[2].trim()));
+        }
       }
     }
-    if (pairs.isEmpty) return <DiscoverMap>[];
-    return <DiscoverMap>[
-      DiscoverMap("分类", pairs),
-    ];
+    return map;
   }
 }
