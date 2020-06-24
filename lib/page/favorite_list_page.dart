@@ -118,7 +118,7 @@ class FavoriteListPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(FIcons.smile, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                Icon(FIcons.frown, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
                 SizedBox(height: 12),
                 Text("还没有收藏哦!", style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color.withAlpha(50)))
               ],

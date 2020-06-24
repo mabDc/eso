@@ -92,7 +92,7 @@ class NovelPage extends StatelessWidget {
                     },
                     child: Container(),
                   ),
-                  provider.showMenu ? UINovelMenu(searchItem: searchItem) : Container(),
+                  provider.showMenu ? UINovelMenu(searchItem: searchItem, profile: profile) : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
                           searchItem: searchItem,

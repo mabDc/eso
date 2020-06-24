@@ -207,7 +207,7 @@ class UIMangaMenu extends StatelessWidget {
         AppBarButton(
           icon: Icon(FIcons.share_2),
           tooltip: "分享",
-          onPressed: () => Provider.of<MangaPageProvider>(context, listen: false).share
+          onPressed: Provider.of<MangaPageProvider>(context, listen: false).share
         ),
         _buildPopupmenu(context, bgColor, color),
       ],
@@ -435,7 +435,7 @@ class UIMangaMenu extends StatelessWidget {
                     onTap: () => provider.showChapter = !provider.showChapter,
                   ),
                   BottomBarButton(
-                    icon: Icon(FIcons.settings, color: color, size: 25),
+                    icon: Icon(FIcons.settings, color: color, size: 24),
                     child: Text("设置", style: TextStyle(color: color)),
                     onTap: () {
                       provider.showChapter = false;

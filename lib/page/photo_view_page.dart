@@ -105,7 +105,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
               children: [
                 Material(
                   color: Colors.transparent,
-                  child: BackButton(color: Colors.white54),
+                  child: AppBarEx.buildLeading(context, color: Colors.white54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                 ),

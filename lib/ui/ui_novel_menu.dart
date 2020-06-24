@@ -1,6 +1,8 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
+import 'package:eso/ui/widgets/bottom_bar_button.dart';
+import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:eso/utils/text_input_formatter.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +13,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class UINovelMenu extends StatelessWidget {
   final SearchItem searchItem;
+  final Profile profile;
   const UINovelMenu({
     this.searchItem,
+    this.profile,
     Key key,
   }) : super(key: key);
 
@@ -487,44 +491,13 @@ class UINovelMenu extends StatelessWidget {
   }
 
   Widget _buildTopRow(BuildContext context, Color bgColor, Color color) {
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.topLeft,
-      decoration: BoxDecoration(color: bgColor),
-      padding: EdgeInsets.fromLTRB(12, 4 + MediaQuery.of(context).padding.top, 12, 4),
-      child: Row(
-        children: <Widget>[
-          BackButton(),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '${searchItem.name}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18, color: color),
-                ),
-                searchItem.author.isEmpty
-                    ? Text(
-                        '${searchItem.author}',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(fontSize: 12, color: color.withOpacity(0.75)),
-                      )
-                    : Container(),
-              ],
-            ),
-          ),
-          SizedBox(width: 10),
-          InkWell(
-            child: Icon(Icons.share, color: color, size: 20),
-            onTap: Provider.of<NovelPageProvider>(context, listen: false).share,
-          ),
-          _buildPopupmenu(context, bgColor, color),
-        ],
-      ),
+    return AppBarEx(
+      titleText: searchItem.name,
+      subTitleText: searchItem.author,
+      actions: [
+        AppBarButton(icon: Icon(FIcons.share_2), onTap: Provider.of<NovelPageProvider>(context, listen: false).share),
+        _buildPopupmenu(context, bgColor, color),
+      ],
     );
   }
 
@@ -538,7 +511,7 @@ class UINovelMenu extends StatelessWidget {
     final provider = Provider.of<NovelPageProvider>(context, listen: false);
     return PopupMenuButton<int>(
       elevation: 20,
-      icon: Icon(Icons.more_vert, color: color),
+      icon: Icon(FIcons.more_vertical, color: color),
       color: bgColor,
       offset: Offset(0, 40),
       onSelected: (int value) {
@@ -585,7 +558,7 @@ class UINovelMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('复制原地址'),
-              Icon(Icons.content_copy, color: primaryColor),
+              Icon(FIcons.copy, color: primaryColor),
             ],
           ),
           value: TO_CLICPBOARD,
@@ -595,7 +568,7 @@ class UINovelMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('查看原页面'),
-              Icon(Icons.launch, color: primaryColor),
+              Icon(FIcons.external_link, color: primaryColor),
             ],
           ),
           value: LAUCH,
@@ -605,7 +578,7 @@ class UINovelMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('重新加载'),
-              Icon(Icons.refresh, color: primaryColor),
+              Icon(FIcons.rotate_cw, color: primaryColor),
             ],
           ),
           value: REFRESH,
@@ -629,7 +602,7 @@ class UINovelMenu extends StatelessWidget {
             children: <Widget>[
               Text('加入收藏'),
               Icon(
-                Icons.add_to_photos,
+                FIcons.heart,
                 color: primaryColor,
               ),
             ],
@@ -749,51 +722,38 @@ class UINovelMenu extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(30, 0, 30, 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.arrow_back, color: color, size: 28),
-                      Text("上一章", style: TextStyle(color: color))
-                    ],
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BottomBarButton(
+                    icon: Icon(FIcons.arrow_left, color: color, size: 25),
+                    child: Text("上一章", style: TextStyle(color: color)),
+                    onPressed: () => provider.switchChapter(profile, searchItem.durChapterIndex - 1),
                   ),
-                  onTap: () => provider.loadChapter(searchItem.durChapterIndex - 1),
-                ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.format_list_bulleted, color: color, size: 28),
-                      Text("目录", style: TextStyle(color: color))
-                    ],
+                  BottomBarButton(
+                    icon: Icon(FIcons.list, color: color, size: 25),
+                    child: Text("目录", style: TextStyle(color: color)),
+                    onTap: () => provider.showChapter = !provider.showChapter,
                   ),
-                  onTap: () => provider.showChapter = !provider.showChapter,
-                ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.text_format, color: color, size: 28),
-                      Text("调节", style: TextStyle(color: color))
-                    ],
+                  BottomBarButton(
+                    icon: Icon(FIcons.settings, color: color, size: 24),
+                    child: Text("调节", style: TextStyle(color: color)),
+                    onTap: () {
+                      provider.showChapter = false;
+                      provider.showSetting = true;
+                    },
                   ),
-                  onTap: () {
-                    provider.showChapter = false;
-                    provider.showSetting = true;
-                  },
-                ),
-                InkWell(
-                  child: Column(
-                    children: [
-                      Icon(Icons.arrow_forward, color: color, size: 28),
-                      Text("下一章", style: TextStyle(color: color))
-                    ],
+                  BottomBarButton(
+                    icon: Icon(FIcons.arrow_right, color: color, size: 25),
+                    child: Text("下一章", style: TextStyle(color: color)),
+                    onTap: () => provider.switchChapter(profile, searchItem.durChapterIndex + 1),
                   ),
-                  onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
