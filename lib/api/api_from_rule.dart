@@ -40,7 +40,7 @@ class APIFromRUle implements API {
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     if (params.isEmpty) return <SearchItem>[];
     final res = await AnalyzeUrl.urlRuleParser(
-      params["分类"].value,
+      params.values.first.value,
       rule,
       page: page,
       pageSize: pageSize,

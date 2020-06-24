@@ -7,6 +7,7 @@ class DiscoverPageController with ChangeNotifier {
   /// const
   final String originTag;
   final List<DiscoverMap> discoverMap;
+
   /// private
   bool _showSearchResult;
   Map<String, DiscoverPair> _discoverParams;
@@ -28,7 +29,6 @@ class DiscoverPageController with ChangeNotifier {
   List<ListDataItem> _items;
 
   ListDataItem get searchItem => _items.last;
-
 
   DiscoverPageController({
     @required this.originTag,
@@ -55,12 +55,13 @@ class DiscoverPageController with ChangeNotifier {
   void initItems(List<DiscoverPair> pairs) {
     if (_items != null) return;
     _items = <ListDataItem>[];
-    final _addItem = (element) {
+    final _addItem = (DiscoverPair element) {
       var item = ListDataItem();
       item.pair = element;
       item.controller = ScrollController();
       item.controller.addListener(() {
-        if (item.more && item.controller.position.pixels == item.controller.position.maxScrollExtent) {
+        if (item.more &&
+            item.controller.position.pixels == item.controller.position.maxScrollExtent) {
           loadMore(item);
         }
       });
@@ -70,28 +71,31 @@ class DiscoverPageController with ChangeNotifier {
       _items.add(item);
     };
 
-    pairs.forEach((element) {
-      _addItem(element);
+    discoverMap.forEach((element) {
+      _addItem(element.pairs.first);
     });
 
     _addItem(null); // 加一个空的用于搜索
   }
 
-  void selectDiscoverPair(String name, DiscoverPair pair){
-    if(_discoverParams[name] != pair){
-      _discoverParams[name]= pair;
+  void selectDiscoverPair(String name, DiscoverPair pair) {
+    if (_discoverParams[name] != pair) {
+      if (pair == null) {
+        pair = _discoverParams[name];
+      } else {
+        _discoverParams[name] = pair;
+      }
       var index = _items.indexWhere((element) => element.pair == pair);
       var item = _items[index];
-      if (item.length == 0)
-        _discover(item);
+      if (item.length == 0) _discover(item);
     }
   }
 
-  DiscoverPair getDiscoverPair(String name){
+  DiscoverPair getDiscoverPair(String name) {
     return _discoverParams[name];
   }
 
-  void resetDiscoverParams(){
+  void resetDiscoverParams() {
     _discoverParams = Map<String, DiscoverPair>();
     discoverMap.forEach((map) => _discoverParams[map.name] = map.pairs.first);
     notifyListeners();
@@ -100,16 +104,15 @@ class DiscoverPageController with ChangeNotifier {
   Future<void> fetchData(ListDataItem item, {needShowLoading = false}) async {
     if (item == null || item.isLoading || discoverMap.isEmpty) return;
     item.isLoading = true;
-    if(needShowLoading){
+    if (needShowLoading) {
       notifyListeners();
     }
     List<SearchItem> newItems;
     if (_showSearchResult) {
-      newItems =
-          await APIManager.search(originTag, _queryController.text, item.page);
+      newItems = await APIManager.search(originTag, _queryController.text, item.page);
     } else {
-      newItems =
-          await APIManager.discover(originTag, {discoverMap.first.name: item.pair}, item.page);
+      newItems = await APIManager.discover(
+          originTag, {discoverMap.first.name: item.pair}, item.page);
     }
     if (item.page == 1) {
       item.items?.clear();
@@ -174,7 +177,13 @@ class DiscoverPageController with ChangeNotifier {
 }
 
 class ListDataItem {
-  ListDataItem({this.items, this.pair, this.more = true, this.controller, this.page = 1, this.isLoading = false});
+  ListDataItem(
+      {this.items,
+      this.pair,
+      this.more = true,
+      this.controller,
+      this.page = 1,
+      this.isLoading = false});
 
   DiscoverPair pair;
   ScrollController controller;

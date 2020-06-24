@@ -34,13 +34,14 @@ class DiscoverSearchPage extends StatefulWidget {
   _DiscoverSearchPageState createState() => _DiscoverSearchPageState();
 }
 
-class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTickerProviderStateMixin {
+class _DiscoverSearchPageState extends State<DiscoverSearchPage>
+    with SingleTickerProviderStateMixin {
   Widget _discover;
   DiscoverPageController __pageController;
   TabController _tabController;
 
-  DiscoverMap map;
-  List<DiscoverPair> pairs = [];
+  List<DiscoverMap> map = <DiscoverMap>[];
+  List<DiscoverPair> pairs = <DiscoverPair>[];
 
   @override
   void dispose() {
@@ -52,10 +53,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
   @override
   void initState() {
     super.initState();
-    if (widget.discoverMap == null || widget.discoverMap.length == 0 || widget.discoverMap.first?.pairs == null)
-      return null;
-    map = widget.discoverMap.first;
-    pairs = widget.discoverMap.first.pairs;
+    if (widget.discoverMap == null ||
+        widget.discoverMap.isEmpty ||
+        widget.discoverMap.first?.pairs == null) return null;
+    map = widget.discoverMap;
+    pairs = map.first.pairs;
   }
 
   @override
@@ -84,8 +86,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
               wantKeepAlive: true,
               child: _buildListView(context, pageController, pageController.items.last),
             ));
-          } else if (pairs != null && pairs.isNotEmpty) {
-            for (var i = 0; i < pairs.length; i++) {
+          } else if (map.isNotEmpty) {
+            for (var i = 0; i < map.length; i++) {
               children.add(KeepAliveWidget(
                 wantKeepAlive: true,
                 child: _buildListView(context, pageController, pageController.items[i]),
@@ -100,7 +102,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
                     backgroundColor: Theme.of(context).appBarTheme.color,
                     iconTheme: _iconTheme.copyWith(color: _color),
                     actionsIconTheme: _iconTheme.copyWith(color: _color),
-                    leading: AppBarEx.buildLeading(context,
+                    leading: AppBarEx.buildLeading(
+                      context,
                       onPressed: pageController.toggleSearching,
                     ),
                     actions: pageController.queryController.text == ''
@@ -142,10 +145,14 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
             body: Column(
               children: <Widget>[
                 Expanded(
-                  child: children.isEmpty ? Container() : children.length == 1 ? children.first : TabBarView(
-                    controller: _tabController,
-                    children: children,
-                  ),
+                  child: children.isEmpty
+                      ? Container()
+                      : children.length == 1
+                          ? children.first
+                          : TabBarView(
+                              controller: _tabController,
+                              children: children,
+                            ),
                 ),
               ],
             ),
@@ -155,23 +162,21 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
     );
   }
 
-  Widget _buildListView(BuildContext context, DiscoverPageController pageController, ListDataItem item) {
+  Widget _buildListView(
+      BuildContext context, DiscoverPageController pageController, ListDataItem item) {
     return item.isLoading
         ? LandingPage()
         : Provider.of<Profile>(context, listen: false).switchDiscoverStyle
-        ? buildDiscoverResultList(
-        item.items, pageController, item)
-        : buildDiscoverResultGrid(
-        item.items, pageController, item);
+            ? buildDiscoverResultList(item.items, pageController, item)
+            : buildDiscoverResultGrid(item.items, pageController, item);
   }
 
-  PreferredSizeWidget _buildAppBarBottom(BuildContext context, DiscoverPageController pageController) {
-    if (pageController == null || pageController.showSearchField)
-      return null;
-    if (pairs == null || pairs.isEmpty || pairs.length <= 1)
-      return null;
+  PreferredSizeWidget _buildAppBarBottom(
+      BuildContext context, DiscoverPageController pageController) {
+    if (pageController == null || pageController.showSearchField) return null;
+    if (map == null || map.isEmpty || map.length <= 1) return null;
     if (_tabController == null) {
-      _tabController = TabController(length: pairs.length, vsync: this);
+      _tabController = TabController(length: map.length, vsync: this);
       _tabController.addListener(() {
         _select(pageController, _tabController.index);
       });
@@ -181,12 +186,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
-        tabs: pairs.map((e) => Tab(text: e.name ?? '')).toList(),
+        tabs: map.map((e) => Tab(text: e.name ?? '')).toList(),
         indicatorSize: TabBarIndicatorSize.label,
         indicator: RoundTabIndicator(
             insets: EdgeInsets.only(left: 5, right: 5),
-            borderSide:
-            BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
+            borderSide: BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
         labelColor: Theme.of(context).primaryColor,
         unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
         onTap: (index) {
@@ -207,7 +211,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
     );
   }
 
-  Widget buildDiscoverResultList(List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
+  Widget buildDiscoverResultList(
+      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
     return RefreshIndicator(
       child: ListView.builder(
         controller: item.controller,
@@ -216,8 +221,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
           if (index == items.length) {
             if (item.length == 0 && item.pair == null && !item.isLoading)
               return Container();
-            if (item.more)
-              return LoadMoreView(msg: "正在加载...");
+            if (item.more) return LoadMoreView(msg: "正在加载...");
             return Container();
           }
           SearchItem searchItem = items[index];
@@ -231,7 +235,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
               child: UiSearchItem(item: searchItem),
             ),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
+              MaterialPageRoute(
+                  builder: (context) => ChapterPage(searchItem: searchItem)),
             ),
           );
         },
@@ -240,7 +245,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
     );
   }
 
-  Widget buildDiscoverResultGrid(List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
+  Widget buildDiscoverResultGrid(
+      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
     return RefreshIndicator(
       child: GridView.builder(
         controller: item.controller,
@@ -256,8 +262,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
           if (index == items.length) {
             if (item.length == 0 && item.pair == null && !item.isLoading)
               return Container();
-            if (item.more)
-              return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
+            if (item.more) return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
             return Container();
           }
           SearchItem searchItem = items[index];
@@ -271,7 +276,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
               child: UIDiscoverItem(searchItem: searchItem),
             ),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => ChapterPage(searchItem: searchItem)),
+              MaterialPageRoute(
+                  builder: (context) => ChapterPage(searchItem: searchItem)),
             ),
           );
         },
@@ -291,7 +297,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage> with SingleTick
   }
 
   /// 切换到指定分类
-  _select(DiscoverPageController pageController, int index) {
-    pageController.selectDiscoverPair(map.name, pairs[index]);
+  _select(DiscoverPageController pageController, int index, [DiscoverPair pair]) {
+    pageController.selectDiscoverPair(map[index].name, pair);
   }
 }

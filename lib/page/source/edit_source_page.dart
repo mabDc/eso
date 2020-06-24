@@ -34,11 +34,11 @@ class EditSourcePage extends StatefulWidget {
   _EditSourcePageState createState() => _EditSourcePageState();
 
   static void showURLDialog(
-      BuildContext context,
-      bool isLoadingUrl,
-      EditSourceProvider provider,
-      bool isYICIYUAN,
-      ) async {
+    BuildContext context,
+    bool isLoadingUrl,
+    EditSourceProvider provider,
+    bool isYICIYUAN,
+  ) async {
     var onSubmitted = (url) async {
       Toast.show("开始导入$url", context, duration: 1);
       final count = await provider.addFromUrl(url.trim(), isYICIYUAN);
@@ -60,7 +60,9 @@ class EditSourcePage extends StatefulWidget {
           onSubmitted: (url) => onSubmitted(url),
         ),
         actions: <Widget>[
-          FlatButton(child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)), onPressed: () => Navigator.pop(context)),
+          FlatButton(
+              child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+              onPressed: () => Navigator.pop(context)),
           FlatButton(child: Text('确定'), onPressed: () => onSubmitted(_controller.text)),
         ],
       ),
@@ -101,7 +103,6 @@ class EditSourcePage extends StatefulWidget {
       },
     );
   }
-
 }
 
 class _EditSourcePageState extends State<EditSourcePage> {
@@ -263,6 +264,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
         Toast.show("更新成功", context);
       } else {
         provider.rules.add(rule);
+        await Global.ruleDao.insertOrUpdateRule(rule);
         Toast.show("添加成功", context);
       }
       if (showEditPage) {
