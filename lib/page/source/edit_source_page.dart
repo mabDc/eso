@@ -185,10 +185,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       .push(MaterialPageRoute(
                           builder: (context) => EditRulePage(rule: rule)))
                       .whenComplete(() => provider.refreshData())),
-              // Checkbox(
-              //   value: rule.enableSearch,
-              //   onChanged: null,
-              // )
+              Checkbox(
+                value: rule.enableSearch,
+                onChanged: null,
+              )
             ],
           ),
           onTap: () {

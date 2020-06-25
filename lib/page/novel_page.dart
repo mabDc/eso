@@ -479,12 +479,14 @@ class NovelPage extends StatelessWidget {
                       provider.useSelectableText
                           ? SelectableText.rich(
                               TextSpan(
+                                style: TextStyle(color: fontColor),
                                 children: spans,
                               ),
                             )
                           : RichText(
                               text: TextSpan(
                                 children: spans,
+                                style: TextStyle(color: fontColor),
                               ),
                             ),
                       Container(
