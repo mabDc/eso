@@ -84,7 +84,7 @@ class ChapterPageController extends PageController {
       _cacheChapter(chapter - 1);
     if (_next == null || _next.isEmpty)
       _cacheChapter(chapter + 1);
-    if (_initialPage > 0)
+    if ((_initialPage??0) > 0)
       this.jumpToPage(initialPage + _initialPage);
   }
 
