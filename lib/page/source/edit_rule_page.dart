@@ -314,7 +314,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         _buildEditText(
           rule.loginUrl,
           '登陆地址(loginUrl)',
-          (text) => rule.loadJs = text,
+          (text) => rule.loginUrl = text,
         ),
         _buildEditText(
           rule.cookies,
@@ -590,7 +590,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const FROM_YICIYUAN = 4;
     const TO_SHARE = 5;
     const SOURCE_HELP = 6;
-    const LOGIN = 6;
+    const LOGIN = 7;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       icon: Icon(FIcons.more_vertical),
@@ -627,7 +627,8 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             break;
           case LOGIN:
             Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)));
+                .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)))
+                .whenComplete(() => setState(() {}));
             break;
           default:
         }
@@ -639,7 +640,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             children: <Widget>[
               Text('登陆'),
               Icon(
-                FIcons.clipboard,
+                FIcons.user,
                 color: primaryColor,
               ),
             ],

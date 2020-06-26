@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:eso/database/rule.dart';
 import 'package:eso/ui/widgets/app_bar_button.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -9,20 +12,31 @@ class LoginRulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Completer<WebViewController> _controller = Completer<WebViewController>();
     return Scaffold(
       appBar: AppBar(
-        title: Text("${rule.name} 登陆"),
+        title: Text("登陆 ${rule.name}"),
         actions: [
           AppBarButton(
-            child: Text("完成登陆 ✅ "),
-            onPressed: () {
-              rule.cookies = "";
-              Navigator.of(context).pop();
+            icon: Icon(
+              FIcons.check,
+              size: 28,
+            ),
+            onPressed: () async {
+              final controller = await _controller.future;
+              final String cookies =
+                  await controller.evaluateJavascript('document.cookie');
+              rule.cookies = cookies;
+              Navigator.of(context).pop(cookies);
             },
           )
         ],
       ),
       body: WebView(
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (WebViewController webViewController) {
+          _controller.complete(webViewController);
+        },
         initialUrl: rule.loginUrl,
         userAgent: rule.userAgent.isNotEmpty
             ? rule.userAgent
