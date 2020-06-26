@@ -7,7 +7,7 @@ import 'database/rule_dao.dart';
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
-  static const appVersion = '1.12.0';
+  static const appVersion = '1.13.0';
 
   static const waitingPath = "lib/assets/waiting.png";
   static const logoPath = "lib/assets/eso_logo.png";
@@ -200,22 +200,20 @@ class Global with ChangeNotifier {
         "海军色": 0xFF000000,
       };
 
-
   /// 颜色亮度调节, offset 取值为 -1 ~ 1 之间
   static Color colorLight(Color value, double offset) {
-        int v = (offset * 255).round();
-        if (v > 0) {
-              return Color.fromARGB(value.alpha, min(255, value.red + v),
-                  min(255, value.green + v), min(255, value.blue + v));
-        } else {
-              return Color.fromARGB(value.alpha, max(0, value.red + v),
-                  max(0, value.green + v), max(0, value.blue + v));
-        }
+    int v = (offset * 255).round();
+    if (v > 0) {
+      return Color.fromARGB(value.alpha, min(255, value.red + v),
+          min(255, value.green + v), min(255, value.blue + v));
+    } else {
+      return Color.fromARGB(value.alpha, max(0, value.red + v), max(0, value.green + v),
+          max(0, value.blue + v));
+    }
   }
 
   /// 返回该颜色的亮度, 亮度值介于 0 - 255之间
   static double lightness(Color color) {
-     return 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue;
+    return 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue;
   }
-
 }

@@ -16,7 +16,4 @@ class RuleCompress {
     final gzipBytes = GZipEncoder().encode(utf8.encode(json));
     return tag + base64.encode(gzipBytes);
   }
-
-  
 }
-
