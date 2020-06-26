@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
+import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/widgets/chapter_page__view.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
@@ -115,7 +118,7 @@ class NovelPageProvider with ChangeNotifier {
       }
     }
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
-    _paragraphs = await loadContent();
+    _paragraphs = await loadContent(searchItem.durChapterIndex);
     notifyListeners();
   }
 
@@ -141,9 +144,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载章节内容
-  Future<List<String>> loadContent({bool useCache = true, VoidCallback onWait}) async {
-    final index = searchItem.durChapterIndex;
-
+  Future<List<String>> loadContent(int index,{bool useCache = true, VoidCallback onWait}) async {
     /// 检查当前章节
     if (_cache == null) {
       if (onWait != null) onWait();
@@ -184,7 +185,7 @@ class NovelPageProvider with ChangeNotifier {
         chapterIndex < 0 ||
         chapterIndex >= searchItem.chapters.length) return null;
     if (notify) _isLoading = true;
-    var _data = await loadContent(useCache: useCache, onWait: () {
+    var _data = await loadContent(chapterIndex, useCache: useCache, onWait: () {
       if (notify) notifyListeners();
     });
     if (changeCurChapter) {
@@ -377,7 +378,7 @@ class NovelPageProvider with ChangeNotifier {
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
     final width = mediaQueryData.size.width - __profile.novelLeftPadding * 2;
     final offset = Offset(width, 6);
-    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final tp = TextPainter(textDirection: TextDirection.ltr);
     final oneLineHeight = __profile.novelFontSize * __profile.novelHeight;
     final height = mediaQueryData.size.height -
         __profile.novelTopPadding * 2 -
@@ -417,9 +418,59 @@ class NovelPageProvider with ChangeNotifier {
     tp.text = TextSpan(children: currentSpans);
     tp.layout(maxWidth: width);
     var currentHeight = tp.height;
+    tp.maxLines = 1;
     bool firstLine = true;
     final indentation = Global.fullSpace * __profile.novelIndentation;
     for (var paragraph in paragraphs) {
+      if (paragraph.startsWith("@img")) {
+        print("------img--------");
+        spanss.add(currentSpans);
+        currentHeight = 0;
+        currentSpans = <TextSpan>[];
+        final img = paragraph.split("@headers");
+        final header = img.length == 2 ? jsonDecode(img[1]) : null;
+        spanss.add([
+          TextSpan(
+            children: [
+              WidgetSpan(
+                  child: Container(
+                width: width,
+                child: UIFadeInImage(
+                  url: img[0],
+                  header: header,
+                  fit: BoxFit.fitWidth,
+                ),
+              )),
+              newLine,
+            ],
+          )
+        ]);
+        continue;
+      } else if (paragraph.startsWith("<img")) {
+        print("------img--------");
+        spanss.add(currentSpans);
+        currentHeight = 0;
+        currentSpans = <TextSpan>[];
+        final img = RegExp(r"""(src|data\-original)[^'"]*('|")([^'"]*)""")
+            .firstMatch(paragraph)
+            .group(3);
+        spanss.add([
+          TextSpan(
+            children: [
+              WidgetSpan(
+                  child: Container(
+                width: width,
+                child: UIFadeInImage(
+                  url: img,
+                  fit: BoxFit.fitWidth,
+                ),
+              )),
+              newLine,
+            ],
+          )
+        ]);
+        continue;
+      }
       while (true) {
         if (currentHeight >= height) {
           spanss.add(currentSpans);
@@ -514,7 +565,7 @@ class NovelPageProvider with ChangeNotifier {
 
   void refreshProgress() {
     searchItem.durContentIndex =
-        (_controller.position.pixels * 10000 / _controller.position.maxScrollExtent)
+        (_controller.position.pixels * 10000 / (_controller.position.maxScrollExtent + 1))
             .floor();
     _progress = searchItem.durContentIndex ~/ 100;
     notifyListeners();
@@ -524,7 +575,7 @@ class NovelPageProvider with ChangeNotifier {
     await FlutterShare.share(
       title: '亦搜 eso',
       text:
-      '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
       //linkUrl: '${searchItem.url}',
       chooserTitle: '选择分享的应用',
     );
