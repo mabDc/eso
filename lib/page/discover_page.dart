@@ -10,6 +10,7 @@ import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -94,9 +95,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Future<bool> _addFromClipBoard(
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
-    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
-      final rule = Rule.fromJson(jsonDecode(text.text));
+      final rule = text.startsWith(RuleCompress.tag)
+          ? RuleCompress.decompass(text)
+          : Rule.fromJson(jsonDecode(text));
       if (provider.rules.any((r) => r.id == rule.id)) {
         await Global.ruleDao.insertOrUpdateRule(rule);
         provider.rules.removeWhere((r) => r.id == rule.id);
@@ -174,10 +177,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
     Widget _child = ListTile(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => DiscoverSearchPage(
-            originTag: rule.id,
-            origin: rule.name,
-            discoverMap: APIFromRUle(rule).discoverMap(),
-          ))),
+                originTag: rule.id,
+                origin: rule.name,
+                discoverMap: APIFromRUle(rule).discoverMap(),
+              ))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
           .whenComplete(() => provider.refreshData()),
@@ -219,19 +222,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
         ],
       ),
       subtitle: Text(
-        '${rule.host}',
+        rule.author == '' ? '${rule.host}' : '@${rule.author}',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
     );
-    if (index < provider.rules.length - 1)
-      return _child;
+    if (index < provider.rules.length - 1) return _child;
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        _child,
-        SizedBox(height: 30)
-      ],
+      children: [_child, SizedBox(height: 30)],
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -90,7 +91,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             icon: Icon(FIcons.share_2),
             onPressed: () => FlutterShare.share(
               title: '亦搜 eso',
-              text: jsonEncode(rule.toJson()),
+              text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
               //linkUrl: '${searchItem.url}',
               chooserTitle: '选择分享的应用',
             ),
@@ -549,14 +550,18 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     }
   }
 
-  Future<bool> _loadFromClipBoard(BuildContext context) async {
+  Future<bool> _loadFromClipBoard(BuildContext context, bool isYICIYUAN) async {
     if (isLoading) return false;
     isLoading = true;
-    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     isLoading = false;
     try {
       setState(() {
-        rule = Rule.fromJson(jsonDecode(text.text), rule);
+        rule = isYICIYUAN
+            ? Rule.fromYiCiYuan(jsonDecode(text), rule)
+            : text.startsWith(RuleCompress.tag)
+                ? RuleCompress.decompass(text, rule)
+                : Rule.fromJson(jsonDecode(text), rule);
       });
       Toast.show("已从剪贴板导入", context);
       return true;
@@ -564,28 +569,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       Toast.show("导入失败：" + e.toString(), context, duration: 2);
       return false;
     }
-  }
-
-  Future<bool> _loadFromYICIYUAN(BuildContext context) async {
-    if (isLoading) return false;
-    isLoading = true;
-    final text = await Clipboard.getData(Clipboard.kTextPlain);
-    isLoading = false;
-    try {
-      final json = jsonDecode(text.text);
-      if (json is Map) {
-        setState(() {
-          rule = Rule.fromYiCiYuan(json, rule);
-        });
-        Toast.show("已从剪贴板导入", context);
-        return true;
-      } else if (json is List) {
-        Toast.show("当前界面只支持单个源导入", context);
-      }
-    } catch (e) {
-      Toast.show("导入失败：" + e.toString(), context, duration: 2);
-    }
-    return false;
   }
 
   PopupMenuButton _buildpopupMenu(BuildContext context) {
@@ -606,10 +589,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             _saveRule(context);
             break;
           case FROM_CLIPBOARD:
-            _loadFromClipBoard(context);
+            _loadFromClipBoard(context, false);
             break;
           case FROM_YICIYUAN:
-            _loadFromYICIYUAN(context);
+            _loadFromClipBoard(context, true);
             break;
           case TO_CLIPBOARD:
             Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));

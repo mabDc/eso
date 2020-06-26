@@ -10,6 +10,7 @@ import 'package:eso/ui/edit/bottom_input_border.dart';
 import 'package:eso/ui/edit/edit_view.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -254,9 +255,11 @@ class _EditSourcePageState extends State<EditSourcePage> {
 
   Future<bool> _addFromClipBoard(
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
-    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
-      final rule = Rule.fromJson(jsonDecode(text.text));
+      final rule = text.startsWith(RuleCompress.tag)
+          ? RuleCompress.decompass(text)
+          : Rule.fromJson(jsonDecode(text));
       if (provider.rules.any((r) => r.id == rule.id)) {
         await Global.ruleDao.insertOrUpdateRule(rule);
         provider.rules.removeWhere((r) => r.id == rule.id);
