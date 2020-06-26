@@ -11,7 +11,12 @@ import 'rule_dao.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 4, entities: [Rule])
+@Database(version: 5, entities: [Rule])
 abstract class AppDatabase extends FloorDatabase {
   RuleDao get ruleDao;
 }
+
+final migration4to5 = Migration(4, 5, (database) async {
+  await database.execute('ALTER TABLE person ADD COLUMN loginUrl TEXT');
+  await database.execute('ALTER TABLE person ADD COLUMN cookies TEXT');
+});

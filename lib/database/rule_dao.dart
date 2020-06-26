@@ -12,10 +12,10 @@ abstract class RuleDao {
   @Query('SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc')
   Future<List<Rule>> findAllDiscoverRules();
 
-  @Insert(onConflict: OnConflictStrategy.REPLACE)
+  @Insert(onConflict: OnConflictStrategy.replace)
   Future<int> insertOrUpdateRule(Rule rule);
 
-  @Insert(onConflict: OnConflictStrategy.REPLACE)
+  @Insert(onConflict: OnConflictStrategy.replace)
   Future<List<int>> insertOrUpdateRules(List<Rule> rules);
 
   @delete

@@ -22,6 +22,10 @@ class Rule {
   String loadJs = '';
   String userAgent = '';
 
+  //登陆规则
+  String loginUrl = "";
+  String cookies = "";
+
   // 发现规则
   bool enableDiscover = true;
   String discoverUrl = '';
@@ -85,7 +89,9 @@ class Rule {
     useCryptoJS = false;
     loadJs = '';
     userAgent = '';
-
+    //登陆规则
+    loginUrl = "";
+    cookies = "";
     // 发现规则
     enableDiscover = true;
     discoverUrl = '';
@@ -147,6 +153,8 @@ class Rule {
     this.useCryptoJS,
     this.loadJs,
     this.userAgent,
+    this.loginUrl,
+    this.cookies,
     this.enableDiscover,
     this.discoverUrl,
     this.discoverItems,
@@ -234,6 +242,8 @@ class Rule {
     chapterResult = json['chapterResult'] ?? defaultRule.chapterResult;
     contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
     contentItems = json['contentItems'] ?? defaultRule.contentItems;
+    loginUrl = json['loginUrl'] ?? defaultRule.loginUrl;
+    cookies = json['cookies'] ?? defaultRule.cookies;
   }
 
   Rule.fromYiCiYuan(Map<String, dynamic> json, [Rule rule]) {
@@ -329,9 +339,11 @@ class Rule {
     chapterResult = json['ruleContentUrl'] ?? defaultRule.chapterResult;
     contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
     contentItems = json['ruleBookContent'] ?? defaultRule.contentItems;
+    loginUrl = json['loginUrl'] ?? defaultRule.loginUrl;
+    cookies = json['cookies'] ?? defaultRule.cookies;
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson([bool withCookies = false]) => {
         'id': id,
         'createTime': createTime,
         'modifiedTime': modifiedTime,
@@ -380,5 +392,7 @@ class Rule {
         'chapterResult': chapterResult,
         'contentUrl': contentUrl,
         'contentItems': contentItems,
+        'loginUrl': loginUrl,
+        'cookies': withCookies == true ? cookies : "",
       };
 }

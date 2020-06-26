@@ -11,6 +11,7 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
+import 'login_rule_page.dart';
 
 /// 快速输入符号List
 // ignore: non_constant_identifier_names
@@ -579,6 +580,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const FROM_YICIYUAN = 4;
     const TO_SHARE = 5;
     const SOURCE_HELP = 6;
+    const LOGIN = 6;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       icon: Icon(FIcons.more_vertical),
@@ -613,10 +615,27 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           case SOURCE_HELP:
             launch('https://github.com/mabDc/eso_source/blob/master/README.md');
             break;
+          case LOGIN:
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)));
+            break;
           default:
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('登陆'),
+              Icon(
+                FIcons.clipboard,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: LOGIN,
+        ),
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

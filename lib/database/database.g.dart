@@ -9,14 +9,12 @@ part of 'database.dart';
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$AppDatabaseBuilder databaseBuilder(String name) =>
-      _$AppDatabaseBuilder(name);
+  static _$AppDatabaseBuilder databaseBuilder(String name) => _$AppDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$AppDatabaseBuilder inMemoryDatabaseBuilder() =>
-      _$AppDatabaseBuilder(null);
+  static _$AppDatabaseBuilder inMemoryDatabaseBuilder() => _$AppDatabaseBuilder(null);
 }
 
 class _$AppDatabaseBuilder {
@@ -42,9 +40,7 @@ class _$AppDatabaseBuilder {
 
   /// Creates the database and initializes it.
   Future<AppDatabase> build() async {
-    final path = name != null
-        ? join(await sqflite.getDatabasesPath(), name)
-        : ':memory:';
+    final path = name != null ? join(await sqflite.getDatabasesPath(), name) : ':memory:';
     final database = _$AppDatabase();
     database.database = await database.open(
       path,
@@ -66,7 +62,7 @@ class _$AppDatabase extends AppDatabase {
       [Callback callback]) async {
     return sqflite.openDatabase(
       path,
-      version: 4,
+      version: 5,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
@@ -114,6 +110,8 @@ class _$RuleDao extends RuleDao {
                   'useCryptoJS': item.useCryptoJS ? 1 : 0,
                   'loadJs': item.loadJs,
                   'userAgent': item.userAgent,
+                  'loginUrl': item.loginUrl,
+                  'cookies': item.cookies,
                   'enableDiscover': item.enableDiscover ? 1 : 0,
                   'discoverUrl': item.discoverUrl,
                   'discoverItems': item.discoverItems,
@@ -168,6 +166,8 @@ class _$RuleDao extends RuleDao {
                   'useCryptoJS': item.useCryptoJS ? 1 : 0,
                   'loadJs': item.loadJs,
                   'userAgent': item.userAgent,
+                  'loginUrl': item.loginUrl,
+                  'cookies': item.cookies,
                   'enableDiscover': item.enableDiscover ? 1 : 0,
                   'discoverUrl': item.discoverUrl,
                   'discoverItems': item.discoverItems,
@@ -225,6 +225,8 @@ class _$RuleDao extends RuleDao {
         row['useCryptoJS'] as int != 0,
         row['loadJs'],
         row['userAgent'],
+        row['loginUrl'],
+        row['cookies'],
         row['enableDiscover'] as int != 0,
         row['discoverUrl'],
         row['discoverItems'],
@@ -280,11 +282,10 @@ class _$RuleDao extends RuleDao {
 
   @override
   Future<List<Rule>> findAllDiscoverRules() async {
-    return _queryAdapter.queryList('SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc',
+    return _queryAdapter.queryList(
+        'SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc',
         mapper: _ruleMapper);
   }
-
-
 
   @override
   Future<Rule> findMaxSort() async {
@@ -317,14 +318,13 @@ class _$RuleDao extends RuleDao {
 
   @override
   Future<int> insertOrUpdateRule(Rule rule) {
-    return _ruleInsertionAdapter.insertAndReturnId(
-        rule, sqflite.ConflictAlgorithm.replace);
+    return _ruleInsertionAdapter.insertAndReturnId(rule, OnConflictStrategy.replace);
   }
 
   @override
   Future<List<int>> insertOrUpdateRules(List<Rule> rules) {
     return _ruleInsertionAdapter.insertListAndReturnIds(
-        rules, sqflite.ConflictAlgorithm.replace);
+        rules, OnConflictStrategy.replace);
   }
 
   @override
