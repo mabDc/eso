@@ -311,6 +311,16 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           '加载js内容(loadJs)',
           (text) => rule.loadJs = text,
         ),
+        _buildEditText(
+          rule.loginUrl,
+          '登陆地址(loginUrl)',
+          (text) => rule.loadJs = text,
+        ),
+        _buildEditText(
+          rule.cookies,
+          '小饼干(cookies)',
+          (text) => rule.cookies = text,
+        ),
       ],
     );
   }

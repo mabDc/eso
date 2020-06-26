@@ -17,6 +17,6 @@ abstract class AppDatabase extends FloorDatabase {
 }
 
 final migration4to5 = Migration(4, 5, (database) async {
-  await database.execute('ALTER TABLE person ADD COLUMN loginUrl TEXT');
-  await database.execute('ALTER TABLE person ADD COLUMN cookies TEXT');
+  await database.execute('ALTER TABLE Rule ADD COLUMN loginUrl TEXT');
+  await database.execute('ALTER TABLE Rule ADD COLUMN cookies TEXT');
 });
