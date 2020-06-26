@@ -292,7 +292,7 @@ class _ChapterPageState extends State<ChapterPage> {
           children: <Widget>[
             Expanded(
               child: Text(
-                '全部章节(${searchItem.chapters?.length ?? 0})',
+                '全部(${searchItem.chapters?.length ?? 0})',
                 style: TextStyle(fontSize: 16),
               ),
             ),
