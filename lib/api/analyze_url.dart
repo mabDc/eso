@@ -69,8 +69,10 @@ searchPage = ${jsonEncode(page)};
       Map<String, dynamic> r = url.map((k, v) => MapEntry(k.toString().toLowerCase(), v));
 
       Map<String, String> headers = {
-        'user-agent': rule.userAgent ??
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+        'user-agent': rule.userAgent.trim().isNotEmpty
+            ? rule.userAgent
+            : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+        "cookie": rule.cookies.trim().isNotEmpty ? rule.cookies : "",
       }..addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
       dynamic body = r['body'];
@@ -134,14 +136,12 @@ searchPage = ${jsonEncode(page)};
       } else if (u.startsWith("/")) {
         u = rule.host + u;
       }
-      if (rule.userAgent.trim().isNotEmpty) {
-        return http.get(u, headers: {'user-agent': rule.userAgent});
-      } else {
-        return http.get(u, headers: {
-          'user-agent':
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
-        });
-      }
+      return http.get(u, headers: {
+        'user-agent': rule.userAgent.trim().isNotEmpty
+            ? rule.userAgent
+            : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+        "cookie": rule.cookies.trim().isNotEmpty ? rule.cookies : "",
+      });
     }
   }
 }

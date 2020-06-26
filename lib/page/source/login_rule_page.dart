@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/ui/widgets/app_bar_button.dart';
@@ -26,7 +27,7 @@ class LoginRulePage extends StatelessWidget {
               final controller = await _controller.future;
               final String cookies =
                   await controller.evaluateJavascript('document.cookie');
-              rule.cookies = cookies;
+              rule.cookies = jsonDecode(cookies);
               Navigator.of(context).pop(cookies);
             },
           )
