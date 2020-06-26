@@ -106,7 +106,7 @@ class VideoPageController with ChangeNotifier {
     refreshLastTime();
     refreshToastTime();
     if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.url)) {
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent();

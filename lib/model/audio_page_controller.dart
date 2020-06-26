@@ -35,7 +35,7 @@ class AudioPageController with ChangeNotifier {
     });
     // searchItem
     if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.url)) {
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _audioService.playChapter(searchItem.durChapterIndex, searchItem);

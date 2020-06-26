@@ -66,7 +66,7 @@ class SearchResultPage extends StatelessWidget {
           padding: EdgeInsets.all(8.0),
           itemBuilder: (BuildContext context, int index) {
             SearchItem searchItem = items[index];
-            if (SearchItemManager.isFavorite(searchItem.url)) {
+            if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
               searchItem = SearchItemManager.searchItem
                   .firstWhere((item) => item.url == searchItem.url);
             }

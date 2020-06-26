@@ -102,7 +102,7 @@ class _ChapterPageState extends State<ChapterPage> {
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
           builder: (context, provider, child) => AppBarButton(
-            icon: SearchItemManager.isFavorite(searchItem.url)
+            icon: SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)
                 ? Icon(Icons.favorite)
                 : Icon(Icons.favorite_border),
             iconSize: 21,

@@ -34,12 +34,12 @@ class SearchItemManager {
     return searchItem;
   }
 
-  static bool isFavorite(String url) {
-    return _searchItem.any((item) => item.url == url);
+  static bool isFavorite(String originTag, String url) {
+    return _searchItem.any((item) => item.originTag == originTag && item.url == url);
   }
 
   static Future<bool> toggleFavorite(SearchItem searchItem) {
-    if (isFavorite(searchItem.url)) {
+    if (isFavorite(searchItem.originTag, searchItem.url)) {
       return removeSearchItem(searchItem.url, searchItem.id);
     } else {
       //添加时间信息
@@ -110,7 +110,7 @@ class SearchItemManager {
       List json = jsonDecode(jsonString);
       json.forEach((item) {
         SearchItem searchItem = SearchItem.fromJson(item);
-        if (!isFavorite(searchItem.url)) {
+        if (!isFavorite(searchItem.originTag, searchItem.url)) {
           List<ChapterItem> chapters = (jsonDecode('${item["chapters"]}') as List)
               .map((chapter) => ChapterItem.fromJson(chapter))
               .toList();

@@ -279,7 +279,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
             return Container();
           }
           SearchItem searchItem = items[index];
-          if (SearchItemManager.isFavorite(searchItem.url)) {
+          if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
             searchItem = SearchItemManager.searchItem
                 .firstWhere((item) => item.url == searchItem.url);
           }
@@ -320,9 +320,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
             return Container();
           }
           SearchItem searchItem = items[index];
-          if (SearchItemManager.isFavorite(searchItem.url)) {
-            searchItem = SearchItemManager.searchItem
-                .firstWhere((item) => item.url == searchItem.url);
+          if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+            searchItem = SearchItemManager.searchItem.firstWhere((item) =>
+                item.originTag == searchItem.originTag && item.url == searchItem.url);
           }
           return InkWell(
             child: Padding(

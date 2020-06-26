@@ -28,7 +28,7 @@ class FavoriteListProvider with ChangeNotifier {
     _searchList = SearchItemManager.getSearchItemByType(type, _sortType);
     if (type == API.AUDIO &&
         AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
+        !SearchItemManager.isFavorite(AudioService().searchItem.originTag,AudioService().searchItem.url)) {
       _searchList.add(AudioService().searchItem);
     }
     notifyListeners();

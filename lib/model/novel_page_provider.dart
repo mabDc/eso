@@ -100,7 +100,7 @@ class NovelPageProvider with ChangeNotifier {
     _controller = ScrollController();
     _progress = 0;
     if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.url)) {
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent(profile);
@@ -301,7 +301,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   Future<bool> addToFavorite() async {
-    if (SearchItemManager.isFavorite(searchItem.url)) {
+    if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       return null;
     }
     return SearchItemManager.addSearchItem(searchItem);

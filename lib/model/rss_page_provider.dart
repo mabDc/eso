@@ -22,7 +22,7 @@ class RSSPageProvider with ChangeNotifier {
     _isLoading = false;
     _showChapter = false;
     if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.url)) {
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent();

@@ -43,7 +43,7 @@ class ChapterPageProvider with ChangeNotifier {
       _isLoading = true;
       initChapters();
     } else if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.url)) {
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
   }
@@ -125,7 +125,7 @@ class ChapterPageProvider with ChangeNotifier {
     } else {
       searchItem.chapter = '';
     }
-    if (SearchItemManager.isFavorite(searchItem.url)) {
+    if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
     }
     _isLoading = false;

@@ -119,7 +119,7 @@ class MangaPageProvider with ChangeNotifier {
 //      }
 //    });
     if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.url)) {
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent();
@@ -251,7 +251,7 @@ class MangaPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isFavorite => SearchItemManager.isFavorite(searchItem.url);
+  bool get isFavorite => SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
 
   Future<bool> addToFavorite() async {
     if (isFavorite) return null;
