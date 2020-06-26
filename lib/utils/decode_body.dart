@@ -7,8 +7,10 @@ class DecodeBody {
     if (contentType == null || !contentType.contains("charset")) {
       return _autoDecode(bodyBytes);
     }
-    final charset =
-        RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""").firstMatch(contentType).group(1);
+    final charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
+        .firstMatch(contentType)
+        .group(1)
+        .toLowerCase();
     if (charset.contains("gb")) {
       final sb = StringBuffer();
       _writeGBK(sb, bodyBytes);
@@ -44,8 +46,10 @@ class DecodeBody {
     if (!temp.contains('charset')) {
       return temp + utf8.decode(leftBytes, allowMalformed: true);
     }
-    final charset =
-        RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""").firstMatch(temp).group(1);
+    final charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
+        .firstMatch(temp)
+        .group(1)
+        .toLowerCase();
     if (charset.contains("gb")) {
       _writeGBK(sb, leftBytes);
       return sb.toString();
