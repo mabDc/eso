@@ -28,7 +28,6 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
     this.toolbarOpacity = 1.0,
     this.bottomOpacity = 1.0,
-    double preferredHeight,
   })  : assert(automaticallyImplyLeading != null),
         assert(elevation == null || elevation >= 0.0),
         assert(primary != null),
@@ -36,8 +35,8 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
         assert(toolbarOpacity != null),
         assert(bottomOpacity != null),
         title = title ?? buildTitle(title: titleText, subTitle: subTitleText),
-        preferredSize = Size.fromHeight(
-            kToolbarHeight + (preferredHeight ?? bottom?.preferredSize?.height ?? 0.0)),
+        preferredSize =
+            Size.fromHeight(kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0)),
         super(key: key);
 
   final Color backgroundColor;

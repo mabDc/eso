@@ -125,7 +125,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                       onSubmitted: (query) => pageController.search(),
                     ),
                     bottom: _buildAppBarBottom(context, pageController),
-                    preferredHeight: 32,
                   )
                 : AppBarEx(
                     titleSpacing: 0.0,
@@ -143,7 +142,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                       _buildSwitchStyle(context),
                     ],
                     bottom: _buildAppBarBottom(context, pageController),
-                    preferredHeight: 32,
                   ),
             body: children.isEmpty
                 ? Container()
@@ -236,7 +234,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       });
     }
     return SizedBar(
-      height: 42,
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
