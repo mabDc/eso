@@ -59,7 +59,7 @@ dependencies:
   pull_to_refresh: ^1.5.8
   shimmer: ^1.1.1
   fast_gbk: ^0.1.2+1
-
+  about: ^1.1.2
   dlna: ^0.0.5
   wakelock: ^0.1.4+1
   cached_network_image: ^2.2.0+1
@@ -79,6 +79,7 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/
+    - lib/assets/md/
   fonts:
     - family: fonticons
       fonts:

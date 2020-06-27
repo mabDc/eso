@@ -8,6 +8,7 @@ import '../../global.dart';
 import '../../model/profile.dart';
 import 'darkmod_page.dart';
 import 'color_lens_page.dart';
+import 'package:about/about.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({Key key}) : super(key: key);
@@ -180,6 +181,21 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
+                    MarkdownPageListTile(
+                      filename: 'lib/assets/md/README.md',
+                      title: Text('自述说明'),
+                      // icon: Icon(Icons.info_outline),
+                    ),
+                    MarkdownPageListTile(
+                      filename: 'lib/assets/md/CHANGELOG.md',
+                      title: Text('更新日志'),
+                      // icon: Icon(FIcons.list),
+                    ),
+                    // MarkdownPageListTile(
+                    //   filename: 'lib/assets/md/LICENSE.md',
+                    //   title: Text('源代码许可'),
+                    //   icon: Icon(Icons.description),
+                    // ),
                     ListTile(
                       title: Text('开源地址'),
                       subtitle: Text('https://github.com/mabDc/eso'),
@@ -205,9 +221,20 @@ class AboutPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
                   child: InkWell(
                     onTap: () => showAboutDialog(
-                      context: context,
-                      applicationVersion: Global.appVersion,
-                    ),
+                        context: context,
+                        applicationVersion: Global.appVersion,
+                        children: <Widget>[
+                          MarkdownPageListTile(
+                            filename: 'lib/assets/md/README.md',
+                            title: Text('自述说明'),
+                            icon: Icon(Icons.info_outline),
+                          ),
+                          MarkdownPageListTile(
+                            filename: 'lib/assets/md/CHANGELOG.md',
+                            title: Text('更新日志'),
+                            icon: Icon(FIcons.list),
+                          ),
+                        ]),
                     child: SizedBox(
                       height: 260,
                       width: double.infinity,
@@ -227,7 +254,7 @@ class AboutPage extends StatelessWidget {
                               '亦搜，亦看，亦闻',
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Theme.of(context).primaryColorLight,
+                                color: Theme.of(context).cardColor,
                               ),
                             ),
                           ],
