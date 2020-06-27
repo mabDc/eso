@@ -81,6 +81,91 @@ class DebugRuleProvider with ChangeNotifier {
     _addContent("$s解析开始");
   }
 
+  void discover() async {
+    _startTime = DateTime.now();
+    rows.clear();
+    _beginEvent("发现");
+    final engineId = await FlutterJs.initEngine();
+    _addContent("js初始化");
+    try {
+      final discoverResult = await AnalyzeUrl.urlRuleParser(
+        rule.discoverUrl.split(RegExp("\n+|&&"))[0].split("::")[1],
+        rule,
+        page: 1,
+        pageSize: 20,
+      );
+      final discoverUrl = discoverResult.request.url.toString();
+      _addContent("地址", discoverUrl, true);
+      await FlutterJs.evaluate(
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
+          engineId);
+      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+      }
+      _addContent("js预加载");
+      final analyzer = AnalyzerManager(
+          DecodeBody()
+              .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]),
+          engineId);
+      final discoverList = await analyzer.getElements(rule.discoverList);
+      final resultCount = discoverList.length;
+      if (resultCount == 0) {
+        FlutterJs.close(engineId);
+        _addContent("发现结果列表个数为0，解析结束！");
+      } else {
+        _addContent("发现结果个数", resultCount.toString());
+        parseFirstDiscover(discoverList.first, engineId);
+      }
+    } catch (e) {
+      FlutterJs.close(engineId);
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          ),
+        ],
+      ));
+      _addContent("解析结束！");
+    }
+  }
+
+  void parseFirstDiscover(dynamic firstItem, int engineId) async {
+    _addContent("开始解析第一个结果");
+    try {
+      final analyzer = AnalyzerManager(firstItem, engineId);
+      _addContent("名称", await analyzer.getString(rule.discoverName));
+      _addContent("作者", await analyzer.getString(rule.discoverAuthor));
+      _addContent("章节", await analyzer.getString(rule.discoverChapter));
+      final coverUrl = await analyzer.getString(rule.discoverCover);
+      _addContent("封面", coverUrl, true);
+      //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
+      _addContent("简介", await analyzer.getString(rule.discoverDescription));
+      _addContent("标签", (await analyzer.getStringList(rule.discoverTags)).join(", "));
+      final result = await analyzer.getString(rule.discoverResult);
+      _addContent("结果", result);
+      await FlutterJs.close(engineId);
+      parseChapter(result);
+    } catch (e) {
+      FlutterJs.close(engineId);
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "$e\n",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          )
+        ],
+      ));
+      _addContent("解析结束！");
+    }
+  }
+
   void search(String value) async {
     _startTime = DateTime.now();
     rows.clear();

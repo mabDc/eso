@@ -85,7 +85,7 @@ class NovelPageProvider with ChangeNotifier {
 
   ChapterPageController _pageController;
   ChapterPageController get pageController => _pageController;
-    set pageController(value) => _pageController = value;
+  set pageController(value) => _pageController = value;
 
   static Profile _profile;
 
@@ -139,12 +139,14 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 刷新当前章节
   void refreshCurrent() async {
-    if (await loadChapter(searchItem.durChapterIndex, useCache: false, changeCurChapter: false) != null)
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    if (await loadChapter(searchItem.durChapterIndex,
+            useCache: false, changeCurChapter: false) !=
+        null) searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
   }
 
   /// 加载章节内容
-  Future<List<String>> loadContent(int index,{bool useCache = true, VoidCallback onWait}) async {
+  Future<List<String>> loadContent(int index,
+      {bool useCache = true, VoidCallback onWait}) async {
     /// 检查当前章节
     if (_cache == null) {
       if (onWait != null) onWait();
@@ -179,11 +181,11 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载指定章节
-  Future<List<String>> loadChapter(int chapterIndex, {bool useCache = true, bool notify = true, bool changeCurChapter = true}) async {
+  Future<List<String>> loadChapter(int chapterIndex,
+      {bool useCache = true, bool notify = true, bool changeCurChapter = true}) async {
     _showChapter = false;
-    if (isLoading ||
-        chapterIndex < 0 ||
-        chapterIndex >= searchItem.chapters.length) return null;
+    if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
+      return null;
     if (notify) _isLoading = true;
     var _data = await loadContent(chapterIndex, useCache: useCache, onWait: () {
       if (notify) notifyListeners();
@@ -210,9 +212,8 @@ class NovelPageProvider with ChangeNotifier {
   /// 加载上一章或下一章，不显示loading
   loadChapterHideLoading(bool lastChapter) async {
     final loadIndex =
-      lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
-    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length)
-      return;
+        lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
+    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
     await loadChapter(loadIndex, notify: false, changeCurChapter: true);
   }
 
@@ -225,8 +226,8 @@ class NovelPageProvider with ChangeNotifier {
     await SearchItemManager.saveSearchItem();
   }
 
-
   int _currentPage;
+
   /// 当前页
   int get currentPage => _currentPage;
   set currentPage(int value) {
@@ -246,7 +247,7 @@ class NovelPageProvider with ChangeNotifier {
           duration: Duration(milliseconds: 400),
           curve: Curves.easeInOut,
         );
-      } else if (leftHeight < 50) {
+      } else if (leftHeight < 200) {
         loadChapter(searchItem.durChapterIndex + 1);
       } else {
         _controller.animateTo(
@@ -265,7 +266,8 @@ class NovelPageProvider with ChangeNotifier {
       }
     } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
         _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      _pageController.nextPage(duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+      _pageController.nextPage(
+          duration: Duration(milliseconds: 200), curve: Curves.easeIn);
     }
   }
 
@@ -296,7 +298,8 @@ class NovelPageProvider with ChangeNotifier {
       }
     } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
         _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      _pageController.previousPage(duration: Duration(milliseconds: 200), curve: Curves.easeOut);
+      _pageController.previousPage(
+          duration: Duration(milliseconds: 200), curve: Curves.easeOut);
     }
   }
 
@@ -370,7 +373,8 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 文字排版部分
-  static List<List<TextSpan>> buildSpans(Profile profile, SearchItem searchItem, List<String> paragraphs) {
+  static List<List<TextSpan>> buildSpans(
+      Profile profile, SearchItem searchItem, List<String> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile ?? _profile;
     if (_profile != __profile) _profile = __profile;
@@ -424,9 +428,11 @@ class NovelPageProvider with ChangeNotifier {
     for (var paragraph in paragraphs) {
       if (paragraph.startsWith("@img")) {
         print("------img--------");
-        spanss.add(currentSpans);
-        currentHeight = 0;
-        currentSpans = <TextSpan>[];
+        if (currentSpans.isNotEmpty) {
+          spanss.add(currentSpans);
+          currentHeight = 0;
+          currentSpans = <TextSpan>[];
+        }
         final img = paragraph.split("@headers");
         final header = img.length == 2 ? jsonDecode(img[1]) : null;
         spanss.add([
@@ -448,9 +454,11 @@ class NovelPageProvider with ChangeNotifier {
         continue;
       } else if (paragraph.startsWith("<img")) {
         print("------img--------");
-        spanss.add(currentSpans);
-        currentHeight = 0;
-        currentSpans = <TextSpan>[];
+        if (currentSpans.isNotEmpty) {
+          spanss.add(currentSpans);
+          currentHeight = 0;
+          currentSpans = <TextSpan>[];
+        }
         final img = RegExp(r"""(src|data\-original)[^'"]*('|")([^'"]*)""")
             .firstMatch(paragraph)
             .group(3);
@@ -558,10 +566,11 @@ class NovelPageProvider with ChangeNotifier {
         currentHeight += oneLineHeight;
       }
     }
-    spanss.add(currentSpans);
+    if (currentSpans.isNotEmpty) {
+      spanss.add(currentSpans);
+    }
     return spanss;
   }
-
 
   void refreshProgress() {
     searchItem.durContentIndex =
@@ -580,7 +589,6 @@ class NovelPageProvider with ChangeNotifier {
       chooserTitle: '选择分享的应用',
     );
   }
-
 }
 
 class ReadSetting {

@@ -20,12 +20,20 @@ class DebugRulePage extends StatelessWidget {
             context,
             Provider.of<DebugRuleProvider>(context, listen: false).search,
           ),
+          actions: [
+            AppBarButton(
+              child: Text("发现测试",style: TextStyle(color: Colors.grey),),
+              onPressed: Provider.of<DebugRuleProvider>(context, listen: false).discover,
+            ),
+          ],
         ),
         body: Consumer<DebugRuleProvider>(
           builder: (context, DebugRuleProvider provider, _) {
             if (provider.rows.isEmpty) {
               return Center(
-                child: Icon(FIcons.cpu, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                child: Icon(FIcons.cpu,
+                    size: 128,
+                    color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
               );
             }
             return ListView.builder(

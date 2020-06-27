@@ -188,7 +188,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       .whenComplete(() => provider.refreshData())),
               Checkbox(
                 value: rule.enableSearch,
-                onChanged: null,
+                onChanged: (_) {},
               )
             ],
           ),

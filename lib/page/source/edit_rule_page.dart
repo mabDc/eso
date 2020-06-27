@@ -81,6 +81,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     }
     return Scaffold(
       appBar: AppBarEx(
+        titleSpacing: 0,
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           AppBarButton(
@@ -97,6 +98,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               chooserTitle: '选择分享的应用',
             ),
           ),
+          IconButton(
+            icon: Icon(FIcons.save),
+            onPressed: () => _saveRule(context),
+          ),
           AppBarButton(
             icon: Icon(Icons.bug_report),
             onPressed: () async {
@@ -109,10 +114,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                   MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
             },
           ),
-          // IconButton(
-          //   icon: Icon(Icons.save),
-          //   onPressed: () => _saveRule(context),
-          // ),
           _buildpopupMenu(context),
         ],
       ),
@@ -712,19 +713,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           ),
           value: DEBUG_WITHOUT_SAVE,
         ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('保存规则'),
-              Icon(
-                FIcons.save,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: SAVE,
-        ),
+        // PopupMenuItem(
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: <Widget>[
+        //       Text('保存规则'),
+        //       Icon(
+        //         FIcons.save,
+        //         color: primaryColor,
+        //       ),
+        //     ],
+        //   ),
+        //   value: SAVE,
+        // ),
         // PopupMenuItem(
         //   child: Row(
         //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
