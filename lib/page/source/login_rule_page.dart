@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/ui/widgets/app_bar_button.dart';
@@ -15,6 +16,18 @@ class LoginRulePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Completer<WebViewController> _controller = Completer<WebViewController>();
+    final CookieManager cookieManager = CookieManager();
+    if (rule.cookies != null && rule.cookies.isNotEmpty) {
+      final cookies = rule.cookies.split(RegExp(r";\s*")).map((cookie) {
+        final p = cookie.indexOf("=");
+        if (p == -1) {
+          return Cookie(cookie, "");
+        } else {
+          return Cookie(cookie.substring(0, p), cookie.substring(p + 1));
+        }
+      }).toList();
+      cookieManager.setCookies(rule.loginUrl, cookies);
+    }
     return WillPopScope(
       onWillPop: () async {
         Toast.show("保存请按右上角\n取消请按左上角", context);
@@ -39,11 +52,11 @@ class LoginRulePage extends StatelessWidget {
                 size: 28,
               ),
               onPressed: () async {
-                final controller = await _controller.future;
-                final String cookies =
-                    await controller.evaluateJavascript('document.cookie');
-                rule.cookies = jsonDecode(cookies);
-                Navigator.of(context).pop(cookies);
+                final cookies = await cookieManager.getCookies(rule.loginUrl);
+                final cookiesString =
+                    cookies.map((cookie) => cookie.toString()).join("; ");
+                rule.cookies = cookiesString;
+                Navigator.of(context).pop(cookiesString);
               },
             ),
           ],

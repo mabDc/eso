@@ -39,12 +39,12 @@ dependencies:
   path_provider: ^1.6.5
   audioplayers: ^0.15.1
   encrypt: ^4.0.0
-  webview_flutter: ^0.3.22+1
-  # webview_flutter:
-  #   git: 
-  #     url: https://github.com/devangels/plugins.git
-  #     ref: cookies
-  #     path: packages/webview_flutter
+  # webview_flutter: ^0.3.22+1
+  webview_flutter:
+    git: 
+      url: https://github.com/devangels/plugins.git
+      ref: cookies
+      path: packages/webview_flutter
   battery: 0.3.1+10
   flutter_js: 
     path: modules/flutter_js
