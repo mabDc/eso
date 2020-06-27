@@ -98,7 +98,7 @@ class DebugRuleProvider with ChangeNotifier {
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
       await FlutterJs.evaluate(
-          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
           engineId);
       if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
         final cryptoJS =
@@ -185,7 +185,7 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("检测规则以\"-\"开始, 结果将反序");
       }
       await FlutterJs.evaluate(
-          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
           engineId);
       if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
         final cryptoJS =
@@ -271,7 +271,7 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("地址", contentUrl, true);
       if (rule.contentItems.contains("@js:")) {
         await FlutterJs.evaluate(
-            "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
+            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
             engineId);
         if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
           final cryptoJS =

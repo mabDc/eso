@@ -48,7 +48,7 @@ class APIFromRUle implements API {
     final discoverUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine(_engineId);
     await FlutterJs.evaluate(
-        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
+        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
         engineId);
     if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
       final cryptoJS =
@@ -88,7 +88,7 @@ class APIFromRUle implements API {
     final searchUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
     await FlutterJs.evaluate(
-        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};", engineId);
+        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};", engineId);
     if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
       final cryptoJS =
           rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
@@ -128,7 +128,7 @@ class APIFromRUle implements API {
     final chapterUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
     await FlutterJs.evaluate(
-        "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
+        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
         engineId);
     if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
       final cryptoJS =
@@ -142,7 +142,13 @@ class APIFromRUle implements API {
     for (var item in list) {
       final analyzer = AnalyzerManager(item, engineId);
       final lock = await analyzer.getString(rule.chapterLock);
-      var name = await analyzer.getString(rule.chapterName);
+      // final unLock = await analyzer.getString(rule.chapterUnLock);
+      var name = (await analyzer.getString(rule.chapterName))
+          .trim()
+          .replaceAll(RegExp("\n+"), Global.fullSpace);
+      // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+      //   name = "🔓" + name;
+      // }else
       if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
         name = "🔒" + name;
       }
@@ -170,7 +176,7 @@ class APIFromRUle implements API {
     final engineId = await FlutterJs.initEngine();
     if (rule.contentItems.contains("@js:")) {
       await FlutterJs.evaluate(
-          "host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
           engineId);
       if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
         final cryptoJS =

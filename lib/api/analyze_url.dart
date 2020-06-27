@@ -72,7 +72,7 @@ searchPage = ${jsonEncode(page)};
         'user-agent': rule.userAgent.trim().isNotEmpty
             ? rule.userAgent
             : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
-        "cookie": rule.cookies.trim().isNotEmpty ? rule.cookies : "",
+        "cookie": rule.cookies,
       }..addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
       dynamic body = r['body'];
@@ -140,7 +140,7 @@ searchPage = ${jsonEncode(page)};
         'user-agent': rule.userAgent.trim().isNotEmpty
             ? rule.userAgent
             : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
-        "cookie": rule.cookies.trim().isNotEmpty ? rule.cookies : "",
+        "cookie": rule.cookies,
       });
     }
   }

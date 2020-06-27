@@ -355,7 +355,7 @@ class _ChapterPageState extends State<ChapterPage> {
         final showIndex =
         searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
         return ListTile(
-          title: Text('${searchItem.chapters[showIndex].name}'.trim(),
+          title: Text('${searchItem.chapters[showIndex].name}',
               style: TextStyle(fontSize: 15),
               maxLines: 1,
               overflow: TextOverflow.ellipsis),
