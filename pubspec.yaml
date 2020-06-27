@@ -39,7 +39,12 @@ dependencies:
   path_provider: ^1.6.5
   audioplayers: ^0.15.1
   encrypt: ^4.0.0
-  webview_flutter: 0.3.15+1
+  webview_flutter: ^0.3.22+1
+  # webview_flutter:
+  #   git: 
+  #     url: https://github.com/devangels/plugins.git
+  #     ref: cookies
+  #     path: packages/webview_flutter
   battery: 0.3.1+10
   flutter_js: 
     path: modules/flutter_js
@@ -48,7 +53,7 @@ dependencies:
     path: modules/jsonpath
     # https://github.com/qhzhyt/dart-json-path.git
   uuid: ^2.0.4
-  floor: ^0.12.0
+  floor: ^0.13.0
   toast: ^0.1.5
   xpath_parse: ^1.0.2
   pull_to_refresh: ^1.5.8
@@ -67,8 +72,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  floor_generator: ^0.12.0
-  build_runner: ^1.10.0
+  floor_generator: ^0.13.0
+  build_runner: ^1.7.0
 
 flutter:
   uses-material-design: true
