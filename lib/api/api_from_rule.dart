@@ -63,7 +63,9 @@ class APIFromRUle implements API {
       final analyzer = AnalyzerManager(item, engineId);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
-        name: await analyzer.getString(rule.discoverName),
+        name: (await analyzer.getString(rule.discoverName))
+            .trim()
+            .replaceAll(RegExp(r"\n+"), Global.fullSpace),
         author: await analyzer.getString(rule.discoverAuthor),
         chapter: await analyzer.getString(rule.discoverChapter),
         description: await analyzer.getString(rule.discoverDescription),
@@ -88,7 +90,8 @@ class APIFromRUle implements API {
     final searchUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
     await FlutterJs.evaluate(
-        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};", engineId);
+        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
+        engineId);
     if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
       final cryptoJS =
           rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
@@ -102,7 +105,9 @@ class APIFromRUle implements API {
       final analyzer = AnalyzerManager(item, engineId);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
-        name: await analyzer.getString(rule.searchName),
+        name: (await analyzer.getString(rule.searchName))
+            .trim()
+            .replaceAll(RegExp(r"\n+"), Global.fullSpace),
         author: await analyzer.getString(rule.searchAuthor),
         chapter: await analyzer.getString(rule.searchChapter),
         description: await analyzer.getString(rule.searchDescription),
@@ -145,7 +150,7 @@ class APIFromRUle implements API {
       // final unLock = await analyzer.getString(rule.chapterUnLock);
       var name = (await analyzer.getString(rule.chapterName))
           .trim()
-          .replaceAll(RegExp("\n+"), Global.fullSpace);
+          .replaceAll(RegExp(r"\n+"), Global.fullSpace);
       // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
       //   name = "🔓" + name;
       // }else

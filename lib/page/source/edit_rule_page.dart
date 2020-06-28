@@ -592,6 +592,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const TO_SHARE = 5;
     const SOURCE_HELP = 6;
     const LOGIN = 7;
+    const SHARE = 8;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       icon: Icon(FIcons.more_vertical),
@@ -630,6 +631,14 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)))
                 .whenComplete(() => setState(() {}));
+            break;
+          case SHARE:
+            FlutterShare.share(
+              title: '亦搜 eso',
+              text: jsonEncode(rule.toJson()),
+              //linkUrl: '${searchItem.url}',
+              chooserTitle: '选择分享的应用',
+            );
             break;
           default:
         }
@@ -699,6 +708,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             ],
           ),
           value: TO_CLIPBOARD,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('分享原始文本'),
+              Icon(
+                FIcons.share_2,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: SHARE,
         ),
         PopupMenuItem(
           child: Row(
