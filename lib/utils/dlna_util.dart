@@ -134,7 +134,7 @@ class DLNAUtil {
                           if (Utils.empty(_type)) _type = VideoObject.VIDEO_MP4;
                         }
 
-                        var video = VideoObject(title ?? "", url, _type);
+                        var video = VideoObject("ESO", url, _type);
                         video.refreshPosition = true;
 
                         var result = await manager.actSetVideoUrl(video);
