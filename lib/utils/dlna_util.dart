@@ -194,8 +194,14 @@ class DLNAUtil {
                       children: [
                         FlatButton(child: Text(isSearching ? "停止搜索" : "搜索设备"), onPressed: () async {
                           if (!isSearching) {
-                            if (_devices.isEmpty)
+                            if (_devices.isEmpty){
                               manager.startSearch();
+                              Future.delayed(Duration(seconds: 30), (){
+                                manager.stopSearch();
+                                isSearching = false;
+                                _update();
+                              });
+                            }
                             else {
                               _devices.clear();
                               manager.forceSearch();
