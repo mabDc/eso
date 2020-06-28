@@ -7,7 +7,7 @@ import 'database/rule_dao.dart';
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
-  static const appVersion = '1.13.0';
+  static const appVersion = '1.13.1';
 
   static const waitingPath = "lib/assets/waiting.png";
   static const logoPath = "lib/assets/eso_logo.png";

@@ -1,11 +1,22 @@
 
+### 6.28
+
+1. 修复DLNA投屏  by [mabDc](https://github.com/mabDc)
+
+2. 发现增加类型过滤 by [yangyxd](https://github.com/yangyxd)
+
+3. 修复发现关键字刷新后失效 by [yangyxd](https://github.com/yangyxd)
+
+4. 更新版本至`1.13.1+2003`
+
 ### 6.27 
 
 1. 增加图源登录
 
-2. 增加更新日志 
-    
+2. 增加更新日志
+
     by [mabDc](https://github.com/mabDc)
+
 
 ### 6.26 
 

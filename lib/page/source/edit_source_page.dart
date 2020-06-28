@@ -109,6 +109,7 @@ class EditSourcePage extends StatefulWidget {
 
 class _EditSourcePageState extends State<EditSourcePage> {
   final SlidableController slidableController = SlidableController();
+  TextEditingController _searchEdit = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +119,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
         appBar: AppBarEx(
           titleSpacing: 0.0,
           title: SearchEdit(
+            controller: _searchEdit,
             hintText:
                 "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
             onSubmitted:
@@ -186,7 +188,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(
                           builder: (context) => EditRulePage(rule: rule)))
-                      .whenComplete(() => provider.refreshData())),
+                      .whenComplete(() => refreshData(provider))),
               Checkbox(
                 value: rule.enableSearch,
                 onChanged: (_) {},
@@ -274,7 +276,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
       if (showEditPage) {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-            .whenComplete(() => provider.refreshData());
+            .whenComplete(() => refreshData(provider));
       } else {
         provider.refreshData(false);
       }
@@ -306,7 +308,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           case ADD_RULE:
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                .whenComplete(() => provider.refreshData());
+                .whenComplete(() => refreshData(provider));
             break;
           case ADD_FROM_CLIPBOARD:
             _addFromClipBoard(context, provider, true);
@@ -344,5 +346,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
           )
           .toList(),
     );
+  }
+
+  refreshData(EditSourceProvider provider) {
+    if (Utils.empty(_searchEdit?.text))
+      provider.refreshData();
+    else
+      provider.getRuleListByName(_searchEdit.text);
   }
 }

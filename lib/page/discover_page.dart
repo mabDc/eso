@@ -65,13 +65,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 context,
                 Provider.of<EditSourceProvider>(context, listen: false),
               ),
-              // IconButton(
-              //   icon: Icon(Icons.edit),
-              //   onPressed: () => Navigator.of(context)
-              //       .push(MaterialPageRoute(
-              //           builder: (BuildContext context) => EditSourcePage()))
-              //       .whenComplete(() => __provider.refreshData()),
-              // )
             ],
           ),
           body: Consumer<EditSourceProvider>(
@@ -93,8 +86,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   itemCount: provider.rules.length + 1,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (BuildContext context, int index) {
-                    if (index == 0)
-                      return _buildFilterView(context, provider);
+                    if (index == 0) return _buildFilterView(context, provider);
                     return _buildItem(provider, index - 1);
                   },
                 ),
@@ -126,7 +118,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  Widget _buildFilterItemView(BuildContext context, EditSourceProvider provider, int contextType) {
+  Widget _buildFilterItemView(
+      BuildContext context, EditSourceProvider provider, int contextType) {
     bool selected = provider.ruleContentType == contextType;
     return GestureDetector(
       onTap: () {
@@ -138,12 +131,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
           provider.getRuleListByName(_searchEdit.text);
       },
       child: Material(
-        color: selected
-            ? Theme.of(context).primaryColor
-            : Theme.of(context).cardColor,
+        color: selected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15.0)),
-            side: BorderSide(width: Global.borderSize, color: selected ? Theme.of(context).primaryColor : Theme.of(context).dividerColor)),
+            side: BorderSide(
+                width: Global.borderSize,
+                color: selected
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).dividerColor)),
         child: Padding(
           padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
           child: Text(
@@ -180,7 +175,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       if (showEditPage) {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-            .whenComplete(() => provider.refreshData());
+            .whenComplete(() => refreshData(provider));
       } else {
         provider.refreshData(false);
       }
@@ -209,7 +204,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           case ADD_RULE:
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                .whenComplete(() => provider.refreshData());
+                .whenComplete(() => refreshData(provider));
             break;
           case ADD_FROM_CLIPBOARD:
             _addFromClipBoard(context, provider, true);
@@ -222,7 +217,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             break;
           case FROM_EDIT_SOURCE:
             Utils.startPageWait(context, EditSourcePage())
-              .whenComplete(() => provider.refreshData());
+                .whenComplete(() => refreshData(provider));
             break;
           default:
         }
@@ -255,12 +250,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-          .whenComplete(() {
-            if (Utils.empty(_searchEdit?.text))
-              provider.refreshData();
-            else
-              provider.getRuleListByName(_searchEdit.text);
-          }),
+          .whenComplete(() => refreshData(provider)),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
@@ -309,5 +299,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
       mainAxisSize: MainAxisSize.min,
       children: [_child, SizedBox(height: 30)],
     );
+  }
+
+  refreshData(EditSourceProvider provider) {
+    if (Utils.empty(_searchEdit?.text))
+      provider.refreshData();
+    else
+      provider.getRuleListByName(_searchEdit.text);
   }
 }
