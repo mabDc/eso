@@ -165,7 +165,7 @@ class AboutPage extends StatelessWidget {
                     Divider(),
                     MarkdownPageListTile(
                       filename: 'lib/assets/md/README.md',
-                      title: Text('自述说明'),
+                      title: Text('使用指北'),
                       // icon: Icon(Icons.info_outline),
                     ),
                     MarkdownPageListTile(
@@ -196,7 +196,6 @@ class AboutPage extends StatelessWidget {
                   ],
                 ),
               ),
-
               Card(
                 child: Material(
                   color: Theme.of(context).primaryColor,
@@ -208,7 +207,7 @@ class AboutPage extends StatelessWidget {
                         children: <Widget>[
                           MarkdownPageListTile(
                             filename: 'lib/assets/md/README.md',
-                            title: Text('自述说明'),
+                            title: Text('使用指北'),
                             icon: Icon(Icons.info_outline),
                           ),
                           MarkdownPageListTile(
