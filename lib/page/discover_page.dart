@@ -81,7 +81,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 provider.ruleContentType = _lastContextType;
               }
               if (provider.isLoading) {
-                return LandingPage();
+                return Stack(
+                  children: [
+                    LandingPage(),
+                    _buildFilterView(context, provider),
+                  ],
+                );
               }
               return KeyboardDismissBehaviorView(
                 child: ListView.builder(
@@ -250,7 +255,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-          .whenComplete(() => provider.refreshData()),
+          .whenComplete(() {
+            if (Utils.empty(_searchEdit?.text))
+              provider.refreshData();
+            else
+              provider.getRuleListByName(_searchEdit.text);
+          }),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
