@@ -18,7 +18,9 @@ class DLNAUtil {
     if (_instance == null) {
       _instance = DLNAUtil._();
       _instance.manager = DLNAManager();
-      _instance.manager.enableCache();
+      try {
+        _instance.manager.enableCache();
+      } catch (e) {}
       _instance.manager.setRefresher(DeviceRefresher(
           onDeviceAdd: (dev) {
             if (!_instance._devices.contains(dev)) {
