@@ -232,7 +232,7 @@ class AboutPage extends StatelessWidget {
                           MarkdownPageListTile(
                             filename: 'lib/assets/md/CHANGELOG.md',
                             title: Text('更新日志'),
-                            icon: Icon(FIcons.list),
+                            icon: Icon(Icons.history),
                           ),
                         ]),
                     child: SizedBox(
