@@ -22,24 +22,6 @@ class AboutPage extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(8.0),
             children: <Widget>[
-              // Card(
-              //   child: Column(
-              //     children: [
-              //       ListTile(
-              //         title: Text(
-              //           '管理',
-              //           style: TextStyle(color: Theme.of(context).primaryColor),
-              //         ),
-              //       ),
-              //       Divider(),
-              //       ListTile(
-              //         title: Text('站点管理'),
-              //         onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              //             builder: (BuildContext context) => EditSourcePage())),
-              //       ),
-              //     ],
-              //   ),
-              // ),
               Card(
                 child: Column(
                   children: <Widget>[
