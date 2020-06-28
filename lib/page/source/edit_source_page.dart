@@ -26,6 +26,7 @@ const int FROM_CLOUD = 3;
 const int FROM_YICIYUAN = 4;
 const int DELETE_ALL_RULES = 5;
 const int FROM_CLIPBOARD = 6;
+const int FROM_EDIT_SOURCE = 7;
 
 //图源编辑
 class EditSourcePage extends StatefulWidget {

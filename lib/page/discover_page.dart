@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/page/discover_search_page.dart';
@@ -27,6 +28,9 @@ class DiscoverPage extends StatefulWidget {
 class _DiscoverPageState extends State<DiscoverPage> {
   Widget _page;
   EditSourceProvider __provider;
+  TextEditingController _searchEdit = TextEditingController();
+
+  static int _lastContextType = -1;
 
   @override
   void dispose() {
@@ -50,6 +54,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           appBar: AppBarEx(
             centerTitle: false,
             title: SearchEdit(
+              controller: _searchEdit,
               hintText:
                   "搜索发现站点(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
               onSubmitted: (value) => __provider.getRuleListByName(value),
@@ -73,16 +78,19 @@ class _DiscoverPageState extends State<DiscoverPage> {
             builder: (context, EditSourceProvider provider, _) {
               if (__provider == null) {
                 __provider = provider;
+                provider.ruleContentType = _lastContextType;
               }
               if (provider.isLoading) {
                 return LandingPage();
               }
               return KeyboardDismissBehaviorView(
                 child: ListView.builder(
-                  itemCount: provider.rules.length,
+                  itemCount: provider.rules.length + 1,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (BuildContext context, int index) {
-                    return _buildItem(provider, index);
+                    if (index == 0)
+                      return _buildFilterView(context, provider);
+                    return _buildItem(provider, index - 1);
                   },
                 ),
               );
@@ -90,6 +98,60 @@ class _DiscoverPageState extends State<DiscoverPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildFilterView(BuildContext context, EditSourceProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _buildFilterItemView(context, provider, -1),
+          SizedBox(width: 8),
+          _buildFilterItemView(context, provider, API.NOVEL),
+          SizedBox(width: 8),
+          _buildFilterItemView(context, provider, API.MANGA),
+          SizedBox(width: 8),
+          _buildFilterItemView(context, provider, API.AUDIO),
+          SizedBox(width: 8),
+          _buildFilterItemView(context, provider, API.VIDEO),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterItemView(BuildContext context, EditSourceProvider provider, int contextType) {
+    bool selected = provider.ruleContentType == contextType;
+    return GestureDetector(
+      onTap: () {
+        provider.ruleContentType = contextType;
+        _lastContextType = contextType;
+        if (Utils.empty(_searchEdit?.text))
+          provider.refreshData();
+        else
+          provider.getRuleListByName(_searchEdit.text);
+      },
+      child: Material(
+        color: selected
+            ? Theme.of(context).primaryColor
+            : Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+            side: BorderSide(width: Global.borderSize, color: selected ? Theme.of(context).primaryColor : Theme.of(context).dividerColor)),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
+          child: Text(
+            contextType < 0 ? '全部' : API.getRuleContentTypeName(contextType),
+            style: TextStyle(
+              fontSize: 11,
+              color: selected
+                  ? Theme.of(context).cardColor
+                  : Theme.of(context).textTheme.bodyText1.color,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -131,6 +193,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
       {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
+      {'title': '源管理', 'icon': FIcons.edit, 'type': FROM_EDIT_SOURCE},
     ];
     return PopupMenuButton<int>(
       elevation: 20,
@@ -151,6 +214,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
             break;
           case FROM_CLOUD:
             EditSourcePage.showURLDialog(context, provider.isLoadingUrl, provider, false);
+            break;
+          case FROM_EDIT_SOURCE:
+            Utils.startPageWait(context, EditSourcePage())
+              .whenComplete(() => provider.refreshData());
             break;
           default:
         }

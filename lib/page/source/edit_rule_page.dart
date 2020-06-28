@@ -85,12 +85,8 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           AppBarButton(
-            icon: Icon(FIcons.help_circle),
-            onPressed: () =>
-                launch('https://github.com/mabDc/eso_source/blob/master/README.md'),
-          ),
-          AppBarButton(
             icon: Icon(FIcons.share_2),
+            tooltip: "分享",
             onPressed: () => FlutterShare.share(
               title: '亦搜 eso',
               text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
@@ -98,12 +94,15 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               chooserTitle: '选择分享的应用',
             ),
           ),
-          IconButton(
+          AppBarButton(
             icon: Icon(FIcons.save),
+            iconSize: 21,
+            tooltip: "保存",
             onPressed: () => _saveRule(context),
           ),
           AppBarButton(
             icon: Icon(Icons.bug_report),
+            tooltip: "调试",
             onPressed: () async {
               if (isLoading) return;
               isLoading = true;
@@ -314,7 +313,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         ),
         _buildEditText(
           rule.loginUrl,
-          '登陆地址(loginUrl)',
+          '登录地址(loginUrl)',
           (text) => rule.loginUrl = text,
         ),
         _buildEditText(
@@ -593,6 +592,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     const SOURCE_HELP = 6;
     const LOGIN = 7;
     const SHARE = 8;
+    const HELP = 9;
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       icon: Icon(FIcons.more_vertical),
@@ -640,6 +640,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               chooserTitle: '选择分享的应用',
             );
             break;
+          case HELP:
+            launch('https://github.com/mabDc/eso_source/blob/master/README.md');
+            break;
           default:
         }
       },
@@ -648,7 +651,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('登陆'),
+              Text('登录'),
               Icon(
                 FIcons.user,
                 color: primaryColor,
@@ -734,6 +737,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             ],
           ),
           value: DEBUG_WITHOUT_SAVE,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('帮助'),
+              Icon(
+                FIcons.help_circle,
+                color: primaryColor,
+              ),
+            ],
+          ),
+          value: HELP,
         ),
         // PopupMenuItem(
         //   child: Row(

@@ -1,6 +1,7 @@
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/debug_rule_provider.dart';
 import 'package:eso/ui/edit/edit_view.dart';
+import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,8 @@ class DebugRulePage extends StatelessWidget {
           ),
           actions: [
             AppBarButton(
-              child: Text("发现测试",style: TextStyle(color: Colors.grey),),
+              icon: Icon(FIcons.compass), // Text("发现测试",style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color)),
+              tooltip: "发现测试",
               onPressed: Provider.of<DebugRuleProvider>(context, listen: false).discover,
             ),
           ],
@@ -36,12 +38,14 @@ class DebugRulePage extends StatelessWidget {
                     color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
               );
             }
-            return ListView.builder(
-              padding: EdgeInsets.all(8),
-              itemCount: provider.rows.length,
-              itemBuilder: (BuildContext context, int index) {
-                return provider.rows[index];
-              },
+            return KeyboardDismissBehaviorView(
+              child: ListView.builder(
+                padding: EdgeInsets.all(8),
+                itemCount: provider.rows.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return provider.rows[index];
+                },
+              ),
             );
           },
         ),

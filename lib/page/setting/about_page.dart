@@ -35,8 +35,7 @@ class AboutPage extends StatelessWidget {
                     ListTile(
                       title: Text('源管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => EditSourcePage())),
+                      onTap: () => Utils.startPageWait(context, EditSourcePage()),
                     ),
                     ListTile(
                       title: Text('夜间模式'),

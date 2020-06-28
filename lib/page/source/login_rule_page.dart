@@ -44,7 +44,7 @@ class LoginRulePage extends StatelessWidget {
               Navigator.of(context).pop();
             },
           ),
-          title: Text("登陆 ${rule.name}"),
+          title: Text("登录 ${rule.name}"),
           actions: [
             AppBarButton(
               icon: Icon(

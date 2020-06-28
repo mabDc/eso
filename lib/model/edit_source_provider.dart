@@ -7,14 +7,20 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class EditSourceProvider with ChangeNotifier {
+  List<Rule> _rulesFilter;
   List<Rule> _rules;
   final int type;
-  List<Rule> get rules => _rules;
+  List<Rule> get rules => _ruleContentType < 0 ? _rules : _rulesFilter;
   bool _isLoading;
   bool get isLoading => _isLoading;
 
   bool _isLoadingUrl;
   bool get isLoadingUrl => _isLoadingUrl;
+
+  /// 内容类型
+  int _ruleContentType = -1;
+  int get ruleContentType => _ruleContentType;
+    set ruleContentType(v) => _setRuleContentType(v);
 
   EditSourceProvider({this.type = 1}) {
     _isLoadingUrl = false;
@@ -55,6 +61,20 @@ class EditSourceProvider with ChangeNotifier {
     return 0;
   }
 
+  _setRuleContentType(int value) {
+    _ruleContentType = value;
+    if (_ruleContentType < 0) {
+      _rulesFilter = null;
+      return;
+    }
+    _rulesFilter = [];
+    if (_rules == null) return;
+    _rules.forEach((element) {
+      if (element.contentType == value)
+        _rulesFilter.add(element);
+    });
+  }
+
   //获取源列表 1所有 2发现
   void refreshData([bool reFindAllRules = true]) async {
     if (!reFindAllRules) {
@@ -73,6 +93,7 @@ class EditSourceProvider with ChangeNotifier {
         break;
     }
     _isLoading = false;
+    _setRuleContentType(_ruleContentType);
     notifyListeners();
   }
 
@@ -142,6 +163,7 @@ class EditSourceProvider with ChangeNotifier {
         _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%');
         break;
     }
+    _setRuleContentType(_ruleContentType);
     notifyListeners();
   }
 

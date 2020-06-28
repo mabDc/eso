@@ -22,7 +22,7 @@ class Rule {
   String loadJs = '';
   String userAgent = '';
 
-  //登陆规则
+  //登录规则
   String loginUrl = "";
   String cookies = "";
 
@@ -89,7 +89,7 @@ class Rule {
     useCryptoJS = false;
     loadJs = '';
     userAgent = '';
-    //登陆规则
+    //登录规则
     loginUrl = "";
     cookies = "";
     // 发现规则
