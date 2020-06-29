@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
@@ -8,6 +11,7 @@ import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/widgets/right_sheet.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -42,6 +46,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
 
   List<DiscoverMap> map = <DiscoverMap>[];
   List<DiscoverPair> pairs = <DiscoverPair>[];
+
+  final _popupMenuController = TextEditingController();
 
   @override
   void dispose() {
@@ -158,11 +164,15 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   }
 
   Widget buildPairButton(
-      DiscoverPair pair, Color color, DiscoverPageController pageController, int index) {
+      DiscoverPair pair, Color color, Color bgColor,
+      DiscoverPageController pageController,
+      int index,
+      {VoidCallback onTap}
+  ) {
     return Container(
       height: 24,
-      width: 20.0 + 12 * pair.name.length,
-      margin: EdgeInsets.fromLTRB(4, 10, 4, 0),
+      width: 22 + min(6 * utf8.encode(pair.name).length, 12 * pair.name.length).toDouble(),
+      margin: EdgeInsets.fromLTRB(4, 8, 4, 0),
       child: OutlineButton(
         child: Text(
           pair.name,
@@ -170,14 +180,126 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         ),
         padding: EdgeInsets.zero,
         textColor: color,
-        onPressed: () => _select(pageController, index, pair),
+        onPressed: () {
+          _select(pageController, index, pair);
+          if (onTap != null) onTap();
+        },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
-        borderSide: color != null ? BorderSide(color: color) : null,
+        borderSide: color != null ? BorderSide(color: color, width: Global.borderSize) : null,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
       ),
     );
   }
+
+  Widget _buildMorePairIconButton(int index, bool showPairs, DiscoverMap map, DiscoverPageController pageController, VoidCallback onChanged) {
+    return Container(
+      height: 24,
+      width: 24,
+      margin: EdgeInsets.fromLTRB(4, 8, 4, 0),
+      child: IconButton(
+        icon: Icon(showPairs ? FIcons.chevron_up : FIcons.chevron_right, size: 16, color: Theme.of(context).primaryColor),
+        padding: EdgeInsets.zero,
+        tooltip: showPairs ? "收起" : "更多",
+        onPressed: () {
+          if ((map?.pairs?.length ?? 0) > 8) {
+            // 大于8个，显示右侧滑页面
+            _popupMenuController.text = '';
+            showModalRightSheet(
+              context: context,
+              builder: (context) {
+                return Container(
+                  width: min(MediaQuery.of(context).size.width * 0.75, 350),
+                  child: _buildMorePairsPopupMenu(index, map, pageController),
+                );
+              },
+              clickEmptyPop: true
+            );
+          } else {
+            // 直接展表
+            _showAllPairs[index] = !(_showAllPairs[index] ?? false);
+            onChanged();
+          }
+        },
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).canvasColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(width: Global.borderSize, color: Theme.of(context).primaryColor)
+      ),
+    );
+  }
+
+  /// 右侧小分类弹出菜单栏
+  Widget _buildMorePairsPopupMenu(int index, DiscoverMap map, DiscoverPageController pageController) {
+    return SafeArea(
+      child: StatefulBuilder(
+        builder: (context, _state) {
+          var pairs = map?.pairs;
+          final Color primaryColor = Theme.of(context).primaryColor;
+          final _listKey = GlobalKey();
+          final _updateList = (String v) {
+            if (Utils.empty(v))
+              pairs = map?.pairs;
+            else {
+              pairs = [];
+              if (map?.pairs != null) {
+                var _v = v.toLowerCase();
+                map.pairs.forEach((pair) {
+                  if (pair.name.toLowerCase().indexOf(_v) >= 0)
+                    pairs.add(pair);
+                });
+              }
+            }
+            _listKey.currentState?.setState(() => null);
+          };
+          _updateList(_popupMenuController.text);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: SearchEdit(
+                  hintText: "搜索分类名称",
+                  controller: _popupMenuController,
+                  onChanged: (v) => _updateList(v),
+                  onSubmitted: (v) => _updateList(v),
+                ),
+              ),
+              Divider(height: Global.lineSize),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: StatefulBuilder(
+                    key: _listKey,
+                    builder: (context, _state) {
+                      final discoverPair = pageController.discoverParams[map.name];
+                      return Wrap(
+                        children: pairs
+                            .map((pair) => buildPairButton(pair,
+                            pair == discoverPair ? primaryColor : null,
+                            Theme.of(context).canvasColor, pageController, index, onTap: () {
+                              _state(() => null);
+                            }))
+                            .toList(),
+                      );
+                    },
+                  ),
+                ),
+              )
+            ]
+          );
+        },
+      ),
+    );
+  }
+
+  final _showAllPairs = Map<int, bool>();
 
   Widget _buildListView(
       BuildContext context, DiscoverPageController pageController, ListDataItem item,
@@ -192,28 +314,47 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           : buildDiscoverResultGrid(item.items, pageController, item);
     }
     Color primaryColor = Theme.of(context).primaryColor;
-    final discoverPair = pageController.discoverParams[map.name];
+
+    final Widget _pairs = StatefulBuilder(
+      builder: (context, _state) {
+
+        final discoverPair = pageController.discoverParams[map.name];
+        final _showPairs = _showAllPairs[index] ?? false;
+        final _pairsViews = pairs
+            .map((pair) => buildPairButton(pair,
+            pair == discoverPair ? primaryColor : null,
+            Theme.of(context).canvasColor, pageController, index))
+            .toList();
+        if (_pairsViews.length > 1)
+          _pairsViews.add(_buildMorePairIconButton(index, _showPairs, map,
+              pageController, ()=> _state(()=> null)));
+
+        return Container(
+          width: _showPairs ? double.infinity : null,
+          color: Theme.of(context).primaryColorLight.withAlpha(50),
+          padding: _showPairs ? const EdgeInsets.fromLTRB(3, 3, 3, 8) : EdgeInsets.zero,
+          child: _showPairs ? Wrap(
+            spacing: 3,
+            children: _pairsViews,
+          ) : Flow(
+            delegate: _FlowDelegate(pairs.length),
+            children: _pairsViews,
+          ),
+        );
+      },
+    );
+
     if (item.isLoading) {
       return Column(
         children: [
-          Wrap(
-            children: pairs
-                .map((pair) => buildPairButton(pair,
-                    pair == discoverPair ? primaryColor : null, pageController, index))
-                .toList(),
-          ),
+          _pairs,
           Expanded(child: LandingPage())
         ],
       );
     }
     return Column(
       children: [
-        Wrap(
-          children: pairs
-              .map((pair) => buildPairButton(pair,
-                  pair == discoverPair ? primaryColor : null, pageController, index))
-              .toList(),
-        ),
+        _pairs,
         Expanded(
           child: Provider.of<Profile>(context, listen: false).switchDiscoverStyle
               ? buildDiscoverResultList(item.items, pageController, item)
@@ -351,4 +492,42 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   _select(DiscoverPageController pageController, int index, [DiscoverPair pair]) {
     pageController.selectDiscoverPair(map[index].name, pair);
   }
+}
+
+class _FlowDelegate extends FlowDelegate {
+  final int count;
+  const _FlowDelegate(this.count): super();
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    final screenW = context.size.width;
+    double padding = 3; //间距
+    double x = padding; //x坐标
+    double y = padding; //y坐标
+    double lastW = context.getChildSize(context.childCount - 1).width + padding;
+
+    for (int i = 0; i < context.childCount; i++) {
+      final size = context.getChildSize(i);
+      final w = size.width + x + padding;
+      if (w <= screenW - lastW) {
+        context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
+        x = w;
+      } else {
+        context.paintChild(context.childCount - 1, transform: Matrix4.translationValues(screenW - lastW, y, 0));
+        return;
+      }
+    }
+  }
+
+  @override
+  Size getSize(BoxConstraints constraints) {
+    return Size(double.infinity, count == 0 ? 0 : 45);
+  }
+
+  @override
+  bool shouldRepaint(FlowDelegate oldDelegate) {
+    return oldDelegate != this;
+  }
+
+
 }
