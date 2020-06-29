@@ -64,7 +64,6 @@ class Profile with ChangeNotifier {
 
   bool _switchLongPress;
   bool _switchFavoriteStyle;
-  bool _switchDiscoverStyle;
   bool _autoRefresh;
   String _darkMode;
   String _colorName;
@@ -96,7 +95,6 @@ class Profile with ChangeNotifier {
 
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
-  bool get switchDiscoverStyle => _switchDiscoverStyle;
   bool get autoRefresh => _autoRefresh;
   String get darkMode => _darkMode;
   String get colorName => _colorName;
@@ -129,13 +127,6 @@ class Profile with ChangeNotifier {
   set switchFavoriteStyle(bool value) {
     if (value != _switchFavoriteStyle) {
       _switchFavoriteStyle = value;
-      _saveProfile();
-    }
-  }
-
-  set switchDiscoverStyle(bool value) {
-    if (value != _switchDiscoverStyle) {
-      _switchDiscoverStyle = value;
       _saveProfile();
     }
   }
@@ -479,7 +470,6 @@ class Profile with ChangeNotifier {
   void fromJson(Map<String, dynamic> json) {
     _switchLongPress = json['switchLongPress'];
     _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
-    _switchDiscoverStyle = json['switchDiscoverStyle'] ?? false;
     _showMangaInfo = json['showMangaInfo'] ?? true;
     _autoRefresh = json['autoRefresh'];
     _darkMode = json['darkMode'].toString();
@@ -513,7 +503,7 @@ class Profile with ChangeNotifier {
   Map<String, dynamic> toJson() => {
         'switchLongPress': _switchLongPress,
         'switchFavoriteStyle': _switchFavoriteStyle,
-        'switchDiscoverStyle': _switchDiscoverStyle,
+        // 'switchDiscoverStyle': _switchDiscoverStyle,
         'showMangaInfo': _showMangaInfo,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,

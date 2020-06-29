@@ -31,10 +31,10 @@ abstract class RuleDao {
   Future<void> clearAllRules();
 
   @Query(
-      'SELECT * FROM rule WHERE name like :name or `group` like :name ORDER BY sort desc')
-  Future<List<Rule>> getRuleByName(String name);
+      'SELECT * FROM rule WHERE name like :name or `group` like :group ORDER BY sort desc')
+  Future<List<Rule>> getRuleByName(String name, String group);
 
   @Query(
-    'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :name) ORDER BY sort desc')
-  Future<List<Rule>> getDiscoverRuleByName(String name);
+    'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :group) ORDER BY sort desc')
+  Future<List<Rule>> getDiscoverRuleByName(String name, String group);
 }

@@ -157,10 +157,10 @@ class EditSourceProvider with ChangeNotifier {
   void getRuleListByName(String name) async {
     switch (this.type) {
       case 1:
-        _rules = await Global.ruleDao.getRuleByName('%$name%');
+        _rules = await Global.ruleDao.getRuleByName('%$name%', '%$name%');
         break;
       case 2:
-        _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%');
+        _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%', '%$name%');
         break;
     }
     _setRuleContentType(_ruleContentType);

@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:eso/api/api.dart';
+import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
-import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
@@ -13,6 +13,7 @@ import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/right_sheet.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
+import 'package:eso/ui/widgets/state_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +26,11 @@ import 'langding_page.dart';
 class DiscoverSearchPage extends StatefulWidget {
   final String originTag;
   final String origin;
+  final Rule rule;
   final List<DiscoverMap> discoverMap;
 
   const DiscoverSearchPage({
+    this.rule,
     this.originTag,
     this.origin,
     this.discoverMap,
@@ -36,6 +39,16 @@ class DiscoverSearchPage extends StatefulWidget {
 
   @override
   _DiscoverSearchPageState createState() => _DiscoverSearchPageState();
+
+  int get viewStyle => rule == null ? 0 : rule.viewStyle == null ? 0 : rule.viewStyle;
+
+  switchViewStyle() async {
+    if (rule == null) return;
+    var _style = viewStyle + 1;
+    if (_style > 1) _style = 0;
+    rule.viewStyle = _style;
+    await Global.ruleDao.insertOrUpdateRule(rule);
+  }
 }
 
 class _DiscoverSearchPageState extends State<DiscoverSearchPage>
@@ -300,6 +313,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   }
 
   final _showAllPairs = Map<int, bool>();
+  final _bodyKey = Map<int, GlobalKey<StateViewState>>();
 
   Widget _buildListView(
       BuildContext context, DiscoverPageController pageController, ListDataItem item,
@@ -309,9 +323,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       if (item.isLoading) {
         return LandingPage();
       }
-      return Provider.of<Profile>(context, listen: false).switchDiscoverStyle
-          ? buildDiscoverResultList(item.items, pageController, item)
-          : buildDiscoverResultGrid(item.items, pageController, item);
+      return _buildBodyView(pageController, item, index);
     }
     Color primaryColor = Theme.of(context).primaryColor;
 
@@ -356,9 +368,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       children: [
         _pairs,
         Expanded(
-          child: Provider.of<Profile>(context, listen: false).switchDiscoverStyle
-              ? buildDiscoverResultList(item.items, pageController, item)
-              : buildDiscoverResultGrid(item.items, pageController, item),
+          child: _buildBodyView(pageController, item, index),
         )
       ],
     );
@@ -391,15 +401,31 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       ),
     );
   }
+  
+  Widget _buildBodyView(DiscoverPageController pageController, ListDataItem item, int index) {
+    if (!_bodyKey.containsKey(index))
+      _bodyKey[index] = GlobalKey();
+    return StateView(
+      key: _bodyKey[index],
+      builder: (context) {
+        return  widget.viewStyle == 0
+            ? buildDiscoverResultList(item.items, pageController, item)
+            : buildDiscoverResultGrid(item.items, pageController, item);
+      },
+    );
+  }
 
   Widget _buildSwitchStyle(BuildContext context) {
     return AppBarButton(
-      tooltip: "切换显示",
-      icon: Provider.of<Profile>(context, listen: true).switchDiscoverStyle
-          ? Icon(FIcons.grid)
-          : Icon(FIcons.list),
-      onPressed: () => Provider.of<Profile>(context, listen: false).switchDiscoverStyle =
-          !Provider.of<Profile>(context, listen: false).switchDiscoverStyle,
+      tooltip: "切换布局",
+      icon: Icon(FIcons.grid),
+      iconSize: 18,
+      onPressed: () async {
+        await widget.switchViewStyle();
+        _bodyKey.forEach((key, value) {
+          value.currentState?.update();
+        });
+      },
     );
   }
 

@@ -16,6 +16,8 @@ class Rule {
   int contentType = API.MANGA; //站点类型
   String group = ''; //分组名
   int sort = 0; //排序值
+  // 显示样式
+  int viewStyle = 0;
 
   // bool useCheerio = false;
   bool useCryptoJS = false;
@@ -85,6 +87,7 @@ class Rule {
     postScript = '';
     contentType = API.MANGA;
     sort = 0;
+    viewStyle = 0;
     // bool useCheerio = false;
     useCryptoJS = false;
     loadJs = '';
@@ -150,6 +153,7 @@ class Rule {
     this.postScript,
     this.contentType,
     this.sort,
+    this.viewStyle,
     this.useCryptoJS,
     this.loadJs,
     this.userAgent,
@@ -204,6 +208,7 @@ class Rule {
     group = json['group'] ?? defaultRule.group;
     contentType = json['contentType'] ?? defaultRule.contentType;
     sort = json['sort'] ?? defaultRule.sort;
+    viewStyle = json['viewStyle'] ?? 0;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['userAgent'] ?? defaultRule.userAgent;
@@ -289,6 +294,7 @@ class Rule {
         ? API.MANGA
         : json['bookSourceType'] == '' ? API.NOVEL : defaultRule.contentType;
     sort = json['serialNumber'] ?? defaultRule.sort;
+    viewStyle = 0;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['httpUserAgent'] ?? defaultRule.userAgent;
@@ -394,5 +400,6 @@ class Rule {
         'contentItems': contentItems,
         'loginUrl': loginUrl,
         'cookies': withCookies == true ? cookies : "",
+        'viewStyle': viewStyle ?? 0,
       };
 }

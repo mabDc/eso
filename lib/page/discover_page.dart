@@ -244,6 +244,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     Widget _child = ListTile(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => DiscoverSearchPage(
+                rule: rule,
                 originTag: rule.id,
                 origin: rule.name,
                 discoverMap: APIFromRUle(rule).discoverMap(),

@@ -34,7 +34,7 @@ class Global with ChangeNotifier {
     SearchItemManager.initSearchItem();
     final _database = await $FloorAppDatabase
         .databaseBuilder('eso_database.db')
-        .addMigrations([migration4to5]).build();
+        .addMigrations([migration4to5, migration5to6]).build();
     _ruleDao = _database.ruleDao;
     await Future.delayed(Duration(seconds: 1));
     return true;
