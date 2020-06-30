@@ -98,12 +98,13 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   ///启用、禁用
-  void toggleEnableSearch(Rule rule, [bool enable]) async {
+  void toggleEnableSearch(Rule rule, [bool enable, bool notify = true]) async {
     if (_isLoading) return;
     _isLoading = true;
     rule.enableSearch = enable ?? !rule.enableSearch;
     await Global.ruleDao.insertOrUpdateRule(rule);
-    notifyListeners();
+    if (notify == true)
+      notifyListeners();
     _isLoading = false;
   }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/edit_source_provider.dart';
@@ -129,7 +130,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
           ),
           actions: [
             AppBarButton(
-              icon: Icon(Icons.check_circle_outline),
+              icon: Icon(FIcons.check_square),
+              tooltip: "全选(勾选后启用搜索)",
               onPressed: Provider.of<EditSourceProvider>(context, listen: false)
                   .toggleCheckAllRule,
             ),
@@ -160,6 +162,30 @@ class _EditSourcePageState extends State<EditSourcePage> {
   }
 
   Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
+    final _onTap = (notify) {
+      SlidableState activeState = slidableController.activeState;
+      if (activeState != null && !activeState.overallMoveAnimation.isDismissed) {
+        slidableController.activeState.close();
+      } else {
+        provider.toggleEnableSearch(rule, null, notify);
+      }
+    };
+    final _theme = Theme.of(context);
+    final _leadColor = () {
+      switch (rule.contentType) {
+        case API.MANGA: return _theme.primaryColorLight;
+        case API.VIDEO: return _theme.primaryColor;
+        case API.AUDIO: return _theme.primaryColorDark;
+        default: return Colors.white;
+      }
+    };
+    final _leadBorder = () {
+      switch (rule.contentType) {
+        case API.NOVEL: return Border.all(color: _theme.primaryColor, width: 1.0);
+        default: return null;
+      }
+    };
+    final ___leadColor = _leadColor();
     return Slidable(
       key: Key(rule.host),
       controller: slidableController,
@@ -170,7 +196,25 @@ class _EditSourcePageState extends State<EditSourcePage> {
       closeOnScroll: true,
       child: InkWell(
         child: ListTile(
-          title: Text('${rule.name}'),
+          leading: Container(
+            height: 36,
+            width: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: ___leadColor,
+              shape: BoxShape.circle,
+              border: _leadBorder(),
+            ),
+            child: Text(rule.ruleTypeName, style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Global.lightness(___leadColor) > 180 ?
+                _theme.primaryColorDark :
+                Colors.white
+            )),
+          ),
+          dense: true,
+          title: Text('${rule.name}', style: TextStyle(fontSize: 16)),
           subtitle: Text(
             rule.author == '' ? '${rule.host}' : '@${rule.author}',
             maxLines: 1,
@@ -184,25 +228,26 @@ class _EditSourcePageState extends State<EditSourcePage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               AppBarButton(
-                  icon: Icon(Icons.create),
+                  icon: Icon(FIcons.edit),
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(
                           builder: (context) => EditRulePage(rule: rule)))
                       .whenComplete(() => refreshData(provider))),
-              Checkbox(
-                value: rule.enableSearch,
-                onChanged: (_) {},
+              StatefulBuilder(
+                builder: (context, state) {
+                  return Checkbox(
+                    value: rule.enableSearch,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    onChanged: (_) {
+                      _onTap(false);
+                      state(() => null);
+                    },
+                  );
+                },
               )
             ],
           ),
-          onTap: () {
-            SlidableState activeState = slidableController.activeState;
-            if (activeState != null && !activeState.overallMoveAnimation.isDismissed) {
-              slidableController.activeState.close();
-            } else {
-              provider.toggleEnableSearch(rule);
-            }
-          },
+          onTap: () => _onTap(true),
           onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DiscoverSearchPage(
                     rule: rule,
@@ -216,13 +261,13 @@ class _EditSourcePageState extends State<EditSourcePage> {
         IconSlideAction(
           caption: '置顶',
           color: Colors.black45,
-          icon: Icons.vertical_align_top,
+          iconWidget: Padding(child: Icon(Icons.vertical_align_top, size: 20, color: Colors.white), padding: EdgeInsets.only(bottom: 4)),
           onTap: () => provider.setSortMax(rule),
         ),
         IconSlideAction(
           caption: '删除',
           color: Colors.red,
-          icon: Icons.delete,
+          iconWidget: Padding(child: Icon(FIcons.trash, size: 20, color: Colors.white), padding: EdgeInsets.only(bottom: 4)),
           onTap: () {
             showDialog(
                 context: context,
@@ -292,17 +337,17 @@ class _EditSourcePageState extends State<EditSourcePage> {
       BuildContext context, bool isLoadingUrl, EditSourceProvider provider) {
     final primaryColor = Theme.of(context).primaryColor;
     const list = [
-      {'title': '新建空白规则', 'icon': Icons.code, 'type': ADD_RULE},
-      {'title': '从剪贴板新建', 'icon': Icons.note_add, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '粘贴单条规则', 'icon': Icons.content_paste, 'type': FROM_CLIPBOARD},
+      {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
+      {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
+      {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
       // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
-      {'title': '网络导入', 'icon': Icons.cloud_queue, 'type': FROM_CLOUD},
-      {'title': '清空源', 'icon': Icons.clear_all, 'type': DELETE_ALL_RULES},
+      {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
+      {'title': '清空源', 'icon': FIcons.x_circle, 'type': DELETE_ALL_RULES},
     ];
     return PopupMenuButton<int>(
       elevation: 20,
-      icon: Icon(Icons.add),
+      icon: Icon(FIcons.plus),
       offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
@@ -339,7 +384,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(element['title']),
-                  Icon(element['icon'], color: primaryColor, size: 16),
+                  Icon(element['icon'], color: primaryColor),
                 ],
               ),
               value: element['type'],

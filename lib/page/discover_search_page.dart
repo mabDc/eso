@@ -553,10 +553,11 @@ class _FlowDelegate extends FlowDelegate {
   @override
   void paintChildren(FlowPaintingContext context) {
     final screenW = context.size.width;
+    final lastIndex = context.childCount - 1;
     double padding = 3; //间距
     double x = padding; //x坐标
     double y = padding; //y坐标
-    double lastW = context.getChildSize(context.childCount - 1).width + padding;
+    double lastW = context.getChildSize(lastIndex).width + padding;
 
     for (int i = 0; i < context.childCount; i++) {
       final size = context.getChildSize(i);
@@ -565,7 +566,10 @@ class _FlowDelegate extends FlowDelegate {
         context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
         x = w;
       } else {
-        context.paintChild(context.childCount - 1, transform: Matrix4.translationValues(screenW - lastW, y, 0));
+        if (i == lastIndex && w <= screenW)
+          context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
+        else
+          context.paintChild(context.childCount - 1, transform: Matrix4.translationValues(screenW - lastW, y, 0));
         return;
       }
     }
