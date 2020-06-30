@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: "^0.16.1"
   screen: ^0.0.5
   cupertino_icons: ^0.1.3
   provider: ^4.0.5
@@ -27,7 +30,6 @@ dependencies:
   #   git:
   #     url: https://github.com/DaguDuiyuan/html.git
   #     ref: patch-pola
-  intl: ^0.15.7
   device_info: ^0.4.0
   matrix_gesture_detector: ^0.1.0
   flutter_slidable: ^0.5.4

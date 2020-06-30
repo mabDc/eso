@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +48,12 @@ class MyApp extends StatelessWidget {
                 theme: profile.getTheme(isDarkMode: false),
                 darkTheme: profile.getTheme(isDarkMode: true),
                 title: Global.appName,
+                localizationsDelegates: [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                ],
+                locale: Locale('zh', 'CH'),
+                supportedLocales: [Locale('zh', 'CH')],
                 home: HomePage(),
               );
             },
