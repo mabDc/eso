@@ -48,7 +48,7 @@ class DiscoverSearchPage extends StatefulWidget {
   switchViewStyle() async {
     if (rule == null) return;
     var _style = viewStyle + 1;
-    if (_style > 3) _style = 0;
+    if (_style > 4) _style = 0;
     rule.viewStyle = _style;
     await Global.ruleDao.insertOrUpdateRule(rule);
   }
@@ -422,6 +422,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           case 3: return buildDiscoverResultGrid(item.items,
               pageController, item,
               crossAxisCount: 2,
+              builderItem: (v) => UIDiscover2Item(item: v));
+          case 4: return buildDiscoverResultGrid(item.items,
+              pageController, item,
+              crossAxisCount: 2,
+              childAspectRatio: 1.45,
               builderItem: (v) => UIDiscover2Item(item: v));
           default:
             return buildDiscoverResultGrid(item.items, pageController, item);
