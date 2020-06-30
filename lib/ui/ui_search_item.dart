@@ -73,40 +73,31 @@ class _UiSearchItem extends StatelessWidget {
                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
+                    children: [
                       Expanded(
                         child: Text(
                           name?.trim() ?? '',
                           maxLines: 2,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            fontSize: 15
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).textTheme.bodyText1.color,
+                              fontSize: 15
                           ),
-                        ),
-                      ),
-                      Utils.empty(origin?.trim()) ? SizedBox(width: 2) : Text(
-                        origin.trim(),
-                        maxLines: 1,
-                        style: TextStyle(
-                          color:
-                          Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                         ),
                       ),
                       contentTypeName != null && contentTypeName.isNotEmpty
                           ? Container(
-                        height: 14,
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(2),
                         ),
+                        margin: const EdgeInsets.only(left: 6),
                         padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
                         alignment: Alignment.centerLeft,
                         child: Text(
                           contentTypeName,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 11,
                             height: 1.4,
                             color: Colors.white,
                             textBaseline: TextBaseline.alphabetic,
@@ -115,14 +106,27 @@ class _UiSearchItem extends StatelessWidget {
                       ) : SizedBox(),
                     ],
                   ),
-                  Utils.empty(author?.trim()) ? SizedBox() : Text(
-                    author.trim(),
-                    maxLines: 1,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Utils.empty(origin?.trim()) ? SizedBox(width: 2) : Text(
+                        origin.trim(),
+                        maxLines: 1,
+                        style: TextStyle(
+                          color:
+                          Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                        ),
+                      ),
+                      Expanded(
+                        child: Utils.empty(author?.trim()) ? SizedBox() : Text(
+                          author.trim(),
+                          maxLines: 1,
+                          textAlign: !Utils.empty(origin?.trim()) ? TextAlign.end : TextAlign.start,
+                        ),
+                      )
+                    ],
                   ),
-                  Utils.empty(chapter?.trim()) ? SizedBox() : Text(
-                    chapter.trim(),
-                    maxLines: 2,
-                  ),
+                  SizedBox(height: 6),
                   Utils.empty(description?.trim()) ? SizedBox() : Text(
                     description.trim(),
                     maxLines: 2,

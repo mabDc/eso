@@ -6,7 +6,9 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
+import 'package:eso/ui/ui_discover2_item.dart';
 import 'package:eso/ui/ui_discover_item.dart';
+import 'package:eso/ui/ui_search2_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
@@ -42,10 +44,11 @@ class DiscoverSearchPage extends StatefulWidget {
 
   int get viewStyle => rule == null ? 0 : rule.viewStyle == null ? 0 : rule.viewStyle;
 
+  /// 切换显示样式
   switchViewStyle() async {
     if (rule == null) return;
     var _style = viewStyle + 1;
-    if (_style > 1) _style = 0;
+    if (_style > 3) _style = 0;
     rule.viewStyle = _style;
     await Global.ruleDao.insertOrUpdateRule(rule);
   }
@@ -408,9 +411,21 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
     return StateView(
       key: _bodyKey[index],
       builder: (context) {
-        return  widget.viewStyle == 0
-            ? buildDiscoverResultList(item.items, pageController, item)
-            : buildDiscoverResultGrid(item.items, pageController, item);
+        switch (widget.viewStyle) {
+          case 0: return buildDiscoverResultList(item.items,
+              pageController, item);
+          case 1: return buildDiscoverResultList(item.items,
+              pageController, item,
+              builderItem: (v) => UiSearch2Item(item: v));
+          case 2: return buildDiscoverResultGrid(item.items,
+              pageController, item);
+          case 3: return buildDiscoverResultGrid(item.items,
+              pageController, item,
+              crossAxisCount: 2,
+              builderItem: (v) => UIDiscover2Item(item: v));
+          default:
+            return buildDiscoverResultGrid(item.items, pageController, item);
+        }
       },
     );
   }
@@ -430,7 +445,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   }
 
   Widget buildDiscoverResultList(
-      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
+      List<SearchItem> items, DiscoverPageController pageController,
+      ListDataItem item,
+      {Widget Function(SearchItem searchItem) builderItem}
+  ) {
     return RefreshIndicator(
       child: ListView.builder(
         controller: item.controller,
@@ -448,7 +466,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 .firstWhere((item) => item.url == searchItem.url);
           }
           return InkWell(
-            child: Padding(
+            child: builderItem != null ? builderItem(searchItem) : Padding(
               padding: const EdgeInsets.all(8.0),
               child: UiSearchItem(item: searchItem),
             ),
@@ -464,13 +482,16 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   }
 
   Widget buildDiscoverResultGrid(
-      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item) {
+      List<SearchItem> items, DiscoverPageController pageController,
+      ListDataItem item,
+      {Widget Function(SearchItem searchItem) builderItem, double childAspectRatio, int crossAxisCount}
+  ) {
     return RefreshIndicator(
       child: GridView.builder(
         controller: item.controller,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 0.65,
+          crossAxisCount: crossAxisCount ?? 3,
+          childAspectRatio: childAspectRatio ?? 0.65,
           mainAxisSpacing: 0,
           crossAxisSpacing: 0,
         ),
@@ -489,10 +510,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 item.originTag == searchItem.originTag && item.url == searchItem.url);
           }
           return InkWell(
-            child: Padding(
+            child: builderItem == null ? Padding(
               padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
               child: UIDiscoverItem(searchItem: searchItem),
-            ),
+            ) : builderItem(searchItem),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (context) => ChapterPage(searchItem: searchItem)),
