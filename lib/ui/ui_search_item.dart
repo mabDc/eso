@@ -117,12 +117,12 @@ class _UiSearchItem extends StatelessWidget {
                         Icons.supervised_user_circle,
                         size: 14,
                         color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                       ),
                       SizedBox(width: 2),
                       Expanded(
                         child: Text(
-                          (Utils.empty(author?.trim()) ? "" : "${author.trim()}  |  "),
+                          author?.trim() ?? "",
                           maxLines: 1,
                           style: _txtStyle,
                           overflow: TextOverflow.ellipsis,
@@ -144,7 +144,7 @@ class _UiSearchItem extends StatelessWidget {
                         Icons.fiber_new,
                         size: 14,
                         color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                       ),
                       SizedBox(width: 2),
                       Flexible(
@@ -164,7 +164,7 @@ class _UiSearchItem extends StatelessWidget {
                         Icons.description,
                         size: 14,
                         color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
                       ),
                       SizedBox(width: 2),
                       Flexible(
