@@ -1,12 +1,13 @@
+import 'dart:html';
+
+import 'package:html/parser.dart';
+
 import 'analyzer.dart';
 import 'package:html/dom.dart';
 import 'package:xpath_parse/xpath_selector.dart';
 
 class AnalyzerXPath implements Analyzer {
   XPath _xpath;
-
-  @override
-  get content => _xpath;
 
   @override
   int get jsEngineId => null;

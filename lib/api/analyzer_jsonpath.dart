@@ -6,9 +6,6 @@ class AnalyzerJSonPath implements Analyzer {
   dynamic _ctx;
 
   @override
-  get content => _ctx;
-
-  @override
   int get jsEngineId => null;
 
   @override
@@ -32,6 +29,7 @@ class AnalyzerJSonPath implements Analyzer {
       }
       return result;
     } catch (e) {
+      print("jsonpath error: $e");
       return result;
     }
   }
@@ -51,7 +49,7 @@ class AnalyzerJSonPath implements Analyzer {
 
   @override
   dynamic getStringList(String rule) {
-    return JPath.compile(rule).search(_ctx);
+    return getElements(rule);
   }
 }
 

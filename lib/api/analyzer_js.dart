@@ -9,9 +9,6 @@ class AnalyzerJS implements Analyzer {
   int _jsEngineId;
 
   @override
-  get content => _content;
-
-  @override
   get jsEngineId => _jsEngineId;
 
   AnalyzerJS(int jsEngineId) {
@@ -25,6 +22,8 @@ class AnalyzerJS implements Analyzer {
         _content = jsonEncode(content.outerHtml);
       } else if (content is Element) {
         _content = jsonEncode(content.outerHtml);
+      } else if (content is List<Element>) {
+        _content = jsonEncode(content.map((e) => e.outerHtml).join("\n"));
       } else {
         try {
           _content = jsonEncode(content);

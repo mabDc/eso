@@ -6,7 +6,6 @@ abstract class Analyzer {
   // int _id;
   // int get id => _id;
   // Analyzer(dynamic content, [int jsEngineId]);
-  dynamic get content;
   int get jsEngineId;
   Analyzer parse(dynamic content);
   FutureOr getString(String rule);

@@ -6,9 +6,6 @@ class AnalyzerHtml implements Analyzer {
   Element _element;
 
   @override
-  get content => _element;
-
-  @override
   int get jsEngineId => null;
 
   @override

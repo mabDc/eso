@@ -42,23 +42,12 @@ class AnalyzerManager {
     }
   }
 
-  List<String> Function(List<String>) replaceListSmart(String replace) {
-    if (null == replace || replace.isEmpty) return (List<String> s) => s;
-    final _replaceSmart = replaceSmart(replace);
-    return (List<String> ls) => ls.map((s) => _replaceSmart(s)).toList();
-  }
-
-  Future<List<dynamic>> _getElements(SingleRule r, [String rule]) async {
+  Future<dynamic> _getElements(SingleRule r, [String rule]) async {
     if (null == rule) {
       rule = r.rule;
     }
     if (r.analyzer is AnalyzerJS) {
-      final temp = await r.analyzer.getElements(rule);
-      if (temp is List) {
-        return temp.where((e) => null != e).toList();
-      } else if (null != temp) {
-        return [temp];
-      }
+      return r.analyzer.getElements(rule);
     }
     if (rule.contains("&&")) {
       var result = <dynamic>[];
@@ -73,14 +62,9 @@ class AnalyzerManager {
         if (temp.isNotEmpty) return temp;
       }
     } else {
-      final temp = await r.analyzer.getElements(rule);
-      if (temp is List) {
-        return temp.where((e) => null != e).toList();
-      } else if (null != temp) {
-        return [temp];
-      }
+      return r.analyzer.getElements(rule);
     }
-    return <dynamic>[];
+    return null;
   }
 
   Future<List<dynamic>> getElements(String rule) async {
@@ -88,10 +72,15 @@ class AnalyzerManager {
     if (null == rule) return result;
     rule = rule.trimLeft();
     if (rule.isEmpty) return result;
-
+    dynamic temp = result.isNotEmpty ? result : _content;
     for (final r in splitRuleReversed(rule).reversed) {
-      r.analyzer.parse(result.isNotEmpty ? result : _content);
-      result = await _getElements(r);
+      r.analyzer.parse(temp);
+      temp = await _getElements(r);
+    }
+    if (temp is List) {
+      return temp.where((e) => null != e).toList();
+    } else if (null != temp) {
+      return [temp];
     }
     return result;
   }
@@ -101,16 +90,7 @@ class AnalyzerManager {
       rule = r.rule;
     }
     if (r.analyzer is AnalyzerJS) {
-      final temp = await r.analyzer.getStringList(rule);
-      if (temp is List) {
-        return temp
-            .where((e) => null != e)
-            .map((s) => '$s'.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
-      } else if (null != temp) {
-        return <String>['$temp'.trim()];
-      }
+      return r.analyzer.getStringList(rule);
     }
     var result = <String>[];
     if (rule.contains("&&")) {
@@ -125,18 +105,9 @@ class AnalyzerManager {
         if (temp.isNotEmpty) return temp;
       }
     } else {
-      final temp = await r.analyzer.getStringList(rule);
-      if (temp is List) {
-        result = temp
-            .where((e) => null != e)
-            .map((s) => '$s'.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
-      } else if (null != temp) {
-        result = <String>['$temp'.trim()];
-      }
+      return r.analyzer.getStringList(rule);
     }
-    return result.isEmpty ? <String>[] : replaceListSmart(r.replace)(result);
+    return null;
   }
 
   Future<List<String>> getStringList(String rule) async {
@@ -180,10 +151,19 @@ class AnalyzerManager {
         }).join();
       });
     }
-
+    dynamic temp = result.isNotEmpty ? result : _content;
     for (final r in splitRuleReversed(rule).reversed) {
-      r.analyzer.parse(result.isNotEmpty ? result : _content);
-      result = await _getStringList(r);
+      r.analyzer.parse(temp);
+      temp = await _getStringList(r);
+    }
+    if (temp is List) {
+      result = temp
+          .where((e) => null != e)
+          .map((s) => '$s'.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+    } else if (null != temp) {
+      result = <String>['$temp'.trim()];
     }
     return result;
   }

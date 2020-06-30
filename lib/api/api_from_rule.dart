@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/services.dart';
 import '../global.dart';
 import 'analyze_url.dart';
@@ -18,6 +19,8 @@ class APIFromRUle implements API {
   String _originTag;
   int _ruleContentType;
   int _engineId;
+  final largeSpaceRegExp = RegExp(r"\n+|\s{2,}");
+  final tagsSplitRegExp = RegExp(r"[　 ,\.\|\&\%]+");
 
   @override
   String get origin => _origin;
@@ -65,13 +68,14 @@ class APIFromRUle implements API {
         cover: await analyzer.getString(rule.discoverCover),
         name: (await analyzer.getString(rule.discoverName))
             .trim()
-            .replaceAll(RegExp(r"\n+"), Global.fullSpace),
+            .replaceAll(largeSpaceRegExp, Global.fullSpace),
         author: await analyzer.getString(rule.discoverAuthor),
         chapter: await analyzer.getString(rule.discoverChapter),
         description: await analyzer.getString(rule.discoverDescription),
         url: await analyzer.getString(rule.discoverResult),
         api: this,
-        tags: await analyzer.getStringList(rule.discoverTags),
+        tags: (await analyzer.getString(rule.discoverTags)).split(tagsSplitRegExp)
+          ..removeWhere((tag) => Utils.empty(tag)),
       ));
     }
     FlutterJs.close(engineId);
@@ -107,13 +111,14 @@ class APIFromRUle implements API {
         cover: await analyzer.getString(rule.searchCover),
         name: (await analyzer.getString(rule.searchName))
             .trim()
-            .replaceAll(RegExp(r"\n+"), Global.fullSpace),
+            .replaceAll(largeSpaceRegExp, Global.fullSpace),
         author: await analyzer.getString(rule.searchAuthor),
         chapter: await analyzer.getString(rule.searchChapter),
         description: await analyzer.getString(rule.searchDescription),
         url: await analyzer.getString(rule.searchResult),
         api: this,
-        tags: await analyzer.getStringList(rule.searchTags),
+        tags: (await analyzer.getString(rule.searchTags)).split(tagsSplitRegExp)
+          ..removeWhere((tag) => Utils.empty(tag)),
       ));
     }
     FlutterJs.close(engineId);
@@ -150,7 +155,7 @@ class APIFromRUle implements API {
       // final unLock = await analyzer.getString(rule.chapterUnLock);
       var name = (await analyzer.getString(rule.chapterName))
           .trim()
-          .replaceAll(RegExp(r"\n+"), Global.fullSpace);
+          .replaceAll(largeSpaceRegExp, Global.fullSpace);
       // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
       //   name = "🔓" + name;
       // }else
