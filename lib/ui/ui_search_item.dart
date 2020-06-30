@@ -50,8 +50,13 @@ class _UiSearchItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: 105, minWidth: double.infinity),
+    final _txtStyle = TextStyle(
+      color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+    );
+    final _author = author?.trim();
+    return Container(
+      constraints: BoxConstraints(minHeight: 110, minWidth: double.infinity),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: DefaultTextStyle(
         style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.5),
         overflow: TextOverflow.ellipsis,
@@ -59,14 +64,13 @@ class _UiSearchItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            SizedBox(width: 8),
             SizedBox(
               width: 80,
               height: 104,
               child: UIImageItem(cover: cover, hero: '$name.$cover'),
             ),
-            SizedBox(
-              width: 8,
-            ),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,31 +113,36 @@ class _UiSearchItem extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Utils.empty(origin?.trim()) ? SizedBox(width: 2) : Text(
-                        origin.trim(),
-                        maxLines: 1,
-                        style: TextStyle(
-                          color:
-                          Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                      Utils.empty(_author) ? SizedBox() : Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Text(
+                          '作者: $_author',
+                          maxLines: 1,
+                          style: _txtStyle,
                         ),
                       ),
-                      Expanded(
-                        child: Utils.empty(author?.trim()) ? SizedBox() : Text(
-                          author.trim(),
-                          maxLines: 1,
-                          textAlign: !Utils.empty(origin?.trim()) ? TextAlign.end : TextAlign.start,
-                        ),
-                      )
+                      Utils.empty(origin?.trim()) ? SizedBox() : Text(
+                        '来源: ${origin.trim()}',
+                        maxLines: 1,
+                        style: _txtStyle,
+                      ),
                     ],
                   ),
-                  SizedBox(height: 6),
+                  Utils.empty(chapter?.trim()) ? SizedBox() : Text(
+                    "最新: ${chapter.trim()}",
+                    maxLines: 1,
+                    style: _txtStyle,
+                  ),
+                  SizedBox(height: 5),
                   Utils.empty(description?.trim()) ? SizedBox() : Text(
                     description.trim(),
                     maxLines: 2,
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
             ),
+            SizedBox(width: 8),
           ],
         ),
       ),

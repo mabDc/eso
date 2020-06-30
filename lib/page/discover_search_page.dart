@@ -6,7 +6,6 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
-import 'package:eso/ui/ui_discover2_item.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search2_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
@@ -422,12 +421,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           case 3: return buildDiscoverResultGrid(item.items,
               pageController, item,
               crossAxisCount: 2,
-              builderItem: (v) => UIDiscover2Item(item: v));
+              builderItem: (v) => UIDiscoverItem(searchItem: v));
           case 4: return buildDiscoverResultGrid(item.items,
               pageController, item,
               crossAxisCount: 2,
               childAspectRatio: 1.45,
-              builderItem: (v) => UIDiscover2Item(item: v));
+              builderItem: (v) => UIDiscoverItem(searchItem: v));
           default:
             return buildDiscoverResultGrid(item.items, pageController, item);
         }
@@ -471,10 +470,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 .firstWhere((item) => item.url == searchItem.url);
           }
           return InkWell(
-            child: builderItem != null ? builderItem(searchItem) : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: UiSearchItem(item: searchItem),
-            ),
+            child: builderItem != null ? builderItem(searchItem) : UiSearchItem(item: searchItem),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (context) => ChapterPage(searchItem: searchItem)),

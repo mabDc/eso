@@ -256,7 +256,6 @@ class _SearchPageState extends State<SearchPage> {
                   child: provider.searchListNone.length == 0 && provider.rulesCount == 0
                       ? Center(child: Text('尚无可搜索源'))
                       : ListView.separated(
-                          padding: EdgeInsets.all(8),
                           separatorBuilder: (context, index) => SizedBox(height: 8),
                           itemCount: searchList.length,
                           itemBuilder: (BuildContext context, int index) {
