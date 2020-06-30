@@ -53,7 +53,6 @@ class _UiSearchItem extends StatelessWidget {
     final _txtStyle = TextStyle(
       color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
     );
-    final _author = author?.trim();
     return Container(
       constraints: BoxConstraints(minHeight: 110, minWidth: double.infinity),
       padding: const EdgeInsets.only(top: 8, bottom: 8),
@@ -83,61 +82,100 @@ class _UiSearchItem extends StatelessWidget {
                           name?.trim() ?? '',
                           maxLines: 2,
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.bodyText1.color,
-                              fontSize: 15
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).textTheme.bodyText1.color,
+                            fontSize: 15,
                           ),
                         ),
                       ),
                       contentTypeName != null && contentTypeName.isNotEmpty
                           ? Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                        margin: const EdgeInsets.only(left: 6),
-                        padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
-                        alignment: Alignment.centerLeft,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              margin: const EdgeInsets.only(left: 6),
+                              padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                contentTypeName,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  height: 1.4,
+                                  color: Colors.white,
+                                  textBaseline: TextBaseline.alphabetic,
+                                ),
+                              ),
+                            )
+                          : SizedBox(),
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.supervised_user_circle,
+                        size: 14,
+                        color:
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                      ),
+                      SizedBox(width: 2),
+                      Expanded(
                         child: Text(
-                          contentTypeName,
-                          style: TextStyle(
-                            fontSize: 11,
-                            height: 1.4,
-                            color: Colors.white,
-                            textBaseline: TextBaseline.alphabetic,
-                          ),
+                          (Utils.empty(author?.trim()) ? "" : "${author.trim()}  |  "),
+                          maxLines: 1,
+                          style: _txtStyle,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ) : SizedBox(),
+                      ),
+                      Text(
+                        (Utils.empty(origin?.trim()) ? "" : "${origin.trim()}"),
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.fiber_new,
+                        size: 14,
+                        color:
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                      ),
+                      SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          chapter?.trim() ?? "",
+                          maxLines: 1,
+                          style: _txtStyle,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Utils.empty(_author) ? SizedBox() : Padding(
-                        padding: const EdgeInsets.only(right: 12),
+                    children: [
+                      Icon(
+                        Icons.description,
+                        size: 14,
+                        color:
+                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
+                      ),
+                      SizedBox(width: 2),
+                      Flexible(
                         child: Text(
-                          '作者: $_author',
-                          maxLines: 1,
-                          style: _txtStyle,
+                          description?.trim() ?? "",
+                          style: TextStyle(fontSize: 12),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Utils.empty(origin?.trim()) ? SizedBox() : Text(
-                        '来源: ${origin.trim()}',
-                        maxLines: 1,
-                        style: _txtStyle,
-                      ),
                     ],
-                  ),
-                  Utils.empty(chapter?.trim()) ? SizedBox() : Text(
-                    "最新: ${chapter.trim()}",
-                    maxLines: 1,
-                    style: _txtStyle,
-                  ),
-                  SizedBox(height: 5),
-                  Utils.empty(description?.trim()) ? SizedBox() : Text(
-                    description.trim(),
-                    maxLines: 2,
-                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
