@@ -17,20 +17,18 @@ class AnalyzerJS implements Analyzer {
 
   @override
   AnalyzerJS parse(content) {
-    if (null != content) {
-      if (content is Document) {
-        _content = jsonEncode(content.outerHtml);
-      } else if (content is Element) {
-        _content = jsonEncode(content.outerHtml);
-      } else if (content is List<Element>) {
-        _content = jsonEncode(content.map((e) => e.outerHtml).join("\n"));
-      } else {
-        try {
-          _content = jsonEncode(content);
-        } catch (e) {
-          print("error AnalyzeByJS jsonEncode: $e");
-          _content = jsonEncode('$content');
-        }
+    if (content is Document) {
+      _content = jsonEncode(content.outerHtml);
+    } else if (content is Element) {
+      _content = jsonEncode(content.outerHtml);
+    } else if (content is List<Element>) {
+      _content = jsonEncode(content.map((e) => e.outerHtml).join("\n"));
+    } else {
+      try {
+        _content = jsonEncode(content);
+      } catch (e) {
+        print("error AnalyzeByJS jsonEncode: $e");
+        _content = jsonEncode('$content');
       }
     }
     return this;

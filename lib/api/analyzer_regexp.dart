@@ -15,6 +15,8 @@ class AnalyzerRegExp implements Analyzer {
       _string = content.outerHtml;
     } else if (content is Element) {
       _string = content.outerHtml;
+    } else if (content is List<Element>) {
+      _string = content.map((e) => e.outerHtml).join("\n");
     } else {
       _string = '$content';
     }
