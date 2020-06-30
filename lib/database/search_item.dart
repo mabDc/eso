@@ -5,15 +5,24 @@ import 'package:flutter/cupertino.dart';
 
 class SearchItem {
   int id;
-  String origin;
-  String originTag;
-  String cover;
-  String name;
-  String author;
-  String chapter;
-  String description;
-  List<String> tags;
-  String url;
+  /// 源名
+  String origin;      
+  /// 源id
+  String originTag;   
+  /// 封面
+  String cover;       
+  /// 名称
+  String name;        
+  /// 作者
+  String author;      
+  /// 最新章节
+  String chapter;     
+  /// 简介
+  String description; 
+  /// 分类
+  List<String> tags;  
+  /// 搜索结果
+  String url;         
   int ruleContentType;
   int chapterListStyle;
   String durChapter;
@@ -22,10 +31,12 @@ class SearchItem {
   int chaptersCount;
   bool reverseChapter;
   List<ChapterItem> chapters;
-
-  int createTime; //收藏时间
-  int updateTime; //更新时间
-  int lastReadTime; //最后阅读时间
+  /// 收藏时间
+  int createTime; 
+  /// 更新时间
+  int updateTime; 
+  /// 最后阅读时间
+  int lastReadTime; 
 
   SearchItem({
     @required this.cover,

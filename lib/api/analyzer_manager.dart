@@ -85,7 +85,7 @@ class AnalyzerManager {
     return result;
   }
 
-  Future<List<String>> _getStringList(SingleRule r, [String rule]) async {
+  Future<dynamic> _getStringList(SingleRule r, [String rule]) async {
     if (null == rule) {
       rule = r.rule;
     }

@@ -41,15 +41,27 @@ class DecodeBody {
         break;
       }
     }
-    final temp = sb.toString();
     final leftBytes = bodyBytes.sublist(srcIndex);
-    if (!temp.contains('charset')) {
-      return temp + utf8.decode(leftBytes, allowMalformed: true);
+
+    String charset;
+    var temp = sb.toString();
+    if (temp.contains('charset')) {
+      charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
+          .firstMatch(temp)
+          .group(1)
+          .toLowerCase();
+    } else {
+      temp += utf8.decode(leftBytes, allowMalformed: true);
+      if (temp.contains('charset')) {
+        charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
+            .firstMatch(temp)
+            .group(1)
+            .toLowerCase();
+      }
+      if (charset == null || charset.contains("utf8") || charset.contains("utf-8")) {
+        return temp;
+      }
     }
-    final charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
-        .firstMatch(temp)
-        .group(1)
-        .toLowerCase();
     if (charset.contains("gb")) {
       _writeGBK(sb, leftBytes);
       return sb.toString();
