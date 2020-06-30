@@ -205,6 +205,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           },
           onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DiscoverSearchPage(
+                    rule: rule,
                     originTag: rule.id,
                     origin: rule.name,
                     discoverMap: APIFromRUle(rule).discoverMap(),
