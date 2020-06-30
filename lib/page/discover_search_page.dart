@@ -559,14 +559,16 @@ class _FlowDelegate extends FlowDelegate {
     double y = padding; //y坐标
     double lastW = context.getChildSize(lastIndex).width + padding;
 
-    for (int i = 0; i < context.childCount; i++) {
+    for (int i = 0; i < context.childCount - 1; i++) {
       final size = context.getChildSize(i);
       final w = size.width + x + padding;
       if (w <= screenW - lastW) {
         context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
         x = w;
       } else {
-        if (i == lastIndex && w <= screenW)
+        if (i == lastIndex - 1 && (w - padding) <= screenW - 3)
+          // lastIndex 是更多按钮， lastIndex - 1 就最真正的最后一个。
+          // 如果最后一个显示得下，就不用显示更多按钮了
           context.paintChild(i, transform: Matrix4.translationValues(x, y, 0));
         else
           context.paintChild(context.childCount - 1, transform: Matrix4.translationValues(screenW - lastW, y, 0));
