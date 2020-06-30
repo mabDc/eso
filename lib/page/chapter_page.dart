@@ -144,19 +144,16 @@ class _ChapterPageState extends State<ChapterPage> {
                       children: [
                         SizedBox(height: 45),
                         Expanded(
-                          child: AspectRatio(
-                            aspectRatio: 3 / 4,
-                            child: Container(
-                              child: GestureDetector(
-                                child: UIImageItem(cover: searchItem.cover, hero: '${searchItem.name}.${searchItem.cover}'),
-                                onTap: () {
-                                  Utils.startPageWait(context, PhotoViewPage(items: [PhotoItem(searchItem.cover)], heroTag: '${searchItem.name}.${searchItem.cover}'));
-                                },
-                              ),
-                              decoration: BoxDecoration(boxShadow: [
-                                BoxShadow(blurRadius: 8, color: Colors.white70)
-                              ]),
+                          child: Container(
+                            child: GestureDetector(
+                              child: UIImageItem(cover: searchItem.cover, hero: '${searchItem.name}.${searchItem.cover}'),
+                              onTap: () {
+                                Utils.startPageWait(context, PhotoViewPage(items: [PhotoItem(searchItem.cover)], heroTag: '${searchItem.name}.${searchItem.cover}'));
+                              },
                             ),
+                            decoration: BoxDecoration(boxShadow: [
+                              BoxShadow(blurRadius: 8, color: Colors.white70)
+                            ]),
                           ),
                         ),
                         SizedBox(height: 12),
