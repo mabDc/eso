@@ -27,6 +27,23 @@ abstract class API {
     }
   }
 
+  static int getRuleContentType(String ruleContentName) {
+    switch (ruleContentName) {
+      case "图片":
+        return MANGA;
+      case "文字":
+        return NOVEL;
+      case "视频":
+        return VIDEO;
+      case "音频":
+        return AUDIO;
+      case "RSS":
+        return RSS;
+      default:
+        return -1;
+    }
+  }
+
   String get origin;
 
   String get originTag;

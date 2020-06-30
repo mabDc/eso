@@ -7,7 +7,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
-import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/edit/dropdown_search_edit.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +38,8 @@ class _SearchPageState extends State<SearchPage> {
           title: SearchEdit(
             hintText: "请输入关键词",
             onSubmitted: Provider.of<SearchProvider>(context, listen: false).search,
+            sourceType: Provider.of<SearchProvider>(context, listen: true).sourceType,
+            onTypeChanged: (text) => Provider.of<SearchProvider>(context, listen: false).setSourceType = text,
           ),
           actions: [
             Container(width: 20),
@@ -56,45 +58,45 @@ class _SearchPageState extends State<SearchPage> {
                 : (provider.successCount + provider.failureCount) / provider.rulesCount;
             return Column(
               children: [
-                FittedBox(
-                  child: Container(
-                    height: 32,
-                    alignment: Alignment.center,
-                    child: Row(
-                      children: [
-                        FlatButton(
-                          onPressed: null,
-                          child: Text("规则选择"),
-                        ),
-                        Checkbox(
-                          value: provider.novelEnableSearch,
-                          activeColor: Theme.of(context).primaryColor,
-                          onChanged: (value) => provider.novelEnableSearch = value,
-                        ),
-                        Text(API.getRuleContentTypeName(API.NOVEL)),
-                        Checkbox(
-                          value: provider.mangaEnableSearch,
-                          activeColor: Theme.of(context).primaryColor,
-                          onChanged: (value) => provider.mangaEnableSearch = value,
-                        ),
-                        Text(API.getRuleContentTypeName(API.MANGA)),
-                        Checkbox(
-                          value: provider.audioEnableSearch,
-                          activeColor: Theme.of(context).primaryColor,
-                          onChanged: (value) => provider.audioEnableSearch = value,
-                        ),
-                        Text(API.getRuleContentTypeName(API.AUDIO)),
-                        Checkbox(
-                          value: provider.videoEnableSearch,
-                          activeColor: Theme.of(context).primaryColor,
-                          onChanged: (value) => provider.videoEnableSearch = value,
-                        ),
-                        Text(API.getRuleContentTypeName(API.VIDEO)),
-                        SizedBox(width: 10),
-                      ],
-                    ),
-                  ),
-                ),
+//                FittedBox(
+//                  child: Container(
+//                    height: 32,
+//                    alignment: Alignment.center,
+//                    child: Row(
+//                      children: [
+//                        FlatButton(
+//                          onPressed: null,
+//                          child: Text("规则选择"),
+//                        ),
+//                        Checkbox(
+//                          value: provider.novelEnableSearch,
+//                          activeColor: Theme.of(context).primaryColor,
+//                          onChanged: (value) => provider.novelEnableSearch = value,
+//                        ),
+//                        Text(API.getRuleContentTypeName(API.NOVEL)),
+//                        Checkbox(
+//                          value: provider.mangaEnableSearch,
+//                          activeColor: Theme.of(context).primaryColor,
+//                          onChanged: (value) => provider.mangaEnableSearch = value,
+//                        ),
+//                        Text(API.getRuleContentTypeName(API.MANGA)),
+//                        Checkbox(
+//                          value: provider.audioEnableSearch,
+//                          activeColor: Theme.of(context).primaryColor,
+//                          onChanged: (value) => provider.audioEnableSearch = value,
+//                        ),
+//                        Text(API.getRuleContentTypeName(API.AUDIO)),
+//                        Checkbox(
+//                          value: provider.videoEnableSearch,
+//                          activeColor: Theme.of(context).primaryColor,
+//                          onChanged: (value) => provider.videoEnableSearch = value,
+//                        ),
+//                        Text(API.getRuleContentTypeName(API.VIDEO)),
+//                        SizedBox(width: 10),
+//                      ],
+//                    ),
+//                  ),
+//                ),
                 FittedBox(
                   child: Container(
                     height: 32,
@@ -320,6 +322,7 @@ class SearchProvider with ChangeNotifier {
 
   final _keys = Map<String, bool>();
   int _keySuffix;
+  String _sourceType = "全部";
   Profile _profile;
   SearchProvider({int threadCount, SearchOption searchOption, Profile profile}) {
     _profile = profile;
@@ -333,38 +336,72 @@ class SearchProvider with ChangeNotifier {
     init();
   }
 
+  String get sourceType => _sourceType;
   bool get novelEnableSearch => _profile.novelEnableSearch;
   bool get mangaEnableSearch => _profile.mangaEnableSearch;
   bool get audioEnableSearch => _profile.audioEnableSearch;
   bool get videoEnableSearch => _profile.videoEnableSearch;
 
-  set novelEnableSearch(bool value) {
-    if (value != _profile.novelEnableSearch) {
-      _profile.novelEnableSearch = value;
-      updateRules();
-    }
+  void updateAllSourceType(bool val){
+    _profile.novelEnableSearch = val;
+    _profile.mangaEnableSearch = val;
+    _profile.audioEnableSearch = val;
+    _profile.videoEnableSearch = val;
   }
 
-  set mangaEnableSearch(bool value) {
-    if (value != _profile.mangaEnableSearch) {
-      _profile.mangaEnableSearch = value;
-      updateRules();
+  set setSourceType(String type){
+    _sourceType = type;
+    // 禁用所有
+    updateAllSourceType(false);
+
+    switch(API.getRuleContentType(_sourceType)){
+      case API.NOVEL:
+        _profile.novelEnableSearch = true;
+        break;
+      case API.MANGA:
+        _profile.mangaEnableSearch = true;
+        break;
+      case API.AUDIO:
+        _profile.audioEnableSearch = true;
+        break;
+      case API.VIDEO:
+        _profile.videoEnableSearch = true;
+        break;
+      default:
+        updateAllSourceType(true);
+        break;
     }
+    updateRules();
+
   }
 
-  set audioEnableSearch(bool value) {
-    if (value != _profile.audioEnableSearch) {
-      _profile.audioEnableSearch = value;
-      updateRules();
-    }
-  }
-
-  set videoEnableSearch(bool value) {
-    if (value != _profile.videoEnableSearch) {
-      _profile.videoEnableSearch = value;
-      updateRules();
-    }
-  }
+//  set novelEnableSearch(bool value) {
+//    if (value != _profile.novelEnableSearch) {
+//      _profile.novelEnableSearch = value;
+//      updateRules();
+//    }
+//  }
+//
+//  set mangaEnableSearch(bool value) {
+//    if (value != _profile.mangaEnableSearch) {
+//      _profile.mangaEnableSearch = value;
+//      updateRules();
+//    }
+//  }
+//
+//  set audioEnableSearch(bool value) {
+//    if (value != _profile.audioEnableSearch) {
+//      _profile.audioEnableSearch = value;
+//      updateRules();
+//    }
+//  }
+//
+//  set videoEnableSearch(bool value) {
+//    if (value != _profile.videoEnableSearch) {
+//      _profile.videoEnableSearch = value;
+//      updateRules();
+//    }
+//  }
 
   void updateRules() {
     if (null != _rules) {

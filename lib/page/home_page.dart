@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             floatingActionButton: FloatingActionButton(
-              //elevation: 0,
+              elevation: 1,
               backgroundColor: Theme.of(context).primaryColor,
               onPressed: () => Utils.startPageWait(context, SearchPage())
                   .whenComplete(() => pageSwitch.refreshList()),
