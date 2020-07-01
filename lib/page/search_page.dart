@@ -173,6 +173,8 @@ class _SearchPageState extends State<SearchPage> {
                   Expanded(
                     child: provider.searchListNone.length == 0 && provider.rulesCount == 0
                         ? EmptyListMsgView(text: Text("尚无可搜索源"))
+                        : searchList.isEmpty
+                        ? EmptyListMsgView(text: Text("没有数据哦！~"))
                         : KeyboardDismissBehaviorView(
                       child: ListView.separated(
                         separatorBuilder: (context, index) => SizedBox(height: 8),
