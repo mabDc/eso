@@ -5,6 +5,7 @@ import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/model/favorite_list_provider.dart';
+import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../global.dart';
@@ -113,17 +114,7 @@ class FavoriteListPage extends StatelessWidget {
       builder: (context, provider, _) {
         final searchItems = provider.searchList;
         if (searchItems.length == 0) {
-          return Container(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(FIcons.frown, size: 128, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
-                SizedBox(height: 12),
-                Text("还没有收藏哦!", style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color.withAlpha(50)))
-              ],
-            ),
-          );
+          return EmptyListMsgView(text: Text("还没有收藏哦!"));
         }
         return GridView.builder(
           padding: EdgeInsets.symmetric(horizontal: 6),
