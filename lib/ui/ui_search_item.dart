@@ -1,5 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/ui/ui_image_item.dart';
+import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
 import '../utils.dart';
@@ -23,7 +24,8 @@ class UiSearchItem extends StatelessWidget {
       author: item.author,
       chapter: item.chapter,
       description: item.description,
-      contentTypeName: showType ? API.getRuleContentTypeName(item.ruleContentType) : "",
+      contentTypeName:
+          showType ? API.getRuleContentTypeName(item.ruleContentType) : "",
     );
   }
 }
@@ -48,16 +50,19 @@ class _UiSearchItem extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  static const _padding = const EdgeInsets.only(right: 4, bottom: 1);
+
   @override
   Widget build(BuildContext context) {
     final _txtStyle = TextStyle(
-      color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.75),
-    );
+        color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
+        fontSize: 13);
     return Container(
       constraints: BoxConstraints(minHeight: 110, minWidth: double.infinity),
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: DefaultTextStyle(
-        style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.5),
+        style: TextStyle(
+            fontSize: 13, color: Theme.of(context).hintColor, height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -82,10 +87,10 @@ class _UiSearchItem extends StatelessWidget {
                           name?.trim() ?? '',
                           maxLines: 2,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            fontSize: 15,
-                          ),
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Theme.of(context).textTheme.bodyText1.color,
+                              fontSize: 15),
                         ),
                       ),
                       contentTypeName != null && contentTypeName.isNotEmpty
@@ -95,7 +100,8 @@ class _UiSearchItem extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               margin: const EdgeInsets.only(left: 6),
-                              padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3, vertical: 0),
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 contentTypeName,
@@ -110,73 +116,24 @@ class _UiSearchItem extends StatelessWidget {
                           : SizedBox(),
                     ],
                   ),
+                  _buildLine1(context, _txtStyle),
+                  Utils.empty(chapter?.trim())
+                      ? SizedBox()
+                      : IconText(
+                          "${chapter.trim()}",
+                          icon: Icon(FIcons.clock),
+                          maxLines: 1,
+                          padding: _padding,
+                          style: _txtStyle,
+                        ),
                   SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.supervised_user_circle,
-                        size: 14,
-                        color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-                      ),
-                      SizedBox(width: 2),
-                      Expanded(
-                        child: Text(
-                          author?.trim() ?? "",
-                          maxLines: 1,
-                          style: _txtStyle,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        (Utils.empty(origin?.trim()) ? "" : "${origin.trim()}"),
-                        maxLines: 1,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.fiber_new,
-                        size: 14,
-                        color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-                      ),
-                      SizedBox(width: 2),
-                      Flexible(
-                        child: Text(
-                          chapter?.trim() ?? "",
-                          maxLines: 1,
-                          style: _txtStyle,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.description,
-                        size: 14,
-                        color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5),
-                      ),
-                      SizedBox(width: 2),
-                      Flexible(
-                        child: Text(
-                          description?.trim() ?? "",
-                          style: TextStyle(fontSize: 12),
+                  Utils.empty(description?.trim())
+                      ? SizedBox()
+                      : Text(
+                          description.trim(),
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12),
                         ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -184,6 +141,49 @@ class _UiSearchItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLine1(BuildContext context, TextStyle style) {
+    final _author = author?.trim();
+    final _origin = origin?.trim();
+    final _authorView = Utils.empty(_author)
+        ? null : IconText(
+            '$_author',
+            icon: Icon(FIcons.user),
+            maxLines: 1,
+            padding: _padding,
+            style: style,
+          );
+    final _originView = Utils.empty(_origin) ? null : IconText(
+      '$_origin',
+      icon: Icon(FIcons.compass),
+      maxLines: 1,
+      padding: _padding,
+      style: style,
+    );
+
+    if (_authorView == null && _originView == null) return SizedBox();
+    if (_authorView == null || _originView == null)
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: double.infinity),
+        child: _authorView ?? _originView,
+      );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: <Widget>[
+        ConstrainedBox(
+          constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.45),
+          child: _authorView,
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: _originView,
+        ),
+      ],
     );
   }
 }
