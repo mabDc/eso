@@ -66,6 +66,7 @@ class SearchEdit extends StatelessWidget {
           padding: const EdgeInsets.only(left: 12, right: 6),
           child: Container(
             width: 35,
+            height: 15,
             child: DropdownButton(
               iconSize: 10,
               style: TextStyle(fontSize: 12,color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5)),
