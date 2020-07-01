@@ -89,7 +89,7 @@ class DebugRuleProvider with ChangeNotifier {
     _addContent("js初始化");
     try {
       final discoverResult = await AnalyzeUrl.urlRuleParser(
-        rule.discoverUrl.split(RegExp("\n+|&&"))[0].split("::")[1],
+        rule.discoverUrl.split(RegExp(r"\n+|&&")).first.split("::").last,
         rule,
         page: 1,
         pageSize: 20,
