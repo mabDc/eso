@@ -20,7 +20,7 @@ class APIFromRUle implements API {
   int _ruleContentType;
   int _engineId;
   final largeSpaceRegExp = RegExp(r"\n+|\s{2,}");
-  final tagsSplitRegExp = RegExp(r"[　 ,\.\|\&\%]+");
+  final tagsSplitRegExp = RegExp(r"[　 ,\|\&\%]+");
 
   @override
   String get origin => _origin;
