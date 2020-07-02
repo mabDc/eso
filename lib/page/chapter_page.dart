@@ -129,6 +129,9 @@ class _ChapterPageState extends State<ChapterPage> {
     } else {
       lastTopHeight = _top;
     }
+    final _hero = Utils.empty(searchItem.cover) ? null :
+      '${searchItem.name}.${searchItem.cover}';
+
     return SliverList(
       delegate: SliverChildListDelegate(
         [
@@ -150,15 +153,13 @@ class _ChapterPageState extends State<ChapterPage> {
                             child: GestureDetector(
                               child: UIImageItem(
                                   cover: searchItem.cover,
-                                  hero:
-                                      '${searchItem.name}.${searchItem.cover}'),
+                                  hero: _hero),
                               onTap: () {
                                 Utils.startPageWait(
                                     context,
                                     PhotoViewPage(
                                         items: [PhotoItem(searchItem.cover)],
-                                        heroTag:
-                                            '${searchItem.name}.${searchItem.cover}'));
+                                        heroTag: _hero));
                               },
                             ),
                             decoration: BoxDecoration(boxShadow: [

@@ -118,7 +118,7 @@ class _UiSearchItem extends StatelessWidget {
         height: 185,
         child: Padding(
           padding: const EdgeInsets.only(left: 8, right: 8, top: 6),
-          child: UIImageItem(cover: cover, hero: '$name.$cover'),
+          child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover'),
         ),
       ),
     ];
