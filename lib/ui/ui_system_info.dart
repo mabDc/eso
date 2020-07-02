@@ -23,7 +23,6 @@ class _UISystemInfoState extends State<UISystemInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return buildPage();
     if (page == null) {
       page = buildPage();
     }
