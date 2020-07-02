@@ -21,7 +21,7 @@ class UIFadeInImage extends StatelessWidget {
       },
       fit: fit ?? BoxFit.cover,
       errorWidget: (context, url, err) {
-        return Image.asset(Global.nowayPath, fit: fit ?? BoxFit.cover);
+        return ImagePlaceHolder(height: placeHolderHeight, error: true);
       },
     );
   }
