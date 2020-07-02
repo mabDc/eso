@@ -19,6 +19,9 @@ class AnalyzerJSonPath implements Analyzer {
     final result = <dynamic>[];
     try {
       final res = JPath.compile(rule).search(_ctx);
+      if (res is String || res is Map) {
+        return res;
+      }
       if (null == res) return result;
       if (res is List) {
         if (res[0] is List) {
