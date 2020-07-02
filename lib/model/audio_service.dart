@@ -7,6 +7,7 @@ import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/utils.dart';
 
 class AudioService {
+  static const int REPEAT_FAVORITE = 3;
   static const int REPEAT_ALL = 2;
   static const int REPEAT_ONE = 1;
   static const int REPEAT_NONE = 0;
@@ -47,6 +48,9 @@ class AudioService {
       });
       _player.onPlayerCompletion.listen((event) {
         switch (_repeatMode) {
+          case REPEAT_FAVORITE:
+            playNext(true);
+            break;
           case REPEAT_ALL:
             playNext();
             break;
@@ -95,17 +99,24 @@ class AudioService {
     }
   }
 
-  void playNext() =>
-      playChapter(_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)
-          ? 0
-          : _searchItem.durChapterIndex + 1);
+  void playNext([bool allFavorite = false]) {
+    if (_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)) {
+      if (allFavorite != true) {
+        playChapter(0);
+      } else {
+        eventBus.fire(AudioStateEvent(_searchItem, AudioPlayerState.COMPLETED, playNext: true));
+      }
+    } else {
+      playChapter(_searchItem.durChapterIndex + 1);
+    }
+  }
 
   void playPrev() => playChapter(_searchItem.durChapterIndex == 0
       ? _searchItem.chapters.length - 1
       : _searchItem.durChapterIndex - 1);
 
   Future<void> playChapter(int chapterIndex, [SearchItem searchItem]) async {
-    if (searchItem == null) {
+    if (searchItem == null || _searchItem == searchItem) {
       if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length) return;
       if (_url != null && _searchItem.durChapterIndex == chapterIndex) {
         replay();
@@ -121,6 +132,8 @@ class AudioService {
     await _player.seek(Duration.zero);
     _player.stop();
     _durChapterIndex = chapterIndex;
+    if (_searchItem.chapters == null || _searchItem.chapters.isEmpty)
+      return;
     final content = await APIManager.getContent(
         _searchItem.originTag, _searchItem.chapters[chapterIndex].url);
     if (content == null || content.length == 0) return;
@@ -138,7 +151,7 @@ class AudioService {
 
   void switchRepeatMode() {
     int temp = _repeatMode + 1;
-    if (temp > 2) {
+    if (temp > 3) {
       _repeatMode = 0;
     } else {
       _repeatMode = temp;

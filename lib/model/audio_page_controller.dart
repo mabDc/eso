@@ -38,6 +38,8 @@ class AudioPageController with ChangeNotifier {
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
+    if (_audioService.searchItem == searchItem && AudioService.isPlaying)
+      return;
     _audioService.playChapter(searchItem.durChapterIndex, searchItem);
   }
 
@@ -90,6 +92,10 @@ class AudioPageController with ChangeNotifier {
 
   void seekSeconds(int seconds) async {
     await _audioService.seek(Duration(seconds: seconds));
+    notifyListeners();
+  }
+
+  void update() {
     notifyListeners();
   }
 
