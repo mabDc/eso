@@ -144,6 +144,7 @@ class _AudioPageState extends State<AudioPage> {
       actions: [
         AppBarButton(
           icon: Icon(Icons.share),
+          tooltip: "分享",
           onPressed: provider.share,
         )
       ],
@@ -239,6 +240,7 @@ class _AudioPageState extends State<AudioPage> {
             color: Colors.white,
           ),
           iconSize: 26,
+          tooltip: AudioService.getRepeatName(_repeatMode),
           padding: EdgeInsets.zero,
           onPressed: provider.switchRepeatMode,
         ),
@@ -274,6 +276,7 @@ class _AudioPageState extends State<AudioPage> {
             color: Colors.white,
           ),
           iconSize: 26,
+          tooltip: "播放列表",
           onPressed: () => provider.showChapter = !provider.showChapter,
         ),
       ],

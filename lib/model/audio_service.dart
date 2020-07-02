@@ -29,6 +29,16 @@ class AudioService {
     await __internal._player.stop();
   }
 
+  static String getRepeatName(int value) {
+    switch (value) {
+      case REPEAT_FAVORITE: return "跨源循环";
+      case REPEAT_FAVORITE: return "列表循环";
+      case REPEAT_FAVORITE: return "单曲循环";
+      case REPEAT_FAVORITE: return "不循环";
+    }
+    return null;
+  }
+
   AudioService._internal() {
     if (_player == null) {
       _durChapterIndex = -1;
