@@ -154,7 +154,7 @@ class AudioService {
     _searchItem.durChapterIndex = chapterIndex;
     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
     _searchItem.durContentIndex = 1;
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
     _player.play(_url);
   }
