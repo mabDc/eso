@@ -1,3 +1,11 @@
+### 7.2
+
+1. 阅读正文重写（未完成） by [yangyxd](https://github.com/yangyxd)
+
+2. xpath解析属性可用双引号 by [mabDc](https://github.com/mabDc)
+    
+3. 发布版本 `1.13.2+6004`
+
 ### 6.29
 
 1. 发现列表页小分类增加展开收起功能（超过8个在右边显示侧边栏）  
@@ -14,7 +22,7 @@
 
 3. 修复发现关键字刷新后失效 by [yangyxd](https://github.com/yangyxd)
 
-4. 更新版本至`1.13.1+2003`
+4. 更新版本至 `1.13.1+2003`
 
 5. 增加 dlna 30s自动停止搜索
 
