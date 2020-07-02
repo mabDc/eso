@@ -1,5 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/ui/ui_image_item.dart';
+import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
 import '../utils.dart';
@@ -57,7 +58,25 @@ class _UiSearchItem extends StatelessWidget {
     final _origin = origin?.trim();
     final _txtColor =
         Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7);
-    final _textStyle = TextStyle(color: _txtColor);
+    final _textStyle = TextStyle(color: _txtColor, height: 1.0, fontSize: 13);
+    final _chapterText = Utils.empty(_chapter)
+        ? null
+        : Text(_chapter, maxLines: 1, style: _textStyle);
+    final _originText = Utils.empty(_origin)
+        ? null
+        : Text(_origin, maxLines: 1, style: _textStyle);
+    final _authorText = Utils.empty(_author)
+        ? null
+        : Text(_author,
+            maxLines: 1,
+            // icon: Icon(FIcons.user),
+            // iconSize: 13,
+            // padding: const EdgeInsets.only(right: 4),
+            style: _textStyle,
+            textAlign: _chapterText == null && _originText == null
+                ? TextAlign.start
+                : TextAlign.end);
+
     final children = <Widget>[
       SizedBox(height: 12),
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
@@ -74,24 +93,24 @@ class _UiSearchItem extends StatelessWidget {
         ),
         contentTypeName != null && contentTypeName.isNotEmpty
             ? Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: BorderRadius.circular(2),
-          ),
-          margin: const EdgeInsets.only(left: 6),
-          padding: EdgeInsets.symmetric(
-              horizontal: 3, vertical: 0),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            contentTypeName,
-            style: TextStyle(
-              fontSize: 11,
-              height: 1.4,
-              color: Colors.white,
-              textBaseline: TextBaseline.alphabetic,
-            ),
-          ),
-        ) : SizedBox(),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                margin: const EdgeInsets.only(left: 6),
+                padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  contentTypeName,
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.4,
+                    color: Colors.white,
+                    textBaseline: TextBaseline.alphabetic,
+                  ),
+                ),
+              )
+            : SizedBox(),
         SizedBox(width: 8),
       ]),
       SizedBox(
@@ -102,42 +121,42 @@ class _UiSearchItem extends StatelessWidget {
           child: UIImageItem(cover: cover, hero: '$name.$cover'),
         ),
       ),
-      SizedBox(height: 6),
-      Utils.empty(_description)
-          ? SizedBox()
-          : Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
-              child: Text(_description, maxLines: 3),
-            ),
-      SizedBox(height: 4),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(width: 8),
-          Utils.empty(_chapter)
-              ? SizedBox()
-              : Expanded(
-                  child: Text(_chapter ?? '', maxLines: 1, style: _textStyle),
-                ),
-          Utils.empty(_origin)
-              ? SizedBox()
-              : Text(
-                  _origin,
-                  maxLines: 1,
-                  style: _textStyle,
-                ),
-          Utils.empty(_author)
-              ? SizedBox()
-              : Expanded(
-                  child: Text(_author ?? '',
-                      maxLines: 1, textAlign: TextAlign.end, style: _textStyle),
-                ),
-          SizedBox(width: 8),
-        ],
-      ),
-      SizedBox(height: 6),
-      Divider(height: Global.lineSize),
     ];
+
+    if (!Utils.empty(_description)) {
+      children.addAll([
+        SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, right: 8),
+          child: Text(_description, maxLines: 3),
+        )
+      ]);
+    }
+
+    if (_chapterText != null || _authorText != null || _originText != null) {
+      children.addAll([
+        SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(width: 8),
+            _chapterText == null ? SizedBox() : Expanded(child: _chapterText),
+            _originText == null ? SizedBox() : _originText,
+            _authorText == null
+                ? SizedBox()
+                : Expanded(
+                    child: _authorText,
+                  ),
+            SizedBox(width: 8),
+          ],
+        ),
+      ]);
+    }
+
+    children.addAll([
+      SizedBox(height: 8),
+      Divider(height: Global.lineSize),
+    ]);
 
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: 105, minWidth: double.infinity),
