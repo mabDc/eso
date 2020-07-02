@@ -1,6 +1,10 @@
 ### 6.29
 
-1. 发现列表页小分类增加展开收起功能（超过8个在右边显示侧边栏）  by [yangyxd](https://github.com/yangyxd)
+1. 发现列表页小分类增加展开收起功能（超过8个在右边显示侧边栏）  
+
+2. 音频增加跨源循环模式
+
+    by [yangyxd](https://github.com/yangyxd)
 
 ### 6.28
 
