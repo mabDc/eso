@@ -3,8 +3,10 @@
 1. 阅读正文重写（未完成） by [yangyxd](https://github.com/yangyxd)
 
 2. xpath解析属性可用双引号 by [mabDc](https://github.com/mabDc)
-    
-3. 发布版本 `1.13.2+6004`
+
+3. 修改规则链式解析
+
+4. 发布版本 `1.13.3+6005`
 
 ### 6.29
 
