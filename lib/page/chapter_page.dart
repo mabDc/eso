@@ -130,7 +130,7 @@ class _ChapterPageState extends State<ChapterPage> {
       lastTopHeight = _top;
     }
     final _hero = Utils.empty(searchItem.cover) ? null :
-      '${searchItem.name}.${searchItem.cover}';
+      '${searchItem.name}.${searchItem.cover}.${searchItem.id}';
 
     return SliverList(
       delegate: SliverChildListDelegate(

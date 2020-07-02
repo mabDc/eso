@@ -18,6 +18,7 @@ class UiSearch2Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _UiSearchItem(
+      id: item.id,
       origin: showType ? item.origin : "",
       cover: item.cover,
       name: item.name,
@@ -31,6 +32,7 @@ class UiSearch2Item extends StatelessWidget {
 }
 
 class _UiSearchItem extends StatelessWidget {
+  final int id;
   final String origin;
   final String cover;
   final String name;
@@ -40,6 +42,7 @@ class _UiSearchItem extends StatelessWidget {
   final String contentTypeName;
 
   const _UiSearchItem({
+    this.id,
     this.origin,
     this.cover,
     this.name,
@@ -118,7 +121,7 @@ class _UiSearchItem extends StatelessWidget {
         height: 185,
         child: Padding(
           padding: const EdgeInsets.only(left: 8, right: 8, top: 6),
-          child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover'),
+          child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
         ),
       ),
     ];
