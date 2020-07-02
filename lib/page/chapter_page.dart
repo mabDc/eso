@@ -200,19 +200,20 @@ class _ChapterPageState extends State<ChapterPage> {
                   ),
                   child: Wrap(
                     spacing: 8,
+                    runSpacing: 4,
                     alignment: WrapAlignment.center,
                     children: searchItem.tags
                         .map(
                           (tag) => Container(
                             child: Padding(
-                              padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
+                              padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
                               child: Text(
                                 tag,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 10, color: Colors.white),
+                                    fontSize: 10, color: Colors.white, height: 1.0),
                               ),
                             ),
-                            constraints: BoxConstraints(minHeight: 20),
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
                               borderRadius:
