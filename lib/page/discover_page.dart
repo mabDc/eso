@@ -9,6 +9,7 @@ import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
@@ -61,7 +62,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               onChanged: (value) => __provider.getRuleListByNameDebounce(value),
             ),
             actions: [
-              _buildpopupMenu(
+              _buildPopupMenu(
                 context,
                 Provider.of<EditSourceProvider>(context, listen: false),
               ),
@@ -81,15 +82,21 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   ],
                 );
               }
+              final _listView = ListView.builder(
+                itemCount: provider.rules.length + 1,
+                physics: BouncingScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) return _buildFilterView(context, provider);
+                  return _buildItem(provider, index - 1);
+                },
+              );
               return KeyboardDismissBehaviorView(
-                child: ListView.builder(
-                  itemCount: provider.rules.length + 1,
-                  physics: BouncingScrollPhysics(),
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index == 0) return _buildFilterView(context, provider);
-                    return _buildItem(provider, index - 1);
-                  },
-                ),
+                child: provider.rules.length == 0 ? Stack(
+                  children: [
+                    _listView,
+                    _buildEmptyHintView(provider),
+                  ],
+                ) : _listView,
               );
             },
           ),
@@ -186,7 +193,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     }
   }
 
-  Widget _buildpopupMenu(BuildContext context, EditSourceProvider provider) {
+  Widget _buildPopupMenu(BuildContext context, EditSourceProvider provider) {
     final popupIconColor = Theme.of(context).primaryColor;
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
@@ -199,29 +206,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       elevation: 20,
       icon: Icon(FIcons.plus),
       offset: Offset(0, 40),
-      onSelected: (int value) {
-        switch (value) {
-          case ADD_RULE:
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                .whenComplete(() => refreshData(provider));
-            break;
-          case ADD_FROM_CLIPBOARD:
-            _addFromClipBoard(context, provider, true);
-            break;
-          case FROM_CLIPBOARD:
-            _addFromClipBoard(context, provider, false);
-            break;
-          case FROM_CLOUD:
-            EditSourcePage.showURLDialog(context, provider.isLoadingUrl, provider, false);
-            break;
-          case FROM_EDIT_SOURCE:
-            Utils.startPageWait(context, EditSourcePage())
-                .whenComplete(() => refreshData(provider));
-            break;
-          default:
-        }
-      },
+      onSelected: (value) => onPopupMenuClick(value, provider),
       itemBuilder: (context) => list
           .map(
             (element) => PopupMenuItem<int>(
@@ -302,10 +287,76 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
+  Widget _buildEmptyHintView(EditSourceProvider provider) {
+    final _shape = RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(3),
+        side: BorderSide(color: Theme.of(context).dividerColor,
+            width: Global.borderSize)
+    );
+    final _txtStyle = TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
+    return EmptyListMsgView(
+        text: Column(
+          children: [
+            Text("没有可用的源~~~"),
+            SizedBox(height: 8),
+            ButtonTheme(
+              minWidth: 50,
+              height: 20,
+              shape: _shape,
+              buttonColor: Colors.transparent,
+              padding: EdgeInsets.fromLTRB(8, 5, 8, 5),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  FlatButton(
+                    child: Text("新建源", style: _txtStyle),
+                    onPressed: () => onPopupMenuClick(ADD_RULE, provider),
+                  ),
+                  FlatButton(
+                    child: Text("管理源", style: _txtStyle),
+                    onPressed: () => onPopupMenuClick(FROM_EDIT_SOURCE, provider),
+                  ),
+                  FlatButton(
+                    child: Text("网络导入", style: _txtStyle),
+                    onPressed: () => onPopupMenuClick(FROM_CLOUD, provider),
+                  ),
+                ],
+              ),
+            )
+          ],
+        )
+    );
+  }
+
   refreshData(EditSourceProvider provider) {
     if (Utils.empty(_searchEdit?.text))
       provider.refreshData();
     else
       provider.getRuleListByName(_searchEdit.text);
+  }
+
+  onPopupMenuClick(int value, EditSourceProvider provider) {
+    switch (value) {
+      case ADD_RULE:
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+            .whenComplete(() => refreshData(provider));
+        break;
+      case ADD_FROM_CLIPBOARD:
+        _addFromClipBoard(context, provider, true);
+        break;
+      case FROM_CLIPBOARD:
+        _addFromClipBoard(context, provider, false);
+        break;
+      case FROM_CLOUD:
+        EditSourcePage.showURLDialog(context, provider.isLoadingUrl, provider, false);
+        break;
+      case FROM_EDIT_SOURCE:
+        Utils.startPageWait(context, EditSourcePage())
+            .whenComplete(() => refreshData(provider));
+        break;
+      default:
+    }
   }
 }

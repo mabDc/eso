@@ -114,7 +114,13 @@ class FavoriteListPage extends StatelessWidget {
       builder: (context, provider, _) {
         final searchItems = provider.searchList;
         if (searchItems.length == 0) {
-          return EmptyListMsgView(text: Text("还没有收藏哦!"));
+          return EmptyListMsgView(text: Column(
+            children: [
+              Text("还没有收藏哦!"),
+              SizedBox(height: 16),
+              Text("小提示：使用发现或搜索来获取您需要的内容", style: TextStyle(fontSize: 10))
+            ],
+          ));
         }
         return GridView.builder(
           padding: EdgeInsets.symmetric(horizontal: 6),

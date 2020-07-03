@@ -143,6 +143,7 @@ class _HomePageState extends State<HomePage> {
             ),
             floatingActionButton: FloatingActionButton(
               elevation: 1,
+              tooltip: "搜索",
               backgroundColor: Theme.of(context).primaryColor,
               onPressed: () => Utils.startPageWait(context, SearchPage())
                   .whenComplete(() => pageSwitch.refreshList()),
