@@ -188,7 +188,7 @@ class _VideoPageState extends State<VideoPage> {
           AppBarEx.buildLeading(context, color: Colors.white),
           Expanded(
             child: Text(
-              '${widget.searchItem.durChapter}'.trim(),
+              '${widget.searchItem.name}'.trim() + ' - ${widget.searchItem.durChapter}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

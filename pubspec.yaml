@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.13.1+2003
+version: 1.13.3+6005
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -59,7 +59,9 @@ dependencies:
   uuid: ^2.0.4
   floor: ^0.13.0
   toast: ^0.1.5
-  xpath_parse: ^1.0.2
+  # xpath_parse: ^1.0.2
+  xpath_parse:
+    path: modules/xpath
   pull_to_refresh: ^1.5.8
   shimmer: ^1.1.1
   fast_gbk: ^0.1.2+1

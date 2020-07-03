@@ -18,6 +18,7 @@ class UiSearchItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _UiSearchItem(
+      id: item.id,
       origin: showType ? item.origin : "",
       cover: item.cover,
       name: item.name,
@@ -31,6 +32,7 @@ class UiSearchItem extends StatelessWidget {
 }
 
 class _UiSearchItem extends StatelessWidget {
+  final int id;
   final String origin;
   final String cover;
   final String name;
@@ -40,6 +42,7 @@ class _UiSearchItem extends StatelessWidget {
   final String contentTypeName;
 
   const _UiSearchItem({
+    this.id,
     this.origin,
     this.cover,
     this.name,
@@ -72,7 +75,7 @@ class _UiSearchItem extends StatelessWidget {
             SizedBox(
               width: 80,
               height: 104,
-              child: UIImageItem(cover: cover, hero: '$name.$cover'),
+              child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
             ),
             SizedBox(width: 12),
             Expanded(

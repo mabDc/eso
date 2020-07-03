@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:eso/api/api.dart';
+import 'package:eso/database/search_item.dart';
+import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/page/audio_page.dart';
@@ -38,6 +42,10 @@ class _HomePageState extends State<HomePage> {
         lastAudioPlaying = AudioService.isPlaying;
         if (this.mounted && _audioState != null) _audioState(() => null);
       }
+      if (event.state == AudioPlayerState.COMPLETED && event.playNext == true && event.item != null) {
+        // 播放下一个音频
+        playNextAudio(event.item);
+      }
     });
   }
 
@@ -45,6 +53,29 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     stream.cancel();
     super.dispose();
+  }
+
+  // 播放下一个收藏
+  void playNextAudio(SearchItem lastItem, [bool reNext]) async {
+    final _searchList = SearchItemManager.getSearchItemByType(API.AUDIO, SortType.CREATE);
+    if (_searchList == null || _searchList.isEmpty) return;
+    var index = _searchList.indexOf(lastItem) + 1;
+    if (index < 0) index = 0;
+    if (index >= _searchList.length) {
+      if (reNext == true) return;
+      index = 0;
+    }
+    final item = _searchList[index];
+    if (item.chapters.isEmpty) {
+      if (SearchItemManager.isFavorite(item.originTag, item.url))
+        item.chapters = SearchItemManager.getChapter(item.id);
+      if (item.chapters.isEmpty) {
+        // 如果还是为空，则尝试加载下一个
+        playNextAudio(item, true);
+        return;
+      }
+    }
+    AudioService().playChapter(0, item);
   }
 
   @override

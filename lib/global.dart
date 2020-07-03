@@ -11,8 +11,8 @@ class Global with ChangeNotifier {
 
   static const waitingPath = "lib/assets/waiting.png";
   static const logoPath = "lib/assets/eso_logo.png";
-  static const nowayPath = "lib/assets/noway.png";
-  static const errorPath = "lib/assets/error.png";
+  // static const nowayPath = "lib/assets/noway.png";
+  // static const errorPath = "lib/assets/error.png";
   static const cheerioFile = "lib/assets/cheerio.min.js";
   static const md5File = "lib/assets/md5.min.js";
   static const cryptoJSFile = "lib/assets/CryptoJS.min.js";

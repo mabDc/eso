@@ -16,6 +16,10 @@ class AnalyzerHtml implements Analyzer {
       _element = content.documentElement;
     } else if (content is String) {
       _element = parser.parse(content).documentElement;
+    } else if (content is List<String>) {
+      _element = parser.parse(content.join("\n")).documentElement;
+    } else if (content is List<Element>) {
+      _element = parser.parse(content.map((e) => e.outerHtml).join("\n")).documentElement;
     } else {
       _element = parser.parse('$content').documentElement;
     }

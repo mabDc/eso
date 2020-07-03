@@ -74,11 +74,7 @@ class _MangaPageState extends State<MangaPage> {
             if (provider.content == null) {
               return LandingPage();
             }
-            if (provider.showMenu) {
-              SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-            } else {
-              SystemChrome.setEnabledSystemUIOverlays([]);
-            }
+            updateSystemChrome(provider.showMenu);
             return GestureDetector(
               child: Stack(
                 alignment: AlignmentDirectional.bottomEnd,
@@ -100,8 +96,8 @@ class _MangaPageState extends State<MangaPage> {
                       : Container(),
                   provider.showMenu
                       ? UIMangaMenu(
-                          searchItem: widget.searchItem,
-                        )
+                        searchItem: widget.searchItem,
+                      )
                       : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
@@ -337,9 +333,20 @@ class _MangaPageState extends State<MangaPage> {
           //   image: checkUrl(path, provider.headers),
           //   fit: BoxFit.fitWidth,
           // ),
-          child: UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 300),
+          child: UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 200),
         );
       },
     );
+  }
+
+  bool lastShowMenu = false;
+
+  updateSystemChrome(bool showMenu) {
+    if (showMenu == lastShowMenu) return;
+    if (showMenu) {
+      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    } else {
+      SystemChrome.setEnabledSystemUIOverlays([]);
+    }
   }
 }

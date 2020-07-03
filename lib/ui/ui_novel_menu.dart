@@ -441,7 +441,7 @@ class UINovelMenu extends StatelessWidget {
                         children: styles
                             .map((style) => Container(
                           height: 26,
-                          width: 32.0 + (style[0] as String).length * 14,
+                          width: 32.0 + (style[0] as String).length * 16,
                           margin: const EdgeInsets.only(right: 4),
                           child: OutlineButton(
                             child: Text(style[0], style: TextStyle(color: color)),

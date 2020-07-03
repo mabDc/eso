@@ -1,3 +1,5 @@
+import 'package:eso/utils.dart';
+
 import 'ui_image_item.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +21,7 @@ class UIDiscoverItem extends StatelessWidget {
           child: Container(
             width: double.infinity,
             margin: const EdgeInsets.all(4),
-            child: UIImageItem(cover: searchItem.cover, hero: "${searchItem.name}.${searchItem.cover}"),
+            child: UIImageItem(cover: searchItem.cover, hero: Utils.empty(searchItem.cover) ? null : "${searchItem.name}.${searchItem.cover}.${searchItem.id}"),
             decoration: BoxDecoration(
               border: Border.all(color: Theme.of(context).dividerColor, width: 0.1)
             ),

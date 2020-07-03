@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/database/search_item.dart';
+import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
@@ -27,6 +29,21 @@ class AudioPage extends StatefulWidget {
 class _AudioPageState extends State<AudioPage> {
   Widget _audioPage;
   AudioPageController __provider;
+  SearchItem searchItem;
+  StreamSubscription stream;
+
+  @override
+  void initState() {
+    searchItem = widget.searchItem;
+    super.initState();
+
+    stream = eventBus.on<AudioStateEvent>().listen((event) {
+      if (event.state == AudioPlayerState.PLAYING && searchItem != event.item) {
+        searchItem = event.item;
+        if (__provider != null) __provider.update();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,16 +56,17 @@ class _AudioPageState extends State<AudioPage> {
   @override
   void dispose() {
     __provider?.dispose();
+    stream?.cancel();
     super.dispose();
   }
 
   Widget _buildPage() {
     return ChangeNotifierProvider<AudioPageController>.value(
-      value: AudioPageController(searchItem: widget.searchItem),
+      value: AudioPageController(searchItem: searchItem),
       child: Consumer<AudioPageController>(
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
-          final chapter = widget.searchItem.chapters[widget.searchItem.durChapterIndex];
+          final chapter = searchItem.chapters[searchItem.durChapterIndex];
           return Scaffold(
             body: Container(
               height: double.infinity,
@@ -101,7 +119,7 @@ class _AudioPageState extends State<AudioPage> {
                   ),
                   provider.showChapter
                       ? UIChapterSelect(
-                          searchItem: widget.searchItem,
+                          searchItem: searchItem,
                           loadChapter: provider.loadChapter)
                       : Container(),
                 ],
@@ -126,6 +144,7 @@ class _AudioPageState extends State<AudioPage> {
       actions: [
         AppBarButton(
           icon: Icon(Icons.share),
+          tooltip: "分享",
           onPressed: provider.share,
         )
       ],
@@ -205,20 +224,25 @@ class _AudioPageState extends State<AudioPage> {
   }
 
   Widget _buildBottomController(AudioPageController provider) {
+    final _repeatMode = provider.repeatMode;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        InkWell(
-          child: Icon(
-            provider.repeatMode == AudioService.REPEAT_ALL
+        IconButton(
+          icon: Icon(
+            _repeatMode == AudioService.REPEAT_FAVORITE
+                ? Icons.restore
+                : _repeatMode == AudioService.REPEAT_ALL
                 ? Icons.repeat
-                : provider.repeatMode == AudioService.REPEAT_ONE
-                    ? Icons.repeat_one
-                    : Icons.label_outline,
+                : _repeatMode == AudioService.REPEAT_ONE
+                ? Icons.repeat_one
+                : Icons.label_outline,
             color: Colors.white,
-            size: 26,
           ),
-          onTap: provider.switchRepeatMode,
+          iconSize: 26,
+          tooltip: AudioService.getRepeatName(_repeatMode),
+          padding: EdgeInsets.zero,
+          onPressed: provider.switchRepeatMode,
         ),
         InkWell(
           child: Icon(
@@ -246,13 +270,14 @@ class _AudioPageState extends State<AudioPage> {
           ),
           onTap: provider.playNext,
         ),
-        InkWell(
-          child: Icon(
+        IconButton(
+          icon: Icon(
             Icons.menu,
             color: Colors.white,
-            size: 26,
           ),
-          onTap: () => provider.showChapter = !provider.showChapter,
+          iconSize: 26,
+          tooltip: "播放列表",
+          onPressed: () => provider.showChapter = !provider.showChapter,
         ),
       ],
     );
