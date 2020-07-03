@@ -197,6 +197,7 @@ class NovelScrollView extends StatelessWidget {
       chapter: searchItem.durChapter,
       msg: '${provider.progress}%',
       padding: profile.novelLeftPadding,
+      fontColor: _fontColor70,
       provider: provider
     );
   }

@@ -19,29 +19,30 @@ class NovelRoteView extends StatelessWidget {
   const NovelRoteView({Key key, this.profile, this.provider, this.searchItem})
       : super(key: key);
 
+  static List<List<TextSpan>> spans;
 
   @override
   Widget build(BuildContext context) {
-    final _spans = provider.didUpdateReadSetting(profile)
+    spans = provider.didUpdateReadSetting(profile)
         ? provider.updateSpans(NovelPageProvider.buildSpans(
-            profile, provider.searchItem, provider.paragraphs))
+        profile, provider.searchItem, provider.paragraphs))
         : provider.spans;
 
     return NovelDragView(
       provider: provider,
       profile: profile,
       child: Navigator(
-          initialRoute: '/',
+          initialRoute: '/${searchItem.durChapterIndex}',
           onGenerateRoute: (settings) {
             WidgetBuilder builder;
             bool isNext = true;
             switch (settings.name) {
-              case '/':
-                builder = (context) => _CoverPage(owner: this, spans: _spans);
-                break;
               case '/up':
-                builder = (context) => _CoverPage(owner: this, spans: _spans);
+                builder = (context) => _CoverPage(owner: this);
                 isNext = false;
+                break;
+              default:
+                builder = (context) => _CoverPage(owner: this);
                 break;
             }
             if (profile.novelPageSwitch == Profile.novelFade) {
@@ -58,8 +59,7 @@ class NovelRoteView extends StatelessWidget {
 
 class _CoverPage extends StatefulWidget {
   final NovelRoteView owner;
-  final List<List<TextSpan>> spans;
-  const _CoverPage({Key key, this.owner, this.spans}) : super(key: key);
+  const _CoverPage({Key key, this.owner}) : super(key: key);
   @override
   State<StatefulWidget> createState() => _CoverPageState();
 }
@@ -67,29 +67,36 @@ class _CoverPage extends StatefulWidget {
 class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMixin {
   NovelRoteView owner;
   Widget lastPage;
-  int lastPageIndex, lastChapterIndex;
+  int lastPageIndex, lastChapterIndex, lastChangeTime;
 
   AnimationController _controller;
   Animation<double> _animation;
+
+  VoidCallback _listener;
 
   @override
   void initState() {
     super.initState();
     owner = widget.owner;
+    _listener = () {
+      lastPage = null;
+    };
+    owner.profile.addListener(_listener);
   }
 
   @override
   void dispose() {
     _controller?.dispose();
+    owner.profile.removeListener(_listener);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isChangePage = (!owner.provider.showMenu &&
-        (lastPageIndex != owner.provider.currentPage ||
-            lastChapterIndex != owner.searchItem.durChapterIndex));
     if (lastPage != null) {
+      bool isChangePage = (!owner.provider.showMenu &&
+          (lastPageIndex != owner.provider.currentPage ||
+              lastChapterIndex != owner.searchItem.durChapterIndex));
       if (isChangePage) {
         if (owner.profile.novelPageSwitch == Profile.novelCover) {
 
@@ -142,9 +149,9 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
       child: NovelOnePageView(
         provider: owner.provider,
         profile: owner.profile,
-        spans: widget.spans[owner.provider.currentPage - 1],
+        spans: NovelRoteView.spans[owner.provider.currentPage - 1],
         fontColor: Color(owner.profile.novelFontColor),
-        pageInfo: '${owner.provider.currentPage}/${widget.spans.length}',
+        pageInfo: '${owner.provider.currentPage}/${NovelRoteView.spans.length}',
         chapterName: owner.searchItem.durChapter,
       ),
     );

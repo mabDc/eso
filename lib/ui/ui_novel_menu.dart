@@ -441,20 +441,26 @@ class UINovelMenu extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: styles
-                            .map((style) => Container(
-                          height: 26,
-                          width: 32.0 + (style[0] as String).length * 16,
-                          margin: const EdgeInsets.only(right: 4),
-                          child: OutlineButton(
-                            child: Text(style[0], style: TextStyle(color: color)),
-                            onPressed: () => profile.novelPageSwitch = style[1],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              side: BorderSide(color: color),
-                            ),
-                          ),
-                        ))
-                            .toList(),
+                            .map((style) {
+                              final _selected = style[1] == profile.novelPageSwitch;
+                              final Color _bgColor = _selected ? Theme.of(context).primaryColor : null;
+                              return Container(
+                                height: 26,
+                                width: 32.0 + (style[0] as String).length * 16,
+                                margin: const EdgeInsets.only(right: 4),
+                                child: FlatButton(
+                                  color: _bgColor,
+                                  textColor: _selected
+                                      ? Theme.of(context).canvasColor : color,
+                                  child: Text(style[0]),
+                                  onPressed: () => profile.novelPageSwitch = style[1],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    side: BorderSide(color: _selected ? _bgColor : color, width: Global.borderSize),
+                                  ),
+                                ),
+                              );
+                        }).toList(),
                       ),
                     ),
                   ),

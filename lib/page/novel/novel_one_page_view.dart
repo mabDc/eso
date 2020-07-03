@@ -96,7 +96,7 @@ class NovelOnePageView extends StatelessWidget {
               chapter: chapterName,
               msg: pageInfo,
               padding: profile.novelLeftPadding,
-              fontColor: fontColor.withOpacity(0.7),
+              fontColor: fontColor,
               provider: provider)
         ],
       ),
