@@ -259,7 +259,7 @@ class DebugRuleProvider with ChangeNotifier {
     int requestLength = 0;
     int responseLength = 0;
     String chapterUrl;
-    ChapterItem firstChapter;
+    dynamic firstChapter;
     for (var page = 1;; page++) {
       try {
         final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
@@ -442,7 +442,6 @@ class DebugRuleProvider with ChangeNotifier {
             ));
           }
           notifyListeners();
-          FlutterJs.close(engineId);
         }
       } catch (e) {
         FlutterJs.close(engineId);
@@ -459,5 +458,6 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("解析结束！");
       }
     }
+    FlutterJs.close(engineId);
   }
 }

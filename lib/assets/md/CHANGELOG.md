@@ -1,12 +1,38 @@
+### 7.3
+
+1. 修复发现重复
+
+2. 目录地址和正文地址可用page
+
+3. 修改appbar title留白大小
+
+4. 聚合搜索计数修改
+    
+    以上来自 [mabDc](https://github.com/mabDc)
+
+5. 阅读正文重写 
+
+6. 增加提示和操作引导 
+
+7. 修复文本输入框bug 
+
+8. 增加发现请求错误处理
+
+    以上来自 [yangyxd](https://github.com/yangyxd)
+
+9. ios 视频退出播放手动设置竖屏 
+
+    以上来自 [DaguDuiyuan](https://github.com/DaguDuiyuan)
+
 ### 7.2
 
 1. 阅读正文重写（未完成） by [yangyxd](https://github.com/yangyxd)
 
 2. xpath解析属性可用双引号 by [mabDc](https://github.com/mabDc)
 
-3. 修改规则链式解析
+3. 修改规则链式解析 by [mabDc](https://github.com/mabDc)
 
-4. 发布版本 `1.13.3+6005`
+4. 音频增加跨源循环模式 by [yangyxd](https://github.com/yangyxd)
 
 ### 6.29
 
