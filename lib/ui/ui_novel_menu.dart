@@ -441,26 +441,20 @@ class UINovelMenu extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: styles
-                            .map((style) {
-                              final _selected = style[1] == profile.novelPageSwitch;
-                              final Color _bgColor = _selected ? Theme.of(context).primaryColor : null;
-                              return Container(
-                                height: 26,
-                                width: 32.0 + (style[0] as String).length * 16,
-                                margin: const EdgeInsets.only(right: 4),
-                                child: FlatButton(
-                                  color: _bgColor,
-                                  textColor: _selected
-                                      ? Theme.of(context).canvasColor : color,
-                                  child: Text(style[0]),
-                                  onPressed: () => profile.novelPageSwitch = style[1],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    side: BorderSide(color: _selected ? _bgColor : color, width: Global.borderSize),
+                            .map((style) => Container(
+                                  height: 26,
+                                  width: 32.0 + (style[0] as String).length * 16,
+                                  margin: const EdgeInsets.only(right: 4),
+                                  child: OutlineButton(
+                                    child: Text(style[0], style: TextStyle(color: color)),
+                                    onPressed: () => profile.novelPageSwitch = style[1],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      side: BorderSide(color: color),
+                                    ),
                                   ),
-                                ),
-                              );
-                        }).toList(),
+                                ))
+                            .toList(),
                       ),
                     ),
                   ),
@@ -503,7 +497,9 @@ class UINovelMenu extends StatelessWidget {
       titleText: searchItem.name,
       subTitleText: searchItem.author,
       actions: [
-        AppBarButton(icon: Icon(FIcons.share_2), onTap: Provider.of<NovelPageProvider>(context, listen: false).share),
+        AppBarButton(
+            icon: Icon(FIcons.share_2),
+            onTap: Provider.of<NovelPageProvider>(context, listen: false).share),
         _buildPopupmenu(context, bgColor, color),
       ],
     );
@@ -740,7 +736,8 @@ class UINovelMenu extends StatelessWidget {
                   BottomBarButton(
                     icon: Icon(FIcons.arrow_left, color: color, size: 25),
                     child: Text("上一章", style: TextStyle(color: color)),
-                    onPressed: () => provider.switchChapter(profile, searchItem.durChapterIndex - 1),
+                    onPressed: () =>
+                        provider.switchChapter(profile, searchItem.durChapterIndex - 1),
                   ),
                   BottomBarButton(
                     icon: Icon(FIcons.list, color: color, size: 25),
@@ -758,7 +755,8 @@ class UINovelMenu extends StatelessWidget {
                   BottomBarButton(
                     icon: Icon(FIcons.arrow_right, color: color, size: 25),
                     child: Text("下一章", style: TextStyle(color: color)),
-                    onTap: () => provider.switchChapter(profile, searchItem.durChapterIndex + 1),
+                    onTap: () =>
+                        provider.switchChapter(profile, searchItem.durChapterIndex + 1),
                   ),
                 ],
               ),

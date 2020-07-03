@@ -42,8 +42,12 @@ class APIFromRUle implements API {
   Future<List<SearchItem>> discover(
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     if (params.isEmpty) return <SearchItem>[];
+    final discoverRule = params.values.first.value;
+    if (page > 1 && !discoverRule.contains("page")) {
+      return <SearchItem>[];
+    }
     final res = await AnalyzeUrl.urlRuleParser(
-      params.values.first.value,
+      discoverRule,
       rule,
       page: page,
       pageSize: pageSize,
@@ -84,6 +88,9 @@ class APIFromRUle implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
+    if (page > 1 && !rule.searchUrl.contains("page")) {
+      return <SearchItem>[];
+    }
     final res = await AnalyzeUrl.urlRuleParser(
       rule.searchUrl,
       rule,
@@ -205,22 +212,29 @@ class APIFromRUle implements API {
   List<DiscoverMap> discoverMap() {
     final map = <DiscoverMap>[];
     final table = {};
-    for (var url in rule.discoverUrl.split(RegExp(r"\n+|&&"))) {
+    var discoverUrl = rule.discoverUrl;
+    for (var url in discoverUrl.split(RegExp(r"\n+|&&"))) {
       final d = url.split("::");
-      if (d.length == 2) {
-        map.add(DiscoverMap(d[0].trim(), <DiscoverPair>[
-          DiscoverPair("全部", d[1].trim()),
-        ]));
+      final rule = d.last.trim();
+      String tab;
+      String className;
+      if (d.length == 1) {
+        tab = "全部";
+        className = "全部";
+      } else if (d.length == 2) {
+        tab = d[0].trim();
+        className = "全部";
       } else if (d.length == 3) {
-        final tab = d[0].trim();
-        if (table[tab] == null) {
-          table[tab] = map.length;
-          map.add(DiscoverMap(d[0].trim(), <DiscoverPair>[
-            DiscoverPair(d[1].trim(), d[2].trim()),
-          ]));
-        } else {
-          map[table[tab]].pairs.add(DiscoverPair(d[1].trim(), d[2].trim()));
-        }
+        tab = d[0].trim();
+        className = d[1].trim();
+      }
+      if (table[tab] == null) {
+        table[tab] = map.length;
+        map.add(DiscoverMap(tab, <DiscoverPair>[
+          DiscoverPair(className, rule),
+        ]));
+      } else {
+        map[table[tab]].pairs.add(DiscoverPair(className, rule));
       }
     }
     return map;
