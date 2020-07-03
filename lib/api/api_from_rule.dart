@@ -134,84 +134,126 @@ class APIFromRUle implements API {
 
   @override
   Future<List<ChapterItem>> chapter(String url) async {
-    final res = rule.chapterUrl.isNotEmpty
-        ? await AnalyzeUrl.urlRuleParser(
-            rule.chapterUrl,
-            rule,
-            result: url,
-          )
-        : await AnalyzeUrl.urlRuleParser(url, rule);
-    final reversed = rule.chapterList.startsWith("-");
-    final chapterUrl = res.request.url.toString();
-    final engineId = await FlutterJs.initEngine();
-    await FlutterJs.evaluate(
-        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
-        engineId);
-    if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-      final cryptoJS =
-          rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-      await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-    }
-    final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
-        .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
     final result = <ChapterItem>[];
-    for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId);
-      final lock = await analyzer.getString(rule.chapterLock);
-      // final unLock = await analyzer.getString(rule.chapterUnLock);
-      var name = (await analyzer.getString(rule.chapterName))
-          .trim()
-          .replaceAll(largeSpaceRegExp, Global.fullSpace);
-      // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
-      //   name = "🔓" + name;
-      // }else
-      if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
-        name = "🔒" + name;
-      }
-      result.add(ChapterItem(
-        cover: await analyzer.getString(rule.chapterCover),
-        name: name,
-        time: await analyzer.getString(rule.chapterTime),
-        url: await analyzer.getString(rule.chapterResult),
-      ));
-    }
-    FlutterJs.close(engineId);
-    return reversed ? result.reversed.toList() : result;
-  }
-
-  @override
-  Future<List<String>> content(String url) async {
-    final res = rule.contentUrl.isNotEmpty
-        ? await AnalyzeUrl.urlRuleParser(
-            rule.contentUrl,
-            rule,
-            result: url,
-          )
-        : await AnalyzeUrl.urlRuleParser(url, rule);
-    final contentUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
-    if (rule.contentItems.contains("@js:")) {
+    int requestLength = 0;
+    int responseLength = 0;
+    String chapterUrl;
+    for (var page = 1;; page++) {
+      if (page > 1 && !rule.chapterUrl.contains("page")) break;
+      final res = rule.chapterUrl.isNotEmpty
+          ? await AnalyzeUrl.urlRuleParser(
+              rule.chapterUrl,
+              rule,
+              result: url,
+              page: page,
+            )
+          : await AnalyzeUrl.urlRuleParser(url, rule);
+      if (res.request.contentLength == requestLength &&
+          res.contentLength == responseLength &&
+          res.request.url.toString() == chapterUrl) {
+        break;
+      }
+      requestLength = res.request.contentLength;
+      responseLength = res.contentLength;
+      chapterUrl = res.request.url.toString();
+      final reversed = rule.chapterList.startsWith("-");
       await FlutterJs.evaluate(
-          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
           engineId);
       if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
         final cryptoJS =
             rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
         await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
+      try {
+        final list = await AnalyzerManager(
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+        if (list.isEmpty) break;
+        for (var item in (reversed ? list.reversed : list)) {
+          final analyzer = AnalyzerManager(item, engineId);
+          final lock = await analyzer.getString(rule.chapterLock);
+          // final unLock = await analyzer.getString(rule.chapterUnLock);
+          var name = (await analyzer.getString(rule.chapterName))
+              .trim()
+              .replaceAll(largeSpaceRegExp, Global.fullSpace);
+          // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+          //   name = "🔓" + name;
+          // }else
+          if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
+            name = "🔒" + name;
+          }
+          result.add(ChapterItem(
+            cover: await analyzer.getString(rule.chapterCover),
+            name: name,
+            time: await analyzer.getString(rule.chapterTime),
+            url: await analyzer.getString(rule.chapterResult),
+          ));
+        }
+      } catch (e) {
+        break;
+      }
     }
-    final temp = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
-        .getStringList(rule.contentItems);
     FlutterJs.close(engineId);
-    return temp;
+    return result;
+  }
+
+  @override
+  Future<List<String>> content(String url) async {
+    final result = <String>[];
+    final engineId = await FlutterJs.initEngine();
+    int requestLength = 0;
+    int responseLength = 0;
+    String contentUrl;
+    for (var page = 1;; page++) {
+      if (page > 1 && !rule.chapterUrl.contains("page")) break;
+      final res = rule.contentUrl.isNotEmpty
+          ? await AnalyzeUrl.urlRuleParser(
+              rule.contentUrl,
+              rule,
+              result: url,
+              page: page,
+            )
+          : await AnalyzeUrl.urlRuleParser(url, rule);
+      if (res.request.contentLength == requestLength &&
+          res.contentLength == responseLength &&
+          res.request.url.toString() == contentUrl) {
+        break;
+      }
+      requestLength = res.request.contentLength;
+      responseLength = res.contentLength;
+      contentUrl = res.request.url.toString();
+      if (rule.contentItems.contains("@js:")) {
+        await FlutterJs.evaluate(
+            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
+            engineId);
+        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+          final cryptoJS =
+              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+        }
+      }
+      try {
+        final list = await AnalyzerManager(
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            .getStringList(rule.contentItems);
+        if (list.isEmpty) {
+          break;
+        }
+        result.addAll(list);
+      } catch (e) {
+        break;
+      }
+    }
+    FlutterJs.close(engineId);
+    return result;
   }
 
   @override
   List<DiscoverMap> discoverMap() {
     final map = <DiscoverMap>[];
-    final table = {};
+    final table = Map<String, int>();
     var discoverUrl = rule.discoverUrl;
     for (var url in discoverUrl.split(RegExp(r"\n+|&&"))) {
       final d = url.split("::");
