@@ -76,16 +76,6 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
   void initState() {
     super.initState();
     owner = widget.owner;
-    if (owner.profile.novelPageSwitch == Profile.novelCover) {
-      _controller = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 350),
-      );
-      _animation = CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInToLinear,
-      );
-    }
   }
 
   @override
@@ -101,7 +91,19 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
             lastChapterIndex != owner.searchItem.durChapterIndex));
     if (lastPage != null) {
       if (isChangePage) {
-        if (_controller != null) {
+        if (owner.profile.novelPageSwitch == Profile.novelCover) {
+
+          if (_controller == null) {
+            _controller = AnimationController(
+              vsync: this,
+              duration: Duration(milliseconds: 350),
+            );
+            _animation = CurvedAnimation(
+              parent: _controller,
+              curve: Curves.easeInToLinear,
+            );
+          }
+
           bool _isNext = isNext;
           var _last = lastPage;
           lastPage = buildPage();
