@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/video_page_controller.dart';
 import 'package:eso/utils.dart';
@@ -34,6 +36,12 @@ class _VideoPageState extends State<VideoPage> {
   @override
   void dispose() {
     __provider?.dispose();
+    if(Platform.isIOS){
+      // ios手动改成竖屏
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+    }
     super.dispose();
   }
 
