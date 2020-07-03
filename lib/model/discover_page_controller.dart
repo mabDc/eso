@@ -111,11 +111,18 @@ class DiscoverPageController with ChangeNotifier {
       notifyListeners();
     }
     List<SearchItem> newItems;
-    if (_showSearchResult) {
-      newItems = await APIManager.search(originTag, _queryController.text, item.page);
-    } else {
-      newItems = await APIManager.discover(
-          originTag, {discoverMap.first.name: item.pair}, item.page);
+    try {
+      if (_showSearchResult) {
+        newItems = await APIManager.search(originTag, _queryController.text, item.page);
+      } else {
+        newItems = await APIManager.discover(
+            originTag, {discoverMap.first.name: item.pair}, item.page);
+      }
+    } catch (e) {
+      print(e);
+      item.isLoading = false;
+      notifyListeners();
+      return;
     }
     if (item.page == 1) {
       item.items?.clear();
