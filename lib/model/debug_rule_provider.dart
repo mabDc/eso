@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eso/api/api.dart';
+import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/rule.dart';
 import 'package:flutter/services.dart';
 import '../api/analyze_url.dart';
@@ -255,52 +256,80 @@ class DebugRuleProvider with ChangeNotifier {
   void parseChapter(String result) async {
     _beginEvent("目录");
     final engineId = await FlutterJs.initEngine();
-    try {
-      final res = rule.chapterUrl.isNotEmpty
-          ? await AnalyzeUrl.urlRuleParser(
-              rule.chapterUrl,
-              rule,
-              result: result,
-            )
-          : await AnalyzeUrl.urlRuleParser(result, rule);
-      final chapterUrl = res.request.url.toString();
-      _addContent("地址", chapterUrl, true);
-      final reversed = rule.chapterList.startsWith("-");
-      if (reversed) {
-        _addContent("检测规则以\"-\"开始, 结果将反序");
-      }
-      await FlutterJs.evaluate(
-          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
-          engineId);
-      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-        final cryptoJS =
-            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-      }
-      final chapterList = await AnalyzerManager(
-              DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
-          .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
-      final count = chapterList.length;
-      if (count == 0) {
+    int requestLength = 0;
+    int responseLength = 0;
+    String chapterUrl;
+    ChapterItem firstChapter;
+    for (var page = 1;; page++) {
+      try {
+        final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
+        if (page > 1) {
+          if (!chapterUrlRule.contains("page")) {
+            break;
+          } else {
+            _addContent("解析第$page页");
+          }
+        }
+        final res = await AnalyzeUrl.urlRuleParser(
+          chapterUrlRule,
+          rule,
+          result: result,
+          page: page,
+        );
+        if (res.request.contentLength == requestLength &&
+            res.contentLength == responseLength &&
+            res.request.url.toString() == chapterUrl) {
+          FlutterJs.close(engineId);
+          _addContent("响应重复，章节解析完成！");
+          break;
+        }
+        requestLength = res.request.contentLength;
+        responseLength = res.contentLength;
+        chapterUrl = res.request.url.toString();
+        _addContent("地址", chapterUrl, true);
+        final reversed = rule.chapterList.startsWith("-");
+        if (reversed) {
+          _addContent("检测规则以\"-\"开始, 结果将反序");
+        }
+        await FlutterJs.evaluate(
+            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
+            engineId);
+        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+          final cryptoJS =
+              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+        }
+        final chapterList = await AnalyzerManager(
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+        final count = chapterList.length;
+        if (count == 0) {
+          FlutterJs.close(engineId);
+          _addContent("章节列表个数为0，解析结束！");
+          break;
+        } else {
+          _addContent("章节结果个数", count.toString());
+          if (firstChapter == null) {
+            firstChapter = reversed ? chapterList.last : chapterList.first;
+          }
+        }
+      } catch (e) {
         FlutterJs.close(engineId);
-        _addContent("章节列表个数为0，解析结束！");
-      } else {
-        _addContent("章节结果个数", count.toString());
-        parseFirstChapter(reversed ? chapterList.last : chapterList.first, engineId);
+        rows.add(Row(
+          children: [
+            Flexible(
+              child: SelectableText(
+                "$e\n",
+                style: TextStyle(color: Colors.red, height: 2),
+              ),
+            )
+          ],
+        ));
+        _addContent("解析结束！");
       }
-    } catch (e) {
-      FlutterJs.close(engineId);
-      rows.add(Row(
-        children: [
-          Flexible(
-            child: SelectableText(
-              "$e\n",
-              style: TextStyle(color: Colors.red, height: 2),
-            ),
-          )
-        ],
-      ));
-      _addContent("解析结束！");
+    }
+    if (firstChapter != null) {
+      parseFirstChapter(firstChapter, engineId);
     }
   }
 
@@ -344,64 +373,91 @@ class DebugRuleProvider with ChangeNotifier {
   void praseContent(String result) async {
     _beginEvent("正文");
     final engineId = await FlutterJs.initEngine();
-    try {
-      final res = rule.contentUrl.isNotEmpty
-          ? await AnalyzeUrl.urlRuleParser(
-              rule.contentUrl,
-              rule,
-              result: result,
-            )
-          : await AnalyzeUrl.urlRuleParser(result, rule);
-      final contentUrl = res.request.url.toString();
-      _addContent("地址", contentUrl, true);
-      if (rule.contentItems.contains("@js:")) {
-        await FlutterJs.evaluate(
-            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
-            engineId);
-        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-          final cryptoJS =
-              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+    int requestLength = 0;
+    int responseLength = 0;
+    String contentUrl;
+    for (var page = 1;; page++) {
+      try {
+        final contentUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
+        if (page > 1) {
+          if (!contentUrlRule.contains("page")) {
+            break;
+          } else {
+            _addContent("解析第$page页");
+          }
         }
-      }
-      final contentItems = await AnalyzerManager(
-              DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
-          .getStringList(rule.contentItems);
-      final count = contentItems.length;
-      if (count == 0) {
-        _addContent("正文结果个数为0，解析结束！");
-      } else {
-        _addContent("正文结果个数", count.toString());
-        final isUrl = rule.contentType == API.MANGA ||
-            rule.contentType == API.AUDIO ||
-            rule.contentType == API.VIDEO;
-        for (int i = 0; i < count; i++) {
-          rows.add(Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "• [${'0' * (3 - i.toString().length)}$i]: ",
-                style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
+        final res = await AnalyzeUrl.urlRuleParser(
+          contentUrlRule,
+          rule,
+          result: result,
+          page: page,
+        );
+        if (res.request.contentLength == requestLength &&
+            res.contentLength == responseLength &&
+            res.request.url.toString() == contentUrl) {
+          FlutterJs.close(engineId);
+          _addContent("响应重复，正文解析完成！");
+          break;
+        }
+        requestLength = res.request.contentLength;
+        responseLength = res.contentLength;
+        contentUrl = res.request.url.toString();
+        _addContent("地址", contentUrl, true);
+        if (rule.contentItems.contains("@js:")) {
+          await FlutterJs.evaluate(
+              "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
+              engineId);
+          if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+            final cryptoJS =
+                rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+            await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+          }
+        }
+        final contentItems = await AnalyzerManager(
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            .getStringList(rule.contentItems);
+        final count = contentItems.length;
+        if (count == 0) {
+          _addContent("正文结果个数为0，解析结束！");
+          FlutterJs.close(engineId);
+        } else if (contentItems.join().trim().isEmpty) {
+          _addContent("正文内容为空，解析结束！");
+          FlutterJs.close(engineId);
+          break;
+        } else {
+          _addContent("正文结果个数", count.toString());
+          final isUrl = rule.contentType == API.MANGA ||
+              rule.contentType == API.AUDIO ||
+              rule.contentType == API.VIDEO;
+          for (int i = 0; i < count; i++) {
+            rows.add(Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "• [${'0' * (3 - i.toString().length)}$i]: ",
+                  style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
+                ),
+                _buildText(contentItems[i], isUrl),
+              ],
+            ));
+          }
+          notifyListeners();
+          FlutterJs.close(engineId);
+        }
+      } catch (e) {
+        FlutterJs.close(engineId);
+        rows.add(Row(
+          children: [
+            Flexible(
+              child: SelectableText(
+                "$e\n",
+                style: TextStyle(color: Colors.red, height: 2),
               ),
-              _buildText(contentItems[i], isUrl),
-            ],
-          ));
-        }
-        notifyListeners();
+            )
+          ],
+        ));
+        _addContent("解析结束！");
       }
-    } catch (e) {
-      FlutterJs.close(engineId);
-      rows.add(Row(
-        children: [
-          Flexible(
-            child: SelectableText(
-              "$e\n",
-              style: TextStyle(color: Colors.red, height: 2),
-            ),
-          )
-        ],
-      ));
-      _addContent("解析结束！");
     }
   }
 }

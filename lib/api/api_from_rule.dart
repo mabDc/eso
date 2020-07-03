@@ -133,22 +133,21 @@ class APIFromRUle implements API {
   }
 
   @override
-  Future<List<ChapterItem>> chapter(String url) async {
+  Future<List<ChapterItem>> chapter(final String url) async {
     final result = <ChapterItem>[];
     final engineId = await FlutterJs.initEngine();
     int requestLength = 0;
     int responseLength = 0;
     String chapterUrl;
     for (var page = 1;; page++) {
-      if (page > 1 && !rule.chapterUrl.contains("page")) break;
-      final res = rule.chapterUrl.isNotEmpty
-          ? await AnalyzeUrl.urlRuleParser(
-              rule.chapterUrl,
-              rule,
-              result: url,
-              page: page,
-            )
-          : await AnalyzeUrl.urlRuleParser(url, rule);
+      final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
+      if (page > 1 && !chapterUrlRule.contains("page")) break;
+      final res = await AnalyzeUrl.urlRuleParser(
+        chapterUrlRule,
+        rule,
+        result: url,
+        page: page,
+      );
       if (res.request.contentLength == requestLength &&
           res.contentLength == responseLength &&
           res.request.url.toString() == chapterUrl) {
@@ -200,22 +199,21 @@ class APIFromRUle implements API {
   }
 
   @override
-  Future<List<String>> content(String url) async {
+  Future<List<String>> content(final String url) async {
     final result = <String>[];
     final engineId = await FlutterJs.initEngine();
     int requestLength = 0;
     int responseLength = 0;
     String contentUrl;
     for (var page = 1;; page++) {
-      if (page > 1 && !rule.chapterUrl.contains("page")) break;
-      final res = rule.contentUrl.isNotEmpty
-          ? await AnalyzeUrl.urlRuleParser(
-              rule.contentUrl,
-              rule,
-              result: url,
-              page: page,
-            )
-          : await AnalyzeUrl.urlRuleParser(url, rule);
+      final contentUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
+      if (page > 1 && !contentUrlRule.contains("page")) break;
+      final res = await AnalyzeUrl.urlRuleParser(
+        contentUrlRule,
+        rule,
+        result: url,
+        page: page,
+      );
       if (res.request.contentLength == requestLength &&
           res.contentLength == responseLength &&
           res.request.url.toString() == contentUrl) {
@@ -238,7 +236,7 @@ class APIFromRUle implements API {
         final list = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
             .getStringList(rule.contentItems);
-        if (list.isEmpty) {
+        if (list == null || list.isEmpty || list.join().trim().isEmpty) {
           break;
         }
         result.addAll(list);
