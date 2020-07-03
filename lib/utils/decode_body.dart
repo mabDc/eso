@@ -4,29 +4,33 @@ import 'dart:typed_data';
 class DecodeBody {
   String decode(Uint8List bodyBytes, String contentType) {
     if (bodyBytes == null || bodyBytes.isEmpty) return '';
-    if (contentType == null || !contentType.contains("charset")) {
-      return _autoDecode(bodyBytes);
+    if (contentType != null) {
+      if (contentType.contains("charset")) {
+        final charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
+            .firstMatch(contentType)
+            .group(1)
+            .toLowerCase();
+        if (charset.contains("gb")) {
+          final sb = StringBuffer();
+          _writeGBK(sb, bodyBytes);
+          return sb.toString();
+        }
+        final encoding = Encoding.getByName(charset);
+        if (encoding == null || encoding is Utf8Codec) {
+          return utf8.decode(bodyBytes, allowMalformed: true);
+        }
+        if (encoding is AsciiCodec) {
+          return ascii.decode(bodyBytes, allowInvalid: true);
+        }
+        if (encoding is Latin1Codec) {
+          return latin1.decode(bodyBytes, allowInvalid: true);
+        }
+        return encoding.decode(bodyBytes);
+      }else if(contentType.contains("json")){
+        return utf8.decode(bodyBytes);
+      }
     }
-    final charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
-        .firstMatch(contentType)
-        .group(1)
-        .toLowerCase();
-    if (charset.contains("gb")) {
-      final sb = StringBuffer();
-      _writeGBK(sb, bodyBytes);
-      return sb.toString();
-    }
-    final encoding = Encoding.getByName(charset);
-    if (encoding == null || encoding is Utf8Codec) {
-      return utf8.decode(bodyBytes, allowMalformed: true);
-    }
-    if (encoding is AsciiCodec) {
-      return ascii.decode(bodyBytes, allowInvalid: true);
-    }
-    if (encoding is Latin1Codec) {
-      return latin1.decode(bodyBytes, allowInvalid: true);
-    }
-    return encoding.decode(bodyBytes);
+    return _autoDecode(bodyBytes);
   }
 
   String _autoDecode(Uint8List bodyBytes) {
@@ -45,6 +49,9 @@ class DecodeBody {
 
     String charset;
     var temp = sb.toString();
+    if (temp.trimLeft().startsWith("{") || temp.trimLeft().startsWith("[")) {
+      return temp + utf8.decode(leftBytes, allowMalformed: true);
+    }
     if (temp.contains('charset')) {
       charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
           .firstMatch(temp)
