@@ -25,7 +25,7 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
     this.primary = true,
     this.centerTitle,
     this.excludeHeaderSemantics = false,
-    this.titleSpacing = NavigationToolbar.kMiddleSpacing,
+    this.titleSpacing = 0, //NavigationToolbar.kMiddleSpacing,
     this.toolbarOpacity = 1.0,
     this.bottomOpacity = 1.0,
   })  : assert(automaticallyImplyLeading != null),

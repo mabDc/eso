@@ -54,6 +54,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         return Scaffold(
           appBar: AppBarEx(
             centerTitle: false,
+            titleSpacing: NavigationToolbar.kMiddleSpacing,
             title: SearchEdit(
               controller: _searchEdit,
               hintText:
@@ -91,12 +92,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 },
               );
               return KeyboardDismissBehaviorView(
-                child: provider.rules.length == 0 ? Stack(
-                  children: [
-                    _listView,
-                    _buildEmptyHintView(provider),
-                  ],
-                ) : _listView,
+                child: provider.rules.length == 0
+                    ? Stack(
+                        children: [
+                          _listView,
+                          _buildEmptyHintView(provider),
+                        ],
+                      )
+                    : _listView,
               );
             },
           ),
@@ -290,43 +293,42 @@ class _DiscoverPageState extends State<DiscoverPage> {
   Widget _buildEmptyHintView(EditSourceProvider provider) {
     final _shape = RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: Theme.of(context).dividerColor,
-            width: Global.borderSize)
-    );
-    final _txtStyle = TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
+        side:
+            BorderSide(color: Theme.of(context).dividerColor, width: Global.borderSize));
+    final _txtStyle =
+        TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
     return EmptyListMsgView(
         text: Column(
-          children: [
-            Text("没有可用的源~~~"),
-            SizedBox(height: 8),
-            ButtonTheme(
-              minWidth: 50,
-              height: 20,
-              shape: _shape,
-              buttonColor: Colors.transparent,
-              padding: EdgeInsets.fromLTRB(8, 5, 8, 5),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  FlatButton(
-                    child: Text("新建源", style: _txtStyle),
-                    onPressed: () => onPopupMenuClick(ADD_RULE, provider),
-                  ),
-                  FlatButton(
-                    child: Text("管理源", style: _txtStyle),
-                    onPressed: () => onPopupMenuClick(FROM_EDIT_SOURCE, provider),
-                  ),
-                  FlatButton(
-                    child: Text("网络导入", style: _txtStyle),
-                    onPressed: () => onPopupMenuClick(FROM_CLOUD, provider),
-                  ),
-                ],
+      children: [
+        Text("没有可用的源~~~"),
+        SizedBox(height: 8),
+        ButtonTheme(
+          minWidth: 50,
+          height: 20,
+          shape: _shape,
+          buttonColor: Colors.transparent,
+          padding: EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              FlatButton(
+                child: Text("新建源", style: _txtStyle),
+                onPressed: () => onPopupMenuClick(ADD_RULE, provider),
               ),
-            )
-          ],
+              FlatButton(
+                child: Text("管理源", style: _txtStyle),
+                onPressed: () => onPopupMenuClick(FROM_EDIT_SOURCE, provider),
+              ),
+              FlatButton(
+                child: Text("网络导入", style: _txtStyle),
+                onPressed: () => onPopupMenuClick(FROM_CLOUD, provider),
+              ),
+            ],
+          ),
         )
-    );
+      ],
+    ));
   }
 
   refreshData(EditSourceProvider provider) {
