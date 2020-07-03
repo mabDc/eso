@@ -5,6 +5,7 @@ import 'package:eso/global.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
+import 'package:eso/page/novel/novel_route_view.dart';
 import 'package:eso/page/novel/novel_none_view.dart';
 import 'package:eso/page/novel/novel_scroll_view.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
@@ -92,22 +93,23 @@ class NovelPage extends StatelessWidget {
               ),
               onTapUp: (TapUpDetails details) {
                 final size = MediaQuery.of(context).size;
-                if (
-                    //!provider.useSelectableText &&
-                    details.globalPosition.dx > size.width * 3 / 8 &&
-                        details.globalPosition.dx < size.width * 5 / 8 &&
-                        details.globalPosition.dy > size.height * 3 / 8 &&
-                        details.globalPosition.dy < size.height * 5 / 8) {
+                final _centerX = size.width * (1 / 4);
+                final _centerR = size.width - _centerX;
+                final _centerY = 100;
+                final _centerB = size.height - size.height * (1 / 3);
+
+                if (details.globalPosition.dx > _centerX &&
+                        details.globalPosition.dx < _centerR &&
+                        details.globalPosition.dy > _centerY &&
+                        details.globalPosition.dy < _centerB) {
                   provider.showMenu = !provider.showMenu;
                   provider.showSetting = false;
                 } else {
                   provider.showChapter = false;
                   if (!provider.showSetting && !provider.showMenu) {
-                    if (details.globalPosition.dx > size.width * 5 / 8 &&
-                        details.globalPosition.dy > size.height * 3 / 8) {
+                    if (details.globalPosition.dx > size.width * 0.5) {
                       provider.tapNextPage();
-                    } else if (details.globalPosition.dx < size.width * 3 / 8 &&
-                        details.globalPosition.dy < size.height * 5 / 8) {
+                    } else if (details.globalPosition.dx < size.width * 0.5) {
                       provider.tapLastPage();
                     }
                   }
@@ -126,6 +128,9 @@ class NovelPage extends StatelessWidget {
         return NovelScrollView(profile: profile, provider: provider, searchItem: searchItem);
       case Profile.novelNone:
         return NovelNoneView(profile: profile, provider: provider, searchItem: searchItem);
+      case Profile.novelCover:
+      case Profile.novelFade:
+        return NovelRoteView(profile: profile, provider: provider, searchItem: searchItem);
       default:
         return Center(child: Text("暂不支持"));
     }

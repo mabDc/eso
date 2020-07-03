@@ -55,13 +55,15 @@ class UINovelMenu extends StatelessWidget {
       [const Color(0xff010203), const Color(0x3fffffff)], //纯黑
     ];
     final styles = [
+      ["无", Profile.novelNone],
       ["滚动", Profile.novelScroll],
+      ["覆盖", Profile.novelCover],
+      ["淡入", Profile.novelFade],
       // ["滑动", Profile.novelSlide],
       // ["覆盖", Profile.novelCover],
       // ["仿真", Profile.novelSimulation],
-      ["上下滑动", Profile.novelVerticalSlide],
-      ["左右滑动", Profile.novelHorizontalSlide],
-      ["无", Profile.novelNone],
+      // ["上下滑动", Profile.novelVerticalSlide],
+      // ["左右滑动", Profile.novelHorizontalSlide],
     ];
     return IconTheme(
       data: IconThemeData(size: 22, color: color),

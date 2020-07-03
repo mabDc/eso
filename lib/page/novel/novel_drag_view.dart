@@ -21,7 +21,7 @@ class NovelDragView extends StatelessWidget {
               provider.showSetting = false;
             } else if (provider.showMenu) {
               provider.showMenu = false;
-            } else if (profile.novelPageSwitch == Profile.novelNone) {
+            } else {
               if (details.primaryVelocity > 0) {
                 provider.tapLastPage();
               } else {
@@ -36,7 +36,7 @@ class NovelDragView extends StatelessWidget {
               provider.showSetting = false;
             } else if (provider.showMenu) {
               provider.showMenu = false;
-            } else if (profile.novelPageSwitch == Profile.novelNone) {
+            } else {
               if (details.primaryVelocity > 0) {
                 provider.tapLastPage();
               } else {

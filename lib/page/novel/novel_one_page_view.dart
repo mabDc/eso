@@ -1,6 +1,8 @@
+import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_dash.dart';
+import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -13,11 +15,52 @@ class NovelOnePageView extends StatelessWidget {
   final String chapterName;
   final String pageInfo;
 
+  /// 底部分隔线
   static Widget bottomLine (Color fontColor) => UIDash(
     height: Global.lineSize,
     dashWidth: 2,
     color: fontColor.withOpacity(0.5),
   );
+
+  /// 底部状态栏
+  static Widget buildFooterStatus({String chapter, String msg, Color fontColor, double padding, NovelPageProvider provider}) {
+    final _txt = Text(
+      msg,
+      textAlign: TextAlign.right,
+      style: TextStyle(color: fontColor),
+    );
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: padding),
+      height: 24,
+      child: DefaultTextStyle(
+        style: TextStyle(color: fontColor, fontSize: 12),
+        child: Row(
+          children: provider.useSelectableText ? [
+            FlatButton(
+              child: IconText(
+                '退出复制模式',
+                icon: Icon(Icons.clear),
+                iconSize: 16,
+              ),
+              onPressed: () => provider.useSelectableText = false,
+            ),
+            Expanded(child: SizedBox()),
+            _txt,
+          ] : [
+            Expanded(
+              child: Text(
+                '$chapter',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(width: 8),
+            _txt,
+          ],
+        ),
+      ),
+    );
+  }
 
   const NovelOnePageView({
     Key key,
@@ -49,28 +92,12 @@ class NovelOnePageView extends StatelessWidget {
           ),
           SizedBox(height: 4),
           bottomLine(fontColor),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10 + profile.novelLeftPadding),
-            height: 26,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    '$chapterName',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: fontColor),
-                  ),
-                ),
-                Text(
-                  '$pageInfo',
-                  textAlign: TextAlign.right,
-                  style: TextStyle(color: fontColor),
-                ),
-              ],
-            ),
-          ),
+          buildFooterStatus(
+              chapter: chapterName,
+              msg: pageInfo,
+              padding: profile.novelLeftPadding,
+              fontColor: fontColor.withOpacity(0.7),
+              provider: provider)
         ],
       ),
     );

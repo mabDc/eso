@@ -87,7 +87,7 @@ class NovelPageProvider with ChangeNotifier {
   ChapterPageController get pageController => _pageController;
   set pageController(value) => _pageController = value;
 
-  static Profile _profile;
+  Profile _profile;
 
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
     _profile = profile;
@@ -182,7 +182,7 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 加载指定章节
   Future<List<String>> loadChapter(int chapterIndex,
-      {bool useCache = true, bool notify = true, bool changeCurChapter = true}) async {
+      {bool useCache = true, bool notify = true, bool changeCurChapter = true, bool lastPage}) async {
     _showChapter = false;
     if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
       return null;
@@ -200,6 +200,10 @@ class NovelPageProvider with ChangeNotifier {
       if (_readSetting?.pageSwitch == Profile.novelScroll) {
         _controller.jumpTo(1);
       }
+    }
+
+    if (lastPage == true) {
+      searchItem.durContentIndex = 0x7fffffff;
     }
 
     if (notify) {
@@ -256,7 +260,11 @@ class NovelPageProvider with ChangeNotifier {
           curve: Curves.easeInOut,
         );
       }
-    } else if (_readSetting.pageSwitch == Profile.novelNone) {
+    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
+        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
+      _pageController.nextPage(
+          duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+    } else {
       if (_currentPage < _spans.length) {
         _currentPage++;
         searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
@@ -264,10 +272,6 @@ class NovelPageProvider with ChangeNotifier {
       } else {
         loadChapter(searchItem.durChapterIndex + 1);
       }
-    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
-        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      _pageController.nextPage(
-          duration: Duration(milliseconds: 200), curve: Curves.easeIn);
     }
   }
 
@@ -288,18 +292,18 @@ class NovelPageProvider with ChangeNotifier {
           curve: Curves.easeInOut,
         );
       }
-    } else if (_readSetting.pageSwitch == Profile.novelNone) {
+    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
+        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
+      _pageController.previousPage(
+          duration: Duration(milliseconds: 200), curve: Curves.easeOut);
+    } else {
       if (_currentPage > 1) {
         _currentPage--;
         searchItem.durContentIndex = (_currentPage * 10000 / spans.length).floor();
         notifyListeners();
       } else {
-        loadChapter(searchItem.durChapterIndex - 1);
+        loadChapter(searchItem.durChapterIndex - 1, lastPage: true);
       }
-    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
-        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-      _pageController.previousPage(
-          duration: Duration(milliseconds: 200), curve: Curves.easeOut);
     }
   }
 
@@ -376,8 +380,7 @@ class NovelPageProvider with ChangeNotifier {
   static List<List<TextSpan>> buildSpans(
       Profile profile, SearchItem searchItem, List<String> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
-    final __profile = profile ?? _profile;
-    if (_profile != __profile) _profile = __profile;
+    final __profile = profile;
 
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
     final width = mediaQueryData.size.width - __profile.novelLeftPadding * 2;
@@ -390,7 +393,7 @@ class NovelPageProvider with ChangeNotifier {
         mediaQueryData.padding.top -
         oneLineHeight;
     //final fontColor = Color(__profile.novelFontColor);
-    final spanss = <List<TextSpan>>[];
+    final _spans = <List<TextSpan>>[];
 
     final newLine = TextSpan(text: "\n");
     final commonStyle = TextStyle(
@@ -429,13 +432,13 @@ class NovelPageProvider with ChangeNotifier {
       if (paragraph.startsWith("@img")) {
         print("------img--------");
         if (currentSpans.isNotEmpty) {
-          spanss.add(currentSpans);
+          _spans.add(currentSpans);
           currentHeight = 0;
           currentSpans = <TextSpan>[];
         }
         final img = paragraph.split("@headers");
         final header = img.length == 2 ? jsonDecode(img[1]) : null;
-        spanss.add([
+        _spans.add([
           TextSpan(
             children: [
               WidgetSpan(
@@ -455,14 +458,14 @@ class NovelPageProvider with ChangeNotifier {
       } else if (paragraph.startsWith("<img")) {
         print("------img--------");
         if (currentSpans.isNotEmpty) {
-          spanss.add(currentSpans);
+          _spans.add(currentSpans);
           currentHeight = 0;
           currentSpans = <TextSpan>[];
         }
         final img = RegExp(r"""(src|data\-original)[^'"]*('|")([^'"]*)""")
             .firstMatch(paragraph)
             .group(3);
-        spanss.add([
+        _spans.add([
           TextSpan(
             children: [
               WidgetSpan(
@@ -481,7 +484,7 @@ class NovelPageProvider with ChangeNotifier {
       }
       while (true) {
         if (currentHeight >= height) {
-          spanss.add(currentSpans);
+          _spans.add(currentSpans);
           currentHeight = 0;
           currentSpans = <TextSpan>[];
         }
@@ -567,9 +570,9 @@ class NovelPageProvider with ChangeNotifier {
       }
     }
     if (currentSpans.isNotEmpty) {
-      spanss.add(currentSpans);
+      _spans.add(currentSpans);
     }
-    return spanss;
+    return _spans;
   }
 
   void refreshProgress() {

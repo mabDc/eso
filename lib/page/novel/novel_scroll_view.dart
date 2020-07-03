@@ -1,9 +1,7 @@
 import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/novel/novel_one_page_view.dart';
-import 'package:eso/ui/ui_dash.dart';
 import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -195,41 +193,11 @@ class NovelScrollView extends StatelessWidget {
   }
 
   Widget _buildFooterStatus() {
-    final _txt = Text(
-      '${provider.progress}%',
-      textAlign: TextAlign.right,
-      style: _txtNormal,
-    );
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: profile.novelLeftPadding),
-      height: 24,
-      child: DefaultTextStyle(
-        style: TextStyle(color: _fontColor70, fontSize: 12),
-        child: Row(
-          children: provider.useSelectableText ? [
-            FlatButton(
-              child: IconText(
-                '退出复制模式',
-                icon: Icon(Icons.clear),
-                iconSize: 16,
-              ),
-              onPressed: () => provider.useSelectableText = false,
-            ),
-            Expanded(child: SizedBox()),
-            _txt,
-          ] : [
-            Expanded(
-              child: Text(
-                '${searchItem.durChapter}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            SizedBox(width: 8),
-            _txt,
-          ],
-        ),
-      ),
+    return NovelOnePageView.buildFooterStatus(
+      chapter: searchItem.durChapter,
+      msg: '${provider.progress}%',
+      padding: profile.novelLeftPadding,
+      provider: provider
     );
   }
 }
