@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:eso/ui/edit/local_cupertion_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
                 darkTheme: profile.getTheme(isDarkMode: true),
                 title: Global.appName,
                 localizationsDelegates: [
+                  LocalizationsCupertinoDelegate.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                 ],
