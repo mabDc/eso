@@ -75,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
                 onSubmitted: Provider.of<SearchProvider>(context, listen: false).search,
               ),
               actions: [
-                Container(width: 20),
+                SizedBox(width: 20),
               ],
             ),
             body: Consumer<SearchProvider>(
@@ -215,6 +215,7 @@ class _SearchPageState extends State<SearchPage> {
                 );
               },
             ),
+            // floatingActionButton: Provider.of<SearchProvider>(context, listen: true).search(keyword),
           );
         });
   }
@@ -268,6 +269,8 @@ class SearchProvider with ChangeNotifier {
   int get successCount => _successCount;
   int _failureCount;
   int get failureCount => _failureCount;
+  int _finishCount;
+  int get finishCount => _finishCount;
   List<Rule> _rules;
   List<Rule> _novelRules;
   List<Rule> _mangaRules;
@@ -278,8 +281,7 @@ class SearchProvider with ChangeNotifier {
   final List<SearchItem> searchListNormal = <SearchItem>[];
   final List<SearchItem> searchListAccurate = <SearchItem>[];
 
-  final _keys = Map<String, bool>();
-  int _keySuffix;
+  static int _keys;
   int _sourceType = -1;
   Profile _profile;
   SearchProvider({int threadCount, SearchOption searchOption, Profile profile}) {
@@ -290,7 +292,6 @@ class SearchProvider with ChangeNotifier {
     _successCount = 0;
     _failureCount = 0;
     _rules = <Rule>[];
-    _keySuffix = 0;
     init();
   }
 
@@ -366,58 +367,71 @@ class SearchProvider with ChangeNotifier {
   }
 
   void search(String keyword) async {
-    _keys.forEach((key, value) => _keys[key] = false);
-    await Future.delayed(Duration(milliseconds: 300));
+    await Utils.sleep(300);
     print("search $keyword");
+    final key = DateTime.now().millisecondsSinceEpoch;
+    _keys = key;
     searchListNone.clear();
     searchListNormal.clear();
     searchListAccurate.clear();
-    _keySuffix++;
     _successCount = 0;
     _failureCount = 0;
+    _finishCount = 0;
     notifyListeners();
+    var _rulesLen = _rules.length;
+    if (_rulesLen <= 0) return;
+    final _count = _rulesLen ~/ threadCount +
+        (_rulesLen % threadCount > 0 ? 1 : 0);
     for (var i = 0; i < threadCount; i++) {
-      final count = _rules.length - 1 - i;
-      _keys.addAll({"$_keySuffix$i": true});
-      final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
-      ((String key) async {
-        for (var j = 0; j < realCount; j++) {
-          if (_keys[key]) {
-            try {
-              (await APIFromRUle(_rules[j * threadCount + i], int.parse("$key$j"))
-                      .search(keyword, 1, 20))
-                  .forEach((item) {
-                if (_keys[key]) {
-                  searchListNone.add(item);
-                  if (item.name.contains(keyword)) {
-                    searchListNormal.add(item);
-                    if (item.name == keyword) {
-                      searchListAccurate.add(item);
-                    }
+      final realCount = _rulesLen >= _count ? _count : _rulesLen;
+      _rulesLen = _rulesLen - _count;
+      print(realCount);
+      _searchExec(key, i, realCount, keyword);
+    }
+  }
+
+  void _searchExec(int key, int offset, int realCount, String keyword) async {
+    await Utils.sleep(1000);
+    if (_keys != key) return;
+    for (var j = 0; j < realCount; j++) {
+      if (key == _keys) {
+        try {
+          final _rule = _rules[j * threadCount + offset];
+          var _searchResp = await APIFromRUle(_rule, int.parse("$key$j"))
+              .search(keyword, 1, 20);
+          if (_keys == key) {
+            _searchResp?.forEach((item) {
+              if (_keys == key) {
+                searchListNone.add(item);
+                if (item.name.contains(keyword)) {
+                  searchListNormal.add(item);
+                  if (item.name == keyword) {
+                    searchListAccurate.add(item);
                   }
-                  _successCount++;
                 }
-              });
-              notifyListeners();
-            } catch (e) {
-              if (_keys[key]) {
-                print(e);
-                _failureCount++;
-                notifyListeners();
               }
-            }
+            });
+            _successCount++;
+            notifyListeners();
+          }
+        } catch (e) {
+          if (_keys == key) {
+            print(e);
+            _failureCount++;
+            notifyListeners();
           }
         }
-      })("$_keySuffix$i");
+      }
     }
   }
 
   @override
   void dispose() {
-    _keys.forEach((key, value) => _keys[key] = false);
+    _keys = null;
     searchListNone.clear();
     searchListNormal.clear();
     searchListAccurate.clear();
     super.dispose();
   }
 }
+
