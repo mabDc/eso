@@ -32,6 +32,7 @@ class DebugRuleProvider with ChangeNotifier {
       child: isUrl
           ? GestureDetector(
               onTap: () => launch(s),
+              onLongPress: () => Clipboard.setData(ClipboardData(text: s)),
               child: Text(
                 s,
                 style: TextStyle(

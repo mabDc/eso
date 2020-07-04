@@ -39,6 +39,7 @@ class NovelOnePageView extends StatelessWidget {
             FlatButton(
               child: IconText(
                 '退出复制模式',
+                style: TextStyle(color: fontColor),
                 icon: Icon(Icons.clear),
                 iconSize: 16,
               ),

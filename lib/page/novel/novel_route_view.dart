@@ -24,7 +24,7 @@ class NovelRoteView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(NovelPageProvider.buildSpans(
+        ? provider.updateSpans(NovelPageProvider.buildSpans(context,
         profile, provider.searchItem, provider.paragraphs))
         : provider.spans;
 

@@ -132,7 +132,7 @@ class NovelPage extends StatelessWidget {
       case Profile.novelFade:
         return NovelRoteView(profile: profile, provider: provider, searchItem: searchItem);
       default:
-        return Center(child: Text("暂不支持"));
+        return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
     }
   }
 }

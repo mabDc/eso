@@ -16,7 +16,7 @@ class NovelNoneView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(NovelPageProvider.buildSpans(profile, provider.searchItem, provider.paragraphs))
+        ? provider.updateSpans(NovelPageProvider.buildSpans(context, profile, provider.searchItem, provider.paragraphs))
         : provider.spans;
 
     return NovelDragView(

@@ -26,7 +26,6 @@ class NovelScrollView extends StatelessWidget {
     _fontColor = Color(profile.novelFontColor);
     _fontColor70 = _fontColor.withOpacity(0.7);
 
-    final RefreshController refreshController = RefreshController();
     return NotificationListener(
       onNotification: (t) {
         if (t is ScrollEndNotification) {
@@ -34,14 +33,14 @@ class NovelScrollView extends StatelessWidget {
         }
         return false;
       },
-      child: _buildContent(context, refreshController),
+      child: _buildContent(context, provider.refreshController),
     );
   }
 
   Widget _buildContent(
       BuildContext context, RefreshController refreshController) {
     final spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpansFlat(NovelPageProvider.buildSpans(
+        ? provider.updateSpansFlat(NovelPageProvider.buildSpans(context,
             profile, provider.searchItem, provider.paragraphs))
         : provider.spansFlat;
 

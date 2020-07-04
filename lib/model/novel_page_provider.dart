@@ -5,10 +5,12 @@ import 'dart:ui' as ui;
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
+import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -87,10 +89,9 @@ class NovelPageProvider with ChangeNotifier {
   ChapterPageController get pageController => _pageController;
   set pageController(value) => _pageController = value;
 
-  Profile _profile;
+  final RefreshController refreshController = RefreshController();
 
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
-    _profile = profile;
     _brightness = 0.5;
     _isLoading = false;
     _showChapter = false;
@@ -182,7 +183,10 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 加载指定章节
   Future<List<String>> loadChapter(int chapterIndex,
-      {bool useCache = true, bool notify = true, bool changeCurChapter = true, bool lastPage}) async {
+      {bool useCache = true,
+      bool notify = true,
+      bool changeCurChapter = true,
+      bool lastPage}) async {
     _showChapter = false;
     if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
       return null;
@@ -331,6 +335,7 @@ class NovelPageProvider with ChangeNotifier {
     _controller?.dispose();
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
+    refreshController.dispose();
     _cache?.clear();
     super.dispose();
   }
@@ -377,8 +382,8 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 文字排版部分
-  static List<List<TextSpan>> buildSpans(
-      Profile profile, SearchItem searchItem, List<String> paragraphs) {
+  static List<List<TextSpan>> buildSpans(BuildContext context, Profile profile,
+      SearchItem searchItem, List<String> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile;
 
@@ -442,14 +447,27 @@ class NovelPageProvider with ChangeNotifier {
           TextSpan(
             children: [
               WidgetSpan(
+                child: GestureDetector(
+                  onLongPress: () => Utils.startPageWait(
+                    context,
+                    PhotoViewPage(
+                      items: [PhotoItem(img[0], headers: header)],
+                      heroTag: "WidgetSpan$img",
+                    ),
+                  ),
                   child: Container(
-                width: width,
-                child: UIFadeInImage(
-                  url: img[0],
-                  header: header,
-                  fit: BoxFit.fitWidth,
+                    width: width,
+                    child: Hero(
+                      tag: "WidgetSpan$img",
+                      child: UIFadeInImage(
+                        url: img[0],
+                        header: header,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                  ),
                 ),
-              )),
+              ),
               newLine,
             ],
           )
@@ -469,13 +487,26 @@ class NovelPageProvider with ChangeNotifier {
           TextSpan(
             children: [
               WidgetSpan(
+                child: GestureDetector(
+                  onLongPress: () => Utils.startPageWait(
+                    context,
+                    PhotoViewPage(
+                      items: [PhotoItem(img)],
+                      heroTag: "WidgetSpan$img",
+                    ),
+                  ),
                   child: Container(
-                width: width,
-                child: UIFadeInImage(
-                  url: img,
-                  fit: BoxFit.fitWidth,
+                    width: width,
+                    child: Hero(
+                      tag: "WidgetSpan$img",
+                      child: UIFadeInImage(
+                        url: img,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                  ),
                 ),
-              )),
+              ),
               newLine,
             ],
           )
