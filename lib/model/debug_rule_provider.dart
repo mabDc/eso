@@ -88,16 +88,14 @@ class DebugRuleProvider with ChangeNotifier {
     _beginEvent("发现");
     final engineId = await FlutterJs.initEngine();
     try {
-      var discoverRule = rule.discoverUrl;
-      final jsPos = discoverRule.indexOf("@js:");
-      if (jsPos != -1) {
+      var discoverRule = rule.discoverUrl.trimLeft();
+      if (discoverRule.startsWith("@js:")) {
         _addContent("开始执行发现js规则");
         final engineId = await FlutterJs.initEngine();
         await FlutterJs.evaluate(
             "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)};",
             engineId);
-        discoverRule =
-            "${await FlutterJs.evaluate(discoverRule.substring(jsPos + 4), engineId)}";
+        discoverRule = "${await FlutterJs.evaluate(discoverRule.substring(4), engineId)}";
         _addContent("执行完成，结果如下\n" + discoverRule);
       }
       final discoverResult = await AnalyzeUrl.urlRuleParser(
