@@ -79,7 +79,8 @@ class UINovelMenu extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: 50,
-                    child: Text("亮度", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("亮度",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: FlutterSlider(
@@ -98,7 +99,8 @@ class UINovelMenu extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(3),
                             color: bgColor,
-                            border: Border.all(color: color.withOpacity(0.65), width: 1),
+                            border: Border.all(
+                                color: color.withOpacity(0.65), width: 1),
                           ),
                         ),
                       ),
@@ -119,8 +121,8 @@ class UINovelMenu extends StatelessWidget {
                           color: bgColor,
                           child: Text((value as double).toStringAsFixed(0)),
                         ),
-                        positionOffset:
-                            FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+                        positionOffset: FlutterSliderTooltipPositionOffset(
+                            left: -20, right: -20),
                       ),
                     ),
                   ),
@@ -142,7 +144,8 @@ class UINovelMenu extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: 50,
-                    child: Text("上下", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("上下",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: _buildAdjustEdit(
@@ -156,7 +159,8 @@ class UINovelMenu extends StatelessWidget {
                   SizedBox(width: 20),
                   Container(
                     width: 50,
-                    child: Text("左右", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("左右",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: _buildAdjustEdit(
@@ -177,7 +181,8 @@ class UINovelMenu extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: 50,
-                    child: Text("行高", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("行高",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: _buildAdjustEdit(
@@ -191,7 +196,8 @@ class UINovelMenu extends StatelessWidget {
                   SizedBox(width: 20),
                   Container(
                     width: 50,
-                    child: Text("段距", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("段距",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: _buildAdjustEdit(
@@ -212,7 +218,8 @@ class UINovelMenu extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: 50,
-                    child: Text("字号", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("字号",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: _buildAdjustEdit(
@@ -226,7 +233,8 @@ class UINovelMenu extends StatelessWidget {
                   SizedBox(width: 20),
                   Container(
                     width: 50,
-                    child: Text("缩进", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("缩进",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: _buildAdjustEdit(
@@ -246,7 +254,8 @@ class UINovelMenu extends StatelessWidget {
                 children: [
                   Container(
                     width: 50,
-                    child: Text("翻页", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("翻页",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -254,21 +263,31 @@ class UINovelMenu extends StatelessWidget {
                       physics: BouncingScrollPhysics(),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: styles
-                            .map((style) => Container(
-                                  height: 26,
-                                  width: 32.0 + (style[0] as String).length * 16,
-                                  margin: const EdgeInsets.only(right: 4),
-                                  child: OutlineButton(
-                                    child: Text(style[0], style: TextStyle(color: color)),
-                                    onPressed: () => profile.novelPageSwitch = style[1],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      side: BorderSide(color: color),
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
+                        children: styles.map((style) {
+                          final _selected = style[1] == profile.novelPageSwitch;
+                          final Color _bgColor =
+                              _selected ? Theme.of(context).primaryColor : null;
+                          return Container(
+                            height: 26,
+                            width: 32.0 + (style[0] as String).length * 16,
+                            margin: const EdgeInsets.only(right: 4),
+                            child: FlatButton(
+                              color: _bgColor,
+                              textColor: _selected
+                                  ? Theme.of(context).canvasColor
+                                  : color,
+                              child: Text(style[0]),
+                              onPressed: () =>
+                                  profile.novelPageSwitch = style[1],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                                side: BorderSide(
+                                    color: _selected ? _bgColor : color,
+                                    width: Global.borderSize),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
@@ -281,18 +300,37 @@ class UINovelMenu extends StatelessWidget {
                 children: [
                   Container(
                     width: 50,
-                    child: Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("背景",
+                        style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: colors
                           .map((color) => InkWell(
-                                child: CircleAvatar(
-                                  radius: 16.0,
-                                  backgroundColor: color[0],
-                                ),
-                                onTap: () => profile.setNovelColor(color[0], color[1]),
+                                child: color[0].value ==
+                                            profile.novelBackgroundColor &&
+                                        color[1].value == profile.novelFontColor
+                                    ? Container(
+                                        width: 32.0,
+                                        height: 32.0,
+                                        decoration: BoxDecoration(
+                                            color: color[0],
+                                            border: Border.all(
+                                                color: Theme.of(context)
+                                                    .canvasColor,
+                                                width: 2),
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(blurRadius: 2)
+                                            ]),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 16.0,
+                                        backgroundColor: color[0],
+                                      ),
+                                onTap: () =>
+                                    profile.setNovelColor(color[0], color[1]),
                               ))
                           .toList(),
                     ),
@@ -313,7 +351,8 @@ class UINovelMenu extends StatelessWidget {
       actions: [
         AppBarButton(
             icon: Icon(FIcons.share_2),
-            onTap: Provider.of<NovelPageProvider>(context, listen: false).share),
+            onTap:
+                Provider.of<NovelPageProvider>(context, listen: false).share),
         _buildPopupmenu(context, bgColor, color),
       ],
     );
@@ -335,10 +374,11 @@ class UINovelMenu extends StatelessWidget {
       onSelected: (int value) {
         switch (value) {
           case TO_CLICPBOARD:
-            Clipboard.setData(
-                ClipboardData(text: searchItem.chapters[searchItem.durChapterIndex].url));
+            Clipboard.setData(ClipboardData(
+                text: searchItem.chapters[searchItem.durChapterIndex].url));
             Toast.show(
-                "已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url, context);
+                "已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url,
+                context);
             break;
           case LAUCH:
             launch(searchItem.chapters[searchItem.durChapterIndex].url);
@@ -407,7 +447,9 @@ class UINovelMenu extends StatelessWidget {
             children: <Widget>[
               Text(provider.useSelectableText ? '退出复制模式' : '进入复制模式'),
               Icon(
-                provider.useSelectableText ? Icons.flip_to_back : Icons.flip_to_front,
+                provider.useSelectableText
+                    ? Icons.flip_to_back
+                    : Icons.flip_to_front,
                 color: primaryColor,
               ),
             ],
@@ -449,7 +491,8 @@ class UINovelMenu extends StatelessWidget {
                     '章节',
                     style: TextStyle(color: color),
                   ),
-                  onTap: () => provider.loadChapter(searchItem.durChapterIndex - 1),
+                  onTap: () =>
+                      provider.loadChapter(searchItem.durChapterIndex - 1),
                 ),
                 SizedBox(width: 10),
                 Expanded(
@@ -470,7 +513,8 @@ class UINovelMenu extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(3),
                           color: bgColor,
-                          border: Border.all(color: color.withOpacity(0.65), width: 1),
+                          border: Border.all(
+                              color: color.withOpacity(0.65), width: 1),
                         ),
                       ),
                     ),
@@ -535,7 +579,8 @@ class UINovelMenu extends StatelessWidget {
                     '共${searchItem.chaptersCount}章',
                     style: TextStyle(color: color),
                   ),
-                  onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
+                  onTap: () =>
+                      provider.loadChapter(searchItem.durChapterIndex + 1),
                 ),
               ],
             ),
@@ -550,8 +595,8 @@ class UINovelMenu extends StatelessWidget {
                   BottomBarButton(
                     icon: Icon(FIcons.arrow_left, color: color, size: 25),
                     child: Text("上一章", style: TextStyle(color: color)),
-                    onPressed: () =>
-                        provider.switchChapter(profile, searchItem.durChapterIndex - 1),
+                    onPressed: () => provider.switchChapter(
+                        profile, searchItem.durChapterIndex - 1),
                   ),
                   BottomBarButton(
                     icon: Icon(FIcons.list, color: color, size: 25),
@@ -569,8 +614,8 @@ class UINovelMenu extends StatelessWidget {
                   BottomBarButton(
                     icon: Icon(FIcons.arrow_right, color: color, size: 25),
                     child: Text("下一章", style: TextStyle(color: color)),
-                    onTap: () =>
-                        provider.switchChapter(profile, searchItem.durChapterIndex + 1),
+                    onTap: () => provider.switchChapter(
+                        profile, searchItem.durChapterIndex + 1),
                   ),
                 ],
               ),
@@ -601,24 +646,23 @@ class UINovelMenu extends StatelessWidget {
           height: 32,
           alignment: Alignment.center,
           child: TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              TextInputFormatterRegExp(RegExp(inputFormattersRegExp)),
-            ],
-            controller: TextEditingController(
-              text: text,
-            ),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hint ?? text,
-              isDense: true,
-              contentPadding: EdgeInsets.only(bottom: 4, top: 4),
-            ),
-            textAlign: TextAlign.center,
-            textAlignVertical: TextAlignVertical.center,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (value) => onChange(double.parse(value))
-          ),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                TextInputFormatterRegExp(RegExp(inputFormattersRegExp)),
+              ],
+              controller: TextEditingController(
+                text: text,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: hint ?? text,
+                isDense: true,
+                contentPadding: EdgeInsets.only(bottom: 4, top: 4),
+              ),
+              textAlign: TextAlign.center,
+              textAlignVertical: TextAlignVertical.center,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (value) => onChange(double.parse(value))),
         ),
         InkWell(
           child: Icon(Icons.add),
