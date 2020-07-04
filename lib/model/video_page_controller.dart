@@ -158,6 +158,8 @@ class VideoPageController with ChangeNotifier {
     }
     _isLoading = false;
     notifyListeners();
+    if (isPlaying)
+      Wakelock.enable();
   }
 
   Future<void> loadChapter(int chapterIndex) async {
@@ -231,14 +233,14 @@ class VideoPageController with ChangeNotifier {
       _controller.pause();
       _audioController?.pause();
 
-      Wakelock.enable();
+      Wakelock.disable();
       showToastText('暂停');
     } else {
       AudioService.stop();
       _controller.play();
       _audioController?.play();
 
-      Wakelock.disable();
+      Wakelock.enable();
       showToastText('播放');
     }
     refreshLastTime();
