@@ -136,9 +136,7 @@ class APIFromRUle implements API {
   Future<List<ChapterItem>> chapter(final String url) async {
     final result = <ChapterItem>[];
     final engineId = await FlutterJs.initEngine();
-    int requestLength = 0;
-    int responseLength = 0;
-    String chapterUrl;
+    var bodyBytesLength = 0;
     for (var page = 1;; page++) {
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
       if (page > 1 && !chapterUrlRule.contains("page")) break;
@@ -148,14 +146,11 @@ class APIFromRUle implements API {
         result: url,
         page: page,
       );
-      if (res.request.contentLength == requestLength &&
-          res.contentLength == responseLength &&
-          res.request.url.toString() == chapterUrl) {
+      if (bodyBytesLength == res.bodyBytes.length) {
         break;
       }
-      requestLength = res.request.contentLength;
-      responseLength = res.contentLength;
-      chapterUrl = res.request.url.toString();
+      bodyBytesLength = res.bodyBytes.length;
+      final chapterUrl = res.request.url.toString();
       final reversed = rule.chapterList.startsWith("-");
       await FlutterJs.evaluate(
           "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
@@ -202,11 +197,9 @@ class APIFromRUle implements API {
   Future<List<String>> content(final String url) async {
     final result = <String>[];
     final engineId = await FlutterJs.initEngine();
-    int requestLength = 0;
-    int responseLength = 0;
-    String contentUrl;
+    var bodyBytesLength = 0;
     for (var page = 1;; page++) {
-      final contentUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
+      final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : url;
       if (page > 1 && !contentUrlRule.contains("page")) break;
       final res = await AnalyzeUrl.urlRuleParser(
         contentUrlRule,
@@ -214,14 +207,11 @@ class APIFromRUle implements API {
         result: url,
         page: page,
       );
-      if (res.request.contentLength == requestLength &&
-          res.contentLength == responseLength &&
-          res.request.url.toString() == contentUrl) {
+      if (bodyBytesLength == res.bodyBytes.length) {
         break;
       }
-      requestLength = res.request.contentLength;
-      responseLength = res.contentLength;
-      contentUrl = res.request.url.toString();
+      bodyBytesLength = res.bodyBytes.length;
+      final contentUrl = res.request.url.toString();
       if (rule.contentItems.contains("@js:")) {
         await FlutterJs.evaluate(
             "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",

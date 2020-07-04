@@ -256,36 +256,30 @@ class DebugRuleProvider with ChangeNotifier {
   void parseChapter(String result) async {
     _beginEvent("目录");
     final engineId = await FlutterJs.initEngine();
-    int requestLength = 0;
-    int responseLength = 0;
-    String chapterUrl;
+    var bodyBytesLength = 0;
     dynamic firstChapter;
     for (var page = 1;; page++) {
-      try {
-        final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
-        if (page > 1) {
-          if (!chapterUrlRule.contains("page")) {
-            break;
-          } else {
-            _addContent("解析第$page页");
-          }
+      final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
+      if (page > 1) {
+        if (!chapterUrlRule.contains("page")) {
+          break;
+        } else {
+          _addContent("解析第$page页");
         }
+      }
+      try {
         final res = await AnalyzeUrl.urlRuleParser(
           chapterUrlRule,
           rule,
           result: result,
           page: page,
         );
-        if (res.request.contentLength == requestLength &&
-            res.contentLength == responseLength &&
-            res.request.url.toString() == chapterUrl) {
-          FlutterJs.close(engineId);
-          _addContent("响应重复，章节解析完成！");
+        if (bodyBytesLength == res.bodyBytes.length) {
+          _addContent("响应长度等于上个结果\n内容可能重复，终止解析！\n（如果出问题请通知修改代码）");
           break;
         }
-        requestLength = res.request.contentLength;
-        responseLength = res.contentLength;
-        chapterUrl = res.request.url.toString();
+        bodyBytesLength = res.bodyBytes.length;
+        final chapterUrl = res.request.url.toString();
         _addContent("地址", chapterUrl, true);
         final reversed = rule.chapterList.startsWith("-");
         if (reversed) {
@@ -304,7 +298,6 @@ class DebugRuleProvider with ChangeNotifier {
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
         final count = chapterList.length;
         if (count == 0) {
-          FlutterJs.close(engineId);
           _addContent("章节列表个数为0，解析结束！");
           break;
         } else {
@@ -314,7 +307,6 @@ class DebugRuleProvider with ChangeNotifier {
           }
         }
       } catch (e) {
-        FlutterJs.close(engineId);
         rows.add(Row(
           children: [
             Flexible(
@@ -326,6 +318,8 @@ class DebugRuleProvider with ChangeNotifier {
           ],
         ));
         _addContent("解析结束！");
+        FlutterJs.close(engineId);
+        break;
       }
     }
     if (firstChapter != null) {
@@ -373,35 +367,31 @@ class DebugRuleProvider with ChangeNotifier {
   void praseContent(String result) async {
     _beginEvent("正文");
     final engineId = await FlutterJs.initEngine();
-    int requestLength = 0;
-    int responseLength = 0;
-    String contentUrl;
+    var bodyBytesLength = 0;
     for (var page = 1;; page++) {
-      try {
-        final contentUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
-        if (page > 1) {
-          if (!contentUrlRule.contains("page")) {
-            break;
-          } else {
-            _addContent("解析第$page页");
-          }
+      final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
+      if (page > 1) {
+        if (!contentUrlRule.contains("page")) {
+          FlutterJs.close(engineId);
+          return;
+        } else {
+          _addContent("解析第$page页");
         }
+      }
+      try {
         final res = await AnalyzeUrl.urlRuleParser(
           contentUrlRule,
           rule,
           result: result,
           page: page,
         );
-        if (res.request.contentLength == requestLength &&
-            res.contentLength == responseLength &&
-            res.request.url.toString() == contentUrl) {
+        if (bodyBytesLength == res.bodyBytes.length) {
+          _addContent("响应长度等于上个结果\n内容可能重复，终止解析！\n（如果出问题请通知修改代码）");
           FlutterJs.close(engineId);
-          _addContent("响应重复，正文解析完成！");
-          break;
+          return;
         }
-        requestLength = res.request.contentLength;
-        responseLength = res.contentLength;
-        contentUrl = res.request.url.toString();
+        bodyBytesLength = res.bodyBytes.length;
+        final contentUrl = res.request.url.toString();
         _addContent("地址", contentUrl, true);
         if (rule.contentItems.contains("@js:")) {
           await FlutterJs.evaluate(
@@ -420,10 +410,11 @@ class DebugRuleProvider with ChangeNotifier {
         if (count == 0) {
           _addContent("正文结果个数为0，解析结束！");
           FlutterJs.close(engineId);
+          return;
         } else if (contentItems.join().trim().isEmpty) {
           _addContent("正文内容为空，解析结束！");
           FlutterJs.close(engineId);
-          break;
+          return;
         } else {
           _addContent("正文结果个数", count.toString());
           final isUrl = rule.contentType == API.MANGA ||
@@ -444,7 +435,6 @@ class DebugRuleProvider with ChangeNotifier {
           notifyListeners();
         }
       } catch (e) {
-        FlutterJs.close(engineId);
         rows.add(Row(
           children: [
             Flexible(
@@ -456,8 +446,9 @@ class DebugRuleProvider with ChangeNotifier {
           ],
         ));
         _addContent("解析结束！");
+        FlutterJs.close(engineId);
+        // return;
       }
     }
-    FlutterJs.close(engineId);
   }
 }
