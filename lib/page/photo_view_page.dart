@@ -94,9 +94,9 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                     });
                   },
                 )),
-            onTap: () {
-              Navigator.of(context).pop();
-            },
+            // onTap: () {
+            //   Navigator.of(context).pop();
+            // },
             onLongPress: doLongPress,
             //onSecondaryLongPress: doLongPress,
           ),
