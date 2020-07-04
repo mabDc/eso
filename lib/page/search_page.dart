@@ -391,7 +391,7 @@ class SearchProvider with ChangeNotifier {
   }
 
   void _searchExec(int key, int offset, int realCount, String keyword) async {
-    await Utils.sleep(1000);
+    await Utils.sleep(50);
     if (_keys != key) return;
     for (var j = 0; j < realCount; j++) {
       if (key == _keys) {
@@ -403,9 +403,9 @@ class SearchProvider with ChangeNotifier {
             _searchResp?.forEach((item) {
               if (_keys == key) {
                 searchListNone.add(item);
-                if (item.name.contains(keyword)) {
+                if (item.name?.contains(keyword) == true || item.author?.contains(keyword) == true) {
                   searchListNormal.add(item);
-                  if (item.name == keyword) {
+                  if (item.name == keyword || item.author == keyword) {
                     searchListAccurate.add(item);
                   }
                 }
@@ -421,7 +421,8 @@ class SearchProvider with ChangeNotifier {
             notifyListeners();
           }
         }
-      }
+      } else
+        break;
     }
   }
 
