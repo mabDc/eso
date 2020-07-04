@@ -231,12 +231,26 @@ class _DiscoverPageState extends State<DiscoverPage> {
     final rule = provider.rules[index];
     Widget _child = ListTile(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => DiscoverSearchPage(
-                rule: rule,
-                originTag: rule.id,
-                origin: rule.name,
-                discoverMap: APIFromRUle(rule).discoverMap(),
-              ))),
+          builder: (context) => FutureBuilder<List<DiscoverMap>>(
+              future: APIFromRUle(rule).discoverMap(),
+              initialData: null,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.hasError) {
+                  return Scaffold(
+                    body: Text("error: ${snapshot.error}"),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return LandingPage();
+                }
+                return DiscoverSearchPage(
+                  rule: rule,
+                  originTag: rule.id,
+                  origin: rule.name,
+                  discoverMap: snapshot.data,
+                );
+              },
+            ))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
           .whenComplete(() => refreshData(provider)),

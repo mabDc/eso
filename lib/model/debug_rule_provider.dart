@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:eso/api/api.dart';
-import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/rule.dart';
 import 'package:flutter/services.dart';
 import '../api/analyze_url.dart';
@@ -88,10 +87,21 @@ class DebugRuleProvider with ChangeNotifier {
     rows.clear();
     _beginEvent("发现");
     final engineId = await FlutterJs.initEngine();
-    _addContent("js初始化");
     try {
+      var discoverRule = rule.discoverUrl;
+      final jsPos = discoverRule.indexOf("@js:");
+      if (jsPos != -1) {
+        _addContent("开始执行发现js规则");
+        final engineId = await FlutterJs.initEngine();
+        await FlutterJs.evaluate(
+            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)};",
+            engineId);
+        discoverRule =
+            "${await FlutterJs.evaluate(discoverRule.substring(jsPos + 4), engineId)}";
+        _addContent("执行完成，结果如下\n" + discoverRule);
+      }
       final discoverResult = await AnalyzeUrl.urlRuleParser(
-        rule.discoverUrl.split(RegExp(r"\n+|&&")).first.split("::").last,
+        discoverRule.split(RegExp(r"\n+|&&")).first.split("::").last,
         rule,
         page: 1,
         pageSize: 20,
@@ -171,7 +181,6 @@ class DebugRuleProvider with ChangeNotifier {
   void search(String value) async {
     _startTime = DateTime.now();
     rows.clear();
-    _beginEvent("搜索");
     final engineId = await FlutterJs.initEngine();
     _addContent("js初始化");
     try {

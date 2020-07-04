@@ -173,16 +173,22 @@ class _EditSourcePageState extends State<EditSourcePage> {
     final _theme = Theme.of(context);
     final _leadColor = () {
       switch (rule.contentType) {
-        case API.MANGA: return _theme.primaryColorLight;
-        case API.VIDEO: return _theme.primaryColor;
-        case API.AUDIO: return _theme.primaryColorDark;
-        default: return Colors.white;
+        case API.MANGA:
+          return _theme.primaryColorLight;
+        case API.VIDEO:
+          return _theme.primaryColor;
+        case API.AUDIO:
+          return _theme.primaryColorDark;
+        default:
+          return Colors.white;
       }
     };
     final _leadBorder = () {
       switch (rule.contentType) {
-        case API.NOVEL: return Border.all(color: _theme.primaryColor, width: 1.0);
-        default: return null;
+        case API.NOVEL:
+          return Border.all(color: _theme.primaryColor, width: 1.0);
+        default:
+          return null;
       }
     };
     final ___leadColor = _leadColor();
@@ -205,13 +211,13 @@ class _EditSourcePageState extends State<EditSourcePage> {
               shape: BoxShape.circle,
               border: _leadBorder(),
             ),
-            child: Text(rule.ruleTypeName, style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Global.lightness(___leadColor) > 180 ?
-                _theme.primaryColorDark :
-                Colors.white
-            )),
+            child: Text(rule.ruleTypeName,
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Global.lightness(___leadColor) > 180
+                        ? _theme.primaryColorDark
+                        : Colors.white)),
           ),
           dense: true,
           title: Text('${rule.name}', style: TextStyle(fontSize: 16)),
@@ -248,26 +254,46 @@ class _EditSourcePageState extends State<EditSourcePage> {
             ],
           ),
           onTap: () => _onTap(true),
+
           onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => DiscoverSearchPage(
-                    rule: rule,
-                    originTag: rule.id,
-                    origin: rule.name,
-                    discoverMap: APIFromRUle(rule).discoverMap(),
-                  ))),
+            builder: (context) => FutureBuilder<List<DiscoverMap>>(
+              future: APIFromRUle(rule).discoverMap(),
+              initialData: null,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.hasError) {
+                  return Scaffold(
+                    body: Text("error: ${snapshot.error}"),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return LandingPage();
+                }
+                return DiscoverSearchPage(
+                  rule: rule,
+                  originTag: rule.id,
+                  origin: rule.name,
+                  discoverMap: snapshot.data,
+                );
+              },
+            ),
+          )),
         ),
       ),
       secondaryActions: <Widget>[
         IconSlideAction(
           caption: '置顶',
           color: Colors.black45,
-          iconWidget: Padding(child: Icon(Icons.vertical_align_top, size: 20, color: Colors.white), padding: EdgeInsets.only(bottom: 4)),
+          iconWidget: Padding(
+              child: Icon(Icons.vertical_align_top, size: 20, color: Colors.white),
+              padding: EdgeInsets.only(bottom: 4)),
           onTap: () => provider.setSortMax(rule),
         ),
         IconSlideAction(
           caption: '删除',
           color: Colors.red,
-          iconWidget: Padding(child: Icon(FIcons.trash, size: 20, color: Colors.white), padding: EdgeInsets.only(bottom: 4)),
+          iconWidget: Padding(
+              child: Icon(FIcons.trash, size: 20, color: Colors.white),
+              padding: EdgeInsets.only(bottom: 4)),
           onTap: () {
             showDialog(
                 context: context,

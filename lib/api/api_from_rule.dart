@@ -239,10 +239,19 @@ class APIFromRUle implements API {
   }
 
   @override
-  List<DiscoverMap> discoverMap() {
+  Future<List<DiscoverMap>> discoverMap() async {
     final map = <DiscoverMap>[];
     final table = Map<String, int>();
     var discoverUrl = rule.discoverUrl;
+    final jsPos = discoverUrl.indexOf("@js:");
+    if (jsPos != -1) {
+      final engineId = await FlutterJs.initEngine();
+      await FlutterJs.evaluate(
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)};",
+          engineId);
+      discoverUrl =
+          "${await FlutterJs.evaluate(discoverUrl.substring(jsPos + 4), engineId)}";
+    }
     for (var url in discoverUrl.split(RegExp(r"\n+|&&"))) {
       final d = url.split("::");
       final rule = d.last.trim();

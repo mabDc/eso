@@ -59,7 +59,7 @@ abstract class API {
 
   Future<List<String>> content(String url);
 
-  List<DiscoverMap> discoverMap();
+  Future<List<DiscoverMap>> discoverMap();
 }
 
 class BaseAPI implements API {
@@ -96,7 +96,7 @@ class BaseAPI implements API {
     return null;
   }
 
-  List<DiscoverMap> discoverMap() {
+  Future<List<DiscoverMap>> discoverMap() {
     return null;
   }
 }
