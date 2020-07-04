@@ -92,17 +92,34 @@ class AnalyzerManager {
     if (r.analyzer is AnalyzerJS) {
       return r.analyzer.getStringList(rule);
     }
-    var result = <String>[];
     if (rule.contains("&&")) {
+      var result = <String>[];
       for (final rSimple in rule.split("&&")) {
         final temp = await _getStringList(r, rSimple);
-        if (temp.isNotEmpty) result.addAll(temp);
+        if (temp is List) {
+          result.addAll(temp
+              .where((e) => null != e)
+              .map((s) => '$s'.trim())
+              .where((s) => s.isNotEmpty));
+        } else if (null != temp && '$temp'.trim().isNotEmpty) {
+          result.add('$temp'.trim());
+        }
       }
       return result;
     } else if (rule.contains("||")) {
+      var result = <String>[];
       for (final rSimple in rule.split("||")) {
         final temp = await _getStringList(r, rSimple);
-        if (temp.isNotEmpty) return temp;
+        if (temp is List) {
+          result = temp
+              .where((e) => null != e)
+              .map((s) => '$s'.trim())
+              .where((s) => s.isNotEmpty)
+              .toList();
+        } else if (null != temp && '$temp'.trim().isNotEmpty) {
+          result = <String>['$temp'.trim()];
+        }
+        if (result.isNotEmpty) return result;
       }
     } else {
       return r.analyzer.getStringList(rule);
