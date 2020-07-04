@@ -33,7 +33,7 @@ class AboutPage extends StatelessWidget {
                     ),
                     Divider(),
                     ListTile(
-                      title: Text('源管理'),
+                      title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
                       onTap: () => Utils.startPageWait(context, EditSourcePage()),
                     ),

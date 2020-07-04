@@ -203,7 +203,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
       {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
-      {'title': '源管理', 'icon': FIcons.edit, 'type': FROM_EDIT_SOURCE},
+      {'title': '规则管理', 'icon': FIcons.edit, 'type': FROM_EDIT_SOURCE},
     ];
     return PopupMenuButton<int>(
       elevation: 20,

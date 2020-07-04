@@ -29,8 +29,14 @@ class LoginRulePage extends StatelessWidget {
     }
     return WillPopScope(
       onWillPop: () async {
-        Toast.show("保存请按右上角\n取消请按左上角", context);
-        return false;
+        final controller = await _controller.future;
+        if (await controller.canGoBack()) {
+          controller.goBack();
+          return false;
+        } else {
+          Toast.show("保存请按右上角\n取消请按左上角", context);
+          return false;
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -43,8 +49,35 @@ class LoginRulePage extends StatelessWidget {
               Navigator.of(context).pop();
             },
           ),
-          title: Text("登录 ${rule.name}"),
+          title: Text(
+            "登录 ${rule.name}",
+            overflow: TextOverflow.ellipsis,
+          ),
           actions: [
+            AppBarButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+              ),
+              onPressed: () async {
+                final controller = await _controller.future;
+                if (await controller.canGoBack()) {
+                  controller.goBack();
+                }
+              },
+            ),
+            AppBarButton(
+              icon: Icon(
+                Icons.arrow_forward_ios,
+                size: 20,
+              ),
+              onPressed: () async {
+                final controller = await _controller.future;
+                if (await controller.canGoForward()) {
+                  controller.goForward();
+                }
+              },
+            ),
             AppBarButton(
               icon: Icon(
                 FIcons.check,
