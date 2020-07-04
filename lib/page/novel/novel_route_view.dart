@@ -103,7 +103,7 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
           if (_controller == null) {
             _controller = AnimationController(
               vsync: this,
-              duration: Duration(milliseconds: 350),
+              duration: Duration(milliseconds: 450),
             );
             _animation = CurvedAnimation(
               parent: _controller,
@@ -122,12 +122,12 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
             children: _isNext ? [
               lastPage,
               SlideTransition(position: _animation.drive(
-                  Tween(end: Offset(-1.2, 0.0), begin: Offset.zero)
+                  Tween(end: Offset(-1.1, 0.0), begin: Offset.zero)
                       .chain(CurveTween(curve: Curves.ease))), child: _last),
             ] : [
               _last,
               SlideTransition(position: _animation.drive(
-                  Tween(begin: Offset(-1.2, 0.0), end: Offset.zero)
+                  Tween(begin: Offset(-1.1, 0.0), end: Offset.zero)
                       .chain(CurveTween(curve: Curves.ease))), child: lastPage),
             ],
           );

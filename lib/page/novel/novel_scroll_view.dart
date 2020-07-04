@@ -24,7 +24,7 @@ class NovelScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _fontColor = Color(profile.novelFontColor);
-    _fontColor70 = _fontColor.withOpacity(0.7);
+    _fontColor70 = _fontColor.withOpacity(_fontColor.opacity > 0.7 ? 0.7 : _fontColor.opacity - 0.02);
 
     return NotificationListener(
       onNotification: (t) {
@@ -196,7 +196,7 @@ class NovelScrollView extends StatelessWidget {
       chapter: searchItem.durChapter,
       msg: '${provider.progress}%',
       padding: profile.novelLeftPadding,
-      fontColor: _fontColor70,
+      fontColor: _fontColor,
       provider: provider
     );
   }

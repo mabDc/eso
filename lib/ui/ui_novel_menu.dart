@@ -353,12 +353,12 @@ class UINovelMenu extends StatelessWidget {
             icon: Icon(FIcons.share_2),
             onTap:
                 Provider.of<NovelPageProvider>(context, listen: false).share),
-        _buildPopupmenu(context, bgColor, color),
+        _buildPopupMenu(context, bgColor, color),
       ],
     );
   }
 
-  Widget _buildPopupmenu(BuildContext context, Color bgColor, Color color) {
+  Widget _buildPopupMenu(BuildContext context, Color bgColor, Color color) {
     const TO_CLICPBOARD = 0;
     const LAUCH = 1;
     const SELECTABLE = 2;

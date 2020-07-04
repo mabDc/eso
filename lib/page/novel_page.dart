@@ -55,6 +55,20 @@ class NovelPage extends StatelessWidget {
                       child: _buildContent(provider, profile),
                     ),
                   ),
+                  if (provider.showChapter || provider.showMenu || provider.showSetting)
+                    WillPopScope(
+                      onWillPop: () async {
+                        if (provider.showChapter == true)
+                          provider.showChapter = false;
+                        else if (provider.showSetting == true) {
+                          provider.showSetting = false;
+                        } else if (provider.showMenu == true) {
+                          provider.showMenu = false;
+                        }
+                        return false;
+                      },
+                      child: SizedBox(),
+                    ),
                   if (provider.showMenu)
                       UINovelMenu(searchItem: searchItem, profile: profile),
                   if (provider.showChapter)

@@ -100,6 +100,9 @@ class _VideoPageState extends State<VideoPage> {
                       ? UIChapterSelect(
                           loadChapter: provider.loadChapter,
                           searchItem: widget.searchItem,
+                          color: Colors.black38,
+                          fontColor: Colors.white,
+                          heightScale: 0.6,
                         )
                       : Container(),
                 ],

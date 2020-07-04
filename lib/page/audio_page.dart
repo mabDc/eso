@@ -73,13 +73,19 @@ class _AudioPageState extends State<AudioPage> {
               width: double.infinity,
               child: Stack(
                 children: <Widget>[
-                  Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    child: Image.network(
-                      Utils.empty(chapter.cover) ? defaultImage : chapter.cover,
-                      fit: BoxFit.cover,
+                  GestureDetector(
+                    child: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      child: Image.network(
+                        Utils.empty(chapter.cover) ? defaultImage : chapter.cover,
+                        fit: BoxFit.cover,
+                      ),
                     ),
+                    onTap: () {
+                      if (provider.showChapter == true)
+                        provider.showChapter = false;
+                    },
                   ),
                   BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -120,6 +126,9 @@ class _AudioPageState extends State<AudioPage> {
                   provider.showChapter
                       ? UIChapterSelect(
                           searchItem: searchItem,
+                          color: Colors.black38,
+                          fontColor: Colors.white70,
+                          heightScale: 0.6,
                           loadChapter: provider.loadChapter)
                       : Container(),
                 ],
