@@ -1,6 +1,18 @@
 ### 7.4 1.13.6+6008
 
-1. 修复增加page规则后解析流程bug by [mabDc](https://github.com/mabDc)
+1. 修复增加page规则后解析流程bug
+
+    以上来自 [mabDc](https://github.com/mabDc)
+
+2. 搜索页：普通和精确结果检查作者
+
+3. 优化搜索处理（解决进度超过100%问题）
+
+4. 优化文字阅读菜单UI
+
+5. 修复视频播放时不能常亮屏幕问题
+
+    以上来自 [yangyxd](https://github.com/yangyxd)
 
 ### 7.3 1.13.5+6007
 
