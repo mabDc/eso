@@ -26,7 +26,6 @@ class NovelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     VolumeChangeEvent onVolumeInc, onVolumeDec;
-    int lastVolumePage = 0;
     final profile = Provider.of<Profile>(context, listen: false);
     final height = MediaQuery.of(context).size.height - 100;
     return ChangeNotifierProvider<NovelPageProvider>(
@@ -49,16 +48,10 @@ class NovelPage extends StatelessWidget {
 
             // 音量键翻页
             if (onVolumeDec == null) onVolumeDec = (v) {
-              if (DateTime.now().millisecondsSinceEpoch - lastVolumePage > 200) {
-                lastVolumePage = DateTime.now().millisecondsSinceEpoch;
-                provider.tapNextPage();
-              }
+              provider.tapNextPage();
             };
             if (onVolumeInc == null) onVolumeInc = (v) {
-              if (DateTime.now().millisecondsSinceEpoch - lastVolumePage > 200) {
-                lastVolumePage = DateTime.now().millisecondsSinceEpoch;
-                provider.tapLastPage();
-              }
+              provider.tapLastPage();
             };
             final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
             EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage, onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
