@@ -26,8 +26,6 @@ class EsoPlugin {
     listeners.remove(onData);
   }
 
-
-
   /// 截获音量键盘
   static Future<void> captureVolumeKeyboard(bool enabled, {
     VolumeChangeEvent onVolumeInc,
@@ -36,9 +34,9 @@ class EsoPlugin {
     _channel.setMethodCallHandler(_handler);
     await _channel.invokeMethod('captureVolumeKeyboard', enabled ? 1 : 0);
     if (enabled == true) {
-      if (onVolumeDec != null)
+      if (onVolumeDec != null && listeners[onVolumeDec] == null)
         listeners[onVolumeDec] = _volumeKeyboardIncListener.stream.listen(onVolumeDec);
-      if (onVolumeInc != null)
+      if (onVolumeInc != null && listeners[onVolumeInc] == null)
         listeners[onVolumeInc] = _volumeKeyboardDecListener.stream.listen(onVolumeInc);
     } else {
       removeListener(onVolumeDec);
