@@ -22,7 +22,7 @@ class AnalyzerJS implements Analyzer {
     } else if (content is Element) {
       _content = jsonEncode(content.outerHtml);
     } else if (content is List<Element>) {
-      _content = jsonEncode(content.map((e) => e.outerHtml).join("\n"));
+      _content = jsonEncode(content.map((e) => e.outerHtml).toList());
     } else {
       try {
         _content = jsonEncode(content);
