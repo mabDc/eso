@@ -16,13 +16,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:eso_plugin/eso_plugin.dart';
+
 /// 文字阅读页面
 class NovelPage extends StatelessWidget {
   final SearchItem searchItem;
-  const NovelPage({this.searchItem, Key key}) : super(key: key);
+  NovelPage({this.searchItem, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    VolumeChangeEvent onVolumeInc, onVolumeDec;
     final profile = Provider.of<Profile>(context, listen: false);
     final height = MediaQuery.of(context).size.height - 100;
     return ChangeNotifierProvider<NovelPageProvider>(
@@ -41,7 +44,18 @@ class NovelPage extends StatelessWidget {
               return LandingPage(color: Color(profile.novelBackgroundColor));
             }
             final _lightens =
-                Global.lightness(Color(profile.novelBackgroundColor));
+              Global.lightness(Color(profile.novelBackgroundColor));
+
+            // 音量键翻页
+            if (onVolumeDec == null) onVolumeDec = (v) {
+              provider.tapNextPage();
+            };
+            if (onVolumeInc == null) onVolumeInc = (v) {
+              provider.tapLastPage();
+            };
+            final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
+            EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage, onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
+
             return GestureDetector(
               child: Stack(
                 children: <Widget>[
