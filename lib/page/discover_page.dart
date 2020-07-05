@@ -327,11 +327,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
             runSpacing: 6,
             children: [
               FlatButton(
-                child: Text("新建源", style: _txtStyle),
+                child: Text("新建规则", style: _txtStyle),
                 onPressed: () => onPopupMenuClick(ADD_RULE, provider),
               ),
               FlatButton(
-                child: Text("管理源", style: _txtStyle),
+                child: Text("规则管理", style: _txtStyle),
                 onPressed: () => onPopupMenuClick(FROM_EDIT_SOURCE, provider),
               ),
               FlatButton(
