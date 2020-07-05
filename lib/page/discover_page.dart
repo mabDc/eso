@@ -314,7 +314,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     return EmptyListMsgView(
         text: Column(
       children: [
-        Text("没有可用的源~~~"),
+        Text("没有可用的规则~~~"),
         SizedBox(height: 8),
         ButtonTheme(
           minWidth: 50,

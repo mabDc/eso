@@ -72,9 +72,11 @@ class _VideoPageState extends State<VideoPage> {
                     child: _buildTopRow(context, provider),
                   ),
                   SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                    child: Text(s, style: TextStyle(fontSize: 16)),
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                      child: Text(s, style: TextStyle(fontSize: 16)),
+                    ),
                   ),
                   SizedBox(height: 30),
                   CupertinoActivityIndicator(),
