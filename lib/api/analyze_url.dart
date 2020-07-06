@@ -24,8 +24,7 @@ page = ${jsonEncode(page)};
 host = ${jsonEncode(rule.host)};
 result = ${jsonEncode(result)};
 pageSize = ${jsonEncode(pageSize)};
-searchKey = ${jsonEncode(keyword)};
-searchPage = ${jsonEncode(page)};
+cookie = ${jsonEncode(rule.cookies)};
 ''', _idJsEngine);
       if (rule.loadJs.trim().isNotEmpty) {
         await FlutterJs.evaluate(rule.loadJs, _idJsEngine);
