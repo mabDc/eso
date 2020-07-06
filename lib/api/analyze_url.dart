@@ -31,7 +31,14 @@ cookie = ${jsonEncode(rule.cookies)};
       }
       final re = await FlutterJs.evaluate(url.substring(4), _idJsEngine);
       FlutterJs.close(_idJsEngine);
-      return _parser(re, rule, keyword);
+      final res = await _parser(re, rule, keyword);
+      if (res.statusCode > 400) {
+        throw "Request Error, statusCode is" + res.statusCode.toString();
+      }
+      if (res.contentLength == 0) {
+        throw "Response is empty";
+      }
+      return res;
     } else {
       // 非js规则, 考虑字符串替换
       Map<String, dynamic> json = {
@@ -43,16 +50,20 @@ cookie = ${jsonEncode(rule.cookies)};
         "searchKey": keyword,
         "searchPage": page,
       };
-      return _parser(
+      final res = await _parser(
         url.replaceAllMapped(
           RegExp(r"\$keyword|\$page|\$host|\$result|\$pageSize|searchKey|searchPage"),
-          (m) {
-            return '${json[m.group(0)]}';
-          },
+          (m) => '${json[m.group(0)]}',
         ),
         rule,
         keyword,
       );
+      if (res.statusCode > 400) {
+        throw "Request Error, statusCode is" + res.statusCode.toString();
+      }
+      if (res.contentLength == 0) {
+        throw "Response is empty";
+      }
     }
   }
 
