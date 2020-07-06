@@ -136,7 +136,6 @@ class APIFromRUle implements API {
   Future<List<ChapterItem>> chapter(final String url) async {
     final result = <ChapterItem>[];
     final engineId = await FlutterJs.initEngine();
-    var bodyBytesLength = 0;
     for (var page = 1;; page++) {
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
       if (page > 1 && !chapterUrlRule.contains("page")) break;
@@ -146,10 +145,6 @@ class APIFromRUle implements API {
         result: url,
         page: page,
       );
-      if (bodyBytesLength == res.bodyBytes.length) {
-        break;
-      }
-      bodyBytesLength = res.bodyBytes.length;
       final chapterUrl = res.request.url.toString();
       final reversed = rule.chapterList.startsWith("-");
       await FlutterJs.evaluate(
@@ -197,7 +192,6 @@ class APIFromRUle implements API {
   Future<List<String>> content(final String url) async {
     final result = <String>[];
     final engineId = await FlutterJs.initEngine();
-    var bodyBytesLength = 0;
     for (var page = 1;; page++) {
       final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : url;
       if (page > 1 && !contentUrlRule.contains("page")) break;
@@ -207,10 +201,6 @@ class APIFromRUle implements API {
         result: url,
         page: page,
       );
-      if (bodyBytesLength == res.bodyBytes.length) {
-        break;
-      }
-      bodyBytesLength = res.bodyBytes.length;
       final contentUrl = res.request.url.toString();
       if (rule.contentItems.contains("@js:")) {
         await FlutterJs.evaluate(

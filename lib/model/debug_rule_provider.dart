@@ -17,12 +17,17 @@ class DebugRuleProvider with ChangeNotifier {
   DateTime _startTime;
   final Rule rule;
   final Color textColor;
-  DebugRuleProvider(this.rule, this.textColor);
+  bool disposeFlag;
+
+  DebugRuleProvider(this.rule, this.textColor){
+    disposeFlag = false;
+  }
 
   final rows = <Row>[];
   @override
   void dispose() {
     rows.clear();
+    disposeFlag = true;
     super.dispose();
   }
 
@@ -264,9 +269,9 @@ class DebugRuleProvider with ChangeNotifier {
   void parseChapter(String result) async {
     _beginEvent("目录");
     final engineId = await FlutterJs.initEngine();
-    var bodyBytesLength = 0;
     dynamic firstChapter;
     for (var page = 1;; page++) {
+      if(disposeFlag) return;
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
       if (page > 1) {
         if (!chapterUrlRule.contains("page")) {
@@ -282,11 +287,6 @@ class DebugRuleProvider with ChangeNotifier {
           result: result,
           page: page,
         );
-        if (bodyBytesLength == res.bodyBytes.length) {
-          _addContent("响应长度等于上个结果\n内容可能重复，终止解析！\n（如果出问题请通知修改代码）");
-          break;
-        }
-        bodyBytesLength = res.bodyBytes.length;
         final chapterUrl = res.request.url.toString();
         _addContent("地址", chapterUrl, true);
         final reversed = rule.chapterList.startsWith("-");
@@ -375,8 +375,8 @@ class DebugRuleProvider with ChangeNotifier {
   void praseContent(String result) async {
     _beginEvent("正文");
     final engineId = await FlutterJs.initEngine();
-    var bodyBytesLength = 0;
     for (var page = 1;; page++) {
+      if(disposeFlag) return;
       final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
       if (page > 1) {
         if (!contentUrlRule.contains("page")) {
@@ -393,12 +393,6 @@ class DebugRuleProvider with ChangeNotifier {
           result: result,
           page: page,
         );
-        if (bodyBytesLength == res.bodyBytes.length) {
-          _addContent("响应长度等于上个结果\n内容可能重复，终止解析！\n（如果出问题请通知修改代码）");
-          FlutterJs.close(engineId);
-          return;
-        }
-        bodyBytesLength = res.bodyBytes.length;
         final contentUrl = res.request.url.toString();
         _addContent("地址", contentUrl, true);
         if (rule.contentItems.contains("@js:")) {
