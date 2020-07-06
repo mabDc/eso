@@ -52,6 +52,9 @@ class APIFromRUle implements API {
       page: page,
       pageSize: pageSize,
     );
+    if (res.contentLength == 0) {
+      return <SearchItem>[];
+    }
     final discoverUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine(_engineId);
     await FlutterJs.evaluate(
@@ -98,6 +101,9 @@ class APIFromRUle implements API {
       pageSize: pageSize,
       keyword: query,
     );
+    if (res.contentLength == 0) {
+      return <SearchItem>[];
+    }
     final searchUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
     await FlutterJs.evaluate(

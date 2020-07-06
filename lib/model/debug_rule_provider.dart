@@ -109,6 +109,11 @@ class DebugRuleProvider with ChangeNotifier {
         page: 1,
         pageSize: 20,
       );
+      if (discoverResult.contentLength == 0) {
+        _addContent("响应内容为空，终止解析！");
+        FlutterJs.close(engineId);
+        return;
+      }
       final discoverUrl = discoverResult.request.url.toString();
       _addContent("地址", discoverUrl, true);
       await FlutterJs.evaluate(
@@ -194,6 +199,11 @@ class DebugRuleProvider with ChangeNotifier {
         page: 1,
         pageSize: 20,
       );
+      if (searchResult.contentLength == 0) {
+        _addContent("响应内容为空，终止解析！");
+        FlutterJs.close(engineId);
+        return;
+      }
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
       await FlutterJs.evaluate(
@@ -330,12 +340,13 @@ class DebugRuleProvider with ChangeNotifier {
           ],
         ));
         _addContent("解析结束！");
-        FlutterJs.close(engineId);
         break;
       }
     }
     if (firstChapter != null) {
       parseFirstChapter(firstChapter, engineId);
+    } else {
+      FlutterJs.close(engineId);
     }
   }
 
@@ -458,7 +469,7 @@ class DebugRuleProvider with ChangeNotifier {
         ));
         _addContent("解析结束！");
         FlutterJs.close(engineId);
-        // return;
+        return;
       }
     }
   }
