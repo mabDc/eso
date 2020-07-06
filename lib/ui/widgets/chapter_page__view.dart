@@ -12,9 +12,9 @@ const int _beginPage = 0x6fffffff;
 /// [isCurChapter] 是否是当前章节
 typedef OnLoadChapterEvent = Future<List<String>> Function(int chapter, bool isCurChapter);
 /// 加载章节段落
-typedef OnBuildSpans = Future<List<List<TextSpan>>> Function(int chapter, List<String> paragraphs);
+typedef OnBuildSpans = Future<List<List<InlineSpan>>> Function(int chapter, List<String> paragraphs);
 
-typedef ChapterWidgetBuilder = Widget Function(BuildContext context, int chapter, int page, int maxPage, List<TextSpan> spans);
+typedef ChapterWidgetBuilder = Widget Function(BuildContext context, int chapter, int page, int maxPage, List<InlineSpan> spans);
 
 class ChapterPageController extends PageController {
   ChapterPageController({
@@ -39,10 +39,10 @@ class ChapterPageController extends PageController {
 
   final int _initialPage;
 
-  List<List<TextSpan>> spans;
+  List<List<InlineSpan>> spans;
 
-  List<List<TextSpan>> _prev = [];
-  List<List<TextSpan>> _next = [];
+  List<List<InlineSpan>> _prev = [];
+  List<List<InlineSpan>> _next = [];
 
   int get pageCount => spans?.length ?? 0;
   int get curPage => initialPage == 0 ? page.round() : page.round() - initialPage;

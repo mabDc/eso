@@ -19,7 +19,7 @@ class NovelRoteView extends StatelessWidget {
   const NovelRoteView({Key key, this.profile, this.provider, this.searchItem})
       : super(key: key);
 
-  static List<List<TextSpan>> spans;
+  static List<List<InlineSpan>> spans;
 
   @override
   Widget build(BuildContext context) {

@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 class NovelOnePageView extends StatelessWidget {
   final NovelPageProvider provider;
   final Profile profile;
-  final List<TextSpan> spans;
+  final List<InlineSpan> spans;
   final Color fontColor;
   final String chapterName;
   final String pageInfo;

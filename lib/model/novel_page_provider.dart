@@ -351,9 +351,9 @@ class NovelPageProvider with ChangeNotifier {
     super.dispose();
   }
 
-  List<List<TextSpan>> _spans;
-  List<List<TextSpan>> get spans => _spans;
-  List<List<TextSpan>> updateSpans(List<List<TextSpan>> spans, {int initialPage}) {
+  List<List<InlineSpan>> _spans;
+  List<List<InlineSpan>> get spans => _spans;
+  List<List<InlineSpan>> updateSpans(List<List<InlineSpan>> spans, {int initialPage}) {
     _spans = spans;
     _currentPage = (searchItem.durContentIndex * spans.length / 10000).round();
     if (_currentPage < 1) {
@@ -365,9 +365,9 @@ class NovelPageProvider with ChangeNotifier {
     return _spans;
   }
 
-  List<TextSpan> _spansFlat;
-  List<TextSpan> get spansFlat => _spansFlat;
-  List<TextSpan> updateSpansFlat(List<List<TextSpan>> spans) {
+  List<InlineSpan> _spansFlat;
+  List<InlineSpan> get spansFlat => _spansFlat;
+  List<InlineSpan> updateSpansFlat(List<List<InlineSpan>> spans) {
     _spansFlat = spans.expand((span) => span).toList();
     return _spansFlat;
   }
@@ -393,7 +393,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 文字排版部分
-  static List<List<TextSpan>> buildSpans(BuildContext context, Profile profile,
+  static List<List<InlineSpan>> buildSpans(BuildContext context, Profile profile,
       SearchItem searchItem, List<String> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile;
@@ -409,7 +409,7 @@ class NovelPageProvider with ChangeNotifier {
         mediaQueryData.padding.top -
         oneLineHeight;
     //final fontColor = Color(__profile.novelFontColor);
-    final _spans = <List<TextSpan>>[];
+    final _spans = <List<InlineSpan>>[];
 
     final newLine = TextSpan(text: "\n");
     final commonStyle = TextStyle(
@@ -417,8 +417,39 @@ class NovelPageProvider with ChangeNotifier {
       height: __profile.novelHeight,
       //color: fontColor,
     );
+    final paragraphLine = TextSpan(
+        text: " ",
+        style: TextStyle(
+          height: 1,
+          fontSize: __profile.novelParagraphPadding,
+        ));
 
-    var currentSpans = <TextSpan>[
+    var _buildImageSpan = (String img, header) {
+      return WidgetSpan(
+        child: GestureDetector(
+          onLongPress: () => Utils.startPageWait(
+            context,
+            PhotoViewPage(
+              items: [PhotoItem(img, headers: header)],
+              heroTag: "WidgetSpan$img",
+            ),
+          ),
+          child: Container(
+            width: width,
+            child: Hero(
+              tag: "WidgetSpan$img",
+              child: UIFadeInImage(
+                url: img,
+                header: header,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          ),
+        ),
+      );
+    };
+
+    var currentSpans = <InlineSpan>[
       TextSpan(
         text: searchItem.durChapter,
         style: TextStyle(
@@ -429,18 +460,22 @@ class NovelPageProvider with ChangeNotifier {
         ),
       ),
       newLine,
-      TextSpan(
-          text: " ",
-          style: TextStyle(
-            height: 1,
-            //color: fontColor,
-            fontSize: __profile.novelParagraphPadding,
-          )),
-      newLine,
+      paragraphLine,
     ];
-    tp.text = TextSpan(children: currentSpans);
+    tp.text = TextSpan(children: currentSpans, style: commonStyle);
     tp.layout(maxWidth: width);
     var currentHeight = tp.height;
+    if ((__profile.novelTitlePadding ?? 0) > 0) {
+      currentSpans.add(TextSpan(
+        children: [
+          WidgetSpan(
+            child: SizedBox(height: __profile.novelTitlePadding, width: width),
+          ),
+          newLine,
+        ]
+      ));
+      currentHeight = currentHeight + __profile.novelTitlePadding;
+    }
     tp.maxLines = 1;
     bool firstLine = true;
     final indentation = Global.fullSpace * __profile.novelIndentation;
@@ -450,35 +485,14 @@ class NovelPageProvider with ChangeNotifier {
         if (currentSpans.isNotEmpty) {
           _spans.add(currentSpans);
           currentHeight = 0;
-          currentSpans = <TextSpan>[];
+          currentSpans = [];
         }
         final img = paragraph.split("@headers");
         final header = img.length == 2 ? jsonDecode(img[1]) : null;
         _spans.add([
           TextSpan(
             children: [
-              WidgetSpan(
-                child: GestureDetector(
-                  onLongPress: () => Utils.startPageWait(
-                    context,
-                    PhotoViewPage(
-                      items: [PhotoItem(img[0], headers: header)],
-                      heroTag: "WidgetSpan$img",
-                    ),
-                  ),
-                  child: Container(
-                    width: width,
-                    child: Hero(
-                      tag: "WidgetSpan$img",
-                      child: UIFadeInImage(
-                        url: img[0],
-                        header: header,
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              _buildImageSpan(img[0], header),
               newLine,
             ],
           )
@@ -489,7 +503,7 @@ class NovelPageProvider with ChangeNotifier {
         if (currentSpans.isNotEmpty) {
           _spans.add(currentSpans);
           currentHeight = 0;
-          currentSpans = <TextSpan>[];
+          currentSpans = [];
         }
         final img = RegExp(r"""(src|data\-original)[^'"]*('|")([^'"]*)""")
             .firstMatch(paragraph)
@@ -497,27 +511,7 @@ class NovelPageProvider with ChangeNotifier {
         _spans.add([
           TextSpan(
             children: [
-              WidgetSpan(
-                child: GestureDetector(
-                  onLongPress: () => Utils.startPageWait(
-                    context,
-                    PhotoViewPage(
-                      items: [PhotoItem(img)],
-                      heroTag: "WidgetSpan$img",
-                    ),
-                  ),
-                  child: Container(
-                    width: width,
-                    child: Hero(
-                      tag: "WidgetSpan$img",
-                      child: UIFadeInImage(
-                        url: img,
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              _buildImageSpan(img, null),
               newLine,
             ],
           )
@@ -528,7 +522,7 @@ class NovelPageProvider with ChangeNotifier {
         if (currentHeight >= height) {
           _spans.add(currentSpans);
           currentHeight = 0;
-          currentSpans = <TextSpan>[];
+          currentSpans = [];
         }
         var firstPos = 1;
         if (firstLine) {
@@ -570,13 +564,7 @@ class NovelPageProvider with ChangeNotifier {
                 )));
           }
           currentSpans.add(newLine);
-          currentSpans.add(TextSpan(
-              text: " ",
-              style: TextStyle(
-                height: 1,
-                //color: fontColor,
-                fontSize: __profile.novelParagraphPadding,
-              )));
+          currentSpans.add(paragraphLine);
           currentSpans.add(newLine);
           currentHeight += oneLineHeight;
           currentHeight += __profile.novelParagraphPadding;
