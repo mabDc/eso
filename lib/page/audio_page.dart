@@ -211,7 +211,7 @@ class _AudioPageState extends State<AudioPage> {
                   value: provider.postionSeconds.toDouble(),
                   min: 0,
                   max: provider.seconds.toDouble(),
-                  divisions: provider.seconds,
+                  divisions: provider.seconds <= 0 ? null : provider.seconds,
                   onChanged: (v) {
                     provider.seekSeconds(v.toInt());
                     _state(() => null);
