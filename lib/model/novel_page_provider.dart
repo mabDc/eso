@@ -9,6 +9,7 @@ import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/cache_util.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
@@ -21,8 +22,8 @@ class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   int _progress;
   int get progress => _progress;
-  List<String> _paragraphs;
-  List<String> get paragraphs => _paragraphs;
+  List<dynamic> _paragraphs;
+  List<dynamic> get paragraphs => _paragraphs;
   ScrollController _controller;
   ScrollController get controller => _controller;
   bool _isLoading;
@@ -123,7 +124,9 @@ class NovelPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Map<int, List<String>> _cache;
+  Map<int, List<dynamic>> _cache;
+  CacheUtil _fileCache;
+  static bool _requestPermission = false;
 
   /// 切换章节
   switchChapter(Profile profile, int index) async {
@@ -145,44 +148,91 @@ class NovelPageProvider with ChangeNotifier {
         null) searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
   }
 
+  // 清理内存缓存
+  _clearMemCache(int index) async {
+    if (_cache == null) return;
+    int minIndex = index - 2;
+    int maxIndex = index + 2;
+    _cache.forEach((key, value) {
+      if (key <= minIndex || key >= maxIndex)
+        _cache.remove(key);
+    });
+  }
+
+  List<String> _cleanContent(List<String> content) {
+    return content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+  }
+
+  _updateCache(int index, List<String> content) {
+    final _content = _cleanContent(content);
+    _cache = {index: _content};
+    _fileCache.putData('$index.${searchItem.name}.${searchItem.author}', _content);
+  }
+
+  _initFileCache() async {
+    if (_fileCache == null) {
+      _fileCache = CacheUtil(cacheName: searchItem.name);
+      if (!_requestPermission) {
+        _requestPermission = true;
+        await _fileCache.requestPermission();
+      }
+    }
+  }
+
+  Future<List<dynamic>> _realLoadContent(int index, [bool useCache = true]) async {
+    if (useCache) {
+      if (_fileCache == null)
+        await _initFileCache();
+      var resp = await _fileCache.getData('$index.${searchItem.name}.${searchItem.author}');
+      if (resp is List) {
+        if (_cache == null)
+          _cache = {index: resp};
+        else
+          _cache[index] = resp;
+        return resp;
+      }
+    }
+    List<String> result = await APIManager.getContent(
+      searchItem.originTag,
+      searchItem.chapters[index].url,
+    );
+    _updateCache(index, result);
+    return result;
+  }
+
+  _cacheNextChapter(int index) async {
+    if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
+      Future.delayed(Duration(milliseconds: 200), () async {
+        if (_cache[index + 1] == null) {
+          await _realLoadContent(index + 1, true);
+          if (index < searchItem.durChapterIndex + 3)
+            _cacheNextChapter(index + 1);
+        }
+      });
+    }
+  }
+
   /// 加载章节内容
-  Future<List<String>> loadContent(int index,
+  Future<List<dynamic>> loadContent(int index,
       {bool useCache = true, VoidCallback onWait}) async {
     /// 检查当前章节
     if (_cache == null) {
       if (onWait != null) onWait();
-      final content = await APIManager.getContent(
-        searchItem.originTag,
-        searchItem.chapters[index].url,
-      );
-      _cache = {index: content.join("\n").split(RegExp(r"\n\s*|\s{2,}"))};
+      await _realLoadContent(index, useCache);
     } else if (_cache[index] == null) {
       if (onWait != null) onWait();
-      final content = await APIManager.getContent(
-        searchItem.originTag,
-        searchItem.chapters[index].url,
-      );
-      _cache[index] = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+      await _realLoadContent(index, useCache);
+    } else if (_cache.length > 16) {
+      _clearMemCache(index);
     }
 
     /// 缓存下一个章节
-    if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
-      Future.delayed(Duration(milliseconds: 100), () async {
-        if (_cache[index + 1] == null) {
-          final content = await APIManager.getContent(
-            searchItem.originTag,
-            searchItem.chapters[index + 1].url,
-          );
-          _cache[index + 1] = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
-        }
-      });
-    }
-
+    _cacheNextChapter(index);
     return _cache[index];
   }
 
   /// 加载指定章节
-  Future<List<String>> loadChapter(int chapterIndex,
+  Future<List<dynamic>> loadChapter(int chapterIndex,
       {bool useCache = true,
       bool notify = true,
       bool changeCurChapter = true,
@@ -394,7 +444,7 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 文字排版部分
   static List<List<InlineSpan>> buildSpans(BuildContext context, Profile profile,
-      SearchItem searchItem, List<String> paragraphs) {
+      SearchItem searchItem, List<dynamic> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile;
 
@@ -480,6 +530,7 @@ class NovelPageProvider with ChangeNotifier {
     bool firstLine = true;
     final indentation = Global.fullSpace * __profile.novelIndentation;
     for (var paragraph in paragraphs) {
+      if (!(paragraph is String)) continue;
       if (paragraph.startsWith("@img")) {
         print("------img--------");
         if (currentSpans.isNotEmpty) {

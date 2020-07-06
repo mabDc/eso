@@ -1,7 +1,9 @@
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../global.dart';
@@ -48,6 +50,30 @@ class AboutPage extends StatelessWidget {
                       subtitle: Text('修改主题色'),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => ColorLensPage())),
+                    ),
+                    ListTile(
+                      title: Text('清理缓存'),
+                      subtitle: Text('清理本地缓存'),
+                      onTap: () async {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            title: Text("清理缓存"),
+                            content: Text("此操作将会清除小说缓存，请确定是否继续！"),
+                            actions: <Widget>[
+                              FlatButton(
+                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  onPressed: () => Navigator.pop(context)),
+                              FlatButton(child: Text('立即清理'), onPressed: () async {
+                                Navigator.pop(context);
+                                await CacheUtil().clear(allCache: true);
+                                Toast.show("缓存清理成功", context);
+                              }),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                     SwitchListTile(
                       title: Text('交换收藏点击和长按效果'),

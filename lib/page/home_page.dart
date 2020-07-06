@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
               DiscoverPage(),
             ],
             onPageChanged: (index) => pageSwitch.changePage(index, false),
-            physics: new NeverScrollableScrollPhysics(), //禁止主页左右滑动
+            physics: NeverScrollableScrollPhysics(), //禁止主页左右滑动
           );
           return Scaffold(
             body: Stack(
