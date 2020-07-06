@@ -35,9 +35,6 @@ cookie = ${jsonEncode(rule.cookies)};
       if (res.statusCode > 400) {
         throw "Request Error, statusCode is" + res.statusCode.toString();
       }
-      if (res.contentLength == 0) {
-        throw "Response is empty";
-      }
       return res;
     } else {
       // 非js规则, 考虑字符串替换
@@ -61,9 +58,7 @@ cookie = ${jsonEncode(rule.cookies)};
       if (res.statusCode > 400) {
         throw "Request Error, statusCode is" + res.statusCode.toString();
       }
-      if (res.contentLength == 0) {
-        throw "Response is empty";
-      }
+      return res;
     }
   }
 

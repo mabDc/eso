@@ -145,6 +145,9 @@ class APIFromRUle implements API {
         result: url,
         page: page,
       );
+      if (res.contentLength == 0) {
+        break;
+      }
       final chapterUrl = res.request.url.toString();
       final reversed = rule.chapterList.startsWith("-");
       await FlutterJs.evaluate(
@@ -201,6 +204,9 @@ class APIFromRUle implements API {
         result: url,
         page: page,
       );
+      if (res.contentLength == 0) {
+        break;
+      }
       final contentUrl = res.request.url.toString();
       if (rule.contentItems.contains("@js:")) {
         await FlutterJs.evaluate(

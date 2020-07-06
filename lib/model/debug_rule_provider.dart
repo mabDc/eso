@@ -19,7 +19,7 @@ class DebugRuleProvider with ChangeNotifier {
   final Color textColor;
   bool disposeFlag;
 
-  DebugRuleProvider(this.rule, this.textColor){
+  DebugRuleProvider(this.rule, this.textColor) {
     disposeFlag = false;
   }
 
@@ -271,7 +271,7 @@ class DebugRuleProvider with ChangeNotifier {
     final engineId = await FlutterJs.initEngine();
     dynamic firstChapter;
     for (var page = 1;; page++) {
-      if(disposeFlag) return;
+      if (disposeFlag) return;
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
       if (page > 1) {
         if (!chapterUrlRule.contains("page")) {
@@ -287,6 +287,10 @@ class DebugRuleProvider with ChangeNotifier {
           result: result,
           page: page,
         );
+        if (res.contentLength == 0) {
+          _addContent("响应内容为空，终止解析！");
+          break;
+        }
         final chapterUrl = res.request.url.toString();
         _addContent("地址", chapterUrl, true);
         final reversed = rule.chapterList.startsWith("-");
@@ -376,7 +380,7 @@ class DebugRuleProvider with ChangeNotifier {
     _beginEvent("正文");
     final engineId = await FlutterJs.initEngine();
     for (var page = 1;; page++) {
-      if(disposeFlag) return;
+      if (disposeFlag) return;
       final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
       if (page > 1) {
         if (!contentUrlRule.contains("page")) {
@@ -393,6 +397,11 @@ class DebugRuleProvider with ChangeNotifier {
           result: result,
           page: page,
         );
+        if (res.contentLength == 0) {
+          _addContent("响应内容为空，终止解析！");
+          FlutterJs.close(engineId);
+          return;
+        }
         final contentUrl = res.request.url.toString();
         _addContent("地址", contentUrl, true);
         if (rule.contentItems.contains("@js:")) {
