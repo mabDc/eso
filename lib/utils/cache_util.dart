@@ -112,7 +112,9 @@ class CacheUtil {
     if (_cacheBasePath == null) {
       _cacheBasePath = (await getApplicationDocumentsDirectory()).path;
       if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-        _cacheBasePath = (await getExternalStorageDirectory()).path;
+        try {
+          _cacheBasePath = (await getExternalStorageDirectory()).path;
+        } catch (e) {}
         if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
           _cacheBasePath = (await getApplicationSupportDirectory()).path;
           if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
