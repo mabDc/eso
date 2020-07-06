@@ -110,11 +110,11 @@ class CacheUtil {
   /// 获取缓存放置目录
   static Future<String> getCacheBasePath() async {
     if (_cacheBasePath == null) {
-      _cacheBasePath = (await getApplicationSupportDirectory()).path;
+      _cacheBasePath = (await getApplicationDocumentsDirectory()).path;
       if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-        _cacheBasePath = (await getApplicationDocumentsDirectory()).path;
+        _cacheBasePath = (await getExternalStorageDirectory()).path;
         if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-          _cacheBasePath = (await getExternalStorageDirectory()).path;
+          _cacheBasePath = (await getApplicationSupportDirectory()).path;
           if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
             _cacheBasePath = (await getTemporaryDirectory()).path;
           }
