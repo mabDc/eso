@@ -120,6 +120,12 @@ class NovelPage extends StatelessWidget {
                 ],
               ),
               onTapUp: (TapUpDetails details) {
+                if (provider.showMenu || provider.showSetting) {
+                  provider.showMenu = false;
+                  provider.showSetting = false;
+                  return;
+                }
+
                 final size = MediaQuery.of(context).size;
                 final _centerX = size.width * (1 / 4);
                 final _centerR = size.width - _centerX;
