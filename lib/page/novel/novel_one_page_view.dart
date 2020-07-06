@@ -4,6 +4,7 @@ import 'package:eso/ui/ui_dash.dart';
 import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// 显示指定页
 class NovelOnePageView extends StatelessWidget {
@@ -28,37 +29,45 @@ class NovelOnePageView extends StatelessWidget {
       textAlign: TextAlign.right,
       style: TextStyle(color: fontColor),
     );
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: padding),
-      height: 24,
-      child: DefaultTextStyle(
-        style: TextStyle(color: fontColor, fontSize: 12),
-        child: Row(
-          children: provider.useSelectableText ? [
-            FlatButton(
-              child: IconText(
-                '退出复制模式',
-                style: TextStyle(color: fontColor),
-                icon: Icon(Icons.clear),
-                iconSize: 16,
-              ),
-              onPressed: () => provider.useSelectableText = false,
+    return Builder(
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          height: 24,
+          child: DefaultTextStyle(
+            style: TextStyle(color: fontColor, fontSize: 12),
+            child: Row(
+              children: (Provider.of<NovelPageProvider>(context, listen: true)?.useSelectableText ?? false) ? [
+                ButtonTheme(
+                  padding: EdgeInsets.zero,
+                  minWidth: 10,
+                  child: FlatButton(
+                    child: IconText(
+                      '退出复制模式',
+                      style: TextStyle(color: fontColor),
+                      icon: Icon(Icons.clear),
+                      iconSize: 16,
+                    ),
+                    onPressed: () => provider.useSelectableText = false,
+                  ),
+                ),
+                Expanded(child: SizedBox()),
+                _txt,
+              ] : [
+                Expanded(
+                  child: Text(
+                    '$chapter',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 8),
+                _txt,
+              ],
             ),
-            Expanded(child: SizedBox()),
-            _txt,
-          ] : [
-            Expanded(
-              child: Text(
-                '$chapter',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            SizedBox(width: 8),
-            _txt,
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
