@@ -95,7 +95,7 @@ class AppBarEx extends StatelessWidget implements PreferredSizeWidget {
             icon: Icon(FIcons.chevron_left, color: color),
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             iconSize: 24,
-            onPressed: onPressed ?? () => Navigator.maybePop(context),
+            onPressed: onPressed ?? () => Navigator.pop(context),
           )
         : null;
   }

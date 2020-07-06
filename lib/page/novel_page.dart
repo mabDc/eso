@@ -72,13 +72,9 @@ class NovelPage extends StatelessWidget {
                   if (provider.showChapter || provider.showMenu || provider.showSetting)
                     WillPopScope(
                       onWillPop: () async {
-                        if (provider.showChapter == true)
-                          provider.showChapter = false;
-                        else if (provider.showSetting == true) {
-                          provider.showSetting = false;
-                        } else if (provider.showMenu == true) {
-                          provider.showMenu = false;
-                        }
+                        provider.showChapter = false;
+                        provider.showSetting = false;
+                        provider.showMenu = false;
                         return false;
                       },
                       child: SizedBox(),
