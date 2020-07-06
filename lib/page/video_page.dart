@@ -104,6 +104,7 @@ class _VideoPageState extends State<VideoPage> {
                           searchItem: widget.searchItem,
                           color: Colors.black45,
                           fontColor: Colors.white70,
+                          border: BorderSide(color: Colors.white12, width: Global.borderSize),
                           heightScale: 0.6,
                         )
                       : Container(),

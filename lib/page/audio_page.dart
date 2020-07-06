@@ -68,13 +68,13 @@ class _AudioPageState extends State<AudioPage> {
           __provider = provider;
           final chapter = searchItem.chapters[searchItem.durChapterIndex];
           return Scaffold(
-            body: Container(
-              height: double.infinity,
-              width: double.infinity,
-              child: Stack(
-                children: <Widget>[
-                  GestureDetector(
-                    child: Container(
+            body: GestureDetector(
+              child: Container(
+                height: double.infinity,
+                width: double.infinity,
+                child: Stack(
+                  children: <Widget>[
+                    Container(
                       height: double.infinity,
                       width: double.infinity,
                       child: Image.network(
@@ -82,57 +82,58 @@ class _AudioPageState extends State<AudioPage> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    onTap: () {
-                      if (provider.showChapter == true)
-                        provider.showChapter = false;
-                    },
-                  ),
-                  BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(color: Colors.black.withAlpha(30)),
-                  ),
-                  SafeArea(
-                    child: Column(
-                      children: <Widget>[
-                        _buildAppBar(provider, chapter.name, chapter.time),
-                        Expanded(
-                          child: Center(
-                              child: SizedBox(
-                                width: 300,
-                                height: 300,
-                                child: AnimationRotateView(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Utils.empty(chapter.cover) ? Colors.black26 : null,
-                                      image: Utils.empty(chapter.cover) ? null : DecorationImage(
-                                        image: NetworkImage(chapter.cover ?? ''),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    child: Utils.empty(chapter.cover) ? Icon(Icons.audiotrack, color: Colors.white30, size: 200) : null,
-                                  ),
-                                ),
-                              )
-                          ),
-                        ),
-                        _buildProgressBar(provider),
-                        SizedBox(height: 10),
-                        _buildBottomController(provider),
-                        SizedBox(height: 25),
-                      ],
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(color: Colors.black.withAlpha(30)),
                     ),
-                  ),
-                  provider.showChapter
-                      ? UIChapterSelect(
-                          searchItem: searchItem,
-                          color: Colors.black38,
-                          fontColor: Colors.white70,
-                          heightScale: 0.6,
-                          loadChapter: provider.loadChapter)
-                      : Container(),
-                ],
+                    SafeArea(
+                      child: Column(
+                        children: <Widget>[
+                          _buildAppBar(provider, chapter.name, chapter.time),
+                          Expanded(
+                            child: Center(
+                                child: SizedBox(
+                                  width: 300,
+                                  height: 300,
+                                  child: AnimationRotateView(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Utils.empty(chapter.cover) ? Colors.black26 : null,
+                                        image: Utils.empty(chapter.cover) ? null : DecorationImage(
+                                          image: NetworkImage(chapter.cover ?? ''),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      child: Utils.empty(chapter.cover) ? Icon(Icons.audiotrack, color: Colors.white30, size: 200) : null,
+                                    ),
+                                  ),
+                                )
+                            ),
+                          ),
+                          _buildProgressBar(provider),
+                          SizedBox(height: 10),
+                          _buildBottomController(provider),
+                          SizedBox(height: 25),
+                        ],
+                      ),
+                    ),
+                    provider.showChapter
+                        ? UIChapterSelect(
+                        searchItem: searchItem,
+                        color: Colors.black38,
+                        fontColor: Colors.white70,
+                        border: BorderSide(color: Colors.white10, width: Global.borderSize),
+                        heightScale: 0.5,
+                        loadChapter: provider.loadChapter)
+                        : Container(),
+                  ],
+                ),
               ),
+              onTap: () {
+                if (provider.showChapter == true)
+                  provider.showChapter = false;
+              },
             ),
           );
         },

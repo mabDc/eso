@@ -187,13 +187,24 @@ class NovelPageProvider with ChangeNotifier {
       bool notify = true,
       bool changeCurChapter = true,
       bool lastPage}) async {
+
     _showChapter = false;
     if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
       return null;
     if (notify) _isLoading = true;
-    var _data = await loadContent(chapterIndex, useCache: useCache, onWait: () {
-      if (notify) notifyListeners();
-    });
+    var _data;
+    try {
+      _data = await loadContent(chapterIndex, useCache: useCache, onWait: () {
+        if (notify) notifyListeners();
+      });
+    } catch (e) {
+      if (notify) {
+        _isLoading = false;
+        notifyListeners();
+      }
+      return null; // 加载失败
+    }
+
     if (changeCurChapter) {
       _paragraphs = _data;
       await updateSearchItem(chapterIndex);

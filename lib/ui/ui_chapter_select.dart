@@ -15,12 +15,14 @@ class UIChapterSelect extends StatefulWidget {
   final Color color;
   final Color fontColor;
   final double heightScale;
+  final BorderSide border;
   const UIChapterSelect({
     this.loadChapter,
     this.searchItem,
     this.color,
     this.fontColor,
     this.heightScale = 0.55,
+    this.border,
     Key key,
   }) : super(key: key);
 
@@ -86,6 +88,7 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
         color: widget.color ?? Theme.of(context).canvasColor.withOpacity(0.95),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
+          side: widget.border ?? BorderSide.none
         ),
         child: Container(
           height: size.height * widget.heightScale,
