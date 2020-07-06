@@ -5,6 +5,7 @@ import 'package:eso/model/audio_service.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
+/// 旋转动画组件
 class AnimationRotateView extends StatefulWidget {
   final Widget child;
   final bool followAudio;

@@ -194,33 +194,31 @@ class _AudioPageState extends State<AudioPage> {
           width: 52,
         ),
         Expanded(
-          child: FlutterSlider(
-            values: [provider.postionSeconds.toDouble()],
-            max: provider.seconds.toDouble(),
-            min: 0,
-            onDragging: (handlerIndex, lowerValue, upperValue) =>
-                provider.seekSeconds((lowerValue as double).toInt()),
-            handlerHeight: 12,
-            handlerWidth: 12,
-            handler: FlutterSliderHandler(
-              child: Container(
-                width: 12,
-                height: 12,
-                alignment: Alignment.center,
-                child: Icon(Icons.audiotrack, color: Colors.green, size: 12),
-              ),
-            ),
-            trackBar: FlutterSliderTrackBar(
-              inactiveTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white54,
-              ),
-              activeTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Colors.white70,
-              ),
-            ),
-            tooltip: FlutterSliderTooltip(disabled: true),
+          child: StatefulBuilder(
+            builder: (context, _state) {
+              return SliderTheme(
+                data: SliderThemeData(
+                  trackHeight: 3,
+                  thumbColor: Colors.white,
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
+                  activeTrackColor: Colors.white70,
+                  inactiveTrackColor: Colors.white38,
+                  disabledThumbColor: Colors.grey,
+                  trackShape: RectangularSliderTrackShape()
+                ),
+                child: Slider(
+                  value: provider.postionSeconds.toDouble(),
+                  min: 0,
+                  max: provider.seconds.toDouble(),
+                  divisions: provider.seconds,
+                  onChanged: (v) {
+                    provider.seekSeconds(v.toInt());
+                    _state(() => null);
+                  },
+                  label: "${provider.positionDurationText}",
+                ),
+              );
+            },
           ),
         ),
         Container(

@@ -94,9 +94,9 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
   @override
   Widget build(BuildContext context) {
     if (lastPage != null) {
-      bool isChangePage = (!owner.provider.showMenu &&
-          (lastPageIndex != owner.provider.currentPage ||
-              lastChapterIndex != owner.searchItem.durChapterIndex));
+      // owner.provider.showMenu
+      bool isChangePage = (lastPageIndex != owner.provider.currentPage ||
+              lastChapterIndex != owner.searchItem.durChapterIndex);
       if (isChangePage) {
         if (owner.profile.novelPageSwitch == Profile.novelCover) {
 

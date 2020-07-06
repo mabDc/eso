@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+/// 电池小部件
 class BatteryView extends StatefulWidget {
   final int electricQuantity;
   final double width;

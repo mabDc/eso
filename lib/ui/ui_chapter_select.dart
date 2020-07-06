@@ -49,7 +49,7 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
     final _theme = MediaQuery.of(context);
     final size = _theme.size;
     final screenHeight = size.height - _theme.padding.top - _theme.padding.bottom - 50;
-    final _height = min(screenHeight, widget.searchItem.chapters.length * itemHeight);
+    final _height = widget.searchItem.chapters.length * itemHeight;
     final durHeight = widget.searchItem.durChapterIndex * itemHeight;
     double offset;
     if (_height <= screenHeight) {
