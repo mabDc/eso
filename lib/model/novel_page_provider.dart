@@ -26,7 +26,7 @@ class NovelPageProvider with ChangeNotifier {
   List<dynamic> get paragraphs => _paragraphs;
   ScrollController _controller;
   ScrollController get controller => _controller;
-  bool _isLoading;
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   bool _showMenu;
@@ -121,7 +121,8 @@ class NovelPageProvider with ChangeNotifier {
     }
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
     _paragraphs = await loadContent(searchItem.durChapterIndex);
-    notifyListeners();
+    if (this.mounted)
+      notifyListeners();
   }
 
   Map<int, List<dynamic>> _cache;
@@ -149,7 +150,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   // 清理内存缓存
-  _clearMemCache(int index) async {
+  _clearMemCache(int index) {
     if (_cache == null) return;
     int minIndex = index - 2;
     int maxIndex = index + 2;
@@ -248,7 +249,7 @@ class NovelPageProvider with ChangeNotifier {
         if (notify) notifyListeners();
       });
     } catch (e) {
-      if (notify) {
+      if (notify && this.mounted) {
         _isLoading = false;
         notifyListeners();
       }
@@ -257,7 +258,9 @@ class NovelPageProvider with ChangeNotifier {
 
     if (changeCurChapter) {
       _paragraphs = _data;
-      await updateSearchItem(chapterIndex);
+      await updateSearchItem(chapterIndex, lastPage);
+    } else if (lastPage == true) {
+      searchItem.durContentIndex = 0x7fffffff;
     }
 
     if (changeCurChapter) {
@@ -267,11 +270,7 @@ class NovelPageProvider with ChangeNotifier {
       }
     }
 
-    if (lastPage == true) {
-      searchItem.durContentIndex = 0x7fffffff;
-    }
-
-    if (notify) {
+    if (notify && this.mounted) {
       _isLoading = false;
       notifyListeners();
     }
@@ -287,9 +286,9 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 更新当前章节信息
-  updateSearchItem(int chapterIndex) async {
+  updateSearchItem(int chapterIndex, [bool lastPage]) async {
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
-    searchItem.durContentIndex = 1;
+    searchItem.durContentIndex = lastPage == true ? 0x7fffffff : 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     searchItem.durChapterIndex = chapterIndex;
     await SearchItemManager.saveSearchItem();
@@ -398,8 +397,11 @@ class NovelPageProvider with ChangeNotifier {
     SearchItemManager.saveSearchItem();
     refreshController.dispose();
     _cache?.clear();
+    _isLoading = null;
     super.dispose();
   }
+
+  bool get mounted => _isLoading != null;
 
   List<List<InlineSpan>> _spans;
   List<List<InlineSpan>> get spans => _spans;

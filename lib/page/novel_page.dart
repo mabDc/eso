@@ -19,13 +19,34 @@ import 'package:provider/provider.dart';
 import 'package:eso_plugin/eso_plugin.dart';
 
 /// 文字阅读页面
-class NovelPage extends StatelessWidget {
+class NovelPage extends StatefulWidget {
   final SearchItem searchItem;
   const NovelPage({this.searchItem, Key key}) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _NovelPageState(this.searchItem);
+}
+
+class _NovelPageState extends State<NovelPage> {
+  final SearchItem searchItem;
+  _NovelPageState(this.searchItem): super();
+
+  VolumeChangeEvent onVolumeInc, onVolumeDec;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    EsoPlugin.captureVolumeKeyboard(false, onVolumeInc: onVolumeInc,
+        onVolumeDec: onVolumeDec);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    VolumeChangeEvent onVolumeInc, onVolumeDec;
     final profile = Provider.of<Profile>(context, listen: false);
     final height = MediaQuery.of(context).size.height - 100;
     return ChangeNotifierProvider<NovelPageProvider>(
@@ -44,7 +65,7 @@ class NovelPage extends StatelessWidget {
               return LandingPage(color: Color(profile.novelBackgroundColor));
             }
             final _lightens =
-              Global.lightness(Color(profile.novelBackgroundColor));
+            Global.lightness(Color(profile.novelBackgroundColor));
 
             // 音量键翻页
             if (onVolumeDec == null) onVolumeDec = (v) {
@@ -54,14 +75,15 @@ class NovelPage extends StatelessWidget {
               provider.tapLastPage();
             };
             final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
-            EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage, onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
+            EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage,
+                onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
 
             return GestureDetector(
               child: Stack(
                 children: <Widget>[
                   AnnotatedRegion<SystemUiOverlayStyle>(
                     value: _lightens > 128 ||
-                            _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
+                        _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
                         ? SystemUiOverlayStyle.dark
                         : SystemUiOverlayStyle.light,
                     child: ColoredBox(
@@ -80,39 +102,39 @@ class NovelPage extends StatelessWidget {
                       child: SizedBox(),
                     ),
                   if (provider.showMenu)
-                      UINovelMenu(searchItem: searchItem, profile: profile),
+                    UINovelMenu(searchItem: searchItem, profile: profile),
                   if (provider.showChapter)
-                      UIChapterSelect(
-                        searchItem: searchItem,
-                        loadChapter: (index) {
-                          provider.switchChapter(profile, index);
-                        },
-                      ),
+                    UIChapterSelect(
+                      searchItem: searchItem,
+                      loadChapter: (index) {
+                        provider.switchChapter(profile, index);
+                      },
+                    ),
                   if (provider.isLoading)
-                      Opacity(
-                        opacity: 0.8,
-                        child: Center(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Theme.of(context).canvasColor,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 42, vertical: 20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CupertinoActivityIndicator(),
-                                SizedBox(height: 20),
-                                Text(
-                                  "加载中...",
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ],
-                            ),
+                    Opacity(
+                      opacity: 0.8,
+                      child: Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Theme.of(context).canvasColor,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 42, vertical: 20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CupertinoActivityIndicator(),
+                              SizedBox(height: 20),
+                              Text(
+                                "加载中...",
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                    ),
                 ],
               ),
               onTapUp: (TapUpDetails details) {
@@ -129,9 +151,9 @@ class NovelPage extends StatelessWidget {
                 final _centerB = size.height - size.height * (1 / 3);
 
                 if (details.globalPosition.dx > _centerX &&
-                        details.globalPosition.dx < _centerR &&
-                        details.globalPosition.dy > _centerY &&
-                        details.globalPosition.dy < _centerB) {
+                    details.globalPosition.dx < _centerR &&
+                    details.globalPosition.dy > _centerY &&
+                    details.globalPosition.dy < _centerB) {
                   provider.showMenu = !provider.showMenu;
                   provider.showSetting = false;
                 } else {
@@ -165,4 +187,5 @@ class NovelPage extends StatelessWidget {
         return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
     }
   }
+
 }
