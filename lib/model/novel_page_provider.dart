@@ -35,6 +35,8 @@ class NovelPageProvider with ChangeNotifier {
   set showMenu(bool value) {
     if (_showMenu != value) {
       _showMenu = value;
+      if (value == false)
+        _showChapter = false;
       notifyListeners();
     }
   }
