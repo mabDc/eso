@@ -392,17 +392,19 @@ class _DraggableScrollbarState extends State<DraggableScrollbar>
                       _viewOffset + _barOffset + widget.heightScrollThumb / 2,
                     );
                   }
-                  return Container(
-                    alignment: Alignment.topRight,
-                    margin: EdgeInsets.only(top: max(_barOffset, 0)),
-                    padding: widget.padding,
-                    child: widget.scrollThumbBuilder(
-                      widget.backgroundColor,
-                      _thumbAnimation,
-                      _labelAnimation,
-                      widget.heightScrollThumb,
-                      labelText: labelText,
-                      labelConstraints: widget.labelConstraints,
+                  return RepaintBoundary(
+                    child: Container(
+                      alignment: Alignment.topRight,
+                      margin: EdgeInsets.only(top: max(_barOffset, 0)),
+                      padding: widget.padding,
+                      child: widget.scrollThumbBuilder(
+                        widget.backgroundColor,
+                        _thumbAnimation,
+                        _labelAnimation,
+                        widget.heightScrollThumb,
+                        labelText: labelText,
+                        labelConstraints: widget.labelConstraints,
+                      ),
                     ),
                   );
                 },

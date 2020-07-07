@@ -7,6 +7,7 @@ import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
@@ -384,21 +385,25 @@ class _ChapterPageState extends State<ChapterPage> {
   }
 
   Widget _buildListView(BuildContext context, Function(int index) onTap) {
-    return SliverList(
+    return SliverFixedExtentList(
+      itemExtent: 50,
       delegate: SliverChildBuilderDelegate((context, index) {
-        final showIndex = searchItem.reverseChapter
-            ? searchItem.chaptersCount - index - 1
-            : index;
-        return ListTile(
-          title: Text('${searchItem.chapters[showIndex].name}',
-              style: TextStyle(fontSize: 15),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-          dense: true,
-          selected: showIndex == searchItem.durChapterIndex,
-          onTap: () => onTap(showIndex),
-        );
-      }, childCount: searchItem.chapters.length),
+          final showIndex = searchItem.reverseChapter
+              ? searchItem.chaptersCount - index - 1
+              : index;
+          return ListTile(
+            title: Text('${searchItem.chapters[showIndex].name}',
+                style: TextStyle(fontSize: 15),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+            dense: true,
+            selected: showIndex == searchItem.durChapterIndex,
+            onTap: () => onTap(showIndex),
+          );
+        },
+        childCount: searchItem.chapters.length,
+        addAutomaticKeepAlives: false,
+      ),
     );
   }
 
