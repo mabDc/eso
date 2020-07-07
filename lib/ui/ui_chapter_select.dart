@@ -1,8 +1,6 @@
-import 'dart:math';
-
-import 'package:draggable_scrollbar_sliver/draggable_scrollbar_sliver.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
+import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:flutter/material.dart';
 
 import 'ui_dash.dart';

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
 import '../model/chapter_page_provider.dart';
@@ -29,11 +30,18 @@ class _ChapterPageState extends State<ChapterPage> {
   double opacity = 0.0;
   StateSetter state;
   final SearchItem searchItem;
+  ScrollController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final topHeight = kToolbarHeight + MediaQuery.of(context).padding.top;
+    _controller = ScrollController();
 
     return ChangeNotifierProvider<ChapterPageProvider>(
       create: (context) =>
@@ -42,12 +50,17 @@ class _ChapterPageState extends State<ChapterPage> {
           body: Stack(
         children: [
           NotificationListener(
-            child: CustomScrollView(
-              physics: ClampingScrollPhysics(),
-              slivers: <Widget>[
-                _comicDetail(context),
-                _buildChapter(context),
-              ],
+            child: DraggableScrollbar.semicircle(
+              child: CustomScrollView(
+                physics: ClampingScrollPhysics(),
+                controller: _controller,
+                slivers: <Widget>[
+                  _comicDetail(context),
+                  _buildChapter(context),
+                ],
+              ),
+              controller: _controller,
+              padding: const EdgeInsets.only(top: 100, bottom: 8),
             ),
             onNotification: ((ScrollUpdateNotification n) {
               if (n.depth == 0 && n.metrics.pixels <= 200.0) {
