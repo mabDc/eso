@@ -150,6 +150,47 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = false;
   }
 
+  SourceSortType lastSortType;
+
+  /// 排序
+  void sort(SourceSortType sortType) async {
+    if (_isLoading) return;
+    _isLoading = true;
+    bool isReversal = lastSortType == sortType;
+    if (!isReversal)
+      lastSortType = sortType;
+    else
+      lastSortType = null;
+    _rules.sort((a, b) {
+      switch (sortType) {
+        case SourceSortType.type:
+          return isReversal ? a.contentType - b.contentType : b.contentType - a.contentType;
+          break;
+        case SourceSortType.name:
+          var _a = a.name != null ? a.name : '';
+          var _b = b.name != null ? b.name : '';
+          return isReversal ? _a.compareTo(_b) : _b.compareTo(_a);
+          break;
+        case SourceSortType.author:
+          var _a = a.author != null ? a.author : '';
+          var _b = b.author != null ? b.author : '';
+          return isReversal ? _a.compareTo(_b) : _b.compareTo(_a);
+          break;
+        case SourceSortType.updateTime:
+          return isReversal ? a.modifiedTime - b.modifiedTime : b.modifiedTime - a.modifiedTime;
+          break;
+        case SourceSortType.createTime:
+          return isReversal ? a.createTime - b.createTime : b.createTime - a.createTime;
+          break;
+        default:
+          return 0;
+      }
+    });
+    await Global.ruleDao.insertOrUpdateRules(_rules);
+    notifyListeners();
+    _isLoading = false;
+  }
+
   DateTime _loadTime;
   void getRuleListByNameDebounce(String name) {
     _loadTime = DateTime.now();
@@ -212,4 +253,13 @@ class EditSourceProvider with ChangeNotifier {
     return true;
   }
 
+}
+
+/// 规则排序类型
+enum SourceSortType {
+  type,
+  name,
+  author,
+  updateTime,
+  createTime,
 }
