@@ -367,13 +367,6 @@ class _DraggableScrollbarState extends State<DraggableScrollbar>
 
   @override
   Widget build(BuildContext context) {
-    Widget labelText;
-    if (widget.labelTextBuilder != null && _isDragInProcess) {
-      labelText = widget.labelTextBuilder(
-        _viewOffset + _barOffset + widget.heightScrollThumb / 2,
-      );
-    }
-
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       //print("LayoutBuilder constraints=$constraints");
@@ -393,6 +386,12 @@ class _DraggableScrollbarState extends State<DraggableScrollbar>
               child: StatefulBuilder(
                 builder: (context, _state) {
                   this._state = _state;
+                  Widget labelText;
+                  if (widget.labelTextBuilder != null && _isDragInProcess) {
+                    labelText = widget.labelTextBuilder(
+                      _viewOffset + _barOffset + widget.heightScrollThumb / 2,
+                    );
+                  }
                   return Container(
                     alignment: Alignment.topRight,
                     margin: EdgeInsets.only(top: max(_barOffset, 0)),
