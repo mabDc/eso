@@ -145,7 +145,8 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
     lastPageIndex = owner.provider.currentPage;
     lastChapterIndex = owner.searchItem.durChapterIndex;
     return Material(
-      elevation: 20,
+      elevation: owner.profile.novelPageSwitch == Profile.novelCover
+          ? 20 : 0,
       child: NovelOnePageView(
         provider: owner.provider,
         profile: owner.profile,

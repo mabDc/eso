@@ -90,36 +90,31 @@ class SearchItemManager {
         genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 
-  static Future<bool> backupItems() async {
-    Directory dir = await getExternalStorageDirectory();
+  static Future<String> backupItems() async {
+    if (_searchItem == null || _searchItem.isEmpty)
+      initSearchItem();
     String s = json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
       json["chapters"] =
           getChapter(item.id).map((chapter) => jsonEncode(chapter.toJson())).toList();
       return json;
     }).toList());
-    await File(dir.path + '/backup.txt').writeAsString(s);
-    return true;
+    return s;
   }
 
-  static Future<bool> restore() async {
-    Directory dir = await getExternalStorageDirectory();
-    File file = File(dir.path + '/backup.txt');
-    if (file.existsSync()) {
-      String jsonString = await file.readAsString();
-      List json = jsonDecode(jsonString);
-      json.forEach((item) {
-        SearchItem searchItem = SearchItem.fromJson(item);
-        if (!isFavorite(searchItem.originTag, searchItem.url)) {
-          List<ChapterItem> chapters = (jsonDecode('${item["chapters"]}') as List)
-              .map((chapter) => ChapterItem.fromJson(chapter))
-              .toList();
-          saveChapter(searchItem.id, chapters);
-          _searchItem.add(searchItem);
-        }
-      });
-      saveSearchItem();
-    }
+  static Future<bool> restore(String data) async {
+    List json = jsonDecode(data);
+    json.forEach((item) {
+      SearchItem searchItem = SearchItem.fromJson(item);
+      if (!isFavorite(searchItem.originTag, searchItem.url)) {
+        List<ChapterItem> chapters = (jsonDecode('${item["chapters"]}') as List)
+            .map((chapter) => ChapterItem.fromJson(chapter))
+            .toList();
+        saveChapter(searchItem.id, chapters);
+        _searchItem.add(searchItem);
+      }
+    });
+    saveSearchItem();
     return true;
   }
 }

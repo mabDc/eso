@@ -1,3 +1,7 @@
+import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/evnts/restore_event.dart';
+import 'package:eso/model/edit_source_provider.dart';
+import 'package:eso/model/favorite_list_provider.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -17,6 +21,7 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BuildContext _context = context;
     return Scaffold(
       appBar: AppBarEx(title: Text(Global.appName)),
       body: Consumer<Profile>(
@@ -51,30 +56,6 @@ class AboutPage extends StatelessWidget {
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => ColorLensPage())),
                     ),
-                    ListTile(
-                      title: Text('清理缓存'),
-                      subtitle: Text('清理本地缓存'),
-                      onTap: () async {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                            backgroundColor: Theme.of(context).canvasColor,
-                            title: Text("清理缓存"),
-                            content: Text("此操作将会清除小说缓存，请确定是否继续！"),
-                            actions: <Widget>[
-                              FlatButton(
-                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
-                                  onPressed: () => Navigator.pop(context)),
-                              FlatButton(child: Text('立即清理'), onPressed: () async {
-                                Navigator.pop(context);
-                                await CacheUtil().clear(allCache: true);
-                                Toast.show("缓存清理成功", context);
-                              }),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
                     SwitchListTile(
                       title: Text('交换收藏点击和长按效果'),
                       subtitle: Text(
@@ -107,6 +88,144 @@ class AboutPage extends StatelessWidget {
                     //   subtitle: Text('恢复从 Android/data/com.mabdc.eso/files/backup.txt'),
                     //   onTap: () => SearchItemManager.restore(),
                     // ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        '备份和缓存',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: Text('备份'),
+                      subtitle: Text('备份收藏夹、规则数据到本地存储'),
+                      onTap: () async {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            title: Text("备份"),
+                            content: Text("如果以前有过备份，此操作将会覆盖掉以前的备份数据，请确定是否继续！"),
+                            actions: <Widget>[
+                              FlatButton(
+                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  onPressed: () => Navigator.pop(context)),
+                              FlatButton(child: Text('开始备份'), onPressed: () async {
+                                Navigator.pop(context);
+                                final cache = CacheUtil(backup: true);
+                                final _dir = await cache.cacheDir();
+                                print(_dir);
+                                try {
+                                  final _favorite = await SearchItemManager
+                                      .backupItems();
+                                  cache.put('favorite.json', _favorite, false);
+                                  print("备份收藏夹成功");
+                                } catch (e) {
+                                  print("备份收藏夹： $e");
+                                }
+                                try {
+                                  final _rules = await EditSourceProvider.backupRules();
+                                  cache.putData('rules.json', _rules, false);
+                                  print("备份规则列表成功");
+                                } catch (e) {
+                                  print("备份规则列表： $e");
+                                }
+                                Toast.show("备份成功($_dir)", _context);
+                              }),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      title: Text('恢复'),
+                      subtitle: Text('从备份数据中恢复收藏夹、规则列表'),
+                      onTap: () async {
+                        bool _clean = false;
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            title: Text("恢复"),
+                            content: Row(
+                              children: [
+                                Expanded(
+                                  child: Text("恢复前清空当前数据"),
+                                ),
+                                StatefulBuilder(builder: (context, _state) {
+                                  return Switch(value: _clean, onChanged: (v) {
+                                    _clean = v;
+                                    _state(() => null);
+                                  });
+                                })
+                              ],
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  onPressed: () => Navigator.pop(context)),
+                              FlatButton(child: Text('恢复数据'), onPressed: () async {
+                                Navigator.pop(context);
+                                final cache = CacheUtil(backup: true);
+                                final _dir = await cache.cacheDir();
+                                if (!CacheUtil.existPath(_dir)) {
+                                  Toast.show("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中", _context);
+                                  return;
+                                }
+                                try {
+                                  String _favorite = await cache.get(
+                                      'favorite.json', null, false);
+                                  if (!Utils.empty(_favorite)) {
+                                    await SearchItemManager.restore(_favorite);
+                                    print("恢复收藏夹成功");
+                                  }
+                                } catch (e) {}
+                                try {
+                                  final _rules = await cache.getData('rules.json', null, false);
+                                  if (_rules != null && _rules is List) {
+                                    await EditSourceProvider.restore(_rules, _clean);
+                                  }
+                                  print("恢复规则列表成功");
+                                } catch (e) {}
+                                // 发送一个通知
+                                eventBus.fire(RestoreEvent());
+                                Toast.show("恢复成功", _context);
+                              }),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      title: Text('清理缓存'),
+                      subtitle: Text('清理本地缓存的书籍等'),
+                      onTap: () async {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            title: Text("清理缓存"),
+                            content: Text("此操作将会清除小说缓存，请确定是否继续！"),
+                            actions: <Widget>[
+                              FlatButton(
+                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  onPressed: () => Navigator.pop(context)),
+                              FlatButton(child: Text('立即清理'), onPressed: () async {
+                                Navigator.pop(context);
+                                await CacheUtil().clear(allCache: true);
+                                Toast.show("缓存清理成功", _context);
+                              }),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
+import 'package:eso/evnts/restore_event.dart';
 import 'package:eso/global.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +27,9 @@ class EditSourceProvider with ChangeNotifier {
 
   EditSourceProvider({this.type = 1}) {
     _isLoadingUrl = false;
+    _eventStream = eventBus.on<RestoreEvent>().listen((event) {
+      refreshData();
+    });
     refreshData();
   }
 
@@ -180,9 +186,30 @@ class EditSourceProvider with ChangeNotifier {
     await Global.ruleDao.insertOrUpdateRules(_rules);
   }
 
+  StreamSubscription _eventStream;
+
   @override
   void dispose() {
     _rules.clear();
+    _eventStream.cancel();
     super.dispose();
   }
+
+  static Future<List<Rule>> backupRules() async {
+    return await Global.ruleDao.findAllRules();
+  }
+
+  static Future<bool> restore(List<dynamic> rules, bool reset) async {
+    if (reset)
+      await Global.ruleDao.clearAllRules();
+    List<Rule> _rules = [];
+    if (rules != null) {
+      for (var item in rules) {
+        var _rule = Rule.fromJson(item);
+        await Global.ruleDao.insertOrUpdateRule(_rule);
+      }
+    }
+    return true;
+  }
+
 }

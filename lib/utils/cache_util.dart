@@ -7,13 +7,16 @@ import 'package:path/path.dart' as path;
 
 /// 缓存
 class CacheUtil {
-  static const String _basePath = 'esoCache';
-  static String _cacheBasePath;
+  static const String _basePath = 'cache';
+  static const String _backupPath = 'backup';
+  static String _cacheBasePath, _cacheStoragePath;
 
   /// 缓存名称
   final String cacheName;
+  /// 是否是备份
+  final bool backup;
 
-  CacheUtil({this.cacheName});
+  CacheUtil({this.cacheName, this.backup = false});
 
   String _cacheDir;
 
@@ -30,11 +33,9 @@ class CacheUtil {
 
   Future<String> cacheDir([bool allCache]) async {
     if (_cacheDir != null && allCache != true) return _cacheDir;
-    var dir = _cacheBasePath == null || _cacheBasePath.isEmpty
-        ?  await getCacheBasePath()
-        : _cacheBasePath;
+    var dir = await getCacheBasePath(backup);
     if (dir == null || dir.isEmpty) return null;
-    dir = dir + _separator + _basePath;
+    dir = dir + _separator + 'eso' + _separator + (backup ? _backupPath : _basePath);
     if (allCache == true) {
       return dir + _separator;
     }
@@ -45,17 +46,17 @@ class CacheUtil {
     return _cacheDir;
   }
 
-  Future<String> getFileName(String key) async {
+  Future<String> getFileName(String key, bool hashCodeKey) async {
     var dir = _cacheDir ?? await cacheDir();
     if (dir == null || dir.isEmpty) return null;
-    return dir + key.hashCode.toString() + '.data';
+    return dir + (hashCodeKey ? key.hashCode.toString() + '.data' : key);
   }
 
   /// 写入 key
-  Future<bool> put(String key, String value) async {
+  Future<bool> put(String key, String value, [bool hashCodeKey = true]) async {
     if (key == null || key.isEmpty)
       return false;
-    var _file = await getFileName(key);
+    var _file = await getFileName(key, hashCodeKey);
     if (_file == null || _file.isEmpty)
       return false;
     File _cacheFile = await createFile(_file, path: _cacheDir);
@@ -65,10 +66,10 @@ class CacheUtil {
   }
 
   /// 获取 key 对应的数据
-  Future<String> get(String key, [String defaultValue]) async {
+  Future<String> get(String key, [String defaultValue, bool hashCodeKey = true]) async {
     if (key == null || key.isEmpty)
       return defaultValue;
-    var _file = await getFileName(key);
+    var _file = await getFileName(key, hashCodeKey);
     if (_file == null || _file.isEmpty)
       return defaultValue;
     File _cacheFile = File(_file);
@@ -77,12 +78,12 @@ class CacheUtil {
     return null;
   }
 
-  Future<bool> putData(String key, Object value) async {
-    return await put(key, jsonEncode(value));
+  Future<bool> putData(String key, Object value, [bool hashCodeKey = true]) async {
+    return await put(key, jsonEncode(value), hashCodeKey);
   }
 
-  Future getData(String key, [Object defaultValue]) async {
-    final value = await get(key, null);
+  Future getData(String key, [Object defaultValue, bool hashCodeKey = true]) async {
+    final value = await get(key, null, hashCodeKey);
     if (value == null || value.isEmpty) return defaultValue;
     return jsonDecode(value);
   }
@@ -107,23 +108,36 @@ class CacheUtil {
   /// 路径分隔符
   static String get _separator => Platform.pathSeparator;
 
-  /// 获取缓存放置目录
-  static Future<String> getCacheBasePath() async {
+  /// 获取缓存放置目录 (写了一堆，提升兼容性）
+  static Future<String> getCacheBasePath([bool storage]) async {
+    if (_cacheStoragePath == null) {
+      try {
+        if (Platform.isAndroid) {
+          _cacheStoragePath =  (await getExternalStorageDirectory()).path;
+          if (_cacheStoragePath != null && _cacheStoragePath.isNotEmpty) {
+            final _subStr = 'storage/emulated/0/';
+            var index = _cacheStoragePath.indexOf(_subStr);
+            if (index >= 0) {
+              _cacheStoragePath =
+                  _cacheStoragePath.substring(0, index + _subStr.length - 1);
+            }
+          }
+        } else
+          _cacheStoragePath = (await getApplicationDocumentsDirectory()).path;
+      } catch (e) {}
+    }
     if (_cacheBasePath == null) {
       _cacheBasePath = (await getApplicationDocumentsDirectory()).path;
       if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-        try {
-          _cacheBasePath = (await getExternalStorageDirectory()).path;
-        } catch (e) {}
+        _cacheBasePath = (await getApplicationSupportDirectory()).path;
         if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-          _cacheBasePath = (await getApplicationSupportDirectory()).path;
-          if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-            _cacheBasePath = (await getTemporaryDirectory()).path;
-          }
+          _cacheBasePath = (await getTemporaryDirectory()).path;
         }
       }
+      if (_cacheStoragePath == null || _cacheStoragePath.isEmpty)
+        _cacheStoragePath = _cacheBasePath;
     }
-    return _cacheBasePath;
+    return storage == true ? _cacheStoragePath : _cacheBasePath;
   }
 
   static String getFilePath(final String file) {
