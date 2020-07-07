@@ -111,12 +111,32 @@ class _AudioPageState extends State<AudioPage> {
                                 )
                             ),
                           ),
+                          SizedBox(height: 50),
                           _buildProgressBar(provider),
                           SizedBox(height: 10),
                           _buildBottomController(provider),
                           SizedBox(height: 25),
                         ],
                       ),
+                    ),
+                    SafeArea(
+                      child: Center(
+                        child: Container(
+                          height: 300,
+                          alignment: Alignment.bottomCenter,
+                          child: DefaultTextStyle(
+                            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.75),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(chapter.name, style: TextStyle(fontSize: 15)),
+                                Text(Utils.link(searchItem.origin, searchItem.name,
+                                    divider: ' | ').link(searchItem.chapter).value),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
                     ),
                     provider.showChapter
                         ? UIChapterSelect(

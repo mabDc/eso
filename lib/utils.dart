@@ -71,4 +71,23 @@ class Utils {
       return _downloadPath;
     }
   }
+
+  /// 连接字符串
+  static _StrBuilder link(String a, String b, {String divider = ' '}) {
+    return _StrBuilder(a, divider: divider).link(b);
+  }
+}
+
+class _StrBuilder {
+  String value;
+  final String divider;
+  _StrBuilder(this.value, {this.divider: ' '});
+
+  _StrBuilder link(String value, {String divider}) {
+    bool _a = this.value == null || this.value.isEmpty;
+    bool _b = value == null || value.isEmpty;
+    this.value = _a || _b ? (_a ? value : this.value) :
+      (this.value + (divider == null ? (this.divider ?? ' ') : divider) + value);
+    return this;
+  }
 }
