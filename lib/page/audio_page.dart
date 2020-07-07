@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/database/search_item.dart';
+import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
@@ -172,8 +173,25 @@ class _AudioPageState extends State<AudioPage> {
       textTheme: _textTheme.copyWith(headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
       actions: [
+        StatefulBuilder(
+          builder: (context, _state) {
+            bool isFav = SearchItemManager.isFavorite(
+                searchItem.originTag, searchItem.url);
+            return AppBarButton(
+              icon: isFav
+                  ? Icon(Icons.favorite)
+                  : Icon(Icons.favorite_border),
+              iconSize: 21,
+              tooltip: isFav ? "取消收藏" : "加入收藏",
+              onPressed: () async {
+                await SearchItemManager.toggleFavorite(searchItem);
+                _state(() => null);
+              },
+            );
+          },
+        ),
         AppBarButton(
-          icon: Icon(Icons.share),
+          icon: Icon(FIcons.share_2),
           tooltip: "分享",
           onPressed: provider.share,
         )
