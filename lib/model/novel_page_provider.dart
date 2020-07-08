@@ -22,8 +22,8 @@ class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   int _progress;
   int get progress => _progress;
-  List<dynamic> _paragraphs;
-  List<dynamic> get paragraphs => _paragraphs;
+  List<String> _paragraphs;
+  List<String> get paragraphs => _paragraphs;
   ScrollController _controller;
   ScrollController get controller => _controller;
   bool _isLoading = false;
@@ -127,7 +127,7 @@ class NovelPageProvider with ChangeNotifier {
       notifyListeners();
   }
 
-  Map<int, List<dynamic>> _cache;
+  Map<int, List<String>> _cache;
   CacheUtil _fileCache;
   static bool _requestPermission = false;
 
@@ -182,12 +182,12 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-  Future<List<dynamic>> _realLoadContent(int index, [bool useCache = true]) async {
+  Future<List<String>> _realLoadContent(int index, [bool useCache = true]) async {
     if (useCache) {
       if (_fileCache == null)
         await _initFileCache();
       var resp = await _fileCache.getData('$index.${searchItem.name}.${searchItem.author}');
-      if (resp is List) {
+      if (resp is List<String>) {
         if (_cache == null)
           _cache = {index: resp};
         else
@@ -216,7 +216,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载章节内容
-  Future<List<dynamic>> loadContent(int index,
+  Future<List<String>> loadContent(int index,
       {bool useCache = true, VoidCallback onWait}) async {
     /// 检查当前章节
     if (_cache == null) {
@@ -235,7 +235,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载指定章节
-  Future<List<dynamic>> loadChapter(int chapterIndex,
+  Future<List<String>> loadChapter(int chapterIndex,
       {bool useCache = true,
       bool notify = true,
       bool changeCurChapter = true,
@@ -448,7 +448,7 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 文字排版部分
   static List<List<InlineSpan>> buildSpans(BuildContext context, Profile profile,
-      SearchItem searchItem, List<dynamic> paragraphs) {
+      SearchItem searchItem, List<String> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile;
 

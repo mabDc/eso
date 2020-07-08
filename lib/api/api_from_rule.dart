@@ -19,7 +19,7 @@ class APIFromRUle implements API {
   String _originTag;
   int _ruleContentType;
   int _engineId;
-  final largeSpaceRegExp = RegExp(r"\n+|\s{2,}");
+  final largeSpaceRegExp = RegExp(r"\n+\s*|\s{2,}");
   final tagsSplitRegExp = RegExp(r"[　 ,\|\&\%]+");
 
   @override
@@ -82,7 +82,7 @@ class APIFromRUle implements API {
         url: await analyzer.getString(rule.discoverResult),
         api: this,
         tags: (await analyzer.getString(rule.discoverTags)).split(tagsSplitRegExp)
-          ..removeWhere((tag) => Utils.empty(tag)),
+          ..removeWhere((tag) => tag.isEmpty),
       ));
     }
     FlutterJs.close(engineId);
@@ -131,7 +131,7 @@ class APIFromRUle implements API {
         url: await analyzer.getString(rule.searchResult),
         api: this,
         tags: (await analyzer.getString(rule.searchTags)).split(tagsSplitRegExp)
-          ..removeWhere((tag) => Utils.empty(tag)),
+          ..removeWhere((tag) => tag.isEmpty),
       ));
     }
     FlutterJs.close(engineId);

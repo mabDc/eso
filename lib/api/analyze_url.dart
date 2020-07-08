@@ -32,9 +32,9 @@ cookie = ${jsonEncode(rule.cookies)};
       final re = await FlutterJs.evaluate(url.substring(4), _idJsEngine);
       FlutterJs.close(_idJsEngine);
       final res = await _parser(re, rule, keyword);
-      if (res.statusCode > 400) {
-        throw "Request Error, statusCode is" + res.statusCode.toString();
-      }
+      // if (res.statusCode > 400) {
+      //   throw "Request Error, statusCode is" + res.statusCode.toString();
+      // }
       return res;
     } else {
       // 非js规则, 考虑字符串替换
@@ -55,9 +55,9 @@ cookie = ${jsonEncode(rule.cookies)};
         rule,
         keyword,
       );
-      if (res.statusCode > 400) {
-        throw "Request Error, statusCode is" + res.statusCode.toString();
-      }
+      // if (res.statusCode > 400) {
+      //   throw "Request Error, statusCode is" + res.statusCode.toString();
+      // }
       return res;
     }
   }
