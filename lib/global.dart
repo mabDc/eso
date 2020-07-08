@@ -1,9 +1,12 @@
 import 'dart:math';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/utils/local_storage_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database.dart';
 import 'database/rule_dao.dart';
+
+export 'utils/local_storage_utils.dart';
 
 class Global with ChangeNotifier {
   static const appName = '亦搜';
@@ -21,16 +24,13 @@ class Global with ChangeNotifier {
   static const searchItemKey = "searchItem";
   static const testRuleKey = "testRule";
   static const fullSpace = "　";
-
-  static SharedPreferences _prefs;
-  static SharedPreferences get prefs => _prefs;
   static int currentHomePage;
 
   static RuleDao _ruleDao;
   static RuleDao get ruleDao => _ruleDao;
 
   static Future<bool> init() async {
-    _prefs = await SharedPreferences.getInstance();
+    await LocalStorage.init();
     SearchItemManager.initSearchItem();
     final _database = await $FloorAppDatabase
         .databaseBuilder('eso_database.db')

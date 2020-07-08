@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as path;
 
@@ -52,6 +52,12 @@ class CacheUtil {
     return dir + (hashCodeKey ? key.hashCode.toString() + '.data' : key);
   }
 
+  String getFileNameSync(String key, bool hashCodeKey) {
+    var dir = _cacheDir;
+    if (dir == null || dir.isEmpty) return null;
+    return dir + (hashCodeKey ? key.hashCode.toString() + '.data' : key);
+  }
+
   /// 写入 key
   Future<bool> put(String key, String value, [bool hashCodeKey = true]) async {
     if (key == null || key.isEmpty)
@@ -82,10 +88,72 @@ class CacheUtil {
     return await put(key, jsonEncode(value), hashCodeKey);
   }
 
-  Future getData(String key, [Object defaultValue, bool hashCodeKey = true]) async {
+  Future<dynamic> getData(String key, [Object defaultValue, bool hashCodeKey = true]) async {
     final value = await get(key, null, hashCodeKey);
     if (value == null || value.isEmpty) return defaultValue;
     return jsonDecode(value);
+  }
+
+  setInt(String key, int value) async {
+    await putData(key, {'value': value, 'type': 'int'}, false);
+  }
+
+  setDouble(String key, double value) async {
+    await putData(key, {'value': value, 'type': 'double'}, false);
+  }
+
+  setBool(String key, bool value) async {
+    await putData(key, {'value': value, 'type': 'bool'}, false);
+  }
+
+  setStringList(String key, List<String> value) async {
+    await putData(key, {'value': value, 'type': 'sl'}, false);
+  }
+
+  setString(String key, String value) async {
+    await put(key, value, false);
+  }
+
+  String getSync(String key, [String defaultValue, bool hashCodeKey = true]) {
+    if (key == null || key.isEmpty)
+      return defaultValue;
+    var _file = getFileNameSync(key, hashCodeKey);
+    if (_file == null || _file.isEmpty)
+      return defaultValue;
+    File _cacheFile = File(_file);
+    if (_cacheFile.existsSync())
+      return _cacheFile.readAsStringSync();
+    return null;
+  }
+
+  String getDataSync(String key, [Object defaultValue]) {
+    final value = getSync(key, null, false);
+    if (value == null || value.isEmpty) return defaultValue;
+    return jsonDecode(value);
+  }
+
+  int getInt(String key) {
+    final value = getDataSync(key, null);
+    if (value != null && value is Map && (value as Map)['type'] == 'int') {
+      return (value as Map)['value'] as int;
+    } else
+      return null;
+  }
+
+  bool getBool(String key) {
+    final value = getDataSync(key, null);
+    if (value != null && value is Map && (value as Map)['type'] == 'bool') {
+      return (value as Map)['value'] as bool;
+    } else
+      return null;
+  }
+
+  List<String> getStringList(String key) {
+    final value = getDataSync(key, null);
+    if (value != null && value is Map && (value as Map)['type'] == 'sl') {
+      return (value as Map)['value'] as List<String>;
+    } else
+      return null;
   }
 
   /// 清理缓存
@@ -112,8 +180,10 @@ class CacheUtil {
   static Future<String> getCacheBasePath([bool storage]) async {
     if (_cacheStoragePath == null) {
       try {
-        if (Platform.isAndroid) {
-          _cacheStoragePath =  (await getExternalStorageDirectory()).path;
+        if (Platform.isMacOS || Platform.isWindows) {
+          _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
+        } else if (Platform.isAndroid) {
+          _cacheStoragePath =  (await path.getExternalStorageDirectory()).path;
           if (_cacheStoragePath != null && _cacheStoragePath.isNotEmpty) {
             final _subStr = 'storage/emulated/0/';
             var index = _cacheStoragePath.indexOf(_subStr);
@@ -123,15 +193,15 @@ class CacheUtil {
             }
           }
         } else
-          _cacheStoragePath = (await getApplicationDocumentsDirectory()).path;
+          _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
       } catch (e) {}
     }
     if (_cacheBasePath == null) {
-      _cacheBasePath = (await getApplicationDocumentsDirectory()).path;
+      _cacheBasePath = (await path.getApplicationDocumentsDirectory()).path;
       if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-        _cacheBasePath = (await getApplicationSupportDirectory()).path;
+        _cacheBasePath = (await path.getApplicationSupportDirectory()).path;
         if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-          _cacheBasePath = (await getTemporaryDirectory()).path;
+          _cacheBasePath = (await path.getTemporaryDirectory()).path;
         }
       }
       if (_cacheStoragePath == null || _cacheStoragePath.isEmpty)
