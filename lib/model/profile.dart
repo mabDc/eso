@@ -11,7 +11,7 @@ enum SearchOption { Normal, None, Accurate }
 
 class Profile with ChangeNotifier {
   Profile() {
-    final source = Global.prefs.getString(Global.profileKey);
+    final source = LocalStorage.getString(Global.profileKey);
     final json = source == null
         ? {
             'showMangaInfo': true,
@@ -350,7 +350,7 @@ class Profile with ChangeNotifier {
   }
 
   void _saveProfile([bool shouldNotifyListeners = true]) async {
-    await Global.prefs.setString(Global.profileKey, jsonEncode(toJson()));
+    await LocalStorage.set(Global.profileKey, jsonEncode(toJson()));
     if (shouldNotifyListeners) {
       notifyListeners();
     }

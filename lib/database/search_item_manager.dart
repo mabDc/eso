@@ -57,7 +57,7 @@ class SearchItemManager {
   }
 
   static List<ChapterItem> getChapter(int id) {
-    return Global.prefs
+    return LocalStorage
         .getStringList(genChapterKey(id))
         .map((item) => ChapterItem.fromJson(jsonDecode(item)))
         .toList();
@@ -65,28 +65,28 @@ class SearchItemManager {
 
   static void initSearchItem() {
     _searchItem = <SearchItem>[];
-    Global.prefs
+    LocalStorage
         .getStringList(key)
         ?.forEach((item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
   }
 
   static Future<bool> removeSearchItem(String url, int id) async {
-    await Global.prefs.remove(genChapterKey(id));
+    await LocalStorage.remove(genChapterKey(id));
     _searchItem.removeWhere((item) => item.url == url);
     return saveSearchItem();
   }
 
   static Future<bool> saveSearchItem() async {
-    return Global.prefs.setStringList(
+    return LocalStorage.set(
         key, _searchItem.map((item) => jsonEncode(item.toJson())).toList());
   }
 
   static Future<bool> removeChapter(int id) {
-    return Global.prefs.remove(genChapterKey(id));
+    return LocalStorage.remove(genChapterKey(id));
   }
 
   static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return Global.prefs.setStringList(
+    return LocalStorage.set(
         genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 
