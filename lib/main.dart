@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'global.dart';
 import 'model/profile.dart';
@@ -45,18 +46,24 @@ class MyApp extends StatelessWidget {
           ],
           child: Consumer<Profile>(
             builder: (BuildContext context, Profile profile, Widget widget) {
-              return MaterialApp(
-                theme: profile.getTheme(isDarkMode: false),
-                darkTheme: profile.getTheme(isDarkMode: true),
-                title: Global.appName,
-                localizationsDelegates: [
-                  LocalizationsCupertinoDelegate.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                ],
-                locale: Locale('zh', 'CH'),
-                supportedLocales: [Locale('zh', 'CH')],
-                home: HomePage(),
+              return OKToast(
+                textStyle: TextStyle(fontSize: 16.0, color: Colors.white),
+                backgroundColor: Colors.black.withOpacity(0.8),
+                radius: 20.0,
+                textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                child: MaterialApp(
+                  theme: profile.getTheme(isDarkMode: false),
+                  darkTheme: profile.getTheme(isDarkMode: true),
+                  title: Global.appName,
+                  localizationsDelegates: [
+                    LocalizationsCupertinoDelegate.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                  ],
+                  locale: Locale('zh', 'CH'),
+                  supportedLocales: [Locale('zh', 'CH')],
+                  home: HomePage(),
+                )
               );
             },
           ),

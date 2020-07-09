@@ -5,7 +5,6 @@ import 'package:eso/ui/widgets/app_bar_button.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:toast/toast.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class LoginRulePage extends StatelessWidget {
@@ -44,7 +43,7 @@ class LoginRulePage extends StatelessWidget {
           controller.goBack();
           return false;
         } else {
-          Toast.show("保存请按右上角\n取消请按左上角", context);
+          Utils.toast("保存请按右上角\n取消请按左上角");
           return false;
         }
       },

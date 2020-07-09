@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,6 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../utils.dart';
@@ -175,7 +175,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                         }),
                         buildPopButton(context, Text("复制图像地址", style: TextStyle(color: Colors.black87, fontSize: 16)), isLast: false, isFirst: false, onTap: () async {
                           await Clipboard.setData(ClipboardData(text: widget.items[currentIndex].url));
-                          Toast.show("已复制图片地址", context);
+                          Utils.toast("已复制图片地址");
                           Navigator.of(context).pop();
                         }),
                         buildPopButton(context, Text("在浏览器中打开", style: TextStyle(color: Colors.black87, fontSize: 16)), isFirst: false, onTap: () async {
@@ -198,12 +198,9 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   /// 保存图像
   saveImage(CachedNetworkImageProvider provider) async {
     // 检查并请求权限
-    if (await Permission.storage.status != PermissionStatus.granted) {
-      var _status = await Permission.storage.request();
-      if (_status != PermissionStatus.granted) {
-        Toast.show("授权失败", context);
-        return;
-      }
+    if (await CacheUtil().requestPermission() != true) {
+      Utils.toast("授权失败");
+      return;
     }
 
     // 获取文件或图片
@@ -214,12 +211,12 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
 
     final result = await ImageGallerySaver.saveFile(file.absolute.path);
     if (Platform.isIOS && result == true) {
-      Toast.show("保存成功", context);
+      Utils.toast("保存成功");
     } else if (result != null && result != "") {
       String str = Uri.decodeComponent(result);
-      Toast.show("成功保存到\n$str", context);
+      Utils.toast("成功保存到\n$str");
     } else {
-      Toast.show("保存失败", context);
+      Utils.toast("保存失败");
     }
   }
 

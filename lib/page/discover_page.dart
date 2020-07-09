@@ -16,7 +16,6 @@ import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 
 import '../global.dart';
 import 'source/edit_rule_page.dart';
@@ -176,11 +175,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
         await Global.ruleDao.insertOrUpdateRule(rule);
         provider.rules.removeWhere((r) => r.id == rule.id);
         provider.rules.add(rule);
-        Toast.show("更新成功", context);
+        Utils.toast("更新成功");
       } else {
         provider.rules.add(rule);
         await Global.ruleDao.insertOrUpdateRule(rule);
-        Toast.show("添加成功", context);
+        Utils.toast("添加成功");
       }
       if (showEditPage) {
         Navigator.of(context)
@@ -191,7 +190,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       }
       return true;
     } catch (e) {
-      Toast.show("失败！" + e.toString(), context, duration: 2);
+      Utils.toast("失败！" + e.toString(), duration: Duration(seconds: 2));
       return false;
     }
   }

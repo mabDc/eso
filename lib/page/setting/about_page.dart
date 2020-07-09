@@ -1,13 +1,11 @@
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/restore_event.dart';
 import 'package:eso/model/edit_source_provider.dart';
-import 'package:eso/model/favorite_list_provider.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../global.dart';
@@ -136,7 +134,7 @@ class AboutPage extends StatelessWidget {
                                 } catch (e) {
                                   print("备份规则列表： $e");
                                 }
-                                Toast.show("备份成功($_dir)", _context);
+                                Utils.toast("备份成功($_dir)");
                               }),
                             ],
                           ),
@@ -176,7 +174,7 @@ class AboutPage extends StatelessWidget {
                                 await cache.requestPermission();
                                 final _dir = await cache.cacheDir();
                                 if (!CacheUtil.existPath(_dir)) {
-                                  Toast.show("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中", _context);
+                                  Utils.toast("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中");
                                   return;
                                 }
                                 try {
@@ -196,7 +194,7 @@ class AboutPage extends StatelessWidget {
                                 } catch (e) {}
                                 // 发送一个通知
                                 eventBus.fire(RestoreEvent());
-                                Toast.show("恢复成功", _context);
+                                Utils.toast("恢复成功");
                               }),
                             ],
                           ),
@@ -220,7 +218,7 @@ class AboutPage extends StatelessWidget {
                               FlatButton(child: Text('立即清理'), onPressed: () async {
                                 Navigator.pop(context);
                                 await CacheUtil().clear(allCache: true);
-                                Toast.show("缓存清理成功", _context);
+                                Utils.toast("缓存清理成功");
                               }),
                             ],
                           ),

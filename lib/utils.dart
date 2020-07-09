@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -25,6 +26,13 @@ class Utils {
   /// 延时指定毫秒
   static sleep(int milliseconds) async {
     await Future.delayed(Duration(milliseconds: milliseconds));
+  }
+
+  /// 显示 Toast 消息
+  static toast(String msg, {Duration duration, ToastPosition position = ToastPosition.bottom, bool dismissOtherToast}) {
+    if (empty(msg))
+      return;
+    showToast(msg, position: position, duration: duration, dismissOtherToast: dismissOtherToast);
   }
 
   /// 清除输入焦点

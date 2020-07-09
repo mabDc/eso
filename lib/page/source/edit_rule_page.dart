@@ -8,7 +8,6 @@ import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
-import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
 import 'login_rule_page.dart';
@@ -547,16 +546,16 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   }
 
   Future<bool> _saveRule(BuildContext context) async {
-    Toast.show("开始保存", context);
+    Utils.toast("开始保存");
     if (isLoading) return false;
     isLoading = true;
     final count = await Global.ruleDao.insertOrUpdateRule(rule);
     isLoading = false;
     if (count > 0) {
-      Toast.show("保存成功", context);
+      Utils.toast("保存成功");
       return true;
     } else {
-      Toast.show("保存失败", context);
+      Utils.toast("保存失败");
       return false;
     }
   }
@@ -574,10 +573,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                 ? RuleCompress.decompass(text, rule)
                 : Rule.fromJson(jsonDecode(text), rule);
       });
-      Toast.show("已从剪贴板导入", context);
+      Utils.toast("已从剪贴板导入");
       return true;
     } catch (e) {
-      Toast.show("导入失败：" + e.toString(), context, duration: 2);
+      Utils.toast("导入失败：" + e.toString(), duration: Duration(seconds: 2));
       return false;
     }
   }
@@ -610,7 +609,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             break;
           case TO_CLIPBOARD:
             Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
-            Toast.show("已保存到剪贴板", context);
+            Utils.toast("已保存到剪贴板");
             break;
           case DEBUG_WITHOUT_SAVE:
             Navigator.of(context)

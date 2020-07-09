@@ -59,7 +59,7 @@ dependencies:
     # https://github.com/qhzhyt/dart-json-path.git
   uuid: ^2.0.4
   floor: ^0.13.0
-  toast: ^0.1.5
+  oktoast: ^2.3.2
   # xpath_parse: ^1.0.2
   xpath_parse:
     path: modules/xpath
