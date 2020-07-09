@@ -173,6 +173,7 @@ class AboutPage extends StatelessWidget {
                               FlatButton(child: Text('恢复数据'), onPressed: () async {
                                 Navigator.pop(context);
                                 final cache = CacheUtil(backup: true);
+                                await cache.requestPermission();
                                 final _dir = await cache.cacheDir();
                                 if (!CacheUtil.existPath(_dir)) {
                                   Toast.show("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中", _context);
