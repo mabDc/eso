@@ -23,6 +23,8 @@ class CacheUtil {
   /// 请求权限
   Future<bool> requestPermission() async {
     // 检查并请求权限
+    if (Platform.isWindows || Platform.isMacOS)
+      return true;
     if (await Permission.storage.status != PermissionStatus.granted) {
       var _status = await Permission.storage.request();
       if (_status != PermissionStatus.granted)

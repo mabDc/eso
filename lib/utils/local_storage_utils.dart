@@ -19,8 +19,9 @@ class LocalStorage {
         await cache.cacheDir();
       }
     } else {
-      if (prefs == null)
+      if (prefs == null) {
         prefs = await SharedPreferences.getInstance();
+      }
     }
   }
 

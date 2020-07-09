@@ -1,11 +1,12 @@
+import 'dart:io';
 import 'dart:math';
+import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/utils/local_storage_utils.dart';
+import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database.dart';
 import 'database/rule_dao.dart';
-
 export 'utils/local_storage_utils.dart';
 
 class Global with ChangeNotifier {
@@ -32,10 +33,23 @@ class Global with ChangeNotifier {
   static Future<bool> init() async {
     await LocalStorage.init();
     SearchItemManager.initSearchItem();
-    final _database = await $FloorAppDatabase
-        .databaseBuilder('eso_database.db')
-        .addMigrations([migration4to5, migration5to6]).build();
-    _ruleDao = _database.ruleDao;
+
+    final _migrations = [migration4to5, migration5to6];
+    if (Platform.isWindows) {
+      // 初始化 sqlite
+      var db = await SQFLiteWinUtil.setup(
+        migrations: _migrations,
+        version: dbVersion, // 版本号需要与database.dart中定义的一致
+        name: 'eso_database.db',
+        createSQL: createTableSQL,
+      );
+      _ruleDao = RuleDaoWin(db, null);
+    } else {
+      final _database = await $FloorAppDatabase
+          .databaseBuilder('eso_database.db')
+          .addMigrations(_migrations).build();
+      _ruleDao = _database.ruleDao;
+    }
     await Future.delayed(Duration(seconds: 1));
     return true;
   }

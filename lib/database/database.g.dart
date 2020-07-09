@@ -5,7 +5,6 @@ part of 'database.dart';
 // **************************************************************************
 // FloorGenerator
 // **************************************************************************
-
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
