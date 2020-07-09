@@ -23,6 +23,7 @@ class HistoryManager {
     return await _saveSearchHistory();
   }
 
-  Future<bool> _saveSearchHistory() =>
-      LocalStorage.set(Global.searchHistoryKey, _searchHistory);
+  Future<bool> _saveSearchHistory() async {
+    return await LocalStorage.set(Global.searchHistoryKey, _searchHistory);
+  }
 }

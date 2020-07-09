@@ -15,6 +15,7 @@ class LocalStorage {
     if (Platform.isWindows || Platform.isMacOS) {
       if (cache == null) {
         cache = CacheUtil(cacheName: 'prefs.json', backup: true);
+        await cache.requestPermission();
         await cache.cacheDir();
       }
     } else {
@@ -23,7 +24,7 @@ class LocalStorage {
     }
   }
 
-  static set(String key, value) async {
+  static Future<bool> set(String key, value) async {
     try {
       if (isCache) {
         if (value is int)
@@ -56,8 +57,10 @@ class LocalStorage {
         else
           await prefs.setString(key, value);
       }
+      return true;
     } catch (e) {
       print("SharedDataUtils set err: $key, $value");
+      return false;
     }
   }
 

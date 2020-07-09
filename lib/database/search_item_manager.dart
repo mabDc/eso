@@ -77,7 +77,7 @@ class SearchItemManager {
   }
 
   static Future<bool> saveSearchItem() async {
-    return LocalStorage.set(
+    return await LocalStorage.set(
         key, _searchItem.map((item) => jsonEncode(item.toJson())).toList());
   }
 
@@ -86,7 +86,7 @@ class SearchItemManager {
   }
 
   static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return LocalStorage.set(
+    return await LocalStorage.set(
         genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 

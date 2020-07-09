@@ -139,7 +139,8 @@ class NovelPageProvider with ChangeNotifier {
         pageController.toChapter(index, toFirst: true);
         break;
       default:
-        this._paragraphs = await loadChapter(index);
+        var _data = await loadChapter(index);
+        if (_data != null) this._paragraphs = _data;
         break;
     }
   }
@@ -157,7 +158,7 @@ class NovelPageProvider with ChangeNotifier {
     int minIndex = index - 2;
     int maxIndex = index + 2;
     _cache.forEach((key, value) {
-      if (key <= minIndex || key >= maxIndex)
+      if ((key <= minIndex || key >= maxIndex) && (key != index))
         _cache.remove(key);
     });
   }
@@ -251,11 +252,15 @@ class NovelPageProvider with ChangeNotifier {
         if (notify) notifyListeners();
       });
     } catch (e) {
-      if (notify && this.mounted) {
+      print("加载失败：$e");
+    }
+    if (_data == null) {
+      if (this.mounted) {
         _isLoading = false;
-        notifyListeners();
+        if (notify)
+          notifyListeners();
       }
-      return null; // 加载失败
+      throw Future.error('加载章节失败：$chapterIndex');
     }
 
     if (changeCurChapter) {
