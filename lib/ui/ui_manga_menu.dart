@@ -230,8 +230,8 @@ class UIMangaMenu extends StatelessWidget {
           case TO_CLICPBOARD:
             Clipboard.setData(
                 ClipboardData(text: searchItem.chapters[searchItem.durChapterIndex].url));
-            Toast.show(
-                "已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url, context);
+            Utils.toast(
+                "已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url);
             break;
           case LAUCH:
             launch(searchItem.chapters[searchItem.durChapterIndex].url);
@@ -240,16 +240,16 @@ class UIMangaMenu extends StatelessWidget {
             (() async {
               if (provider.isFavorite) {
                 await provider.removeFormFavorite();
-                Toast.show("取消收藏成功！", context, duration: 1);
+                Utils.toast("取消收藏成功！");
                 return;
               }
               final success = await provider.addToFavorite();
               if (null == success) {
-                Toast.show("已在收藏中", context, duration: 1);
+                Utils.toast("已在收藏中");
               } else if (success) {
-                Toast.show("添加收藏成功！", context, duration: 1);
+                Utils.toast("添加收藏成功！");
               } else {
-                Toast.show("添加收藏失败！", context, duration: 1);
+                Utils.toast("添加收藏失败！");
               }
             })();
             break;
