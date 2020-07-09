@@ -18,6 +18,15 @@ export 'ui/widgets/app_bar_ex.dart';
 EventBus eventBus = EventBus();
 
 class Utils {
+  /// 时间字符串显示
+  static String formatDuration(Duration d) {
+    final s = d.toString().split(".")[0];
+    if (d.inHours == 0) {
+      return "${s.split(":")[1]}:${s.split(":")[2]}";
+    } else {
+      return s;
+    }
+  }
 
   static bool get isDesktop => Platform.isWindows || Platform.isMacOS;
 
@@ -31,27 +40,29 @@ class Utils {
   }
 
   /// 显示 Toast 消息
-  static toast(String msg, {Duration duration, ToastPosition position = ToastPosition.bottom, bool dismissOtherToast}) {
-    if (empty(msg))
-      return;
-    showToast(msg, position: position, duration: duration, dismissOtherToast: dismissOtherToast);
+  static toast(String msg,
+      {Duration duration,
+      ToastPosition position = ToastPosition.bottom,
+      bool dismissOtherToast}) {
+    if (empty(msg)) return;
+    showToast(msg,
+        position: position, duration: duration, dismissOtherToast: dismissOtherToast);
   }
 
   /// 清除输入焦点
   static unFocus(BuildContext context) {
     var f = FocusScope.of(context);
-    if (f != null && f.hasFocus)
-      f.unfocus(disposition: UnfocusDisposition.scope);
+    if (f != null && f.hasFocus) f.unfocus(disposition: UnfocusDisposition.scope);
   }
 
-
   /// 开始一个页面，并等待结束
-  static Future<Object> startPageWait(BuildContext context, Widget page, {bool replace}) async {
+  static Future<Object> startPageWait(BuildContext context, Widget page,
+      {bool replace}) async {
     if (page == null) return null;
-    var rote = Platform.isIOS ? CupertinoPageRoute(builder: (context) => page) :
-      MaterialPageRoute(builder: (_) => page);
-    if (replace == true)
-      return await Navigator.pushReplacement(context, rote);
+    var rote = Platform.isIOS
+        ? CupertinoPageRoute(builder: (context) => page)
+        : MaterialPageRoute(builder: (_) => page);
+    if (replace == true) return await Navigator.pushReplacement(context, rote);
     return await Navigator.push(context, rote);
   }
 
@@ -96,8 +107,9 @@ class _StrBuilder {
   _StrBuilder link(String value, {String divider}) {
     bool _a = this.value == null || this.value.isEmpty;
     bool _b = value == null || value.isEmpty;
-    this.value = _a || _b ? (_a ? value : this.value) :
-      (this.value + (divider == null ? (this.divider ?? ' ') : divider) + value);
+    this.value = _a || _b
+        ? (_a ? value : this.value)
+        : (this.value + (divider == null ? (this.divider ?? ' ') : divider) + value);
     return this;
   }
 }

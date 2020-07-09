@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/audio_service.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_share/flutter_share.dart';
@@ -38,8 +39,7 @@ class AudioPageController with ChangeNotifier {
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
-    if (_audioService.searchItem == searchItem && AudioService.isPlaying)
-      return;
+    if (_audioService.searchItem == searchItem && AudioService.isPlaying) return;
     _audioService.playChapter(searchItem.durChapterIndex, searchItem);
   }
 
@@ -54,16 +54,17 @@ class AudioPageController with ChangeNotifier {
 
   /// all -> all secends
   String _getTimeString(int all) {
-    int c = all % 60;
-    String s = '${c > 9 ? '' : '0'}$c';
-    all = all ~/ 60;
-    c = all % 60;
-    s = '${c > 9 ? '' : '0'}$c:$s';
-    if (all >= 60) {
-      all = all ~/ 60;
-      s = '$all:$s';
-    }
-    return s;
+    return Utils.formatDuration(Duration(seconds: all));
+    // int c = all % 60;
+    // String s = '${c > 9 ? '' : '0'}$c';
+    // all = all ~/ 60;
+    // c = all % 60;
+    // s = '${c > 9 ? '' : '0'}$c:$s';
+    // if (all >= 60) {
+    //   all = all ~/ 60;
+    //   s = '$all:$s';
+    // }
+    // return s;
   }
 
   void switchRepeatMode() {
