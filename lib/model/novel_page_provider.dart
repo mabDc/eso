@@ -516,6 +516,7 @@ class NovelPageProvider with ChangeNotifier {
           //color: fontColor,
           height: __profile.novelHeight,
           fontWeight: FontWeight.bold,
+          fontFamily: Profile.fontFamily,
         ),
       ),
       newLine,

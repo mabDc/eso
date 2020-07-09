@@ -1,3 +1,4 @@
+import 'package:eso/model/profile.dart';
 import 'package:flutter/material.dart';
 
 import '../../global.dart';
@@ -23,7 +24,10 @@ class ImagePlaceHolder extends StatelessWidget {
             children: [
               Icon(error ? Icons.broken_image : Icons.image, color: Theme.of(context).primaryColor.withOpacity(0.2), size: 64),
               SizedBox(height: 2),
-              Text("eso", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor.withOpacity(0.1)))
+              Text("eso", style: TextStyle(fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: Profile.fontFamily,
+                  color: Theme.of(context).primaryColor.withOpacity(0.1)))
             ],
           ),
         ),

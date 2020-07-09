@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/model/profile.dart';
 import 'package:flutter/services.dart';
 import '../api/analyze_url.dart';
 import '../api/analyzer_manager.dart';
@@ -75,6 +76,7 @@ class DebugRuleProvider with ChangeNotifier {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            fontFamily: Profile.fontFamily,
             height: 2,
           ),
         ),

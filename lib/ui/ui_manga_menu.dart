@@ -385,6 +385,7 @@ class UIMangaMenu extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
+                                    fontFamily: Profile.fontFamily,
                                     fontSize: 20,
                                   ),
                                 ),
@@ -394,6 +395,7 @@ class UIMangaMenu extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontFamily: Profile.fontFamily,
                                   color: color.withOpacity(0.7),
                                   fontSize: 20,
                                 ),

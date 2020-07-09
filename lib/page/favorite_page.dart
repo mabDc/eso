@@ -1,4 +1,5 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/page/setting/about_page.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,8 @@ class FavoritePage extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       tab[0],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold,
+                          fontFamily: Profile.fontFamily),
                     )))
                 .toList(),
           ),

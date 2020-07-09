@@ -427,6 +427,8 @@ class Profile with ChangeNotifier {
     }
   }
 
+  static String get fontFamily => Platform.isWindows ? 'Roboto' : null;
+
   ThemeData getTheme({bool isDarkMode: false}) {
     switch (darkMode) {
       case "开启":
@@ -439,8 +441,9 @@ class Profile with ChangeNotifier {
         break;
     }
     final _color = Color(Global.colors[colorName] ?? customColor);
+    final _fontFamily = fontFamily;
     final theme = ThemeData(
-      fontFamily: Platform.isWindows ? 'Roboto' : null,
+      fontFamily: _fontFamily,
       primaryColor: _color,
       primaryColorDark: Global.colorLight(_color, -0.25),
       primaryColorLight: Global.colorLight(_color, 0.25),
@@ -449,7 +452,12 @@ class Profile with ChangeNotifier {
       bottomAppBarColor: isDarkMode ? Color(0xff424242) : Color(0xffb4bcc4),
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
     );
+    final _txtStyle = TextStyle(fontFamily: _fontFamily);
     return theme.copyWith(
+      tabBarTheme: TabBarTheme(
+        labelStyle: _txtStyle,
+        unselectedLabelStyle: _txtStyle,
+      ),
       appBarTheme: AppBarTheme(
         color: theme.canvasColor,
         elevation: Global.elevation,
@@ -467,7 +475,7 @@ class Profile with ChangeNotifier {
         elevation: Global.elevation,
       ),
       primaryTextTheme: TextTheme(
-        headline6: TextStyle(color: theme.textTheme.bodyText1.color.withOpacity(0.8)),
+        headline6: TextStyle(color: theme.textTheme.bodyText1.color.withOpacity(0.8), fontFamily: _fontFamily),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: BottomInputBorder(theme.dividerColor, width: Global.borderSize),

@@ -1,4 +1,5 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/model/profile.dart';
 
 import 'ui_image_item.dart';
 import '../database/search_item.dart';
@@ -50,6 +51,7 @@ class UIFavoriteItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Theme.of(context).hintColor,
+              fontFamily: Profile.fontFamily,
               fontSize: 10,
             ),
           ),

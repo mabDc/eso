@@ -1,4 +1,5 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/material.dart';
@@ -59,12 +60,14 @@ class _UiSearchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final _txtStyle = TextStyle(
         color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
+        fontFamily: Profile.fontFamily,
         fontSize: 13);
     return Container(
       constraints: BoxConstraints(minHeight: 110, minWidth: double.infinity),
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: DefaultTextStyle(
         style: TextStyle(
+            fontFamily: Profile.fontFamily,
             fontSize: 13, color: Theme.of(context).hintColor, height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Row(
@@ -91,6 +94,7 @@ class _UiSearchItem extends StatelessWidget {
                           maxLines: 2,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
+                              fontFamily: Profile.fontFamily,
                               color:
                                   Theme.of(context).textTheme.bodyText1.color,
                               fontSize: 15),

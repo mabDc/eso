@@ -1,5 +1,6 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:flutter/material.dart';
 
@@ -114,7 +115,8 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
       '${widget.searchItem.chapters[index].name}',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: _selected ? TextStyle(fontWeight: FontWeight.bold)
+      style: _selected ? TextStyle(fontWeight: FontWeight.bold,
+          fontFamily: Profile.fontFamily)
           : null,
     );
     return Column(

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
@@ -193,6 +194,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
+          fontFamily: Profile.fontFamily,
         ),
       ),
     );

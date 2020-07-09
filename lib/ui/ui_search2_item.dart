@@ -1,6 +1,6 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
-import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
 import '../utils.dart';
@@ -61,7 +61,8 @@ class _UiSearchItem extends StatelessWidget {
     final _origin = origin?.trim();
     final _txtColor =
         Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7);
-    final _textStyle = TextStyle(color: _txtColor, height: 1.0, fontSize: 13);
+    final _textStyle = TextStyle(color: _txtColor,
+        fontFamily: Profile.fontFamily, height: 1.0, fontSize: 13);
     final _chapterText = Utils.empty(_chapter)
         ? null
         : Text(_chapter, maxLines: 1, style: _textStyle);
@@ -89,6 +90,7 @@ class _UiSearchItem extends StatelessWidget {
             name?.trim() ?? '',
             maxLines: 2,
             style: TextStyle(
+                fontFamily: Profile.fontFamily,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyText1.color,
                 fontSize: 16),
@@ -109,6 +111,7 @@ class _UiSearchItem extends StatelessWidget {
                     fontSize: 11,
                     height: 1.4,
                     color: Colors.white,
+                    fontFamily: Profile.fontFamily,
                     textBaseline: TextBaseline.alphabetic,
                   ),
                 ),

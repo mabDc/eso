@@ -184,6 +184,7 @@ class NovelScrollView extends StatelessWidget {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
+          fontFamily: Profile.fontFamily,
           height: 2,
           color: _fontColor70,
         ),

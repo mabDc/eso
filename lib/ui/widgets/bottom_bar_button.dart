@@ -1,3 +1,4 @@
+import 'package:eso/model/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class BottomBarButton extends StatelessWidget {
             ),
             SizedBox(height: 2),
             DefaultTextStyle(
-              style: TextStyle(fontSize: 14, color: _color),
+              style: TextStyle(fontSize: 14, color: _color, fontFamily: Profile.fontFamily),
               child: child,
             ),
           ],

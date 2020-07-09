@@ -5,6 +5,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/edit_source_provider.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/ui/edit/bottom_input_border.dart';
@@ -215,6 +216,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
+                    fontFamily: Profile.fontFamily,
                     color: Global.lightness(___leadColor) > 180
                         ? _theme.primaryColorDark
                         : Colors.white)),

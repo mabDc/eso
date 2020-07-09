@@ -1,5 +1,6 @@
 
 import 'package:dlna/dlna.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -171,7 +172,9 @@ class DLNAUtil {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("DLNA 投屏", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("DLNA 投屏", style: TextStyle(fontSize: 18,
+                    fontFamily: Profile.fontFamily,
+                    fontWeight: FontWeight.bold)),
                 SizedBox(height: 16),
                 ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 260),

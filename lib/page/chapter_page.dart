@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:eso/api/api.dart';
 import 'package:eso/global.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
@@ -187,6 +188,7 @@ class _ChapterPageState extends State<ChapterPage> {
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodyText1.color,
                             fontWeight: FontWeight.w700,
+                            fontFamily: Profile.fontFamily,
                             fontSize: 18,
                             shadows: [
                               Shadow(blurRadius: 2, color: Colors.grey)
