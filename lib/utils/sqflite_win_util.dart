@@ -1,11 +1,11 @@
 import 'dart:ffi';
 import 'dart:io';
-
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:floor/floor.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:moor_ffi/database.dart' as db;
+import 'package:sqflite/src/factory_mixin.dart' as impl;
 import 'package:moor_ffi/open_helper.dart';
 import 'package:path/path.dart';
 
@@ -37,20 +37,31 @@ class SQFLiteWinUtil {
         },
       );
       var path = Directory.current.path;
-      path = normalize(join(path, name));
-      print("db path: $path");
-      return await databaseFactory.openDatabase(path, options: databaseOptions);
+      var dbName = normalize(join(path, name));
+      print("db path: $dbName");
+
+      var cacheDbPath = normalize(join(path, 'cache'));
+      sqflite.databaseFactory = databaseFactoryFfi;
+      final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
+      factory.setDatabasesPath(cacheDbPath);
+
+      return await databaseFactory.openDatabase(dbName, options: databaseOptions);
     } else
       return null;
   }
 
+  static String dllPath() {
+    var location = Directory.current.path;
+    var path = 'sqlite3.dll'; // normalize(join(location, 'sqlite3.dll'));
+    return path;
+  }
 }
 
 void windowsInit() {
-  var location = Directory.current.path;
-  var path = normalize(join(location, 'sqlite3.dll'));
+
   open.overrideFor(OperatingSystem.windows, () {
     // devPrint('loading $path');
+    var path = SQFLiteWinUtil.dllPath();
     try {
       return DynamicLibrary.open(path);
     } catch (e) {

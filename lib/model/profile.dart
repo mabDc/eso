@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/ui/edit/bottom_input_border.dart';
@@ -439,6 +440,7 @@ class Profile with ChangeNotifier {
     }
     final _color = Color(Global.colors[colorName] ?? customColor);
     final theme = ThemeData(
+      fontFamily: Platform.isWindows ? 'Roboto' : null,
       primaryColor: _color,
       primaryColorDark: Global.colorLight(_color, -0.25),
       primaryColorLight: Global.colorLight(_color, 0.25),
