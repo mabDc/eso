@@ -41,7 +41,7 @@ class LocalStorage {
         else if (value is List)
           await cache.setString(key, JsonEncoder().convert(value));
         else
-          await prefs.setString(key, value);
+          await cache.setString(key, value);
       } else {
         if (value is int)
           await prefs.setInt(key, value);
