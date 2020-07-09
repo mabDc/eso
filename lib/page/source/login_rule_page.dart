@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/ui/widgets/app_bar_button.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -12,20 +12,30 @@ class LoginRulePage extends StatelessWidget {
   final Rule rule;
   const LoginRulePage({this.rule, Key key}) : super(key: key);
 
+  Future<bool> setCookies() async {
+    return await MethodChannel('plugins.flutter.io/cookie_manager').invokeMethod<bool>(
+      'setCookies',
+      <String, dynamic>{
+        'url': rule.loginUrl,
+        'cookies': rule.cookies.split(RegExp(r';\s*')),
+      },
+    );
+  }
+
+  Future<String> getCookies() async {
+    return await MethodChannel('plugins.flutter.io/cookie_manager').invokeMethod<String>(
+      'getCookies',
+      <String, String>{
+        'url': rule.loginUrl,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Completer<WebViewController> _controller = Completer<WebViewController>();
-    final CookieManager cookieManager = CookieManager();
     if (rule.cookies != null && rule.cookies.isNotEmpty) {
-      final cookies = rule.cookies.split(RegExp(r";\s*")).map((cookie) {
-        final p = cookie.indexOf("=");
-        if (p == -1) {
-          return Cookie(cookie, "");
-        } else {
-          return Cookie(cookie.substring(0, p), cookie.substring(p + 1));
-        }
-      }).toList();
-      cookieManager.setCookies(rule.loginUrl, cookies);
+      setCookies();
     }
     return WillPopScope(
       onWillPop: () async {
@@ -84,11 +94,9 @@ class LoginRulePage extends StatelessWidget {
                 size: 28,
               ),
               onPressed: () async {
-                final cookies = await cookieManager.getCookies(rule.loginUrl);
-                final cookiesString =
-                    cookies.map((cookie) => cookie.toString()).join("; ");
-                rule.cookies = cookiesString;
-                Navigator.of(context).pop(cookiesString);
+                final cookies = await getCookies();
+                rule.cookies = cookies;
+                Navigator.of(context).pop(cookies);
               },
             ),
           ],
