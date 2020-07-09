@@ -20,9 +20,23 @@ import 'package:about/about.dart';
 class AboutPage extends StatelessWidget {
   const AboutPage({Key key}) : super(key: key);
 
+  joinGroup([String group]) {
+    final key =
+        "7588a53508787a254b910d39476959823e3f36a7c894a6fc72504ac92e782ec2"; //1群key
+    if (Platform.isWindows) {
+      final s = "https://shang.qq.com/wpa/qunwpa?idkey=$key&source_id=1_40001";
+      launch(s);
+    } else {
+      //Flutter 跳转(打开)QQ聊天对话和QQ群聊
+      //https://www.jianshu.com/p/8dc54ef6329c
+      final s =
+          'mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${group ?? 1106156709}&card_type=group&source=qrcode';
+      launch(s);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    BuildContext _context = context;
     return Scaffold(
       appBar: AppBarEx(title: Text(Global.appName)),
       body: Consumer<Profile>(
@@ -115,30 +129,35 @@ class AboutPage extends StatelessWidget {
                             content: Text("如果以前有过备份，此操作将会覆盖掉以前的备份数据，请确定是否继续！"),
                             actions: <Widget>[
                               FlatButton(
-                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  child: Text('取消',
+                                      style:
+                                          TextStyle(color: Theme.of(context).hintColor)),
                                   onPressed: () => Navigator.pop(context)),
-                              FlatButton(child: Text('开始备份'), onPressed: () async {
-                                Navigator.pop(context);
-                                final cache = CacheUtil(backup: true);
-                                final _dir = await cache.cacheDir();
-                                print(_dir);
-                                try {
-                                  final _favorite = await SearchItemManager
-                                      .backupItems();
-                                  cache.put('favorite.json', _favorite, false);
-                                  print("备份收藏夹成功");
-                                } catch (e) {
-                                  print("备份收藏夹： $e");
-                                }
-                                try {
-                                  final _rules = await EditSourceProvider.backupRules();
-                                  cache.putData('rules.json', _rules, false);
-                                  print("备份规则列表成功");
-                                } catch (e) {
-                                  print("备份规则列表： $e");
-                                }
-                                Utils.toast("备份成功($_dir)");
-                              }),
+                              FlatButton(
+                                  child: Text('开始备份'),
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    final cache = CacheUtil(backup: true);
+                                    final _dir = await cache.cacheDir();
+                                    print(_dir);
+                                    try {
+                                      final _favorite =
+                                          await SearchItemManager.backupItems();
+                                      cache.put('favorite.json', _favorite, false);
+                                      print("备份收藏夹成功");
+                                    } catch (e) {
+                                      print("备份收藏夹： $e");
+                                    }
+                                    try {
+                                      final _rules =
+                                          await EditSourceProvider.backupRules();
+                                      cache.putData('rules.json', _rules, false);
+                                      print("备份规则列表成功");
+                                    } catch (e) {
+                                      print("备份规则列表： $e");
+                                    }
+                                    Utils.toast("备份成功($_dir)");
+                                  }),
                             ],
                           ),
                         );
@@ -160,45 +179,52 @@ class AboutPage extends StatelessWidget {
                                   child: Text("恢复前清空当前数据"),
                                 ),
                                 StatefulBuilder(builder: (context, _state) {
-                                  return Switch(value: _clean, onChanged: (v) {
-                                    _clean = v;
-                                    _state(() => null);
-                                  });
+                                  return Switch(
+                                      value: _clean,
+                                      onChanged: (v) {
+                                        _clean = v;
+                                        _state(() => null);
+                                      });
                                 })
                               ],
                             ),
                             actions: <Widget>[
                               FlatButton(
-                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  child: Text('取消',
+                                      style:
+                                          TextStyle(color: Theme.of(context).hintColor)),
                                   onPressed: () => Navigator.pop(context)),
-                              FlatButton(child: Text('恢复数据'), onPressed: () async {
-                                Navigator.pop(context);
-                                final cache = CacheUtil(backup: true);
-                                await cache.requestPermission();
-                                final _dir = await cache.cacheDir();
-                                if (!CacheUtil.existPath(_dir)) {
-                                  Utils.toast("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中");
-                                  return;
-                                }
-                                try {
-                                  String _favorite = await cache.get(
-                                      'favorite.json', null, false);
-                                  if (!Utils.empty(_favorite)) {
-                                    await SearchItemManager.restore(_favorite);
-                                    print("恢复收藏夹成功");
-                                  }
-                                } catch (e) {}
-                                try {
-                                  final _rules = await cache.getData('rules.json', null, false);
-                                  if (_rules != null && _rules is List) {
-                                    await EditSourceProvider.restore(_rules, _clean);
-                                  }
-                                  print("恢复规则列表成功");
-                                } catch (e) {}
-                                // 发送一个通知
-                                eventBus.fire(RestoreEvent());
-                                Utils.toast("恢复成功");
-                              }),
+                              FlatButton(
+                                  child: Text('恢复数据'),
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    final cache = CacheUtil(backup: true);
+                                    await cache.requestPermission();
+                                    final _dir = await cache.cacheDir();
+                                    if (!CacheUtil.existPath(_dir)) {
+                                      Utils.toast("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中");
+                                      return;
+                                    }
+                                    try {
+                                      String _favorite =
+                                          await cache.get('favorite.json', null, false);
+                                      if (!Utils.empty(_favorite)) {
+                                        await SearchItemManager.restore(_favorite);
+                                        print("恢复收藏夹成功");
+                                      }
+                                    } catch (e) {}
+                                    try {
+                                      final _rules =
+                                          await cache.getData('rules.json', null, false);
+                                      if (_rules != null && _rules is List) {
+                                        await EditSourceProvider.restore(_rules, _clean);
+                                      }
+                                      print("恢复规则列表成功");
+                                    } catch (e) {}
+                                    // 发送一个通知
+                                    eventBus.fire(RestoreEvent());
+                                    Utils.toast("恢复成功");
+                                  }),
                             ],
                           ),
                         );
@@ -216,13 +242,17 @@ class AboutPage extends StatelessWidget {
                             content: Text("此操作将会清除小说缓存，请确定是否继续！"),
                             actions: <Widget>[
                               FlatButton(
-                                  child: Text('取消', style: TextStyle(color: Theme.of(context).hintColor)),
+                                  child: Text('取消',
+                                      style:
+                                          TextStyle(color: Theme.of(context).hintColor)),
                                   onPressed: () => Navigator.pop(context)),
-                              FlatButton(child: Text('立即清理'), onPressed: () async {
-                                Navigator.pop(context);
-                                await CacheUtil().clear(allCache: true);
-                                Utils.toast("缓存清理成功");
-                              }),
+                              FlatButton(
+                                  child: Text('立即清理'),
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    await CacheUtil().clear(allCache: true);
+                                    Utils.toast("缓存清理成功");
+                                  }),
                             ],
                           ),
                         );
@@ -245,10 +275,7 @@ class AboutPage extends StatelessWidget {
                     ListTile(
                       title: Text('亦搜①群'),
                       subtitle: Text('1106156709'),
-                      //Flutter 跳转(打开)QQ聊天对话和QQ群聊
-                      //https://www.jianshu.com/p/8dc54ef6329c
-                      onTap: () => launch(
-                          'mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${1106156709}&card_type=group&source=qrcode'),
+                      onTap: () => joinGroup(),
                     ),
                     ListTile(
                       title: Text('规则获取'),
