@@ -128,7 +128,7 @@ class CacheUtil {
     return null;
   }
 
-  String getDataSync(String key, [Object defaultValue]) {
+  dynamic getDataSync(String key, [Object defaultValue]) {
     final value = getSync(key, null, false);
     if (value == null || value.isEmpty) return defaultValue;
     return jsonDecode(value);
@@ -153,9 +153,12 @@ class CacheUtil {
   List<String> getStringList(String key) {
     final value = getDataSync(key, null);
     if (value != null && value is Map && (value as Map)['type'] == 'sl') {
-      return (value as Map)['value'] as List<String>;
+      return ((value as Map)['value'] as List<dynamic>).map((e) {
+        return e.toString();
+      }).toList();
     } else
       return null;
+    // await putData(key, {'value': value, 'type': 'sl'}, false);
   }
 
   /// 清理缓存

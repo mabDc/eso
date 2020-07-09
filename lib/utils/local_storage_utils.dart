@@ -147,7 +147,9 @@ class LocalStorage {
       var value = isCache ? cache.getStringList(key) : prefs.getStringList(key);
       if (value == null) return defaultValue;
       return value;
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
     return defaultValue;
   }
   static remove(String key) async {

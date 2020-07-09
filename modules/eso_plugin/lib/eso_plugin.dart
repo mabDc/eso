@@ -34,6 +34,8 @@ class EsoPlugin {
     VolumeChangeEvent onVolumeInc,
     VolumeChangeEvent onVolumeDec,
   }) async {
+    if (Platform.isWindows || Platform.isMacOS)
+      return;
     if (isSetup != true) {
       _channel.setMethodCallHandler(_handler);
       isSetup = true;

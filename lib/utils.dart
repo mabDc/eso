@@ -19,6 +19,8 @@ EventBus eventBus = EventBus();
 
 class Utils {
 
+  static bool get isDesktop => Platform.isWindows || Platform.isMacOS;
+
   static bool empty(String value) {
     return value == null || value.isEmpty;
   }
