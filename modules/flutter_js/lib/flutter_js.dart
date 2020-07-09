@@ -14,12 +14,14 @@ class FlutterJs {
   }
 
   static Future<int> initEngine([int id]) async {
+    if(Platform.isWindows) return -1;
     final int engineId =
         await _channel.invokeMethod("initEngine", id ?? new Random().nextInt(100));
     return engineId;
   }
 
   static Future<dynamic> evaluate(String command, int id) async {
+    if(Platform.isWindows) return null;
     var arguments = {"engineId": id, "command": command};
     final rs = await _channel.invokeMethod("evaluate", arguments);
     if (Platform.isAndroid) return jsonDecode(rs);
@@ -27,6 +29,7 @@ class FlutterJs {
   }
 
   static Future<bool> close(int id) async {
+    if(Platform.isWindows) return false;
     var arguments = {"engineId": id};
     _channel.invokeMethod("close", arguments);
     return true;
