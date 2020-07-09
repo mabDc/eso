@@ -14,7 +14,7 @@ class SQFLiteWinUtil {
 
   static Future<sqflite.Database> setup({List<Migration> migrations, int version, String name, String createSQL, Callback callback}) async {
     if (Platform.isWindows) {
-      sqfliteFfiInit();
+      // sqfliteFfiInit();
       windowsInit();
 
       DatabaseFactory databaseFactory = databaseFactoryFfi;
