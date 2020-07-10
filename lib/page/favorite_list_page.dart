@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:eso/api/api.dart';
@@ -80,7 +81,11 @@ class FavoriteListPage extends StatelessWidget {
                           : Theme.of(context).cardColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          side: BorderSide(width: Global.borderSize, color: _isSelect ? Theme.of(context).primaryColor : Theme.of(context).dividerColor)),
+                          side: BorderSide(
+                              width: Global.borderSize,
+                              color: _isSelect
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).dividerColor)),
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
                         child: Text(
@@ -118,7 +123,8 @@ class FavoriteListPage extends StatelessWidget {
       builder: (context, provider, _) {
         final searchItems = provider.searchList;
         if (searchItems.length == 0) {
-          return EmptyListMsgView(text: Column(
+          return EmptyListMsgView(
+              text: Column(
             children: [
               Text("还没有收藏哦!"),
               SizedBox(height: 16),
@@ -127,17 +133,26 @@ class FavoriteListPage extends StatelessWidget {
           ));
         }
 
+        final _size = MediaQuery.of(context).size;
+
         return GridView.builder(
           padding: EdgeInsets.symmetric(horizontal: 6),
-          gridDelegate: ESOSliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: () {
-              SizeUtils.updateMediaData();
-              return max(SizeUtils.screenWidth / 125, 2).toInt();
-            },
-            childAspectRatio: 0.55,
-            mainAxisSpacing: 0,
-            crossAxisSpacing: 0,
-          ),
+          gridDelegate: (Platform.isIOS || Platform.isAndroid)
+              ? SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _size.width < _size.height ? 3 : 5,
+                  childAspectRatio: 0.55,
+                  mainAxisSpacing: 0,
+                  crossAxisSpacing: 0,
+                )
+              : ESOSliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: () {
+                    SizeUtils.updateMediaData();
+                    return max(SizeUtils.screenWidth / 125, 2).toInt();
+                  },
+                  childAspectRatio: 0.55,
+                  mainAxisSpacing: 0,
+                  crossAxisSpacing: 0,
+                ),
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
             final searchItem = searchItems[index];
@@ -164,4 +179,3 @@ class FavoriteListPage extends StatelessWidget {
     );
   }
 }
-
