@@ -47,6 +47,7 @@ class _SearchPageState extends State<SearchPage> {
                     iconSize: 14,
                     style: TextStyle(
                         fontSize: 13,
+                        fontFamily: Profile.fontFamily,
                         color:
                             Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5)),
                     isExpanded: true,
@@ -175,8 +176,9 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 ],
                                 style: TextStyle(
-                                    color: Theme.of(context).textTheme.bodyText1.color,
-                                    height: 1.55)),
+                                  fontFamily: Profile.fontFamily,
+                                  color: Theme.of(context).textTheme.bodyText1.color,
+                                  height: 1.55)),
                           ),
                         ),
                       ],

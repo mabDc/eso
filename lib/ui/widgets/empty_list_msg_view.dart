@@ -1,4 +1,5 @@
 import 'package:eso/fonticons_icons.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,11 @@ class EmptyListMsgView extends StatelessWidget {
             Icon(icon ?? FIcons.frown, size: iconSize, color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
             SizedBox(height: 12),
             DefaultTextStyle(
-              style: TextStyle(color: Theme.of(context).textTheme.bodyText2.color.withAlpha(50)),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyText2.color
+                    .withAlpha(50),
+                fontFamily: Profile.fontFamily
+              ),
               child: text,
             ),
           ],

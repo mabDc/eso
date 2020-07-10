@@ -168,6 +168,7 @@ class _UiSearchItem extends StatelessWidget {
       constraints: BoxConstraints(minHeight: 105, minWidth: double.infinity),
       child: DefaultTextStyle(
         style: TextStyle(
+            fontFamily: Profile.fontFamily,
             fontSize: 12, color: Theme.of(context).hintColor, height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Column(

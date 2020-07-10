@@ -7,6 +7,7 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
@@ -126,7 +127,11 @@ class _AudioPageState extends State<AudioPage> {
                           height: 300,
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.75),
+                            style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                                fontFamily: Profile.fontFamily,
+                                height: 1.75),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [

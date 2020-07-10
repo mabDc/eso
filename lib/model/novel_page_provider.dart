@@ -483,7 +483,7 @@ class NovelPageProvider with ChangeNotifier {
             height: 1,
             fontSize: height,
           ));
-    }
+    };
     final paragraphLine = _buildHeightSpan(__profile.novelParagraphPadding);
 
     var _buildImageSpan = (String img, header) {

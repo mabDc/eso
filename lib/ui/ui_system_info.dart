@@ -1,3 +1,4 @@
+import 'package:eso/model/profile.dart';
 import 'package:eso/model/system_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,7 @@ class _UISystemInfoState extends State<UISystemInfo> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
+                  fontFamily: Profile.fontFamily,
                   textBaseline: TextBaseline.alphabetic,
                 ),
                 child: Row(
