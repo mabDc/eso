@@ -97,7 +97,10 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
             color: Colors.transparent,
             child: DefaultTextStyle(
               style: TextStyle(color: widget.fontColor ??
-                  Theme.of(context).textTheme.bodyText1.color, fontSize: 16),
+                  Theme.of(context).textTheme.bodyText1.color,
+                  fontSize: 16,
+                  fontFamily: Profile.fontFamily
+              ),
               child: _count > 64 ? DraggableScrollbar.semicircle(
                 controller: _controller,
                 child: _listView,
@@ -115,8 +118,7 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
       '${widget.searchItem.chapters[index].name}',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: _selected ? TextStyle(fontWeight: FontWeight.bold,
-          fontFamily: Profile.fontFamily)
+      style: _selected ? TextStyle(fontWeight: FontWeight.bold)
           : null,
     );
     return Column(

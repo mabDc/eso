@@ -476,12 +476,15 @@ class NovelPageProvider with ChangeNotifier {
       height: __profile.novelHeight,
       //color: fontColor,
     );
-    final paragraphLine = TextSpan(
-        text: " ",
-        style: TextStyle(
-          height: 1,
-          fontSize: __profile.novelParagraphPadding,
-        ));
+    final _buildHeightSpan = (double height) {
+      return TextSpan(
+          text: " ",
+          style: TextStyle(
+            height: 1,
+            fontSize: height,
+          ));
+    }
+    final paragraphLine = _buildHeightSpan(__profile.novelParagraphPadding);
 
     var _buildImageSpan = (String img, header) {
       return WidgetSpan(
@@ -527,9 +530,7 @@ class NovelPageProvider with ChangeNotifier {
     if ((__profile.novelTitlePadding ?? 0) > 0) {
       currentSpans.add(TextSpan(
         children: [
-          WidgetSpan(
-            child: SizedBox(height: __profile.novelTitlePadding, width: width),
-          ),
+          _buildHeightSpan(__profile.novelTitlePadding),
           newLine,
         ]
       ));
