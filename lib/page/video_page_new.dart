@@ -2,6 +2,7 @@ import 'package:dlna/dlna.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/utils/dlna_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,7 +30,12 @@ class VideoPage extends StatelessWidget {
           final videoUrl = context.select((VideoProvider p) => p.videoUrl);
           final provider = Provider.of<VideoProvider>(context, listen: false);
           if (videoUrl == null || videoUrl.trim().isEmpty) {
-            return LandingPage();
+            return LandingPage(
+                title: Text(Utils.link(searchItem.name, searchItem.durChapter,
+                        divider: ' - ')
+                    .value),
+                color: Colors.black54,
+                brightness: Brightness.dark);
           }
           return AwsomeVideoPlayer(
             videoUrl,
@@ -60,7 +66,8 @@ class VideoPage extends StatelessWidget {
                   radius: 8,
                 ),
                 // 重写Loading 下方的Text widget
-                customLoadingText: Text("加载中...", style: TextStyle(color: Colors.white)),
+                customLoadingText:
+                    Text("加载中...", style: TextStyle(color: Colors.white)),
               ),
 
               /// 自定义顶部控制栏
@@ -182,10 +189,14 @@ class VideoPage extends StatelessWidget {
                     child: Material(
                       color: const Color.fromRGBO(0, 0, 0, 0.2),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         child: Text(
                           provider.hint,
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontFamily: Profile.fontFamily),
                         ),
                       ),
                     ),
@@ -284,8 +295,8 @@ class VideoProvider with ChangeNotifier {
   }
 
   init() async {
-    _content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+    _content = await APIManager.getContent(searchItem.originTag,
+        searchItem.chapters[searchItem.durChapterIndex].url);
     if (_content.isNotEmpty && _content[0].isNotEmpty) {
       _videoUrl = content[0];
     }

@@ -147,6 +147,8 @@ class _ChapterPageState extends State<ChapterPage> {
     final _hero = Utils.empty(searchItem.cover) ? null :
       '${searchItem.name}.${searchItem.cover}.${searchItem.id}';
 
+    SizeUtils.updateMediaData();
+
     return SliverList(
       delegate: SliverChildListDelegate(
         [
@@ -168,6 +170,7 @@ class _ChapterPageState extends State<ChapterPage> {
                             child: GestureDetector(
                               child: UIImageItem(
                                   cover: searchItem.cover,
+                                  initWidth: SizeUtils.getWidth(380, max: 180),
                                   hero: _hero),
                               onTap: () {
                                 Utils.startPageWait(

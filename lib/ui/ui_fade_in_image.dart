@@ -7,9 +7,10 @@ import 'widgets/image_place_holder.dart';
 class UIFadeInImage extends StatelessWidget {
   final String url;
   final Map<String, String> header;
+  final double placeHolderWidth;
   final double placeHolderHeight;
   final BoxFit fit;
-  UIFadeInImage({this.url, this.header, this.fit, this.placeHolderHeight, Key key}) : super(key: key);
+  UIFadeInImage({this.url, this.header, this.fit, this.placeHolderHeight, this.placeHolderWidth, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +18,11 @@ class UIFadeInImage extends StatelessWidget {
       imageUrl: url,
       httpHeaders: header,
       placeholder: (context, url) {
-        return ImagePlaceHolder(height: placeHolderHeight);
+        return ImagePlaceHolder(height: placeHolderHeight, width: placeHolderWidth);
       },
       fit: fit ?? BoxFit.cover,
       errorWidget: (context, url, err) {
-        return ImagePlaceHolder(height: placeHolderHeight, error: true);
+        return ImagePlaceHolder(height: placeHolderHeight, width: placeHolderWidth, error: true);
       },
     );
   }

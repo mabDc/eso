@@ -118,4 +118,9 @@ class _StrBuilder {
         : (this.value + (divider == null ? (this.divider ?? ' ') : divider) + value);
     return this;
   }
+
+  @override
+  String toString() {
+    return value;
+  }
 }
