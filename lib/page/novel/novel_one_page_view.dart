@@ -27,7 +27,7 @@ class NovelOnePageView extends StatelessWidget {
     final _txt = Text(
       msg,
       textAlign: TextAlign.right,
-      style: TextStyle(color: fontColor),
+      style: TextStyle(color: fontColor, fontFamily: Profile.fontFamily),
     );
     return Builder(
       builder: (context) {
@@ -35,7 +35,8 @@ class NovelOnePageView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: padding),
           height: 24,
           child: DefaultTextStyle(
-            style: TextStyle(color: fontColor, fontSize: 12),
+            style: TextStyle(color: fontColor, fontSize: 12,
+                fontFamily: Profile.fontFamily),
             child: Row(
               children: (Provider.of<NovelPageProvider>(context, listen: true)?.useSelectableText ?? false) ? [
                 ButtonTheme(
@@ -96,7 +97,9 @@ class NovelOnePageView extends StatelessWidget {
                 right: profile.novelLeftPadding - 5,
               ),
               width: double.infinity,
-              child: RichText(text: TextSpan(children: spans, style: TextStyle(color: fontColor))),
+              child: RichText(text: TextSpan(children: spans,
+                  style: TextStyle(color: fontColor,
+                      fontFamily: Profile.fontFamily))),
             ),
           ),
           SizedBox(height: 4),

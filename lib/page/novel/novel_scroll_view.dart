@@ -18,8 +18,8 @@ class NovelScrollView extends StatelessWidget {
 
   static Color _fontColor, _fontColor70;
 
-  get _txtStyle => TextStyle(color: _fontColor70);
-  get _txtNormal => TextStyle(color: _fontColor);
+  get _txtStyle => TextStyle(color: _fontColor70, fontFamily: Profile.fontFamily);
+  get _txtNormal => TextStyle(color: _fontColor, fontFamily: Profile.fontFamily);
 
   @override
   Widget build(BuildContext context) {
