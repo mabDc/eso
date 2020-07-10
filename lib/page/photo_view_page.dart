@@ -209,10 +209,12 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
     Map<String, String> headers = provider.headers;
     File file = await mgr.getSingleFile(url, headers: headers);
 
-    final result = await ImageGallerySaver.saveFile(file.absolute.path);
-    if (Platform.isIOS && result == true) {
+    final result = Platform.isWindows
+        ? await CacheUtil(basePath: "download").putFile(Utils.getFileNameAndExt(file.path), file)
+        : await ImageGallerySaver.saveFile(file.absolute.path);
+    if (result is bool && result == true) {
       Utils.toast("保存成功");
-    } else if (result != null && result != "") {
+    } else if (result is String && result != null && result != "") {
       String str = Uri.decodeComponent(result);
       Utils.toast("成功保存到\n$str");
     } else {

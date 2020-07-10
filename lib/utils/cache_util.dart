@@ -13,10 +13,12 @@ class CacheUtil {
 
   /// 缓存名称
   final String cacheName;
+  /// 基路径
+  final String basePath;
   /// 是否是备份
   final bool backup;
 
-  CacheUtil({this.cacheName, this.backup = false});
+  CacheUtil({this.cacheName, this.basePath, this.backup = false});
 
   String _cacheDir;
 
@@ -37,7 +39,11 @@ class CacheUtil {
     if (_cacheDir != null && allCache != true) return _cacheDir;
     var dir = await getCacheBasePath(backup);
     if (dir == null || dir.isEmpty) return null;
-    dir = dir + _separator + 'eso' + _separator + (backup ? _backupPath : _basePath);
+    dir = dir + _separator + 'eso';
+    if (this.basePath == null || this.basePath.isEmpty)
+      dir = dir + _separator + (backup ? _backupPath : _basePath);
+    else
+      dir = dir + _separator + this.basePath;
     if (allCache == true) {
       return dir + _separator;
     }
@@ -58,6 +64,18 @@ class CacheUtil {
     var dir = _cacheDir;
     if (dir == null || dir.isEmpty) return null;
     return dir + (hashCodeKey ? key.hashCode.toString() + '.data' : key);
+  }
+
+  /// 写入文件, 返回新文件的路径
+  Future<String> putFile(String key, File file) async {
+    var _file = await getFileName(key, false);
+    if (_file == null || _file.isEmpty)
+      return null;
+    File _cacheFile = await createFile(_file, path: _cacheDir);
+    if (_cacheFile == null) return null;
+    final bytes = file.readAsBytesSync();
+    await _cacheFile.writeAsBytes(bytes);
+    return _file;
   }
 
   /// 写入 key

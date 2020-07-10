@@ -47,7 +47,8 @@ class MyApp extends StatelessWidget {
           child: Consumer<Profile>(
             builder: (BuildContext context, Profile profile, Widget widget) {
               return OKToast(
-                textStyle: TextStyle(fontSize: 16.0, color: Colors.white),
+                textStyle: TextStyle(fontSize: 16.0, color: Colors.white,
+                    fontFamily: Profile.fontFamily),
                 backgroundColor: Colors.black.withOpacity(0.8),
                 radius: 20.0,
                 textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),

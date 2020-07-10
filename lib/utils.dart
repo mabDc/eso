@@ -13,6 +13,7 @@ export 'package:cached_network_image/cached_network_image.dart';
 export 'fonticons_icons.dart';
 export 'ui/widgets/app_bar_button.dart';
 export 'ui/widgets/app_bar_ex.dart';
+export 'utils/size_utils.dart';
 
 /// 事件bus
 EventBus eventBus = EventBus();
@@ -71,6 +72,11 @@ class Utils {
   /// 提取文件名（不包含路径和扩展名）
   static String getFileName(final String file) {
     return path.basenameWithoutExtension(file);
+  }
+
+  /// 提取文件名（包扩展名）
+  static String getFileNameAndExt(final String file) {
+    return path.basename(file);
   }
 
   /// 检测路径是否存在

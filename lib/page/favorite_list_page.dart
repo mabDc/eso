@@ -1,12 +1,16 @@
+import 'dart:math';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/fonticons_icons.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/model/favorite_list_provider.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
+import 'package:eso/ui/widgets/eso_sliver_grid_delegate.dart';
+import 'package:eso/utils/size_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import '../global.dart';
 import 'chapter_page.dart';
@@ -122,10 +126,14 @@ class FavoriteListPage extends StatelessWidget {
             ],
           ));
         }
+
         return GridView.builder(
           padding: EdgeInsets.symmetric(horizontal: 6),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
+          gridDelegate: ESOSliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: () {
+              SizeUtils.updateMediaData();
+              return max(SizeUtils.screenWidth / 125, 2).toInt();
+            },
             childAspectRatio: 0.55,
             mainAxisSpacing: 0,
             crossAxisSpacing: 0,
@@ -156,3 +164,4 @@ class FavoriteListPage extends StatelessWidget {
     );
   }
 }
+

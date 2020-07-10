@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:eso/api/api.dart';
@@ -9,6 +10,7 @@ import 'package:eso/model/discover_page_controller.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search2_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
+import 'package:eso/ui/widgets/eso_sliver_grid_delegate.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
 import 'package:eso/ui/edit/search_edit.dart';
@@ -490,8 +492,15 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
     return RefreshIndicator(
       child: GridView.builder(
         controller: item.controller,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount ?? 3,
+        gridDelegate: ESOSliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: () {
+            var result = crossAxisCount ?? Utils.isDesktop ? null : 3;
+            if (result == null) {
+              SizeUtils.updateMediaData();
+              result = max(SizeUtils.screenWidth / 125, 2).toInt();
+            }
+            return result;
+          },
           childAspectRatio: childAspectRatio ?? 0.65,
           mainAxisSpacing: 0,
           crossAxisSpacing: 0,
@@ -502,7 +511,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           if (index == items.length) {
             if (item.length == 0 && item.pair == null && !item.isLoading)
               return Container();
-            if (item.more) return LoadMoreView(msg: '加载中...', axis: Axis.vertical);
+            if (item.more)
+              return LoadMoreView(msg: '加载中...', axis: Axis.vertical, timeout: 20000);
             return Container();
           }
           SearchItem searchItem = items[index];
