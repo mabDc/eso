@@ -4,7 +4,7 @@ import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/manga_page.dart';
 import 'package:eso/page/novel_page.dart';
 // import 'package:eso/page/rss_page.dart';
-import 'package:eso/page/video_page_new.dart';
+import 'package:eso/page/video_page.dart';
 import 'package:flutter/material.dart';
 
 class ContentPageRoute {
