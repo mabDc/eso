@@ -233,6 +233,11 @@ class APIFromRUle implements API {
         }
         result.addAll(list);
       } catch (e) {
+        /// 视频正文解析失败抛出错误
+        if (_ruleContentType == API.VIDEO && result.isEmpty) {
+          FlutterJs.close(engineId);
+          throw e;
+        }
         break;
       }
     }
@@ -253,6 +258,7 @@ class APIFromRUle implements API {
       discoverUrl = "${await FlutterJs.evaluate(discoverUrl.substring(4), engineId)}";
     }
     for (var url in discoverUrl.split(RegExp(r"\n+|&&"))) {
+      if(url.trim().isEmpty) continue;
       final d = url.split("::");
       final rule = d.last.trim();
       String tab;
