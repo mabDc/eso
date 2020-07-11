@@ -238,31 +238,33 @@ class _AudioPageState extends State<AudioPage> {
           width: 52,
         ),
         Expanded(
-          child: StatefulBuilder(
-            builder: (context, _state) {
-              return SliderTheme(
-                data: SliderThemeData(
-                  trackHeight: 3,
-                  thumbColor: Colors.white,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
-                  activeTrackColor: Colors.white70,
-                  inactiveTrackColor: Colors.white38,
-                  disabledThumbColor: Colors.grey,
-                  trackShape: RectangularSliderTrackShape()
-                ),
-                child: Slider(
-                  value: provider.postionSeconds.toDouble(),
-                  min: 0,
-                  max: provider.seconds.toDouble(),
-                  divisions: provider.seconds <= 0 ? null : provider.seconds,
-                  onChanged: (v) {
-                    provider.seekSeconds(v.toInt());
-                    _state(() => null);
-                  },
-                  label: "${provider.positionDurationText}",
-                ),
-              );
-            },
+          child: FlutterSlider(
+            values: [provider.postionSeconds.toDouble()],
+            max: provider.seconds.toDouble(),
+            min: 0,
+            onDragging: (handlerIndex, lowerValue, upperValue) =>
+                provider.seekSeconds((lowerValue as double).toInt()),
+            handlerHeight: 12,
+            handlerWidth: 12,
+            handler: FlutterSliderHandler(
+              child: Container(
+                width: 12,
+                height: 12,
+                alignment: Alignment.center,
+                child: Icon(Icons.audiotrack, color: Colors.green, size: 12),
+              ),
+            ),
+            trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.white54,
+              ),
+              activeTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.white70,
+              ),
+            ),
+            tooltip: FlutterSliderTooltip(disabled: true),
           ),
         ),
         Container(
@@ -273,6 +275,52 @@ class _AudioPageState extends State<AudioPage> {
       ],
     );
   }
+
+  // Widget _buildProgressBar(AudioPageController provider) {
+  //   return Row(
+  //     children: <Widget>[
+  //       Container(
+  //         alignment: Alignment.centerRight,
+  //         child:
+  //             Text(provider.positionDurationText, style: TextStyle(color: Colors.white)),
+  //         width: 52,
+  //       ),
+  //       Expanded(
+  //         child: StatefulBuilder(
+  //           builder: (context, _state) {
+  //             return SliderTheme(
+  //               data: SliderThemeData(
+  //                 trackHeight: 3,
+  //                 thumbColor: Colors.white,
+  //                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
+  //                 activeTrackColor: Colors.white70,
+  //                 inactiveTrackColor: Colors.white38,
+  //                 disabledThumbColor: Colors.grey,
+  //                 trackShape: RectangularSliderTrackShape()
+  //               ),
+  //               child: Slider(
+  //                 value: provider.postionSeconds.toDouble(),
+  //                 min: 0,
+  //                 max: provider.seconds.toDouble(),
+  //                 divisions: provider.seconds <= 0 ? null : provider.seconds,
+  //                 onChanged: (v) {
+  //                   provider.seekSeconds(v.toInt());
+  //                   _state(() => null);
+  //                 },
+  //                 label: "${provider.positionDurationText}",
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //       Container(
+  //         alignment: Alignment.centerLeft,
+  //         child: Text(provider.durationText, style: TextStyle(color: Colors.white)),
+  //         width: 52,
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildBottomController(AudioPageController provider) {
     final _repeatMode = provider.repeatMode;
