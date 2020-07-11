@@ -257,8 +257,8 @@ class APIFromRUle implements API {
           engineId);
       discoverUrl = "${await FlutterJs.evaluate(discoverUrl.substring(4), engineId)}";
     }
-    for (var url in discoverUrl.split(RegExp(r"\n+|&&"))) {
-      if(url.trim().isEmpty) continue;
+    for (var url in discoverUrl.split(RegExp(r"\n\s*|&&"))) {
+      if (url.trim().isEmpty) continue;
       final d = url.split("::");
       final rule = d.last.trim();
       String tab;
