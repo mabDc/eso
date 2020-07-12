@@ -46,7 +46,7 @@ class Profile with ChangeNotifier {
             'mangaDirection': mangaDirectionTopToBottom,
             'searchCount': 10,
             'searchOption': SearchOption.Normal.index,
-            'novelTitlePadding': 40,
+            'novelTitlePadding': 40.0,
           }
         : jsonDecode(source);
     fromJson(json);
