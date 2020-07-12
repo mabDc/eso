@@ -169,8 +169,11 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("封面", coverUrl, true);
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.discoverDescription));
-      _addContent("标签", ( (await analyzer.getString(rule.discoverTags)).split(tagsSplitRegExp)
-          ..removeWhere((tag) =>tag.isEmpty)).join(", "));
+      _addContent(
+          "标签",
+          ((await analyzer.getString(rule.discoverTags)).split(tagsSplitRegExp)
+                ..removeWhere((tag) => tag.isEmpty))
+              .join(", "));
       final result = await analyzer.getString(rule.discoverResult);
       _addContent("结果", result);
       await FlutterJs.close(engineId);
@@ -260,8 +263,11 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("封面", coverUrl, true);
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.searchDescription));
-      _addContent("标签", ((await analyzer.getString(rule.searchTags)).split(tagsSplitRegExp)
-          ..removeWhere((tag) => tag.isEmpty)).join(", "));
+      _addContent(
+          "标签",
+          ((await analyzer.getString(rule.searchTags)).split(tagsSplitRegExp)
+                ..removeWhere((tag) => tag.isEmpty))
+              .join(", "));
       final result = await analyzer.getString(rule.searchResult);
       _addContent("结果", result);
       await FlutterJs.close(engineId);
@@ -431,9 +437,12 @@ class DebugRuleProvider with ChangeNotifier {
             await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
           }
         }
-        final contentItems = await AnalyzerManager(
+        var contentItems = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
             .getStringList(rule.contentItems);
+        if (rule.contentType == API.NOVEL) {
+          contentItems = contentItems.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+        }
         final count = contentItems.length;
         if (count == 0) {
           _addContent("正文结果个数为0，解析结束！");
