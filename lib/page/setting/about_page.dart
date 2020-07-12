@@ -362,7 +362,8 @@ class AboutPage extends StatelessWidget {
                       onTap: () => launch('https://github.com/mabDc/eso/issues'),
                     ),
                     ListTile(
-                      title: Text('版本 v${Global.appVersion}'),
+                      title: Text(
+                          '${Global.appName} - ${Global.appVersion}'),
                       subtitle: Text('https://github.com/mabDc/eso/releases'),
                       onTap: () => launch('https://github.com/mabDc/eso/releases'),
                     ),
@@ -376,7 +377,7 @@ class AboutPage extends StatelessWidget {
                   child: InkWell(
                     onTap: () => showAboutDialog(
                         context: context,
-                        applicationVersion: Global.appVersion,
+                        applicationVersion: '版本 ${Global.appVersion}\n版号 ${Global.appBuildNumber}\n包名 ${Global.appPackageName}',
                         children: <Widget>[
                           MarkdownPageListTile(
                             filename: 'lib/assets/md/README.md',

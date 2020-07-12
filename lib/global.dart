@@ -9,10 +9,13 @@ import 'package:flutter/material.dart';
 import 'database/database.dart';
 import 'database/rule_dao.dart';
 export 'utils/local_storage_utils.dart';
+import 'package:package_info/package_info.dart';
 
 class Global with ChangeNotifier {
-  static const appName = '亦搜';
-  static const appVersion = '1.13.1';
+  static String appName = '亦搜';
+  static String appVersion = '1.13.11';
+  static String appBuildNumber = '11000';
+  static String appPackageName = "com.mabdc.eso";
 
   static const waitingPath = "lib/assets/waiting.png";
   static const logoPath = "lib/assets/eso_logo.png";
@@ -49,10 +52,18 @@ class Global with ChangeNotifier {
     } else {
       final _database = await $FloorAppDatabase
           .databaseBuilder('eso_database.db')
-          .addMigrations(_migrations).build();
+          .addMigrations(_migrations)
+          .build();
       _ruleDao = _database.ruleDao;
     }
     await Future.delayed(Duration(seconds: 1));
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion = packageInfo.version;
+      appBuildNumber = packageInfo.buildNumber;
+      appName = packageInfo.appName;
+      appPackageName = packageInfo.packageName;
+    } catch (e) {}
     return true;
   }
 
