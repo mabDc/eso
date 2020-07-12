@@ -21,6 +21,7 @@ EventBus eventBus = EventBus();
 class Utils {
   /// 时间字符串显示
   static String formatDuration(Duration d) {
+    if (d == null) return "--:--";
     final s = d.toString().split(".")[0];
     if (d.inHours == 0) {
       return "${s.split(":")[1]}:${s.split(":")[2]}";

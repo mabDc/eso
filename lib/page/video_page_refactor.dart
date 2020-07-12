@@ -1,19 +1,20 @@
 import 'dart:io';
 
 import 'package:dlna/dlna.dart';
-import 'package:eso/api/api_manager.dart';
-import 'package:eso/database/search_item.dart';
-import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/audio_service.dart';
-import 'package:eso/utils/dlna_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:screen/screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../api/api_manager.dart';
+import '../database/search_item.dart';
+import '../database/search_item_manager.dart';
+import '../model/audio_service.dart';
 import '../utils.dart';
+import '../utils/dlna_util.dart';
 
 class VideoPage extends StatelessWidget {
   final SearchItem searchItem;
@@ -27,18 +28,21 @@ class VideoPage extends StatelessWidget {
         create: (context) => VideoPageProvider(searchItem: searchItem),
         child: null,
         builder: (BuildContext context, child) {
-          final controller =
-              context.select((VideoPageProvider provider) => provider.controller);
+          final isLoading =
+              context.select((VideoPageProvider provider) => provider.isLoading);
+          final showController =
+              context.select((VideoPageProvider provider) => provider.showController);
+          final hint = context.select((VideoPageProvider provider) => provider.hint);
           return Stack(
             children: [
-              _buildPlayer(context),
-              controller == null
+              isLoading ? Container() : _buildPlayer(context),
+              isLoading
                   ? Align(
                       alignment: Alignment.center,
                       child: _buildLoading(context),
                     )
                   : Container(),
-              controller == null
+              isLoading
                   ? Positioned(
                       left: 30,
                       bottom: 80,
@@ -46,24 +50,56 @@ class VideoPage extends StatelessWidget {
                       child: _buildLoadingText(context),
                     )
                   : Container(),
-              Container(
-                padding: EdgeInsets.fromLTRB(
-                    10, 10 + MediaQuery.of(context).padding.top, 10, 10),
-                color: Color(0x20000000),
-                child: _buildTopBar(context),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
-                  color: Color(0x20000000),
-                  child: _buildBottomBar(context),
-                ),
-              ),
+              showController
+                  ? Container(
+                      padding: EdgeInsets.fromLTRB(
+                          10, 10 + MediaQuery.of(context).padding.top, 10, 10),
+                      color: Color(0x20000000),
+                      child: _buildTopBar(context),
+                    )
+                  : Container(),
+              showController
+                  ? Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
+                        color: Color(0x20000000),
+                        child: _buildBottomBar(context),
+                      ),
+                    )
+                  : Container(),
+              hint == null
+                  ? Container()
+                  : Align(
+                      alignment: Alignment.center,
+                      child: hint,
+                    ),
             ],
           );
         },
       ),
+    );
+  }
+
+  Widget _buildPlayer(BuildContext context) {
+    final controller =
+        context.select((VideoPageProvider provider) => provider.controller);
+    final provider = Provider.of<VideoPageProvider>(context, listen: false);
+    return GestureDetector(
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: controller.value.aspectRatio,
+          child: VideoPlayer(controller),
+        ),
+      ),
+      onDoubleTap: provider.playOrPause,
+      onTap: provider.toggleControllerBar,
+      onHorizontalDragStart: (details) => null,
+      onHorizontalDragUpdate: (details) => null,
+      onHorizontalDragEnd: (details) => null,
+      onVerticalDragStart: (details) => null,
+      onVerticalDragUpdate: (details) => null,
+      onVerticalDragEnd: (details) => null,
     );
   }
 
@@ -115,25 +151,6 @@ class VideoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayer(BuildContext context) {
-    final controller =
-        context.select((VideoPageProvider provider) => provider.controller);
-    if (controller == null ||
-        controller.value == null ||
-        controller.value.aspectRatio == null) return Container();
-    final provider = Provider.of<VideoPageProvider>(context, listen: false);
-    return GestureDetector(
-      child: Center(
-        child: AspectRatio(
-          aspectRatio: controller.value.aspectRatio,
-          child: VideoPlayer(controller),
-        ),
-      ),
-      onDoubleTap: provider.playOrPause,
-      onTap: provider.toggleControllerBar,
-    );
-  }
-
   Widget _buildTopBar(BuildContext context) {
     return Row(
       children: [
@@ -162,24 +179,24 @@ class VideoPage extends StatelessWidget {
   Widget _buildBottomBar(BuildContext context) {
     return Consumer<VideoPageProvider>(
       builder: (context, provider, child) {
-        final controller = provider.controller;
-        var text = "--:-- / --:--";
-        if (controller != null && controller.value != null) {
-          text =
-              "${Utils.formatDuration(controller.value.position)} / ${Utils.formatDuration(controller.value.duration)}";
-        }
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            controller == null || controller.value == null
-                ? Container()
+            provider.isLoading
+                ? LinearProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(VideoProgressColors().playedColor),
+                    backgroundColor: VideoProgressColors().backgroundColor,
+                  )
                 : VideoProgressIndicator(
-                    controller,
+                    provider.controller,
                     allowScrubbing: true,
                   ),
             Text(
-              text,
+              provider.isLoading
+                  ? "--:-- / --:--"
+                  : "${provider.position} / ${provider.duration}",
               style: TextStyle(fontSize: 10, color: Colors.white),
               textAlign: TextAlign.end,
             ),
@@ -195,6 +212,13 @@ class VideoPage extends StatelessWidget {
                 ),
                 IconButton(
                   color: Colors.white,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.airplay),
+                  onPressed: () => provider.openDLNA(context),
+                ),
+                IconButton(
+                  color: Colors.white,
                   iconSize: 40,
                   padding: EdgeInsets.zero,
                   icon: Icon(Icons.skip_previous),
@@ -205,7 +229,7 @@ class VideoPage extends StatelessWidget {
                   iconSize: 40,
                   padding: EdgeInsets.zero,
                   icon: Icon(
-                    controller != null && controller.value.isPlaying
+                    !provider.isLoading && provider.isPlaying
                         ? Icons.pause
                         : Icons.play_arrow,
                   ),
@@ -222,8 +246,15 @@ class VideoPage extends StatelessWidget {
                   color: Colors.white,
                   iconSize: 20,
                   padding: EdgeInsets.zero,
-                  icon: Icon(Icons.airplay),
-                  onPressed: () => provider.openDLNA(context),
+                  icon: Icon(Icons.screen_rotation),
+                  onPressed: provider.screenRotation,
+                ),
+                IconButton(
+                  color: Colors.white,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.zoom_out_map),
+                  onPressed: provider.zoom,
                 ),
               ],
             ),
@@ -238,7 +269,6 @@ class VideoPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   String _titleText;
   String get titleText => _titleText;
-
   List<String> _content;
   List<String> get content => _content;
 
@@ -247,6 +277,9 @@ class VideoPageProvider with ChangeNotifier {
 
   VideoPlayerController _controller;
   VideoPlayerController get controller => _controller;
+  bool get isPlaying => _controller.value.isPlaying;
+  String get position => Utils.formatDuration(_controller.value.position);
+  String get duration => Utils.formatDuration(_controller.value.duration);
 
   VideoPageProvider({@required this.searchItem}) {
     if (searchItem.chapters?.length == 0 &&
@@ -254,18 +287,17 @@ class VideoPageProvider with ChangeNotifier {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _titleText = "${searchItem.name} - ${searchItem.durChapter}";
+    _screenAxis = Axis.horizontal;
     _disposed = false;
-    _showController = true;
     setHorizontal();
     parseContent(null);
   }
 
   bool _isLoading;
-  bool get isLoading => _isLoading;
-
+  bool get isLoading => _isLoading != false;
   void parseContent(int chapterIndex) async {
     if (chapterIndex != null &&
-        (_isLoading ||
+        (_isLoading == true ||
             chapterIndex < 0 ||
             chapterIndex >= searchItem.chaptersCount ||
             chapterIndex == searchItem.durChapterIndex)) {
@@ -273,50 +305,69 @@ class VideoPageProvider with ChangeNotifier {
     }
     _isLoading = true;
     loadingText.clear();
+    if (chapterIndex != null) {
+      searchItem.durChapterIndex = chapterIndex;
+      searchItem.durChapter = searchItem.chapters[chapterIndex].name;
+      searchItem.durContentIndex = 1;
+      _titleText = "${searchItem.name} - ${searchItem.durChapter}";
+    }
     loadingText.add("开始解析...");
+    await controller?.pause();
     notifyListeners();
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    SearchItemManager.saveSearchItem();
     if (_disposed) return;
     try {
       _content = await APIManager.getContent(searchItem.originTag,
           searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex].url);
       if (_disposed) return;
-      loadingText.add("得到地址 ${_content[0]}");
-      loadingText.add("初始化播放器...");
+      loadingText.add("播放地址 ${_content[0]}");
+      loadingText.add("获取视频信息...");
       notifyListeners();
 
-      if (chapterIndex != null) {
-        searchItem.durChapterIndex = chapterIndex;
-        searchItem.durChapter = searchItem.chapters[chapterIndex].name;
-        searchItem.durContentIndex = 1;
-      }
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      await SearchItemManager.saveSearchItem();
       _controller?.removeListener(listener);
       _controller?.dispose();
       if (_disposed) return;
       _controller = VideoPlayerController.network(_content[0]);
-      _isLoading = false;
+      notifyListeners();
       AudioService.stop();
       await _controller.initialize();
       _controller.seekTo(Duration(milliseconds: searchItem.durContentIndex));
-      _controller.addListener(listener);
-      if (_disposed) _controller.dispose();
       _controller.play();
-      loadingText.add("开始缓冲...");
+      Screen.keepOn(true);
+      _controller.addListener(listener);
+      _lastShowControllerTime = DateTime.now();
+      _isLoading = false;
+      if (_disposed) _controller.dispose();
     } catch (e, st) {
       loadingText.add("错误 $e");
       loadingText.addAll("$st".split("\n").take(5));
+      _isLoading = null;
       notifyListeners();
     }
   }
 
   DateTime _lastNotifyTime;
   listener() {
-    if (_lastNotifyTime == null) {
+    if (_lastNotifyTime == null ||
+        DateTime.now().difference(_lastNotifyTime).inMicroseconds > 1000) {
       _lastNotifyTime = DateTime.now();
-      notifyListeners();
-    } else if (DateTime.now().difference(_lastNotifyTime).inMicroseconds > 1000) {
-      _lastNotifyTime = DateTime.now();
+      if (!isLoading) {
+        if (showController &&
+            DateTime.now()
+                    .difference(_lastShowControllerTime)
+                    .compareTo(_controllerDelay) >=
+                0) {
+          hideController();
+        }
+        if (_hint != null &&
+            DateTime.now().difference(_lastShowHintTime).compareTo(_hintDelay) >= 0) {
+          _hint = null;
+        }
+        searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+        searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+        SearchItemManager.saveSearchItem();
+      }
       notifyListeners();
     }
   }
@@ -324,17 +375,18 @@ class VideoPageProvider with ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    Screen.keepOn(false);
     controller?.dispose();
     loadingText.clear();
     if (Platform.isIOS) {
       setVertical();
     }
-    reset();
+    resetRotation();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
   }
 
-  void reset() {
+  void resetRotation() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
@@ -359,6 +411,7 @@ class VideoPageProvider with ChangeNotifier {
 
   void openDLNA(BuildContext context) {
     if (_disposed || _content == null) return;
+    _lastShowControllerTime = DateTime.now();
     DLNAUtil.instance.start(
       context,
       title: _titleText,
@@ -370,32 +423,43 @@ class VideoPageProvider with ChangeNotifier {
 
   void openInNew() {
     if (_disposed || _content == null) return;
+    _lastShowControllerTime = DateTime.now();
     launch(_content[0]);
   }
 
   Widget _hint;
   Widget get hint => _hint;
-
-  void _pause() {
+  DateTime _lastShowHintTime;
+  Duration _hintDelay = Duration(seconds: 1);
+  void setHintText(String text) {
     _hint = Text(
-      "暂停",
-      style: TextStyle(color: Colors.white),
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
     );
-    controller.pause();
+    _lastShowHintTime = DateTime.now();
+    notifyListeners();
   }
 
-  void _play() {
-    _hint = Text(
-      "播放",
-      style: TextStyle(color: Colors.white),
-    );
-    controller.play();
+  void _pause() async {
+    await Screen.keepOn(false);
+    await controller.pause();
+    setHintText("已暂停");
+  }
+
+  void _play() async {
+    setHintText("播放");
+    await Screen.keepOn(true);
+    await controller.play();
   }
 
   void playOrPause() {
-    if (_disposed || _content == null || controller == null || controller.value == null)
-      return;
-    if (controller.value.isPlaying) {
+    if (_disposed || isLoading) return;
+    _lastShowControllerTime = DateTime.now();
+    if (isPlaying) {
       _pause();
     } else {
       _play();
@@ -403,16 +467,47 @@ class VideoPageProvider with ChangeNotifier {
   }
 
   bool _showController;
-  bool get showController => _showController;
+  bool get showController => _showController != false;
+  DateTime _lastShowControllerTime;
+  Duration _controllerDelay = Duration(seconds: 3);
 
   void toggleControllerBar() {
-    if (_showController) {
-      _showController = false;
-      SystemChrome.setEnabledSystemUIOverlays([]);
+    if (showController) {
+      hideController();
     } else {
-      _showController = true;
-      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+      displayController();
     }
     notifyListeners();
+  }
+
+  void displayController() {
+    _showController = true;
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    _lastShowControllerTime = DateTime.now();
+  }
+
+  void hideController() {
+    _showController = false;
+    SystemChrome.setEnabledSystemUIOverlays([]);
+  }
+
+  void zoom() {
+    // if (_disposed || isLoading) return;
+    _lastShowControllerTime = DateTime.now();
+    setHintText("暂无功能");
+  }
+
+  Axis _screenAxis;
+  void screenRotation() {
+    _lastShowControllerTime = DateTime.now();
+    if (_screenAxis == Axis.horizontal) {
+      setHintText("纵向");
+      _screenAxis = Axis.vertical;
+      setVertical();
+    } else {
+      setHintText("横向");
+      _screenAxis = Axis.horizontal;
+      setHorizontal();
+    }
   }
 }
