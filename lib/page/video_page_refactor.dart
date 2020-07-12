@@ -630,6 +630,8 @@ class VideoPageProvider with ChangeNotifier {
       setHintTextWithIcon(vol, icon);
       await _controller.setVolume(vol);
     }
+
+    /// 手势调节正常运作核心代码就是这句了
     _dragStartPosition = details.globalPosition.dy;
     _draging = false;
   }
