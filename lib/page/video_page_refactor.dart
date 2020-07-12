@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:screen/screen.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,61 +24,71 @@ class VideoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black87,
-      body: ChangeNotifierProvider<VideoPageProvider>(
-        create: (context) => VideoPageProvider(searchItem: searchItem),
-        child: null,
-        builder: (BuildContext context, child) {
-          final isLoading =
-              context.select((VideoPageProvider provider) => provider.isLoading);
-          final showController =
-              context.select((VideoPageProvider provider) => provider.showController);
-          final hint = context.select((VideoPageProvider provider) => provider.hint);
-          return Stack(
-            children: [
-              isLoading ? Container() : _buildPlayer(context),
-              isLoading
-                  ? Align(
-                      alignment: Alignment.center,
-                      child: _buildLoading(context),
-                    )
-                  : Container(),
-              isLoading
-                  ? Positioned(
-                      left: 30,
-                      bottom: 80,
-                      right: 30,
-                      child: _buildLoadingText(context),
-                    )
-                  : Container(),
-              showController
-                  ? Container(
-                      padding: EdgeInsets.fromLTRB(
-                          10, 10 + MediaQuery.of(context).padding.top, 10, 10),
-                      color: Color(0x20000000),
-                      child: _buildTopBar(context),
-                    )
-                  : Container(),
-              showController
-                  ? Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: Colors.black87,
+        body: ChangeNotifierProvider<VideoPageProvider>(
+          create: (context) => VideoPageProvider(searchItem: searchItem),
+          child: null,
+          builder: (BuildContext context, child) {
+            final isLoading =
+                context.select((VideoPageProvider provider) => provider.isLoading);
+            final showController =
+                context.select((VideoPageProvider provider) => provider.showController);
+            final hint = context.select((VideoPageProvider provider) => provider.hint);
+            return Stack(
+              children: [
+                isLoading ? Container() : _buildPlayer(context),
+                isLoading
+                    ? Align(
+                        alignment: Alignment.center,
+                        child: _buildLoading(context),
+                      )
+                    : Container(),
+                isLoading
+                    ? Positioned(
+                        left: 30,
+                        bottom: 80,
+                        right: 30,
+                        child: _buildLoadingText(context),
+                      )
+                    : Container(),
+                showController
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(
+                            10, 0 + MediaQuery.of(context).padding.top, 0, 10),
                         color: Color(0x20000000),
-                        child: _buildBottomBar(context),
+                        child: _buildTopBar(context),
+                      )
+                    : Container(),
+                showController
+                    ? Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
+                          color: Color(0x20000000),
+                          child: _buildBottomBar(context),
+                        ),
+                      )
+                    : Container(),
+                hint == null
+                    ? Container()
+                    : Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Color(0x20000000),
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
+                          child: hint,
+                        ),
                       ),
-                    )
-                  : Container(),
-              hint == null
-                  ? Container()
-                  : Align(
-                      alignment: Alignment.center,
-                      child: hint,
-                    ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -94,12 +106,11 @@ class VideoPage extends StatelessWidget {
       ),
       onDoubleTap: provider.playOrPause,
       onTap: provider.toggleControllerBar,
-      onHorizontalDragStart: (details) => null,
-      onHorizontalDragUpdate: (details) => null,
-      onHorizontalDragEnd: (details) => null,
-      onVerticalDragStart: (details) => null,
-      onVerticalDragUpdate: (details) => null,
-      onVerticalDragEnd: (details) => null,
+      onHorizontalDragStart: provider.onHorizontalDragStart,
+      onHorizontalDragUpdate: provider.onHorizontalDragUpdate,
+      onHorizontalDragEnd: provider.onHorizontalDragEnd,
+      onVerticalDragStart: provider.onVerticalDragStart,
+      onVerticalDragUpdate: provider.onVerticalDragUpdate,
     );
   }
 
@@ -321,7 +332,7 @@ class VideoPageProvider with ChangeNotifier {
       _content = await APIManager.getContent(searchItem.originTag,
           searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex].url);
       if (_disposed) return;
-      loadingText.add("播放地址 ${_content[0]}");
+      loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
       loadingText.add("获取视频信息...");
       notifyListeners();
 
@@ -336,7 +347,7 @@ class VideoPageProvider with ChangeNotifier {
       _controller.play();
       Screen.keepOn(true);
       _controller.addListener(listener);
-      _lastShowControllerTime = DateTime.now();
+      _controllerTime = DateTime.now();
       _isLoading = false;
       if (_disposed) _controller.dispose();
     } catch (e, st) {
@@ -354,14 +365,11 @@ class VideoPageProvider with ChangeNotifier {
       _lastNotifyTime = DateTime.now();
       if (!isLoading) {
         if (showController &&
-            DateTime.now()
-                    .difference(_lastShowControllerTime)
-                    .compareTo(_controllerDelay) >=
-                0) {
+            DateTime.now().difference(_controllerTime).compareTo(_controllerDelay) >= 0) {
           hideController();
         }
         if (_hint != null &&
-            DateTime.now().difference(_lastShowHintTime).compareTo(_hintDelay) >= 0) {
+            DateTime.now().difference(_hintTime).compareTo(_hintDelay) >= 0) {
           _hint = null;
         }
         searchItem.durContentIndex = _controller.value.position.inMilliseconds;
@@ -375,7 +383,12 @@ class VideoPageProvider with ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    controller.pause();
     Screen.keepOn(false);
+    Screen.setBrightness(-1);
+    searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    SearchItemManager.saveSearchItem();
     controller?.dispose();
     loadingText.clear();
     if (Platform.isIOS) {
@@ -411,7 +424,7 @@ class VideoPageProvider with ChangeNotifier {
 
   void openDLNA(BuildContext context) {
     if (_disposed || _content == null) return;
-    _lastShowControllerTime = DateTime.now();
+    _controllerTime = DateTime.now();
     DLNAUtil.instance.start(
       context,
       title: _titleText,
@@ -423,24 +436,25 @@ class VideoPageProvider with ChangeNotifier {
 
   void openInNew() {
     if (_disposed || _content == null) return;
-    _lastShowControllerTime = DateTime.now();
+    _controllerTime = DateTime.now();
     launch(_content[0]);
   }
 
   Widget _hint;
   Widget get hint => _hint;
-  DateTime _lastShowHintTime;
-  Duration _hintDelay = Duration(seconds: 1);
+  DateTime _hintTime;
+  final _hintDelay = Duration(seconds: 1);
   void setHintText(String text) {
     _hint = Text(
       text,
+      textAlign: TextAlign.center,
       style: const TextStyle(
         color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+        fontSize: 22,
+        height: 1.5,
       ),
     );
-    _lastShowHintTime = DateTime.now();
+    _hintTime = DateTime.now();
     notifyListeners();
   }
 
@@ -458,7 +472,7 @@ class VideoPageProvider with ChangeNotifier {
 
   void playOrPause() {
     if (_disposed || isLoading) return;
-    _lastShowControllerTime = DateTime.now();
+    _controllerTime = DateTime.now();
     if (isPlaying) {
       _pause();
     } else {
@@ -468,8 +482,8 @@ class VideoPageProvider with ChangeNotifier {
 
   bool _showController;
   bool get showController => _showController != false;
-  DateTime _lastShowControllerTime;
-  Duration _controllerDelay = Duration(seconds: 3);
+  DateTime _controllerTime;
+  final _controllerDelay = Duration(seconds: 4);
 
   void toggleControllerBar() {
     if (showController) {
@@ -483,7 +497,7 @@ class VideoPageProvider with ChangeNotifier {
   void displayController() {
     _showController = true;
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    _lastShowControllerTime = DateTime.now();
+    _controllerTime = DateTime.now();
   }
 
   void hideController() {
@@ -493,13 +507,13 @@ class VideoPageProvider with ChangeNotifier {
 
   void zoom() {
     // if (_disposed || isLoading) return;
-    _lastShowControllerTime = DateTime.now();
+    _controllerTime = DateTime.now();
     setHintText("暂无功能");
   }
 
   Axis _screenAxis;
   void screenRotation() {
-    _lastShowControllerTime = DateTime.now();
+    _controllerTime = DateTime.now();
     if (_screenAxis == Axis.horizontal) {
       setHintText("纵向");
       _screenAxis = Axis.vertical;
@@ -508,6 +522,117 @@ class VideoPageProvider with ChangeNotifier {
       setHintText("横向");
       _screenAxis = Axis.horizontal;
       setHorizontal();
+    }
+  }
+
+  /// 手势处理
+  double _dragStartPosition;
+  Duration _gesturePosition;
+  bool _draging;
+
+  void setHintTextWithIcon(num value, IconData icon) {
+    _hint = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: Colors.white.withOpacity(0.7),
+              size: 18,
+            ),
+            SizedBox(width: 10),
+            Container(
+              width: 100,
+              child: LinearProgressIndicator(
+                value: value,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0x8FFF2020)),
+                backgroundColor: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        Text(
+          (value * 100).toStringAsFixed(0),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            height: 1.5,
+          ),
+        )
+      ],
+    );
+    _hintTime = DateTime.now();
+    notifyListeners();
+  }
+
+  void onHorizontalDragStart(DragStartDetails details) =>
+      _dragStartPosition = details.globalPosition.dx;
+
+  void onHorizontalDragEnd(DragEndDetails details) {
+    _controller.seekTo(_gesturePosition);
+  }
+
+  void onHorizontalDragUpdate(DragUpdateDetails details) {
+    final d = Duration(seconds: (details.globalPosition.dx - _dragStartPosition) ~/ 10);
+    _gesturePosition = _controller.value.position + d;
+    final prefix = d.compareTo(Duration.zero) < 0 ? "-" : "+";
+    setHintText(
+        "${Utils.formatDuration(_gesturePosition)} / $duration\n[ $prefix ${Utils.formatDuration(d)} ]");
+  }
+
+  void onVerticalDragStart(DragStartDetails details) =>
+      _dragStartPosition = details.globalPosition.dy;
+
+  void onVerticalDragUpdate(DragUpdateDetails details) async {
+    if (_draging == true) return;
+    _draging = true;
+    double number = (_dragStartPosition - details.globalPosition.dy) / 200;
+    if (details.globalPosition.dx < (_screenAxis == Axis.horizontal ? 400 : 200)) {
+      IconData icon = OMIcons.brightnessLow;
+      var brightness = await Screen.brightness;
+      if (brightness > 1) {
+        brightness = 0.5;
+      }
+      brightness += number;
+      if (brightness < 0) {
+        brightness = 0.0;
+      } else if (brightness > 1) {
+        brightness = 1.0;
+      }
+      if (brightness <= 0.25) {
+        icon = Icons.brightness_low;
+      } else if (brightness < 0.5) {
+        icon = Icons.brightness_medium;
+      } else {
+        icon = Icons.brightness_high;
+      }
+      setHintTextWithIcon(brightness, icon);
+      await Screen.setBrightness(brightness);
+      _dragStartPosition = details.globalPosition.dy;
+      _draging = false;
+    } else {
+      IconData icon = OMIcons.volumeMute;
+      var vol = _controller.value.volume + number;
+      if (vol <= 0) {
+        icon = OMIcons.volumeOff;
+        vol = 0.0;
+      } else if (vol < 0.2) {
+        icon = OMIcons.volumeMute;
+      } else if (vol < 0.7) {
+        icon = OMIcons.volumeDown;
+      } else {
+        icon = OMIcons.volumeUp;
+      }
+      if (vol > 1) {
+        vol = 1;
+      }
+      setHintTextWithIcon(vol, icon);
+      await _controller.setVolume(vol);
+      _dragStartPosition = details.globalPosition.dy;
+      _draging = false;
     }
   }
 }
