@@ -611,8 +611,6 @@ class VideoPageProvider with ChangeNotifier {
       }
       setHintTextWithIcon(brightness, icon);
       await Screen.setBrightness(brightness);
-      _dragStartPosition = details.globalPosition.dy;
-      _draging = false;
     } else {
       IconData icon = OMIcons.volumeMute;
       var vol = _controller.value.volume + number;
@@ -631,8 +629,8 @@ class VideoPageProvider with ChangeNotifier {
       }
       setHintTextWithIcon(vol, icon);
       await _controller.setVolume(vol);
-      _dragStartPosition = details.globalPosition.dy;
-      _draging = false;
     }
+    _dragStartPosition = details.globalPosition.dy;
+    _draging = false;
   }
 }
