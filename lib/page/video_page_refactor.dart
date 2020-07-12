@@ -471,6 +471,9 @@ class VideoPageProvider with ChangeNotifier {
   }
 
   void playOrPause() {
+    if (_isLoading == null) {
+      parseContent(null);
+    }
     if (_disposed || isLoading) return;
     _controllerTime = DateTime.now();
     if (isPlaying) {
