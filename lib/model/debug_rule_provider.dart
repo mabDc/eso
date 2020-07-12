@@ -94,16 +94,17 @@ class DebugRuleProvider with ChangeNotifier {
     rows.clear();
     _beginEvent("发现");
     final engineId = await FlutterJs.initEngine();
+    _addContent("初始化js");
     try {
       var discoverRule = rule.discoverUrl.trimLeft();
       if (discoverRule.startsWith("@js:")) {
-        _addContent("开始执行发现js规则");
+        _addContent("执行发现js规则");
         final engineId = await FlutterJs.initEngine();
         await FlutterJs.evaluate(
             "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)};",
             engineId);
         discoverRule = "${await FlutterJs.evaluate(discoverRule.substring(4), engineId)}";
-        _addContent("执行完成，结果如下\n" + discoverRule);
+        _addContent("结果", discoverRule);
       }
       final discoverResult = await AnalyzeUrl.urlRuleParser(
         discoverRule.split(RegExp(r"\n+|&&")).first.split("::").last,
@@ -126,7 +127,7 @@ class DebugRuleProvider with ChangeNotifier {
             rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
         await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
-      _addContent("js预加载");
+      _addContent("加载js");
       final analyzer = AnalyzerManager(
           DecodeBody()
               .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]),
@@ -137,7 +138,7 @@ class DebugRuleProvider with ChangeNotifier {
         FlutterJs.close(engineId);
         _addContent("发现结果列表个数为0，解析结束！");
       } else {
-        _addContent("发现结果个数", resultCount.toString());
+        _addContent("个数", resultCount.toString());
         parseFirstDiscover(discoverList.first, engineId);
       }
     } catch (e) {
@@ -198,7 +199,7 @@ class DebugRuleProvider with ChangeNotifier {
     _startTime = DateTime.now();
     rows.clear();
     final engineId = await FlutterJs.initEngine();
-    _addContent("js初始化");
+    _addContent("初始化js");
     try {
       final searchResult = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
@@ -222,7 +223,7 @@ class DebugRuleProvider with ChangeNotifier {
             rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
         await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
-      _addContent("js预加载");
+      _addContent("加载js");
       final analyzer = AnalyzerManager(
           DecodeBody()
               .decode(searchResult.bodyBytes, searchResult.headers["content-type"]),
@@ -335,7 +336,7 @@ class DebugRuleProvider with ChangeNotifier {
           _addContent("章节列表个数为0，解析结束！");
           break;
         } else {
-          _addContent("章节结果个数", count.toString());
+          _addContent("个数", count.toString());
           if (firstChapter == null) {
             firstChapter = reversed ? chapterList.last : chapterList.first;
           }
@@ -367,13 +368,17 @@ class DebugRuleProvider with ChangeNotifier {
     try {
       final analyzer = AnalyzerManager(firstItem, engineId);
       final name = await analyzer.getString(rule.chapterName);
-      _addContent("名称(解析)", name);
+      _addContent("名称", name);
       final lock = await analyzer.getString(rule.chapterLock);
-      _addContent("lock标志", lock);
-      if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
-        _addContent("名称(显示)", "🔒" + name);
+      _addContent("lock", lock);
+      if (lock != null &&
+          lock.isNotEmpty &&
+          lock != "undefined" &&
+          lock != "false" &&
+          lock != "0") {
+        _addContent("名称", "🔒" + name);
       } else {
-        _addContent("名称(显示)", name);
+        _addContent("名称", name);
       }
       _addContent("时间", await analyzer.getString(rule.chapterTime));
       final coverUrl = await analyzer.getString(rule.chapterCover);
@@ -453,7 +458,7 @@ class DebugRuleProvider with ChangeNotifier {
           FlutterJs.close(engineId);
           return;
         } else {
-          _addContent("正文结果个数", count.toString());
+          _addContent("个数", count.toString());
           final isUrl = rule.contentType == API.MANGA ||
               rule.contentType == API.AUDIO ||
               rule.contentType == API.VIDEO;

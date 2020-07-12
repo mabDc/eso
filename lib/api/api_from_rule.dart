@@ -179,7 +179,11 @@ class APIFromRUle implements API {
           // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
           //   name = "🔓" + name;
           // }else
-          if (lock != null && lock.isNotEmpty && lock != "undefined" && lock != "false") {
+          if (lock != null &&
+              lock.isNotEmpty &&
+              lock != "undefined" &&
+              lock != "false" &&
+              lock != "0") {
             name = "🔒" + name;
           }
           result.add(ChapterItem(
