@@ -513,8 +513,9 @@ class VideoPageProvider with ChangeNotifier {
   Widget _hint;
   Widget get hint => _hint;
   DateTime _hintTime;
-  final _hintDelay = Duration(seconds: 1);
   void autoHideHint() {
+    _hintTime = DateTime.now();
+    const _hintDelay = Duration(seconds: 1);
     Future.delayed(_hintDelay, () {
       if (DateTime.now().difference(_hintTime).compareTo(_hintDelay) >= 0) {
         _hint = null;
@@ -533,7 +534,6 @@ class VideoPageProvider with ChangeNotifier {
         height: 1.5,
       ),
     );
-    _hintTime = DateTime.now();
     notifyListeners();
     autoHideHint();
   }
@@ -648,7 +648,6 @@ class VideoPageProvider with ChangeNotifier {
         )
       ],
     );
-    _hintTime = DateTime.now();
     notifyListeners();
     autoHideHint();
   }
