@@ -453,13 +453,17 @@ class VideoPageProvider with ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
-    controller.pause();
-    Screen.keepOn(false);
-    Screen.setBrightness(-1);
-    searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+    if (controller != null) {
+      controller.pause();
+      controller.dispose();
+      searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+    }
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
-    controller?.dispose();
+    if (!Utils.isDesktop) {
+      Screen.keepOn(false);
+      Screen.setBrightness(-1);
+    }
     loadingText.clear();
     if (Platform.isIOS) {
       setVertical();
