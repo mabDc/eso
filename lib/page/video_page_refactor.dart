@@ -385,7 +385,7 @@ class VideoPageProvider with ChangeNotifier {
     }
     _isLoading = true;
     _hint = null;
-    _controller?.removeListener(listener);
+    _controller?.removeListener(_listener);
     loadingText.clear();
     if (chapterIndex != null) {
       searchItem.durChapterIndex = chapterIndex;
@@ -423,7 +423,7 @@ class VideoPageProvider with ChangeNotifier {
       _controller.seekTo(Duration(milliseconds: searchItem.durContentIndex));
       _controller.play();
       Screen.keepOn(true);
-      _controller.addListener(listener);
+      _controller.addListener(_listener);
       _controllerTime = DateTime.now();
       _isLoading = false;
       if (_disposed) _controller.dispose();
@@ -437,7 +437,7 @@ class VideoPageProvider with ChangeNotifier {
   }
 
   DateTime _lastNotifyTime;
-  listener() {
+  _listener() {
     if (_lastNotifyTime == null ||
         DateTime.now().difference(_lastNotifyTime).inMicroseconds > 1000) {
       _lastNotifyTime = DateTime.now();
@@ -456,9 +456,10 @@ class VideoPageProvider with ChangeNotifier {
   void dispose() {
     _disposed = true;
     if (controller != null) {
+      searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+      controller.removeListener(_listener);
       controller.pause();
       controller.dispose();
-      searchItem.durContentIndex = _controller.value.position.inMilliseconds;
     }
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
