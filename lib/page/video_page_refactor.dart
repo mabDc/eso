@@ -30,7 +30,6 @@ class VideoPage extends StatelessWidget {
         backgroundColor: Colors.black87,
         body: ChangeNotifierProvider<VideoPageProvider>(
           create: (context) => VideoPageProvider(searchItem: searchItem),
-          child: null,
           builder: (BuildContext context, child) {
             final isLoading =
                 context.select((VideoPageProvider provider) => provider.isLoading);
@@ -42,8 +41,11 @@ class VideoPage extends StatelessWidget {
                 isLoading ? Container() : _buildPlayer(context),
                 isLoading
                     ? Align(
-                        alignment: Alignment.center,
-                        child: _buildLoading(context),
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 120),
+                          child: _buildLoading(context),
+                        ),
                       )
                     : Container(),
                 isLoading
@@ -57,7 +59,7 @@ class VideoPage extends StatelessWidget {
                 showController
                     ? Container(
                         padding: EdgeInsets.fromLTRB(
-                            10, 0 + MediaQuery.of(context).padding.top, 0, 10),
+                            10, 10 + MediaQuery.of(context).padding.top, 0, 10),
                         color: Color(0x20000000),
                         child: _buildTopBar(context),
                       )
@@ -98,7 +100,10 @@ class VideoPage extends StatelessWidget {
         context.select((VideoPageProvider provider) => provider.controller);
     final provider = Provider.of<VideoPageProvider>(context, listen: false);
     return GestureDetector(
-      child: Center(
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        alignment: Alignment.center,
         child: AspectRatio(
           aspectRatio: controller.value.aspectRatio,
           child: VideoPlayer(controller),
@@ -173,6 +178,7 @@ class VideoPage extends StatelessWidget {
             icon: Icon(Icons.arrow_back_ios),
             color: Colors.white,
             onPressed: () => Navigator.of(context).pop(),
+            tooltip: "返回",
           ),
         ),
         Expanded(
@@ -211,64 +217,125 @@ class VideoPage extends StatelessWidget {
               style: TextStyle(fontSize: 10, color: Colors.white),
               textAlign: TextAlign.end,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.open_in_new),
-                  onPressed: provider.openInNew,
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.airplay),
-                  onPressed: () => provider.openDLNA(context),
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 40,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.skip_previous),
-                  onPressed: () => provider.parseContent(searchItem.durChapterIndex - 1),
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 40,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    !provider.isLoading && provider.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow,
+            provider.screenAxis == Axis.horizontal
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.open_in_new),
+                        onPressed: provider.openInNew,
+                        tooltip: "使用其他播放器打开",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.airplay),
+                        onPressed: () => provider.openDLNA(context),
+                        tooltip: "DLNA",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 40,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.skip_previous),
+                        onPressed: () =>
+                            provider.parseContent(searchItem.durChapterIndex - 1),
+                        tooltip: "上一集",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 40,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          !provider.isLoading && provider.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                        onPressed: provider.playOrPause,
+                        tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 40,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.skip_next),
+                        onPressed: () =>
+                            provider.parseContent(searchItem.durChapterIndex + 1),
+                        tooltip: "下一集",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.screen_rotation),
+                        onPressed: provider.screenRotation,
+                        tooltip: "旋转",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.zoom_out_map),
+                        onPressed: provider.zoom,
+                        tooltip: "缩放",
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.airplay),
+                        onPressed: () => provider.openDLNA(context),
+                        tooltip: "DLNA",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 40,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.skip_previous),
+                        onPressed: () =>
+                            provider.parseContent(searchItem.durChapterIndex - 1),
+                        tooltip: "上一集",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 40,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          !provider.isLoading && provider.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                        onPressed: provider.playOrPause,
+                        tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 40,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.skip_next),
+                        onPressed: () =>
+                            provider.parseContent(searchItem.durChapterIndex + 1),
+                        tooltip: "下一集",
+                      ),
+                      IconButton(
+                        color: Colors.white,
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.screen_rotation),
+                        onPressed: provider.screenRotation,
+                        tooltip: "旋转",
+                      ),
+                    ],
                   ),
-                  onPressed: provider.playOrPause,
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 40,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.skip_next),
-                  onPressed: () => provider.parseContent(searchItem.durChapterIndex + 1),
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.screen_rotation),
-                  onPressed: provider.screenRotation,
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.zoom_out_map),
-                  onPressed: provider.zoom,
-                ),
-              ],
-            ),
           ],
         );
       },
@@ -315,6 +382,8 @@ class VideoPageProvider with ChangeNotifier {
       return;
     }
     _isLoading = true;
+    _hint = null;
+    _controller?.removeListener(listener);
     loadingText.clear();
     if (chapterIndex != null) {
       searchItem.durChapterIndex = chapterIndex;
@@ -331,12 +400,18 @@ class VideoPageProvider with ChangeNotifier {
     try {
       _content = await APIManager.getContent(searchItem.originTag,
           searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex].url);
+      if (_content.isEmpty) {
+        _content = null;
+        _isLoading = null;
+        loadingText.add("错误 内容为空！");
+        _controller?.dispose();
+        notifyListeners();
+        return;
+      }
       if (_disposed) return;
       loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
       loadingText.add("获取视频信息...");
       notifyListeners();
-
-      _controller?.removeListener(listener);
       _controller?.dispose();
       if (_disposed) return;
       _controller = VideoPlayerController.network(_content[0]);
@@ -355,6 +430,7 @@ class VideoPageProvider with ChangeNotifier {
       loadingText.addAll("$st".split("\n").take(5));
       _isLoading = null;
       notifyListeners();
+      _controller?.dispose();
     }
   }
 
@@ -363,19 +439,13 @@ class VideoPageProvider with ChangeNotifier {
     if (_lastNotifyTime == null ||
         DateTime.now().difference(_lastNotifyTime).inMicroseconds > 1000) {
       _lastNotifyTime = DateTime.now();
-      if (!isLoading) {
-        if (showController &&
-            DateTime.now().difference(_controllerTime).compareTo(_controllerDelay) >= 0) {
-          hideController();
-        }
-        if (_hint != null &&
-            DateTime.now().difference(_hintTime).compareTo(_hintDelay) >= 0) {
-          _hint = null;
-        }
-        searchItem.durContentIndex = _controller.value.position.inMilliseconds;
-        searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-        SearchItemManager.saveSearchItem();
+      if (showController &&
+          DateTime.now().difference(_controllerTime).compareTo(_controllerDelay) >= 0) {
+        hideController();
       }
+      searchItem.durContentIndex = _controller.value.position.inMilliseconds;
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      SearchItemManager.saveSearchItem();
       notifyListeners();
     }
   }
@@ -444,6 +514,15 @@ class VideoPageProvider with ChangeNotifier {
   Widget get hint => _hint;
   DateTime _hintTime;
   final _hintDelay = Duration(seconds: 1);
+  void autoHideHint() {
+    Future.delayed(_hintDelay, () {
+      if (DateTime.now().difference(_hintTime).compareTo(_hintDelay) >= 0) {
+        _hint = null;
+        notifyListeners();
+      }
+    });
+  }
+
   void setHintText(String text) {
     _hint = Text(
       text,
@@ -456,6 +535,7 @@ class VideoPageProvider with ChangeNotifier {
     );
     _hintTime = DateTime.now();
     notifyListeners();
+    autoHideHint();
   }
 
   void _pause() async {
@@ -515,6 +595,7 @@ class VideoPageProvider with ChangeNotifier {
   }
 
   Axis _screenAxis;
+  Axis get screenAxis => _screenAxis;
   void screenRotation() {
     _controllerTime = DateTime.now();
     if (_screenAxis == Axis.horizontal) {
@@ -569,6 +650,7 @@ class VideoPageProvider with ChangeNotifier {
     );
     _hintTime = DateTime.now();
     notifyListeners();
+    autoHideHint();
   }
 
   void onHorizontalDragStart(DragStartDetails details) =>
