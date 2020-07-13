@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:io';
 
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
@@ -48,6 +49,7 @@ class _NovelPageState extends State<NovelPage> {
   @override
   Widget build(BuildContext context) {
     final profile = Provider.of<Profile>(context, listen: false);
+    final FocusNode _backNode = new FocusNode();
     final height = MediaQuery.of(context).size.height - 100;
     return ChangeNotifierProvider<NovelPageProvider>(
       create: (BuildContext context) => NovelPageProvider(
@@ -67,107 +69,149 @@ class _NovelPageState extends State<NovelPage> {
             final _lightens =
             Global.lightness(Color(profile.novelBackgroundColor));
 
-            // 音量键翻页
-            if (onVolumeDec == null) onVolumeDec = (v) {
-              provider.tapNextPage();
-            };
-            if (onVolumeInc == null) onVolumeInc = (v) {
-              provider.tapLastPage();
-            };
+            // 音量键翻页 仅安卓
+            if(Platform.isAndroid){
+              if (onVolumeDec == null) onVolumeDec = (v) {
+                provider.tapNextPage();
+              };
+              if (onVolumeInc == null) onVolumeInc = (v) {
+                provider.tapLastPage();
+              };
+            }
+
             final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
             EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage,
                 onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
 
-            return GestureDetector(
-              child: Stack(
-                children: <Widget>[
-                  AnnotatedRegion<SystemUiOverlayStyle>(
-                    value: _lightens > 128 ||
-                        _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
-                        ? SystemUiOverlayStyle.dark
-                        : SystemUiOverlayStyle.light,
-                    child: ColoredBox(
-                      color: Color(profile.novelBackgroundColor),
-                      child: _buildContent(provider, profile),
-                    ),
-                  ),
-                  if (provider.showChapter || provider.showMenu || provider.showSetting)
-                    WillPopScope(
-                      onWillPop: () async {
-                        provider.showChapter = false;
-                        provider.showSetting = false;
-                        provider.showMenu = false;
-                        return false;
-                      },
-                      child: SizedBox(),
-                    ),
-                  if (provider.showMenu)
-                    UINovelMenu(searchItem: searchItem, profile: profile),
-                  if (provider.showChapter)
-                    UIChapterSelect(
-                      searchItem: searchItem,
-                      loadChapter: (index) {
-                        provider.switchChapter(profile, index);
-                      },
-                    ),
-                  if (provider.isLoading)
-                    Opacity(
-                      opacity: 0.8,
-                      child: Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Theme.of(context).canvasColor,
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 42, vertical: 20),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CupertinoActivityIndicator(),
-                              SizedBox(height: 20),
-                              Text(
-                                "加载中...",
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              onTapUp: (TapUpDetails details) {
-                if (provider.showMenu || provider.showSetting) {
-                  provider.showMenu = false;
-                  provider.showSetting = false;
-                  return;
-                }
+            return RawKeyboardListener(
+              focusNode: _backNode,
+              onKey: (event) {
+                if (event.runtimeType.toString()!=provider.enPress){
+                  provider.enPress = event.runtimeType.toString();
+                  // 按下时触发
+                  if (event.runtimeType.toString()=='RawKeyUpEvent') return;
 
-                final size = MediaQuery.of(context).size;
-                final _centerX = size.width * (1 / 4);
-                final _centerR = size.width - _centerX;
-                final _centerY = 100;
-                final _centerB = size.height - size.height * (1 / 3);
-
-                if (details.globalPosition.dx > _centerX &&
-                    details.globalPosition.dx < _centerR &&
-                    details.globalPosition.dy > _centerY &&
-                    details.globalPosition.dy < _centerB) {
-                  provider.showMenu = !provider.showMenu;
-                  provider.showSetting = false;
-                } else {
-                  provider.showChapter = false;
-                  if (!provider.showSetting && !provider.showMenu) {
-                    if (details.globalPosition.dx > size.width * 0.5) {
-                      provider.tapNextPage();
-                    } else if (details.globalPosition.dx < size.width * 0.5) {
-                      provider.tapLastPage();
+                  if(event.data is RawKeyEventDataMacOs){
+                    RawKeyEventDataMacOs data = event.data;
+                    print(data.keyCode);
+                    switch(data.keyCode){
+                      case 123:// 方向键左
+                        provider.tapLastPage();
+                        break;
+                      case 124:// 方向键右
+                        provider.tapNextPage();
+                        break;
+                      case 53:// esc
+                        Navigator.pop(context);
+                        break;
+                      case 27:// -
+                        provider.switchChapter(
+                            profile, searchItem.durChapterIndex - 1);
+                        break;
+                      case 24:// +
+                        provider.switchChapter(
+                            profile, searchItem.durChapterIndex + 1);
+                        break;
+                      case 36: //enter
+                        provider.showMenu = !provider.showMenu;
+                        break;
                     }
                   }
                 }
               },
+              child: GestureDetector(
+                child: Stack(
+                  children: <Widget>[
+                    AnnotatedRegion<SystemUiOverlayStyle>(
+                      value: _lightens > 128 ||
+                          _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
+                          ? SystemUiOverlayStyle.dark
+                          : SystemUiOverlayStyle.light,
+                      child: ColoredBox(
+                        color: Color(profile.novelBackgroundColor),
+                        child: _buildContent(provider, profile),
+                      ),
+                    ),
+                    if (provider.showChapter || provider.showMenu || provider.showSetting)
+                      WillPopScope(
+                        onWillPop: () async {
+                          provider.showChapter = false;
+                          provider.showSetting = false;
+                          provider.showMenu = false;
+                          return false;
+                        },
+                        child: SizedBox(),
+                      ),
+                    if (provider.showMenu)
+                      UINovelMenu(searchItem: searchItem, profile: profile),
+                    if (provider.showChapter)
+                      UIChapterSelect(
+                        searchItem: searchItem,
+                        loadChapter: (index) {
+                          provider.switchChapter(profile, index);
+                        },
+                      ),
+                    if (provider.isLoading)
+                      Opacity(
+                        opacity: 0.8,
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Theme.of(context).canvasColor,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 42, vertical: 20),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CupertinoActivityIndicator(),
+                                SizedBox(height: 20),
+                                Text(
+                                  "加载中...",
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                onTapUp: (TapUpDetails details) {
+                  if (provider.showMenu || provider.showSetting) {
+                    provider.showMenu = false;
+                    provider.showSetting = false;
+                    return;
+                  }
+
+                  final size = MediaQuery.of(context).size;
+                  final _centerX = size.width * (1 / 4);
+                  final _centerR = size.width - _centerX;
+                  final _centerY = 100;
+                  final _centerB = size.height - size.height * (1 / 3);
+
+                  if (details.globalPosition.dx > _centerX &&
+                      details.globalPosition.dx < _centerR &&
+                      details.globalPosition.dy > _centerY &&
+                      details.globalPosition.dy < _centerB) {
+                    provider.showMenu = !provider.showMenu;
+                    provider.showSetting = false;
+                  } else {
+                    provider.showChapter = false;
+                    if (!provider.showSetting && !provider.showMenu) {
+                      if (details.globalPosition.dx > size.width * 0.5) {
+                        provider.tapNextPage();
+                      } else if (details.globalPosition.dx < size.width * 0.5) {
+                        provider.tapLastPage();
+                      }
+                    }
+                  }
+                },
+              ),
             );
+
+            //return ;
           },
         ),
       ),
