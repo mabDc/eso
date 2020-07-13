@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_js/qjs_win_util.dart';
 
 class FlutterJs {
   static const MethodChannel _channel = const MethodChannel('io.abner.flutter_js');
@@ -14,14 +15,22 @@ class FlutterJs {
   }
 
   static Future<int> initEngine([int id]) async {
-    if(Platform.isWindows) return -1;
+    if (Platform.isWindows) {
+      final int id = QJsWindowsUtil.initJS();
+      return id;
+    }
     final int engineId =
         await _channel.invokeMethod("initEngine", id ?? new Random().nextInt(100));
     return engineId;
   }
 
   static Future<dynamic> evaluate(String command, int id) async {
-    if(Platform.isWindows) return null;
+    if(Platform.isWindows) {
+      final int _id = QJsWindowsUtil.initJS();
+      final rs = QJsWindowsUtil.evalJs(_id, command);
+      QJsWindowsUtil.freeJs(_id);
+      return rs;
+    }
     var arguments = {"engineId": id, "command": command};
     final rs = await _channel.invokeMethod("evaluate", arguments);
     if (Platform.isAndroid) return jsonDecode(rs);
@@ -29,7 +38,10 @@ class FlutterJs {
   }
 
   static Future<bool> close(int id) async {
-    if(Platform.isWindows) return false;
+    if(Platform.isWindows) {
+      QJsWindowsUtil.freeJs(id);
+      return true;
+    }
     var arguments = {"engineId": id};
     _channel.invokeMethod("close", arguments);
     return true;
@@ -58,3 +70,4 @@ class FlutterJs {
   }
   */
 }
+
