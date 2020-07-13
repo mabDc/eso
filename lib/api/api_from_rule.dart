@@ -259,6 +259,11 @@ class APIFromRUle implements API {
       await FlutterJs.evaluate(
           "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)};",
           engineId);
+      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+      }
       discoverUrl = "${await FlutterJs.evaluate(discoverUrl.substring(4), engineId)}";
     }
     for (var url in discoverUrl.split(RegExp(r"\n\s*|&&"))) {

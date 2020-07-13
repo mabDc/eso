@@ -103,6 +103,11 @@ class DebugRuleProvider with ChangeNotifier {
         await FlutterJs.evaluate(
             "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)};",
             engineId);
+        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+          final cryptoJS =
+              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+        }
         discoverRule = "${await FlutterJs.evaluate(discoverRule.substring(4), engineId)}";
         _addContent("结果", discoverRule);
       }

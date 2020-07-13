@@ -8,31 +8,27 @@ class QJsWindowsUtil {
 
   static void windowsInit() {
     if (_library != null) return;
-    var path = 'qjs.dll';
+    final dll = "qjs.dll";
     try {
-      _library = DynamicLibrary.open(path);
+      _library = DynamicLibrary.open(dll);
     } catch (e) {
-      stderr.writeln('Failed to load qjs.dll at $path');
+      stderr.writeln('Failed to load qjs.dll');
       rethrow;
     }
   }
-  
+
   static int initJS() {
     windowsInit();
     if (_library == null) return -1;
     final int Function() nativeInitJS =
-    _library
-        .lookup<NativeFunction<Int64 Function()>>("js_init")
-        .asFunction();
+        _library.lookup<NativeFunction<Int64 Function()>>("js_init").asFunction();
     return nativeInitJS();
   }
 
   static int freeJs(int id) {
     if (_library == null) return -1;
     final int Function(int) nativeFreeJS =
-    _library
-        .lookup<NativeFunction<Int64 Function(Int64)>>("js_free")
-        .asFunction();
+        _library.lookup<NativeFunction<Int64 Function(Int64)>>("js_free").asFunction();
     return nativeFreeJS(id);
   }
 
@@ -40,15 +36,13 @@ class QJsWindowsUtil {
     if (_library == null) return '';
     List<int> units = Utf8Codec().encode(code);
     final data = malloc(id, units);
-    final Pointer<Uint8> Function(int, Pointer<Uint8>, int) nativeEvalJS =
-    _library
-        .lookup<NativeFunction<Pointer<Uint8> Function(Int64, Pointer<Uint8>, Int32)>>("js_eval")
+    final Pointer<Uint8> Function(int, Pointer<Uint8>, int) nativeEvalJS = _library
+        .lookup<NativeFunction<Pointer<Uint8> Function(Int64, Pointer<Uint8>, Int32)>>(
+            "js_eval")
         .asFunction();
     final resp = nativeEvalJS(id, data, units.length);
     final int Function(int) nativeResultJS =
-    _library
-        .lookup<NativeFunction<Int32 Function(Int64)>>("js_result")
-        .asFunction();
+        _library.lookup<NativeFunction<Int32 Function(Int64)>>("js_result").asFunction();
     final resultLen = nativeResultJS(id);
     final result = cStringToString(resp, resultLen);
     return result;
@@ -69,10 +63,7 @@ class QJsWindowsUtil {
   static String cStringToString(Pointer<Uint8> str, int len) {
     if (str == null || len <= 0) return null;
     List<int> units = List(len);
-    for (int i = 0; i < len; ++i)
-      units[i] = str.elementAt(i).value;
+    for (int i = 0; i < len; ++i) units[i] = str.elementAt(i).value;
     return Utf8Codec().decode(units);
   }
-
 }
-

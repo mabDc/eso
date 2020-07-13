@@ -20,16 +20,17 @@ class FlutterJs {
       return id;
     }
     final int engineId =
-        await _channel.invokeMethod("initEngine", id ?? new Random().nextInt(100));
+        await _channel.invokeMethod("initEngine", id ?? new Random().nextInt(1000));
     return engineId;
   }
 
   static Future<dynamic> evaluate(String command, int id) async {
-    if(Platform.isWindows) {
+    if (Platform.isWindows) {
       final int _id = QJsWindowsUtil.initJS();
-      final rs = QJsWindowsUtil.evalJs(_id, command);
+      final rs = QJsWindowsUtil.evalJs(_id,
+          "window_command = ${jsonEncode(command)};window_result = eval(window_command);JSON.stringify(window_result);");
       QJsWindowsUtil.freeJs(_id);
-      return rs;
+      return jsonDecode(rs);
     }
     var arguments = {"engineId": id, "command": command};
     final rs = await _channel.invokeMethod("evaluate", arguments);
@@ -38,7 +39,7 @@ class FlutterJs {
   }
 
   static Future<bool> close(int id) async {
-    if(Platform.isWindows) {
+    if (Platform.isWindows) {
       QJsWindowsUtil.freeJs(id);
       return true;
     }
@@ -70,4 +71,3 @@ class FlutterJs {
   }
   */
 }
-
