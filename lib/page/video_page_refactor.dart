@@ -101,6 +101,8 @@ class VideoPage extends StatelessWidget {
     final provider = Provider.of<VideoPageProvider>(context, listen: false);
     return GestureDetector(
       child: Container(
+        // 增加color才能使全屏手势生效
+        color: Colors.transparent,
         width: double.infinity,
         height: double.infinity,
         alignment: Alignment.center,
@@ -519,7 +521,7 @@ class VideoPageProvider with ChangeNotifier {
   DateTime _hintTime;
   void autoHideHint() {
     _hintTime = DateTime.now();
-    const _hintDelay = Duration(seconds: 1);
+    const _hintDelay = Duration(seconds: 2);
     Future.delayed(_hintDelay, () {
       if (DateTime.now().difference(_hintTime).compareTo(_hintDelay) >= 0) {
         _hint = null;
