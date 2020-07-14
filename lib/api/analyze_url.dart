@@ -28,18 +28,18 @@ class AnalyzeUrl {
     if (url.startsWith("@js:")) {
       // js规则
       final _idJsEngine = await FlutterJs.initEngine(99999);
-      await FlutterJs.evaluate('''
+      var command = '''
 keyword = ${jsonEncode(keyword)};
 page = ${jsonEncode(page)};
 host = ${jsonEncode(rule.host)};
 result = ${jsonEncode(result)};
 pageSize = ${jsonEncode(pageSize)};
 cookie = ${jsonEncode(rule.cookies)};
-''', _idJsEngine);
+''';
       if (rule.loadJs.trim().isNotEmpty) {
-        await FlutterJs.evaluate(rule.loadJs, _idJsEngine);
+        command += rule.loadJs + ";\n";
       }
-      final re = await FlutterJs.evaluate(url.substring(4), _idJsEngine);
+      final re = await FlutterJs.evaluate(command + url.substring(4), _idJsEngine);
       FlutterJs.close(_idJsEngine);
       final res = await _parser(re, rule, keyword);
       // if (res.statusCode > 400) {

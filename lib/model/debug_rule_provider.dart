@@ -124,19 +124,14 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final discoverUrl = discoverResult.request.url.toString();
       _addContent("地址", discoverUrl, true);
-      await FlutterJs.evaluate(
-          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
-          engineId);
-      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-        final cryptoJS =
-            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-      }
+      final jsCommand =
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};";
       _addContent("加载js");
       final analyzer = AnalyzerManager(
           DecodeBody()
               .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]),
-          engineId);
+          engineId,
+          jsCommand);
       final discoverList = await analyzer.getElements(rule.discoverList);
       final resultCount = discoverList.length;
       if (resultCount == 0) {
@@ -144,7 +139,7 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("发现结果列表个数为0，解析结束！");
       } else {
         _addContent("个数", resultCount.toString());
-        parseFirstDiscover(discoverList.first, engineId);
+        parseFirstDiscover(discoverList.first, engineId, jsCommand);
       }
     } catch (e) {
       FlutterJs.close(engineId);
@@ -164,10 +159,10 @@ class DebugRuleProvider with ChangeNotifier {
 
   final tagsSplitRegExp = RegExp(r"[　 ,\|\&\%]+");
 
-  void parseFirstDiscover(dynamic firstItem, int engineId) async {
+  void parseFirstDiscover(dynamic firstItem, int engineId, String jsCommand) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId, jsCommand);
       _addContent("名称", await analyzer.getString(rule.discoverName));
       _addContent("作者", await analyzer.getString(rule.discoverAuthor));
       _addContent("章节", await analyzer.getString(rule.discoverChapter));
@@ -220,19 +215,14 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
-      await FlutterJs.evaluate(
-          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
-          engineId);
-      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-        final cryptoJS =
-            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-      }
+      final jsCommand =
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};";
       _addContent("加载js");
       final analyzer = AnalyzerManager(
           DecodeBody()
               .decode(searchResult.bodyBytes, searchResult.headers["content-type"]),
-          engineId);
+          engineId,
+          jsCommand);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -240,7 +230,7 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("搜索结果列表个数为0，解析结束！");
       } else {
         _addContent("搜索结果个数", resultCount.toString());
-        parseFirstSearch(searchList.first, engineId);
+        parseFirstSearch(searchList.first, engineId, jsCommand);
       }
     } catch (e) {
       FlutterJs.close(engineId);
@@ -258,10 +248,10 @@ class DebugRuleProvider with ChangeNotifier {
     }
   }
 
-  void parseFirstSearch(dynamic firstItem, int engineId) async {
+  void parseFirstSearch(dynamic firstItem, int engineId, String jsCommand) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId, jsCommand);
       _addContent("名称", await analyzer.getString(rule.searchName));
       _addContent("作者", await analyzer.getString(rule.searchAuthor));
       _addContent("章节", await analyzer.getString(rule.searchChapter));
@@ -298,6 +288,7 @@ class DebugRuleProvider with ChangeNotifier {
     _beginEvent("目录");
     final engineId = await FlutterJs.initEngine();
     dynamic firstChapter;
+    String jsCommand;
     for (var page = 1;; page++) {
       if (disposeFlag) return;
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
@@ -325,16 +316,12 @@ class DebugRuleProvider with ChangeNotifier {
         if (reversed) {
           _addContent("检测规则以\"-\"开始, 结果将反序");
         }
-        await FlutterJs.evaluate(
-            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}",
-            engineId);
-        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-          final cryptoJS =
-              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-        }
+        jsCommand =
+            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(result)}";
         final chapterList = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                jsCommand)
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
         final count = chapterList.length;
         if (count == 0) {
@@ -362,16 +349,16 @@ class DebugRuleProvider with ChangeNotifier {
       }
     }
     if (firstChapter != null) {
-      parseFirstChapter(firstChapter, engineId);
+      parseFirstChapter(firstChapter, engineId, jsCommand);
     } else {
       FlutterJs.close(engineId);
     }
   }
 
-  void parseFirstChapter(dynamic firstItem, int engineId) async {
+  void parseFirstChapter(dynamic firstItem, int engineId, String jsCommand) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId, jsCommand);
       final name = await analyzer.getString(rule.chapterName);
       _addContent("名称", name);
       final lock = await analyzer.getString(rule.chapterLock);
@@ -437,18 +424,18 @@ class DebugRuleProvider with ChangeNotifier {
         }
         final contentUrl = res.request.url.toString();
         _addContent("地址", contentUrl, true);
-        if (rule.contentItems.contains("@js:")) {
-          await FlutterJs.evaluate(
-              "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};",
-              engineId);
-          if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-            final cryptoJS =
-                rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-            await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-          }
+        var jsCommand =
+            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(result)};";
+        if (rule.contentItems.contains("@js:") &&
+            (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS)) {
+          final cryptoJS =
+              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+          jsCommand += cryptoJS + rule.loadJs;
         }
         var contentItems = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                jsCommand)
             .getStringList(rule.contentItems);
         if (rule.contentType == API.NOVEL) {
           contentItems = contentItems.join("\n").split(RegExp(r"\n\s*|\s{2,}"));

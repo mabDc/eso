@@ -6,9 +6,6 @@ class AnalyzerJSonPath implements Analyzer {
   dynamic _ctx;
 
   @override
-  int get jsEngineId => null;
-
-  @override
   AnalyzerJSonPath parse(content) {
     _ctx = content;
     return this;

@@ -6,9 +6,6 @@ class AnalyzerXPath implements Analyzer {
   XPath _xpath;
 
   @override
-  int get jsEngineId => null;
-
-  @override
   AnalyzerXPath parse(content) {
     if (content is Element) {
       _xpath = XPath(content);

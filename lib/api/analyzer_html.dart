@@ -6,9 +6,6 @@ class AnalyzerHtml implements Analyzer {
   Element _element;
 
   @override
-  int get jsEngineId => null;
-
-  @override
   AnalyzerHtml parse(content) {
     if (content is Element) {
       _element = content;

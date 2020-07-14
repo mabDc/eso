@@ -5,9 +5,6 @@ class AnalyzerRegExp implements Analyzer {
   String _string;
 
   @override
-  int get jsEngineId => null;
-
-  @override
   AnalyzerRegExp parse(content) {
     if (content is String) {
       _string = content;

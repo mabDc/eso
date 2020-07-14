@@ -57,20 +57,16 @@ class APIFromRUle implements API {
     }
     final discoverUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine(_engineId);
-    await FlutterJs.evaluate(
-        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};",
-        engineId);
-    if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-      final cryptoJS =
-          rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-      await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-    }
+    final jsCommand =
+        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(discoverUrl)};";
     final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+            engineId,
+            jsCommand)
         .getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId, jsCommand);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
         name: (await analyzer.getString(rule.discoverName))
@@ -106,20 +102,16 @@ class APIFromRUle implements API {
     }
     final searchUrl = res.request.url.toString();
     final engineId = await FlutterJs.initEngine();
-    await FlutterJs.evaluate(
-        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};",
-        engineId);
-    if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-      final cryptoJS =
-          rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-      await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-    }
+    final jsCommand =
+        "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(searchUrl)};";
     final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+            engineId,
+            jsCommand)
         .getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId, jsCommand);
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
         name: (await analyzer.getString(rule.searchName))
@@ -156,21 +148,17 @@ class APIFromRUle implements API {
       }
       final chapterUrl = res.request.url.toString();
       final reversed = rule.chapterList.startsWith("-");
-      await FlutterJs.evaluate(
-          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};",
-          engineId);
-      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-        final cryptoJS =
-            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-      }
+      final jsCommand =
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(chapterUrl)}; lastResult = ${jsonEncode(url)};";
       try {
         final list = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                jsCommand)
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
         if (list.isEmpty) break;
         for (var item in (reversed ? list.reversed : list)) {
-          final analyzer = AnalyzerManager(item, engineId);
+          final analyzer = AnalyzerManager(item, engineId, jsCommand);
           final lock = await analyzer.getString(rule.chapterLock);
           // final unLock = await analyzer.getString(rule.chapterUnLock);
           var name = (await analyzer.getString(rule.chapterName))
@@ -218,19 +206,19 @@ class APIFromRUle implements API {
         break;
       }
       final contentUrl = res.request.url.toString();
-      if (rule.contentItems.contains("@js:")) {
-        await FlutterJs.evaluate(
-            "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};",
-            engineId);
-        if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-          final cryptoJS =
-              rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-          await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
-        }
+      var jsCommand =
+          "cookie = ${jsonEncode(rule.cookies)}; host = ${jsonEncode(rule.host)}; baseUrl = ${jsonEncode(contentUrl)}; lastResult = ${jsonEncode(url)};";
+      if (rule.contentItems.contains("@js:") &&
+          (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS)) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        jsCommand += cryptoJS + rule.loadJs;
       }
       try {
         final list = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                jsCommand)
             .getStringList(rule.contentItems);
         if (list == null || list.isEmpty || list.join().trim().isEmpty) {
           break;
