@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
+import 'package:eso/model/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,55 +39,45 @@ class VideoPage extends StatelessWidget {
             final hint = context.select((VideoPageProvider provider) => provider.hint);
             return Stack(
               children: [
-                isLoading ? Container() : _buildPlayer(context),
-                isLoading
-                    ? Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 120),
-                          child: _buildLoading(context),
-                        ),
-                      )
-                    : Container(),
-                isLoading
-                    ? Positioned(
-                        left: 30,
-                        bottom: 80,
-                        right: 30,
-                        child: _buildLoadingText(context),
-                      )
-                    : Container(),
-                showController
-                    ? Container(
-                        padding: EdgeInsets.fromLTRB(
-                            10, 10 + MediaQuery.of(context).padding.top, 0, 10),
+                if (!isLoading) _buildPlayer(context),
+                if (isLoading)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 120),
+                      child: _buildLoading(context),
+                    ),
+                  ),
+                if (isLoading)
+                  Positioned(
+                    left: 30,
+                    bottom: 80,
+                    right: 30,
+                    child: _buildLoadingText(context),
+                  ),
+                if (showController)
+                  _buildTopBar(context),
+                if (showController)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+                      color: Color(0x20000000),
+                      child: _buildBottomBar(context),
+                    ),
+                  ),
+                if (hint != null)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
                         color: Color(0x20000000),
-                        child: _buildTopBar(context),
-                      )
-                    : Container(),
-                showController
-                    ? Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
-                          color: Color(0x20000000),
-                          child: _buildBottomBar(context),
-                        ),
-                      )
-                    : Container(),
-                hint == null
-                    ? Container()
-                    : Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Color(0x20000000),
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                          child: hint,
-                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
+                      child: hint,
+                    ),
+                  ),
               ],
             );
           },
@@ -170,26 +161,30 @@ class VideoPage extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          height: 20,
-          child: IconButton(
-            iconSize: 20,
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.arrow_back_ios),
-            color: Colors.white,
-            onPressed: () => Navigator.of(context).pop(),
-            tooltip: "返回",
-          ),
+    final provider = context.select((VideoPageProvider provider) => provider);
+    final _theme = Theme.of(context).appBarTheme;
+    return AppBarEx(
+      backgroundColor: Colors.transparent,
+      titleSpacing: 0,
+      brightness: Brightness.dark,
+      iconTheme: _theme.iconTheme.copyWith(color: Colors.white),
+      actionsIconTheme: _theme.actionsIconTheme.copyWith(color: Colors.white),
+      title: Text(
+        provider.titleText,
+        style: TextStyle(color: Colors.white, fontFamily: Profile.fontFamily),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      ),
+      actions: provider.screenAxis == Axis.horizontal ? [] : [
+        AppBarButton(
+          icon: Icon(Icons.open_in_new),
+          onPressed: provider.openInNew,
+          tooltip: "使用其他播放器打开",
         ),
-        Expanded(
-          child: Text(
-            context.select((VideoPageProvider provider) => provider.titleText),
-            style: TextStyle(color: Colors.white),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
+        AppBarButton(
+          icon: Icon(Icons.zoom_out_map),
+          onPressed: provider.zoom,
+          tooltip: "缩放",
         ),
       ],
     );
@@ -219,125 +214,75 @@ class VideoPage extends StatelessWidget {
               style: TextStyle(fontSize: 10, color: Colors.white),
               textAlign: TextAlign.end,
             ),
-            provider.screenAxis == Axis.horizontal
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.open_in_new),
-                        onPressed: provider.openInNew,
-                        tooltip: "使用其他播放器打开",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.airplay),
-                        onPressed: () => provider.openDLNA(context),
-                        tooltip: "DLNA",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 40,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.skip_previous),
-                        onPressed: () =>
-                            provider.parseContent(searchItem.durChapterIndex - 1),
-                        tooltip: "上一集",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 40,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          !provider.isLoading && provider.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                        ),
-                        onPressed: provider.playOrPause,
-                        tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 40,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.skip_next),
-                        onPressed: () =>
-                            provider.parseContent(searchItem.durChapterIndex + 1),
-                        tooltip: "下一集",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.screen_rotation),
-                        onPressed: provider.screenRotation,
-                        tooltip: "旋转",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.zoom_out_map),
-                        onPressed: provider.zoom,
-                        tooltip: "缩放",
-                      ),
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.airplay),
-                        onPressed: () => provider.openDLNA(context),
-                        tooltip: "DLNA",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 40,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.skip_previous),
-                        onPressed: () =>
-                            provider.parseContent(searchItem.durChapterIndex - 1),
-                        tooltip: "上一集",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 40,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          !provider.isLoading && provider.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                        ),
-                        onPressed: provider.playOrPause,
-                        tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 40,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.skip_next),
-                        onPressed: () =>
-                            provider.parseContent(searchItem.durChapterIndex + 1),
-                        tooltip: "下一集",
-                      ),
-                      IconButton(
-                        color: Colors.white,
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.screen_rotation),
-                        onPressed: provider.screenRotation,
-                        tooltip: "旋转",
-                      ),
-                    ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (provider.screenAxis == Axis.horizontal)
+                  IconButton(
+                    color: Colors.white,
+                    iconSize: 20,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.open_in_new),
+                    onPressed: provider.openInNew,
+                    tooltip: "使用其他播放器打开",
                   ),
+                IconButton(
+                  color: Colors.white,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.airplay),
+                  onPressed: () => provider.openDLNA(context),
+                  tooltip: "DLNA投屏",
+                ),
+                IconButton(
+                  color: Colors.white,
+                  iconSize: 25,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.skip_previous),
+                  onPressed: () =>
+                      provider.parseContent(searchItem.durChapterIndex - 1),
+                  tooltip: "上一集",
+                ),
+                IconButton(
+                  color: Colors.white,
+                  iconSize: 40,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    !provider.isLoading && provider.isPlaying
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                  ),
+                  onPressed: provider.playOrPause,
+                  tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
+                ),
+                IconButton(
+                  color: Colors.white,
+                  iconSize: 25,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.skip_next),
+                  onPressed: () =>
+                      provider.parseContent(searchItem.durChapterIndex + 1),
+                  tooltip: "下一集",
+                ),
+                IconButton(
+                  color: Colors.white,
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.screen_rotation),
+                  onPressed: provider.screenRotation,
+                  tooltip: "旋转",
+                ),
+                if (provider.screenAxis == Axis.horizontal)
+                  IconButton(
+                    color: Colors.white,
+                    iconSize: 20,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.zoom_out_map),
+                    onPressed: provider.zoom,
+                    tooltip: "缩放",
+                  ),
+              ],
+            )
           ],
         );
       },
