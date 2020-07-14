@@ -3,6 +3,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/manga_page.dart';
 import 'package:eso/page/novel_page.dart';
+import 'package:eso/global.dart';
 // import 'package:eso/page/rss_page.dart';
 import 'package:eso/page/video_page_refactor.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,8 @@ class ContentPageRoute {
           // case API.RSS:
           //   return RSSPage(searchItem: searchItem);
           case API.VIDEO:
+            // 更新系统亮度
+            Global.updateSystemBrightness();
             return VideoPage(searchItem: searchItem);
           case API.AUDIO:
             return AudioPage(searchItem: searchItem);

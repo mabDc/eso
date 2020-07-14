@@ -454,6 +454,9 @@ class VideoPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    if (Platform.isIOS) {
+      setVertical();
+    }
     _disposed = true;
     if (controller != null) {
       searchItem.durContentIndex = _controller.value.position.inMilliseconds;
@@ -465,12 +468,12 @@ class VideoPageProvider with ChangeNotifier {
     SearchItemManager.saveSearchItem();
     if (!Utils.isDesktop) {
       Screen.keepOn(false);
-      Screen.setBrightness(-1);
+      if(Platform.isIOS)
+        Screen.setBrightness(Global.systemBrightness);
+      else
+        Screen.setBrightness(-1);
     }
     loadingText.clear();
-    if (Platform.isIOS) {
-      setVertical();
-    }
     resetRotation();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
@@ -689,7 +692,7 @@ class VideoPageProvider with ChangeNotifier {
       }
       brightness += number;
       if (brightness < 0) {
-        brightness = 0.0;
+        brightness = 0.01;
       } else if (brightness > 1) {
         brightness = 1.0;
       }
