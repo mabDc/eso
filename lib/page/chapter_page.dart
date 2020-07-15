@@ -203,6 +203,7 @@ class _ChapterPageState extends State<ChapterPage> {
                           searchItem.author,
                           style: TextStyle(
                             fontSize: 12,
+                            fontFamily: Profile.fontFamily,
                             color: Theme.of(context).textTheme.bodyText1.color,
                           ),
                         ),
@@ -231,6 +232,7 @@ class _ChapterPageState extends State<ChapterPage> {
                                 tag,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
+                                    fontFamily: Profile.fontFamily,
                                     fontSize: 10, color: Colors.white, height: 1.0),
                               ),
                             ),
@@ -260,7 +262,8 @@ class _ChapterPageState extends State<ChapterPage> {
     final offset = Offset(width, 6);
     final fontColor =
         Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
-    final style = TextStyle(fontSize: fontSize, color: fontColor);
+    final style = TextStyle(fontSize: fontSize, color: fontColor,
+        fontFamily: Profile.fontFamily);
     final paragraphs = description
         .split(RegExp(r"^\s*|\n\s*"))
         .map((s) => s.trimLeft())
@@ -282,6 +285,7 @@ class _ChapterPageState extends State<ChapterPage> {
                 text: text,
                 style: TextStyle(
                   fontSize: fontSize,
+                  fontFamily: Profile.fontFamily,
                   color: fontColor,
                   letterSpacing: (width - tp.width) / text.length,
                 )));
@@ -301,6 +305,7 @@ class _ChapterPageState extends State<ChapterPage> {
             text: text,
             style: TextStyle(
               fontSize: fontSize,
+              fontFamily: Profile.fontFamily,
               color: fontColor,
               letterSpacing: (width - tp.width) / text.length,
             )));

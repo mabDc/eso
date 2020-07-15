@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
 import 'package:eso/model/profile.dart';
+import 'package:eso/ui/ui_chapter_select.dart';
+import 'package:eso/ui/widgets/eso_video_progress_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,11 +34,11 @@ class VideoPage extends StatelessWidget {
         body: ChangeNotifierProvider<VideoPageProvider>(
           create: (context) => VideoPageProvider(searchItem: searchItem),
           builder: (BuildContext context, child) {
-            final isLoading =
-                context.select((VideoPageProvider provider) => provider.isLoading);
-            final showController =
-                context.select((VideoPageProvider provider) => provider.showController);
+            final provider = context.select((VideoPageProvider provider) => provider);
+            final isLoading = context.select((VideoPageProvider provider) => provider.isLoading);
+            final showController = context.select((VideoPageProvider provider) => provider.showController);
             final hint = context.select((VideoPageProvider provider) => provider.hint);
+            final showChapter = context.select((VideoPageProvider provider) => provider.showChapter);
             return Stack(
               children: [
                 if (!isLoading) _buildPlayer(context),
@@ -66,6 +68,15 @@ class VideoPage extends StatelessWidget {
                       child: _buildBottomBar(context),
                     ),
                   ),
+                if (showChapter)
+                   UIChapterSelect(
+                     loadChapter: (index) => provider.loadChapter(index),
+                     searchItem: searchItem,
+                     color: Colors.black45,
+                     fontColor: Colors.white70,
+                     border: BorderSide(color: Colors.white12, width: Global.borderSize),
+                     heightScale: 0.6,
+                   ),
                 if (hint != null)
                   Align(
                     alignment: Alignment.center,
@@ -163,131 +174,151 @@ class VideoPage extends StatelessWidget {
   Widget _buildTopBar(BuildContext context) {
     final provider = context.select((VideoPageProvider provider) => provider);
     final _theme = Theme.of(context).appBarTheme;
-    return AppBarEx(
-      backgroundColor: Colors.transparent,
-      titleSpacing: 0,
-      brightness: Brightness.dark,
-      iconTheme: _theme.iconTheme.copyWith(color: Colors.white),
-      actionsIconTheme: _theme.actionsIconTheme.copyWith(color: Colors.white),
-      title: Text(
-        provider.titleText,
-        style: TextStyle(color: Colors.white, fontFamily: Profile.fontFamily),
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
+    return SizedBox(
+      height: 60,
+      child: AppBarEx(
+        backgroundColor: Colors.transparent,
+        titleSpacing: 0,
+        brightness: Brightness.dark,
+        iconTheme: _theme.iconTheme.copyWith(color: Colors.white),
+        actionsIconTheme: _theme.actionsIconTheme.copyWith(color: Colors.white),
+        title: Text(
+          provider.titleText,
+          style: TextStyle(color: Colors.white, fontFamily: Profile.fontFamily),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        actions: provider.screenAxis == Axis.horizontal ? [] : [
+          AppBarButton(
+            icon: Icon(Icons.open_in_new),
+            onPressed: provider.openInNew,
+            tooltip: "使用其他播放器打开",
+          ),
+          Utils.isDesktop ? AppBarButton(
+            icon: Icon(Icons.zoom_out_map),
+            onPressed: provider.zoom,
+            tooltip: "缩放",
+          ) :  AppBarButton(
+            icon: Icon(Icons.format_list_bulleted),
+            onPressed: ()=> provider.toggleChapterList(),
+            tooltip: "节目列表",
+          ),
+        ],
       ),
-      actions: provider.screenAxis == Axis.horizontal ? [] : [
-        AppBarButton(
-          icon: Icon(Icons.open_in_new),
-          onPressed: provider.openInNew,
-          tooltip: "使用其他播放器打开",
-        ),
-        AppBarButton(
-          icon: Icon(Icons.zoom_out_map),
-          onPressed: provider.zoom,
-          tooltip: "缩放",
-        ),
-      ],
     );
   }
 
   Widget _buildBottomBar(BuildContext context) {
     return Consumer<VideoPageProvider>(
       builder: (context, provider, child) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            provider.isLoading
-                ? LinearProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(VideoProgressColors().playedColor),
-                    backgroundColor: VideoProgressColors().backgroundColor,
-                  )
-                : VideoProgressIndicator(
-                    provider.controller,
-                    allowScrubbing: true,
-                  ),
-            Text(
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
               provider.isLoading
-                  ? "--:-- / --:--"
-                  : "${provider.position} / ${provider.duration}",
-              style: TextStyle(fontSize: 10, color: Colors.white),
-              textAlign: TextAlign.end,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (provider.screenAxis == Axis.horizontal)
+                  ? LinearProgressIndicator(
+                valueColor:
+                AlwaysStoppedAnimation<Color>(VideoProgressColors().playedColor),
+                backgroundColor: VideoProgressColors().backgroundColor,
+              )
+                  : ESOVideoProgressIndicator(
+                provider.controller,
+                allowScrubbing: true,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Text(
+                  provider.isLoading
+                      ? '' // "--:-- / --:--"
+                      : "${provider.position} / ${provider.duration}",
+                  style: TextStyle(fontSize: 10, color: Colors.white),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (provider.screenAxis == Axis.horizontal)
+                    IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.open_in_new),
+                      onPressed: provider.openInNew,
+                      tooltip: "使用其他播放器打开",
+                    ),
                   IconButton(
                     color: Colors.white,
                     iconSize: 20,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.open_in_new),
-                    onPressed: provider.openInNew,
-                    tooltip: "使用其他播放器打开",
+                    icon: Icon(Icons.airplay),
+                    onPressed: () => provider.openDLNA(context),
+                    tooltip: "DLNA投屏",
                   ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.airplay),
-                  onPressed: () => provider.openDLNA(context),
-                  tooltip: "DLNA投屏",
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 25,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.skip_previous),
-                  onPressed: () =>
-                      provider.parseContent(searchItem.durChapterIndex - 1),
-                  tooltip: "上一集",
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 40,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    !provider.isLoading && provider.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow,
+                  IconButton(
+                    color: Colors.white,
+                    iconSize: 25,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.skip_previous),
+                    onPressed: () =>
+                        provider.parseContent(searchItem.durChapterIndex - 1),
+                    tooltip: "上一集",
                   ),
-                  onPressed: provider.playOrPause,
-                  tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 25,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.skip_next),
-                  onPressed: () =>
-                      provider.parseContent(searchItem.durChapterIndex + 1),
-                  tooltip: "下一集",
-                ),
-                IconButton(
-                  color: Colors.white,
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.screen_rotation),
-                  onPressed: provider.screenRotation,
-                  tooltip: "旋转",
-                ),
-                if (provider.screenAxis == Axis.horizontal)
+                  IconButton(
+                    color: Colors.white,
+                    iconSize: 40,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      !provider.isLoading && provider.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                    ),
+                    onPressed: provider.playOrPause,
+                    tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
+                  ),
+                  IconButton(
+                    color: Colors.white,
+                    iconSize: 25,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.skip_next),
+                    onPressed: () =>
+                        provider.parseContent(searchItem.durChapterIndex + 1),
+                    tooltip: "下一集",
+                  ),
                   IconButton(
                     color: Colors.white,
                     iconSize: 20,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.zoom_out_map),
-                    onPressed: provider.zoom,
-                    tooltip: "缩放",
+                    icon: Icon(Icons.screen_rotation),
+                    onPressed: provider.screenRotation,
+                    tooltip: "旋转",
                   ),
-              ],
-            )
-          ],
+                  if (provider.screenAxis == Axis.horizontal)
+                    Utils.isDesktop ? IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.zoom_out_map),
+                      onPressed: provider.zoom,
+                      tooltip: "缩放",
+                    ) : IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.format_list_bulleted),
+                      onPressed: ()=> provider.toggleChapterList(),
+                      tooltip: "节目列表",
+                    ),
+                ],
+              )
+            ],
+          ),
         );
       },
     );
   }
+
 }
 
 class VideoPageProvider with ChangeNotifier {
@@ -389,6 +420,7 @@ class VideoPageProvider with ChangeNotifier {
       if (showController &&
           DateTime.now().difference(_controllerTime).compareTo(_controllerDelay) >= 0) {
         hideController();
+        _showChapter = false;
       }
       searchItem.durContentIndex = _controller.value.position.inMilliseconds;
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
@@ -520,14 +552,31 @@ class VideoPageProvider with ChangeNotifier {
 
   bool _showController;
   bool get showController => _showController != false;
+  bool _showChapter;
+  bool get showChapter => _showChapter ?? false;
   DateTime _controllerTime;
   final _controllerDelay = Duration(seconds: 4);
 
   void toggleControllerBar() {
+    if (showChapter == true) {
+      hideController();
+      toggleChapterList();
+      return;
+    }
     if (showController) {
       hideController();
     } else {
       displayController();
+    }
+    notifyListeners();
+  }
+
+  void toggleChapterList() {
+    if (showChapter) {
+      _showChapter = false;
+    } else {
+      hideController();
+      _showChapter = true;
     }
     notifyListeners();
   }
@@ -547,6 +596,10 @@ class VideoPageProvider with ChangeNotifier {
     // if (_disposed || isLoading) return;
     _controllerTime = DateTime.now();
     setHintText("暂无功能");
+  }
+
+  void loadChapter(int index) {
+    parseContent(index);
   }
 
   Axis _screenAxis;
