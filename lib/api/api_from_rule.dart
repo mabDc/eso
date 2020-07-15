@@ -61,6 +61,11 @@ class APIFromRUle implements API {
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzerManager(item, engineId);
+      final tag = await analyzer.getString(rule.discoverTags);
+      List<String> tags = <String>[];
+      if (tag != null || tag.trim().isNotEmpty) {
+        tags = tag.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
+      }
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
         name: (await analyzer.getString(rule.discoverName))
@@ -71,8 +76,7 @@ class APIFromRUle implements API {
         description: await analyzer.getString(rule.discoverDescription),
         url: await analyzer.getString(rule.discoverResult),
         api: this,
-        tags: (await analyzer.getString(rule.discoverTags)).split(tagsSplitRegExp)
-          ..removeWhere((tag) => tag.isEmpty),
+        tags: tags,
       ));
     }
     FlutterJs.close(engineId);
@@ -102,6 +106,11 @@ class APIFromRUle implements API {
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzerManager(item, engineId);
+      final tag = await analyzer.getString(rule.searchTags);
+      List<String> tags = <String>[];
+      if (tag != null || tag.trim().isNotEmpty) {
+        tags = tag.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
+      }
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
         name: (await analyzer.getString(rule.searchName))
@@ -112,8 +121,7 @@ class APIFromRUle implements API {
         description: await analyzer.getString(rule.searchDescription),
         url: await analyzer.getString(rule.searchResult),
         api: this,
-        tags: (await analyzer.getString(rule.searchTags)).split(tagsSplitRegExp)
-          ..removeWhere((tag) => tag.isEmpty),
+        tags: tags,
       ));
     }
     FlutterJs.close(engineId);

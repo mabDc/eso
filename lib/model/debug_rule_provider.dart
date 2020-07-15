@@ -160,11 +160,11 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("封面", coverUrl, true);
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.discoverDescription));
-      _addContent(
-          "标签",
-          ((await analyzer.getString(rule.discoverTags)).split(tagsSplitRegExp)
-                ..removeWhere((tag) => tag.isEmpty))
-              .join(", "));
+      final tags = await analyzer.getString(rule.discoverTags);
+      if (tags != null || tags.trim().isNotEmpty) {
+        _addContent("标签",
+            (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
+      }
       final result = await analyzer.getString(rule.discoverResult);
       _addContent("结果", result);
       await FlutterJs.close(engineId);
@@ -247,11 +247,11 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("封面", coverUrl, true);
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.searchDescription));
-      _addContent(
-          "标签",
-          ((await analyzer.getString(rule.searchTags)).split(tagsSplitRegExp)
-                ..removeWhere((tag) => tag.isEmpty))
-              .join(", "));
+      final tags = await analyzer.getString(rule.searchTags);
+      if (tags != null || tags.trim().isNotEmpty) {
+        _addContent("标签",
+            (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
+      }
       final result = await analyzer.getString(rule.searchResult);
       _addContent("结果", result);
       await FlutterJs.close(engineId);
