@@ -30,6 +30,10 @@ class Utils {
     }
   }
 
+  /// 运行模式： true 为 debug 模式
+  static const bool isAppDebug =
+    !(const bool.fromEnvironment("dart.vm.product"));
+
   static bool get isDesktop => Platform.isWindows || Platform.isMacOS;
 
   static bool empty(String value) {

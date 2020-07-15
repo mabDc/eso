@@ -4,6 +4,7 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/restore_event.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/source/edit_source_page.dart';
+import 'package:eso/page/test_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/sqflite_win_util.dart';
@@ -54,6 +55,12 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
+                    if (Utils.isAppDebug)
+                      ListTile(
+                        title: Text("功能测试"),
+                        subtitle: Text('此项只有调试状态可见'),
+                        onTap: () => Utils.startPageWait(context, TestPage()),
+                      ),
                     ListTile(
                       title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),

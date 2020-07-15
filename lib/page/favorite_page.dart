@@ -9,14 +9,15 @@ import 'package:eso/page/favorite_list_page.dart';
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
 
+  static const tabs = [
+    ["文字", API.NOVEL],
+    ["图片", API.MANGA],
+    ["音频", API.AUDIO],
+    ["视频", API.VIDEO],
+  ];
+
   @override
   Widget build(BuildContext context) {
-    const tabs = [
-      ["文字", API.NOVEL],
-      ["图片", API.MANGA],
-      ["音频", API.AUDIO],
-      ["视频", API.VIDEO],
-    ];
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
