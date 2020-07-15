@@ -164,6 +164,8 @@ class DebugRuleProvider with ChangeNotifier {
       if (tags != null && tags.trim().isNotEmpty) {
         _addContent("标签",
             (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
+      } else {
+        _addContent("标签", "");
       }
       final result = await analyzer.getString(rule.discoverResult);
       _addContent("结果", result);
@@ -251,6 +253,8 @@ class DebugRuleProvider with ChangeNotifier {
       if (tags != null && tags.trim().isNotEmpty) {
         _addContent("标签",
             (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
+      } else {
+        _addContent("标签", "");
       }
       final result = await analyzer.getString(rule.searchResult);
       _addContent("结果", result);
