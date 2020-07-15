@@ -26,11 +26,11 @@ class FlutterJs {
 
   static Future<dynamic> evaluate(String command, int id) async {
     if (Platform.isWindows) {
-      final int _id = QJsWindowsUtil.initJS();
-      final rs = QJsWindowsUtil.evalJs(_id,
-          "window_command = ${jsonEncode(command)};window_result = eval(window_command);JSON.stringify(window_result);");
-      QJsWindowsUtil.freeJs(_id);
-      return jsonDecode(rs);
+      final rs = QJsWindowsUtil.evalJs(id,
+         "window_command = ${jsonEncode(command)};window_result = eval(window_command);JSON.stringify(window_result);");
+      if (rs == null || rs.isEmpty) return rs;
+      final result = jsonDecode(rs);
+      return result;
     }
     var arguments = {"engineId": id, "command": command};
     final rs = await _channel.invokeMethod("evaluate", arguments);

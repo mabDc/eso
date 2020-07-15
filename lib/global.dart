@@ -71,6 +71,8 @@ class Global with ChangeNotifier {
   }
 
   static void updateSystemBrightness() async {
+    if (Platform.isWindows || Platform.isMacOS)
+      return;
     systemBrightness = await Screen.brightness;
   }
 

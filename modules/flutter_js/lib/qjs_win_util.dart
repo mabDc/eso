@@ -12,7 +12,7 @@ class QJsWindowsUtil {
     try {
       _library = DynamicLibrary.open(dll);
     } catch (e) {
-      stderr.writeln('Failed to load qjs.dll');
+      stderr.writeln('Failed to load $dll');
       rethrow;
     }
   }
