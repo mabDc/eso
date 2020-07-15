@@ -2,8 +2,9 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
-import 'package:eso/utils/flutter_slider.dart';
+import 'package:eso/ui/widgets/eso_video_progress_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,14 +34,11 @@ class VideoPage extends StatelessWidget {
         body: ChangeNotifierProvider<VideoPageProvider>(
           create: (context) => VideoPageProvider(searchItem: searchItem),
           builder: (BuildContext context, child) {
-            final provider = Provider.of<VideoPageProvider>(context, listen: false);
-            final isLoading =
-                context.select((VideoPageProvider provider) => provider.isLoading);
-            final showController =
-                context.select((VideoPageProvider provider) => provider.showController);
+            final provider = context.select((VideoPageProvider provider) => provider);
+            final isLoading = context.select((VideoPageProvider provider) => provider.isLoading);
+            final showController = context.select((VideoPageProvider provider) => provider.showController);
             final hint = context.select((VideoPageProvider provider) => provider.hint);
-            final showChapter =
-                context.select((VideoPageProvider provider) => provider.showChapter);
+            final showChapter = context.select((VideoPageProvider provider) => provider.showChapter);
             return Stack(
               children: [
                 if (!isLoading) _buildPlayer(context),
@@ -55,17 +53,12 @@ class VideoPage extends StatelessWidget {
                 if (isLoading)
                   Positioned(
                     left: 30,
-                    bottom: 80,
+                    bottom: 100,
                     right: 30,
                     child: _buildLoadingText(context),
                   ),
                 if (showController)
-                  Container(
-                    padding: EdgeInsets.fromLTRB(
-                        10, 10 + MediaQuery.of(context).padding.top, 10, 10),
-                    color: Color(0x20000000),
-                    child: _buildTopBar(context),
-                  ),
+                  _buildTopBar(context),
                 if (showController)
                   Align(
                     alignment: Alignment.bottomCenter,
@@ -76,14 +69,14 @@ class VideoPage extends StatelessWidget {
                     ),
                   ),
                 if (showChapter)
-                  UIChapterSelect(
-                    loadChapter: (index) => provider.loadChapter(index),
-                    searchItem: searchItem,
-                    color: Colors.black45,
-                    fontColor: Colors.white70,
-                    border: BorderSide(color: Colors.white12, width: Global.borderSize),
-                    heightScale: 0.6,
-                  ),
+                   UIChapterSelect(
+                     loadChapter: (index) => provider.loadChapter(index),
+                     searchItem: searchItem,
+                     color: Colors.black45,
+                     fontColor: Colors.white70,
+                     border: BorderSide(color: Colors.white12, width: Global.borderSize),
+                     heightScale: 0.6,
+                   ),
                 if (hint != null)
                   Align(
                     alignment: Alignment.center,
@@ -179,124 +172,61 @@ class VideoPage extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    final provider = Provider.of<VideoPageProvider>(context, listen: false);
-    final vertical = context
-        .select((VideoPageProvider provider) => provider.screenAxis == Axis.vertical);
-    return Row(
-      children: [
-        Container(
-          height: 20,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.arrow_back_ios, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
-            color: Colors.white,
-            tooltip: "返回",
-          ),
+    final provider = context.select((VideoPageProvider provider) => provider);
+    final _theme = Theme.of(context).appBarTheme;
+    return SizedBox(
+      height: 60,
+      child: AppBarEx(
+        backgroundColor: Colors.transparent,
+        titleSpacing: 0,
+        brightness: Brightness.dark,
+        iconTheme: _theme.iconTheme.copyWith(color: Colors.white),
+        actionsIconTheme: _theme.actionsIconTheme.copyWith(color: Colors.white),
+        title: Text(
+          provider.titleText,
+          style: TextStyle(color: Colors.white, fontFamily: Profile.fontFamily),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
-        Expanded(
-          child: Text(
-            context.select((VideoPageProvider provider) => provider.titleText),
-            style: TextStyle(color: Colors.white),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+        actions: provider.screenAxis == Axis.horizontal ? [] : [
+          AppBarButton(
+            icon: Icon(Icons.open_in_new),
+            onPressed: provider.openInNew,
+            tooltip: "使用其他播放器打开",
           ),
-        ),
-        if (vertical)
-          Container(
-            height: 20,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.open_in_new, size: 20),
-              onPressed: provider.openInNew,
-              color: Colors.white,
-              tooltip: "使用其他播放器打开",
-            ),
+          Utils.isDesktop ? AppBarButton(
+            icon: Icon(Icons.zoom_out_map),
+            onPressed: provider.zoom,
+            tooltip: "缩放",
+          ) :  AppBarButton(
+            icon: Icon(Icons.format_list_bulleted),
+            onPressed: ()=> provider.toggleChapterList(),
+            tooltip: "节目列表",
           ),
-        if (vertical)
-          Utils.isDesktop
-              ? Container(
-                  height: 20,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.zoom_out_map, size: 20),
-                    onPressed: provider.zoom,
-                    color: Colors.white,
-                    tooltip: "缩放",
-                  ),
-                )
-              : Container(
-                  height: 20,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.format_list_bulleted, size: 20),
-                    onPressed: () => provider.toggleChapterList(),
-                    color: Colors.white,
-                    tooltip: "节目列表",
-                  ),
-                ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildBottomBar(BuildContext context) {
     return Consumer<VideoPageProvider>(
       builder: (context, provider, child) {
-        final value = provider.isLoading ? 0 : provider.position.inSeconds.toDouble();
         return SafeArea(
-          top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              provider.isLoading
-                  ? LinearProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          VideoProgressColors().playedColor),
-                      backgroundColor: VideoProgressColors().backgroundColor,
-                    )
-                  : FlutterSlider(
-                      values: [value > 0 ? value : 0, 3500],
-                      min: 0,
-                      max: provider.duration.inSeconds.toDouble(),
-                      onDragging: (handlerIndex, lowerValue, upperValue) {
-                        provider.setHintText(
-                            "跳转至  " +
-                                Utils.formatDuration(
-                                    Duration(seconds: (lowerValue as double).toInt())),
-                            true);
-                        provider.controller
-                            .seekTo(Duration(seconds: (lowerValue as double).toInt()));
-                      },
-                      handlerHeight: 12,
-                      handlerWidth: 12,
-                      handler: FlutterSliderHandler(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          alignment: Alignment.center,
-                          child: Icon(Icons.videocam, color: Colors.red, size: 8),
-                        ),
-                      ),
-                      touchSize: 20,
-                      trackBar: FlutterSliderTrackBar(
-                        inactiveTrackBar: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white54,
-                        ),
-                        activeTrackBar: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: Colors.white70,
-                        ),
-                      ),
-                      tooltip: FlutterSliderTooltip(disabled: true),
-                    ),
+              ESOVideoProgressIndicator(
+                  provider.controller,
+                  allowScrubbing: true,
+                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 4)
+              ),
               Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.only(right: 26),
                 child: Text(
                   provider.isLoading
-                      ? ""//"--:-- / --:--"
-                      : "${provider.positionString} / ${provider.durationString}",
+                      ? '' // "--:-- / --:--"
+                      : "${provider.position} / ${provider.duration}",
                   style: TextStyle(fontSize: 10, color: Colors.white),
                   textAlign: TextAlign.end,
                 ),
@@ -360,23 +290,21 @@ class VideoPage extends StatelessWidget {
                     tooltip: "旋转",
                   ),
                   if (provider.screenAxis == Axis.horizontal)
-                    Utils.isDesktop
-                        ? IconButton(
-                            color: Colors.white,
-                            iconSize: 20,
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.zoom_out_map),
-                            onPressed: provider.zoom,
-                            tooltip: "缩放",
-                          )
-                        : IconButton(
-                            color: Colors.white,
-                            iconSize: 20,
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.format_list_bulleted),
-                            onPressed: () => provider.toggleChapterList(),
-                            tooltip: "节目列表",
-                          ),
+                    Utils.isDesktop ? IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.zoom_out_map),
+                      onPressed: provider.zoom,
+                      tooltip: "缩放",
+                    ) : IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.format_list_bulleted),
+                      onPressed: ()=> provider.toggleChapterList(),
+                      tooltip: "节目列表",
+                    ),
                 ],
               )
             ],
@@ -385,6 +313,7 @@ class VideoPage extends StatelessWidget {
       },
     );
   }
+
 }
 
 class VideoPageProvider with ChangeNotifier {
@@ -400,11 +329,8 @@ class VideoPageProvider with ChangeNotifier {
   VideoPlayerController _controller;
   VideoPlayerController get controller => _controller;
   bool get isPlaying => _controller.value.isPlaying;
-  Duration get position => _controller.value.position;
-  String get positionString => Utils.formatDuration(_controller.value.position);
-  Duration get duration => _controller.value.duration;
-  String get durationString => Utils.formatDuration(_controller.value.duration);
-  void seekTo(Duration d) {}
+  String get position => Utils.formatDuration(_controller.value.position);
+  String get duration => Utils.formatDuration(_controller.value.duration);
 
   VideoPageProvider({@required this.searchItem}) {
     if (searchItem.chapters?.length == 0 &&
@@ -514,7 +440,7 @@ class VideoPageProvider with ChangeNotifier {
     SearchItemManager.saveSearchItem();
     if (!Utils.isDesktop) {
       Screen.keepOn(false);
-      if (Platform.isIOS)
+      if(Platform.isIOS)
         Screen.setBrightness(Global.systemBrightness);
       else
         Screen.setBrightness(-1);
@@ -580,7 +506,7 @@ class VideoPageProvider with ChangeNotifier {
     });
   }
 
-  void setHintText(String text, [bool updateControllerTime = false]) {
+  void setHintText(String text) {
     _hint = Text(
       text,
       textAlign: TextAlign.center,
@@ -590,9 +516,6 @@ class VideoPageProvider with ChangeNotifier {
         height: 1.5,
       ),
     );
-    if (updateControllerTime) {
-      _controllerTime = DateTime.now();
-    }
     notifyListeners();
     autoHideHint();
   }
@@ -741,10 +664,10 @@ class VideoPageProvider with ChangeNotifier {
 
   void onHorizontalDragUpdate(DragUpdateDetails details) {
     final d = Duration(seconds: (details.globalPosition.dx - _dragStartPosition) ~/ 10);
-    _gesturePosition = position + d;
+    _gesturePosition = _controller.value.position + d;
     final prefix = d.compareTo(Duration.zero) < 0 ? "-" : "+";
     setHintText(
-        "${Utils.formatDuration(_gesturePosition)} / $positionString\n[ $prefix ${Utils.formatDuration(d)} ]");
+        "${Utils.formatDuration(_gesturePosition)} / $duration\n[ $prefix ${Utils.formatDuration(d)} ]");
   }
 
   void onVerticalDragStart(DragStartDetails details) =>

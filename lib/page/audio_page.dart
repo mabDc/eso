@@ -267,7 +267,7 @@ class _AudioPageState extends State<AudioPage> {
                 width: 12,
                 height: 12,
                 alignment: Alignment.center,
-                child: Icon(Icons.audiotrack, color: Colors.green, size: 12),
+                child: Icon(Icons.audiotrack, color: Colors.red, size: 8),
               ),
             ),
             trackBar: FlutterSliderTrackBar(
