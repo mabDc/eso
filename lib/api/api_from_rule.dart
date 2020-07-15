@@ -63,7 +63,7 @@ class APIFromRUle implements API {
       final analyzer = AnalyzerManager(item, engineId);
       final tag = await analyzer.getString(rule.discoverTags);
       List<String> tags = <String>[];
-      if (tag != null || tag.trim().isNotEmpty) {
+      if (tag != null && tag.trim().isNotEmpty) {
         tags = tag.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
@@ -108,7 +108,7 @@ class APIFromRUle implements API {
       final analyzer = AnalyzerManager(item, engineId);
       final tag = await analyzer.getString(rule.searchTags);
       List<String> tags = <String>[];
-      if (tag != null || tag.trim().isNotEmpty) {
+      if (tag != null && tag.trim().isNotEmpty) {
         tags = tag.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(

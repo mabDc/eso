@@ -161,7 +161,7 @@ class DebugRuleProvider with ChangeNotifier {
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.discoverDescription));
       final tags = await analyzer.getString(rule.discoverTags);
-      if (tags != null || tags.trim().isNotEmpty) {
+      if (tags != null && tags.trim().isNotEmpty) {
         _addContent("标签",
             (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
       }
@@ -248,7 +248,7 @@ class DebugRuleProvider with ChangeNotifier {
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.searchDescription));
       final tags = await analyzer.getString(rule.searchTags);
-      if (tags != null || tags.trim().isNotEmpty) {
+      if (tags != null && tags.trim().isNotEmpty) {
         _addContent("标签",
             (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
       }
@@ -276,7 +276,6 @@ class DebugRuleProvider with ChangeNotifier {
     _beginEvent("目录");
     int engineId;
     dynamic firstChapter;
-    String jsCommand;
     for (var page = 1;; page++) {
       if (disposeFlag) return;
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
