@@ -256,7 +256,7 @@ class VideoPage extends StatelessWidget {
                       backgroundColor: VideoProgressColors().backgroundColor,
                     )
                   : FlutterSlider(
-                      values: [value > 0 ? value : 0, 3500],
+                      values: [value > 0 ? value : 0],
                       min: 0,
                       max: provider.duration.inSeconds.toDouble(),
                       onDragging: (handlerIndex, lowerValue, upperValue) {
@@ -295,7 +295,7 @@ class VideoPage extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
                   provider.isLoading
-                      ? ""//"--:-- / --:--"
+                      ? "" //"--:-- / --:--"
                       : "${provider.positionString} / ${provider.durationString}",
                   style: TextStyle(fontSize: 10, color: Colors.white),
                   textAlign: TextAlign.end,
