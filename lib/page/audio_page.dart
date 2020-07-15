@@ -95,23 +95,29 @@ class _AudioPageState extends State<AudioPage> {
                           Expanded(
                             child: Center(
                                 child: SizedBox(
-                                  width: 300,
-                                  height: 300,
-                                  child: AnimationRotateView(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Utils.empty(chapter.cover) ? Colors.black26 : null,
-                                        image: Utils.empty(chapter.cover) ? null : DecorationImage(
-                                          image: NetworkImage(chapter.cover ?? ''),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      child: Utils.empty(chapter.cover) ? Icon(Icons.audiotrack, color: Colors.white30, size: 200) : null,
-                                    ),
+                              width: 300,
+                              height: 300,
+                              child: AnimationRotateView(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Utils.empty(chapter.cover)
+                                        ? Colors.black26
+                                        : null,
+                                    image: Utils.empty(chapter.cover)
+                                        ? null
+                                        : DecorationImage(
+                                            image: NetworkImage(chapter.cover ?? ''),
+                                            fit: BoxFit.cover,
+                                          ),
                                   ),
-                                )
-                            ),
+                                  child: Utils.empty(chapter.cover)
+                                      ? Icon(Icons.audiotrack,
+                                          color: Colors.white30, size: 200)
+                                      : null,
+                                ),
+                              ),
+                            )),
                           ),
                           SizedBox(height: 50),
                           _buildProgressBar(provider),
@@ -122,43 +128,44 @@ class _AudioPageState extends State<AudioPage> {
                       ),
                     ),
                     SafeArea(
-                      child: Center(
-                        child: Container(
-                          height: 300,
-                          alignment: Alignment.bottomCenter,
-                          child: DefaultTextStyle(
-                            style: TextStyle(
-                                color: Colors.white54,
-                                fontSize: 12,
-                                fontFamily: Profile.fontFamily,
-                                height: 1.75),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(chapter.name, style: TextStyle(fontSize: 15)),
-                                Text(Utils.link(searchItem.origin, searchItem.name,
-                                    divider: ' | ').link(searchItem.chapter).value),
-                              ],
-                            ),
+                        child: Center(
+                      child: Container(
+                        height: 300,
+                        alignment: Alignment.bottomCenter,
+                        child: DefaultTextStyle(
+                          style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12,
+                              fontFamily: Profile.fontFamily,
+                              height: 1.75),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(chapter.name, style: TextStyle(fontSize: 15)),
+                              Text(Utils.link(searchItem.origin, searchItem.name,
+                                      divider: ' | ')
+                                  .link(searchItem.chapter)
+                                  .value),
+                            ],
                           ),
                         ),
-                      )
-                    ),
+                      ),
+                    )),
                     provider.showChapter
                         ? UIChapterSelect(
-                        searchItem: searchItem,
-                        color: Colors.black38,
-                        fontColor: Colors.white70,
-                        border: BorderSide(color: Colors.white10, width: Global.borderSize),
-                        heightScale: 0.5,
-                        loadChapter: provider.loadChapter)
+                            searchItem: searchItem,
+                            color: Colors.black38,
+                            fontColor: Colors.white70,
+                            border: BorderSide(
+                                color: Colors.white10, width: Global.borderSize),
+                            heightScale: 0.5,
+                            loadChapter: provider.loadChapter)
                         : Container(),
                   ],
                 ),
               ),
               onTap: () {
-                if (provider.showChapter == true)
-                  provider.showChapter = false;
+                if (provider.showChapter == true) provider.showChapter = false;
               },
             ),
           );
@@ -175,17 +182,16 @@ class _AudioPageState extends State<AudioPage> {
       elevation: 0.0,
       brightness: Brightness.dark,
       iconTheme: _iconTheme.copyWith(color: Colors.white70),
-      textTheme: _textTheme.copyWith(headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
+      textTheme: _textTheme.copyWith(
+          headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
       actions: [
         StatefulBuilder(
           builder: (context, _state) {
-            bool isFav = SearchItemManager.isFavorite(
-                searchItem.originTag, searchItem.url);
+            bool isFav =
+                SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
             return AppBarButton(
-              icon: isFav
-                  ? Icon(Icons.favorite)
-                  : Icon(Icons.favorite_border),
+              icon: isFav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
               iconSize: 21,
               tooltip: isFav ? "取消收藏" : "加入收藏",
               onPressed: () async {
@@ -202,29 +208,39 @@ class _AudioPageState extends State<AudioPage> {
         )
       ],
       titleSpacing: 0,
-      title: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            '$name',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.white70,
+      title: author == null || author.isEmpty
+          ? Text(
+              '$name',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.white70,
+              ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '$name',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white70,
+                  ),
+                ),
+                Text(
+                  '$author',
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Text(
-            '$author',
-            maxLines: 1,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.white70,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -264,7 +280,19 @@ class _AudioPageState extends State<AudioPage> {
                 color: Colors.white70,
               ),
             ),
-            tooltip: FlutterSliderTooltip(disabled: true),
+            tooltip: FlutterSliderTooltip(
+              disableAnimation: true,
+              custom: (value) => Container(
+                color: Colors.black12,
+                padding: EdgeInsets.all(4),
+                child: Text(
+                  Utils.formatDuration(Duration(seconds: (value as double).toInt())),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              positionOffset:
+                  FlutterSliderTooltipPositionOffset(left: -10, right: -10, top: -10),
+            ),
           ),
         ),
         Container(
@@ -332,10 +360,10 @@ class _AudioPageState extends State<AudioPage> {
             _repeatMode == AudioService.REPEAT_FAVORITE
                 ? Icons.restore
                 : _repeatMode == AudioService.REPEAT_ALL
-                ? Icons.repeat
-                : _repeatMode == AudioService.REPEAT_ONE
-                ? Icons.repeat_one
-                : Icons.label_outline,
+                    ? Icons.repeat
+                    : _repeatMode == AudioService.REPEAT_ONE
+                        ? Icons.repeat_one
+                        : Icons.label_outline,
             color: Colors.white,
           ),
           iconSize: 26,
@@ -382,8 +410,9 @@ class _AudioPageState extends State<AudioPage> {
     );
   }
 
-
-  final String defaultImage = _defaultBackgroundImage[Random().nextInt(_defaultBackgroundImage.length * 3) % _defaultBackgroundImage.length];
+  final String defaultImage = _defaultBackgroundImage[
+      Random().nextInt(_defaultBackgroundImage.length * 3) %
+          _defaultBackgroundImage.length];
 
   static const List<String> _defaultBackgroundImage = <String>[
     'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1862395032,4159614935&fm=26&gp=0.jpg',
