@@ -62,19 +62,19 @@ class _VideoProgressIndicatorState extends State<ESOVideoProgressIndicator> {
   @override
   void initState() {
     super.initState();
-    controller.addListener(listener);
+    controller?.addListener(listener);
   }
 
   @override
   void deactivate() {
-    controller.removeListener(listener);
+    controller?.removeListener(listener);
     super.deactivate();
   }
 
   @override
   Widget build(BuildContext context) {
     Widget progressIndicator;
-    if (controller.value.initialized) {
+    if (controller != null && controller.value.initialized) {
       final int duration = controller.value.duration.inMilliseconds;
       final int position = controller.value.position.inMilliseconds;
 
@@ -86,56 +86,72 @@ class _VideoProgressIndicatorState extends State<ESOVideoProgressIndicator> {
         }
       }
 
-      progressIndicator = FlutterSlider(
-        values: [position.toDouble()],
-        min: 0,
-        max: duration.toDouble(),
-        handlerHeight: 12,
-        handlerWidth: 12,
-        handler: FlutterSliderHandler(
-          child: Material(
-            elevation: 8,
-            color: Colors.transparent,
-            child: Container(
-              width: 12,
-              height: 12,
-              alignment: Alignment.center,
+      progressIndicator = Stack(
+        fit: StackFit.passthrough,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 12, left: 8, right: 8),
+            child: LinearProgressIndicator(
+              value: maxBuffering / duration,
+              valueColor: AlwaysStoppedAnimation<Color>(colors.bufferedColor),
+              backgroundColor: colors.backgroundColor,
             ),
           ),
-        ),
-        touchSize: 30,
-        disabled: !widget.allowScrubbing,
-        onDragCompleted: (handlerIndex, lowerValue, upperValue) =>
+          FlutterSlider(
+            values: [position == null ? 0 : position.toDouble()],
+            min: 0,
+            max: duration == null ? 0 : duration.toDouble(),
+            handlerHeight: 12,
+            handlerWidth: 12,
+            handler: FlutterSliderHandler(
+              child: Material(
+                elevation: 4,
+                color: Colors.transparent,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  alignment: Alignment.center,
+                ),
+              ),
+            ),
+            touchSize: 30,
+            disabled: !widget.allowScrubbing,
+            onDragCompleted: (handlerIndex, lowerValue, upperValue) =>
                 controller.seekTo(Duration(
                     milliseconds: (lowerValue as double).toInt())),
-        trackBar: FlutterSliderTrackBar(
-          inactiveTrackBar: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white54,
-          ),
-          activeTrackBar: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: Colors.white70,
-          ),
-        ),
-        tooltip: FlutterSliderTooltip(
-          disableAnimation: true,
-          custom: (value) => Container(
-            color: Colors.black26,
-            padding: EdgeInsets.all(4),
-            child: Text(
-              Utils.formatDuration(Duration(milliseconds: (value as double).toInt())),
-              style: TextStyle(color: Colors.white),
+            trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.white12,
+              ),
+              activeTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.white70,
+              ),
             ),
-          ),
-          positionOffset: FlutterSliderTooltipPositionOffset(left: 0, right: 0),
-        ),
+            tooltip: FlutterSliderTooltip(
+              disableAnimation: true,
+              custom: (value) => Container(
+                color: Colors.black26,
+                padding: EdgeInsets.all(4),
+                child: Text(
+                  Utils.formatDuration(Duration(milliseconds: (value as double).toInt())),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              positionOffset: FlutterSliderTooltipPositionOffset(left: 0, right: 0),
+            ),
+          )
+        ],
       );
     } else {
-      progressIndicator = LinearProgressIndicator(
-        value: null,
-        valueColor: AlwaysStoppedAnimation<Color>(colors.playedColor),
-        backgroundColor: colors.backgroundColor,
+      progressIndicator = Padding(
+        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 8, right: 8),
+        child: LinearProgressIndicator(
+          value: null,
+          valueColor: AlwaysStoppedAnimation<Color>(colors.playedColor),
+          backgroundColor: colors.backgroundColor,
+        ),
       );
     }
     final Widget paddedProgressIndicator = Padding(
