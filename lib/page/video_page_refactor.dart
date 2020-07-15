@@ -53,7 +53,7 @@ class VideoPage extends StatelessWidget {
                 if (isLoading)
                   Positioned(
                     left: 30,
-                    bottom: 80,
+                    bottom: 100,
                     right: 30,
                     child: _buildLoadingText(context),
                   ),
@@ -216,16 +216,10 @@ class VideoPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              provider.isLoading
-                  ? LinearProgressIndicator(
-                valueColor:
-                AlwaysStoppedAnimation<Color>(VideoProgressColors().playedColor),
-                backgroundColor: VideoProgressColors().backgroundColor,
-              )
-                  : ESOVideoProgressIndicator(
-                provider.controller,
-                allowScrubbing: true,
-                padding: const EdgeInsets.fromLTRB(20, 6, 20, 6)
+              ESOVideoProgressIndicator(
+                  provider.controller,
+                  allowScrubbing: true,
+                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 4)
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 26),
