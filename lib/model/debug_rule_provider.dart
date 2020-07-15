@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_js.dart';
 import 'package:eso/database/rule.dart';
@@ -191,6 +189,7 @@ class DebugRuleProvider with ChangeNotifier {
     _startTime = DateTime.now();
     rows.clear();
     int engineId;
+    _beginEvent("搜索");
     try {
       final searchResult = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
