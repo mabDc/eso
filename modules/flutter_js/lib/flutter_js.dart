@@ -27,7 +27,7 @@ class FlutterJs {
   static Future<dynamic> evaluate(String command, int id) async {
     if (Platform.isWindows) {
       final rs = QJsWindowsUtil.evalJs(id,
-          "window_command = ${jsonEncode(command)};window_result = eval(window_command);JSON.stringify(window_result);");
+          "window_command = ${jsonEncode(command)};window_result = eval(window_command);return JSON.stringify(window_result);");
       if (rs == null || rs.isEmpty || rs == "undefined") return rs;
       final result = jsonDecode(rs);
       return result;
