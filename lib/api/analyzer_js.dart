@@ -7,11 +7,9 @@ import 'analyzer.dart';
 class AnalyzerJS implements Analyzer {
   String _content;
   int _jsEngineId;
-  String _jsCommand;
 
-  AnalyzerJS(int jsEngineId, jsCommand) {
+  AnalyzerJS(int jsEngineId) {
     _jsEngineId = jsEngineId;
-    _jsCommand = jsCommand;
   }
 
   @override
@@ -33,22 +31,22 @@ class AnalyzerJS implements Analyzer {
     return this;
   }
 
-  Future<dynamic> eval(String rule) {
-    return FlutterJs.evaluate("$_jsCommand; result = $_content; $rule;", _jsEngineId);
+  Future<dynamic> _eval(String rule) {
+    return FlutterJs.evaluate("result = $_content; $rule;", _jsEngineId);
   }
 
   @override
   Future<dynamic> getElements(String rule) async {
-    return eval(rule);
+    return _eval(rule);
   }
 
   @override
   Future<dynamic> getString(String rule) async {
-    return eval(rule);
+    return _eval(rule);
   }
 
   @override
   Future<dynamic> getStringList(String rule) async {
-    return eval(rule);
+    return _eval(rule);
   }
 }

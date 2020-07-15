@@ -11,9 +11,8 @@ class AnalyzerManager {
 
   final dynamic _content;
   final int _idJsEngine;
-  String _jsCommand;
 
-  AnalyzerManager(this._content, this._idJsEngine, this._jsCommand);
+  AnalyzerManager(this._content, this._idJsEngine);
 
   /// from https://github.com/dart-lang/sdk/issues/2336
   String Function(Match) _replacement(String pattern) => (Match match) =>
@@ -293,7 +292,7 @@ class AnalyzerManager {
         case "@":
           if (r.startsWith(RegExp(r"@js:", caseSensitive: false))) {
             r = r.substring(4);
-            analyzer = AnalyzerJS(_idJsEngine, _jsCommand);
+            analyzer = AnalyzerJS(_idJsEngine);
           } else if (r.startsWith(RegExp(r"@css:", caseSensitive: false))) {
             r = r.substring(5);
             analyzer = AnalyzerHtml();

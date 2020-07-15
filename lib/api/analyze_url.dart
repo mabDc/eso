@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:fast_gbk/fast_gbk.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
+
+import '../global.dart';
 
 class AnalyzeUrl {
   static http.Client get nosslClient {
@@ -27,7 +30,7 @@ class AnalyzeUrl {
     url = url.trim();
     if (url.startsWith("@js:")) {
       // js规则
-      final _idJsEngine = await FlutterJs.initEngine(99999);
+      final engineId = await FlutterJs.initEngine(99999);
       var command = '''
 keyword = ${jsonEncode(keyword)};
 page = ${jsonEncode(page)};
@@ -36,11 +39,14 @@ result = ${jsonEncode(result)};
 pageSize = ${jsonEncode(pageSize)};
 cookie = ${jsonEncode(rule.cookies)};
 ''';
-      if (rule.loadJs.trim().isNotEmpty) {
-        command += rule.loadJs + ";\n";
+      await FlutterJs.evaluate(command, engineId);
+      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
+        final cryptoJS =
+            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
+        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
       }
-      final re = await FlutterJs.evaluate(command + url.substring(4), _idJsEngine);
-      FlutterJs.close(_idJsEngine);
+      final re = await FlutterJs.evaluate(url.substring(4), engineId);
+      FlutterJs.close(engineId);
       final res = await _parser(re, rule, keyword);
       // if (res.statusCode > 400) {
       //   throw "Request Error, statusCode is" + res.statusCode.toString();
