@@ -225,9 +225,10 @@ class VideoPage extends StatelessWidget {
                   : ESOVideoProgressIndicator(
                 provider.controller,
                 allowScrubbing: true,
+                padding: const EdgeInsets.fromLTRB(20, 6, 20, 6)
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.only(right: 26),
                 child: Text(
                   provider.isLoading
                       ? '' // "--:-- / --:--"
