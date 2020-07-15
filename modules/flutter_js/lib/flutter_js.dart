@@ -27,8 +27,8 @@ class FlutterJs {
   static Future<dynamic> evaluate(String command, int id) async {
     if (Platform.isWindows) {
       final rs = QJsWindowsUtil.evalJs(id,
-         "window_command = ${jsonEncode(command)};window_result = eval(window_command);JSON.stringify(window_result);");
-      if (rs == null || rs.isEmpty) return rs;
+          "window_command = ${jsonEncode(command)};window_result = eval(window_command);JSON.stringify(window_result);");
+      if (rs == null || rs.isEmpty || rs == "undefined") return rs;
       final result = jsonDecode(rs);
       return result;
     }
@@ -39,6 +39,7 @@ class FlutterJs {
   }
 
   static Future<bool> close(int id) async {
+    if (id == null) return false;
     if (Platform.isWindows) {
       QJsWindowsUtil.freeJs(id);
       return true;
