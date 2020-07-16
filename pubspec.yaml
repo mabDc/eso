@@ -33,6 +33,7 @@ dependencies:
   matrix_gesture_detector: ^0.1.0
   flutter_slidable: ^0.5.4
   video_player: ^0.10.11+2
+  fijkplayer: ^0.8.7
     # path: modules/video_player/video_player
 #    git:
 #      url: https://github.com/cbenhagen/plugins.git
