@@ -40,7 +40,7 @@ class AudioPageController with ChangeNotifier {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     if (_audioService.searchItem == searchItem && AudioService.isPlaying) return;
-    _audioService.playChapter(searchItem.durChapterIndex, searchItem);
+    _audioService.playChapter(searchItem.durChapterIndex, searchItem: searchItem);
   }
 
   void share() async {
@@ -88,7 +88,7 @@ class AudioPageController with ChangeNotifier {
   }
 
   void playNext() {
-    _audioService.playNext();
+    _audioService.playNext(_audioService.repeatMode == AudioService.REPEAT_FAVORITE);
   }
 
   void seekSeconds(int seconds) async {

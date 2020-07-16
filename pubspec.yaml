@@ -42,7 +42,9 @@ dependencies:
   path_provider: ^1.6.5
   path_provider_fde:
     path: plugins/flutter_plugins/path_provider_fde
-  audioplayers: ^0.15.1
+#  audioplayers: ^0.15.1
+  audioplayers:
+    path: modules/audioplayers
   encrypt: ^4.0.0
   # webview_flutter: ^0.3.22+1
   webview_flutter:

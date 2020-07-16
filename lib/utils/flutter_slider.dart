@@ -1535,7 +1535,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
     }
   }
 
-  Positioned _rightHandlerWidget() {
+  Widget _rightHandlerWidget() {
     double bottom;
     double right;
     if (widget.axis == Axis.horizontal) {
@@ -1543,7 +1543,10 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
     } else {
       right = 0;
     }
-
+    if (_rightHandlerXPosition != null && _rightHandlerXPosition.isNaN)
+      return SizedBox();
+    if (_rightHandlerYPosition != null && _rightHandlerYPosition.isNaN)
+      return SizedBox();
     return Positioned(
       key: Key('rightHandler'),
       left: _rightHandlerXPosition,
@@ -1670,7 +1673,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
   }
 
   drawHandlers() {
-    List<Positioned> items = []..addAll([
+    List<Widget> items = []..addAll([
         Function.apply(_inactiveTrack, []),
         Function.apply(_centralWidget, []),
         Function.apply(_activeTrack, []),
@@ -2057,7 +2060,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
     );
   }
 
-  Positioned _activeTrack() {
+  Widget _activeTrack() {
     BoxDecoration boxDecoration = widget.trackBar.activeTrackBar ?? BoxDecoration();
 
     Color trackBarColor = boxDecoration.color ?? Color(0xff2196F3);
@@ -2112,6 +2115,9 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
         }
       }
     }
+
+    if (width.isNaN || height.isNaN)
+      return SizedBox();
 
     width = (width < 0) ? 0 : width;
     height = (height < 0) ? 0 : height;

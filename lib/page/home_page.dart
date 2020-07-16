@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
         return;
       }
     }
-    AudioService().playChapter(0, item);
+    AudioService().playChapter(0, searchItem: item);
   }
 
   @override
