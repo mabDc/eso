@@ -9,7 +9,7 @@ import 'package:flutter_js/flutter_js.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
-import 'api_js.dart';
+import 'api_const.dart';
 
 class APIFromRUle implements API {
   final Rule rule;
@@ -41,7 +41,7 @@ class APIFromRUle implements API {
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     if (params.isEmpty) return <SearchItem>[];
     final discoverRule = params.values.first.value;
-    if (page > 1 && !discoverRule.contains("page")) {
+    if (page > 1 && !discoverRule.contains(APIConst.pagePattern)) {
       return <SearchItem>[];
     }
     final res = await AnalyzeUrl.urlRuleParser(
@@ -54,7 +54,7 @@ class APIFromRUle implements API {
       return <SearchItem>[];
     }
     final discoverUrl = res.request.url.toString();
-    final engineId = await JSAPI.initJSEngine(rule, discoverUrl);
+    final engineId = await APIConst.initJSEngine(rule, discoverUrl);
     final list = await AnalyzerManager(
             DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
         .getElements(rule.discoverList);
@@ -85,7 +85,7 @@ class APIFromRUle implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    if (page > 1 && !rule.searchUrl.contains("page")) {
+    if (page > 1 && !rule.searchUrl.contains(APIConst.pagePattern)) {
       return <SearchItem>[];
     }
     final res = await AnalyzeUrl.urlRuleParser(
@@ -99,7 +99,7 @@ class APIFromRUle implements API {
       return <SearchItem>[];
     }
     final searchUrl = res.request.url.toString();
-    final engineId = await JSAPI.initJSEngine(rule, searchUrl, engineId: _engineId);
+    final engineId = await APIConst.initJSEngine(rule, searchUrl, engineId: _engineId);
     final list = await AnalyzerManager(
             DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
         .getElements(rule.searchList);
@@ -134,7 +134,7 @@ class APIFromRUle implements API {
     int engineId;
     for (var page = 1;; page++) {
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
-      if (page > 1 && !chapterUrlRule.contains("page")) break;
+      if (page > 1 && !chapterUrlRule.contains(APIConst.pagePattern)) break;
       final res = await AnalyzeUrl.urlRuleParser(
         chapterUrlRule,
         rule,
@@ -146,7 +146,7 @@ class APIFromRUle implements API {
       }
       final chapterUrl = res.request.url.toString();
       final reversed = rule.chapterList.startsWith("-");
-      engineId = await JSAPI.initJSEngine(rule, chapterUrl, lastResult: url);
+      engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
       try {
         final list = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
@@ -190,7 +190,7 @@ class APIFromRUle implements API {
     int engineId;
     for (var page = 1;; page++) {
       final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : url;
-      if (page > 1 && !contentUrlRule.contains("page")) break;
+      if (page > 1 && !contentUrlRule.contains(APIConst.pagePattern)) break;
       final res = await AnalyzeUrl.urlRuleParser(
         contentUrlRule,
         rule,
@@ -201,7 +201,7 @@ class APIFromRUle implements API {
         break;
       }
       final contentUrl = res.request.url.toString();
-      engineId = await JSAPI.initJSEngine(rule, contentUrl, lastResult: url);
+      engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
       try {
         final list = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
@@ -229,7 +229,7 @@ class APIFromRUle implements API {
     final table = Map<String, int>();
     var discoverUrl = rule.discoverUrl.trimLeft();
     if (discoverUrl.startsWith("@js:")) {
-      final engineId = await JSAPI.initJSEngine(rule, "");
+      final engineId = await APIConst.initJSEngine(rule, "");
       discoverUrl = "${await FlutterJs.evaluate(discoverUrl.substring(4), engineId)}";
       FlutterJs.close(engineId);
     }
