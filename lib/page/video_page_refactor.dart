@@ -414,6 +414,10 @@ class VideoPageProvider with ChangeNotifier {
     _titleText = "${searchItem.name} - ${searchItem.durChapter}";
     _screenAxis = Axis.horizontal;
     _disposed = false;
+    if (!Utils.isDesktop) {
+      SizeUtils.updateMediaData();
+      _originalScreenAxis = SizeUtils.screenWidth > SizeUtils.screenHeight ? Axis.horizontal : Axis.vertical;
+    }
     setHorizontal();
     parseContent(null);
   }
@@ -502,6 +506,13 @@ class VideoPageProvider with ChangeNotifier {
   void dispose() {
     if (Platform.isIOS) {
       setVertical();
+    } else if (!Utils.isDesktop) {
+      if (_originalScreenAxis != _screenAxis) {
+        if (_originalScreenAxis == Axis.vertical)
+          setVertical();
+        else
+          setHorizontal();
+      }
     }
     _disposed = true;
     if (controller != null) {
@@ -674,6 +685,7 @@ class VideoPageProvider with ChangeNotifier {
     parseContent(index);
   }
 
+  Axis _originalScreenAxis = Axis.vertical;
   Axis _screenAxis;
   Axis get screenAxis => _screenAxis;
   void screenRotation() {

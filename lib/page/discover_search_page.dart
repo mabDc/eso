@@ -22,6 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/round_indicator.dart';
+import 'package:screen/screen.dart';
 
 import 'chapter_page.dart';
 import 'langding_page.dart';
@@ -518,8 +519,21 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               )
             : ESOSliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: () {
-                  var result = crossAxisCount ?? Utils.isDesktop ? null : 3;
-                  if (result == null) {
+                  var result = crossAxisCount != null ? crossAxisCount : (Utils.isDesktop ? null : 3);
+                  if (result != null) {
+                    if (Utils.isDesktop) {
+                      SizeUtils.updateMediaData();
+                      final w = SizeUtils.screenWidth;
+                      final h = SizeUtils.screenHeight;
+                      result = (result * (w > h ? w / h : h / w) * 1.5).toInt();
+                      if (SizeUtils.screenWidth / result < 100)
+                        result = max(SizeUtils.screenWidth / 100, 2).toInt();
+                    } else if (_size.width > _size.height) {
+                      result = (result * (_size.width / _size.height) * 1.2).toInt();
+                      if (SizeUtils.screenWidth / result < 100)
+                        result = max(SizeUtils.screenWidth / 100, 2).toInt();
+                    }
+                  } else if (result == null) {
                     SizeUtils.updateMediaData();
                     result = max(SizeUtils.screenWidth / 125, 2).toInt();
                   }
