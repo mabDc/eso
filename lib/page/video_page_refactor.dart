@@ -184,16 +184,7 @@ class VideoPage extends StatelessWidget {
         .select((VideoPageProvider provider) => provider.screenAxis == Axis.vertical);
     return Row(
       children: [
-        Container(
-          height: 20,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.arrow_back_ios, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
-            color: Colors.white,
-            tooltip: "返回",
-          ),
-        ),
+        AppBarEx.buildLeading(context, color: Colors.white) ?? SizedBox(),
         Expanded(
           child: Text(
             context.select((VideoPageProvider provider) => provider.titleText),
