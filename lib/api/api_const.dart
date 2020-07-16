@@ -6,7 +6,8 @@ import 'package:flutter_js/flutter_js.dart';
 
 import '../global.dart';
 
-class JSAPI {
+class APIConst {
+  static final pagePattern = RegExp(r"""(^|[^a-zA-Z'"])page([^a-zA-Z0-9'"]|$)""");
   static Future<int> initJSEngine(Rule rule, String baseUrl,
       {String lastResult = "", int engineId}) async {
     engineId = await FlutterJs.initEngine(engineId);
@@ -16,7 +17,7 @@ class JSAPI {
     if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
       final cryptoJS =
           rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-      await FlutterJs.evaluate(cryptoJS + ";undefined;" + rule.loadJs, engineId);
+      await FlutterJs.evaluate(cryptoJS + ";1+1;" + rule.loadJs + ";1+1;", engineId);
     }
     return engineId;
   }

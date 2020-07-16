@@ -1,5 +1,5 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/api/api_js.dart';
+import 'package:eso/api/api_const.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/profile.dart';
 import 'package:flutter/services.dart';
@@ -95,7 +95,7 @@ class DebugRuleProvider with ChangeNotifier {
       var discoverRule = rule.discoverUrl.trimLeft();
       if (discoverRule.startsWith("@js:")) {
         _addContent("执行发现js规则");
-        final engineId = await JSAPI.initJSEngine(rule, "");
+        final engineId = await APIConst.initJSEngine(rule, "");
         discoverRule = "${await FlutterJs.evaluate(discoverRule.substring(4), engineId)}";
         FlutterJs.close(engineId);
         _addContent("结果", discoverRule);
@@ -116,7 +116,7 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final discoverUrl = discoverResult.request.url.toString();
       _addContent("地址", discoverUrl, true);
-      engineId = await JSAPI.initJSEngine(rule, discoverUrl);
+      engineId = await APIConst.initJSEngine(rule, discoverUrl);
       _addContent("初始化js");
       final analyzer = AnalyzerManager(
           DecodeBody()
@@ -207,7 +207,7 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
-      engineId = await JSAPI.initJSEngine(rule, searchUrl);
+      engineId = await APIConst.initJSEngine(rule, searchUrl);
       _addContent("初始化js");
       final analyzer = AnalyzerManager(
           DecodeBody()
@@ -284,7 +284,7 @@ class DebugRuleProvider with ChangeNotifier {
       if (disposeFlag) return;
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
       if (page > 1) {
-        if (!chapterUrlRule.contains("page")) {
+        if (!chapterUrlRule.contains(APIConst.pagePattern)) {
           break;
         } else {
           _addContent("解析第$page页");
@@ -307,7 +307,7 @@ class DebugRuleProvider with ChangeNotifier {
         if (reversed) {
           _addContent("检测规则以\"-\"开始, 结果将反序");
         }
-        engineId = await JSAPI.initJSEngine(rule, chapterUrl, lastResult: result);
+        engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
         final chapterList = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
@@ -391,7 +391,7 @@ class DebugRuleProvider with ChangeNotifier {
       if (disposeFlag) return;
       final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
       if (page > 1) {
-        if (!contentUrlRule.contains("page")) {
+        if (!contentUrlRule.contains(APIConst.pagePattern)) {
           FlutterJs.close(engineId);
           return;
         } else {
@@ -412,7 +412,7 @@ class DebugRuleProvider with ChangeNotifier {
         }
         final contentUrl = res.request.url.toString();
         _addContent("地址", contentUrl, true);
-        engineId = await JSAPI.initJSEngine(rule, contentUrl, lastResult: result);
+        engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
         var contentItems = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
             .getStringList(rule.contentItems);
