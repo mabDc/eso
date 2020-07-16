@@ -43,7 +43,7 @@ class BassWinUtil {
       if (!isInit)
         return 0;
       final int Function(int, int, int, Pointer<void>, Pointer<void>) BASS_StreamCreate =
-      _library.lookup<NativeFunction<Int32 Function(Uint32, Uint32, Uint32, Pointer<void>, Pointer<void>)>>("BASS_StreamCreate").asFunction();
+      _library.lookup<NativeFunction<Uint32 Function(Uint32, Uint32, Uint32, Pointer<void>, Pointer<void>)>>("BASS_StreamCreate").asFunction();
       floatable = BASS_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT, nil, nil);
       if (floatable > 0) {
         final void Function(int) BASS_StreamFree =
