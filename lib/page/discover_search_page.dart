@@ -512,8 +512,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         controller: item.controller,
         gridDelegate: (Platform.isIOS || Platform.isAndroid)
             ? SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _size.width < _size.height ? 3 : 5,
-                childAspectRatio: 0.65,
+                crossAxisCount: (_size.width < _size.height ? (crossAxisCount ?? 3) :
+                  ((crossAxisCount ?? 3) * (_size.width / _size.height)).toInt()),
+                childAspectRatio: childAspectRatio ?? 0.65,
                 mainAxisSpacing: 0,
                 crossAxisSpacing: 0,
               )
