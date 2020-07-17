@@ -32,9 +32,9 @@ class AudioService {
   static String getRepeatName(int value) {
     switch (value) {
       case REPEAT_FAVORITE: return "跨源循环";
-      case REPEAT_FAVORITE: return "列表循环";
-      case REPEAT_FAVORITE: return "单曲循环";
-      case REPEAT_FAVORITE: return "不循环";
+      case REPEAT_ALL: return "列表循环";
+      case REPEAT_ONE: return "单曲循环";
+      case REPEAT_NONE: return "不循环";
     }
     return null;
   }

@@ -184,7 +184,10 @@ class AudioPlayer {
   }
 
   set notificationState(AudioPlayerState state) {
-    _notificationPlayerStateController.add(state);
+    if (Platform.isWindows) {
+    } else {
+      _notificationPlayerStateController.add(state);
+    }
     _audioPlayerState = state;
   }
 
@@ -294,6 +297,9 @@ class AudioPlayer {
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
 
+    if (Platform.isWindows) {
+      BassWinUtil.setMethodCallHandler(playerId, platformCallHandler);
+    }
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       // Start the headless audio service. The parameter here is a handle to
       // a callback managed by the Flutter engine, which allows for us to pass
@@ -486,22 +492,26 @@ class AudioPlayer {
   }
 
   /// Moves the cursor to the desired position.
-  Future<int> seek(Duration position) async {
+  Future<int> seek(Duration position) {
     _positionController.add(position);
 
     if (Platform.isWindows) {
-      BassWinUtil.setPosition(chan, position.inMilliseconds);
-      return 1;
+      BassWinUtil.setPosition(chan, position.inMilliseconds / 1000);
+      return Future.value(1);
     }
 
-    return await _invokeMethod('seek', {'position': position.inMilliseconds});
+    return _invokeMethod('seek', {'position': position.inMilliseconds});
   }
 
   /// Sets the volume (amplitude).
   ///
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
   /// interpolated.
-  Future<int> setVolume(double volume) {
+  Future<int> setVolume(double volume)  {
+    if (Platform.isWindows) {
+      BassWinUtil.setVolume(volume);
+      return Future.value(1);
+    }
     return _invokeMethod('setVolume', {'volume': volume});
   }
 
@@ -509,6 +519,10 @@ class AudioPlayer {
   ///
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
+    if (Platform.isWindows) {
+      BassWinUtil.setReleaseMode(releaseMode);
+      return Future.value(1);
+    }
     return _invokeMethod(
       'setReleaseMode',
       {'releaseMode': releaseMode.toString()},
@@ -521,6 +535,9 @@ class AudioPlayer {
   /// Android SDK version should be 23 or higher.
   /// not sure if that's changed recently.
   Future<int> setPlaybackRate({double playbackRate = 1.0}) {
+    if (Platform.isWindows) {
+      return Future.value(1);
+    }
     return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
   }
 
@@ -536,6 +553,9 @@ class AudioPlayer {
       Duration backwardSkipInterval,
       Duration duration,
       Duration elapsedTime}) {
+    if (Platform.isWindows) {
+      return Future.value(1);
+    }
     return _invokeMethod('setNotification', {
       'title': title ?? '',
       'albumTitle': albumTitle ?? '',
@@ -558,6 +578,9 @@ class AudioPlayer {
   /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false}) {
+    if (Platform.isWindows) {
+      return Future.value(1);
+    }
     isLocal = isLocalUrl(url);
     return _invokeMethod('setUrl',
         {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
@@ -569,11 +592,17 @@ class AudioPlayer {
   /// It will be available as soon as the audio duration is available
   /// (it might take a while to download or buffer it if file is not local).
   Future<int> getDuration() {
+    if (Platform.isWindows) {
+      return Future.value((BassWinUtil.getDuration(chan) * 1000).toInt());
+    }
     return _invokeMethod('getDuration');
   }
 
   // Gets audio current playing position
   Future<int> getCurrentPosition() async {
+    if (Platform.isWindows) {
+      return Future.value((BassWinUtil.getCurrentPosition(chan) * 1000).toInt());
+    }
     return _invokeMethod('getCurrentPosition');
   }
 

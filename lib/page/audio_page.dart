@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/database/search_item.dart';
@@ -69,6 +70,10 @@ class _AudioPageState extends State<AudioPage> {
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
           final chapter = searchItem.chapters[searchItem.durChapterIndex];
+          SizeUtils.updateMediaData();
+          final _size = max(min(
+              SizeUtils.getHeight(SizeUtils.screenHeight * 1.75, max: 320),
+              SizeUtils.getWidth(SizeUtils.screenWidth * 1.75, max: 320)), 20);
           return Scaffold(
             body: GestureDetector(
               child: Container(
@@ -80,7 +85,9 @@ class _AudioPageState extends State<AudioPage> {
                       height: double.infinity,
                       width: double.infinity,
                       child: Image.network(
-                        Utils.empty(chapter.cover) ? defaultImage : chapter.cover,
+                        Utils.empty(chapter.cover)
+                            ? defaultImage
+                            : chapter.cover,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -95,9 +102,9 @@ class _AudioPageState extends State<AudioPage> {
                           Expanded(
                             child: Center(
                                 child: SizedBox(
-                              width: 300,
-                              height: 300,
-                              child: AnimationRotateView(
+                              width: _size,
+                              height: _size,
+                              child: _size < 65 ? null : AnimationRotateView(
                                 child: Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
@@ -107,13 +114,14 @@ class _AudioPageState extends State<AudioPage> {
                                     image: Utils.empty(chapter.cover)
                                         ? null
                                         : DecorationImage(
-                                            image: NetworkImage(chapter.cover ?? ''),
+                                            image: NetworkImage(
+                                                chapter.cover ?? ''),
                                             fit: BoxFit.cover,
                                           ),
                                   ),
                                   child: Utils.empty(chapter.cover)
                                       ? Icon(Icons.audiotrack,
-                                          color: Colors.white30, size: 200)
+                                          color: Colors.white30, size: _size * 0.75)
                                       : null,
                                 ),
                               ),
@@ -128,36 +136,42 @@ class _AudioPageState extends State<AudioPage> {
                       ),
                     ),
                     SafeArea(
-                        child: Center(
-                      child: Container(
-                        height: 300,
+                      child: Align(
                         alignment: Alignment.bottomCenter,
-                        child: DefaultTextStyle(
-                          style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12,
-                              fontFamily: Profile.fontFamily,
-                              height: 1.75),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(chapter.name, style: TextStyle(fontSize: 15)),
-                              Text(Utils.link(searchItem.origin, searchItem.name,
-                                      divider: ' | ')
-                                  .link(searchItem.chapter)
-                                  .value),
-                            ],
+                        child: Container(
+                          height: 300,
+                          width: double.infinity,
+                          alignment: Alignment.bottomCenter,
+                          margin: EdgeInsets.only(bottom: 150, left: 8, right: 8),
+                          child: DefaultTextStyle(
+                            style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                                fontFamily: Profile.fontFamily,
+                                height: 1.75),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(chapter.name,
+                                    style: TextStyle(fontSize: 15)),
+                                Text(Utils.link(
+                                    searchItem.origin, searchItem.name,
+                                    divider: ' | ')
+                                    .link(searchItem.chapter)
+                                    .value),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    )),
+                      )),
                     provider.showChapter
                         ? UIChapterSelect(
                             searchItem: searchItem,
                             color: Colors.black38,
                             fontColor: Colors.white70,
                             border: BorderSide(
-                                color: Colors.white10, width: Global.borderSize),
+                                color: Colors.white10,
+                                width: Global.borderSize),
                             heightScale: 0.5,
                             loadChapter: provider.loadChapter)
                         : Container(),
@@ -174,7 +188,8 @@ class _AudioPageState extends State<AudioPage> {
     );
   }
 
-  Widget _buildAppBar(AudioPageController provider, String name, String author) {
+  Widget _buildAppBar(
+      AudioPageController provider, String name, String author) {
     final _iconTheme = Theme.of(context).primaryIconTheme;
     final _textTheme = Theme.of(context).primaryTextTheme;
     return AppBarEx(
@@ -188,8 +203,8 @@ class _AudioPageState extends State<AudioPage> {
       actions: [
         StatefulBuilder(
           builder: (context, _state) {
-            bool isFav =
-                SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
+            bool isFav = SearchItemManager.isFavorite(
+                searchItem.originTag, searchItem.url);
             return AppBarButton(
               icon: isFav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
               iconSize: 21,
@@ -249,10 +264,11 @@ class _AudioPageState extends State<AudioPage> {
       children: <Widget>[
         Container(
           alignment: Alignment.centerRight,
-          child:
-              Text(provider.positionDurationText, style: TextStyle(color: Colors.white)),
+          child: Text(provider.positionDurationText,
+              style: TextStyle(color: Colors.white)),
           width: 52,
         ),
+        SizedBox(width: 8),
         Expanded(
           child: FlutterSlider(
             values: [provider.postionSeconds.toDouble()],
@@ -286,18 +302,21 @@ class _AudioPageState extends State<AudioPage> {
                 color: Colors.black12,
                 padding: EdgeInsets.all(4),
                 child: Text(
-                  Utils.formatDuration(Duration(seconds: (value as double).toInt())),
+                  Utils.formatDuration(
+                      Duration(seconds: (value as double).toInt())),
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              positionOffset:
-                  FlutterSliderTooltipPositionOffset(left: -10, right: -10, top: -10),
+              positionOffset: FlutterSliderTooltipPositionOffset(
+                  left: -10, right: -10, top: -10),
             ),
           ),
         ),
+        SizedBox(width: 8),
         Container(
           alignment: Alignment.centerLeft,
-          child: Text(provider.durationText, style: TextStyle(color: Colors.white)),
+          child: Text(provider.durationText,
+              style: TextStyle(color: Colors.white)),
           width: 52,
         ),
       ],
@@ -352,61 +371,72 @@ class _AudioPageState extends State<AudioPage> {
 
   Widget _buildBottomController(AudioPageController provider) {
     final _repeatMode = provider.repeatMode;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(
-            _repeatMode == AudioService.REPEAT_FAVORITE
-                ? Icons.restore
-                : _repeatMode == AudioService.REPEAT_ALL
-                    ? Icons.repeat
-                    : _repeatMode == AudioService.REPEAT_ONE
-                        ? Icons.repeat_one
-                        : Icons.label_outline,
-            color: Colors.white,
+    return ButtonTheme(
+      minWidth: 8,
+      padding: const EdgeInsets.all(0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(
+              _repeatMode == AudioService.REPEAT_FAVORITE
+                  ? Icons.restore
+                  : _repeatMode == AudioService.REPEAT_ALL
+                      ? Icons.repeat
+                      : _repeatMode == AudioService.REPEAT_ONE
+                          ? Icons.repeat_one
+                          : Icons.label_outline,
+              color: Colors.white,
+            ),
+            iconSize: 26,
+            tooltip: AudioService.getRepeatName(_repeatMode),
+            padding: EdgeInsets.zero,
+            onPressed: provider.switchRepeatMode,
           ),
-          iconSize: 26,
-          tooltip: AudioService.getRepeatName(_repeatMode),
-          padding: EdgeInsets.zero,
-          onPressed: provider.switchRepeatMode,
-        ),
-        InkWell(
-          child: Icon(
-            Icons.skip_previous,
-            color: Colors.white,
-            size: 26,
+          IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(
+              Icons.skip_previous,
+              color: Colors.white,
+            ),
+            iconSize: 26,
+            tooltip: "上一个",
+            onPressed: provider.playPrev,
           ),
-          onTap: provider.playPrev,
-        ),
-        InkWell(
-          child: Icon(
-            provider.state == AudioPlayerState.PLAYING
-                ? Icons.pause_circle_outline
-                : Icons.play_circle_outline,
-            color: Colors.white,
-            size: 42,
+          IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(
+              provider.state == AudioPlayerState.PLAYING
+                  ? Icons.pause_circle_outline
+                  : Icons.play_circle_outline,
+              color: Colors.white,
+            ),
+            iconSize: 45,
+            tooltip: provider.state == AudioPlayerState.PLAYING ? "暂停" : "播放",
+            onPressed: provider.playOrPause,
           ),
-          onTap: provider.playOrPause,
-        ),
-        InkWell(
-          child: Icon(
-            Icons.skip_next,
-            color: Colors.white,
-            size: 26,
+          IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(
+              Icons.skip_next,
+              color: Colors.white,
+            ),
+            iconSize: 26,
+            tooltip: "下一个",
+            onPressed: provider.playNext,
           ),
-          onTap: provider.playNext,
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: Colors.white,
+          IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: Colors.white,
+            ),
+            iconSize: 26,
+            tooltip: "播放列表",
+            padding: EdgeInsets.zero,
+            onPressed: () => provider.showChapter = !provider.showChapter,
           ),
-          iconSize: 26,
-          tooltip: "播放列表",
-          onPressed: () => provider.showChapter = !provider.showChapter,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
