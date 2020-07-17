@@ -157,28 +157,29 @@ class _SearchPageState extends State<SearchPage> {
                           alignment: Alignment.centerLeft,
                           child: RichText(
                             text: TextSpan(
-                                children: [
-                                  TextSpan(text: '请求数: '),
-                                  TextSpan(
-                                    text: '${provider.successCount} (成功)',
-                                    style: TextStyle(color: Colors.green),
-                                  ),
-                                  TextSpan(text: ' | '),
-                                  TextSpan(
-                                    text: '${provider.failureCount} (失败)',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                  TextSpan(text: ' | '),
-                                  TextSpan(text: '${provider.rulesCount} (总数)'),
-                                  TextSpan(text: '\n'),
-                                  TextSpan(
-                                    text: '结果数: $count',
-                                  ),
-                                ],
-                                style: TextStyle(
+                              children: [
+                                TextSpan(text: '请求数: '),
+                                TextSpan(
+                                  text: '${provider.successCount} (成功)',
+                                  style: TextStyle(color: Colors.green),
+                                ),
+                                TextSpan(text: ' | '),
+                                TextSpan(
+                                  text: '${provider.failureCount} (失败)',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                                TextSpan(text: ' | '),
+                                TextSpan(text: '${provider.rulesCount} (总数)'),
+                                TextSpan(text: '\n'),
+                                TextSpan(
+                                  text: '结果数: $count',
+                                ),
+                              ],
+                              style: TextStyle(
                                   fontFamily: Profile.fontFamily,
                                   color: Theme.of(context).textTheme.bodyText1.color,
-                                  height: 1.55)),
+                                  height: 1.55),
+                            ),
                           ),
                         ),
                       ],
@@ -217,7 +218,6 @@ class _SearchPageState extends State<SearchPage> {
                 );
               },
             ),
-            // floatingActionButton: Provider.of<SearchProvider>(context, listen: true).search(keyword),
           );
         });
   }
@@ -271,8 +271,6 @@ class SearchProvider with ChangeNotifier {
   int get successCount => _successCount;
   int _failureCount;
   int get failureCount => _failureCount;
-  int _finishCount;
-  int get finishCount => _finishCount;
   List<Rule> _rules;
   List<Rule> _novelRules;
   List<Rule> _mangaRules;
@@ -283,7 +281,7 @@ class SearchProvider with ChangeNotifier {
   final List<SearchItem> searchListNormal = <SearchItem>[];
   final List<SearchItem> searchListAccurate = <SearchItem>[];
 
-  static int _keys;
+  int _searchId;
   int _sourceType = -1;
   Profile _profile;
   SearchProvider({int threadCount, SearchOption searchOption, Profile profile}) {
@@ -294,6 +292,7 @@ class SearchProvider with ChangeNotifier {
     _successCount = 0;
     _failureCount = 0;
     _rules = <Rule>[];
+    _searchId = 0;
     init();
   }
 
@@ -342,17 +341,29 @@ class SearchProvider with ChangeNotifier {
     } else {
       _rules = <Rule>[];
     }
+    var enableCount = 0;
     if (_profile.novelEnableSearch) {
+      enableCount++;
+      _sourceType = API.NOVEL;
       _rules.addAll(_novelRules);
     }
     if (_profile.mangaEnableSearch) {
+      enableCount++;
+      _sourceType = API.MANGA;
       _rules.addAll(_mangaRules);
     }
     if (_profile.audioEnableSearch) {
+      enableCount++;
+      _sourceType = API.AUDIO;
       _rules.addAll(_audioRules);
     }
     if (_profile.videoEnableSearch) {
+      enableCount++;
+      _sourceType = API.VIDEO;
       _rules.addAll(_videoRules);
+    }
+    if (enableCount > 1) {
+      _sourceType = -1;
     }
     _rulesCount = _rules.length;
     notifyListeners();
@@ -369,72 +380,61 @@ class SearchProvider with ChangeNotifier {
   }
 
   void search(String keyword) async {
-    await Utils.sleep(300);
-    print("search $keyword");
-    final key = DateTime.now().millisecondsSinceEpoch;
-    _keys = key;
+    _searchId++;
+    await Future.delayed(Duration(milliseconds: 300));
     searchListNone.clear();
     searchListNormal.clear();
     searchListAccurate.clear();
     _successCount = 0;
     _failureCount = 0;
-    _finishCount = 0;
     notifyListeners();
-    var _rulesLen = _rules.length;
-    if (_rulesLen <= 0) return;
-    final _count = _rulesLen ~/ threadCount +
-        (_rulesLen % threadCount > 0 ? 1 : 0);
     for (var i = 0; i < threadCount; i++) {
-      final realCount = _rulesLen >= _count ? _count : _rulesLen;
-      _rulesLen = _rulesLen - _count;
-      print(realCount);
-      _searchExec(key, i, realCount, keyword);
-    }
-  }
-
-  void _searchExec(int key, int offset, int realCount, String keyword) async {
-    await Utils.sleep(50);
-    if (_keys != key) return;
-    for (var j = 0; j < realCount; j++) {
-      if (key == _keys) {
-        try {
-          final _rule = _rules[j * threadCount + offset];
-          var _searchResp = await APIFromRUle(_rule, int.parse("$key$j"))
-              .search(keyword, 1, 20);
-          if (_keys == key) {
-            _searchResp?.forEach((item) {
-              if (_keys == key) {
-                searchListNone.add(item);
-                if (item.name?.contains(keyword) == true || item.author?.contains(keyword) == true) {
-                  searchListNormal.add(item);
-                  if (item.name == keyword || item.author == keyword) {
-                    searchListAccurate.add(item);
+      final count = _rules.length - 1 - i;
+      final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
+      ((int searchId) async {
+        for (var j = 0; j < realCount; j++) {
+          if (_searchId == searchId) {
+            try {
+              print(j * threadCount + i);
+              (await APIFromRUle(_rules[j * threadCount + i],
+                          searchId * 10000 + j * threadCount + i)
+                      .search(keyword, 1, 20))
+                  .forEach((item) {
+                if (_searchId == searchId) {
+                  searchListNone.add(item);
+                  if (item.name?.contains(keyword) == true ||
+                      item.author?.contains(keyword) == true) {
+                    searchListNormal.add(item);
+                    if (item.name == keyword || item.author == keyword) {
+                      searchListAccurate.add(item);
+                    }
                   }
                 }
+              });
+              if (_searchId == searchId) {
+                _successCount++;
+                notifyListeners();
               }
-            });
-            _successCount++;
-            notifyListeners();
-          }
-        } catch (e) {
-          if (_keys == key) {
-            print(e);
-            _failureCount++;
-            notifyListeners();
+            } catch (e) {
+              if (_searchId == searchId) {
+                _failureCount++;
+                print("error   !!!       " * 10);
+                print(_rules[j * threadCount + i].name);
+                notifyListeners();
+              }
+            }
           }
         }
-      } else
-        break;
+      })(_searchId);
     }
   }
 
   @override
   void dispose() {
-    _keys = null;
+    _searchId = null;
     searchListNone.clear();
     searchListNormal.clear();
     searchListAccurate.clear();
     super.dispose();
   }
 }
-

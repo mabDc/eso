@@ -36,8 +36,8 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   /// 快速输入符号List
 // ignore: non_constant_identifier_names
   final FAST_INPUT_LIST = {
-    'GET GBK': r'''{"encoding": "gbk", "url": "/xx"}''',
-    'POST JSON': r'''@js:
+    'GET_GBK': r'''{"encoding": "gbk", "url": "/xx"}''',
+    'POST_JSON': r'''@js:
 (() => {
   var url = "/xx";
   var method = "post";
@@ -52,7 +52,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   // var encoding = "gbk";
   return {url, method, body, headers};
 })();''',
-    'POST FORM1': r'''@js:
+    'POST_FORM1': r'''@js:
 (() => {
   var url = "/xx";
   var method = "post";
@@ -64,7 +64,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   // var encoding = "gbk";
   return {url, method, body, headers};
 })();''',
-    'POST FORM2': r'''@js:
+    'POST_FORM2': r'''@js:
 (() => {
   var url = "/xx";
   var method = "post";
