@@ -35,9 +35,16 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
 
   /// 快速输入符号List
 // ignore: non_constant_identifier_names
-  final FAST_INPUT_LIST = {
-    'GET_GBK': r'''{"encoding": "gbk", "url": "/xx"}''',
-    'POST_JSON': r'''@js:
+  final inputList = [
+    {
+      'encoding': '"encoding":"gbk"',
+      'get-referer': r'''{
+  "url": "/xx",
+  "headers":{
+    "referer":"xx"
+  },
+}''',
+      'post-json': r'''@js:
 (() => {
   var url = "/xx";
   var method = "post";
@@ -49,10 +56,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     //这里设置body为json, 如果需要gbk编码必须这里charset也改为gbk
     "content-type": "application/json; charset=utf-8"
   };
-  // var encoding = "gbk";
   return {url, method, body, headers};
 })();''',
-    'POST_FORM1': r'''@js:
+      'post-form1': r'''@js:
 (() => {
   var url = "/xx";
   var method = "post";
@@ -61,10 +67,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     //这里设置body为表单, 如果需要gbk编码必须这里charset也改为gbk
     "content-type":" application/x-www-form-urlencoded; charset=utf-8"
   };
-  // var encoding = "gbk";
   return {url, method, body, headers};
 })();''',
-    'POST_FORM2': r'''@js:
+      'post-form2': r'''@js:
 (() => {
   var url = "/xx";
   var method = "post";
@@ -74,43 +79,51 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     "c": "d"
   };
   var headers = {};
-  // var encoding = "gbk";
   return {url, method, body, headers};
 })();''',
-    'keyword': 'keyword',
-    'page': 'page',
-    'pageSize': 'pageSize',
-    'host': 'host',
-    'result': 'result',
-    'lastResult': 'lastResult',
-    '@': '@',
-    '`': '`',
-    '"': '"',
-    ':': ':',
-    '&': '&',
-    '|': '|',
-    '%': '%',
-    '/': '/',
-    '[': '[',
-    ']': ']',
-    '{': '{',
-    '}': '}',
-    '<': '<',
-    '>': '>',
-    '\\': '\\',
-    '\$': '\$',
-    '.': '.',
-    '#': '#',
-    'text': 'text',
-    'href': 'href',
-    'src': 'src',
-    'headers': 'headers',
-    'User-Agent': 'User-Agent',
-    'Macintosh UA':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
-    'Android UA':
-        'Mozilla/5.0 (Linux; Android 9; MIX 2 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/80.0.3987.99 Mobile Safari/537.36',
-  };
+      'xpath_class': '//*[@class="xx"]',
+      'xpath_id': '//*[@id="xx"]',
+      'match': "result.match(/xx/)[0];",
+      'stringify': "JSON.stringify({});",
+      'parse': "JSON.parse(xx);",
+      'Macintosh-UA':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+      'Android-UA':
+          'Mozilla/5.0 (Linux; Android 9; MIX 2 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/80.0.3987.99 Mobile Safari/537.36',
+    },
+    {
+      '`': '`',
+      '"': '"',
+      '\'': '\'',
+      '@': '@',
+      ':': ':',
+      '&': '&',
+      '|': '|',
+      '%': '%',
+      '/': '/',
+      '\\': '\\',
+      '[': '[',
+      ']': ']',
+      '{': '{',
+      '}': '}',
+      '<': '<',
+      '>': '>',
+      '\$': '\$',
+      '.': '.',
+      '#': '#',
+      'keyword': 'keyword',
+      'page': 'page',
+      'pageSize': 'pageSize',
+      'host': 'host',
+      'result': 'result',
+      'lastResult': 'lastResult',
+      'text': 'text',
+      'href': 'href',
+      'src': 'src',
+      'headers': 'headers',
+      'User-Agent': 'User-Agent',
+    }
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -120,8 +133,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _discoverExpanded = rule.enableDiscover;
       _searchExpanded = rule.enableSearch;
     }
-    final inputKeys = FAST_INPUT_LIST.keys.toList();
-    final inputValues = FAST_INPUT_LIST.values.toList();
+
     return Scaffold(
       appBar: AppBarEx(
         titleSpacing: 0,
@@ -173,47 +185,60 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             ],
           )),
           Offstage(
-              offstage: false, //_isHideFastInput,
-              child: Container(
-                height: 45,
-                decoration: BoxDecoration(
-                    border: Border(
-                        top: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: Global.lineSize))),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: inputKeys.length,
-                  physics: BouncingScrollPhysics(),
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          inputKeys[index],
-                          style: TextStyle(fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      onTap: () {
-                        final fastText = inputValues[index];
-                        final textSelection = currentController.selection;
-                        currentController.text = currentController.text.replaceRange(
-                          textSelection.start,
-                          textSelection.end,
-                          fastText,
-                        );
-                        currentOnChanged(currentController.text);
-                        currentController.selection = textSelection.copyWith(
-                          baseOffset: textSelection.end + fastText.length,
-                          extentOffset: textSelection.end + fastText.length,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ))
+            offstage: false, //_isHideFastInput,
+            child: Container(
+              decoration: BoxDecoration(
+                  border: Border(
+                      top: BorderSide(
+                          color: Theme.of(context).dividerColor,
+                          width: Global.lineSize))),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: inputList.map((list) => _buildInputHelp(list)).toList(),
+              ),
+            ),
+          )
         ],
+      ),
+    );
+  }
+
+  Widget _buildInputHelp(Map<String, String> inputList) {
+    final inputKeys = inputList.keys.toList();
+    final inputValues = inputList.values.toList();
+    return Container(
+      height: 32,
+      alignment: Alignment.center,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: inputKeys.length,
+        physics: BouncingScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          return InkWell(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                inputKeys[index],
+                style: TextStyle(fontSize: 16, height: 2),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            onTap: () {
+              final fastText = inputValues[index];
+              final textSelection = currentController.selection;
+              currentController.text = currentController.text.replaceRange(
+                textSelection.start,
+                textSelection.end,
+                fastText,
+              );
+              currentOnChanged(currentController.text);
+              currentController.selection = textSelection.copyWith(
+                baseOffset: textSelection.end + fastText.length,
+                extentOffset: textSelection.end + fastText.length,
+              );
+            },
+          );
+        },
       ),
     );
   }
