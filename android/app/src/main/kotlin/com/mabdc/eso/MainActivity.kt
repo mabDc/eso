@@ -1,20 +1,12 @@
 package com.mabdc.eso
 
-import android.os.Bundle
-import io.flutter.app.FlutterActivity
-import io.flutter.plugins.GeneratedPluginRegistrant
+import io.flutter.embedding.android.FlutterActivity
 import com.eso.eso_plugin.EsoPlugin
 import android.view.KeyEvent
 import android.util.Log
 
 
 class MainActivity: FlutterActivity() {
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    GeneratedPluginRegistrant.registerWith(this)
-  }
-
   /**
    * 按键事件
    */
