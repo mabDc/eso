@@ -12,6 +12,7 @@ import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_js/flutter_js.dart';
 import 'package:provider/provider.dart';
 
 import 'chapter_page.dart';
@@ -393,11 +394,11 @@ class SearchProvider with ChangeNotifier {
       final realCount = count < 0 ? 0 : count ~/ threadCount + 1;
       ((int searchId) async {
         for (var j = 0; j < realCount; j++) {
+          final engineId = j * threadCount + i;
           if (_searchId == searchId) {
             try {
               print(j * threadCount + i);
-              (await APIFromRUle(_rules[j * threadCount + i],
-                          searchId * 10000 + j * threadCount + i)
+              (await APIFromRUle(_rules[engineId], searchId * 10000 + engineId)
                       .search(keyword, 1, 20))
                   .forEach((item) {
                 if (_searchId == searchId) {
@@ -417,6 +418,7 @@ class SearchProvider with ChangeNotifier {
               }
             } catch (e) {
               if (_searchId == searchId) {
+                FlutterJs.close(engineId);
                 _failureCount++;
                 print("error   !!!       " * 10);
                 print(_rules[j * threadCount + i].name);
