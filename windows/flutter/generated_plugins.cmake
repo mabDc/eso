@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  flutter_js
   path_provider_fde
   url_launcher_fde
 )
