@@ -26,17 +26,6 @@
 namespace
 {
 
-  // class HTTP
-  // {
-  // public:
-  //   HTTP() {}
-
-  //   std::string get(const std::string &s)
-  //   {
-  //     return "Hello, " + s;
-  //   }
-  // };
-
   class FlutterJsPlugin : public flutter::Plugin
   {
   public:
@@ -94,6 +83,16 @@ namespace
     return it->second;
   }
 
+  std::string httpGet(const std::string &s)
+  {
+    return "run http.get(" + s + ") on windows, todo";
+  }
+
+  void println(const std::string &str)
+  {
+    std::cout << str << std::endl;
+  }
+
   void FlutterJsPlugin::HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result)
@@ -130,14 +129,17 @@ namespace
       qjs::Runtime *runtime = new qjs::Runtime();
       qjs::Context *context = new qjs::Context(*runtime);
       // export classes as a module
-      // auto &module = context->addModule("HTTPMoudle");
-      // module.class_<HTTP>("HTTPClass")
-      //     .constructor<>()
-      //     .fun<&HTTP::get>("get");
-      // // import module
-      // context->eval("import * as httpMoudle from 'HTTPMoudle'; globalThis.HTTPMoudle = HTTPMoudle;", "<import>", JS_EVAL_TYPE_MODULE);
-      // // evaluate js code
-      // context->eval("var http = {};http.get = new httpMoudle.HTTPClass().get");
+      auto &module = context->addModule("WindowsBaseMoudle");
+      module.function<&println>("println")
+          .function<&httpGet>("httpGet");
+      // import module
+      context->eval("import * as windowsBaseMoudle from 'WindowsBaseMoudle';"
+                    "globalThis.windowsBaseMoudle = windowsBaseMoudle;",
+                    "<import>", JS_EVAL_TYPE_MODULE);
+      context->eval("console = {};"
+                    "console.log = function(s) { return windowsBaseMoudle.println(s); };"
+                    "http = {};"
+                    "http.get = function(s) { return windowsBaseMoudle.httpGet(s); };");
       jsEngineMap[engineId] = context;
       flutter::EncodableValue response(engineId);
       result->Success(&response);
