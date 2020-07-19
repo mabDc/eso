@@ -17,6 +17,7 @@ public class EsoPlugin: FlutterPlugin, MethodCallHandler {
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "eso_plugin")
     channel.setMethodCallHandler(this);
+    methodChannel = channel;
   }
 
   companion object {
