@@ -4,7 +4,7 @@
  * @Date: 2020-07-18 16:22:37
  * @LastEditors: ekibun
  * @LastEditTime: 2020-07-19 12:31:25
- */ 
+ */
 #include "include/flutter_js/flutter_js_plugin.h"
 
 // This must be included before many other Windows headers.
@@ -23,125 +23,168 @@
 
 #include "quickjs/quickjspp.hpp"
 
-namespace {
+namespace
+{
 
-class FlutterJsPlugin : public flutter::Plugin {
- public:
-  static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
+  // class HTTP
+  // {
+  // public:
+  //   HTTP() {}
 
-  FlutterJsPlugin();
+  //   std::string get(const std::string &s)
+  //   {
+  //     return "Hello, " + s;
+  //   }
+  // };
 
-  virtual ~FlutterJsPlugin();
+  class FlutterJsPlugin : public flutter::Plugin
+  {
+  public:
+    static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
- private:
-  // Called when a method is called on this plugin's channel from Dart.
-  void HandleMethodCall(
-      const flutter::MethodCall<flutter::EncodableValue> &method_call,
-      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
-};
+    FlutterJsPlugin();
 
-// static
-void FlutterJsPlugin::RegisterWithRegistrar(
-    flutter::PluginRegistrarWindows *registrar) {
-  auto channel =
-      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-          registrar->messenger(), "io.abner.flutter_js",
-          &flutter::StandardMethodCodec::GetInstance());
+    virtual ~FlutterJsPlugin();
 
-  auto plugin = std::make_unique<FlutterJsPlugin>();
+  private:
+    // Called when a method is called on this plugin's channel from Dart.
+    void HandleMethodCall(
+        const flutter::MethodCall<flutter::EncodableValue> &method_call,
+        std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+  };
 
-  channel->SetMethodCallHandler(
-      [plugin_pointer = plugin.get()](const auto &call, auto result) {
-        plugin_pointer->HandleMethodCall(call, std::move(result));
-      });
+  // static
+  void FlutterJsPlugin::RegisterWithRegistrar(
+      flutter::PluginRegistrarWindows *registrar)
+  {
+    auto channel =
+        std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+            registrar->messenger(), "io.abner.flutter_js",
+            &flutter::StandardMethodCodec::GetInstance());
 
-  registrar->AddPlugin(std::move(plugin));
-}
+    auto plugin = std::make_unique<FlutterJsPlugin>();
 
-std::map<int,qjs::Context*> jsEngineMap;
+    channel->SetMethodCallHandler(
+        [plugin_pointer = plugin.get()](const auto &call, auto result) {
+          plugin_pointer->HandleMethodCall(call, std::move(result));
+        });
 
-FlutterJsPlugin::FlutterJsPlugin() {}
-
-FlutterJsPlugin::~FlutterJsPlugin() {
-  jsEngineMap.clear();
-}
-
-// Looks for |key| in |map|, returning the associated value if it is present, or
-// a Null EncodableValue if not.
-const flutter::EncodableValue &ValueOrNull(const flutter::EncodableMap &map, const char *key) {
-  static flutter::EncodableValue null_value;
-  auto it = map.find(flutter::EncodableValue(key));
-  if (it == map.end()) {
-    return null_value;
+    registrar->AddPlugin(std::move(plugin));
   }
-  return it->second;
-}
 
-void FlutterJsPlugin::HandleMethodCall(
-    const flutter::MethodCall<flutter::EncodableValue> &method_call,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  // Replace "getPlatformVersion" check with your plugin's method.
-  // See:
-  // https://github.com/flutter/engine/tree/master/shell/platform/common/cpp/client_wrapper/include/flutter
-  // and
-  // https://github.com/flutter/engine/tree/master/shell/platform/glfw/client_wrapper/include/flutter
-  // for the relevant Flutter APIs.
-  if (method_call.method_name().compare("getPlatformVersion") == 0) {
-    std::ostringstream version_stream;
-    version_stream << "Windows ";
-    if (IsWindows10OrGreater()) {
-      version_stream << "10+";
-    } else if (IsWindows8OrGreater()) {
-      version_stream << "8";
-    } else if (IsWindows7OrGreater()) {
-      version_stream << "7";
-    }
-    flutter::EncodableValue response(version_stream.str());
-    result->Success(&response);
-  } else if (method_call.method_name().compare("initEngine") == 0) {
-    int engineId = method_call.arguments()->IntValue();
-    std::cout << engineId << std::endl;
-    qjs::Runtime* runtime = new qjs::Runtime();
-    qjs::Context* context = new qjs::Context(*runtime);
-    jsEngineMap[engineId] = context;
-    flutter::EncodableValue response(engineId);
-    result->Success(&response);
-  } else if (method_call.method_name().compare("evaluate") == 0) {
-    flutter::EncodableMap args = method_call.arguments()->MapValue();
-    std::string command = ValueOrNull(args, "command").StringValue();
-    int engineId = ValueOrNull(args, "engineId").IntValue();
-    auto ctx = jsEngineMap.at(engineId);
-    try
+  std::map<int, qjs::Context *> jsEngineMap;
+
+  FlutterJsPlugin::FlutterJsPlugin() {}
+
+  FlutterJsPlugin::~FlutterJsPlugin()
+  {
+    jsEngineMap.clear();
+  }
+
+  // Looks for |key| in |map|, returning the associated value if it is present, or
+  // a Null EncodableValue if not.
+  const flutter::EncodableValue &ValueOrNull(const flutter::EncodableMap &map, const char *key)
+  {
+    static flutter::EncodableValue null_value;
+    auto it = map.find(flutter::EncodableValue(key));
+    if (it == map.end())
     {
-      auto resultJS = ctx->eval(command);
-      flutter::EncodableValue response(resultJS.toJSON());
+      return null_value;
+    }
+    return it->second;
+  }
+
+  void FlutterJsPlugin::HandleMethodCall(
+      const flutter::MethodCall<flutter::EncodableValue> &method_call,
+      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result)
+  {
+    // Replace "getPlatformVersion" check with your plugin's method.
+    // See:
+    // https://github.com/flutter/engine/tree/master/shell/platform/common/cpp/client_wrapper/include/flutter
+    // and
+    // https://github.com/flutter/engine/tree/master/shell/platform/glfw/client_wrapper/include/flutter
+    // for the relevant Flutter APIs.
+    if (method_call.method_name().compare("getPlatformVersion") == 0)
+    {
+      std::ostringstream version_stream;
+      version_stream << "Windows ";
+      if (IsWindows10OrGreater())
+      {
+        version_stream << "10+";
+      }
+      else if (IsWindows8OrGreater())
+      {
+        version_stream << "8";
+      }
+      else if (IsWindows7OrGreater())
+      {
+        version_stream << "7";
+      }
+      flutter::EncodableValue response(version_stream.str());
       result->Success(&response);
     }
-    catch(qjs::exception)
+    else if (method_call.method_name().compare("initEngine") == 0)
     {
-      auto exc = ctx->getException();
-      std::string err = (std::string) exc;
-      if((bool) exc["stack"])
-            err += "\n" + (std::string) exc["stack"];
-      std::cerr << err << std::endl;
-      result->Error("FlutterJSException", err);
+      int engineId = method_call.arguments()->IntValue();
+      std::cout << engineId << std::endl;
+      qjs::Runtime *runtime = new qjs::Runtime();
+      qjs::Context *context = new qjs::Context(*runtime);
+      // export classes as a module
+      // auto &module = context->addModule("HTTPMoudle");
+      // module.class_<HTTP>("HTTPClass")
+      //     .constructor<>()
+      //     .fun<&HTTP::get>("get");
+      // // import module
+      // context->eval("import * as httpMoudle from 'HTTPMoudle'; globalThis.HTTPMoudle = HTTPMoudle;", "<import>", JS_EVAL_TYPE_MODULE);
+      // // evaluate js code
+      // context->eval("var http = {};http.get = new httpMoudle.HTTPClass().get");
+      jsEngineMap[engineId] = context;
+      flutter::EncodableValue response(engineId);
+      result->Success(&response);
     }
-  } else if (method_call.method_name().compare("close") == 0) {
-    flutter::EncodableMap args = method_call.arguments()->MapValue();
-    int engineId = ValueOrNull(args, "engineId").IntValue();
-    if(jsEngineMap.count(engineId)) {
-      delete jsEngineMap.at(engineId);
-      jsEngineMap.erase(engineId);
+    else if (method_call.method_name().compare("evaluate") == 0)
+    {
+      flutter::EncodableMap args = method_call.arguments()->MapValue();
+      std::string command = ValueOrNull(args, "command").StringValue();
+      int engineId = ValueOrNull(args, "engineId").IntValue();
+      auto ctx = jsEngineMap.at(engineId);
+      try
+      {
+        auto resultJS = ctx->eval(command);
+        flutter::EncodableValue response(resultJS.toJSON());
+        result->Success(&response);
+      }
+      catch (qjs::exception)
+      {
+        auto exc = ctx->getException();
+        std::string err = (std::string)exc;
+        if ((bool)exc["stack"])
+          err += "\n" + (std::string)exc["stack"];
+        std::cerr << err << std::endl;
+        result->Error("FlutterJSException", err);
+      }
     }
-  } else {
-    result->NotImplemented();
+    else if (method_call.method_name().compare("close") == 0)
+    {
+      flutter::EncodableMap args = method_call.arguments()->MapValue();
+      int engineId = ValueOrNull(args, "engineId").IntValue();
+      if (jsEngineMap.count(engineId))
+      {
+        delete jsEngineMap.at(engineId);
+        jsEngineMap.erase(engineId);
+      }
+    }
+    else
+    {
+      result->NotImplemented();
+    }
   }
-}
 
-}  // namespace
+} // namespace
 
 void FlutterJsPluginRegisterWithRegistrar(
-    FlutterDesktopPluginRegistrarRef registrar) {
+    FlutterDesktopPluginRegistrarRef registrar)
+{
   FlutterJsPlugin::RegisterWithRegistrar(
       flutter::PluginRegistrarManager::GetInstance()
           ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
