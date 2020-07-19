@@ -130,8 +130,7 @@ namespace
       qjs::Context *context = new qjs::Context(*runtime);
       // export classes as a module
       auto &module = context->addModule("WindowsBaseMoudle");
-      module.function<&println>("println")
-          .function<&httpGet>("httpGet");
+      module.function<&println>("println").function<&httpGet>("httpGet");
       // import module
       context->eval("import * as windowsBaseMoudle from 'WindowsBaseMoudle';"
                     "globalThis.windowsBaseMoudle = windowsBaseMoudle;",
