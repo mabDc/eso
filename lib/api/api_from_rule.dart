@@ -146,7 +146,9 @@ class APIFromRUle implements API {
       }
       final chapterUrl = res.request.url.toString();
       final reversed = rule.chapterList.startsWith("-");
-      engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
+      if (engineId == null) {
+        engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
+      }
       try {
         final list = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
@@ -201,7 +203,9 @@ class APIFromRUle implements API {
         break;
       }
       final contentUrl = res.request.url.toString();
-      engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
+      if (engineId == null) {
+        engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
+      }
       try {
         final list = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)

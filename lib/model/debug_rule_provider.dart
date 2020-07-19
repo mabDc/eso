@@ -307,7 +307,9 @@ class DebugRuleProvider with ChangeNotifier {
         if (reversed) {
           _addContent("检测规则以\"-\"开始, 结果将反序");
         }
-        engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
+        if (engineId == null) {
+          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
+        }
         final chapterList = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
@@ -412,7 +414,9 @@ class DebugRuleProvider with ChangeNotifier {
         }
         final contentUrl = res.request.url.toString();
         _addContent("地址", contentUrl, true);
-        engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
+        if (engineId == null) {
+          engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
+        }
         var contentItems = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
             .getStringList(rule.contentItems);
