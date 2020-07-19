@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
@@ -148,6 +150,8 @@ class APIFromRUle implements API {
       final reversed = rule.chapterList.startsWith("-");
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
+      } else {
+        await FlutterJs.evaluate("baseUrl = ${jsonEncode(chapterUrl)}", engineId);
       }
       try {
         final list = await AnalyzerManager(
@@ -205,6 +209,8 @@ class APIFromRUle implements API {
       final contentUrl = res.request.url.toString();
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
+      } else {
+        await FlutterJs.evaluate("baseUrl = ${jsonEncode(contentUrl)}", engineId);
       }
       try {
         final list = await AnalyzerManager(

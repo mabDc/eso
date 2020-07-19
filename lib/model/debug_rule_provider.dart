@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_const.dart';
 import 'package:eso/database/rule.dart';
@@ -309,6 +311,8 @@ class DebugRuleProvider with ChangeNotifier {
         }
         if (engineId == null) {
           engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
+        } else {
+          await FlutterJs.evaluate("baseUrl = ${jsonEncode(chapterUrl)}", engineId);
         }
         final chapterList = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
@@ -416,6 +420,8 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("地址", contentUrl, true);
         if (engineId == null) {
           engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
+        } else {
+          await FlutterJs.evaluate("baseUrl = ${jsonEncode(contentUrl)}", engineId);
         }
         var contentItems = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
