@@ -7,7 +7,7 @@ import 'package:flutter_js/flutter_js.dart';
 import '../global.dart';
 
 class APIConst {
-  static final pagePattern = RegExp(r"""(^|[^a-zA-Z'"])page([^a-zA-Z0-9'"]|$)""");
+  static final pagePattern = RegExp(r"""(^|[^a-zA-Z'"_/])page([^a-zA-Z0-9'"]|$)""");
   static Future<int> initJSEngine(Rule rule, String baseUrl,
       {String lastResult = "", int engineId}) async {
     engineId = await FlutterJs.initEngine(engineId);
