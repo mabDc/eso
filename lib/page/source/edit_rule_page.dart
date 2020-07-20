@@ -38,49 +38,63 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   final inputList = [
     {
       'encoding': '"encoding":"gbk"',
-      'get-referer': r'''{
-  "url": "/xx",
-  "headers":{
-    "referer":"xx"
-  },
+      'get-gbk': r'''{
+    "url": "/modules/article/search.php?searchkey=$keyword&searchtype=articlename&page=$page",
+    "encoding": "gbk"
 }''',
-      'post-json': r'''@js:
-(() => {
-  var url = "/xx";
-  var method = "post";
-  var body = JSON.stringify({
-    "a": "b",
-    "c": "d"
-  });
-  var headers = {
-    //这里设置body为json, 如果需要gbk编码必须这里charset也改为gbk
-    "content-type": "application/json; charset=utf-8"
-  };
-  return {url, method, body, headers};
-})();''',
-      'post-form1': r'''@js:
-(() => {
-  var url = "/xx";
-  var method = "post";
-  var body = "a=b&c=d";
-  var headers = {
-    //这里设置body为表单, 如果需要gbk编码必须这里charset也改为gbk
-    "content-type":" application/x-www-form-urlencoded; charset=utf-8"
-  };
-  return {url, method, body, headers};
-})();''',
-      'post-form2': r'''@js:
-(() => {
-  var url = "/xx";
-  var method = "post";
-  // 键对形式设置body，不需要headers中指明类型
-  var body = {
-    "a": "b",
-    "c": "d"
-  };
-  var headers = {};
-  return {url, method, body, headers};
-})();''',
+      'get-headers': r'''{
+    "url": "/modules/article/search.php?searchkey=$keyword&searchtype=articlename&page=$page",
+    "headers":{
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40"
+    }
+}''',
+      'post-form1': r'''{
+    "url": "/modules/article/search.php",
+    "method": "POST",
+    "body": "searchkey=$keyword&searchtype=articlename",
+    "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+}''',
+      'post-form2': r'''{
+    "url": "/modules/article/search.php",
+    "method": "POST",
+    "body": {
+        "searchkey": "$keyword",
+        "searchtype": "articlename"
+    }
+}''',
+      'post-json': r'''{
+    "url": "/modules/article/search.php",
+    "method": "POST",
+    "body": "{\"searchkey\": \"$keyword\",\"searchtype\": \"articlename\"}",
+    "headers":{
+        "Content-Type": "application/json"
+    }
+}''',
+      'post-json-by-js': r'''@js:
+({
+    "url": "/modules/article/search.php",
+    "method": "POST",
+    "body": JSON.stringify({
+        "searchkey": keyword,
+        "searchtype": "articlename"
+    }),
+    "headers":{
+        "Content-Type": "application/json"
+    }
+})''',
+      'post-headers': r'''{
+    "url": "/modules/article/search.php",
+    "method": "POST",
+    "body": "searchkey=$keyword&searchtype=articlename",
+    "headers": {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40"
+    }
+}''',
       'xpath_class': '//*[@class="xx"]',
       'xpath_id': '//*[@id="xx"]',
       'match': "result.match(/xx/)[0];",
