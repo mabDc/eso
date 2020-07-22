@@ -172,6 +172,13 @@ class AnalyzerManager {
     for (final r in splitRuleReversed(rule).reversed) {
       r.analyzer.parse(temp);
       temp = await _getStringList(r);
+      if (r.replace.isNotEmpty) {
+        if (temp is List) {
+          temp = replaceSmart(r.replace)(temp.join("\n"));
+        } else {
+          temp = replaceSmart(r.replace)("$temp");
+        }
+      }
     }
     if (temp is List) {
       result = temp
