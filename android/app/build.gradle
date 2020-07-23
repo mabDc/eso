@@ -54,7 +54,7 @@ android {
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        archivesBaseName = "ESO_${versionName}_${versionCode}"
+        outputFileName = "ESO-$versionName-$versionCode"
     }
 
     buildTypes {
