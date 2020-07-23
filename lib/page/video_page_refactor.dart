@@ -407,7 +407,9 @@ class VideoPageProvider with ChangeNotifier {
     _disposed = false;
     if (!Utils.isDesktop) {
       SizeUtils.updateMediaData();
-      _originalScreenAxis = SizeUtils.screenWidth > SizeUtils.screenHeight ? Axis.horizontal : Axis.vertical;
+      _originalScreenAxis = SizeUtils.screenWidth > SizeUtils.screenHeight
+          ? Axis.horizontal
+          : Axis.vertical;
     }
     setHorizontal();
     parseContent(null);
@@ -442,7 +444,7 @@ class VideoPageProvider with ChangeNotifier {
     try {
       _content = await APIManager.getContent(searchItem.originTag,
           searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex].url);
-      if (_content.isEmpty) {
+      if (_content.isEmpty || _content.first.isEmpty) {
         _content = null;
         _isLoading = null;
         loadingText.add("错误 内容为空！");
@@ -451,6 +453,14 @@ class VideoPageProvider with ChangeNotifier {
         return;
       }
       if (_disposed) return;
+      if (Platform.isWindows) {
+        loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
+        loadingText.add("windows下将自动跳转浏览器播放，也可以手动点击左下角[使用其他播放器打开]");
+        notifyListeners();
+        launch("http://www.m3u8player.top/?play=${content[0]}");
+        _isLoading = null;
+        return;
+      }
       loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
       loadingText.add("获取视频信息...");
       notifyListeners();
@@ -564,6 +574,10 @@ class VideoPageProvider with ChangeNotifier {
 
   void openInNew() {
     if (_disposed || _content == null) return;
+    if (Platform.isWindows) {
+      launch("http://www.m3u8player.top/?play=${content[0]}");
+      return;
+    }
     _controllerTime = DateTime.now();
     launch(_content[0]);
   }
