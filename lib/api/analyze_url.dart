@@ -83,7 +83,7 @@ cookie = ${jsonEncode(rule.cookies)};
       url = url.trim();
       if (url.isEmpty) return nosslClient.get(rule.host);
       if (url.startsWith("{")) {
-        url = jsonDecode((url as String).replaceAll("\n", ""));
+        url = jsonDecode(url);
       }
     }
     if (url is Map) {
