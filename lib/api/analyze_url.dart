@@ -1,25 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:fast_gbk/fast_gbk.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
+import 'package:http/http.dart' as originalHttp;
+import 'analyze_url_client.dart' as http;
 
 import '../global.dart';
 
 class AnalyzeUrl {
-  static http.Client get nosslClient {
-    // 自定义证书验证
-    var ioClient = HttpClient()..badCertificateCallback = (_, __, ___) => true;
-    // 自定义代理
-    // ioClient.findProxy = (_) => "";
-    return IOClient(ioClient);
-  }
-
-  static Future<http.Response> urlRuleParser(
+  static Future<originalHttp.Response> urlRuleParser(
     String url,
     Rule rule, {
     String keyword = "",
@@ -78,10 +69,11 @@ cookie = ${jsonEncode(rule.cookies)};
     }
   }
 
-  static Future<http.Response> _parser(dynamic url, Rule rule, String keyword) async {
+  static Future<originalHttp.Response> _parser(
+      dynamic url, Rule rule, String keyword) async {
     if (url is String) {
       url = url.trim();
-      if (url.isEmpty) return nosslClient.get(rule.host);
+      if (url.isEmpty) return http.get(rule.host);
       if (url.startsWith("{")) {
         url = jsonDecode(url);
       }
@@ -131,10 +123,10 @@ cookie = ${jsonEncode(rule.cookies)};
                 .join());
       }
       if (method == null || method == 'get') {
-        return nosslClient.get(u, headers: headers);
+        return http.get(u, headers: headers);
       }
       if (method == 'post') {
-        return nosslClient.post(
+        return http.post(
           u,
           headers: headers,
           body: body,
@@ -157,7 +149,7 @@ cookie = ${jsonEncode(rule.cookies)};
       } else if (u.startsWith("/")) {
         u = rule.host + u;
       }
-      return nosslClient.get(u, headers: {
+      return http.get(u, headers: {
         'user-agent': rule.userAgent.trim().isNotEmpty
             ? rule.userAgent
             : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
