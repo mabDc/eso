@@ -2,14 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class DecodeBody {
+  final charsetPattern = RegExp("charset", caseSensitive: false);
+  final charsetValuePattern =
+      RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""", caseSensitive: false);
   String decode(Uint8List bodyBytes, String contentType) {
     if (bodyBytes == null || bodyBytes.isEmpty) return '';
     if (contentType != null) {
-      if (contentType.contains("charset")) {
-        final charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
-            .firstMatch(contentType)
-            .group(1)
-            .toLowerCase();
+      if (contentType.contains(charsetPattern)) {
+        final charset =
+            charsetValuePattern.firstMatch(contentType).group(1).toLowerCase();
         if (charset.contains("gb")) {
           final sb = StringBuffer();
           _writeGBK(sb, bodyBytes);
@@ -26,7 +27,7 @@ class DecodeBody {
           return latin1.decode(bodyBytes, allowInvalid: true);
         }
         return encoding.decode(bodyBytes);
-      }else if(contentType.contains("json")){
+      } else if (contentType.contains("json")) {
         return utf8.decode(bodyBytes);
       }
     }
@@ -52,15 +53,12 @@ class DecodeBody {
     if (temp.trimLeft().startsWith("{") || temp.trimLeft().startsWith("[")) {
       return temp + utf8.decode(leftBytes, allowMalformed: true);
     }
-    if (temp.contains('charset')) {
-      charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
-          .firstMatch(temp)
-          .group(1)
-          .toLowerCase();
+    if (temp.contains(charsetPattern)) {
+      charset = charsetValuePattern.firstMatch(temp).group(1).toLowerCase();
     } else {
       temp += utf8.decode(leftBytes, allowMalformed: true);
-      if (temp.contains('charset')) {
-        charset = RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""")
+      if (temp.contains(charsetPattern)) {
+        charset = charsetValuePattern
             .firstMatch(temp)
             .group(1)
             .toLowerCase();

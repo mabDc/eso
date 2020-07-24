@@ -278,69 +278,82 @@ class DebugRuleProvider with ChangeNotifier {
     }
   }
 
+  final oneTimeHttp = 2;
+
   void parseChapter(String result) async {
     _beginEvent("目录");
     int engineId;
     dynamic firstChapter;
-    for (var page = 1;; page++) {
-      if (disposeFlag) return;
-      final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
-      if (page > 1) {
-        if (!chapterUrlRule.contains(APIConst.pagePattern)) {
-          break;
-        } else {
-          _addContent("解析第$page页");
-        }
-      }
-      try {
-        final res = await AnalyzeUrl.urlRuleParser(
-          chapterUrlRule,
-          rule,
-          result: result,
-          page: page,
-        );
-        if (res.contentLength == 0) {
-          _addContent("响应内容为空，终止解析！");
-          break;
-        }
-        final chapterUrl = res.request.url.toString();
-        _addContent("地址", chapterUrl, true);
-        final reversed = rule.chapterList.startsWith("-");
-        if (reversed) {
-          _addContent("检测规则以\"-\"开始, 结果将反序");
-        }
-        if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
-        } else {
-          await FlutterJs.evaluate("baseUrl = ${jsonEncode(chapterUrl)}", engineId);
-        }
-        final chapterList = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
-            .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
-        final count = chapterList.length;
-        if (count == 0) {
-          _addContent("章节列表个数为0，解析结束！");
-          break;
-        } else {
-          _addContent("个数", count.toString());
-          if (firstChapter == null) {
-            firstChapter = reversed ? chapterList.last : chapterList.first;
+    var loopPage = 1;
+    var loopFlag = true;
+    while (loopFlag) {
+      await Future.wait(List.generate(oneTimeHttp, (i) async {
+        final page = loopPage + i;
+        if (disposeFlag) return;
+        final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
+        if (page > 1) {
+          if (!chapterUrlRule.contains(APIConst.pagePattern)) {
+            loopFlag = false;
+            return;
+          } else {
+            _addContent("解析第$page页");
           }
         }
-      } catch (e) {
-        rows.add(Row(
-          children: [
-            Flexible(
-              child: SelectableText(
-                "$e\n",
-                style: TextStyle(color: Colors.red, height: 2),
-              ),
-            )
-          ],
-        ));
-        _addContent("解析结束！");
-        break;
-      }
+        try {
+          final res = await AnalyzeUrl.urlRuleParser(
+            chapterUrlRule,
+            rule,
+            result: result,
+            page: page,
+          );
+          if (res.contentLength == 0) {
+            _addContent("响应内容为空，终止解析！");
+            loopFlag = false;
+            return;
+          }
+          final chapterUrl = res.request.url.toString();
+          _addContent("地址", chapterUrl, true);
+          final reversed = rule.chapterList.startsWith("-");
+          if (reversed) {
+            _addContent("检测规则以\"-\"开始, 结果将反序");
+          }
+          if (engineId == null) {
+            engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
+          } else {
+            await FlutterJs.evaluate("baseUrl = ${jsonEncode(chapterUrl)}", engineId);
+          }
+          final chapterList = await AnalyzerManager(
+                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                  engineId)
+              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+          final count = chapterList.length;
+          if (count == 0) {
+            _addContent("章节列表个数为0，解析结束！");
+            loopFlag = false;
+            return;
+          } else {
+            _addContent("个数", count.toString());
+            if (firstChapter == null && page == 1) {
+              firstChapter = reversed ? chapterList.last : chapterList.first;
+            }
+          }
+        } catch (e) {
+          rows.add(Row(
+            children: [
+              Flexible(
+                child: SelectableText(
+                  "$e\n",
+                  style: TextStyle(color: Colors.red, height: 2),
+                ),
+              )
+            ],
+          ));
+          _addContent("解析结束！");
+          loopFlag = false;
+          return;
+        }
+      }));
+      loopPage += oneTimeHttp;
     }
     if (firstChapter != null) {
       parseFirstChapter(firstChapter, engineId);
