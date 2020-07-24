@@ -119,6 +119,7 @@ class DebugRuleProvider with ChangeNotifier {
       final discoverUrl = discoverResult.request.url.toString();
       _addContent("地址", discoverUrl, true);
       engineId = await APIConst.initJSEngine(rule, discoverUrl);
+      await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
       _addContent("初始化js");
       final analyzer = AnalyzerManager(
           DecodeBody()
@@ -210,6 +211,7 @@ class DebugRuleProvider with ChangeNotifier {
       final searchUrl = searchResult.request.url.toString();
       _addContent("地址", searchUrl, true);
       engineId = await APIConst.initJSEngine(rule, searchUrl);
+      await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
       _addContent("初始化js");
       final analyzer = AnalyzerManager(
           DecodeBody()
@@ -319,8 +321,11 @@ class DebugRuleProvider with ChangeNotifier {
           }
           if (engineId == null) {
             engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
+            await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
           } else {
-            await FlutterJs.evaluate("baseUrl = ${jsonEncode(chapterUrl)}", engineId);
+            await FlutterJs.evaluate(
+                "baseUrl = ${jsonEncode(chapterUrl)};page = ${jsonEncode(page)};",
+                engineId);
           }
           final chapterList = await AnalyzerManager(
                   DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
@@ -433,8 +438,11 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("地址", contentUrl, true);
         if (engineId == null) {
           engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
+          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
         } else {
-          await FlutterJs.evaluate("baseUrl = ${jsonEncode(contentUrl)}", engineId);
+          await FlutterJs.evaluate(
+              "baseUrl = ${jsonEncode(contentUrl)};page = ${jsonEncode(page)};",
+              engineId);
         }
         var contentItems = await AnalyzerManager(
                 DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
