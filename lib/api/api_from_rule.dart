@@ -57,6 +57,7 @@ class APIFromRUle implements API {
     }
     final discoverUrl = res.request.url.toString();
     final engineId = await APIConst.initJSEngine(rule, discoverUrl);
+    await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
     final list = await AnalyzerManager(
             DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
         .getElements(rule.discoverList);
@@ -102,6 +103,7 @@ class APIFromRUle implements API {
     }
     final searchUrl = res.request.url.toString();
     final engineId = await APIConst.initJSEngine(rule, searchUrl, engineId: _engineId);
+    await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
     final list = await AnalyzerManager(
             DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
         .getElements(rule.searchList);
@@ -151,7 +153,8 @@ class APIFromRUle implements API {
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
       } else {
-        await FlutterJs.evaluate("baseUrl = ${jsonEncode(chapterUrl)}", engineId);
+        await FlutterJs.evaluate(
+            "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};", engineId);
       }
       try {
         final list = await AnalyzerManager(
@@ -210,7 +213,8 @@ class APIFromRUle implements API {
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
       } else {
-        await FlutterJs.evaluate("baseUrl = ${jsonEncode(contentUrl)}", engineId);
+        await FlutterJs.evaluate(
+            "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};", engineId);
       }
       try {
         final list = await AnalyzerManager(
