@@ -134,7 +134,7 @@ class APIFromRUle implements API {
 
   @override
   Future<List<ChapterItem>> chapter(final String url) async {
-    final result = <List<ChapterItem>>[];
+    final result = <ChapterItem>[];
     int engineId;
     for (var page = 1;; page++) {
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
@@ -183,7 +183,7 @@ class APIFromRUle implements API {
               lock != "0") {
             name = "🔒" + name;
           }
-          result[page - 1].add(ChapterItem(
+          result.add(ChapterItem(
             cover: await analyzer.getString(rule.chapterCover),
             name: name,
             time: await analyzer.getString(rule.chapterTime),
@@ -195,7 +195,7 @@ class APIFromRUle implements API {
       }
     }
     FlutterJs.close(engineId);
-    return result.expand((element) => element).toList();
+    return result;
   }
 
   @override
