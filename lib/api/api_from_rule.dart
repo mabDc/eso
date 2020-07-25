@@ -19,8 +19,6 @@ class APIFromRUle implements API {
   String _originTag;
   int _ruleContentType;
   int _engineId;
-  final largeSpaceRegExp = RegExp(r"\n+\s*|\s{2,}");
-  final tagsSplitRegExp = RegExp(r"[　 ,\|\&\%]+");
 
   @override
   String get origin => _origin;
@@ -67,13 +65,13 @@ class APIFromRUle implements API {
       final tag = await analyzer.getString(rule.discoverTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
-        tags = tag.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
+        tags = tag.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
         cover: await analyzer.getString(rule.discoverCover),
         name: (await analyzer.getString(rule.discoverName))
             .trim()
-            .replaceAll(largeSpaceRegExp, Global.fullSpace),
+            .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace),
         author: await analyzer.getString(rule.discoverAuthor),
         chapter: await analyzer.getString(rule.discoverChapter),
         description: await analyzer.getString(rule.discoverDescription),
@@ -113,13 +111,13 @@ class APIFromRUle implements API {
       final tag = await analyzer.getString(rule.searchTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
-        tags = tag.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
+        tags = tag.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
         cover: await analyzer.getString(rule.searchCover),
         name: (await analyzer.getString(rule.searchName))
             .trim()
-            .replaceAll(largeSpaceRegExp, Global.fullSpace),
+            .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace),
         author: await analyzer.getString(rule.searchAuthor),
         chapter: await analyzer.getString(rule.searchChapter),
         description: await analyzer.getString(rule.searchDescription),
@@ -172,7 +170,7 @@ class APIFromRUle implements API {
           // final unLock = await analyzer.getString(rule.chapterUnLock);
           var name = (await analyzer.getString(rule.chapterName))
               .trim()
-              .replaceAll(largeSpaceRegExp, Global.fullSpace);
+              .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace);
           // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
           //   name = "🔓" + name;
           // }else

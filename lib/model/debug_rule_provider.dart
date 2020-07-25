@@ -150,8 +150,6 @@ class DebugRuleProvider with ChangeNotifier {
     }
   }
 
-  final tagsSplitRegExp = RegExp(r"[　 ,\|\&\%]+");
-
   void parseFirstDiscover(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
     try {
@@ -165,8 +163,10 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("简介", await analyzer.getString(rule.discoverDescription));
       final tags = await analyzer.getString(rule.discoverTags);
       if (tags != null && tags.trim().isNotEmpty) {
-        _addContent("标签",
-            (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
+        _addContent(
+            "标签",
+            (tags.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty))
+                .join(", "));
       } else {
         _addContent("标签", "");
       }
@@ -255,8 +255,10 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("简介", await analyzer.getString(rule.searchDescription));
       final tags = await analyzer.getString(rule.searchTags);
       if (tags != null && tags.trim().isNotEmpty) {
-        _addContent("标签",
-            (tags.split(tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty)).join(", "));
+        _addContent(
+            "标签",
+            (tags.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty))
+                .join(", "));
       } else {
         _addContent("标签", "");
       }
