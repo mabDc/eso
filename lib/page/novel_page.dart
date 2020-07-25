@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:io';
 
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
@@ -17,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'package:eso_plugin/eso_plugin.dart';
+// import 'package:eso_plugin/eso_plugin.dart';
 
 /// 文字阅读页面
 class NovelPage extends StatefulWidget {
@@ -32,7 +31,7 @@ class _NovelPageState extends State<NovelPage> {
   final SearchItem searchItem;
   _NovelPageState(this.searchItem): super();
 
-  VolumeChangeEvent onVolumeInc, onVolumeDec;
+  // VolumeChangeEvent onVolumeInc, onVolumeDec;
 
   @override
   void initState() {
@@ -41,8 +40,8 @@ class _NovelPageState extends State<NovelPage> {
 
   @override
   void dispose() {
-    EsoPlugin.captureVolumeKeyboard(false, onVolumeInc: onVolumeInc,
-        onVolumeDec: onVolumeDec);
+    // EsoPlugin.captureVolumeKeyboard(false, onVolumeInc: onVolumeInc,
+    //     onVolumeDec: onVolumeDec);
     super.dispose();
   }
 
@@ -70,18 +69,18 @@ class _NovelPageState extends State<NovelPage> {
             Global.lightness(Color(profile.novelBackgroundColor));
 
             // 音量键翻页 仅安卓
-            if(Platform.isAndroid){
-              if (onVolumeDec == null) onVolumeDec = (v) {
-                provider.tapNextPage();
-              };
-              if (onVolumeInc == null) onVolumeInc = (v) {
-                provider.tapLastPage();
-              };
-            }
+            // if(Platform.isAndroid){
+            //   if (onVolumeDec == null) onVolumeDec = (v) {
+            //     provider.tapNextPage();
+            //   };
+            //   if (onVolumeInc == null) onVolumeInc = (v) {
+            //     provider.tapLastPage();
+            //   };
+            // }
 
-            final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
-            EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage,
-                onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
+            // final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
+            // EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage,
+            //     onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
 
             return RawKeyboardListener(
               focusNode: _backNode,

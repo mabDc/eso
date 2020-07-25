@@ -533,15 +533,6 @@ class NovelPageProvider with ChangeNotifier {
     tp.text = TextSpan(children: currentSpans, style: commonStyle);
     tp.layout(maxWidth: width);
     var currentHeight = tp.height;
-    if ((__profile.novelTitlePadding ?? 0) > 0) {
-      currentSpans.add(TextSpan(
-        children: [
-          _buildHeightSpan(__profile.novelTitlePadding),
-          newLine,
-        ]
-      ));
-      currentHeight = currentHeight + __profile.novelTitlePadding;
-    }
     tp.maxLines = 1;
     bool firstLine = true;
     final indentation = Global.fullSpace * __profile.novelIndentation;

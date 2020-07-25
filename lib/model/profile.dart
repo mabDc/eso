@@ -46,7 +46,6 @@ class Profile with ChangeNotifier {
             'mangaDirection': mangaDirectionTopToBottom,
             'searchCount': 10,
             'searchOption': SearchOption.Normal.index,
-            'novelTitlePadding': 40.0,
           }
         : jsonDecode(source);
     fromJson(json);
@@ -77,7 +76,6 @@ class Profile with ChangeNotifier {
   double _novelTopPadding;
   double _novelLeftPadding;
   double _novelParagraphPadding;
-  double _novelTitlePadding;
   int _novelPageSwitch;
   int _novelIndentation;
   int _novelBackgroundColor;
@@ -109,7 +107,6 @@ class Profile with ChangeNotifier {
   double get novelTopPadding => _novelTopPadding;
   double get novelLeftPadding => _novelLeftPadding;
   double get novelParagraphPadding => _novelParagraphPadding;
-  double get novelTitlePadding => _novelTitlePadding;
   int get novelPageSwitch => _novelPageSwitch;
   int get novelIndentation => _novelIndentation;
   int get novelBackgroundColor => _novelBackgroundColor;
@@ -297,13 +294,6 @@ class Profile with ChangeNotifier {
   set novelFontColor(int value) {
     if (value != _novelFontColor) {
       _novelFontColor = value;
-      _saveProfile();
-    }
-  }
-
-  set novelTitlePadding(double value) {
-    if ((value - _novelTitlePadding).abs() > 0.1) {
-      _novelTitlePadding = value;
       _saveProfile();
     }
   }
@@ -505,7 +495,6 @@ class Profile with ChangeNotifier {
     _novelTopPadding = json["novelTopPadding"] ?? 5.0;
     _novelLeftPadding = json["novelLeftPadding"] ?? 15.0;
     _novelParagraphPadding = json["novelParagraphPadding"] ?? 20.0;
-    _novelTitlePadding = json["novelTitlePadding"] ?? 40.0;
     _novelPageSwitch = json["novelPageSwitch"] ?? novelScroll;
     _novelIndentation = json["novelIndentation"] ?? 2;
     _novelKeepOn = json["novelKeepOn"] ?? false;
@@ -554,7 +543,6 @@ class Profile with ChangeNotifier {
         'novelTopPadding': _novelTopPadding,
         'novelLeftPadding': _novelLeftPadding,
         'novelParagraphPadding': _novelParagraphPadding,
-        'novelTitlePadding': _novelTitlePadding,
         'novelPageSwitch': _novelPageSwitch,
         'novelIndentation': _novelIndentation,
       };

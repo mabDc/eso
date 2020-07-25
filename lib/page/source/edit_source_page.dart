@@ -331,32 +331,34 @@ class _EditSourcePageState extends State<EditSourcePage> {
   }
 
   Future<void> _sortList(BuildContext context, EditSourceProvider provider) async {
-    showDialog(context: context, builder: (context) {
-      final _txtStyle = TextStyle(fontSize: 18);
-      final _list = {
-        '按类型': SourceSortType.type,
-        '按名称': SourceSortType.name,
-        '按作者': SourceSortType.author,
-        '按修改时间': SourceSortType.updateTime,
-        '按创建时间': SourceSortType.createTime
-      };
-      final _listViews = <Widget>[];
-      _list.forEach((key, value) {
-        _listViews.add(ListTile(
-          title: Text(key, style: _txtStyle),
-          dense: true,
-          onTap: () => provider.sort(value),
-        ));
-      });
-      return AlertDialog(
-        contentPadding: EdgeInsets.all(6),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: _listViews,
-          ),
-        ),
-      );
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          final _txtStyle = TextStyle(fontSize: 18);
+          final _list = {
+            '按类型': SourceSortType.type,
+            '按名称': SourceSortType.name,
+            '按作者': SourceSortType.author,
+            '按修改时间': SourceSortType.updateTime,
+            '按创建时间': SourceSortType.createTime
+          };
+          final _listViews = <Widget>[];
+          _list.forEach((key, value) {
+            _listViews.add(ListTile(
+              title: Text(key, style: _txtStyle),
+              dense: true,
+              onTap: () => provider.sort(value),
+            ));
+          });
+          return AlertDialog(
+            contentPadding: EdgeInsets.all(6),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: _listViews,
+              ),
+            ),
+          );
+        });
   }
 
   Future<bool> _addFromClipBoard(
@@ -400,9 +402,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
       // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
-      {'title': '-'},
       {'title': '排序', 'icon': Icons.sort_by_alpha, 'type': SORT_LIST},
-      {'title': '-'},
       {'title': '清空源', 'icon': FIcons.x_circle, 'type': DELETE_ALL_RULES},
     ];
     return PopupMenuButton<int>(
@@ -440,25 +440,21 @@ class _EditSourcePageState extends State<EditSourcePage> {
           default:
         }
       },
-      itemBuilder: (context) => list
-          .map(
-            (element) {
-              final _isDivider = element['title'] == '-';
-              return PopupMenuItem<int>(
-                height: _isDivider ? 4 : 45,
-                enabled: !_isDivider,
-                child: _isDivider ? Divider() : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(element['title']),
-                    Icon(element['icon'], color: primaryColor),
-                  ],
-                ),
-                value: element['type'],
-              );
-            },
-          )
-          .toList(),
+      itemBuilder: (context) => list.map(
+        (element) {
+          return PopupMenuItem<int>(
+            height: 45,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(element['title']),
+                Icon(element['icon'], color: primaryColor),
+              ],
+            ),
+            value: element['type'],
+          );
+        },
+      ).toList(),
     );
   }
 
