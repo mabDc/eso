@@ -132,82 +132,67 @@ class APIFromRUle implements API {
     return result;
   }
 
-  final oneTimeHttp = 2;
-
   @override
   Future<List<ChapterItem>> chapter(final String url) async {
     final result = <List<ChapterItem>>[];
     int engineId;
-    var loopPage = 1;
-    var loopFlag = true;
-    while (loopFlag) {
-      result.addAll(List.generate(oneTimeHttp, (_) => <ChapterItem>[]));
-      await Future.wait(List.generate(oneTimeHttp, (i) async {
-        final page = loopPage + i;
-        final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
-        if (page > 1 && !chapterUrlRule.contains(APIConst.pagePattern)) {
-          loopFlag = false;
-          return;
+    for (var page = 1;; page++) {
+      final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
+      if (page > 1 && !chapterUrlRule.contains(APIConst.pagePattern)) {
+        break;
+      }
+      final res = await AnalyzeUrl.urlRuleParser(
+        chapterUrlRule,
+        rule,
+        result: url,
+        page: page,
+      );
+      if (res.contentLength == 0) {
+        break;
+      }
+      final chapterUrl = res.request.url.toString();
+      final reversed = rule.chapterList.startsWith("-");
+      if (engineId == null) {
+        engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
+        await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+      } else {
+        await FlutterJs.evaluate(
+            "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};", engineId);
+      }
+      try {
+        final list = await AnalyzerManager(
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+        if (list.isEmpty) {
+          break;
         }
-        final res = await AnalyzeUrl.urlRuleParser(
-          chapterUrlRule,
-          rule,
-          result: url,
-          page: page,
-        );
-        if (res.contentLength == 0) {
-          loopFlag = false;
-          return;
-        }
-        final chapterUrl = res.request.url.toString();
-        final reversed = rule.chapterList.startsWith("-");
-        if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
-          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-        } else {
-          await FlutterJs.evaluate(
-              "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};",
-              engineId);
-        }
-        try {
-          final list = await AnalyzerManager(
-                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                  engineId)
-              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
-          if (list.isEmpty) {
-            loopFlag = false;
-            return;
+        for (var item in (reversed ? list.reversed : list)) {
+          final analyzer = AnalyzerManager(item, engineId);
+          final lock = await analyzer.getString(rule.chapterLock);
+          // final unLock = await analyzer.getString(rule.chapterUnLock);
+          var name = (await analyzer.getString(rule.chapterName))
+              .trim()
+              .replaceAll(largeSpaceRegExp, Global.fullSpace);
+          // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+          //   name = "🔓" + name;
+          // }else
+          if (lock != null &&
+              lock.isNotEmpty &&
+              lock != "undefined" &&
+              lock != "false" &&
+              lock != "0") {
+            name = "🔒" + name;
           }
-          for (var item in (reversed ? list.reversed : list)) {
-            final analyzer = AnalyzerManager(item, engineId);
-            final lock = await analyzer.getString(rule.chapterLock);
-            // final unLock = await analyzer.getString(rule.chapterUnLock);
-            var name = (await analyzer.getString(rule.chapterName))
-                .trim()
-                .replaceAll(largeSpaceRegExp, Global.fullSpace);
-            // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
-            //   name = "🔓" + name;
-            // }else
-            if (lock != null &&
-                lock.isNotEmpty &&
-                lock != "undefined" &&
-                lock != "false" &&
-                lock != "0") {
-              name = "🔒" + name;
-            }
-            result[page - 1].add(ChapterItem(
-              cover: await analyzer.getString(rule.chapterCover),
-              name: name,
-              time: await analyzer.getString(rule.chapterTime),
-              url: await analyzer.getString(rule.chapterResult),
-            ));
-          }
-        } catch (e) {
-          loopFlag = false;
-          return;
+          result[page - 1].add(ChapterItem(
+            cover: await analyzer.getString(rule.chapterCover),
+            name: name,
+            time: await analyzer.getString(rule.chapterTime),
+            url: await analyzer.getString(rule.chapterResult),
+          ));
         }
-      }));
-      loopPage += oneTimeHttp;
+      } catch (e) {
+        break;
+      }
     }
     FlutterJs.close(engineId);
     return result.expand((element) => element).toList();
