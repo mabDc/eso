@@ -1,6 +1,15 @@
+/*
+ * @Author: your name
+ * @Date: 2020-07-08 21:57:29
+ * @LastEditTime: 2020-07-26 21:20:36
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \eso\lib\page\source\debug_rule_page.dart
+ */
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/debug_rule_provider.dart';
 import 'package:eso/ui/edit/edit_view.dart';
+import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +32,8 @@ class DebugRulePage extends StatelessWidget {
           ),
           actions: [
             AppBarButton(
-              icon: Icon(FIcons.compass), // Text("发现测试",style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color)),
+              icon: Icon(FIcons
+                  .compass), // Text("发现测试",style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color)),
               tooltip: "发现测试",
               onPressed: Provider.of<DebugRuleProvider>(context, listen: false).discover,
             ),
@@ -39,12 +49,16 @@ class DebugRulePage extends StatelessWidget {
               );
             }
             return KeyboardDismissBehaviorView(
-              child: ListView.builder(
-                padding: EdgeInsets.all(8),
-                itemCount: provider.rows.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return provider.rows[index];
-                },
+              child: DraggableScrollbar.semicircle(
+                controller: provider.controller,
+                child: ListView.builder(
+                  controller: provider.controller,
+                  padding: EdgeInsets.all(8),
+                  itemCount: provider.rows.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return provider.rows[index];
+                  },
+                ),
               ),
             );
           },

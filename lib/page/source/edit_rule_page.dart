@@ -4,6 +4,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
+import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,19 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   bool _searchExpanded = true;
   bool _chapterExpanded = true;
   bool _contentExpanded = true;
+  ScrollController _controller;
+
+  @override
+  void initState() {
+    _controller = ScrollController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   /// 快速输入符号List
 // ignore: non_constant_identifier_names
@@ -189,14 +203,18 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         direction: Axis.vertical,
         children: <Widget>[
           Expanded(
-              child: ListView(
-            children: [
-              _buildInfo(context),
-              _buildDiscover(context),
-              _buildSearch(context),
-              _buildChapter(context),
-              _buildContent(context),
-            ],
+              child: DraggableScrollbar.semicircle(
+            controller: _controller,
+            child: ListView(
+              controller: _controller,
+              children: [
+                _buildInfo(context),
+                _buildDiscover(context),
+                _buildSearch(context),
+                _buildChapter(context),
+                _buildContent(context),
+              ],
+            ),
           )),
           Offstage(
             offstage: false, //_isHideFastInput,

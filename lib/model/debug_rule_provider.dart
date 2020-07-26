@@ -18,9 +18,12 @@ class DebugRuleProvider with ChangeNotifier {
   final Rule rule;
   final Color textColor;
   bool disposeFlag;
+  ScrollController _controller;
+  ScrollController get controller => _controller;
 
   DebugRuleProvider(this.rule, this.textColor) {
     disposeFlag = false;
+    _controller = ScrollController();
   }
 
   final rows = <Row>[];
@@ -28,6 +31,7 @@ class DebugRuleProvider with ChangeNotifier {
   void dispose() {
     rows.clear();
     disposeFlag = true;
+    _controller.dispose();
     super.dispose();
   }
 
@@ -104,9 +108,11 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final discoverFirst = (discoverRule is List
               ? "${discoverRule.first}"
-              : discoverRule is String ? discoverRule : "")
-          .split(RegExp(r"\n+\s*|&&"))
-          .firstWhere((s) => s.trim().isNotEmpty, orElse: () => "")
+              : discoverRule is String
+                  ? discoverRule
+                      .split(RegExp(r"\n+\s*|&&"))
+                      .firstWhere((s) => s.trim().isNotEmpty, orElse: () => "")
+                  : "")
           .split("::")
           .last;
       final discoverResult = await AnalyzeUrl.urlRuleParser(
