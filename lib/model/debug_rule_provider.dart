@@ -94,20 +94,23 @@ class DebugRuleProvider with ChangeNotifier {
     _beginEvent("发现");
     int engineId;
     try {
-      var discoverRule = rule.discoverUrl.trimLeft();
+      dynamic discoverRule = rule.discoverUrl.trimLeft();
       if (discoverRule.startsWith("@js:")) {
         _addContent("执行发现js规则");
         final engineId = await APIConst.initJSEngine(rule, "");
-        discoverRule = "${await FlutterJs.evaluate(discoverRule.substring(4), engineId)}";
+        discoverRule = await FlutterJs.evaluate(discoverRule.substring(4), engineId);
         FlutterJs.close(engineId);
-        _addContent("结果", discoverRule);
+        _addContent("结果", "$discoverRule");
       }
+      final discoverFirst = (discoverRule is List
+              ? "${discoverRule.first}"
+              : discoverRule is String ? discoverRule : "")
+          .split(RegExp(r"\n+\s*|&&"))
+          .firstWhere((s) => s.trim().isNotEmpty, orElse: () => "")
+          .split("::")
+          .last;
       final discoverResult = await AnalyzeUrl.urlRuleParser(
-        discoverRule
-            .split(RegExp(r"\n+\s*|&&"))
-            .firstWhere((s) => s.trim().isNotEmpty, orElse: () => "")
-            .split("::")
-            .last,
+        discoverFirst,
         rule,
         page: 1,
         pageSize: 20,

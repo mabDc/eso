@@ -245,13 +245,16 @@ class APIFromRUle implements API {
   Future<List<DiscoverMap>> discoverMap() async {
     final map = <DiscoverMap>[];
     final table = Map<String, int>();
-    var discoverUrl = rule.discoverUrl.trimLeft();
+    dynamic discoverUrl = rule.discoverUrl.trimLeft();
     if (discoverUrl.startsWith("@js:")) {
       final engineId = await APIConst.initJSEngine(rule, "");
-      discoverUrl = "${await FlutterJs.evaluate(discoverUrl.substring(4), engineId)}";
+      discoverUrl = await FlutterJs.evaluate(discoverUrl.substring(4), engineId);
       FlutterJs.close(engineId);
     }
-    for (var url in discoverUrl.split(RegExp(r"\n\s*|&&"))) {
+    final discovers = (discoverUrl is List)
+        ? discoverUrl.map((e) => "$e")
+        : (discoverUrl is String) ? discoverUrl.split(RegExp(r"\n\s*|&&")) : <String>[];
+    for (var url in discovers) {
       if (url.trim().isEmpty) continue;
       final d = url.split("::");
       final rule = d.last.trim();
