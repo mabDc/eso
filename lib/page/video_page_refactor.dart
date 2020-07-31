@@ -462,9 +462,9 @@ class VideoPageProvider with ChangeNotifier {
         return;
       }
       if (_disposed) return;
-      if (Platform.isWindows) {
+      if (Platform.isWindows || Platform.isMacOS) {
         loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
-        loadingText.add("windows下将自动跳转浏览器播放，也可以手动点击左下角[使用其他播放器打开]");
+        loadingText.add("window或macos下将自动跳转浏览器播放，也可以手动点击左下角[使用其他播放器打开]");
         notifyListeners();
         launch("http://www.m3u8player.top/?play=${content[0]}");
         _isLoading = null;
@@ -485,13 +485,15 @@ class VideoPageProvider with ChangeNotifier {
       _controller.addListener(_listener);
       _controllerTime = DateTime.now();
       _isLoading = false;
-      if (_disposed) _controller.dispose();
+      if (_disposed) _controller?.dispose();
     } catch (e, st) {
       loadingText.add("错误 $e");
-      loadingText.addAll("$st".split("\n").take(5));
+      loadingText.addAll("$st".split("\n").take(6));
       _isLoading = null;
       notifyListeners();
       _controller?.dispose();
+      _content = null;
+      return;
     }
   }
 
