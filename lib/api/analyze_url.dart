@@ -115,10 +115,10 @@ cookie = ${jsonEncode(rule.cookies)};
         final encoding = "${r['encoding']}".contains("gb")
             ? gbk
             : Encoding.getByName("${r['encoding']}");
-        u = u.replaceAll(
-            keyword,
-            encoding
-                .encode(keyword)
+        u = u.replaceAllMapped(
+            RegExp(r"[^\x00-\x7F]+"),
+            (match) => encoding
+                .encode(match.group(0))
                 .map((code) => _urlEncode(code.toRadixString(16).toUpperCase()))
                 .join());
       }
