@@ -399,9 +399,9 @@ class _EditSourcePageState extends State<EditSourcePage> {
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
       {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
       {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
-      // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
+      {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       {'title': '排序', 'icon': Icons.sort_by_alpha, 'type': SORT_LIST},
       {'title': '清空源', 'icon': FIcons.x_circle, 'type': DELETE_ALL_RULES},
     ];

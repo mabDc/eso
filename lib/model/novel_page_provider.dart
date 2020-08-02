@@ -34,15 +34,14 @@ class NovelPageProvider with ChangeNotifier {
   bool _showMenu;
   bool get showMenu => _showMenu;
 
-  set enPress(String val){
+  set enPress(String val) {
     _enPress = val;
   }
 
   set showMenu(bool value) {
     if (_showMenu != value) {
       _showMenu = value;
-      if (value == false)
-        _showChapter = false;
+      if (value == false) _showChapter = false;
       notifyListeners();
     }
   }
@@ -128,9 +127,9 @@ class NovelPageProvider with ChangeNotifier {
       }
     }
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
+    await CacheUtil().clear(allCache: true);
     _paragraphs = await loadContent(searchItem.durChapterIndex);
-    if (this.mounted)
-      notifyListeners();
+    if (this.mounted) notifyListeners();
   }
 
   Map<int, List<dynamic>> _cache;
@@ -153,9 +152,25 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 刷新当前章节
   void refreshCurrent() async {
-    if (await loadChapter(searchItem.durChapterIndex,
-            useCache: false, changeCurChapter: false) !=
-        null) searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    if (isLoading) return;
+    _isLoading = true;
+    _showChapter = false;
+    notifyListeners();
+    final content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+    _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+    _cache[searchItem.durChapterIndex] = _paragraphs;
+
+    // 强制刷新界面
+    _spansFlat?.clear();
+    _spans?.clear();
+    _spansFlat = null;
+    _spans = null;
+    // 强制刷新界面
+
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+    _isLoading = false;
+    notifyListeners();
   }
 
   // 清理内存缓存
@@ -164,8 +179,7 @@ class NovelPageProvider with ChangeNotifier {
     int minIndex = index - 2;
     int maxIndex = index + 2;
     _cache.forEach((key, value) {
-      if ((key <= minIndex || key >= maxIndex) && (key != index))
-        _cache.remove(key);
+      if ((key <= minIndex || key >= maxIndex) && (key != index)) _cache.remove(key);
     });
   }
 
@@ -191,9 +205,9 @@ class NovelPageProvider with ChangeNotifier {
 
   Future<List<dynamic>> _realLoadContent(int index, [bool useCache = true]) async {
     if (useCache) {
-      if (_fileCache == null)
-        await _initFileCache();
-      var resp = await _fileCache.getData('$index.${searchItem.name}.${searchItem.author}');
+      if (_fileCache == null) await _initFileCache();
+      var resp =
+          await _fileCache.getData('$index.${searchItem.name}.${searchItem.author}');
       if (resp is List) {
         if (_cache == null)
           _cache = {index: resp};
@@ -215,8 +229,7 @@ class NovelPageProvider with ChangeNotifier {
       Future.delayed(Duration(milliseconds: 200), () async {
         if (_cache[index + 1] == null) {
           await _realLoadContent(index + 1, true);
-          if (index < searchItem.durChapterIndex + 3)
-            _cacheNextChapter(index + 1);
+          if (index < searchItem.durChapterIndex + 3) _cacheNextChapter(index + 1);
         }
       });
     }
@@ -247,7 +260,6 @@ class NovelPageProvider with ChangeNotifier {
       bool notify = true,
       bool changeCurChapter = true,
       bool lastPage}) async {
-
     _showChapter = false;
     if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
       return null;
@@ -263,8 +275,7 @@ class NovelPageProvider with ChangeNotifier {
     if (_data == null) {
       if (this.mounted) {
         _isLoading = false;
-        if (notify)
-          notifyListeners();
+        if (notify) notifyListeners();
       }
       throw Future.error('加载章节失败：$chapterIndex');
     }
@@ -528,7 +539,8 @@ class NovelPageProvider with ChangeNotifier {
         ),
       ),
       newLine,
-      paragraphLine,
+      _buildHeightSpan(__profile.novelParagraphPadding * 1.1),
+      newLine,
     ];
     tp.text = TextSpan(children: currentSpans, style: commonStyle);
     tp.layout(maxWidth: width);

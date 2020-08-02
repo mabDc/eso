@@ -5,6 +5,7 @@ import 'package:eso/api/api_const.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/profile.dart';
 import 'package:flutter/services.dart';
+import 'package:oktoast/oktoast.dart';
 import '../api/analyze_url.dart';
 import '../api/analyzer_manager.dart';
 import 'package:eso/utils/decode_body.dart';
@@ -40,7 +41,10 @@ class DebugRuleProvider with ChangeNotifier {
       child: isUrl
           ? GestureDetector(
               onTap: () => launch(s),
-              onLongPress: () => Clipboard.setData(ClipboardData(text: s)),
+              onLongPress: ()async{
+                await Clipboard.setData(ClipboardData(text: s));
+                showToast("结果已复制: $s");
+              },
               child: Text(
                 s,
                 style: TextStyle(
