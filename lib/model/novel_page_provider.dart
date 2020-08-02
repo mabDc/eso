@@ -127,7 +127,7 @@ class NovelPageProvider with ChangeNotifier {
       }
     }
     _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
-    await CacheUtil().clear(allCache: true);
+    // await CacheUtil().clear(allCache: true);
     _paragraphs = await loadContent(searchItem.durChapterIndex);
     if (this.mounted) notifyListeners();
   }
@@ -195,7 +195,7 @@ class NovelPageProvider with ChangeNotifier {
 
   _initFileCache() async {
     if (_fileCache == null) {
-      _fileCache = CacheUtil(cacheName: searchItem.name);
+      _fileCache = CacheUtil(cacheName: "searchItem${searchItem.id}");
       if (!_requestPermission) {
         _requestPermission = true;
         await _fileCache.requestPermission();
