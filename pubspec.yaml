@@ -81,6 +81,7 @@ dependencies:
   flutter_picker: ^1.1.5
   eso_plugin:
     path: modules/eso_plugin
+  moor_ffi: ^0.7.0
 
 dev_dependencies:
   flutter_test:
