@@ -13,8 +13,10 @@ class CacheUtil {
 
   /// 缓存名称
   final String cacheName;
+
   /// 基路径
   final String basePath;
+
   /// 是否是备份
   final bool backup;
 
@@ -25,12 +27,10 @@ class CacheUtil {
   /// 请求权限
   Future<bool> requestPermission() async {
     // 检查并请求权限
-    if (Platform.isWindows || Platform.isMacOS)
-      return true;
+    if (Platform.isWindows || Platform.isMacOS) return true;
     if (await Permission.storage.status != PermissionStatus.granted) {
       var _status = await Permission.storage.request();
-      if (_status != PermissionStatus.granted)
-        return false;
+      if (_status != PermissionStatus.granted) return false;
     }
     return true;
   }
@@ -69,8 +69,7 @@ class CacheUtil {
   /// 写入文件, 返回新文件的路径
   Future<String> putFile(String key, File file) async {
     var _file = await getFileName(key, false);
-    if (_file == null || _file.isEmpty)
-      return null;
+    if (_file == null || _file.isEmpty) return null;
     File _cacheFile = await createFile(_file, path: _cacheDir);
     if (_cacheFile == null) return null;
     final bytes = file.readAsBytesSync();
@@ -80,11 +79,9 @@ class CacheUtil {
 
   /// 写入 key
   Future<bool> put(String key, String value, [bool hashCodeKey = true]) async {
-    if (key == null || key.isEmpty)
-      return false;
+    if (key == null || key.isEmpty) return false;
     var _file = await getFileName(key, hashCodeKey);
-    if (_file == null || _file.isEmpty)
-      return false;
+    if (_file == null || _file.isEmpty) return false;
     File _cacheFile = await createFile(_file, path: _cacheDir);
     if (_cacheFile == null) return false;
     await _cacheFile.writeAsString(value);
@@ -93,41 +90,48 @@ class CacheUtil {
 
   /// 获取 key 对应的数据
   Future<String> get(String key, [String defaultValue, bool hashCodeKey = true]) async {
-    if (key == null || key.isEmpty)
-      return defaultValue;
+    if (key == null || key.isEmpty) return defaultValue;
     var _file = await getFileName(key, hashCodeKey);
-    if (_file == null || _file.isEmpty)
-      return defaultValue;
+    if (_file == null || _file.isEmpty) return defaultValue;
     File _cacheFile = File(_file);
-    if (_cacheFile.existsSync())
-      return _cacheFile.readAsStringSync();
+    if (_cacheFile.existsSync()) return _cacheFile.readAsStringSync();
     return null;
   }
 
-  Future<bool> putData(String key, Object value, [bool hashCodeKey = true]) async {
-    return await put(key, jsonEncode(value), hashCodeKey);
+  Future<bool> putData(
+    String key,
+    Object value, {
+    bool hashCodeKey = true,
+    bool shouldEncode = true,
+  }) async {
+    return await put(key, shouldEncode ? jsonEncode(value) : value, hashCodeKey);
   }
 
-  Future<dynamic> getData(String key, [Object defaultValue, bool hashCodeKey = true]) async {
+  Future<dynamic> getData(
+    String key, {
+    Object defaultValue,
+    bool hashCodeKey = true,
+    bool shouldDecode = true,
+  }) async {
     final value = await get(key, null, hashCodeKey);
     if (value == null || value.isEmpty) return defaultValue;
-    return jsonDecode(value);
+    return shouldDecode ? jsonDecode(value) : value;
   }
 
   setInt(String key, int value) async {
-    await putData(key, {'value': value, 'type': 'int'}, false);
+    await putData(key, {'value': value, 'type': 'int'}, hashCodeKey: false);
   }
 
   setDouble(String key, double value) async {
-    await putData(key, {'value': value, 'type': 'double'}, false);
+    await putData(key, {'value': value, 'type': 'double'}, hashCodeKey: false);
   }
 
   setBool(String key, bool value) async {
-    await putData(key, {'value': value, 'type': 'bool'}, false);
+    await putData(key, {'value': value, 'type': 'bool'}, hashCodeKey: false);
   }
 
   setStringList(String key, List<String> value) async {
-    await putData(key, {'value': value, 'type': 'sl'}, false);
+    await putData(key, {'value': value, 'type': 'sl'}, hashCodeKey: false);
   }
 
   setString(String key, String value) async {
@@ -135,14 +139,11 @@ class CacheUtil {
   }
 
   String getSync(String key, [String defaultValue, bool hashCodeKey = true]) {
-    if (key == null || key.isEmpty)
-      return defaultValue;
+    if (key == null || key.isEmpty) return defaultValue;
     var _file = getFileNameSync(key, hashCodeKey);
-    if (_file == null || _file.isEmpty)
-      return defaultValue;
+    if (_file == null || _file.isEmpty) return defaultValue;
     File _cacheFile = File(_file);
-    if (_cacheFile.existsSync())
-      return _cacheFile.readAsStringSync();
+    if (_cacheFile.existsSync()) return _cacheFile.readAsStringSync();
     return null;
   }
 
@@ -206,7 +207,7 @@ class CacheUtil {
         if (Platform.isMacOS || Platform.isWindows) {
           _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
         } else if (Platform.isAndroid) {
-          _cacheStoragePath =  (await path.getExternalStorageDirectory()).path;
+          _cacheStoragePath = (await path.getExternalStorageDirectory()).path;
           if (_cacheStoragePath != null && _cacheStoragePath.isNotEmpty) {
             final _subStr = 'storage/emulated/0/';
             var index = _cacheStoragePath.indexOf(_subStr);
@@ -259,5 +260,4 @@ class CacheUtil {
       return null;
     }
   }
-
 }

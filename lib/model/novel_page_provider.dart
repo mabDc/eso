@@ -11,6 +11,7 @@ import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
@@ -22,8 +23,8 @@ class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   int _progress;
   int get progress => _progress;
-  List<dynamic> _paragraphs;
-  List<dynamic> get paragraphs => _paragraphs;
+  List<String> _paragraphs;
+  List<String> get paragraphs => _paragraphs;
   ScrollController _controller;
   ScrollController get controller => _controller;
   bool _isLoading = false;
@@ -132,7 +133,7 @@ class NovelPageProvider with ChangeNotifier {
     if (this.mounted) notifyListeners();
   }
 
-  Map<int, List<dynamic>> _cache;
+  Map<int, List<String>> _cache;
   CacheUtil _fileCache;
   static bool _requestPermission = false;
 
@@ -183,37 +184,104 @@ class NovelPageProvider with ChangeNotifier {
     });
   }
 
-  List<String> _cleanContent(List<String> content) {
-    return content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+  _updateCache(int index, List<String> content) async {
+    final _content = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+    _cache = {index: _content};
+    final r = await _fileCache.putData('$index.txt', _content.join("\n"),
+        hashCodeKey: false, shouldEncode: false);
+    if (r) {
+      _cacheChapterIndex.add(index);
+      await _fileCache.putData("list.json", _cacheChapterIndex, hashCodeKey: false);
+    }
   }
 
-  _updateCache(int index, List<String> content) {
-    final _content = _cleanContent(content);
-    _cache = {index: _content};
-    _fileCache.putData('$index.${searchItem.name}.${searchItem.author}', _content);
+  bool _exportLoading;
+  bool get exportLoading => _exportLoading;
+
+  void exportCache() async {
+    if (_exportLoading == true) {
+      showToastBottom("正在导出...");
+      return;
+    }
+    _exportLoading = true;
+    showToastBottom("开始导出已缓存章节");
+
+    try {
+      final chapters = searchItem.chapters;
+      final export = <String>[
+        searchItem.name,
+        "",
+        "目录",
+        ...chapters.map((ch) => ch.name).toList(),
+        "",
+      ];
+      for (final index in List.generate(chapters.length, (index) => index)) {
+        String temp;
+        if (cacheChapterIndex.contains(index)) {
+          temp = await _fileCache.getData("$index.txt",
+              shouldDecode: false, hashCodeKey: false);
+        }
+        export.add(chapters[index].name);
+        if (temp != null && temp.isNotEmpty) {
+          export.add(temp);
+        } else {
+          export.add("未缓存或内容为空");
+        }
+        export.add("");
+      }
+
+      final cache = CacheUtil(backup: true);
+      final name = searchItem.name + "searchItem${searchItem.id}".hashCode.toString();
+      await cache.putData("$name.txt", export.join("\n"),
+          hashCodeKey: false, shouldEncode: false);
+      showToastBottom("成功导出到 ${await cache.cacheDir()} $name.txt");
+    } catch (e) {
+      showToastBottom("导出失败 $e");
+    }
+    _exportLoading = false;
   }
+
+  void toggleAutoCache() async {
+    showToastBottom("还没有哦");
+  }
+
+  void showToastBottom(String msg) => showToast(msg, position: ToastPosition.bottom);
+
+  List<int> _cacheChapterIndex;
+  List<int> get cacheChapterIndex => _cacheChapterIndex;
+
+  String get cacheName => "searchItem${searchItem.id}";
 
   _initFileCache() async {
     if (_fileCache == null) {
-      _fileCache = CacheUtil(cacheName: "searchItem${searchItem.id}");
+      _fileCache = CacheUtil(cacheName: cacheName);
       if (!_requestPermission) {
         _requestPermission = true;
         await _fileCache.requestPermission();
       }
+      final temp = await _fileCache.getData("list.json", hashCodeKey: false);
+      if (temp != null && temp is List && temp.isNotEmpty) {
+        _cacheChapterIndex = temp.map((e) => e as int).toList();
+      } else {
+        _cacheChapterIndex = <int>[];
+        await _fileCache.putData("list.json", _cacheChapterIndex, hashCodeKey: false);
+      }
     }
   }
 
-  Future<List<dynamic>> _realLoadContent(int index, [bool useCache = true]) async {
+  Future<List<String>> _realLoadContent(int index, [bool useCache = true]) async {
     if (useCache) {
       if (_fileCache == null) await _initFileCache();
-      var resp =
-          await _fileCache.getData('$index.${searchItem.name}.${searchItem.author}');
-      if (resp is List) {
-        if (_cache == null)
-          _cache = {index: resp};
-        else
-          _cache[index] = resp;
-        return resp;
+      final resp =
+          await _fileCache.getData('$index.txt', hashCodeKey: false, shouldDecode: false);
+      if (resp != null && resp is String && resp.isNotEmpty) {
+        final p = resp.split("\n");
+        if (_cache == null) {
+          _cache = {index: p};
+        } else {
+          _cache[index] = p;
+        }
+        return p;
       }
     }
     List<String> result = await APIManager.getContent(
@@ -236,7 +304,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载章节内容
-  Future<List<dynamic>> loadContent(int index,
+  Future<List<String>> loadContent(int index,
       {bool useCache = true, VoidCallback onWait}) async {
     /// 检查当前章节
     if (_cache == null) {
@@ -255,7 +323,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载指定章节
-  Future<List<dynamic>> loadChapter(int chapterIndex,
+  Future<List<String>> loadChapter(int chapterIndex,
       {bool useCache = true,
       bool notify = true,
       bool changeCurChapter = true,
@@ -470,7 +538,7 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 文字排版部分
   static List<List<InlineSpan>> buildSpans(BuildContext context, Profile profile,
-      SearchItem searchItem, List<dynamic> paragraphs) {
+      SearchItem searchItem, List<String> paragraphs) {
     if (paragraphs == null || paragraphs.isEmpty || searchItem == null) return [];
     final __profile = profile;
 

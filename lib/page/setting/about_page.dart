@@ -158,7 +158,8 @@ class AboutPage extends StatelessWidget {
                                     try {
                                       final _rules =
                                           await EditSourceProvider.backupRules();
-                                      cache.putData('rules.json', _rules, false);
+                                      cache.putData('rules.json', _rules,
+                                          hashCodeKey: false);
                                       print("备份规则列表成功");
                                     } catch (e) {
                                       print("备份规则列表： $e");
@@ -221,8 +222,8 @@ class AboutPage extends StatelessWidget {
                                       }
                                     } catch (e) {}
                                     try {
-                                      final _rules =
-                                          await cache.getData('rules.json', null, false);
+                                      final _rules = await cache.getData('rules.json',
+                                          defaultValue: null, hashCodeKey: false);
                                       if (_rules != null && _rules is List) {
                                         await EditSourceProvider.restore(_rules, _clean);
                                       }
@@ -369,8 +370,7 @@ class AboutPage extends StatelessWidget {
                       onTap: () => launch('https://github.com/mabDc/eso/issues'),
                     ),
                     ListTile(
-                      title: Text(
-                          '${Global.appName} - ${Global.appVersion}'),
+                      title: Text('${Global.appName} - ${Global.appVersion}'),
                       subtitle: Text('https://github.com/mabDc/eso/releases'),
                       onTap: () => launch('https://github.com/mabDc/eso/releases'),
                     ),
@@ -384,7 +384,8 @@ class AboutPage extends StatelessWidget {
                   child: InkWell(
                     onTap: () => showAboutDialog(
                         context: context,
-                        applicationVersion: '版本 ${Global.appVersion}\n版号 ${Global.appBuildNumber}\n包名 ${Global.appPackageName}',
+                        applicationVersion:
+                            '版本 ${Global.appVersion}\n版号 ${Global.appBuildNumber}\n包名 ${Global.appPackageName}',
                         children: <Widget>[
                           MarkdownPageListTile(
                             filename: 'lib/assets/md/README.md',
