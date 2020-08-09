@@ -1,13 +1,14 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/ui/widgets/bottom_bar_button.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../fonticons_icons.dart';
 
 class UIMangaMenu extends StatelessWidget {
   final SearchItem searchItem;
@@ -198,16 +199,14 @@ class UIMangaMenu extends StatelessWidget {
   }
 
   Widget _buildTopRow(BuildContext context, Color bgColor, Color color) {
-    return AppBarEx(
+    return AppBar(
       titleSpacing: 0,
-      titleText: searchItem.name,
-      subTitleText: searchItem.author,
+      title: Text(searchItem.name),
       actions: [
-        AppBarButton(
-          icon: Icon(FIcons.share_2),
-          tooltip: "分享",
-          onPressed: Provider.of<MangaPageProvider>(context, listen: false).share
-        ),
+        IconButton(
+            icon: Icon(FIcons.share_2),
+            tooltip: "分享",
+            onPressed: Provider.of<MangaPageProvider>(context, listen: false).share),
         _buildPopupmenu(context, bgColor, color),
       ],
     );
@@ -230,8 +229,7 @@ class UIMangaMenu extends StatelessWidget {
           case TO_CLICPBOARD:
             Clipboard.setData(
                 ClipboardData(text: searchItem.chapters[searchItem.durChapterIndex].url));
-            Utils.toast(
-                "已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url);
+            Utils.toast("已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url);
             break;
           case LAUCH:
             launch(searchItem.chapters[searchItem.durChapterIndex].url);
@@ -425,27 +423,43 @@ class UIMangaMenu extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BottomBarButton(
-                    icon: Icon(FIcons.arrow_left, color: color, size: 25),
-                    child: Text("上一章", style: TextStyle(color: color)),
-                    onPressed: () => provider.loadChapter(searchItem.durChapterIndex - 1),
+                  InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.arrow_back, color: color, size: 28),
+                        Text("上一章", style: TextStyle(color: color))
+                      ],
+                    ),
+                    onTap: () => provider.loadChapter(searchItem.durChapterIndex - 1),
                   ),
-                  BottomBarButton(
-                    icon: Icon(FIcons.list, color: color, size: 25),
-                    child: Text("目录", style: TextStyle(color: color)),
+                  InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.format_list_bulleted, color: color, size: 28),
+                        Text("目录", style: TextStyle(color: color))
+                      ],
+                    ),
                     onTap: () => provider.showChapter = !provider.showChapter,
                   ),
-                  BottomBarButton(
-                    icon: Icon(FIcons.settings, color: color, size: 24),
-                    child: Text("设置", style: TextStyle(color: color)),
+                  InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.settings, color: color, size: 28),
+                        Text("设置", style: TextStyle(color: color))
+                      ],
+                    ),
                     onTap: () {
                       provider.showChapter = false;
                       provider.showSetting = true;
                     },
                   ),
-                  BottomBarButton(
-                    icon: Icon(FIcons.arrow_right, color: color, size: 25),
-                    child: Text("下一章", style: TextStyle(color: color)),
+                  InkWell(
+                    child: Column(
+                      children: [
+                        Icon(Icons.arrow_forward, color: color, size: 28),
+                        Text("下一章", style: TextStyle(color: color))
+                      ],
+                    ),
                     onTap: () => provider.loadChapter(searchItem.durChapterIndex + 1),
                   ),
                 ],

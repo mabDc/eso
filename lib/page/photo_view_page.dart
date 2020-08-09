@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -105,7 +105,6 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
               children: [
                 Material(
                   color: Colors.transparent,
-                  child: AppBarEx.buildLeading(context, color: Colors.white54),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                 ),
@@ -115,7 +114,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                 ),
                 Material(
                   color: Colors.transparent,
-                  child: AppBarButton(
+                  child: IconButton(
                     icon: Icon(Icons.more_vert, color: Colors.white54),
                     onPressed: doLongPress,
                     tooltip: "菜单",

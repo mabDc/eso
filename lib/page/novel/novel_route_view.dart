@@ -7,7 +7,6 @@ import 'package:eso/page/novel/novel_drag_view.dart';
 import 'package:eso/page/novel/novel_one_page_view.dart';
 import 'package:eso/ui/route/empty_page_route.dart';
 import 'package:eso/ui/route/fade_page_route.dart';
-import 'package:eso/ui/route/pop_route.dart';
 import 'package:flutter/material.dart';
 
 /// 导航翻页模式

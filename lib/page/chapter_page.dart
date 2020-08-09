@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
+import '../fonticons_icons.dart';
 import '../model/chapter_page_provider.dart';
 import 'content_page_manager.dart';
 import 'langding_page.dart';
@@ -46,8 +47,7 @@ class _ChapterPageState extends State<ChapterPage> {
     _controller = ScrollController();
 
     return ChangeNotifierProvider<ChapterPageProvider>(
-      create: (context) =>
-          ChapterPageProvider(searchItem: searchItem, size: size),
+      create: (context) => ChapterPageProvider(searchItem: searchItem, size: size),
       builder: (context, child) => Scaffold(
           body: Stack(
         children: [
@@ -95,7 +95,7 @@ class _ChapterPageState extends State<ChapterPage> {
     final _textTheme = Theme.of(context).primaryTextTheme;
     final _iconTheme = Theme.of(context).primaryIconTheme;
 
-    return AppBarEx(
+    return AppBar(
       elevation: 0.0,
       backgroundColor: Theme.of(context).primaryColor.withOpacity(opacity),
       textTheme: _textTheme.copyWith(
@@ -110,23 +110,22 @@ class _ChapterPageState extends State<ChapterPage> {
       brightness: Brightness.dark,
       titleSpacing: 0.0,
       actions: <Widget>[
-        AppBarButton(
+        IconButton(
           icon: Icon(FIcons.rotate_cw),
           tooltip: "刷新",
           onPressed: provider.updateChapter,
         ),
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
-          builder: (context, provider, child) => AppBarButton(
-            icon: SearchItemManager.isFavorite(
-                    searchItem.originTag, searchItem.url)
+          builder: (context, provider, child) => IconButton(
+            icon: SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)
                 ? Icon(Icons.favorite)
                 : Icon(Icons.favorite_border),
             iconSize: 21,
             onPressed: provider.toggleFavorite,
           ),
         ),
-        AppBarButton(
+        IconButton(
           icon: Icon(FIcons.share_2),
           onPressed: provider.share,
         ),
@@ -144,10 +143,9 @@ class _ChapterPageState extends State<ChapterPage> {
     } else {
       lastTopHeight = _top;
     }
-    final _hero = Utils.empty(searchItem.cover) ? null :
-      '${searchItem.name}.${searchItem.cover}.${searchItem.id}';
-
-    SizeUtils.updateMediaData();
+    final _hero = Utils.empty(searchItem.cover)
+        ? null
+        : '${searchItem.name}.${searchItem.cover}.${searchItem.id}';
 
     return SliverList(
       delegate: SliverChildListDelegate(
@@ -168,10 +166,7 @@ class _ChapterPageState extends State<ChapterPage> {
                         Expanded(
                           child: Container(
                             child: GestureDetector(
-                              child: UIImageItem(
-                                  cover: searchItem.cover,
-                                  initWidth: SizeUtils.getWidth(380, max: 180),
-                                  hero: _hero),
+                              child: UIImageItem(cover: searchItem.cover, hero: _hero),
                               onTap: () {
                                 Utils.startPageWait(
                                     context,
@@ -193,9 +188,7 @@ class _ChapterPageState extends State<ChapterPage> {
                             fontWeight: FontWeight.w700,
                             fontFamily: Profile.fontFamily,
                             fontSize: 18,
-                            shadows: [
-                              Shadow(blurRadius: 2, color: Colors.grey)
-                            ],
+                            shadows: [Shadow(blurRadius: 2, color: Colors.grey)],
                           ),
                         ),
                         SizedBox(height: 4),
@@ -233,13 +226,14 @@ class _ChapterPageState extends State<ChapterPage> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontFamily: Profile.fontFamily,
-                                    fontSize: 10, color: Colors.white, height: 1.0),
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                    height: 1.0),
                               ),
                             ),
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15.0)),
+                              borderRadius: BorderRadius.all(Radius.circular(15.0)),
                             ),
                           ),
                         )
@@ -260,14 +254,11 @@ class _ChapterPageState extends State<ChapterPage> {
     final paragraphPadding = 10.0;
     final width = MediaQuery.of(context).size.width - 2 * horizontalPadding;
     final offset = Offset(width, 6);
-    final fontColor =
-        Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
-    final style = TextStyle(fontSize: fontSize, color: fontColor,
-        fontFamily: Profile.fontFamily);
-    final paragraphs = description
-        .split(RegExp(r"^\s*|\n\s*"))
-        .map((s) => s.trimLeft())
-        .toList();
+    final fontColor = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
+    final style =
+        TextStyle(fontSize: fontSize, color: fontColor, fontFamily: Profile.fontFamily);
+    final paragraphs =
+        description.split(RegExp(r"^\s*|\n\s*")).map((s) => s.trimLeft()).toList();
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
     final spans = <TextSpan>[];
     final newLine = TextSpan(text: "\n");
@@ -294,8 +285,7 @@ class _ChapterPageState extends State<ChapterPage> {
           }
           spans.add(newLine);
           spans.add(TextSpan(
-              text: " ",
-              style: TextStyle(height: 1, fontSize: paragraphPadding)));
+              text: " ", style: TextStyle(height: 1, fontSize: paragraphPadding)));
           spans.add(newLine);
           break;
         }
@@ -346,8 +336,7 @@ class _ChapterPageState extends State<ChapterPage> {
                   searchItem.reverseChapter
                       ? SizedBox()
                       : Transform.rotate(
-                          child: Icon(Icons.sort,
-                              color: theme.primaryColor, size: 18),
+                          child: Icon(Icons.sort, color: theme.primaryColor, size: 18),
                           angle: pi,
                         ),
                   Text(
@@ -397,10 +386,10 @@ class _ChapterPageState extends State<ChapterPage> {
   Widget _buildListView(BuildContext context, Function(int index) onTap) {
     return SliverFixedExtentList(
       itemExtent: 50,
-      delegate: SliverChildBuilderDelegate((context, index) {
-          final showIndex = searchItem.reverseChapter
-              ? searchItem.chaptersCount - index - 1
-              : index;
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final showIndex =
+              searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
           return ListTile(
             title: Text('${searchItem.chapters[showIndex].name}',
                 style: TextStyle(fontSize: 15),
@@ -434,9 +423,8 @@ class _ChapterPageState extends State<ChapterPage> {
       ),
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
-          final showIndex = searchItem.reverseChapter
-              ? searchItem.chaptersCount - index - 1
-              : index;
+          final showIndex =
+              searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
           return Container(
             child: _buildChapterButton(
                 context,
@@ -458,8 +446,8 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget _buildChapterButton(BuildContext context, bool isDurIndex,
-      Widget child, VoidCallback onPress) {
+  Widget _buildChapterButton(
+      BuildContext context, bool isDurIndex, Widget child, VoidCallback onPress) {
     return isDurIndex
         ? RaisedButton(
             padding: EdgeInsets.all(4),
@@ -469,8 +457,7 @@ class _ChapterPageState extends State<ChapterPage> {
             textColor: Theme.of(context).canvasColor,
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).primaryColorDark,
-                    width: Global.borderSize),
+                    color: Theme.of(context).primaryColorDark, width: Global.borderSize),
                 borderRadius: BorderRadius.circular(3.0)),
             child: child,
           )
@@ -482,8 +469,7 @@ class _ChapterPageState extends State<ChapterPage> {
             textColor: Theme.of(context).textTheme.bodyText1.color,
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).dividerColor,
-                    width: Global.borderSize),
+                    color: Theme.of(context).dividerColor, width: Global.borderSize),
                 borderRadius: BorderRadius.circular(3.0)),
             child: child,
           );
@@ -504,8 +490,7 @@ class ArcBannerImage extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: height,
-            child:
-                UIImageItem(cover: imageUrl, radius: null, fit: BoxFit.cover),
+            child: UIImageItem(cover: imageUrl, radius: null, fit: BoxFit.cover),
           ),
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
@@ -531,13 +516,13 @@ class ArcClipper extends CustomClipper<Path> {
 
     var firstControlPoint = Offset(size.width / 4, size.height);
     var firstPoint = Offset(size.width / 2, size.height);
-    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstPoint.dx, firstPoint.dy);
+    path.quadraticBezierTo(
+        firstControlPoint.dx, firstControlPoint.dy, firstPoint.dx, firstPoint.dy);
 
     var secondControlPoint = Offset(size.width - (size.width / 4), size.height);
     var secondPoint = Offset(size.width, size.height - widget.arcH);
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondPoint.dx, secondPoint.dy);
+    path.quadraticBezierTo(
+        secondControlPoint.dx, secondControlPoint.dy, secondPoint.dx, secondPoint.dy);
 
     path.lineTo(size.width, 0.0);
     path.close();

@@ -4,6 +4,7 @@ import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
+import '../fonticons_icons.dart';
 import '../utils.dart';
 
 class UiSearchItem extends StatelessWidget {

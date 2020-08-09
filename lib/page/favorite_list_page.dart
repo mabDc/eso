@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:math';
-
 import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
@@ -8,8 +5,6 @@ import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/model/favorite_list_provider.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
-import 'package:eso/ui/widgets/eso_sliver_grid_delegate.dart';
-import 'package:eso/utils/size_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -30,23 +25,19 @@ class FavoriteListPage extends StatelessWidget {
     switch (type) {
       case API.NOVEL:
         sortType = values[profile.novelSortIndex];
-        setSortType =
-            (SortType sortType) => profile.novelSortIndex = sortType.index;
+        setSortType = (SortType sortType) => profile.novelSortIndex = sortType.index;
         break;
       case API.MANGA:
         sortType = values[profile.mangaSortIndex];
-        setSortType =
-            (SortType sortType) => profile.mangaSortIndex = sortType.index;
+        setSortType = (SortType sortType) => profile.mangaSortIndex = sortType.index;
         break;
       case API.AUDIO:
         sortType = values[profile.audioSortIndex];
-        setSortType =
-            (SortType sortType) => profile.audioSortIndex = sortType.index;
+        setSortType = (SortType sortType) => profile.audioSortIndex = sortType.index;
         break;
       case API.VIDEO:
         sortType = values[profile.videoSortIndex];
-        setSortType =
-            (SortType sortType) => profile.videoSortIndex = sortType.index;
+        setSortType = (SortType sortType) => profile.videoSortIndex = sortType.index;
         break;
       default:
     }
@@ -67,12 +58,12 @@ class FavoriteListPage extends StatelessWidget {
               children: menuList.map(
                 (tag) {
                   final _isSelect = tag[1] ==
-                      context.select(
-                          (FavoriteListProvider provider) => provider.sortType);
+                      context
+                          .select((FavoriteListProvider provider) => provider.sortType);
                   return GestureDetector(
                     onTap: () {
-                      Provider.of<FavoriteListProvider>(context, listen: false)
-                          .sortType = tag[1];
+                      Provider.of<FavoriteListProvider>(context, listen: false).sortType =
+                          tag[1];
                       setSortType(tag[1]);
                     },
                     child: Material(
@@ -137,27 +128,16 @@ class FavoriteListPage extends StatelessWidget {
 
         return GridView.builder(
           padding: EdgeInsets.symmetric(horizontal: 6),
-          gridDelegate: (Platform.isIOS || Platform.isAndroid)
-              ? SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: _size.width < _size.height ? 3 : 5,
-                  childAspectRatio: 0.55,
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
-                )
-              : ESOSliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: () {
-                    SizeUtils.updateMediaData();
-                    return max(SizeUtils.screenWidth / 125, 2).toInt();
-                  },
-                  childAspectRatio: 0.55,
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
-                ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: _size.width < _size.height ? 3 : 5,
+            childAspectRatio: 0.55,
+            mainAxisSpacing: 0,
+            crossAxisSpacing: 0,
+          ),
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
             final searchItem = searchItems[index];
-            final longPress =
-                Provider.of<Profile>(context, listen: true).switchLongPress;
+            final longPress = Provider.of<Profile>(context, listen: true).switchLongPress;
             VoidCallback openChapter = () => Navigator.of(context)
                 .push(MaterialPageRoute(
                     builder: (context) => ChapterPage(searchItem: searchItem)))

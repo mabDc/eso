@@ -22,7 +22,8 @@ class SearchItem {
   /// 分类
   List<String> tags;  
   /// 搜索结果
-  String url;         
+  String url;
+  // Future<String> get absoloteUrl async => (await Global.ruleDao.findRuleById(originTag));
   int ruleContentType;
   int chapterListStyle;
   String durChapter;

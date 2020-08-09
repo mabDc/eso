@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/utils/local_storage_utils.dart';
-import 'package:eso/utils/size_utils.dart';
 import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:screen/screen.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +37,6 @@ class Global with ChangeNotifier {
 
   static Future<bool> init() async {
     await LocalStorage.init();
-    SizeUtils.init();
     SearchItemManager.initSearchItem();
     updateSystemBrightness();
 

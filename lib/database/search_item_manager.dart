@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'chapter_item.dart';
 import 'search_item.dart';
 import '../global.dart';
-import 'package:path_provider/path_provider.dart';
 
 class SearchItemManager {
   static List<SearchItem> _searchItem;

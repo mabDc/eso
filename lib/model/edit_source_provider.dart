@@ -243,7 +243,6 @@ class EditSourceProvider with ChangeNotifier {
   static Future<bool> restore(List<dynamic> rules, bool reset) async {
     if (reset)
       await Global.ruleDao.clearAllRules();
-    List<Rule> _rules = [];
     if (rules != null) {
       for (var item in rules) {
         var _rule = Rule.fromJson(item);

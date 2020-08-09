@@ -1,10 +1,8 @@
 import 'dart:io';
 
 import 'package:eso/api/api.dart';
-import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/page/audio_page.dart';
-import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/manga_page.dart';
 import 'package:eso/page/novel_page.dart';
 import 'package:eso/global.dart';

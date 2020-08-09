@@ -1,5 +1,3 @@
-export 'global.dart';
-
 import 'dart:io';
 
 import 'package:event_bus/event_bus.dart';
@@ -8,12 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-
-export 'package:cached_network_image/cached_network_image.dart';
-export 'fonticons_icons.dart';
-export 'ui/widgets/app_bar_button.dart';
-export 'ui/widgets/app_bar_ex.dart';
-export 'utils/size_utils.dart';
 
 /// 事件bus
 EventBus eventBus = EventBus();
@@ -29,10 +21,6 @@ class Utils {
       return s;
     }
   }
-
-  /// 运行模式： true 为 debug 模式
-  static const bool isAppDebug =
-    !(const bool.fromEnvironment("dart.vm.product"));
 
   static bool get isDesktop => Platform.isWindows || Platform.isMacOS;
 

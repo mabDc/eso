@@ -18,6 +18,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
+import '../../fonticons_icons.dart';
+import '../../global.dart';
 import '../discover_search_page.dart';
 
 const int ADD_RULE = 0;
@@ -118,7 +120,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
     return ChangeNotifierProvider<EditSourceProvider>(
       create: (context) => EditSourceProvider(),
       builder: (context, child) => Scaffold(
-        appBar: AppBarEx(
+        appBar: AppBar(
           titleSpacing: 0.0,
           title: SearchEdit(
             controller: _searchEdit,
@@ -130,7 +132,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 .getRuleListByNameDebounce,
           ),
           actions: [
-            AppBarButton(
+            IconButton(
               icon: Icon(FIcons.check_square),
               tooltip: "全选(勾选后启用搜索)",
               onPressed: Provider.of<EditSourceProvider>(context, listen: false)
@@ -235,7 +237,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              AppBarButton(
+              IconButton(
                   icon: Icon(FIcons.edit),
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(

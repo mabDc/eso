@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../global.dart';
 import 'widgets/image_place_holder.dart';
 
 class UIFadeInImage extends StatelessWidget {

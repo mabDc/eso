@@ -155,24 +155,24 @@ class CacheUtil {
 
   int getInt(String key) {
     final value = getDataSync(key, null);
-    if (value != null && value is Map && (value as Map)['type'] == 'int') {
-      return (value as Map)['value'] as int;
+    if (value != null && value is Map && (value)['type'] == 'int') {
+      return (value)['value'] as int;
     } else
       return null;
   }
 
   bool getBool(String key) {
     final value = getDataSync(key, null);
-    if (value != null && value is Map && (value as Map)['type'] == 'bool') {
-      return (value as Map)['value'] as bool;
+    if (value != null && value is Map && (value)['type'] == 'bool') {
+      return (value)['value'] as bool;
     } else
       return null;
   }
 
   List<String> getStringList(String key) {
     final value = getDataSync(key, null);
-    if (value != null && value is Map && (value as Map)['type'] == 'sl') {
-      return ((value as Map)['value'] as List<dynamic>).map((e) {
+    if (value != null && value is Map && (value)['type'] == 'sl') {
+      return ((value)['value'] as List<dynamic>).map((e) {
         return e.toString();
       }).toList();
     } else

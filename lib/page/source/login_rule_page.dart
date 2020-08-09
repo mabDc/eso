@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:eso/database/rule.dart';
-import 'package:eso/ui/widgets/app_bar_button.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+
+import '../../fonticons_icons.dart';
 
 class LoginRulePage extends StatelessWidget {
   final Rule rule;
@@ -49,7 +50,7 @@ class LoginRulePage extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: AppBarButton(
+          leading: IconButton(
             icon: Icon(
               Icons.close,
               size: 28,
@@ -63,7 +64,7 @@ class LoginRulePage extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           actions: [
-            AppBarButton(
+            IconButton(
               icon: Icon(
                 Icons.arrow_back_ios,
                 size: 20,
@@ -75,7 +76,7 @@ class LoginRulePage extends StatelessWidget {
                 }
               },
             ),
-            AppBarButton(
+            IconButton(
               icon: Icon(
                 Icons.arrow_forward_ios,
                 size: 20,
@@ -87,7 +88,7 @@ class LoginRulePage extends StatelessWidget {
                 }
               },
             ),
-            AppBarButton(
+            IconButton(
               icon: Icon(
                 FIcons.check,
                 size: 28,

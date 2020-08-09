@@ -189,7 +189,7 @@ class NovelPageProvider with ChangeNotifier {
     _cache = {index: _content};
     final r = await _fileCache.putData('$index.txt', _content.join("\n"),
         hashCodeKey: false, shouldEncode: false);
-    if (r) {
+    if (r && _content.join("").trim().isNotEmpty) {
       _cacheChapterIndex.add(index);
       await _fileCache.putData("list.json", _cacheChapterIndex, hashCodeKey: false);
     }
@@ -197,6 +197,7 @@ class NovelPageProvider with ChangeNotifier {
 
   bool _exportLoading;
   bool get exportLoading => _exportLoading;
+  final chapterTagReg = RegExp(r"[\d一二三四五六七八九十零第章卷节回]");
 
   void exportCache() async {
     if (_exportLoading == true) {
@@ -209,25 +210,30 @@ class NovelPageProvider with ChangeNotifier {
     try {
       final chapters = searchItem.chapters;
       final export = <String>[
-        searchItem.name,
-        "",
-        "目录",
-        ...chapters.map((ch) => ch.name).toList(),
-        "",
+        "书名: ${searchItem.name}",
+        "作者: ${searchItem.author}",
+        "来源: ${searchItem.url}",
+        "目录: ",
+        ...chapters.map((ch) => "    " + ch.name).toList(),
       ];
       for (final index in List.generate(chapters.length, (index) => index)) {
         String temp;
         if (cacheChapterIndex.contains(index)) {
           temp = await _fileCache.getData("$index.txt",
               shouldDecode: false, hashCodeKey: false);
+        } else if (_cache != null && _cache[index] != null && _cache[index].isNotEmpty) {
+          temp = _cache[index].join("\n");
         }
-        export.add(chapters[index].name);
+        export.add("");
+        export.add(chapters[index].name.contains(chapterTagReg)
+            ? chapters[index].name
+            : "${index + 1}. ${chapters[index].name}");
+        export.add("");
         if (temp != null && temp.isNotEmpty) {
           export.add(temp);
         } else {
           export.add("未缓存或内容为空");
         }
-        export.add("");
       }
 
       final cache = CacheUtil(backup: true);
@@ -241,6 +247,8 @@ class NovelPageProvider with ChangeNotifier {
     _exportLoading = false;
   }
 
+  bool _autoCacheDoing;
+  bool get autoCacheDoing => _autoCacheDoing == true;
   void toggleAutoCache() async {
     showToastBottom("还没有哦");
   }

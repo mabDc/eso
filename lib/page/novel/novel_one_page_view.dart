@@ -2,9 +2,10 @@ import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_dash.dart';
 import 'package:eso/ui/widgets/icon_text.dart';
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../global.dart';
 
 /// 显示指定页
 class NovelOnePageView extends StatelessWidget {

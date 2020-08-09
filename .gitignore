@@ -41,3 +41,6 @@ lib/generated_plugin_registrant.dart
 modules/flutter_js/android/gradle/wrapper/gradle-wrapper.jar
 modules/flutter_js/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 modules/flutter_js/pubspec.lock
+ios/build/XCBuildData/
+ios/build/XCBuildData/build.db
+ios/Runner.xcodeproj/project.pbxproj

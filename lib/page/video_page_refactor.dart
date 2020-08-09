@@ -16,6 +16,7 @@ import 'package:video_player/video_player.dart';
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
+import '../global.dart';
 import '../model/audio_service.dart';
 import '../utils.dart';
 import '../utils/dlna_util.dart';
@@ -467,12 +468,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     _titleText = "${searchItem.name} - ${searchItem.durChapter}";
     _screenAxis = Axis.horizontal;
     _disposed = false;
-    if (!Utils.isDesktop) {
-      SizeUtils.updateMediaData();
-      _originalScreenAxis = SizeUtils.screenWidth > SizeUtils.screenHeight
-          ? Axis.horizontal
-          : Axis.vertical;
-    }
     setHorizontal();
     parseContent(null);
   }

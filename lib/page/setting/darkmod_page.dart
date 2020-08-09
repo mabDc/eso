@@ -1,4 +1,3 @@
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,7 +12,7 @@ class DarkModpage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarEx(
+      appBar: AppBar(
         title: Text('夜间模式'),
       ),
       body: Consumer<Profile>(

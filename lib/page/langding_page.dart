@@ -1,4 +1,3 @@
-import 'package:eso/ui/widgets/app_bar_ex.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +11,7 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: color,
-      appBar: title == null ? null : AppBarEx(
+      appBar: title == null ? null : AppBar(
         title: title,
         backgroundColor: Colors.transparent,
         titleSpacing: 0,

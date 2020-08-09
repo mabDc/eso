@@ -10,7 +10,6 @@ import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/edit/dropdown_search_edit.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +35,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
         builder: (context, child) {
           return Scaffold(
-            appBar: AppBarEx(
+            appBar: AppBar(
               titleSpacing: 0,
               title: SearchEdit(
                 hintText: "请输入关键词",

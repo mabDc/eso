@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:eso/model/rss_page_provider.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -49,10 +48,10 @@ class _RSSPageState extends State<RSSPage> {
             return LandingPage();
           }
           return Scaffold(
-            appBar: AppBarEx(
+            appBar: AppBar(
               title: Text(widget.searchItem.durChapter),
               actions: <Widget>[
-                AppBarButton(
+                IconButton(
                   icon: Icon(Icons.list),
                   onPressed: () => provider.showChapter = !provider.showChapter,
                 ),

@@ -4,10 +4,8 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/restore_event.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/source/edit_source_page.dart';
-import 'package:eso/page/test_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
-import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,7 +37,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarEx(title: Text(Global.appName)),
+      appBar: AppBar(title: Text(Global.appName)),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(
@@ -55,12 +53,6 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
-                    if (Utils.isAppDebug)
-                      ListTile(
-                        title: Text("功能测试"),
-                        subtitle: Text('此项只有调试状态可见'),
-                        onTap: () => Utils.startPageWait(context, TestPage()),
-                      ),
                     ListTile(
                       title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
@@ -400,7 +392,7 @@ class AboutPage extends StatelessWidget {
                           if (Platform.isWindows)
                             ListTile(
                               title: Text("SQLite 链接库"),
-                              subtitle: Text(SQFLiteWinUtil.dllPath()),
+                              // subtitle: Text(SQFLiteWinUtil.dllPath()),
                               leading: Icon(Icons.link),
                             )
                         ]),

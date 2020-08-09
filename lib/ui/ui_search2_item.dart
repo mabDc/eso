@@ -3,6 +3,7 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
+import '../global.dart';
 import '../utils.dart';
 
 class UiSearch2Item extends StatelessWidget {

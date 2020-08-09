@@ -1,6 +1,6 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
-import 'package:eso/ui/widgets/app_bar_button.dart';
+import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:flutter/material.dart';
 
 class NovelAutoCachePage extends StatelessWidget {
@@ -15,11 +15,11 @@ class NovelAutoCachePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final top = MediaQuery.of(context).padding.top;
-    // final bgColor = Theme.of(context).canvasColor.withOpacity(0.1);
-    // final color = Theme.of(context).textTheme.bodyText1.color;
+    final scrollController = ScrollController();
     final chapters = searchItem.chapters;
     final cacheIndex = provider.cacheChapterIndex;
+    const cacheText = const Text("已缓存", style: TextStyle(color: Colors.green));
+    const noCacheText = const Text("未缓存", style: TextStyle(color: Colors.grey));
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -28,127 +28,43 @@ class NovelAutoCachePage extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         actions: [
-          AppBarButton(
+          IconButton(
             onPressed: provider.exportCache,
             icon: Icon(Icons.exit_to_app),
             tooltip: "导出已缓存章节",
           ),
-          AppBarButton(
+          IconButton(
             onPressed: provider.toggleAutoCache,
             icon: Icon(Icons.play_arrow),
             tooltip: "开始缓存",
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          ListView.builder(
+      body: Container(
+        padding: EdgeInsets.all(2),
+        child: DraggableScrollbar.semicircle(
+          controller: scrollController,
+          labelTextBuilder: (double offset) => Text("${offset ~/ 30 + 1}"),
+          child: ListView.builder(
+            controller: scrollController,
+            cacheExtent: 30,
             itemCount: searchItem.chaptersCount,
             itemBuilder: (BuildContext context, int index) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(chapters[index].name ?? 0),
-                  cacheIndex.contains(index)
-                      ? Text(
-                          "已缓存",
-                          style: TextStyle(color: Colors.green),
-                        )
-                      : Text(
-                          "未缓存",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                ],
+              return Container(
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(chapters[index].name ?? 0),
+                    cacheIndex.contains(index) ? cacheText : noCacheText,
+                  ],
+                ),
               );
             },
           ),
-        ],
+        ),
       ),
     );
   }
 }
-
-// import 'package:eso/database/search_item.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// class NovelCacheManagePage extends StatelessWidget {
-//   final SearchItem searchItem;
-//   const NovelCacheManagePage({
-//     Key key,
-//     this.searchItem,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final top = MediaQuery.of(context).padding.top;
-//     final containerHeight = 50.0;
-//     final bgColor = Theme.of(context).canvasColor.withOpacity(0.1);
-//     final color = Theme.of(context).textTheme.bodyText1.color;
-//     final chapters = searchItem.chapters;
-//     return Scaffold(
-//       body: ChangeNotifierProvider<_CacheManage>(
-//           create: (_) => _CacheManage(seachItem: searchItem),
-//           builder: (context, child) {
-//             final provider = Provider.of<_CacheManage>(context, listen: false);
-//             return Stack(
-//               children: [
-//                 Container(
-//                   padding: EdgeInsets.only(top: top),
-//                   height: containerHeight,
-//                   color: Colors.amberAccent,
-//                   child: buildTopBar(context, color),
-//                 ),
-//                 ListView.builder(
-//                   padding: EdgeInsets.only(top: top + containerHeight),
-//                   itemCount: searchItem.chaptersCount,
-//                   itemBuilder: (BuildContext context, int index) {
-//                     return Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         Text(chapters[index].name ?? 0),
-//                         Text("已缓存"),
-//                       ],
-//                     );
-//                   },
-//                 ),
-//               ],
-//             );
-//           }),
-//     );
-//   }
-
-//   Widget buildTopBar(BuildContext context, Color color) {
-//     return Row(
-//       children: [
-//         Container(
-//           child: IconButton(
-//             padding: EdgeInsets.zero,
-//             icon: Icon(Icons.arrow_back_ios, size: 20),
-//             onPressed: () => Navigator.of(context).pop(),
-//             color: color,
-//             tooltip: "返回",
-//           ),
-//         ),
-//         Expanded(
-//           child: Text(
-//             '${searchItem.origin} - ${searchItem.name}',
-//             style: TextStyle(color: color),
-//             overflow: TextOverflow.ellipsis,
-//             maxLines: 1,
-//             textAlign: TextAlign.center,
-//           ),
-//         ),
-//         Container(
-//           width: 50,
-//           child: IconButton(
-//             padding: EdgeInsets.zero,
-//             onPressed: null,
-//             color: color,
-//             icon: Icon(Icons.file_download),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }

@@ -11,9 +11,10 @@ import 'package:eso/model/debug_rule_provider.dart';
 import 'package:eso/ui/edit/edit_view.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../fonticons_icons.dart';
 
 class DebugRulePage extends StatelessWidget {
   final Rule rule;
@@ -25,13 +26,13 @@ class DebugRulePage extends StatelessWidget {
     return ChangeNotifierProvider<DebugRuleProvider>(
       create: (_) => DebugRuleProvider(rule, textColor),
       builder: (context, child) => Scaffold(
-        appBar: AppBarEx(
+        appBar: AppBar(
           title: _buildTextField(
             context,
             Provider.of<DebugRuleProvider>(context, listen: false).search,
           ),
           actions: [
-            AppBarButton(
+            IconButton(
               icon: Icon(FIcons
                   .compass), // Text("发现测试",style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color)),
               tooltip: "发现测试",

@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
+import '../../fonticons_icons.dart';
 import 'login_rule_page.dart';
 
 class EditRulePage extends StatefulWidget {
@@ -163,11 +164,11 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     }
 
     return Scaffold(
-      appBar: AppBarEx(
+      appBar: AppBar(
         titleSpacing: 0,
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
-          AppBarButton(
+          IconButton(
             icon: Icon(FIcons.share_2),
             tooltip: "分享",
             onPressed: () => FlutterShare.share(
@@ -177,13 +178,13 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               chooserTitle: '选择分享的应用',
             ),
           ),
-          AppBarButton(
+          IconButton(
             icon: Icon(FIcons.save),
             iconSize: 21,
             tooltip: "保存",
             onPressed: () => _saveRule(context),
           ),
-          AppBarButton(
+          IconButton(
             icon: Icon(Icons.bug_report),
             tooltip: "调试",
             onPressed: () async {

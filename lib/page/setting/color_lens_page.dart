@@ -1,4 +1,3 @@
-import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +13,7 @@ class ColorLensPage extends StatelessWidget {
     final keys = Global.colors.keys.toList();
     final colors = Global.colors;
     return Scaffold(
-      appBar: AppBarEx(
+      appBar: AppBar(
         title: Text('调色板'),
       ),
       body: Consumer<Profile>(

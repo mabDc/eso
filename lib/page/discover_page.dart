@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../fonticons_icons.dart';
 import '../global.dart';
 import 'source/edit_rule_page.dart';
 
@@ -51,7 +52,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       value: EditSourceProvider(type: 2),
       builder: (BuildContext context, _) {
         return Scaffold(
-          appBar: AppBarEx(
+          appBar: AppBar(
             centerTitle: false,
             titleSpacing: NavigationToolbar.kMiddleSpacing,
             title: SearchEdit(

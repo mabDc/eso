@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
 
+import '../fonticons_icons.dart';
+
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
 
@@ -21,7 +23,7 @@ class FavoritePage extends StatelessWidget {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        appBar: AppBarEx(
+        appBar: AppBar(
           centerTitle: false,
           elevation: 0,
           title: TabBar(
@@ -45,7 +47,7 @@ class FavoritePage extends StatelessWidget {
                 .toList(),
           ),
           actions: <Widget>[
-            AppBarButton(
+            IconButton(
               icon: Icon(FIcons.settings),
               tooltip: "设置",
               onPressed: () => Utils.startPageWait(context, AboutPage()),

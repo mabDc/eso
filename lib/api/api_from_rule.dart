@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/utils.dart';
 import '../global.dart';
 import 'analyze_url.dart';
 import 'package:eso/utils/decode_body.dart';
