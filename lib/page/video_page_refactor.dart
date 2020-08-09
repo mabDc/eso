@@ -202,6 +202,30 @@ class VideoPage extends StatelessWidget {
             maxLines: 1,
           ),
         ),
+        Consumer<VideoPageProvider>(
+          builder: (context, provider, child) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "后台播放",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                ),
+              ),
+              Container(
+                height: 20,
+                child: Switch(
+                  activeColor: Colors.redAccent,
+                  activeTrackColor: Colors.red,
+                  inactiveTrackColor: Colors.grey,
+                  value: provider.allowPlaybackground,
+                  onChanged: (value) => provider.allowPlaybackground = value,
+                ),
+              ),
+            ],
+          ),
+        ),
         if (vertical)
           Container(
             height: 20,
@@ -387,7 +411,36 @@ class VideoPage extends StatelessWidget {
   }
 }
 
-class VideoPageProvider with ChangeNotifier {
+class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
+  bool _allowPlaybackground;
+  bool get allowPlaybackground => _allowPlaybackground == true;
+  set allowPlaybackground(bool value) {
+    if (_allowPlaybackground != value) {
+      _allowPlaybackground = value;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isPlaying = _controller?.value?.isPlaying;
+    switch (state) {
+      case AppLifecycleState.paused:
+        if (allowPlaybackground && isPlaying == true) {
+          (() async {
+            for (final _ in List.generate(10, (index) => index)) {
+              await Future.delayed(Duration(milliseconds: 50));
+              if (_controller?.value?.isPlaying != true) {
+                await _controller?.play();
+              }
+            }
+          })();
+        }
+        break;
+      default:
+    }
+  }
+
   final SearchItem searchItem;
   String _titleText;
   String get titleText => _titleText;
@@ -404,9 +457,9 @@ class VideoPageProvider with ChangeNotifier {
   String get positionString => Utils.formatDuration(_controller.value.position);
   Duration get duration => _controller.value.duration;
   String get durationString => Utils.formatDuration(_controller.value.duration);
-  void seekTo(Duration d) {}
 
   VideoPageProvider({@required this.searchItem}) {
+    WidgetsBinding.instance.addObserver(this);
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
@@ -516,6 +569,7 @@ class VideoPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     if (Platform.isIOS) {
       setVertical();
     } else if (!Utils.isDesktop) {
