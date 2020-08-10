@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 Icon(
-                                  Icons.library_books,
+                                  FIcons.heart,
                                   color: getColor(pageSwitch, context, 0),
                                 ),
                                 Text(
@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                Icon(Icons.satellite,
+                                Icon(FIcons.compass,
                                     color: getColor(pageSwitch, context, 1)),
                                 Text("发现",
                                     style: TextStyle(
