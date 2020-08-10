@@ -213,8 +213,9 @@ class NovelPageProvider with ChangeNotifier {
         "书名: ${searchItem.name}",
         "作者: ${searchItem.author}",
         "来源: ${searchItem.url}",
-        "目录: ",
-        ...chapters.map((ch) => "    " + ch.name).toList(),
+        "目录",
+        "",
+        ...chapters.map((ch) => ch.name).toList(),
       ];
       for (final index in List.generate(chapters.length, (index) => index)) {
         String temp;
@@ -249,8 +250,41 @@ class NovelPageProvider with ChangeNotifier {
 
   bool _autoCacheDoing;
   bool get autoCacheDoing => _autoCacheDoing == true;
-  void toggleAutoCache() async {
-    showToastBottom("还没有哦");
+  int _autoCacheToken;
+  void updateToken() => _autoCacheToken = DateTime.now().millisecondsSinceEpoch;
+  void toggleAutoCache() {
+    if (_autoCacheDoing == null || _autoCacheDoing == false) {
+      _autoCacheDoing = true;
+      showToastBottom("开始自动缓存");
+      notifyListeners();
+      updateToken();
+      _autoCacheTask(_autoCacheToken);
+    } else {
+      updateToken();
+      _autoCacheDoing = false;
+      showToastBottom("取消自动缓存");
+      notifyListeners();
+    }
+  }
+
+  _autoCacheTask(final int token) async {
+    final chapters = searchItem.chapters;
+    final id = searchItem.originTag;
+    for (final index in List.generate(chapters.length, (index) => index)) {
+      if (!autoCacheDoing || token != _autoCacheToken) break;
+      if (cacheChapterIndex.contains(index)) continue;
+      try {
+        final content = await APIManager.getContent(id, chapters[index].url);
+        final c = content.join("\n").split(RegExp(r"\n\s*|\s{2,}")).join("\n");
+        final r = await _fileCache.putData('$index.txt', c,
+            hashCodeKey: false, shouldEncode: false);
+        if (r && c.trim().isNotEmpty) {
+          _cacheChapterIndex.add(index);
+          await _fileCache.putData("list.json", _cacheChapterIndex, hashCodeKey: false);
+        }
+        notifyListeners();
+      } catch (e) {}
+    }
   }
 
   void showToastBottom(String msg) => showToast(msg, position: ToastPosition.bottom);

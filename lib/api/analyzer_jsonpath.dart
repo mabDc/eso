@@ -14,24 +14,19 @@ class AnalyzerJSonPath implements Analyzer {
   @override
   dynamic getElements(String rule) {
     final result = <dynamic>[];
-    try {
-      final res = JPath.compile(rule).search(_ctx);
-      if (res is String || res is Map) {
-        return res;
-      }
-      if (null == res) return result;
-      if (res is List) {
-        if (res[0] is List) {
-          res.forEach((r) => result.addAll(r));
-        } else {
-          result.addAll(res);
-        }
-      }
-      return result;
-    } catch (e) {
-      print("jsonpath error: $e");
-      return result;
+    final res = JPath.compile(rule).search(_ctx);
+    if (null == res) return result;
+    if (res is String || res is Map) {
+      return res;
     }
+    if (res is List) {
+      if (res[0] is List) {
+        res.forEach((r) => result.addAll(r));
+      } else {
+        result.addAll(res);
+      }
+    }
+    return result;
   }
 
   @override

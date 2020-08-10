@@ -2,6 +2,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NovelAutoCachePage extends StatelessWidget {
   final SearchItem searchItem;
@@ -20,48 +21,53 @@ class NovelAutoCachePage extends StatelessWidget {
     final cacheIndex = provider.cacheChapterIndex;
     const cacheText = const Text("已缓存", style: TextStyle(color: Colors.green));
     const noCacheText = const Text("未缓存", style: TextStyle(color: Colors.grey));
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '${searchItem.origin} - ${searchItem.name}',
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-        ),
-        actions: [
-          IconButton(
-            onPressed: provider.exportCache,
-            icon: Icon(Icons.exit_to_app),
-            tooltip: "导出已缓存章节",
+    return ChangeNotifierProvider<NovelPageProvider>.value(
+      value: provider,
+      child: Consumer<NovelPageProvider>(
+        builder: (context, provider, _) => Scaffold(
+          appBar: AppBar(
+            title: Text(
+              '${searchItem.origin} - ${searchItem.name}',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              IconButton(
+                onPressed: provider.exportCache,
+                icon: Icon(Icons.exit_to_app),
+                tooltip: "导出已缓存章节",
+              ),
+              IconButton(
+                onPressed: provider.toggleAutoCache,
+                icon: Icon(provider.autoCacheDoing ? Icons.stop : Icons.play_arrow),
+                tooltip: provider.autoCacheDoing ? "取消缓存" : "开始缓存",
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: provider.toggleAutoCache,
-            icon: Icon(Icons.play_arrow),
-            tooltip: "开始缓存",
-          ),
-        ],
-      ),
-      body: Container(
-        padding: EdgeInsets.all(2),
-        child: DraggableScrollbar.semicircle(
-          controller: scrollController,
-          labelTextBuilder: (double offset) => Text("${offset ~/ 30 + 1}"),
-          child: ListView.builder(
-            controller: scrollController,
-            cacheExtent: 30,
-            itemCount: searchItem.chaptersCount,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(chapters[index].name ?? 0),
-                    cacheIndex.contains(index) ? cacheText : noCacheText,
-                  ],
-                ),
-              );
-            },
+          body: Container(
+            padding: EdgeInsets.all(2),
+            child: DraggableScrollbar.semicircle(
+              controller: scrollController,
+              labelTextBuilder: (double offset) => Text("${offset ~/ 30 + 1}"),
+              child: ListView.builder(
+                controller: scrollController,
+                cacheExtent: 30,
+                itemCount: searchItem.chaptersCount,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    height: 30,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(chapters[index].name ?? 0),
+                        cacheIndex.contains(index) ? cacheText : noCacheText,
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),
