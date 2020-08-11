@@ -234,10 +234,10 @@ class NovelPageProvider with ChangeNotifier {
       final filePath = await cache.cacheDir() + name;
       showToastBottom("成功导出到 $filePath");
       if (isShare == true) {
-        await FlutterShare.shareFile(title: name, filePath: filePath);
+        await FlutterShare.shareFile(title: name, filePath: filePath, text: "wenben", chooserTitle: "chooserTitle");
       }
     } catch (e) {
-      showToastBottom("导出失败 $e");
+      showToastBottom("失败 $e");
     }
     _exportLoading = false;
   }
@@ -279,6 +279,9 @@ class NovelPageProvider with ChangeNotifier {
         notifyListeners();
       } catch (e) {}
     }
+    _autoCacheDoing = false;
+    notifyListeners();
+    showToastBottom("自动缓存 已完成");
   }
 
   void showToastBottom(String msg) => showToast(msg, position: ToastPosition.bottom);
