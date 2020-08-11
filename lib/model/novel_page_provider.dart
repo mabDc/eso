@@ -225,7 +225,7 @@ class NovelPageProvider with ChangeNotifier {
         }
       }
       final cache = CacheUtil(backup: true);
-      final name = "{searchItem.name}_{searchItem.author}" +
+      final name = "${searchItem.name}_${searchItem.author}" +
           "searchItem${searchItem.id}".hashCode.toString() +
           ".txt";
       await cache.putData(name, export.join("\n"),
