@@ -16,6 +16,8 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/libquickjs64.a")
 # List of absolute paths to libraries that should be bundled with the plugin
 set(flutter_js_bundled_libraries
-  "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/libquickjs64.dll"
+  "${CMAKE_CURRENT_SOURCE_DIR}/dll/bass.dll"
+  "${CMAKE_CURRENT_SOURCE_DIR}/dll/libquickjs64.dll"
+  "${CMAKE_CURRENT_SOURCE_DIR}/dll/sqlite3.dll"
   PARENT_SCOPE
 )

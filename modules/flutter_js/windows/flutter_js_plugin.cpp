@@ -105,26 +105,25 @@ namespace
     // for the relevant Flutter APIs.
     if (method_call.method_name().compare("getPlatformVersion") == 0)
     {
-      std::ostringstream version_stream;
-      version_stream << "Windows ";
+      std::string version = "Windows";
       if (IsWindows10OrGreater())
       {
-        version_stream << "10+";
+        version += "10+";
       }
       else if (IsWindows8OrGreater())
       {
-        version_stream << "8";
+        version += "8";
       }
       else if (IsWindows7OrGreater())
       {
-        version_stream << "7";
+        version += "7";
       }
-      flutter::EncodableValue response(version_stream.str());
+      flutter::EncodableValue response(version);
       result->Success(&response);
     }
     else if (method_call.method_name().compare("initEngine") == 0)
     {
-      int engineId = method_call.arguments()->IntValue();
+      int engineId = (int)(method_call.arguments());
       std::cout << engineId << std::endl;
       qjs::Runtime *runtime = new qjs::Runtime();
       qjs::Context *context = new qjs::Context(*runtime);
@@ -145,9 +144,9 @@ namespace
     }
     else if (method_call.method_name().compare("evaluate") == 0)
     {
-      flutter::EncodableMap args = method_call.arguments()->MapValue();
-      std::string command = ValueOrNull(args, "command").StringValue();
-      int engineId = ValueOrNull(args, "engineId").IntValue();
+      flutter::EncodableMap args = *std::get_if<flutter::EncodableMap>(method_call.arguments());
+      std::string command = std::get<std::string>(ValueOrNull(args, "command"));
+      int engineId = std::get<int>(ValueOrNull(args, "engineId"));
       auto ctx = jsEngineMap.at(engineId);
       try
       {
@@ -167,8 +166,8 @@ namespace
     }
     else if (method_call.method_name().compare("close") == 0)
     {
-      flutter::EncodableMap args = method_call.arguments()->MapValue();
-      int engineId = ValueOrNull(args, "engineId").IntValue();
+      flutter::EncodableMap args = *std::get_if<flutter::EncodableMap>(method_call.arguments());
+      int engineId = std::get<int>(ValueOrNull(args, "engineId"));
       if (jsEngineMap.count(engineId))
       {
         delete jsEngineMap.at(engineId);

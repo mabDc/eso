@@ -205,9 +205,7 @@ class NovelPageProvider with ChangeNotifier {
         "书名: ${searchItem.name}",
         "作者: ${searchItem.author}",
         "来源: ${searchItem.url}",
-        "目录",
-        "",
-        ...chapters.map((ch) => ch.name).toList(),
+        // ...chapters.map((ch) => ch.name).toList(),
       ];
       for (final index in List.generate(chapters.length, (index) => index)) {
         String temp;
@@ -227,8 +225,9 @@ class NovelPageProvider with ChangeNotifier {
         }
       }
       final cache = CacheUtil(backup: true);
-      final name =
-          searchItem.name + "searchItem${searchItem.id}".hashCode.toString() + ".txt";
+      final name = "{searchItem.name}_{searchItem.author}" +
+          "searchItem${searchItem.id}".hashCode.toString() +
+          ".txt";
       await cache.putData(name, export.join("\n"),
           hashCodeKey: false, shouldEncode: false);
       final filePath = await cache.cacheDir() + name;
@@ -676,19 +675,19 @@ class NovelPageProvider with ChangeNotifier {
         ]);
         continue;
       } else if (paragraph.startsWith("<img")) {
+        final img =
+            RegExp(r"""(src|data\-original)[^'"]*('|")([^'"]*)""").firstMatch(paragraph);
+        if (img == null) continue;
         print("------img--------");
         if (currentSpans.isNotEmpty) {
           _spans.add(currentSpans);
           currentHeight = 0;
           currentSpans = [];
         }
-        final img = RegExp(r"""(src|data\-original)[^'"]*('|")([^'"]*)""")
-            .firstMatch(paragraph)
-            .group(3);
         _spans.add([
           TextSpan(
             children: [
-              _buildImageSpan(img, null),
+              _buildImageSpan(img.group(3), null),
               newLine,
             ],
           )

@@ -11,6 +11,39 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+
+  url_launcher: ^5.4.2
+  url_launcher_fde:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/flutter_plugins/url_launcher_fde
+      
+  path_provider: ^1.6.5
+  path_provider_fde:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/flutter_plugins/path_provider_fde
+
+  # audioplayers: ^0.15.1
+  audioplayers: 
+    path: modules/audioplayers
+
+  # webview_flutter: ^0.3.22+1
+  webview_flutter:
+    path: modules/webview_flutter
+    # git:
+    #   url: https://github.com/devangels/plugins.git
+    #   ref: cookies
+    #   path: packages/webview_flutter
+
+  flutter_js: 
+    path: modules/flutter_js
+    # git: https://github.com/abner/flutter_js
+
+  # xpath_parse: ^1.0.2
+  xpath_parse:
+    path: modules/xpath
+
   intl: "^0.16.1"
   screen: ^0.0.5
   cupertino_icons: ^0.1.3
@@ -18,12 +51,6 @@ dependencies:
   shared_preferences: ^0.5.6+3
   http: ^0.12.1
   equatable: ^1.1.1
-  url_launcher: ^5.4.2
-  url_launcher_fde:
-    path: plugins/flutter_plugins/url_launcher_fde
-  # fast_gbk: ^0.1.2+1
-  # gbk_codec: ^0.3.2
-  # gbk2utf8: ^1.0.1
   archive: ^2.0.13
   flutter_share: ^1.0.2+1
   crypto: ^2.1.3
@@ -33,37 +60,12 @@ dependencies:
   matrix_gesture_detector: ^0.1.0
   flutter_slidable: ^0.5.4
   video_player: ^0.10.11+2
-  # fijkplayer: ^0.8.7
-    # path: modules/video_player/video_player
-#    git:
-#      url: https://github.com/cbenhagen/plugins.git
-#      ref: video_player_macos
-#      path: packages/video_player/video_player
-  path_provider: ^1.6.5
-  path_provider_fde:
-    path: plugins/flutter_plugins/path_provider_fde
-#  audioplayers: ^0.15.1
-  audioplayers: ^0.15.1
-    # path: modules/audioplayers
   encrypt: ^4.0.0
-  # webview_flutter: ^0.3.22+1
-  webview_flutter:
-    path: modules/webview_flutter
-#    git:
-#      url: https://github.com/devangels/plugins.git
-#      ref: cookies
-#      path: packages/webview_flutter
   battery: 0.3.1+10
-  flutter_js: 
-    path: modules/flutter_js
-    # git: https://github.com/abner/flutter_js
   json_path: ^0.0.1
   uuid: ^2.0.4
   floor: ^0.13.0
   oktoast: ^2.3.2
-  # xpath_parse: ^1.0.2
-  xpath_parse:
-    path: modules/xpath
   pull_to_refresh: ^1.5.8
   shimmer: ^1.1.1
   fast_gbk: ^0.1.2+1
@@ -77,7 +79,7 @@ dependencies:
   image_gallery_saver: ^1.2.2
   permission_handler: ^5.0.1
   flutter_picker: ^1.1.5
-  moor_ffi: ^0.7.0
+  moor_ffi: ^0.8.0
 
 dev_dependencies:
   flutter_test:
