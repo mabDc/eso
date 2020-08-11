@@ -375,34 +375,9 @@ class _ChapterPageState extends State<ChapterPage> {
             horizontal: searchItem.ruleContentType == API.NOVEL ? 8 : 20,
             vertical: 8,
           ),
-          sliver: searchItem.ruleContentType == API.NOVEL
-              ? _buildListView(context, onTap)
-              : _buildGridView(context, onTap),
+          sliver: _buildGridView(context, onTap),
         );
       },
-    );
-  }
-
-  Widget _buildListView(BuildContext context, Function(int index) onTap) {
-    return SliverFixedExtentList(
-      itemExtent: 50,
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final showIndex =
-              searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
-          return ListTile(
-            title: Text('${searchItem.chapters[showIndex].name}',
-                style: TextStyle(fontSize: 15),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-            dense: true,
-            selected: showIndex == searchItem.durChapterIndex,
-            onTap: () => onTap(showIndex),
-          );
-        },
-        childCount: searchItem.chapters.length,
-        addAutomaticKeepAlives: false,
-      ),
     );
   }
 
@@ -429,14 +404,12 @@ class _ChapterPageState extends State<ChapterPage> {
             child: _buildChapterButton(
                 context,
                 searchItem.durChapterIndex == index,
-                Align(
-                  alignment: FractionalOffset.center,
-                  child: Text(
-                    '${searchItem.chapters[showIndex].name}'.trim(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
+                Text(
+                  '${searchItem.chapters[showIndex].name}'.trim(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.start,
+                  style: TextStyle(fontSize: 12),
                 ),
                 () => onTap(showIndex)),
           );

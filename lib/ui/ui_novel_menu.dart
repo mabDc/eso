@@ -31,11 +31,17 @@ class UINovelMenu extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        AnnotatedRegion<SystemUiOverlayStyle>(
-          value: brightness == Brightness.light
-              ? SystemUiOverlayStyle.dark
-              : SystemUiOverlayStyle.light,
-          child: _buildTopRow(context, bgColor, color),
+        AppBar(
+          title: Text(searchItem.name),
+          brightness: brightness,
+          titleSpacing: 0,
+          actions: [
+            IconButton(
+              icon: Icon(FIcons.share_2),
+              onPressed: Provider.of<NovelPageProvider>(context, listen: false).share,
+            ),
+            _buildPopupMenu(context, bgColor, color),
+          ],
         ),
         provider.showSetting
             ? _buildSetting(context, bgColor, color)
@@ -326,20 +332,6 @@ class UINovelMenu extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTopRow(BuildContext context, Color bgColor, Color color) {
-    return AppBar(
-      title: Text(searchItem.name),
-      // subTitleText: searchItem.author,
-      actions: [
-        IconButton(
-          icon: Icon(FIcons.share_2),
-          onPressed: Provider.of<NovelPageProvider>(context, listen: false).share,
-        ),
-        _buildPopupMenu(context, bgColor, color),
-      ],
     );
   }
 

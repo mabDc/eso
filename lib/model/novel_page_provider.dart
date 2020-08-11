@@ -234,7 +234,7 @@ class NovelPageProvider with ChangeNotifier {
       final filePath = await cache.cacheDir() + name;
       showToastBottom("成功导出到 $filePath");
       if (isShare == true) {
-        await FlutterShare.shareFile(title: name, filePath: filePath, text: "wenben", chooserTitle: "chooserTitle");
+        await FlutterShare.shareFile(title: name, filePath: filePath);
       }
     } catch (e) {
       showToastBottom("失败 $e");
