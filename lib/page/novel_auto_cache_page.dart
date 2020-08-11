@@ -26,14 +26,21 @@ class NovelAutoCachePage extends StatelessWidget {
       child: Consumer<NovelPageProvider>(
         builder: (context, provider, _) => Scaffold(
           appBar: AppBar(
+            titleSpacing: 0,
             title: Text(
               '${searchItem.origin} - ${searchItem.name}',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14),
             ),
             actions: [
               IconButton(
-                onPressed: provider.exportCache,
+                onPressed: () => provider.exportCache(isShare: true),
+                icon: Icon(Icons.share),
+                tooltip: "导出并分享已缓存章节",
+              ),
+              IconButton(
+                onPressed: () => provider.exportCache(isSaveLocal: true),
                 icon: Icon(Icons.exit_to_app),
                 tooltip: "导出已缓存章节",
               ),
@@ -57,6 +64,7 @@ class NovelAutoCachePage extends StatelessWidget {
                   return Container(
                     height: 30,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
+                    margin: const EdgeInsets.only(),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

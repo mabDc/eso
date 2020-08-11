@@ -69,7 +69,6 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-  double _sysBrightness;
   double _brightness;
   double get brightness => _brightness;
   set brightness(double value) {
@@ -117,7 +116,6 @@ class NovelPageProvider with ChangeNotifier {
       if (_brightness > 1) {
         _brightness = 0.5;
       }
-      _sysBrightness = _brightness;
       if (keepOn) {
         Screen.keepOn(keepOn);
       }
@@ -192,9 +190,8 @@ class NovelPageProvider with ChangeNotifier {
 
   bool _exportLoading;
   bool get exportLoading => _exportLoading;
-  final chapterTagReg = RegExp(r"[\d一二三四五六七八九十零第章卷节回]");
 
-  void exportCache() async {
+  void exportCache({bool isShare = false, bool isSaveLocal = false}) async {
     if (_exportLoading == true) {
       showToastBottom("正在导出...");
       return;
@@ -221,9 +218,7 @@ class NovelPageProvider with ChangeNotifier {
           temp = _cache[index].join("\n");
         }
         export.add("");
-        export.add(chapters[index].name.contains(chapterTagReg)
-            ? chapters[index].name
-            : "${index + 1}. ${chapters[index].name}");
+        export.add(chapters[index].name);
         export.add("");
         if (temp != null && temp.isNotEmpty) {
           export.add(temp);
@@ -231,12 +226,16 @@ class NovelPageProvider with ChangeNotifier {
           export.add("未缓存或内容为空");
         }
       }
-
       final cache = CacheUtil(backup: true);
-      final name = searchItem.name + "searchItem${searchItem.id}".hashCode.toString();
-      await cache.putData("$name.txt", export.join("\n"),
+      final name =
+          searchItem.name + "searchItem${searchItem.id}".hashCode.toString() + ".txt";
+      await cache.putData(name, export.join("\n"),
           hashCodeKey: false, shouldEncode: false);
-      showToastBottom("成功导出到 ${await cache.cacheDir()} $name.txt");
+      final filePath = await cache.cacheDir() + name;
+      showToastBottom("成功导出到 $filePath");
+      if (isShare == true) {
+        await FlutterShare.shareFile(title: name, filePath: filePath);
+      }
     } catch (e) {
       showToastBottom("导出失败 $e");
     }
@@ -246,16 +245,16 @@ class NovelPageProvider with ChangeNotifier {
   bool _autoCacheDoing;
   bool get autoCacheDoing => _autoCacheDoing == true;
   int _autoCacheToken;
-  void updateToken() => _autoCacheToken = DateTime.now().millisecondsSinceEpoch;
+  void _updateCacheToken() => _autoCacheToken = DateTime.now().millisecondsSinceEpoch;
   void toggleAutoCache() {
     if (_autoCacheDoing == null || _autoCacheDoing == false) {
       _autoCacheDoing = true;
       showToastBottom("开始自动缓存");
       notifyListeners();
-      updateToken();
+      _updateCacheToken();
       _autoCacheTask(_autoCacheToken);
     } else {
-      updateToken();
+      _updateCacheToken();
       _autoCacheDoing = false;
       showToastBottom("取消自动缓存");
       notifyListeners();
@@ -509,14 +508,14 @@ class NovelPageProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      if (Platform.isAndroid) {
-        Screen.setBrightness(-1.0);
-      } else {
-        Screen.setBrightness(_sysBrightness);
-      }
+    if (Platform.isAndroid) {
+      Screen.setBrightness(-1.0);
+      Screen.keepOn(false);
+    } else if (Platform.isIOS) {
       Screen.keepOn(false);
     }
+    _updateCacheToken();
+    _autoCacheDoing = false;
     _paragraphs?.clear();
     _pageController?.dispose();
     spans?.clear();

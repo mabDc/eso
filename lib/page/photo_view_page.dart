@@ -210,10 +210,10 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
 
     final result = Platform.isWindows
         ? await CacheUtil(basePath: "download").putFile(Utils.getFileNameAndExt(file.path), file)
-        : await ImageGallerySaver.saveFile(file.absolute.path);
+        : await ImageGallerySaver.saveImage(file.readAsBytesSync());
     if (result is bool && result == true) {
       Utils.toast("保存成功");
-    } else if (result is String && result != null && result != "") {
+    } else if (result is String && null != result  && result.isNotEmpty) {
       String str = Uri.decodeComponent(result);
       Utils.toast("成功保存到\n$str");
     } else {
