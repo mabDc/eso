@@ -57,9 +57,7 @@ dependencies:
   flutter_js: 
     path: modules/flutter_js
     # git: https://github.com/abner/flutter_js
-  jsonpath: 
-    path: modules/jsonpath
-    # https://github.com/qhzhyt/dart-json-path.git
+  json_path: ^0.0.1
   uuid: ^2.0.4
   floor: ^0.13.0
   oktoast: ^2.3.2
