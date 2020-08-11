@@ -51,7 +51,7 @@ class SQFLiteWinUtil {
   }
 
   static String dllPath() {
-    var location = Directory.current.path;
+    // var location = Directory.current.path;
     var path = 'sqlite3.dll'; // normalize(join(location, 'sqlite3.dll'));
     return path;
   }

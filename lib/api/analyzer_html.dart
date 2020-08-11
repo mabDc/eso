@@ -16,7 +16,14 @@ class AnalyzerHtml implements Analyzer {
     } else if (content is List<String>) {
       _element = parser.parse(content.join("\n")).documentElement;
     } else if (content is List<Element>) {
-      _element = parser.parse(content.map((e) => e.outerHtml).join("\n")).documentElement;
+      if (content.length == 1) {
+        _element = content.first;
+      } else {
+        _element =
+            parser.parse(content.map((e) => e.outerHtml).join("\n")).documentElement;
+      }
+    } else if (content is List) {
+      _element = parser.parse(content.join("\n")).documentElement;
     } else {
       _element = parser.parse('$content').documentElement;
     }

@@ -1,36 +1,64 @@
+import 'dart:convert';
+
 import 'analyzer.dart';
-import 'package:jsonpath/json_path.dart';
+// import 'package:jsonpath/json_path.dart';
+import 'package:json_path/json_path.dart';
 
 class AnalyzerJSonPath implements Analyzer {
   final _jsonRulePattern = RegExp(r"\{(\$\.[^\}]+)\}");
   dynamic _ctx;
+  // [?(@.price)]
+  final filterAttrPattern = RegExp(r"\[\?\(@\.(\w+)\)\]");
 
   @override
   AnalyzerJSonPath parse(content) {
-    _ctx = content;
+    if (content is List || content is Map) {
+      _ctx = content;
+    } else if (content is String) {
+      try {
+        _ctx = jsonDecode(content);
+      } catch (e) {
+        _ctx = content;
+      }
+    } else {
+      try {
+        _ctx = jsonDecode("$content");
+      } catch (e) {
+        _ctx = content;
+      }
+    }
     return this;
   }
 
   @override
   dynamic getElements(String rule) {
-    final result = <dynamic>[];
-    final res = JPath.compile(rule).search(_ctx);
-    if (null == res) return result;
-    if (res is String || res is Map) {
-      return res;
+    final m = filterAttrPattern.firstMatch(rule);
+    if (m != null) {
+      // 允许一次
+      final attr = m[1];
+      return JsonPath(rule.replaceFirst(m.group(0), "[?$attr]"), filter: {
+        attr: (e) => e is Map && e[attr] != null,
+      }).filter(_ctx).map((e) => e.value).toList();
     }
-    if (res is List) {
-      if (res[0] is List) {
-        res.forEach((r) => result.addAll(r));
-      } else {
-        result.addAll(res);
-      }
-    }
-    return result;
+    return JsonPath(rule).filter(_ctx).map((e) => e.value).toList();
+    // final result = <dynamic>[];
+    // final res = JPath.compile(rule).search(_ctx);
+    // if (null == res) return result;
+    // if (res is String || res is Map) {
+    //   return res;
+    // }
+    // if (res is List) {
+    //   if (res[0] is List) {
+    //     res.forEach((r) => result.addAll(r));
+    //   } else {
+    //     result.addAll(res);
+    //   }
+    // }
+    // return result;
   }
 
   @override
-  dynamic getString(String rule) {
+  String getString(String rule) {
     if (rule.contains("{\$.")) {
       return rule.splitMapJoin(
         _jsonRulePattern,
@@ -38,8 +66,17 @@ class AnalyzerJSonPath implements Analyzer {
         onNonMatch: (nonMatch) => nonMatch,
       );
     }
+    // return JPath.compile(rule).search(_ctx);
 
-    return JPath.compile(rule).search(_ctx);
+    final m = filterAttrPattern.firstMatch(rule);
+    if (m != null) {
+      // 允许一次
+      final attr = m[1];
+      return JsonPath(rule.replaceFirst(m.group(0), "[?$attr]"), filter: {
+        attr: (e) => e is Map && e[attr] != null,
+      }).filter(_ctx).map((e) => e.value).join("  ");
+    }
+    return JsonPath(rule).filter(_ctx).map((e) => e.value).join("  ");
   }
 
   @override
