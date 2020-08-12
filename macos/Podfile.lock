@@ -32,7 +32,7 @@ DEPENDENCIES:
   - connectivity (from `Flutter/ephemeral/.symlinks/plugins/connectivity/macos`)
   - connectivity_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos`)
   - flutter_js (from `Flutter/ephemeral/.symlinks/plugins/flutter_js/macos`)
-  - FlutterMacOS (from `Flutter/ephemeral/.symlinks/flutter/darwin-x64`)
+  - FlutterMacOS (from `Flutter/ephemeral/.symlinks/flutter/darwin-x64-release`)
   - package_info (from `Flutter/ephemeral/.symlinks/plugins/package_info/macos`)
   - path_provider (from `Flutter/ephemeral/.symlinks/plugins/path_provider/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
@@ -43,9 +43,8 @@ DEPENDENCIES:
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
 
 SPEC REPOS:
-  https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
-    - FMDB
   trunk:
+    - FMDB
     - Reachability
 
 EXTERNAL SOURCES:
@@ -58,7 +57,7 @@ EXTERNAL SOURCES:
   flutter_js:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_js/macos
   FlutterMacOS:
-    :path: Flutter/ephemeral/.symlinks/flutter/darwin-x64
+    :path: Flutter/ephemeral/.symlinks/flutter/darwin-x64-release
   package_info:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info/macos
   path_provider:
