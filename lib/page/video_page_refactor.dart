@@ -839,7 +839,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       }
       brightness += number;
       if (brightness < 0) {
-        brightness = 0.01;
+        brightness = 0.0;
       } else if (brightness > 1) {
         brightness = 1.0;
       }
