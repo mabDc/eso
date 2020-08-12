@@ -77,7 +77,6 @@ dependencies:
   photo_view: ^0.9.2
   image_gallery_saver: ^1.2.2
   permission_handler: ^5.0.1
-  flutter_picker: ^1.1.5
   moor_ffi: ^0.8.0
 
 dev_dependencies:
