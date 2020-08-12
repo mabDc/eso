@@ -24,9 +24,9 @@ dependencies:
       url: https://github.com/google/flutter-desktop-embedding
       path: plugins/flutter_plugins/path_provider_fde
 
-  # audioplayers: ^0.15.1
-  audioplayers: 
-    path: modules/audioplayers
+  audioplayers: ^0.15.1
+  # audioplayers: 
+  #   path: modules/audioplayers
 
   # webview_flutter: ^0.3.22+1
   webview_flutter:
