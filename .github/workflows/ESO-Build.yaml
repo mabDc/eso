@@ -12,7 +12,7 @@ on:
     types: [started]
 
 jobs:
-  Apk Build:
+  Apk_Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ESO Project
@@ -51,7 +51,7 @@ jobs:
           path: eso/build/app/outputs/apk/release/*.apk
           if-no-files-found: error
 
-  Windows Build:
+  Windows_Build:
     runs-on: windows-latest
     steps:
       - name: Checkout ESO Project
@@ -90,7 +90,7 @@ jobs:
           path: eso/build/windows/runner/Release
           if-no-files-found: error
 
-  Macos Build:
+  Macos_Build:
     runs-on: macos-latest
     steps:
       - name: Checkout ESO Project
