@@ -418,7 +418,8 @@ class Profile with ChangeNotifier {
     }
   }
 
-  static String get fontFamily => Platform.isWindows ? 'Roboto' : null;
+  static String get fontFamily =>
+      Platform.isWindows ? 'Roboto' : Platform.isLinux ? "wqy" : null;
 
   ThemeData getTheme({bool isDarkMode: false}) {
     switch (darkMode) {

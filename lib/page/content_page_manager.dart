@@ -24,7 +24,6 @@ class ContentPageRoute {
           //   return RSSPage(searchItem: searchItem);
           case API.VIDEO:
             // 更新系统亮度
-            Global.updateSystemBrightness();
             if (Platform.isIOS) {
               // return FutureBuilder<List<String>>(
               //   future: APIManager.getContent(searchItem.originTag,

@@ -11,12 +11,19 @@ import 'package:path/path.dart';
 
 /// sqlite for windows by yangyxd
 class SQFLiteWinUtil {
-
-  static Future<sqflite.Database> setup({List<Migration> migrations, int version, String name, String createSQL, Callback callback}) async {
-    if (Platform.isWindows) {
+  static Future<sqflite.Database> setup(
+      {List<Migration> migrations,
+      int version,
+      String name,
+      String createSQL,
+      Callback callback}) async {
+    if (Platform.isWindows || Platform.isLinux) {
       // sqfliteFfiInit();
-      windowsInit();
-
+      if (Platform.isWindows) {
+        windowsInit();
+      } else {
+        linuxInit();
+      }
       DatabaseFactory databaseFactory = databaseFactoryFfi;
       final databaseOptions = sqflite.OpenDatabaseOptions(
         version: version,
@@ -49,23 +56,29 @@ class SQFLiteWinUtil {
     } else
       return null;
   }
-
-  static String dllPath() {
-    // var location = Directory.current.path;
-    var path = 'sqlite3.dll'; // normalize(join(location, 'sqlite3.dll'));
-    return path;
-  }
 }
 
 void windowsInit() {
-
   open.overrideFor(OperatingSystem.windows, () {
-    // devPrint('loading $path');
-    var path = SQFLiteWinUtil.dllPath();
     try {
-      return DynamicLibrary.open(path);
+      return DynamicLibrary.open("sqlite3.dll");
     } catch (e) {
-      stderr.writeln('Failed to load sqlite3.dll at $path');
+      stderr.writeln('Failed to load sqlite3.dll');
+      rethrow;
+    }
+  });
+
+  // Force an open in the main isolate
+  // Loading from an isolate seems to break on windows
+  db.Database.memory()..close();
+}
+
+void linuxInit() {
+  open.overrideFor(OperatingSystem.linux, () {
+    try {
+      return DynamicLibrary.open("libsqlite3.so");
+    } catch (e) {
+      stderr.writeln('Failed to load libsqlite3.so');
       rethrow;
     }
   });

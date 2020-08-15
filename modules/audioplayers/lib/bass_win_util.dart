@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ffi';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/services.dart';
+
+import 'audioplayers.dart';
 
 // by yangyxd 2020.07.16
 class BassWinUtil {
@@ -40,12 +41,14 @@ class BassWinUtil {
   static ReleaseMode releaseMode;
   static Future<dynamic> Function(MethodCall call) handler;
   static Timer timer;
+
   /// 0 or null 停止, 1 播放中, 2 暂停
   static int lastState, newState;
   static String curPlayerId;
   static final Map<String, int> player = Map<String, int>();
 
-  static void setMethodCallHandler(String playerId, Future<dynamic> handler(MethodCall call)) {
+  static void setMethodCallHandler(
+      String playerId, Future<dynamic> handler(MethodCall call)) {
     BassWinUtil.handler = handler;
     curPlayerId = playerId;
     player.forEach((key, value) {
@@ -61,7 +64,7 @@ class BassWinUtil {
       timer = null;
     }
   }
-  
+
   static void initTimer() {
     clearTimer();
     timer = Timer.periodic(Duration(milliseconds: 200), (timer) {
@@ -100,52 +103,101 @@ class BassWinUtil {
             _newState = 0;
           else if (_state == BASS_ACTIVE_PLAYING)
             _newState = 1;
-          else if (_state == BASS_ACTIVE_PAUSED)
-            _newState = 2;
+          else if (_state == BASS_ACTIVE_PAUSED) _newState = 2;
           if (_newState == 0) {
             handler(MethodCall("audio.onComplete", {
               "playerId": curPlayerId,
             }));
           }
-          if (_newState != newState)
-            newState = _newState;
+          if (_newState != newState) newState = _newState;
         }
       }
     });
   }
 
   static int lastErrorCode() {
-    final int Function() BASS_ErrorGetCode =
-      _library.lookup<NativeFunction<Uint32 Function()>>("BASS_ErrorGetCode").asFunction();
+    final int Function() BASS_ErrorGetCode = _library
+        .lookup<NativeFunction<Uint32 Function()>>("BASS_ErrorGetCode")
+        .asFunction();
     final code = BASS_ErrorGetCode();
     if (code != 0 && handler != null) {
       String msg = "unknown error";
       switch (code) {
-        case 1: msg = 'memory error'; break;
-        case 2: msg = "can't open the file"; break;
-        case 3: msg = "can't find a free sound driver"; break;
-        case 4: msg = "the sample buffer was lost"; break;
-        case 5: msg = 'invalid handle'; break;
-        case 6: msg = 'unsupported sample format'; break;
-        case 7: msg = 'invalid position'; break;
-        case 8: msg = 'BASS_Init has not been successfully called'; break;
-        case 9: msg = 'BASS_Start has not been successfully called'; break;
-        case 14: msg = 'already initialized/paused/whatever'; break;
-        case 17: msg = 'file does not contain audio'; break;
-        case 18: msg = "can't get a free channel"; break;
-        case 19: msg = 'an illegal type was specified'; break;
-        case 20: msg = 'an illegal parameter was specified'; break;
-        case 23: msg = 'illegal device number'; break;
-        case 24: msg = 'not playing'; break;
-        case 25: msg = 'illegal sample rate'; break;
-        case 27: msg = 'the stream is not a file stream'; break;
-        case 29: msg = 'no hardware voices available'; break;
-        case 40: msg = 'connection timedout'; break;
-        case 32: msg = 'no internet connection could be opened'; break;
-        case 41: msg = 'unsupported file format'; break;
-        case 42: msg = 'unavailable speaker'; break;
-        case 43: msg = 'invalid BASS version (used by add-ons)'; break;
-        case 44: msg = 'codec is not available/supported'; break;
+        case 1:
+          msg = 'memory error';
+          break;
+        case 2:
+          msg = "can't open the file";
+          break;
+        case 3:
+          msg = "can't find a free sound driver";
+          break;
+        case 4:
+          msg = "the sample buffer was lost";
+          break;
+        case 5:
+          msg = 'invalid handle';
+          break;
+        case 6:
+          msg = 'unsupported sample format';
+          break;
+        case 7:
+          msg = 'invalid position';
+          break;
+        case 8:
+          msg = 'BASS_Init has not been successfully called';
+          break;
+        case 9:
+          msg = 'BASS_Start has not been successfully called';
+          break;
+        case 14:
+          msg = 'already initialized/paused/whatever';
+          break;
+        case 17:
+          msg = 'file does not contain audio';
+          break;
+        case 18:
+          msg = "can't get a free channel";
+          break;
+        case 19:
+          msg = 'an illegal type was specified';
+          break;
+        case 20:
+          msg = 'an illegal parameter was specified';
+          break;
+        case 23:
+          msg = 'illegal device number';
+          break;
+        case 24:
+          msg = 'not playing';
+          break;
+        case 25:
+          msg = 'illegal sample rate';
+          break;
+        case 27:
+          msg = 'the stream is not a file stream';
+          break;
+        case 29:
+          msg = 'no hardware voices available';
+          break;
+        case 40:
+          msg = 'connection timedout';
+          break;
+        case 32:
+          msg = 'no internet connection could be opened';
+          break;
+        case 41:
+          msg = 'unsupported file format';
+          break;
+        case 42:
+          msg = 'unavailable speaker';
+          break;
+        case 43:
+          msg = 'invalid BASS version (used by add-ons)';
+          break;
+        case 44:
+          msg = 'codec is not available/supported';
+          break;
       }
       handler(MethodCall("audio.onError", {
         "playerId": curPlayerId,
@@ -163,18 +215,27 @@ class BassWinUtil {
         _library.lookup<NativeFunction<Int32 Function()>>("BASS_GetVersion").asFunction();
     print("bass version: ${BASS_GetVersion()}");
     if (isInit != true) {
-      final int Function(int, int, int, int, Pointer<void>) BASS_Init =
-        _library.lookup<NativeFunction<Int32 Function(Int32, Uint32, Uint32, Uint32, Pointer<void>)>>("BASS_Init").asFunction();
+      final int Function(int, int, int, int, Pointer<void>) BASS_Init = _library
+          .lookup<
+              NativeFunction<
+                  Int32 Function(
+                      Int32, Uint32, Uint32, Uint32, Pointer<void>)>>("BASS_Init")
+          .asFunction();
       var i = BASS_Init(-1, 44100, 0, 0, Pointer.fromAddress(0));
       isInit = i != 0;
-      if (!isInit)
-        return 0;
+      if (!isInit) return 0;
       final int Function(int, int, int, Pointer<void>, Pointer<void>) BASS_StreamCreate =
-      _library.lookup<NativeFunction<Uint32 Function(Uint32, Uint32, Uint32, Pointer<void>, Pointer<void>)>>("BASS_StreamCreate").asFunction();
+          _library
+              .lookup<
+                  NativeFunction<
+                      Uint32 Function(Uint32, Uint32, Uint32, Pointer<void>,
+                          Pointer<void>)>>("BASS_StreamCreate")
+              .asFunction();
       floatable = BASS_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT, nil, nil);
       if (floatable > 0) {
-        final void Function(int) BASS_StreamFree =
-          _library.lookup<NativeFunction<Void Function(Uint32)>>("BASS_StreamFree").asFunction();
+        final void Function(int) BASS_StreamFree = _library
+            .lookup<NativeFunction<Void Function(Uint32)>>("BASS_StreamFree")
+            .asFunction();
         BASS_StreamFree(floatable);
         floatable = BASS_SAMPLE_FLOAT;
       }
@@ -187,19 +248,24 @@ class BassWinUtil {
 
     var chan = 0;
     if (isLocal != true) {
-      final int Function(Pointer<ffi.Utf8>, int, int, Pointer<void>, Pointer<void>) BASS_StreamCreateURL =
-        _library.lookup<NativeFunction<Uint32 Function(Pointer<ffi.Utf8>, Uint32, Uint32, Pointer<void>, Pointer<void>)>>("BASS_StreamCreateURL").asFunction();
+      final int Function(Pointer<ffi.Utf8>, int, int, Pointer<void>, Pointer<void>)
+          BASS_StreamCreateURL = _library
+              .lookup<
+                  NativeFunction<
+                      Uint32 Function(Pointer<ffi.Utf8>, Uint32, Uint32, Pointer<void>,
+                          Pointer<void>)>>("BASS_StreamCreateURL")
+              .asFunction();
       final Pointer<ffi.Utf8> charPointer = ffi.Utf8.toUtf8(url);
-      chan = BASS_StreamCreateURL(charPointer, 0,
-          BASS_MUSIC_RAMPS | floatable, nil, nil);
+      chan = BASS_StreamCreateURL(charPointer, 0, BASS_MUSIC_RAMPS | floatable, nil, nil);
       ffi.free(charPointer);
     } else {
       return 0;
     }
 
     if (chan != 0) {
-      final int Function(int, int) BASS_ChannelPlay =
-        _library.lookup<NativeFunction<Int32 Function(Uint32, Int8)>>("BASS_ChannelPlay").asFunction();
+      final int Function(int, int) BASS_ChannelPlay = _library
+          .lookup<NativeFunction<Int32 Function(Uint32, Int8)>>("BASS_ChannelPlay")
+          .asFunction();
       BASS_ChannelPlay(chan, 1);
       lastId = chan;
       newState = 1;
@@ -220,8 +286,9 @@ class BassWinUtil {
 
   static int pause(int id) {
     if (_library == null || id == 0) return 0;
-    final int Function(int) BASS_ChannelPause =
-      _library.lookup<NativeFunction<Int32 Function(Uint32)>>("BASS_ChannelPause").asFunction();
+    final int Function(int) BASS_ChannelPause = _library
+        .lookup<NativeFunction<Int32 Function(Uint32)>>("BASS_ChannelPause")
+        .asFunction();
     if (BASS_ChannelPause(id) == 1)
       newState = 2;
     else
@@ -231,8 +298,9 @@ class BassWinUtil {
 
   static int resume(int id) {
     if (_library == null || id == 0) return 0;
-    final int Function(int, int) BASS_ChannelPlay =
-      _library.lookup<NativeFunction<Int32 Function(Uint32, Int8)>>("BASS_ChannelPlay").asFunction();
+    final int Function(int, int) BASS_ChannelPlay = _library
+        .lookup<NativeFunction<Int32 Function(Uint32, Int8)>>("BASS_ChannelPlay")
+        .asFunction();
     if (BASS_ChannelPlay(id, 0) == 1)
       newState = 1;
     else
@@ -242,24 +310,30 @@ class BassWinUtil {
 
   static int setPosition(int id, double position) {
     if (_library == null || id == 0) return 0;
-    final int Function(int, int, int) BASS_ChannelSetPosition =
-      _library.lookup<NativeFunction<Int32 Function(Uint32, Int64, Uint32)>>("BASS_ChannelSetPosition").asFunction();
-    final int Function(int, double) BASS_ChannelSeconds2Bytes =
-      _library.lookup<NativeFunction<Int64 Function(Uint32, Double)>>("BASS_ChannelSeconds2Bytes").asFunction();
+    final int Function(int, int, int) BASS_ChannelSetPosition = _library
+        .lookup<NativeFunction<Int32 Function(Uint32, Int64, Uint32)>>(
+            "BASS_ChannelSetPosition")
+        .asFunction();
+    final int Function(int, double) BASS_ChannelSeconds2Bytes = _library
+        .lookup<NativeFunction<Int64 Function(Uint32, Double)>>(
+            "BASS_ChannelSeconds2Bytes")
+        .asFunction();
     final v = BASS_ChannelSeconds2Bytes(id, position);
-    if (BASS_ChannelSetPosition(id, v, BASS_POS_BYTE) != 1)
-      lastErrorCode();
+    if (BASS_ChannelSetPosition(id, v, BASS_POS_BYTE) != 1) lastErrorCode();
     return 1;
   }
 
   static int stop(int id) {
     if (_library == null || id == 0 || id == null) return 0;
-    final int Function(int) BASS_ChannelStop =
-      _library.lookup<NativeFunction<Int32 Function(Uint32)>>("BASS_ChannelStop").asFunction();
-    final void Function(int) BASS_MusicFree =
-       _library.lookup<NativeFunction<Void Function(Uint32)>>("BASS_MusicFree").asFunction();
-    final void Function(int) BASS_StreamFree =
-      _library.lookup<NativeFunction<Void Function(Uint32)>>("BASS_StreamFree").asFunction();
+    final int Function(int) BASS_ChannelStop = _library
+        .lookup<NativeFunction<Int32 Function(Uint32)>>("BASS_ChannelStop")
+        .asFunction();
+    final void Function(int) BASS_MusicFree = _library
+        .lookup<NativeFunction<Void Function(Uint32)>>("BASS_MusicFree")
+        .asFunction();
+    final void Function(int) BASS_StreamFree = _library
+        .lookup<NativeFunction<Void Function(Uint32)>>("BASS_StreamFree")
+        .asFunction();
     BASS_ChannelStop(id);
     BASS_MusicFree(id);
     BASS_StreamFree(id);
@@ -271,10 +345,9 @@ class BassWinUtil {
     clearTimer();
     if (_library == null || isInit != true) return;
     stop(id);
-    if (releaseMode == ReleaseMode.STOP)
-      return;
+    if (releaseMode == ReleaseMode.STOP) return;
     final int Function() BASS_Free =
-     _library.lookup<NativeFunction<Int64 Function()>>("BASS_Free").asFunction();
+        _library.lookup<NativeFunction<Int64 Function()>>("BASS_Free").asFunction();
     BASS_Free();
     isInit = false;
     newState = null;
@@ -282,8 +355,9 @@ class BassWinUtil {
 
   static void setVolume(double volume) {
     if (_library == null || isInit != true) return;
-    final int Function(double) BASS_SetVolume =
-      _library.lookup<NativeFunction<Int32 Function(Float)>>("BASS_SetVolume").asFunction();
+    final int Function(double) BASS_SetVolume = _library
+        .lookup<NativeFunction<Int32 Function(Float)>>("BASS_SetVolume")
+        .asFunction();
     BASS_SetVolume(volume);
     isInit = false;
   }
@@ -294,27 +368,34 @@ class BassWinUtil {
 
   static double getDuration(int id) {
     if (_library == null || isInit != true) return 0;
-    final int Function(int, int) BASS_ChannelGetLength =
-      _library.lookup<NativeFunction<Int64 Function(Uint32, Uint32)>>("BASS_ChannelGetLength").asFunction();
-    final double Function(int, int) BASS_ChannelBytes2Seconds =
-      _library.lookup<NativeFunction<Double Function(Uint32, Int64)>>("BASS_ChannelBytes2Seconds").asFunction();
+    final int Function(int, int) BASS_ChannelGetLength = _library
+        .lookup<NativeFunction<Int64 Function(Uint32, Uint32)>>("BASS_ChannelGetLength")
+        .asFunction();
+    final double Function(int, int) BASS_ChannelBytes2Seconds = _library
+        .lookup<NativeFunction<Double Function(Uint32, Int64)>>(
+            "BASS_ChannelBytes2Seconds")
+        .asFunction();
     final v = BASS_ChannelGetLength(id, BASS_POS_BYTE);
     return BASS_ChannelBytes2Seconds(id, v);
   }
 
   static int isActive(int id) {
     if (_library == null || id == 0 || id == null) return 0;
-    final int Function(int) BASS_ChannelIsActive =
-      _library.lookup<NativeFunction<Int64 Function(Uint32)>>("BASS_ChannelIsActive").asFunction();
+    final int Function(int) BASS_ChannelIsActive = _library
+        .lookup<NativeFunction<Int64 Function(Uint32)>>("BASS_ChannelIsActive")
+        .asFunction();
     return BASS_ChannelIsActive(id);
   }
 
   static double getCurrentPosition(int id) {
     if (_library == null || isInit != true) return 0;
-    final int Function(int, int) BASS_ChannelGetPosition =
-      _library.lookup<NativeFunction<Int64 Function(Uint32, Uint32)>>("BASS_ChannelGetPosition").asFunction();
-    final double Function(int, int) BASS_ChannelBytes2Seconds =
-      _library.lookup<NativeFunction<Double Function(Uint32, Int64)>>("BASS_ChannelBytes2Seconds").asFunction();
+    final int Function(int, int) BASS_ChannelGetPosition = _library
+        .lookup<NativeFunction<Int64 Function(Uint32, Uint32)>>("BASS_ChannelGetPosition")
+        .asFunction();
+    final double Function(int, int) BASS_ChannelBytes2Seconds = _library
+        .lookup<NativeFunction<Double Function(Uint32, Int64)>>(
+            "BASS_ChannelBytes2Seconds")
+        .asFunction();
     final v = BASS_ChannelGetPosition(id, BASS_POS_BYTE);
     return BASS_ChannelBytes2Seconds(id, v);
   }

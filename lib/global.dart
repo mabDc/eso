@@ -4,7 +4,6 @@ import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/utils/local_storage_utils.dart';
 import 'package:eso/utils/sqflite_win_util.dart';
-import 'package:screen/screen.dart';
 import 'package:flutter/material.dart';
 import 'database/database.dart';
 import 'database/rule_dao.dart';
@@ -16,7 +15,6 @@ class Global with ChangeNotifier {
   static String appVersion = '1.13.11';
   static String appBuildNumber = '11000';
   static String appPackageName = "com.mabdc.eso";
-  static double systemBrightness = 0;
 
   static const waitingPath = "lib/assets/waiting.png";
   static const logoPath = "lib/assets/eso_logo.png";
@@ -38,10 +36,9 @@ class Global with ChangeNotifier {
   static Future<bool> init() async {
     await LocalStorage.init();
     SearchItemManager.initSearchItem();
-    updateSystemBrightness();
 
     final _migrations = [migration4to5, migration5to6];
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       // 初始化 sqlite
       var db = await SQFLiteWinUtil.setup(
         migrations: _migrations,
@@ -66,12 +63,6 @@ class Global with ChangeNotifier {
       appPackageName = packageInfo.packageName;
     } catch (e) {}
     return true;
-  }
-
-  static void updateSystemBrightness() async {
-    if (Platform.isWindows || Platform.isMacOS)
-      return;
-    systemBrightness = await Screen.brightness;
   }
 
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");

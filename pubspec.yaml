@@ -109,4 +109,19 @@ flutter:
           weight: 700
         - asset: fonts/Roboto/Roboto-Black.ttf
           weight: 900
+          
+    - family: wqy
+      fonts:
+        - asset: fonts/wqy.ttf
+          weight: 100
+        - asset: fonts/wqy.ttf
+          weight: 300
+        - asset: fonts/wqy.ttf
+          weight: 400
+        - asset: fonts/wqy.ttf
+          weight: 500
+        - asset: fonts/wqy.ttf
+          weight: 700
+        - asset: fonts/wqy.ttf
+          weight: 900
 

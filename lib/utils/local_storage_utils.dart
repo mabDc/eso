@@ -12,7 +12,7 @@ class LocalStorage {
   static bool get isCache => Platform.isWindows || Platform.isMacOS;
 
   static init() async {
-    if (Platform.isWindows || Platform.isMacOS) {
+    if (Platform.isWindows) {
       if (cache == null) {
         cache = CacheUtil(cacheName: 'prefs.json', backup: true);
         await cache.requestPermission();

@@ -29,3 +29,5 @@ flutter:
         pluginClass: SwiftFlutterJsPlugin
       windows:
         pluginClass: FlutterJsPlugin
+      linux:
+        pluginClass: FlutterJsPlugin

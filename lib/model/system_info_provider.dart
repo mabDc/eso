@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:battery/battery.dart';
 import 'package:device_info/device_info.dart';
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
@@ -43,7 +42,8 @@ class SystemInfoProvider with ChangeNotifier {
     _timer = Timer.periodic(Duration(milliseconds: 300), (_) async {
       _now = _format.format(DateTime.now());
       if (!_isVirtualMachine) {
-        _level = Utils.isDesktop ? 100 : await Battery().batteryLevel;
+        _level =
+            Platform.isIOS || Platform.isAndroid ? await Battery().batteryLevel : 100;
       }
       notifyListeners();
     });

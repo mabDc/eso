@@ -239,7 +239,7 @@ class VideoPage extends StatelessWidget {
             ),
           ),
         if (vertical)
-          Utils.isDesktop
+          Platform.isLinux || Platform.isWindows || Platform.isMacOS
               ? Container(
                   height: 20,
                   child: IconButton(
@@ -385,7 +385,7 @@ class VideoPage extends StatelessWidget {
                     tooltip: "旋转",
                   ),
                   if (provider.screenAxis == Axis.horizontal)
-                    Utils.isDesktop
+                    Platform.isLinux || Platform.isWindows || Platform.isMacOS
                         ? IconButton(
                             color: Colors.white,
                             iconSize: 20,
@@ -567,14 +567,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     if (Platform.isIOS) {
       setVertical();
-    } else if (!Utils.isDesktop) {
-      if (_originalScreenAxis != _screenAxis) {
-        if (_originalScreenAxis == Axis.vertical)
-          setVertical();
-        else
-          setHorizontal();
-      }
     }
+    resetRotation();
     _disposed = true;
     if (controller != null) {
       searchItem.durContentIndex = _controller.value.position.inMilliseconds;
@@ -584,12 +578,11 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     }
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     SearchItemManager.saveSearchItem();
-    if (!Utils.isDesktop) {
+    if (Platform.isIOS || Platform.isAndroid) {
       Screen.keepOn(false);
-      if (Platform.isIOS)
-        Screen.setBrightness(Global.systemBrightness);
-      else
+      if (Platform.isAndroid) {
         Screen.setBrightness(-1);
+      }
     }
     loadingText.clear();
     resetRotation();
@@ -750,7 +743,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     parseContent(index);
   }
 
-  Axis _originalScreenAxis = Axis.vertical;
   Axis _screenAxis;
   Axis get screenAxis => _screenAxis;
   void screenRotation() {
