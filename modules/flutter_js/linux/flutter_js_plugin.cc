@@ -5,7 +5,7 @@
 #include <sys/utsname.h>
 #include <iostream>
 #include <map>
-#include "quickjs/quickjspp.hpp"
+#include "src/quickjspp.hpp"
 
 #define FLUTTER_JS_PLUGIN(obj)                                     \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), flutter_js_plugin_get_type(), \
