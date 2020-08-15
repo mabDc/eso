@@ -44,8 +44,8 @@ static void flutter_js_plugin_handle_method_call(
   else if (strcmp(method, "initEngine") == 0)
   {
     int engineId = fl_value_get_int(args);
-    // qjs::Runtime *runtime = new qjs::Runtime();
-    // qjs::Context *context = new qjs::Context(*runtime);
+    qjs::Runtime *runtime = new qjs::Runtime();
+    qjs::Context *context = new qjs::Context(*runtime);
     // export classes as a module
     // auto &module = context->addModule("WindowsBaseMoudle");
     // module.function<&println>("println").function<&httpGet>("httpGet");
@@ -57,7 +57,7 @@ static void flutter_js_plugin_handle_method_call(
     //               "console.log = function(s) { return windowsBaseMoudle.println(s); };"
     //               "http = {};"
     //               "http.get = function(s) { return windowsBaseMoudle.httpGet(s); };");
-    // jsEngineMap[engineId] = context;
+    jsEngineMap[engineId] = context;
     g_autoptr(FlValue) result = fl_value_new_int(engineId);
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
   }

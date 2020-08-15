@@ -1,0 +1,7 @@
+gcc -shared  quickjs/*.c -DCONFIG_VERSION=\"$(cat quickjs/VERSION)\" -DCONFIG_BIGNUM -D_GNU_SOURCE=1 -fPIC -o libquickjs.so
+
+touch bin/libquickjs.def
+
+nm  -D --defined-only -f posix libquickjs.so | grep -i js | awk '{print $1}' >> bin/libquickjs.def
+
+gcc -shared quickjs/*.c -Wl,--retain-symbols-file=bin/libquickjs.def -DCONFIG_VERSION=\"$(cat quickjs/VERSION)\" -DCONFIG_BIGNUM -o bin/libquickjs64.so -pthread -s -flto -O2 -fPIC
