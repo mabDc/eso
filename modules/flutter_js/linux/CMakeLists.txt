@@ -19,6 +19,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(flutter_js_bundled_libraries
-  ""
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/libbass.so"
   PARENT_SCOPE
 )

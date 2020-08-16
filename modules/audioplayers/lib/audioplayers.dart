@@ -184,7 +184,7 @@ class AudioPlayer {
   }
 
   set notificationState(AudioPlayerState state) {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
     } else {
       _notificationPlayerStateController.add(state);
     }
@@ -297,7 +297,7 @@ class AudioPlayer {
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
 
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.setMethodCallHandler(playerId, platformCallHandler);
     }
     if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -387,7 +387,7 @@ class AudioPlayer {
     respectSilence ??= false;
     stayAwake ??= false;
 
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       chan = BassWinUtil.init(isLocal: isLocal, volume: volume, url: url);
       if (chan != 0) {
         state = AudioPlayerState.PLAYING;
@@ -416,7 +416,7 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<int> pause() async {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.pause(chan);
       state = AudioPlayerState.PAUSED;
       return 1;
@@ -436,7 +436,7 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<int> stop() async {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.stop(chan);
       state = AudioPlayerState.STOPPED;
       chan = 0;
@@ -455,7 +455,7 @@ class AudioPlayer {
   /// Resumes the audio that has been paused or stopped, just like calling
   /// [play], but without changing the parameters.
   Future<int> resume() async {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.resume(chan);
       state = AudioPlayerState.PLAYING;
       return 1;
@@ -475,7 +475,7 @@ class AudioPlayer {
   /// The resources are going to be fetched or buffered again as soon as you
   /// call [play] or [setUrl].
   Future<int> release() async {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.free(chan);
       state = AudioPlayerState.STOPPED;
       chan = 0;
@@ -495,7 +495,7 @@ class AudioPlayer {
   Future<int> seek(Duration position) {
     _positionController.add(position);
 
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.setPosition(chan, position.inMilliseconds / 1000);
       return Future.value(1);
     }
@@ -508,7 +508,7 @@ class AudioPlayer {
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
   /// interpolated.
   Future<int> setVolume(double volume)  {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.setVolume(volume);
       return Future.value(1);
     }
@@ -519,7 +519,7 @@ class AudioPlayer {
   ///
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       BassWinUtil.setReleaseMode(releaseMode);
       return Future.value(1);
     }
@@ -535,7 +535,7 @@ class AudioPlayer {
   /// Android SDK version should be 23 or higher.
   /// not sure if that's changed recently.
   Future<int> setPlaybackRate({double playbackRate = 1.0}) {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       return Future.value(1);
     }
     return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
@@ -553,7 +553,7 @@ class AudioPlayer {
       Duration backwardSkipInterval,
       Duration duration,
       Duration elapsedTime}) {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       return Future.value(1);
     }
     return _invokeMethod('setNotification', {
@@ -578,7 +578,7 @@ class AudioPlayer {
   /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false}) {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       return Future.value(1);
     }
     isLocal = isLocalUrl(url);
@@ -592,7 +592,7 @@ class AudioPlayer {
   /// It will be available as soon as the audio duration is available
   /// (it might take a while to download or buffer it if file is not local).
   Future<int> getDuration() {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       return Future.value((BassWinUtil.getDuration(chan) * 1000).toInt());
     }
     return _invokeMethod('getDuration');
@@ -600,7 +600,7 @@ class AudioPlayer {
 
   // Gets audio current playing position
   Future<int> getCurrentPosition() async {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       return Future.value((BassWinUtil.getCurrentPosition(chan) * 1000).toInt());
     }
     return _invokeMethod('getCurrentPosition');

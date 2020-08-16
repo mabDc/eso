@@ -24,6 +24,17 @@ class BassWinUtil {
     }
   }
 
+  static void linuxInit() {
+    if (_library != null) return;
+    final so = "libbass.so";
+    try {
+      _library = DynamicLibrary.open(so);
+    } catch (e) {
+      stderr.writeln('Failed to load $so');
+      rethrow;
+    }
+  }
+
   static int BASS_SAMPLE_FLOAT = 256;
   static int BASS_SAMPLE_LOOP = 4;
   static int BASS_MUSIC_LOOP = BASS_SAMPLE_LOOP;
@@ -208,7 +219,11 @@ class BassWinUtil {
   }
 
   static int init({bool isLocal = false, double volume = 1.0, String url}) {
-    windowsInit();
+    if (Platform.isWindows) {
+      windowsInit();
+    } else if (Platform.isLinux) {
+      linuxInit();
+    }
     clearTimer();
     if (_library == null) return 0;
     final int Function() BASS_GetVersion =
