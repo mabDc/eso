@@ -22,7 +22,7 @@ class FlutterJs {
   static Future<dynamic> evaluate(String command, int id) async {
     var arguments = {"engineId": id, "command": command};
     final rs = await _channel.invokeMethod("evaluate", arguments);
-    if (Platform.isAndroid || Platform.isWindows || Platform.isLin) return jsonDecode(rs);
+    if (Platform.isAndroid || Platform.isWindows || Platform.isLinux) return jsonDecode(rs);
     return rs;
   }
 

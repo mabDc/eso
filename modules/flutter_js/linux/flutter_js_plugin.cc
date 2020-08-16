@@ -5,7 +5,7 @@
 #include <sys/utsname.h>
 #include <iostream>
 #include <map>
-#include "src/quickjspp.hpp"
+#include "src/quickjspp/quickjspp.hpp"
 
 #define FLUTTER_JS_PLUGIN(obj)                                     \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), flutter_js_plugin_get_type(), \
@@ -31,7 +31,6 @@ static void flutter_js_plugin_handle_method_call(
 
   const gchar *method = fl_method_call_get_name(method_call);
   FlValue *args = fl_method_call_get_args(method_call);
-  std::cout << method << std::endl;
 
   if (strcmp(method, "getPlatformVersion") == 0)
   {
@@ -78,12 +77,11 @@ static void flutter_js_plugin_handle_method_call(
     {
       auto exc = ctx->getException();
       std::string err = (std::string)exc;
+      std::string stack = "";
       if ((bool)exc["stack"])
-        err += "\n" + (std::string)exc["stack"];
-      std::cerr << err << std::endl;
-      g_autoptr(FlValue) result = fl_value_new_string(err.c_str());
-      response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
-      // result->Error("FlutterJSException", err);
+        stack += "\n" + (std::string)exc["stack"];
+      g_autoptr(FlValue) result = fl_value_new_string(stack.c_str());
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("-1",err.c_str(),result));
     }
   }
   else if (strcmp(method, "close") == 0)
