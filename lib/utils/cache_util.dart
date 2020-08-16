@@ -27,7 +27,7 @@ class CacheUtil {
   /// 请求权限
   Future<bool> requestPermission() async {
     // 检查并请求权限
-    if (Platform.isWindows || Platform.isMacOS) return true;
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) return true;
     if (await Permission.storage.status != PermissionStatus.granted) {
       var _status = await Permission.storage.request();
       if (_status != PermissionStatus.granted) return false;
@@ -204,7 +204,7 @@ class CacheUtil {
   static Future<String> getCacheBasePath([bool storage]) async {
     if (_cacheStoragePath == null) {
       try {
-        if (Platform.isMacOS || Platform.isWindows) {
+        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
           _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
         } else if (Platform.isAndroid) {
           _cacheStoragePath = (await path.getExternalStorageDirectory()).path;

@@ -38,9 +38,9 @@ class AnalyzerJSonPath implements Analyzer {
     } else {
       list = JsonPath(rule).filter(_ctx).map((e) => e.value).toList();
     }
-    if(list == null || list.isEmpty) return <String>[];
-    if(list[0] is String){
-      return list.join("  ");
+    if (list == null || list.isEmpty) return <String>[];
+    if (list.length == 1) {
+      return list[0];
     }
     return list;
   }

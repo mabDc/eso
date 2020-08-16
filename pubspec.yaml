@@ -12,7 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  url_launcher: ^5.4.2
+  url_launcher: ^5.5.0
   url_launcher_fde:
     git:
       url: https://github.com/google/flutter-desktop-embedding
@@ -24,10 +24,10 @@ dependencies:
       url: https://github.com/google/flutter-desktop-embedding
       path: plugins/flutter_plugins/path_provider_fde
 
-  audioplayers: ^0.15.1
-  # audioplayers: 
-  #   path: modules/audioplayers
-
+  # audioplayers: ^0.15.1
+  audioplayers: 
+    path: modules/audioplayers
+    
   # webview_flutter: ^0.3.22+1
   webview_flutter:
     path: modules/webview_flutter
@@ -109,7 +109,7 @@ flutter:
           weight: 700
         - asset: fonts/Roboto/Roboto-Black.ttf
           weight: 900
-          
+
     - family: wqy
       fonts:
         - asset: fonts/wqy.ttf

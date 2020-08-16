@@ -224,7 +224,7 @@ class NovelPageProvider with ChangeNotifier {
           export.add("未缓存或内容为空");
         }
       }
-      final cache = CacheUtil(backup: true);
+      final cache = CacheUtil(basePath: "txt");
       final name = "${searchItem.name}_${searchItem.author}" +
           "searchItem${searchItem.id}".hashCode.toString() +
           ".txt";

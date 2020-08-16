@@ -208,7 +208,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
     Map<String, String> headers = provider.headers;
     File file = await mgr.getSingleFile(url, headers: headers);
 
-    final result = Platform.isWindows
+    final result = Platform.isWindows || Platform.isLinux
         ? await CacheUtil(basePath: "download").putFile(Utils.getFileNameAndExt(file.path), file)
         : await ImageGallerySaver.saveImage(file.readAsBytesSync());
     if (result is bool && result == true) {

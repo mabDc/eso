@@ -32,6 +32,10 @@ class UINovelMenu extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
           title: Text(searchItem.name),
           brightness: brightness,
           titleSpacing: 0,
