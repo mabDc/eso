@@ -119,9 +119,10 @@ jobs:
           flutter pub get
           flutter build macos -v
 
-      - name: Upload Macos Desktop
-        uses: actions/upload-artifact@v2
-        with:
-          name: ESO_MACOS
-          path: eso/build/macos/Build/Products/Release/*.app/
-          if-no-files-found: error
+      # 太大 暂时不用
+      # - name: Upload Macos Desktop
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ESO_MACOS
+      #     path: eso/build/macos/Build/Products/Release/*.app/
+      #     if-no-files-found: error
