@@ -44,12 +44,12 @@ jobs:
           flutter pub get
           flutter build apk --split-per-abi -v
 
-      - name: Upload Android APP
-        uses: actions/upload-artifact@v2
-        with:
-          name: ESO_APK
-          path: eso/build/app/outputs/apk/release/*.apk
-          if-no-files-found: error
+      # - name: Upload Android APP
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ESO_APK
+      #     path: eso/build/app/outputs/apk/release/*.apk
+      #     if-no-files-found: error
 
   Windows_Build:
     runs-on: windows-latest
@@ -83,12 +83,12 @@ jobs:
           flutter pub get
           flutter build windows -v
 
-      - name: Upload Windows Desktop
-        uses: actions/upload-artifact@v2
-        with:
-          name: ESO_WINDOWS
-          path: eso/build/windows/runner/Release
-          if-no-files-found: error
+      # - name: Upload Windows Desktop
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ESO_WINDOWS
+      #     path: eso/build/windows/runner/Release
+      #     if-no-files-found: error
 
   Macos_Build:
     runs-on: macos-latest
