@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'package:eso/utils/cache_util.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:floor/floor.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -43,7 +44,7 @@ class SQFLiteWinUtil {
           await callback?.onCreate?.call(database, version);
         },
       );
-      var path = Directory.current.path;
+      var path = await CacheUtil(backup: true, basePath: "database").cacheDir();
       var dbName = normalize(join(path, name));
       print("db path: $dbName");
 

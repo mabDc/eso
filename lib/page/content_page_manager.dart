@@ -5,7 +5,6 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/manga_page.dart';
 import 'package:eso/page/novel_page.dart';
-import 'package:eso/global.dart';
 // import 'package:eso/page/rss_page.dart';
 import 'package:eso/page/video_page_refactor.dart';
 // import 'package:fijkplayer/fijkplayer.dart';
