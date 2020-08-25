@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
@@ -169,14 +170,22 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           IconButton(
-            icon: Icon(FIcons.share_2),
-            tooltip: "分享",
-            onPressed: () => FlutterShare.share(
-              title: '亦搜 eso',
-              text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
-              //linkUrl: '${searchItem.url}',
-              chooserTitle: '选择分享的应用',
-            ),
+            icon: Icon(
+                Platform.isLinux || Platform.isWindows ? FIcons.copy : FIcons.share_2),
+            tooltip: Platform.isLinux || Platform.isWindows ? "复制" : "分享",
+            onPressed: () {
+              if (Platform.isLinux || Platform.isWindows) {
+                Clipboard.setData(ClipboardData(text: RuleCompress.compass(rule)));
+                Utils.toast("已保存到剪贴板");
+              } else {
+                FlutterShare.share(
+                  title: '亦搜 eso',
+                  text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
+                  //linkUrl: '${searchItem.url}',
+                  chooserTitle: '选择分享的应用',
+                );
+              }
+            },
           ),
           IconButton(
             icon: Icon(FIcons.save),
