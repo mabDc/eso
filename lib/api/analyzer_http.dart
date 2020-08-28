@@ -30,7 +30,7 @@ class AnalyzerHttp implements Analyzer {
   @override
   Future<String> getString(String _) async {
     final res = await AnalyzeUrl.urlRuleParser(url, _rule);
-    return DecodeBody().decode(res.bodyBytes, null);
+    return DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
   }
 
   @override

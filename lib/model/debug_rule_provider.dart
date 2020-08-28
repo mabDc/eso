@@ -188,12 +188,12 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("结果", result);
       await FlutterJs.close(engineId);
       parseChapter(result);
-    } catch (e) {
+    } catch (e, st) {
       rows.add(Row(
         children: [
           Flexible(
             child: SelectableText(
-              "$e\n",
+              "$e\n$st\n",
               style: TextStyle(color: Colors.red, height: 2),
             ),
           )
@@ -241,12 +241,12 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("搜索结果个数", resultCount.toString());
         parseFirstSearch(searchList.first, engineId);
       }
-    } catch (e) {
+    } catch (e, st) {
       rows.add(Row(
         children: [
           Flexible(
             child: SelectableText(
-              "$e\n",
+              "$e\n$st\n",
               style: TextStyle(color: Colors.red, height: 2),
             ),
           ),
@@ -281,12 +281,12 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("结果", result);
       await FlutterJs.close(engineId);
       parseChapter(result);
-    } catch (e) {
+    } catch (e, st) {
       rows.add(Row(
         children: [
           Flexible(
             child: SelectableText(
-              "$e\n",
+              "$e\n$st\n",
               style: TextStyle(color: Colors.red, height: 2),
             ),
           ),
@@ -351,12 +351,12 @@ class DebugRuleProvider with ChangeNotifier {
             firstChapter = reversed ? chapterList.last : chapterList.first;
           }
         }
-      } catch (e) {
+      } catch (e, st) {
         rows.add(Row(
           children: [
             Flexible(
               child: SelectableText(
-                "$e\n",
+                "$e\n$st\n",
                 style: TextStyle(color: Colors.red, height: 2),
               ),
             )
@@ -399,13 +399,13 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("结果", result);
       await FlutterJs.close(engineId);
       praseContent(result);
-    } catch (e) {
+    } catch (e, st) {
       FlutterJs.close(engineId);
       rows.add(Row(
         children: [
           Flexible(
             child: SelectableText(
-              "$e\n",
+              "$e\n$st\n",
               style: TextStyle(color: Colors.red, height: 2),
             ),
           )
@@ -487,12 +487,12 @@ class DebugRuleProvider with ChangeNotifier {
           }
           notifyListeners();
         }
-      } catch (e) {
+      } catch (e, st) {
         rows.add(Row(
           children: [
             Flexible(
               child: SelectableText(
-                "$e\n",
+                "$e\n$st\n",
                 style: TextStyle(color: Colors.red, height: 2),
               ),
             )
