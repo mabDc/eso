@@ -56,11 +56,13 @@ class APIFromRUle implements API {
     final engineId = await APIConst.initJSEngine(rule, discoverUrl);
     await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
     final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+            engineId,
+            rule)
         .getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId, rule);
       final tag = await analyzer.getString(rule.discoverTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
@@ -102,11 +104,13 @@ class APIFromRUle implements API {
     final engineId = await APIConst.initJSEngine(rule, searchUrl, engineId: _engineId);
     await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
     final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+            engineId,
+            rule)
         .getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId);
+      final analyzer = AnalyzerManager(item, engineId, rule);
       final tag = await analyzer.getString(rule.searchTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
@@ -158,13 +162,15 @@ class APIFromRUle implements API {
       }
       try {
         final list = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                rule)
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
         if (list.isEmpty) {
           break;
         }
         for (var item in (reversed ? list.reversed : list)) {
-          final analyzer = AnalyzerManager(item, engineId);
+          final analyzer = AnalyzerManager(item, engineId, rule);
           final lock = await analyzer.getString(rule.chapterLock);
           // final unLock = await analyzer.getString(rule.chapterUnLock);
           var name = (await analyzer.getString(rule.chapterName))
@@ -221,7 +227,9 @@ class APIFromRUle implements API {
       }
       try {
         final list = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                rule)
             .getStringList(rule.contentItems);
         if (list == null || list.isEmpty || list.join().trim().isEmpty) {
           break;

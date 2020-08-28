@@ -4,15 +4,20 @@ import 'package:eso/api/analyzer_js.dart';
 import 'package:eso/api/analyzer_jsonpath.dart';
 import 'package:eso/api/analyzer_regexp.dart';
 import 'package:eso/api/analyzer_xpath.dart';
+import 'package:eso/database/rule.dart';
+
+import 'analyzer_http.dart';
 
 class AnalyzerManager {
-  final ruleTypePattern = RegExp(r"@css:|@json:|@js:|@xpath:|^", caseSensitive: false);
+  final ruleTypePattern =
+      RegExp(r"@js:|@css:|@json:|@http:|@xpath:|^", caseSensitive: false);
   final expressionPattern = RegExp(r"\{\{(.*?)\}\}", dotAll: true);
 
   final dynamic _content;
   final int _idJsEngine;
+  final Rule _rule;
 
-  AnalyzerManager(this._content, this._idJsEngine);
+  AnalyzerManager(this._content, this._idJsEngine, this._rule);
 
   /// from https://github.com/dart-lang/sdk/issues/2336
   String Function(Match) _replacement(String pattern) => (Match match) =>
@@ -306,6 +311,9 @@ class AnalyzerManager {
           } else if (r.startsWith(RegExp(r"@json:", caseSensitive: false))) {
             r = r.substring(6);
             analyzer = AnalyzerJSonPath();
+          } else if (r.startsWith(RegExp(r"@http:", caseSensitive: false))) {
+            r = r.substring(6);
+            analyzer = AnalyzerHttp(_rule);
           } else if (r.startsWith(RegExp(r"@xpath:", caseSensitive: false))) {
             r = r.substring(7);
             analyzer = AnalyzerXPath();

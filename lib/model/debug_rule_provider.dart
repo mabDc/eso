@@ -41,7 +41,7 @@ class DebugRuleProvider with ChangeNotifier {
       child: isUrl
           ? GestureDetector(
               onTap: () => launch(s),
-              onLongPress: ()async{
+              onLongPress: () async {
                 await Clipboard.setData(ClipboardData(text: s));
                 showToast("结果已复制: $s");
               },
@@ -137,7 +137,8 @@ class DebugRuleProvider with ChangeNotifier {
       final analyzer = AnalyzerManager(
           DecodeBody()
               .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]),
-          engineId);
+          engineId,
+          rule);
       final discoverList = await analyzer.getElements(rule.discoverList);
       final resultCount = discoverList.length;
       if (resultCount == 0) {
@@ -166,7 +167,7 @@ class DebugRuleProvider with ChangeNotifier {
   void parseFirstDiscover(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId, rule);
       _addContent("名称", await analyzer.getString(rule.discoverName));
       _addContent("作者", await analyzer.getString(rule.discoverAuthor));
       _addContent("章节", await analyzer.getString(rule.discoverChapter));
@@ -229,7 +230,8 @@ class DebugRuleProvider with ChangeNotifier {
       final analyzer = AnalyzerManager(
           DecodeBody()
               .decode(searchResult.bodyBytes, searchResult.headers["content-type"]),
-          engineId);
+          engineId,
+          rule);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -258,7 +260,7 @@ class DebugRuleProvider with ChangeNotifier {
   void parseFirstSearch(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId, rule);
       _addContent("名称", await analyzer.getString(rule.searchName));
       _addContent("作者", await analyzer.getString(rule.searchAuthor));
       _addContent("章节", await analyzer.getString(rule.searchChapter));
@@ -335,7 +337,9 @@ class DebugRuleProvider with ChangeNotifier {
               engineId);
         }
         final chapterList = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                rule)
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
         final count = chapterList.length;
         if (count == 0) {
@@ -373,7 +377,7 @@ class DebugRuleProvider with ChangeNotifier {
   void parseFirstChapter(dynamic firstItem, int engineId) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId);
+      final analyzer = AnalyzerManager(firstItem, engineId, rule);
       final name = await analyzer.getString(rule.chapterName);
       _addContent("名称", name);
       final lock = await analyzer.getString(rule.chapterLock);
@@ -448,7 +452,9 @@ class DebugRuleProvider with ChangeNotifier {
               engineId);
         }
         var contentItems = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]), engineId)
+                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                engineId,
+                rule)
             .getStringList(rule.contentItems);
         if (rule.contentType == API.NOVEL) {
           contentItems = contentItems.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
