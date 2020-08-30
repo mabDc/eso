@@ -23,7 +23,7 @@ class EditSourceProvider with ChangeNotifier {
   /// 内容类型
   int _ruleContentType = -1;
   int get ruleContentType => _ruleContentType;
-    set ruleContentType(v) => _setRuleContentType(v);
+  set ruleContentType(v) => _setRuleContentType(v);
 
   EditSourceProvider({this.type = 1}) {
     _isLoadingUrl = false;
@@ -76,8 +76,7 @@ class EditSourceProvider with ChangeNotifier {
     _rulesFilter = [];
     if (_rules == null) return;
     _rules.forEach((element) {
-      if (element.contentType == value)
-        _rulesFilter.add(element);
+      if (element.contentType == value) _rulesFilter.add(element);
     });
   }
 
@@ -109,8 +108,7 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = true;
     rule.enableSearch = enable ?? !rule.enableSearch;
     await Global.ruleDao.insertOrUpdateRule(rule);
-    if (notify == true)
-      notifyListeners();
+    if (notify == true) notifyListeners();
     _isLoading = false;
   }
 
@@ -151,45 +149,6 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   SourceSortType lastSortType;
-
-  /// 排序
-  void sort(SourceSortType sortType) async {
-    if (_isLoading) return;
-    _isLoading = true;
-    bool isReversal = lastSortType == sortType;
-    if (!isReversal)
-      lastSortType = sortType;
-    else
-      lastSortType = null;
-    _rules.sort((a, b) {
-      switch (sortType) {
-        case SourceSortType.type:
-          return isReversal ? a.contentType - b.contentType : b.contentType - a.contentType;
-          break;
-        case SourceSortType.name:
-          var _a = a.name != null ? a.name : '';
-          var _b = b.name != null ? b.name : '';
-          return isReversal ? _a.compareTo(_b) : _b.compareTo(_a);
-          break;
-        case SourceSortType.author:
-          var _a = a.author != null ? a.author : '';
-          var _b = b.author != null ? b.author : '';
-          return isReversal ? _a.compareTo(_b) : _b.compareTo(_a);
-          break;
-        case SourceSortType.updateTime:
-          return isReversal ? a.modifiedTime - b.modifiedTime : b.modifiedTime - a.modifiedTime;
-          break;
-        case SourceSortType.createTime:
-          return isReversal ? a.createTime - b.createTime : b.createTime - a.createTime;
-          break;
-        default:
-          return 0;
-      }
-    });
-    await Global.ruleDao.insertOrUpdateRules(_rules);
-    notifyListeners();
-    _isLoading = false;
-  }
 
   DateTime _loadTime;
   void getRuleListByNameDebounce(String name) {
@@ -241,8 +200,7 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   static Future<bool> restore(List<dynamic> rules, bool reset) async {
-    if (reset)
-      await Global.ruleDao.clearAllRules();
+    if (reset) await Global.ruleDao.clearAllRules();
     if (rules != null) {
       for (var item in rules) {
         var _rule = Rule.fromJson(item);
@@ -251,7 +209,6 @@ class EditSourceProvider with ChangeNotifier {
     }
     return true;
   }
-
 }
 
 /// 规则排序类型
