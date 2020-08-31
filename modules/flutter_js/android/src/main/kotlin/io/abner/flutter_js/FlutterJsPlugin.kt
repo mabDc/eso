@@ -69,7 +69,7 @@ class FlutterJsPlugin: FlutterPlugin, MethodCallHandler {
             }
           } catch (e: Exception) {
             Handler(Looper.getMainLooper()).post {
-              result.error("FlutterJSException", e.message, null)
+              result.error("FlutterJSException", e.message + e.toString(), null)
             }
           }
 

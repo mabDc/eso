@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:eso/utils.dart';
 
 import 'ui_image_item.dart';
 import '../database/search_item.dart';
@@ -14,38 +14,25 @@ class UIDiscoverItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomLeft,
+    return Flex(
+      direction: Axis.vertical,
       children: <Widget>[
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            margin: const EdgeInsets.all(4),
+            child: UIImageItem(cover: searchItem.cover, hero: Utils.empty(searchItem.cover) ? null : "${searchItem.name}.${searchItem.cover}.${searchItem.id}"),
+            decoration: BoxDecoration(
+              border: Border.all(color: Theme.of(context).dividerColor, width: 0.1)
+            ),
+        )),
         Container(
-          width: double.infinity,
-          height: double.infinity,
-          child: UIImageItem(cover: searchItem.cover),
-        ),
-        Container(
-          height: 60,
-          width: double.infinity,
           alignment: Alignment.bottomLeft,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.transparent,
-                Color(0x40000000),
-                Color(0x90000000),
-                Color(0xB0000000),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Text(
-              '${searchItem.name}'.trim(),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.white),
-            ),
+          margin: EdgeInsets.only(top: 4, bottom: 2, left: 4),
+          child: Text(
+            '${searchItem.name}'.trim(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

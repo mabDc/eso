@@ -1,14 +1,19 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+/// 电池小部件
 class BatteryView extends StatefulWidget {
-  final double electricQuantity;
-  double width;
-  double height;
+  final int electricQuantity;
+  final double width;
+  final double height;
 
-  BatteryView(
-      {Key key, this.electricQuantity, this.width = 18, this.height = 10})
-      : super(key: key);
+  BatteryView({
+    Key key,
+    this.electricQuantity,
+    this.width = 18,
+    this.height = 10,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -25,9 +30,24 @@ class BatteryViewState extends State<BatteryView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: CustomPaint(
-          size: Size(widget.width, widget.height),
-          painter: BatteryViewPainter(widget.electricQuantity)),
+      height: widget.height,
+      width: widget.width,
+      child: Stack(
+        children: [
+          CustomPaint(
+              size: Size(widget.width, widget.height),
+              painter: BatteryViewPainter(widget.electricQuantity / 100)),
+          Center(
+            child: Text('${widget.electricQuantity}', style: TextStyle(
+              fontSize: 10,
+              height: 1.0,
+              color: Colors.white,
+              fontFamily: Platform.isIOS ? ".SF UI Display" : "Roboto",
+              shadows: [Shadow(blurRadius: 1.5, offset: Offset(0.5, 0.5))],
+            ), textAlign: TextAlign.center, maxLines: 1, textScaleFactor: 1.0),
+          )
+        ],
+      ),
     );
   }
 }
@@ -36,7 +56,7 @@ class BatteryViewPainter extends CustomPainter {
   double electricQuantity;
   Paint mPaint;
   double mStrokeWidth = 0.0;
-  double mPaintStrokeWidth = 1.5;
+  double mPaintStrokeWidth = 1.0;
 
   BatteryViewPainter(electricQuantity) {
     this.electricQuantity = electricQuantity;
@@ -52,11 +72,11 @@ class BatteryViewPainter extends CustomPainter {
     double batteryBottom = size.height;
 
     //电量位置
-
-    double electricQuantityLeft = 0;
-    double electricQuantityTop = 0 ;
-    double electricQuantityRight = size.width* electricQuantity;
-    double electricQuantityBottom = size.height - mStrokeWidth;
+    double electricQuantityLeft = mPaintStrokeWidth;
+    double electricQuantityTop = mPaintStrokeWidth ;
+    double electricQuantityRight = mPaintStrokeWidth +
+        (size.width - mPaintStrokeWidth * 2) * electricQuantity;
+    double electricQuantityBottom = size.height - mPaintStrokeWidth;
 
     //电池头部位置
     double batteryHeadLeft = batteryRight + mStrokeWidth * 4;
@@ -78,6 +98,14 @@ class BatteryViewPainter extends CustomPainter {
             Radius.circular(mStrokeWidth)),
         mPaint);
     mPaint.style = PaintingStyle.fill;
+
+    //判断电池电量颜色
+    if (electricQuantity < 0.2) {
+      mPaint.color = Colors.red;
+    } else {
+      mPaint.color = Colors.white60;
+    }
+
     //画电池电量
     canvas.drawRRect(
         RRect.fromLTRBR(

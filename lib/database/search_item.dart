@@ -1,18 +1,29 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
-import 'package:eso/model/chapter_page_controller.dart';
+import 'package:eso/model/chapter_page_provider.dart';
 import 'package:flutter/cupertino.dart';
 
 class SearchItem {
   int id;
-  String origin;
-  String originTag;
-  String cover;
-  String name;
-  String author;
-  String chapter;
-  String description;
+  /// 源名
+  String origin;      
+  /// 源id
+  String originTag;   
+  /// 封面
+  String cover;       
+  /// 名称
+  String name;        
+  /// 作者
+  String author;      
+  /// 最新章节
+  String chapter;     
+  /// 简介
+  String description; 
+  /// 分类
+  List<String> tags;  
+  /// 搜索结果
   String url;
+  // Future<String> get absoloteUrl async => (await Global.ruleDao.findRuleById(originTag));
   int ruleContentType;
   int chapterListStyle;
   String durChapter;
@@ -21,6 +32,12 @@ class SearchItem {
   int chaptersCount;
   bool reverseChapter;
   List<ChapterItem> chapters;
+  /// 收藏时间
+  int createTime; 
+  /// 更新时间
+  int updateTime; 
+  /// 最后阅读时间
+  int lastReadTime; 
 
   SearchItem({
     @required this.cover,
@@ -33,6 +50,7 @@ class SearchItem {
     this.chaptersCount,
     this.reverseChapter,
     this.chapters,
+    @required this.tags,
   }) {
     if (chaptersCount == null) {
       chaptersCount = 0;
@@ -46,7 +64,7 @@ class SearchItem {
       ruleContentType = api.ruleContentType;
     }
     id = DateTime.now().millisecondsSinceEpoch;
-    chapterListStyle = ChapterPageController.BigList;
+    chapterListStyle = ChapterPageProvider.BigList;
     durChapter = "";
     durChapterIndex = 0;
     durContentIndex = 1;
@@ -88,6 +106,10 @@ class SearchItem {
         "durContentIndex": durContentIndex,
         "chaptersCount": chaptersCount,
         "reverseChapter": reverseChapter,
+        "tags": tags != null ? tags.join(", ") : null,
+        "createTime": createTime,
+        "updateTime": updateTime,
+        "lastReadTime": lastReadTime,
       };
 
   SearchItem.fromJson(Map<String, dynamic> json) {
@@ -107,6 +129,12 @@ class SearchItem {
     durContentIndex = json["durContentIndex"];
     chaptersCount = json["chaptersCount"];
     reverseChapter = json["reverseChapter"] ?? false;
+    //增加时间
+    createTime = json['createTime'] ?? DateTime.now().microsecondsSinceEpoch;
+    updateTime = json['updateTime'] ?? DateTime.now().microsecondsSinceEpoch;
+    lastReadTime = json['lastReadTime'] ?? DateTime.now().microsecondsSinceEpoch;
+
+    tags = json["tags"]?.split(", ") ?? <String>[];
     chapters = <ChapterItem>[];
   }
 }

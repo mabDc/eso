@@ -3,7 +3,7 @@ import '../global.dart';
 class HistoryManager {
   HistoryManager() {
     _searchHistory =
-        Global.prefs.getStringList(Global.searchHistoryKey) ?? <String>[];
+        LocalStorage.getStringList(Global.searchHistoryKey) ?? <String>[];
   }
 
   List<String> _searchHistory;
@@ -23,6 +23,7 @@ class HistoryManager {
     return await _saveSearchHistory();
   }
 
-  Future<bool> _saveSearchHistory() =>
-      Global.prefs.setStringList(Global.searchHistoryKey, _searchHistory);
+  Future<bool> _saveSearchHistory() async {
+    return await LocalStorage.set(Global.searchHistoryKey, _searchHistory);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:eso/model/profile.dart';
 import 'package:flutter/material.dart';
 
 class FirstPage extends StatelessWidget {
@@ -77,12 +78,21 @@ class FirstPage extends StatelessWidget {
           SizedBox(
             height: 20,
           ),
+          // Container(
+          //   height: 100,
+          //   width: 100,
+          //   child: Image.asset(
+          //     Global.logoPath,
+          //     fit: BoxFit.fill,
+          //   ),
+          // ),
           Text(
             'ESO',
             style: TextStyle(
               fontSize: 80,
               fontWeight: FontWeight.bold,
               fontStyle: FontStyle.italic,
+              fontFamily: Profile.fontFamily,
               letterSpacing: 6,
               color: Color.fromARGB(255, 40, 185, 130),
             ),

@@ -7,16 +7,16 @@ class DiscoverPageController with ChangeNotifier {
   /// const
   final String originTag;
   final List<DiscoverMap> discoverMap;
+
   /// private
-  int _page;
   bool _showSearchResult;
-  Map<String, DiscoverPair> _discoverParams;
 
   /// private set, public get
+  Map<String, DiscoverPair> _discoverParams;
+  Map<String, DiscoverPair> get discoverParams => _discoverParams;
+
   String get title => _title;
   String _title;
-  bool get isLoading => _isLoading;
-  bool _isLoading;
 
   bool get showSearchField => _showSearchField;
   bool _showSearchField;
@@ -27,11 +27,10 @@ class DiscoverPageController with ChangeNotifier {
   TextEditingController get queryController => _queryController;
   TextEditingController _queryController;
 
-  ScrollController get controller => _controller;
-  ScrollController _controller;
+  List<ListDataItem> get items => _items;
+  List<ListDataItem> _items;
 
-  List<SearchItem> get items => _items;
-  List<SearchItem> _items;
+  ListDataItem get searchItem => _items.last;
 
   DiscoverPageController({
     @required this.originTag,
@@ -39,62 +38,100 @@ class DiscoverPageController with ChangeNotifier {
     @required String origin,
   }) {
     _discoverParams = Map<String, DiscoverPair>();
-    discoverMap.forEach((map) => _discoverParams[map.name] = map.pairs.first);
+    discoverMap.forEach((map) {
+      _discoverParams[map.name] = map.pairs.first;
+    });
     _title = origin;
-    _page = 1;
     _showSearchResult = false;
-    _isLoading = false;
     _showSearchField = false;
     _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
-    _controller = ScrollController();
-    _controller.addListener(() {
-      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        loadMore();
-      }
-    });
-    fetchData();
+    initItems();
+    fetchData(_items.first);
   }
 
-  void selectDiscoverPair(String name,DiscoverPair pair){
-    if(_discoverParams[name] != pair){
-      _discoverParams[name]= pair;
-      _discover();
+  void initItems() {
+    if (_items != null) return;
+    _items = <ListDataItem>[];
+    final _addItem = (DiscoverPair element) {
+      var item = ListDataItem();
+      item.pair = element;
+      item.controller = ScrollController();
+      item.controller.addListener(() {
+        if (item.more &&
+            item.controller.position.pixels == item.controller.position.maxScrollExtent) {
+          loadMore(item);
+        }
+      });
+      item.page = 1;
+      item.isLoading = false;
+      item.items = [];
+      _items.add(item);
+    };
+
+    discoverMap.forEach((element) {
+      _addItem(element.pairs.first);
+    });
+
+    _addItem(null); // 加一个空的用于搜索
+  }
+
+  void selectDiscoverPair(String name, DiscoverPair pair) {
+    if (_discoverParams[name] != pair) {
+      if (pair == null) {
+        pair = _discoverParams[name];
+        var index = _items.indexWhere((element) => element.pair == pair);
+        var item = _items[index];
+        if (item.length == 0) _discover(item);
+      } else {
+        _discoverParams[name] = pair;
+        var index = discoverMap.indexWhere((element) => element.name == name);
+        var item = _items[index];
+        item.pair = pair;
+        _discover(item);
+      }
     }
   }
 
-  DiscoverPair getDiscoverPair(String name){
+  DiscoverPair getDiscoverPair(String name) {
     return _discoverParams[name];
   }
 
-  void resetDiscoverParams(){
+  void resetDiscoverParams() {
     _discoverParams = Map<String, DiscoverPair>();
     discoverMap.forEach((map) => _discoverParams[map.name] = map.pairs.first);
     notifyListeners();
   }
 
-  Future<void> fetchData({needShowLoading = false}) async {
-    if (_isLoading) return;
-    _isLoading = true;
-    if(needShowLoading){
+  Future<void> fetchData(ListDataItem item, {needShowLoading = false}) async {
+    if (item == null || item.isLoading || discoverMap.isEmpty) return;
+    item.isLoading = true;
+    if (needShowLoading) {
       notifyListeners();
     }
     List<SearchItem> newItems;
-    if (_showSearchResult) {
-      newItems =
-          await APIManager.search(originTag, _queryController.text, _page);
-    } else {
-      newItems =
-          await APIManager.discover(originTag, _discoverParams, _page);
+    try {
+      if (_showSearchResult) {
+        newItems = await APIManager.search(originTag, _queryController.text, item.page);
+      } else {
+        newItems = await APIManager.discover(
+            originTag, {discoverMap.first.name: item.pair}, item.page);
+      }
+    } catch (e) {
+      print(e);
+      item.isLoading = false;
+      notifyListeners();
+      return;
     }
-    if (_page == 1) {
-      _items?.clear();
-      _items = newItems;
+    if (item.page == 1) {
+      item.items?.clear();
+      item.items = newItems;
     } else {
-      _items.addAll(newItems);
+      item.items.addAll(newItems);
     }
-    _isLoading = false;
+    item.isLoading = false;
+    item.more = newItems.length > 0;
     notifyListeners();
     return;
   }
@@ -104,22 +141,23 @@ class DiscoverPageController with ChangeNotifier {
   //   return fetchData();
   // }
 
-  void search() async {
+  search() async {
     _showSearchResult = true;
-    _page = 1;
-    return fetchData();
+    var item = searchItem;
+    item.page = 1;
+    return await fetchData(item);
   }
 
-  void _discover() {
+  void _discover(ListDataItem item) {
     //_showFilter = false;
     _showSearchResult = false;
-    _page = 1;
-    fetchData(needShowLoading: true);
+    item.page = 1;
+    fetchData(item, needShowLoading: true);
   }
 
-  void loadMore() {
-    _page++;
-    fetchData();
+  void loadMore(ListDataItem item) {
+    item.page++;
+    fetchData(item);
   }
 
   void toggleSearching() {
@@ -140,8 +178,35 @@ class DiscoverPageController with ChangeNotifier {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _items?.forEach((element) {
+      element.dispose();
+    });
     _queryController.dispose();
     super.dispose();
   }
+}
+
+class ListDataItem {
+  ListDataItem(
+      {this.items,
+      this.pair,
+      this.more = true,
+      this.controller,
+      this.page = 1,
+      this.isLoading = false});
+
+  DiscoverPair pair;
+  ScrollController controller;
+  List<SearchItem> items;
+  int page;
+  bool isLoading;
+  bool more;
+
+  void dispose() {
+    if (controller != null) controller.dispose();
+    controller = null;
+    items?.clear();
+  }
+
+  int get length => items?.length ?? 0;
 }

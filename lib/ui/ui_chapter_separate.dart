@@ -1,3 +1,4 @@
+import 'package:eso/model/profile.dart';
 import 'package:flutter/material.dart';
 
 class UIChapterSeparate extends StatelessWidget {
@@ -30,6 +31,7 @@ class UIChapterSeparate extends StatelessWidget {
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
+          fontFamily: Profile.fontFamily,
           height: 2,
           color: color,
         ),
