@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 
 class SystemInfoProvider with ChangeNotifier {
-  final _format = intl.DateFormat('HH:mm:ss');
+  final _format = intl.DateFormat('HH:mm');
   Timer _timer;
   bool _isVirtualMachine;
 
@@ -31,17 +31,19 @@ class SystemInfoProvider with ChangeNotifier {
       if (!androidInfo.isPhysicalDevice) {
         _isVirtualMachine = true;
       }
-    }
-    if (Platform.isIOS) {
+    } else if (Platform.isIOS) {
       var iosInfo = await deviceInfo.iosInfo;
       if (!iosInfo.isPhysicalDevice) {
         _isVirtualMachine = true;
       }
+    } else if (Platform.isMacOS) {
+      _isVirtualMachine = true;
     }
     _timer = Timer.periodic(Duration(milliseconds: 300), (_) async {
       _now = _format.format(DateTime.now());
       if (!_isVirtualMachine) {
-        _level = await Battery().batteryLevel;
+        _level =
+            Platform.isIOS || Platform.isAndroid ? await Battery().batteryLevel : 100;
       }
       notifyListeners();
     });

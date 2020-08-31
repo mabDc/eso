@@ -1,15 +1,43 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/api/api_manager.dart';
+import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/evnts/audio_state_event.dart';
+import 'package:eso/utils.dart';
 
 class AudioService {
+  static const int REPEAT_FAVORITE = 3;
   static const int REPEAT_ALL = 2;
   static const int REPEAT_ONE = 1;
   static const int REPEAT_NONE = 0;
 
-  static final AudioService _audioService = AudioService._internal();
-  factory AudioService() => _audioService;
+  static AudioService __internal;
+
+  static AudioService getAudioService() {
+    if (__internal == null)
+      __internal = AudioService._internal();
+    return __internal;
+  }
+
+  factory AudioService() => getAudioService();
+
+  static bool get isPlaying => __internal != null && __internal.__isPlaying;
+
+  static Future<void> stop() async {
+    if (!isPlaying) return;
+    await __internal._player.stop();
+  }
+
+  static String getRepeatName(int value) {
+    switch (value) {
+      case REPEAT_FAVORITE: return "跨源循环";
+      case REPEAT_ALL: return "列表循环";
+      case REPEAT_ONE: return "单曲循环";
+      case REPEAT_NONE: return "不循环";
+    }
+    return null;
+  }
 
   AudioService._internal() {
     if (_player == null) {
@@ -26,9 +54,13 @@ class AudioService {
       });
       _player.onPlayerStateChanged.listen((AudioPlayerState s) {
         _playerState = s;
+        eventBus.fire(AudioStateEvent(_searchItem, s));
       });
       _player.onPlayerCompletion.listen((event) {
         switch (_repeatMode) {
+          case REPEAT_FAVORITE:
+            playNext(true);
+            break;
           case REPEAT_ALL:
             playNext();
             break;
@@ -49,6 +81,12 @@ class AudioService {
     await _player.seek(Duration.zero);
     return _player.resume();
   }
+
+  /// 是否正在播放
+  bool get __isPlaying => _playerState != null &&
+      _playerState != AudioPlayerState.STOPPED &&
+      _playerState != AudioPlayerState.COMPLETED &&
+      _playerState != AudioPlayerState.PAUSED;
 
   Future<int> play() async {
     switch (_playerState) {
@@ -71,19 +109,25 @@ class AudioService {
     }
   }
 
-  void playNext() => playChapter(
-      _searchItem.durChapterIndex == (_searchItem.chapters.length - 1)
-          ? 0
-          : _searchItem.durChapterIndex + 1);
+  void playNext([bool allFavorite = false]) {
+    if (_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)) {
+      if (allFavorite != true) {
+        playChapter(0);
+      } else {
+        eventBus.fire(AudioStateEvent(_searchItem, AudioPlayerState.COMPLETED, playNext: true));
+      }
+    } else {
+      playChapter(_searchItem.durChapterIndex + 1);
+    }
+  }
 
   void playPrev() => playChapter(_searchItem.durChapterIndex == 0
       ? _searchItem.chapters.length - 1
       : _searchItem.durChapterIndex - 1);
 
-  Future<void> playChapter(int chapterIndex, [SearchItem searchItem]) async {
-    if (searchItem == null) {
-      if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length)
-        return;
+  Future<void> playChapter(int chapterIndex, {SearchItem searchItem, bool tryNext = false}) async {
+    if (searchItem == null || _searchItem == searchItem) {
+      if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length) return;
       if (_url != null && _searchItem.durChapterIndex == chapterIndex) {
         replay();
         return;
@@ -94,10 +138,14 @@ class AudioService {
       play();
       return;
     }
-    _player.pause();
-    await _player.seek(Duration.zero);
+    try {
+      _player.pause();
+      await _player.seek(Duration.zero);
+    } catch (e) {}
     _player.stop();
     _durChapterIndex = chapterIndex;
+    if (_searchItem.chapters == null || _searchItem.chapters.isEmpty)
+      return;
     final content = await APIManager.getContent(
         _searchItem.originTag, _searchItem.chapters[chapterIndex].url);
     if (content == null || content.length == 0) return;
@@ -108,13 +156,24 @@ class AudioService {
     _searchItem.durChapterIndex = chapterIndex;
     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
     _searchItem.durContentIndex = 1;
+    _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
-    _player.play(_url);
+    print(_url);
+    try {
+      await _player.play(_url);
+    } catch(e) {
+      print(e);
+      if (tryNext == true) {
+        await Utils.sleep(3000);
+        if (!AudioService.isPlaying)
+          playNext();
+      }
+    }
   }
 
   void switchRepeatMode() {
     int temp = _repeatMode + 1;
-    if (temp > 2) {
+    if (temp > 3) {
       _repeatMode = 0;
     } else {
       _repeatMode = temp;
@@ -138,6 +197,10 @@ class AudioService {
 
   AudioPlayerState _playerState;
   AudioPlayerState get playerState => _playerState;
+
+  /// 当前播放的节目
+  ChapterItem get curChapter => _durChapterIndex < 0 || _durChapterIndex >= (_searchItem?.chapters?.length ?? 0) ? null : _searchItem.chapters[_durChapterIndex];
+
 
   void dispose() {
     try {

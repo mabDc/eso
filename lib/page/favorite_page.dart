@@ -1,119 +1,63 @@
-import 'package:eso/database/search_item.dart';
-import 'package:eso/model/audio_service.dart';
+import 'package:eso/api/api.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/page/content_page_manager.dart';
-import 'package:eso/ui/ui_discover_item.dart';
+import 'package:eso/page/setting/about_page.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:eso/ui/round_indicator.dart';
+import 'package:eso/page/favorite_list_page.dart';
 
-import '../database/search_item_manager.dart';
-import '../global.dart';
-import '../model/history_manager.dart';
-import '../model/search_page_delegate.dart';
-import '../ui/ui_shelf_item.dart';
-import 'chapter_page.dart';
+import '../fonticons_icons.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
 
+  static const tabs = [
+    ["文字", API.NOVEL],
+    ["图片", API.MANGA],
+    ["音频", API.AUDIO],
+    ["视频", API.VIDEO],
+  ];
+
   @override
   Widget build(BuildContext context) {
-    List<SearchItem> searchItems =
-        List<SearchItem>.from(SearchItemManager.searchItem);
-    if (AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(AudioService().searchItem.url)) {
-      searchItems.add(AudioService().searchItem);
-    }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(Global.appName),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () => showSearch(
-              context: context,
-              delegate: SearchPageDelegate(
-                historyManager:
-                    Provider.of<HistoryManager>(context, listen: false),
-              ),
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          elevation: 0,
+          title: TabBar(
+            isScrollable: true,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelColor: Theme.of(context).primaryColor,
+            unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
+            indicator: RoundTabIndicator(
+                insets: EdgeInsets.only(left: 5, right: 5),
+                borderSide:
+                    BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
+            tabs: tabs
+                .map((tab) => Container(
+                    height: 30,
+                    alignment: Alignment.center,
+                    child: Text(
+                      tab[0],
+                      style: TextStyle(fontWeight: FontWeight.bold,
+                          fontFamily: Profile.fontFamily),
+                    )))
+                .toList(),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(FIcons.settings),
+              tooltip: "设置",
+              onPressed: () => Utils.startPageWait(context, AboutPage()),
             ),
-          ),
-          IconButton(
-            icon:
-                Provider.of<Profile>(context, listen: false).switchFavoriteStyle
-                    ? Icon(Icons.view_headline)
-                    : Icon(Icons.view_module),
-            onPressed: () => Provider.of<Profile>(context, listen: false)
-                    .switchFavoriteStyle =
-                !Provider.of<Profile>(context, listen: false)
-                    .switchFavoriteStyle,
-          ),
-        ],
+          ],
+        ),
+        body: TabBarView(
+          children: tabs.map((tab) => FavoriteListPage(type: tab[1])).toList(),
+        ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(Duration(seconds: 1));
-          return;
-        },
-        child: Provider.of<Profile>(context, listen: false).switchFavoriteStyle
-            ? _buildFavoriteGrid(searchItems)
-            : _buildFavoriteList(searchItems),
-      ),
-    );
-  }
-
-  Widget _buildFavoriteList(List<SearchItem> searchItems) {
-    return ListView.separated(
-      separatorBuilder: (context, index) {
-        return SizedBox(
-          height: 8.0,
-        );
-      },
-      itemCount: searchItems.length,
-      padding: EdgeInsets.all(8.0),
-      itemBuilder: (context, index) {
-        final searchItem = searchItems[index];
-        final longPress =
-            Provider.of<Profile>(context, listen: false).switchLongPress;
-        VoidCallback openChapter = () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ChapterPage(searchItem: searchItem)));
-        VoidCallback openContent = () =>
-            Navigator.of(context).push(ContentPageRoute().route(searchItem));
-        return InkWell(
-          child: UiShelfItem(searchItem: searchItem),
-          onTap: longPress ? openChapter : openContent,
-          onLongPress: longPress ? openContent : openChapter,
-        );
-      },
-    );
-  }
-
-  Widget _buildFavoriteGrid(List<SearchItem> searchItems) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.8,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      padding: EdgeInsets.all(8.0),
-      itemCount: searchItems.length,
-      itemBuilder: (context, index) {
-        final searchItem = searchItems[index];
-        final longPress =
-            Provider.of<Profile>(context, listen: false).switchLongPress;
-        VoidCallback openChapter = () => Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => ChapterPage(searchItem: searchItem)));
-        VoidCallback openContent = () =>
-            Navigator.of(context).push(ContentPageRoute().route(searchItem));
-        return InkWell(
-          child: UIDiscoverItem(searchItem: searchItem),
-          onTap: longPress ? openChapter : openContent,
-          onLongPress: longPress ? openContent : openChapter,
-        );
-      },
     );
   }
 }

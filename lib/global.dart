@@ -1,35 +1,84 @@
+import 'dart:io';
+import 'dart:math';
+import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/utils/local_storage_utils.dart';
+import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'database/database.dart';
+import 'database/rule_dao.dart';
+export 'utils/local_storage_utils.dart';
+import 'package:package_info/package_info.dart';
 
 class Global with ChangeNotifier {
-  static const appName = '亦搜';
-  static const appVersion = '1.12.0';
+  static String appName = '亦搜';
+  static String appVersion = '1.13.11';
+  static String appBuildNumber = '11000';
+  static String appPackageName = "com.mabdc.eso";
 
   static const waitingPath = "lib/assets/waiting.png";
+  static const logoPath = "lib/assets/eso_logo.png";
+  // static const nowayPath = "lib/assets/noway.png";
+  // static const errorPath = "lib/assets/error.png";
   static const cheerioFile = "lib/assets/cheerio.min.js";
   static const md5File = "lib/assets/md5.min.js";
   static const cryptoJSFile = "lib/assets/CryptoJS.min.js";
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
-
-  static SharedPreferences _prefs;
-
-  static SharedPreferences get prefs => _prefs;
+  static const testRuleKey = "testRule";
+  static const fullSpace = "　";
   static int currentHomePage;
 
+  static RuleDao _ruleDao;
+  static RuleDao get ruleDao => _ruleDao;
+
   static Future<bool> init() async {
-    _prefs = await SharedPreferences.getInstance();
+    await LocalStorage.init();
     SearchItemManager.initSearchItem();
+
+    final _migrations = [migration4to5, migration5to6];
+    if (Platform.isWindows || Platform.isLinux) {
+      // 初始化 sqlite
+      var db = await SQFLiteWinUtil.setup(
+        migrations: _migrations,
+        version: dbVersion, // 版本号需要与database.dart中定义的一致
+        name: 'eso_database.db',
+        createSQL: createTableSQL,
+      );
+      _ruleDao = RuleDaoWin(db, null);
+    } else {
+      final _database = await $FloorAppDatabase
+          .databaseBuilder('eso_database.db')
+          .addMigrations(_migrations)
+          .build();
+      _ruleDao = _database.ruleDao;
+    }
     await Future.delayed(Duration(seconds: 1));
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion = packageInfo.version;
+      appBuildNumber = packageInfo.buildNumber;
+      appName = packageInfo.appName;
+      appPackageName = packageInfo.packageName;
+    } catch (e) {}
     return true;
   }
 
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
 
+  /// 默认材质高度
+  static double elevation = 0.5;
+
+  /// 默认分隔线高度
+  static double lineSize = 0.35;
+
+  /// 默认按钮边框大小
+  static double borderSize = 0.5;
+
   static Map<String, int> get colors => {
-        // "自定义": 0xFFEF3A6E,
+        // "自定义": 0xFF4BB0A0,
+        "冰青色": 0xFF4BB0A0,
         "酷安绿": 0xFF4BAF4F,
         "知乎蓝": 0xFF1F96F2,
         "哔哩粉": 0xFFFA7298,
@@ -177,4 +226,21 @@ class Global with ChangeNotifier {
         "暗蓝色": 0xFF000080,
         "海军色": 0xFF000000,
       };
+
+  /// 颜色亮度调节, offset 取值为 -1 ~ 1 之间
+  static Color colorLight(Color value, double offset) {
+    int v = (offset * 255).round();
+    if (v > 0) {
+      return Color.fromARGB(value.alpha, min(255, value.red + v),
+          min(255, value.green + v), min(255, value.blue + v));
+    } else {
+      return Color.fromARGB(value.alpha, max(0, value.red + v), max(0, value.green + v),
+          max(0, value.blue + v));
+    }
+  }
+
+  /// 返回该颜色的亮度, 亮度值介于 0 - 255之间
+  static double lightness(Color color) {
+    return 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue;
+  }
 }

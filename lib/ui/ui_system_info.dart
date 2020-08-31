@@ -1,11 +1,16 @@
+import 'package:eso/model/profile.dart';
 import 'package:eso/model/system_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'battery_view.dart';
+
 class UISystemInfo extends StatefulWidget {
   final String mangaInfo;
+  final int mangaCount;
   const UISystemInfo({
     this.mangaInfo,
+    this.mangaCount,
     Key key,
   }) : super(key: key);
 
@@ -37,38 +42,45 @@ class _UISystemInfoState extends State<UISystemInfo> {
       child: Consumer<SystemInfoProvider>(
           builder: (BuildContext context, SystemInfoProvider provider, _) {
         __provider = provider;
-        return Container(
-          height: 20,
-          width: double.infinity,
-          alignment: Alignment.bottomRight,
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          decoration: BoxDecoration(
-            color: Color.fromARGB(100, 0, 0, 0),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                '${widget.mangaInfo} ${provider.now} ${provider.level}%',
-                style: TextStyle(color: Colors.white),
+        return SafeArea(
+          child: Material(
+            color: Colors.black.withOpacity(0.5),
+            borderRadius: BorderRadius.horizontal(
+              left: Radius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 2,
+                horizontal: 10,
               ),
-              Padding(padding: EdgeInsets.only(left: 2)),
-              Container(
-                width: 27,
-                height: 12,
-                child: Stack(
-                  children: <Widget>[
-                    Image.asset('lib/assets/reader_battery.png'),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(2, 2, 2, 2),
-                      width: 20 * provider.level / 100,
-                      color: Color.fromARGB(255, 255, 255, 255),
+              child: DefaultTextStyle(
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontFamily: Profile.fontFamily,
+                  textBaseline: TextBaseline.alphabetic,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(width: 2),
+                    Flexible(
+                      child: Text(
+                        '${widget.mangaInfo}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
+                    Text('  |  ${widget.mangaCount}P'),
+                    SizedBox(width: 8),
+                    Text('${provider.now}'),
+                    SizedBox(width: 6),
+                    BatteryView(electricQuantity: provider.level, height: 11, width: 20),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         );
       }),

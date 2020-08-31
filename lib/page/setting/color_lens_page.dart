@@ -1,5 +1,5 @@
+import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_seekbar/flutter_seekbar.dart';
 import 'package:provider/provider.dart';
 
 import '../../global.dart';
@@ -44,8 +44,7 @@ class ColorLensPage extends StatelessWidget {
           children: <Widget>[
             _buildColorListTile('自定义', color),
             ListTile(
-              leading:
-                  _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
+              leading: _buildColorContainer(Colors.red.withOpacity(color.red / 255)),
               title: _buildSeekBar(
                 Colors.red,
                 color.red,
@@ -53,8 +52,7 @@ class ColorLensPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: _buildColorContainer(
-                  Colors.green.withOpacity(color.green / 255)),
+              leading: _buildColorContainer(Colors.green.withOpacity(color.green / 255)),
               title: _buildSeekBar(
                 Colors.green,
                 color.green,
@@ -62,8 +60,7 @@ class ColorLensPage extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: _buildColorContainer(
-                  Colors.blue.withOpacity(color.blue / 255)),
+              leading: _buildColorContainer(Colors.blue.withOpacity(color.blue / 255)),
               title: _buildSeekBar(
                 Colors.blue,
                 color.blue,
@@ -76,20 +73,79 @@ class ColorLensPage extends StatelessWidget {
     );
   }
 
-  SeekBar _buildSeekBar(
-      Color color, int value, void Function(int) valueChanged) {
-    return SeekBar(
-      min: 0.0,
-      max: 255.0,
-      value: value.toDouble(),
-      progresseight: 6,
-      showSectionText: true,
-      progressColor: color,
-      backgroundColor: color.withOpacity(0.5),
-      onValueChanged: (ProgressValue progressValue) {
-        valueChanged(progressValue.value.toInt());
-      },
-      afterDragShowSectionText: true,
+  Container _buildSeekBar(Color color, int value, void Function(int) valueChanged) {
+    return Container(
+      height: 46,
+      child: FlutterSlider(
+        values: [value.toDouble()],
+        max: 255,
+        min: 0,
+        onDragging: (handlerIndex, lowerValue, upperValue) =>
+            valueChanged((lowerValue as double).toInt()),
+        trackBar: FlutterSliderTrackBar(
+          inactiveTrackBar: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: color.withOpacity(0.4),
+          ),
+          activeTrackBar: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: color,
+          ),
+        ),
+        hatchMark: FlutterSliderHatchMark(
+          labelsDistanceFromTrackBar: 24,
+          linesDistanceFromTrackBar: -4,
+          linesAlignment: FlutterSliderHatchMarkAlignment.left,
+          displayLines: true,
+          density: 0.16,
+          smallLine: FlutterSliderSizedBox(
+              height: 6, width: 1, decoration: BoxDecoration(color: color)),
+          bigLine: FlutterSliderSizedBox(
+              height: 8, width: 2, decoration: BoxDecoration(color: color)),
+          labels: [
+            FlutterSliderHatchMarkLabel(
+              percent: 0,
+              label: Text('0', style: TextStyle(fontSize: 12)),
+            ),
+            FlutterSliderHatchMarkLabel(
+              percent: 5 / 16 * 100,
+              label: Text('50', style: TextStyle(fontSize: 12)),
+            ),
+            FlutterSliderHatchMarkLabel(
+              percent: 10 / 16 * 100,
+              label: Text('A0', style: TextStyle(fontSize: 12)),
+            ),
+            FlutterSliderHatchMarkLabel(
+              percent: 15 / 16 * 100,
+              label: Text('F0', style: TextStyle(fontSize: 12)),
+            ),
+          ],
+        ),
+        handlerWidth: 6,
+        handlerHeight: 14,
+        handler: FlutterSliderHandler(
+          decoration: BoxDecoration(),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: color,
+              border: Border.all(color: color.withOpacity(0.65), width: 1),
+            ),
+          ),
+        ),
+        tooltip: FlutterSliderTooltip(
+          disableAnimation: true,
+          custom: (value) => Container(
+            padding: EdgeInsets.all(8),
+            color: color,
+            child: Text("0x" +
+                (value as double).toInt().toRadixString(16).toUpperCase() +
+                " | " +
+                (value as double).toStringAsFixed(0)),
+          ),
+          positionOffset: FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+        ),
+      ),
     );
   }
 

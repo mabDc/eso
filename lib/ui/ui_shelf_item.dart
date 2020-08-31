@@ -1,3 +1,4 @@
+import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
 
 import '../database/search_item.dart';
@@ -75,6 +76,7 @@ class _UiShelfItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
+                          fontFamily: Profile.fontFamily,
                           fontSize: 15,
                         ),
                       ),
