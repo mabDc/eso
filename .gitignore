@@ -23,6 +23,7 @@
 .vscode/
 
 # Flutter/Dart/Pub related
+
 **/doc/api/
 .dart_tool/
 .flutter-plugins
@@ -44,3 +45,6 @@ modules/flutter_js/pubspec.lock
 ios/build/XCBuildData/
 ios/build/XCBuildData/build.db
 ios/Runner.xcodeproj/project.pbxproj
+lib/api/
+lib/model/debug_rule_provider.dart
+lib/page/source/debug_rule_page.dart
