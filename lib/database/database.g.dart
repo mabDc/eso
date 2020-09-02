@@ -8,14 +8,12 @@ part of 'database.dart';
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$AppDatabaseBuilder databaseBuilder(String name) =>
-      _$AppDatabaseBuilder(name);
+  static _$AppDatabaseBuilder databaseBuilder(String name) => _$AppDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$AppDatabaseBuilder inMemoryDatabaseBuilder() =>
-      _$AppDatabaseBuilder(null);
+  static _$AppDatabaseBuilder inMemoryDatabaseBuilder() => _$AppDatabaseBuilder(null);
 }
 
 class _$AppDatabaseBuilder {
@@ -41,9 +39,8 @@ class _$AppDatabaseBuilder {
 
   /// Creates the database and initializes it.
   Future<AppDatabase> build() async {
-    final path = name != null
-        ? await sqfliteDatabaseFactory.getDatabasePath(name)
-        : ':memory:';
+    final path =
+        name != null ? await sqfliteDatabaseFactory.getDatabasePath(name) : ':memory:';
     final database = _$AppDatabase();
     database.database = await database.open(
       path,
@@ -111,16 +108,14 @@ class _$RuleDao extends RuleDao {
                   'group': item.group,
                   'sort': item.sort,
                   'viewStyle': item.viewStyle,
-                  'useCryptoJS': item.useCryptoJS == null
-                      ? null
-                      : (item.useCryptoJS ? 1 : 0),
+                  'useCryptoJS':
+                      item.useCryptoJS == null ? null : (item.useCryptoJS ? 1 : 0),
                   'loadJs': item.loadJs,
                   'userAgent': item.userAgent,
                   'loginUrl': item.loginUrl,
                   'cookies': item.cookies,
-                  'enableDiscover': item.enableDiscover == null
-                      ? null
-                      : (item.enableDiscover ? 1 : 0),
+                  'enableDiscover':
+                      item.enableDiscover == null ? null : (item.enableDiscover ? 1 : 0),
                   'discoverUrl': item.discoverUrl,
                   'discoverItems': item.discoverItems,
                   'discoverList': item.discoverList,
@@ -131,9 +126,8 @@ class _$RuleDao extends RuleDao {
                   'discoverChapter': item.discoverChapter,
                   'discoverDescription': item.discoverDescription,
                   'discoverResult': item.discoverResult,
-                  'enableSearch': item.enableSearch == null
-                      ? null
-                      : (item.enableSearch ? 1 : 0),
+                  'enableSearch':
+                      item.enableSearch == null ? null : (item.enableSearch ? 1 : 0),
                   'searchUrl': item.searchUrl,
                   'searchItems': item.searchItems,
                   'searchList': item.searchList,
@@ -176,16 +170,14 @@ class _$RuleDao extends RuleDao {
                   'group': item.group,
                   'sort': item.sort,
                   'viewStyle': item.viewStyle,
-                  'useCryptoJS': item.useCryptoJS == null
-                      ? null
-                      : (item.useCryptoJS ? 1 : 0),
+                  'useCryptoJS':
+                      item.useCryptoJS == null ? null : (item.useCryptoJS ? 1 : 0),
                   'loadJs': item.loadJs,
                   'userAgent': item.userAgent,
                   'loginUrl': item.loginUrl,
                   'cookies': item.cookies,
-                  'enableDiscover': item.enableDiscover == null
-                      ? null
-                      : (item.enableDiscover ? 1 : 0),
+                  'enableDiscover':
+                      item.enableDiscover == null ? null : (item.enableDiscover ? 1 : 0),
                   'discoverUrl': item.discoverUrl,
                   'discoverItems': item.discoverItems,
                   'discoverList': item.discoverList,
@@ -196,9 +188,8 @@ class _$RuleDao extends RuleDao {
                   'discoverChapter': item.discoverChapter,
                   'discoverDescription': item.discoverDescription,
                   'discoverResult': item.discoverResult,
-                  'enableSearch': item.enableSearch == null
-                      ? null
-                      : (item.enableSearch ? 1 : 0),
+                  'enableSearch':
+                      item.enableSearch == null ? null : (item.enableSearch ? 1 : 0),
                   'searchUrl': item.searchUrl,
                   'searchItems': item.searchItems,
                   'searchList': item.searchList,
@@ -233,58 +224,58 @@ class _$RuleDao extends RuleDao {
   final QueryAdapter _queryAdapter;
 
   static final _ruleMapper = (Map<String, dynamic> row) => Rule(
-    row['id'],
-    row['createTime'],
-    row['modifiedTime'],
-    row['author'],
-    row['name'],
-    row['host'],
-    row['group'],
-    row['postScript'],
-    row['contentType'],
-    row['sort'],
-    row['viewStyle'],
-    row['useCryptoJS'] as int != 0,
-    row['loadJs'],
-    row['userAgent'],
-    row['loginUrl'],
-    row['cookies'],
-    row['enableDiscover'] as int != 0,
-    row['discoverUrl'],
-    row['discoverItems'],
-    row['discoverList'],
-    row['discoverTags'],
-    row['discoverName'],
-    row['discoverCover'],
-    row['discoverAuthor'],
-    row['discoverChapter'],
-    row['discoverDescription'],
-    row['discoverResult'],
-    row['enableSearch'] as int != 0,
-    row['searchUrl'],
-    row['searchItems'],
-    row['searchList'],
-    row['searchTags'],
-    row['searchName'],
-    row['searchCover'],
-    row['searchAuthor'],
-    row['searchChapter'],
-    row['searchDescription'],
-    row['searchResult'],
-    row['enableMultiRoads'] as int != 0,
-    row['chapterUrl'],
-    row['chapterRoads'],
-    row['chapterRoadName'],
-    row['chapterItems'],
-    row['chapterList'],
-    row['chapterName'],
-    row['chapterCover'],
-    row['chapterLock'],
-    row['chapterTime'],
-    row['chapterResult'],
-    row['contentUrl'],
-    row['contentItems'],
-  );
+        row['id'],
+        row['createTime'],
+        row['modifiedTime'],
+        row['author'],
+        row['name'],
+        row['host'],
+        row['group'],
+        row['postScript'],
+        row['contentType'],
+        row['sort'],
+        row['viewStyle'],
+        row['useCryptoJS'] as int != 0,
+        row['loadJs'],
+        row['userAgent'],
+        row['loginUrl'],
+        row['cookies'],
+        row['enableDiscover'] as int != 0,
+        row['discoverUrl'],
+        row['discoverItems'],
+        row['discoverList'],
+        row['discoverTags'],
+        row['discoverName'],
+        row['discoverCover'],
+        row['discoverAuthor'],
+        row['discoverChapter'],
+        row['discoverDescription'],
+        row['discoverResult'],
+        row['enableSearch'] as int != 0,
+        row['searchUrl'],
+        row['searchItems'],
+        row['searchList'],
+        row['searchTags'],
+        row['searchName'],
+        row['searchCover'],
+        row['searchAuthor'],
+        row['searchChapter'],
+        row['searchDescription'],
+        row['searchResult'],
+        row['enableMultiRoads'] as int != 0,
+        row['chapterUrl'],
+        row['chapterRoads'],
+        row['chapterRoadName'],
+        row['chapterItems'],
+        row['chapterList'],
+        row['chapterName'],
+        row['chapterCover'],
+        row['chapterLock'],
+        row['chapterTime'],
+        row['chapterResult'],
+        row['contentUrl'],
+        row['contentItems'],
+      );
 
   final InsertionAdapter<Rule> _ruleInsertionAdapter;
 
@@ -298,14 +289,14 @@ class _$RuleDao extends RuleDao {
 
   @override
   Future<List<Rule>> findAllRules() async {
-    return _queryAdapter.queryList('SELECT * FROM rule ORDER BY sort desc',
+    return _queryAdapter.queryList('SELECT * FROM rule ORDER BY ${RuleDao.order}',
         mapper: _ruleMapper);
   }
 
   @override
   Future<List<Rule>> findAllDiscoverRules() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc',
+        'SELECT * FROM rule where enableDiscover = 1 ORDER BY ${RuleDao.order}',
         mapper: _ruleMapper);
   }
 
@@ -323,7 +314,7 @@ class _$RuleDao extends RuleDao {
   @override
   Future<List<Rule>> getRuleByName(String name, String group) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM rule WHERE name like ? or `group` like ? ORDER BY sort desc',
+        'SELECT * FROM rule WHERE name like ? or `group` like ? ORDER BY ${RuleDao.order}',
         arguments: <dynamic>[name, group],
         mapper: _ruleMapper);
   }
@@ -331,15 +322,14 @@ class _$RuleDao extends RuleDao {
   @override
   Future<List<Rule>> getDiscoverRuleByName(String name, String group) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM rule WHERE enableDiscover = 1 and (name like ? or `group` like ?) ORDER BY sort desc',
+        'SELECT * FROM rule WHERE enableDiscover = 1 and (name like ? or `group` like ?) ORDER BY ${RuleDao.order}',
         arguments: <dynamic>[name, group],
         mapper: _ruleMapper);
   }
 
   @override
   Future<int> insertOrUpdateRule(Rule rule) {
-    return _ruleInsertionAdapter.insertAndReturnId(
-        rule, OnConflictStrategy.replace);
+    return _ruleInsertionAdapter.insertAndReturnId(rule, OnConflictStrategy.replace);
   }
 
   @override

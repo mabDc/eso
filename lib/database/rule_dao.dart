@@ -3,13 +3,33 @@ import 'package:floor/floor.dart';
 
 @dao
 abstract class RuleDao {
+  static String get order => "$sortName $sortOrder";
+  static String sortName = sort;
+  static String sortOrder = desc;
+  // 逆序
+  static const String desc = "desc";
+  // 正序
+  static const String asc = "asc";
+  // 修改时间
+  static const String modifiedTime = "modifiedTime";
+  // 创建时间
+  static const String createTime = "createTime";
+  // 置顶顺序
+  static const String sort = "sort";
+  // 规则类型
+  static const String contentType = "contentType";
+  // 规则名称
+  static const String name = "name";
+  // 规则作者
+  static const String author = "author";
+
   @Query('SELECT * FROM rule WHERE id = :id')
   Future<Rule> findRuleById(String id);
 
-  @Query('SELECT * FROM rule ORDER BY sort desc')
+  @Query('SELECT * FROM rule ORDER BY \${RuleDao.order}')
   Future<List<Rule>> findAllRules();
 
-  @Query('SELECT * FROM rule where enableDiscover = 1 ORDER BY sort desc')
+  @Query('SELECT * FROM rule where enableDiscover = 1 ORDER BY \${RuleDao.order}')
   Future<List<Rule>> findAllDiscoverRules();
 
   @Insert(onConflict: OnConflictStrategy.replace)
@@ -31,10 +51,10 @@ abstract class RuleDao {
   Future<void> clearAllRules();
 
   @Query(
-      'SELECT * FROM rule WHERE name like :name or `group` like :group ORDER BY sort desc')
+      'SELECT * FROM rule WHERE name like :name or `group` like :group ORDER BY \${RuleDao.order}')
   Future<List<Rule>> getRuleByName(String name, String group);
 
   @Query(
-    'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :group) ORDER BY sort desc')
+      'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :group) ORDER \${RuleDao.order}')
   Future<List<Rule>> getDiscoverRuleByName(String name, String group);
 }

@@ -235,10 +235,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         },
       ),
       decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              width: Global.borderSize, color: Theme.of(context).primaryColor)),
+        color: Theme.of(context).canvasColor,
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(width: Global.borderSize, color: Theme.of(context).primaryColor),
+      ),
     );
   }
 

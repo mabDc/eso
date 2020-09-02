@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/database/rule_dao.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
@@ -143,6 +144,58 @@ class _EditSourcePageState extends State<EditSourcePage> {
               Provider.of<EditSourceProvider>(context, listen: false),
             ),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(22),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (var sort in {
+                  "修改": RuleDao.modifiedTime,
+                  "s1": "|",
+                  "创建": RuleDao.createTime,
+                  "s2": "|",
+                  "置顶": RuleDao.sort,
+                  "s3": "|",
+                  "类型": RuleDao.contentType,
+                  "s4": "|",
+                  "名称": RuleDao.name,
+                  "s5": "|",
+                  "作者": RuleDao.author,
+                }.entries)
+                  if (sort.key.startsWith("s"))
+                    Text(sort.value)
+                  else if (sort.value == RuleDao.sortName)
+                    InkWell(
+                      child: Text(
+                        " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).primaryColor),
+                      ),
+                      onTap: () {
+                        if (RuleDao.sortOrder == RuleDao.desc) {
+                          RuleDao.sortOrder = RuleDao.asc;
+                        } else {
+                          RuleDao.sortOrder = RuleDao.desc;
+                        }
+                        Provider.of<EditSourceProvider>(context, listen: false)
+                            .refreshData();
+                      },
+                    )
+                  else
+                    InkWell(
+                      child: Text(
+                        " ${sort.key} ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      onTap: () {
+                        RuleDao.sortName = sort.value;
+                        Provider.of<EditSourceProvider>(context, listen: false)
+                            .refreshData();
+                      },
+                    )
+              ],
+            ),
+          ),
         ),
         body: Consumer<EditSourceProvider>(
           builder: (context, provider, child) {

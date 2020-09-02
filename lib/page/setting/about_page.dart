@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/restore_event.dart';
-import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -148,8 +148,7 @@ class AboutPage extends StatelessWidget {
                                       print("备份收藏夹： $e");
                                     }
                                     try {
-                                      final _rules =
-                                          await EditSourceProvider.backupRules();
+                                      final _rules = await Rule.backupRules();
                                       cache.putData('rules.json', _rules,
                                           hashCodeKey: false);
                                       print("备份规则列表成功");
@@ -217,7 +216,7 @@ class AboutPage extends StatelessWidget {
                                       final _rules = await cache.getData('rules.json',
                                           defaultValue: null, hashCodeKey: false);
                                       if (_rules != null && _rules is List) {
-                                        await EditSourceProvider.restore(_rules, _clean);
+                                        await Rule.restore(_rules, _clean);
                                       }
                                       print("恢复规则列表成功");
                                     } catch (e) {}
