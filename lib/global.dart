@@ -12,8 +12,8 @@ import 'package:package_info/package_info.dart';
 
 class Global with ChangeNotifier {
   static String appName = '亦搜';
-  static String appVersion = '1.13.11';
-  static String appBuildNumber = '11000';
+  static String appVersion = '1.20.4';
+  static String appBuildNumber = '12004';
   static String appPackageName = "com.mabdc.eso";
 
   static const waitingPath = "lib/assets/waiting.png";

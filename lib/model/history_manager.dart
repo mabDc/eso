@@ -2,8 +2,7 @@ import '../global.dart';
 
 class HistoryManager {
   HistoryManager() {
-    _searchHistory =
-        LocalStorage.getStringList(Global.searchHistoryKey) ?? <String>[];
+    _searchHistory = LocalStorage.getStringList(Global.searchHistoryKey) ?? <String>[];
   }
 
   List<String> _searchHistory;
@@ -14,8 +13,11 @@ class HistoryManager {
   }
 
   Future<bool> newSearch(String keyWord) async {
-    _searchHistory.add(keyWord);
-    return await _saveSearchHistory();
+    if (!_searchHistory.contains(keyWord)) {
+      _searchHistory.add(keyWord);
+      return await _saveSearchHistory();
+    }
+    return false;
   }
 
   Future<bool> clearHistory() async {

@@ -7,6 +7,7 @@ import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -373,33 +374,7 @@ class AboutPage extends StatelessWidget {
                   color: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
                   child: InkWell(
-                    onTap: () => showAboutDialog(
-                        context: context,
-                        applicationVersion:
-                            '版本 ${Global.appVersion}\n版号 ${Global.appBuildNumber}\n包名 ${Global.appPackageName}',
-                        children: <Widget>[
-                          MarkdownPageListTile(
-                            filename: 'README.md',
-                            title: Text('使用指北'),
-                            icon: Icon(Icons.info_outline),
-                          ),
-                          MarkdownPageListTile(
-                            filename: 'CHANGELOG.md',
-                            title: Text('更新日志'),
-                            icon: Icon(Icons.history),
-                          ),
-                          MarkdownPageListTile(
-                            filename: 'LICENSE',
-                            title: Text('源代码许可'),
-                            icon: Icon(Icons.description),
-                          ),
-                          if (Platform.isWindows)
-                            ListTile(
-                              title: Text("SQLite 链接库"),
-                              // subtitle: Text(SQFLiteWinUtil.dllPath()),
-                              leading: Icon(Icons.link),
-                            )
-                        ]),
+                    onTap: () => showAbout(context),
                     child: SizedBox(
                       height: 260,
                       width: double.infinity,
@@ -435,4 +410,58 @@ class AboutPage extends StatelessWidget {
       ),
     );
   }
+
+  static void showAbout(BuildContext context, [bool showClose = false]) =>
+      showAboutDialog(
+        applicationLegalese:
+            '版本 ${Global.appVersion}\n版号 ${Global.appBuildNumber}\n包名 ${Global.appPackageName}',
+        applicationIcon: Image.asset(
+          Global.logoPath,
+          width: 50,
+          height: 50,
+        ),
+        context: context,
+        applicationVersion: '亦搜，亦看，亦闻',
+        children: <Widget>[
+          MarkdownPageListTile(
+            filename: 'README.md',
+            title: Text('使用指北'),
+            icon: Icon(Icons.info_outline),
+          ),
+          MarkdownPageListTile(
+            filename: 'CHANGELOG.md',
+            title: Text('更新日志'),
+            icon: Icon(Icons.history),
+          ),
+          MarkdownPageListTile(
+            filename: 'LICENSE',
+            title: Text('源代码许可'),
+            icon: Icon(Icons.description),
+          ),
+          if (Platform.isWindows)
+            ListTile(
+              title: Text("SQLite 链接库"),
+              // subtitle: Text(SQFLiteWinUtil.dllPath()),
+              leading: Icon(Icons.link),
+            ),
+          if (Platform.isLinux)
+            ListTile(
+              title: Text("libsqlite3-dev"),
+              // subtitle: Text(SQFLiteWinUtil.dllPath()),
+              leading: Icon(Icons.link),
+            ),
+          if (showClose)
+            InkWell(
+              child: ListTile(
+                leading: Icon(Icons.close),
+                title: Text("不再显示"),
+              ),
+              onTap: () {
+                Provider.of<Profile>(context, listen: false).updateVersion();
+                showToast("在设置中可再次查看", position: ToastPosition.bottom);
+                Navigator.of(context).pop();
+              },
+            ),
+        ],
+      );
 }

@@ -5,6 +5,7 @@ import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
+import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
 
@@ -20,6 +21,9 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Provider.of<Profile>(context, listen: false).isNewVersion()) {
+      Future.delayed(Duration(milliseconds: 10), () => AboutPage.showAbout(context, true));
+    }
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
@@ -41,8 +45,8 @@ class FavoritePage extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       tab[0],
-                      style: TextStyle(fontWeight: FontWeight.bold,
-                          fontFamily: Profile.fontFamily),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontFamily: Profile.fontFamily),
                     )))
                 .toList(),
           ),

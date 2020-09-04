@@ -5,6 +5,7 @@ import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
+import 'package:eso/model/history_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/edit/dropdown_search_edit.dart';
@@ -38,6 +39,10 @@ class _SearchPageState extends State<SearchPage> {
             appBar: AppBar(
               titleSpacing: 0,
               title: SearchEdit(
+                autofocus: true,
+                focusNode: Provider.of<SearchProvider>(context, listen: false).focusNode,
+                controller:
+                    Provider.of<SearchProvider>(context, listen: false).searchController,
                 hintText: "请输入关键词",
                 prefix: Container(
                   width: 48,
@@ -91,6 +96,60 @@ class _SearchPageState extends State<SearchPage> {
                     ? 0.0
                     : (provider.successCount + provider.failureCount) /
                         provider.rulesCount;
+                if (provider.showHistory && provider.history.length > 0) {
+                  return ListView.separated(
+                    separatorBuilder: (context, index) => Container(
+                      height: 0.6,
+                      color: Colors.grey,
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 18),
+                    itemCount: provider.history.length + 1,
+                    cacheExtent: 30,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == provider.history.length) {
+                        return Container(
+                          height: 30,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.close_outlined, size: 18),
+                                onPressed: provider.closeHistory,
+                                tooltip: "关闭",
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.clear_all, size: 18),
+                                onPressed: provider.clearHistory,
+                                tooltip: "清空",
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      final keyword = provider.history[index];
+                      return Container(
+                        height: 30,
+                        child: Row(
+                          children: [
+                            Icon(Icons.history, size: 18),
+                            SizedBox(width: 18),
+                            Expanded(child: Text(keyword)),
+                            IconButton(
+                              icon: Icon(Icons.arrow_upward, size: 18),
+                              onPressed: () => provider.upHistory(keyword),
+                              tooltip: "输入",
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.search, size: 18),
+                              onPressed: () => provider.search(keyword),
+                              tooltip: "搜索",
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }
                 return Column(
                   children: [
                     SizedBox(height: 6),
@@ -284,6 +343,15 @@ class SearchProvider with ChangeNotifier {
   int _searchId;
   int _sourceType = -1;
   Profile _profile;
+  FocusNode _focusNode;
+  FocusNode get focusNode => _focusNode;
+  TextEditingController _searchController;
+  TextEditingController get searchController => _searchController;
+  HistoryManager _historyManager;
+  List<String> _history;
+  List<String> get history => _history;
+  bool _showHistory;
+  bool get showHistory => _showHistory;
   SearchProvider({int threadCount, SearchOption searchOption, Profile profile}) {
     _profile = profile;
     _threadCount = threadCount ?? 10;
@@ -293,7 +361,50 @@ class SearchProvider with ChangeNotifier {
     _failureCount = 0;
     _rules = <Rule>[];
     _searchId = 0;
+    _showHistory = true;
+    _searchController = TextEditingController()..addListener(_handleSearchChange);
+    _historyManager = HistoryManager();
+    _history = List.from(_historyManager.searchHistory);
+    _focusNode = FocusNode()..addListener(_handleFocusChange);
     init();
+  }
+
+  void _handleSearchChange() {
+    final text = _searchController.text.trim();
+    _history =
+        _historyManager.searchHistory.where((element) => element.contains(text)).toList();
+    notifyListeners();
+  }
+
+  void _handleFocusChange() {
+    if (_focusNode.hasFocus) {
+      _history.clear();
+      final text = _searchController.text.trim();
+      _history = _historyManager.searchHistory
+          .where((element) => element.contains(text))
+          .toList();
+      _showHistory = true;
+      notifyListeners();
+    } else {
+      closeHistory();
+    }
+  }
+
+  void closeHistory() {
+    _showHistory = false;
+    _focusNode.unfocus();
+    notifyListeners();
+  }
+
+  void upHistory(String keyword) {
+    _searchController.text = keyword;
+    _searchController.selection =
+        TextSelection(baseOffset: keyword.length, extentOffset: keyword.length);
+  }
+
+  void clearHistory() {
+    _historyManager.clearHistory();
+    notifyListeners();
   }
 
   int get sourceType => _sourceType;
@@ -380,6 +491,9 @@ class SearchProvider with ChangeNotifier {
   }
 
   void search(String keyword) async {
+    focusNode.unfocus();
+    _searchController.text = keyword;
+    _historyManager.newSearch(keyword);
     _searchId++;
     await Future.delayed(Duration(milliseconds: 300));
     searchListNone.clear();
@@ -436,6 +550,11 @@ class SearchProvider with ChangeNotifier {
     searchListNone.clear();
     searchListNormal.clear();
     searchListAccurate.clear();
+    _focusNode.removeListener(_handleSearchChange);
+    _searchController.dispose();
+    _historyManager.searchHistory.clear();
+    _focusNode.removeListener(_handleFocusChange);
+    _focusNode.dispose();
     super.dispose();
   }
 }

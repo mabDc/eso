@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.20.3+12003
+version: 1.20.4+12004
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -25,9 +25,9 @@ dependencies:
       path: plugins/flutter_plugins/path_provider_fde
 
   # audioplayers: ^0.15.1
-  audioplayers: 
+  audioplayers:
     path: modules/audioplayers
-    
+
   # webview_flutter: ^0.3.22+1
   webview_flutter:
     path: modules/webview_flutter
@@ -61,7 +61,7 @@ dependencies:
   video_player: ^0.10.11+2
   encrypt: ^4.0.0
   battery: 0.3.1+10
-  json_path: ^0.0.1
+  json_path: ^0.0.2
   uuid: ^2.0.4
   floor: ^0.13.0
   oktoast: ^2.3.2

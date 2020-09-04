@@ -1,14 +1,10 @@
 # 特点
 
-用flutter开发，全平台支持的自定义客户端，。
-
-### 亦搜，亦看，亦闻
-
 开源的多站点跨平台阅读器来啦！
 
 支持多来源的自定义阅读器与播放器。
 
-全平台支持，支持windows，安卓，ios，macos，linux，tv，6个平台。
+用flutter开发，全平台支持，支持windows，安卓，ios，macos，linux，tv，6个平台。
 
 ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
@@ -36,14 +32,14 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 安卓
   - [x] tv（大白版，感谢大白）
   - [x] ios（需要自签）
-  - [x] windows
+  - [x] windows（需安装vc++运行库）
   - [x] Linux
   - [x] Macos
 - 搜索
   - [x] 按类型或全部搜索
-  - [x] 并发数
+  - [x] 并发数调整
   - [x] 精确搜索
-  - [ ] 搜索词历史记录
+  - [x] 搜索词历史记录
 - 发现
   - [x] 二级发现列表
   - [x] 多种样式，优化视频、文字、图片显示
@@ -75,7 +71,6 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 单曲循环
   - [x] 歌单循环
   - [x] 搜索结果循环
-  - [x] 搜索结果循环
   - [x] 后台播放
 - 规则
   - [x] 网络导入
@@ -85,17 +80,49 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 规则调试
   - [x] 规则排序
 - 其他
+  - [x] 首次进入显示版本信息
   - [ ] 启动时检查章节更新
   - [ ] 换源
 
+# 编译指南
+
+不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml。
+
+linux运行需要额外安装libsqlite3-dev，macos和linux编译需要dev分支，windows需要master分支。
+
+源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
+
+# 规则获取
+
+规则仓库 [eso_source](https://github.com/mabDc/eso_source)
+
+`https://github.com/mabDc/eso_source`
+
+规则百科 [wiki](https://github.com/mabDc/eso_source/wiki)
+
+`https://github.com/mabDc/eso_source/wiki`
 
 # 更新日志
 
 见文件 [CHANGELOG](CHANGELOG.md)
 
+# 致谢
+
+感谢大白和大古为项目提交的代码，具体看 [CHANGELOG](CHANGELOG.md)
+
+大白 [yangyxd](https://github.com/yangyxd) 界面等
+
+大古 [DaguDuiyuan](https://github.com/DaguDuiyuan) ios和macos平台代码等
+
+ekibun [ekibun](https://github.com/ekibun) 帮助编写桌面平台c++代码等
+
+# LICENSE
+
+[GPL_v3](LICENSE)
+
 # 一些图片
 
-首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制，。
+首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制。
 
 ![视频](img/shipin1.jpg)
 
@@ -120,17 +147,3 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 ![知乎日报](img/zhihuribao1.jpg)
 
 ![知乎日报](img/zhihuribao2.jpg)
-
-# 编译指南
-
-不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml。
-
-linux运行需要额外安装libsqlite3-dev。
-
-macos和linux编译需要dev分支，windows需要master分支。
-
-源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改，其他不变，编译后请新建不同类型规则并保存，可获得app一致效果。
-
-# LICENSE
-
-[LICENSE](LICENSE)

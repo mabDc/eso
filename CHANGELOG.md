@@ -1,8 +1,22 @@
 ### 9.2
 
+- 增加搜索历史记录
+
+- 更新jsonpath版本，修复元素\[position\]选取bug
+
+- 增加首次进入显示版本信息
+
+- 更新版本号
+
+    以上来自 [mabDc](https://github.com/mabDc)
+
+### 9.2
+
 - 规则排序
 
 - 更新版本号
+
+    以上来自 [mabDc](https://github.com/mabDc)
 
 ### 8.31
 
@@ -11,6 +25,8 @@
 - 增加`@http:`规则
 
 - 修复文件分享权限
+
+    以上来自 [mabDc](https://github.com/mabDc)
 
 ### 8.11
 
@@ -33,6 +49,8 @@
 - 增加ios保存图片到相册权限
 
 - 缓存分享功能
+
+    以上来自 [mabDc](https://github.com/mabDc)
 
 ### 7.25
 

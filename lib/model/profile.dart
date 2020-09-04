@@ -15,6 +15,7 @@ class Profile with ChangeNotifier {
     final source = LocalStorage.getString(Global.profileKey);
     final json = source == null
         ? {
+            'version': "",
             'showMangaInfo': true,
             'switchLongPress': false,
             'switchFavoriteStyle': false,
@@ -63,6 +64,23 @@ class Profile with ChangeNotifier {
   static const novelVerticalSlide = 5;
   static const novelHorizontalSlide = 6;
   static const novelFade = 7;
+
+  String _version;
+  bool isNewVersion() {
+    final version = '${Global.appVersion}+${Global.appBuildNumber}';
+    if (_version != version) {
+      return true;
+    }
+    return false;
+  }
+
+  void updateVersion() {
+    final version = '${Global.appVersion}+${Global.appBuildNumber}';
+    if (_version != version) {
+      _version = version;
+      _saveProfile(false);
+    }
+  }
 
   bool _switchLongPress;
   bool _switchFavoriteStyle;
@@ -482,6 +500,7 @@ class Profile with ChangeNotifier {
   }
 
   void fromJson(Map<String, dynamic> json) {
+    _version = json['version'];
     _switchLongPress = json['switchLongPress'];
     _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
     _showMangaInfo = json['showMangaInfo'] ?? true;
@@ -515,6 +534,7 @@ class Profile with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() => {
+        'version': _version,
         'switchLongPress': _switchLongPress,
         'switchFavoriteStyle': _switchFavoriteStyle,
         // 'switchDiscoverStyle': _switchDiscoverStyle,
