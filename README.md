@@ -33,7 +33,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] tv（大白版，感谢大白）
   - [x] ios（需要自签）
   - [x] windows（需安装vc++运行库）
-  - [x] Linux
+  - [x] Linux（需libsqlite3-dev）
   - [x] Macos
 - 搜索
   - [x] 按类型或全部搜索
@@ -86,9 +86,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 # 编译指南
 
-不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml。
-
-linux运行需要额外安装libsqlite3-dev，macos和linux编译需要dev分支，windows需要master分支。
+不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml，macos和linux编译需要dev分支，windows需要master分支。
 
 源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
 
@@ -106,15 +104,17 @@ linux运行需要额外安装libsqlite3-dev，macos和linux编译需要dev分支
 
 见文件 [CHANGELOG](CHANGELOG.md)
 
-# 致谢
+# 感谢
 
-感谢大白和大古为项目提交的代码，具体看 [CHANGELOG](CHANGELOG.md)
+大白[yangyxd](https://github.com/yangyxd)(界面)
 
-大白 [yangyxd](https://github.com/yangyxd) 界面等
+大古[DaguDuiyuan](https://github.com/DaguDuiyuan)(ios和macos平台)
 
-大古 [DaguDuiyuan](https://github.com/DaguDuiyuan) ios和macos平台代码等
+大吉[ekibun](https://github.com/ekibun)(windows平台c++代码)
 
-ekibun [ekibun](https://github.com/ekibun) 帮助编写桌面平台c++代码等
+人艰不拆(LOGO、详情页设计)
+
+以及flutter众多开源项目和插件。
 
 # LICENSE
 
