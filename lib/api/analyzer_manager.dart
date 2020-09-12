@@ -6,7 +6,10 @@ import 'package:eso/api/analyzer_regexp.dart';
 import 'package:eso/api/analyzer_xpath.dart';
 import 'package:eso/database/rule.dart';
 
+import 'analyzer_filter.dart';
 import 'analyzer_http.dart';
+import 'analyzer_match.dart';
+import 'analyzer_replace.dart';
 
 class AnalyzerManager {
   final ruleTypePattern = RegExp(
@@ -360,6 +363,21 @@ class AnalyzerManager {
           } else if (r.startsWith(RegExp(r"@xpath:", caseSensitive: false))) {
             r = r.substring(7);
             analyzer = AnalyzerXPath();
+          } else if (r.startsWith(RegExp(r"@match:", caseSensitive: false))) {
+            r = r.substring(7);
+            analyzer = AnalyzerMatch();
+          } else if (r.startsWith(RegExp(r"@regex:", caseSensitive: false))) {
+            r = r.substring(7);
+            analyzer = AnalyzerRegExp();
+          } else if (r.startsWith(RegExp(r"@regexp:", caseSensitive: false))) {
+            r = r.substring(8);
+            analyzer = AnalyzerRegExp();
+          } else if (r.startsWith(RegExp(r"@filter:", caseSensitive: false))) {
+            r = r.substring(8);
+            analyzer = AnalyzerFilter(_rule);
+          } else if (r.startsWith(RegExp(r"@replace:", caseSensitive: false))) {
+            r = r.substring(9);
+            analyzer = AnalyzerReplace();
           }
           break;
         case ":":
