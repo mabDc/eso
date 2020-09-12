@@ -12,11 +12,9 @@ class FontFamilyPage extends StatelessWidget {
     final fontList = <String, String>{
       "默认": null,
       "Roboto": "Roboto",
-      "Lolita_V2": "Lolita_V2",
-      "腾祥嘉丽_Google": "腾祥嘉丽_Google",
-      "文泉驿": "文泉驿",
-      "文泉驿点阵正黑": "文泉驿点阵正黑",
-      "文泉驿微米黑": "文泉驿微米黑",
+      "萝莉字体": "Lolita_V2",
+      "文泉驿正黑": "文泉驿",
+      "腾祥嘉丽圆体": "腾祥嘉丽",
     }.entries.toList();
     return Scaffold(
       appBar: AppBar(

@@ -285,6 +285,11 @@ class AboutPage extends StatelessWidget {
                       onTap: () => joinGroup(),
                     ),
                     ListTile(
+                      title: Text('亦搜②群'),
+                      subtitle: Text('1148443231'),
+                      onTap: () => joinGroup('1148443231'),
+                    ),
+                    ListTile(
                       title: Text('规则获取'),
                       subtitle: Text('https://github.com/mabDc/eso_source/'),
                       onTap: () => launch('https://github.com/mabDc/eso_source/'),
