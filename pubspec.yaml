@@ -38,6 +38,8 @@ dependencies:
   flutter_js:
     path: modules/flutter_js
     # git: https://github.com/abner/flutter_js
+  flutter_webview:
+    git: https://github.com/ekibun/flutter_webview
 
   # xpath_parse: ^1.0.2
   xpath_parse:
