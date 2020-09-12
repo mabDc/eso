@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.20.5+12005
+version: 1.20.6+12006
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -39,7 +39,8 @@ dependencies:
     path: modules/flutter_js
     # git: https://github.com/abner/flutter_js
   flutter_webview:
-    git: https://github.com/ekibun/flutter_webview
+    path: modules/flutter_webview
+    # git: https://github.com/ekibun/flutter_webview
 
   # xpath_parse: ^1.0.2
   xpath_parse:
