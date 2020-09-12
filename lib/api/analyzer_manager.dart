@@ -9,8 +9,29 @@ import 'package:eso/database/rule.dart';
 import 'analyzer_http.dart';
 
 class AnalyzerManager {
-  final ruleTypePattern =
-      RegExp(r"@js:|@css:|@json:|@http:|@xpath:|^", caseSensitive: false);
+  final ruleTypePattern = RegExp(
+      r"@js:" // @js: code
+      "|"
+      "@css:" // @css:a, @css:a@href, @css:a@text
+      "|"
+      "@json:" // @json:$.books.*, @json:$.name
+      "|"
+      "@http:" // @http:, @http:/api/$result
+      "|"
+      "@xpath:" // @xpath://a, @xpath:/a/@href, @xpath: /a/text()
+      "|"
+      "@match:" // @match:http.*?jpg， @match:url\("?(.*?jpg)@@1
+      "|"
+      "@regex:" // @regexp:h3[\s\S]*?h3
+      "|"
+      "@regexp:" // @regexp:h3[\s\S]*?h3
+      "|"
+      "@filter:" // @filter:lrc, @filter:m3u8, @filter:mp3
+      "|"
+      "@replace:" // @replace:</?em>, @replace:(?=\d+)@@播放量
+      "|"
+      "^", // 首规则用如下符号开头 $(jsonpath), /(xpath), :(正则)
+      caseSensitive: false);
   final expressionPattern = RegExp(r"\{\{(.*?)\}\}", dotAll: true);
 
   final dynamic _content;
@@ -285,7 +306,29 @@ class AnalyzerManager {
   /// `@xpath://li` 或 `//li`（省略`@xpath:`）
   ///
   /// `:regex`
-  ///
+  /*
+      "@js:" // @js: code
+      "|"
+      "@css:" // @css:a, @css:a@href, @css:a@text
+      "|"
+      "@json:" // @json:$.books.*, @json:$.name
+      "|"
+      "@http:" // @http:, @http:/api/$result
+      "|"
+      "@xpath:" // @xpath://a, @xpath:/a/@href, @xpath: /a/text()
+      "|"
+      "@match:" // @match:http.*?jpg， @match:url\("?(.*?jpg)@@1
+      "|"
+      "@regex:" // @regexp:h3[\s\S]*?h3
+      "|"
+      "@regexp:" // @regexp:h3[\s\S]*?h3
+      "|"
+      "@filter:" // @filter:lrc, @filter:m3u8, @filter:mp3
+      "|"
+      "@replace:" // @replace:</?em>, @replace:(?=\d+)@@播放量
+      "|"
+      "^", // 首规则用如下符号开头 $(jsonpath), /(xpath), :(正则)
+  */
   /// 规则从后往前解析
   List<SingleRule> splitRuleReversed(String rule) {
     final ruleList = <SingleRule>[];
