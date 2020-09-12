@@ -24,7 +24,7 @@ class EmptyListMsgView extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyText2.color
                     .withAlpha(50),
-                fontFamily: Profile.fontFamily
+                fontFamily: Profile.staticFontFamily
               ),
               child: text,
             ),

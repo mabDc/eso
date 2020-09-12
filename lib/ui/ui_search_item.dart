@@ -61,14 +61,14 @@ class _UiSearchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final _txtStyle = TextStyle(
         color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
-        fontFamily: Profile.fontFamily,
+        fontFamily: Profile.staticFontFamily,
         fontSize: 13);
     return Container(
       constraints: BoxConstraints(minHeight: 110, minWidth: double.infinity),
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: DefaultTextStyle(
         style: TextStyle(
-            fontFamily: Profile.fontFamily,
+            fontFamily: Profile.staticFontFamily,
             fontSize: 13, color: Theme.of(context).hintColor, height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Row(
@@ -95,7 +95,7 @@ class _UiSearchItem extends StatelessWidget {
                           maxLines: 2,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontFamily: Profile.fontFamily,
+                              fontFamily: Profile.staticFontFamily,
                               color:
                                   Theme.of(context).textTheme.bodyText1.color,
                               fontSize: 15),

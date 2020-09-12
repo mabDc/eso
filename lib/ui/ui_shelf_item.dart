@@ -76,7 +76,7 @@ class _UiShelfItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontFamily: Profile.fontFamily,
+                          fontFamily: Profile.staticFontFamily,
                           fontSize: 15,
                         ),
                       ),

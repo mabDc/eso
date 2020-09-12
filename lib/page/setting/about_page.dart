@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/restore_event.dart';
+import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -64,6 +65,12 @@ class AboutPage extends StatelessWidget {
                       subtitle: Text('切换夜间模式'),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => DarkModpage())),
+                    ),
+                    ListTile(
+                      title: Text('字体设置'),
+                      subtitle: Text('选择字体'),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => FontFamilyPage())),
                     ),
                     ListTile(
                       title: Text('调色板'),

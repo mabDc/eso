@@ -173,7 +173,7 @@ class DLNAUtil {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("DLNA 投屏", style: TextStyle(fontSize: 18,
-                    fontFamily: Profile.fontFamily,
+                    fontFamily: Profile.staticFontFamily,
                     fontWeight: FontWeight.bold)),
                 SizedBox(height: 16),
                 ConstrainedBox(

@@ -294,7 +294,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          fontFamily: Profile.fontFamily,
+          fontFamily: Profile.staticFontFamily,
         ),
       ),
     );

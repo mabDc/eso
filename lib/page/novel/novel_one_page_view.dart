@@ -28,7 +28,7 @@ class NovelOnePageView extends StatelessWidget {
     final _txt = Text(
       msg,
       textAlign: TextAlign.right,
-      style: TextStyle(color: fontColor, fontFamily: Profile.fontFamily),
+      style: TextStyle(color: fontColor, fontFamily: Profile.staticFontFamily),
     );
     return Builder(
       builder: (context) {
@@ -37,7 +37,7 @@ class NovelOnePageView extends StatelessWidget {
           height: 24,
           child: DefaultTextStyle(
             style: TextStyle(color: fontColor, fontSize: 12,
-                fontFamily: Profile.fontFamily),
+                fontFamily: Profile.staticFontFamily),
             child: Row(
               children: (Provider.of<NovelPageProvider>(context, listen: true)?.useSelectableText ?? false) ? [
                 ButtonTheme(
@@ -47,7 +47,7 @@ class NovelOnePageView extends StatelessWidget {
                     child: IconText(
                       '退出复制模式',
                       style: TextStyle(color: fontColor,
-                          fontFamily: Profile.fontFamily),
+                          fontFamily: Profile.staticFontFamily),
                       icon: Icon(Icons.clear),
                       iconSize: 16,
                     ),
@@ -101,7 +101,7 @@ class NovelOnePageView extends StatelessWidget {
               width: double.infinity,
               child: RichText(text: TextSpan(children: spans,
                   style: TextStyle(color: fontColor,
-                      fontFamily: Profile.fontFamily))),
+                      fontFamily: Profile.staticFontFamily))),
             ),
           ),
           SizedBox(height: 4),

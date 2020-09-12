@@ -51,7 +51,7 @@ class UIFavoriteItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Theme.of(context).hintColor,
-              fontFamily: Profile.fontFamily,
+              fontFamily: Profile.staticFontFamily,
               fontSize: 10,
             ),
           ),

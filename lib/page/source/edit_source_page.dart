@@ -270,7 +270,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    fontFamily: Profile.fontFamily,
+                    fontFamily: Profile.staticFontFamily,
                     color: Global.lightness(___leadColor) > 180
                         ? _theme.primaryColorDark
                         : Colors.white)),

@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.20.4+12004
+version: 1.20.5+12005
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -112,18 +112,26 @@ flutter:
         - asset: fonts/Roboto/Roboto-Black.ttf
           weight: 900
 
-    - family: wqy
+    - family: Lolita_V2
       fonts:
-        - asset: fonts/wqy.ttf
-          weight: 100
-        - asset: fonts/wqy.ttf
-          weight: 300
-        - asset: fonts/wqy.ttf
-          weight: 400
-        - asset: fonts/wqy.ttf
-          weight: 500
-        - asset: fonts/wqy.ttf
-          weight: 700
-        - asset: fonts/wqy.ttf
-          weight: 900
+        - asset: fonts/Lolita_V2.ttf
 
+    - family: 腾祥嘉丽_Google
+      fonts:
+        - asset: fonts/腾祥嘉丽_Google.ttf
+
+    - family: Lolita_V2
+      fonts:
+        - asset: fonts/Lolita_V2.ttf
+
+    - family: 文泉驿
+      fonts:
+        - asset: fonts/文泉驿.ttf
+
+    - family: 文泉驿点阵正黑
+      fonts:
+        - asset: fonts/文泉驿点阵正黑.ttf
+        
+    - family: 文泉驿微米黑
+      fonts:
+        - asset: fonts/文泉驿微米黑.ttf

@@ -46,7 +46,7 @@ class FavoritePage extends StatelessWidget {
                     child: Text(
                       tab[0],
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, fontFamily: Profile.fontFamily),
+                          fontWeight: FontWeight.bold, fontFamily: Profile.staticFontFamily),
                     )))
                 .toList(),
           ),

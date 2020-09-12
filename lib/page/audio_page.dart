@@ -139,7 +139,7 @@ class _AudioPageState extends State<AudioPage> {
                           style: TextStyle(
                               color: Colors.white54,
                               fontSize: 12,
-                              fontFamily: Profile.fontFamily,
+                              fontFamily: Profile.staticFontFamily,
                               height: 1.75),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,

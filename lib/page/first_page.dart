@@ -92,7 +92,7 @@ class FirstPage extends StatelessWidget {
               fontSize: 80,
               fontWeight: FontWeight.bold,
               fontStyle: FontStyle.italic,
-              fontFamily: Profile.fontFamily,
+              fontFamily: Profile.staticFontFamily,
               letterSpacing: 6,
               color: Color.fromARGB(255, 40, 185, 130),
             ),
