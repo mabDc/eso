@@ -23,7 +23,7 @@ Future<dynamic> webview(String url, int duration, Map options) async {
   });
   if (options["ua"] != null) await webview.setUserAgent(options["ua"]);
   await webview.navigate(url);
-  Future.delayed(Duration(seconds: 100)).then((value) {
+  Future.delayed(Duration(seconds: duration * 5)).then((value) {
     if (!c.isCompleted) c.completeError("Webview Call timeout 100 seconds.");
   });
   try {
@@ -43,7 +43,18 @@ class AnalyzerFilter implements Analyzer {
 
   @override
   AnalyzerFilter parse(content) {
-    url = "$content".trim();
+    if (content is List) {
+      final t = content.map((c) => "$c").where((c) => c.isNotEmpty).toList();
+      if (t.isNotEmpty) {
+        url = t.first.trim();
+      } else {
+        url = _rule.host;
+      }
+    } else if (content is Map) {
+      url = "${content["url"]}";
+    } else {
+      url = "$content".trim();
+    }
     if (url.startsWith("//")) {
       if (_rule.host.startsWith("https")) {
         url = "https:" + url;
@@ -79,7 +90,7 @@ class AnalyzerFilter implements Analyzer {
   Future<List<String>> getStringList(String rule) async {
     List<String> result = <String>[];
     final r = rule.split("@@");
-    final duration = r.length > 1 ? int.parse(r[1]) : 10;
+    final duration = r.length > 1 ? int.parse(r[1]) : 6;
     await webview(url, duration, {
       "ua": _rule.userAgent.trim().isNotEmpty
           ? _rule.userAgent
