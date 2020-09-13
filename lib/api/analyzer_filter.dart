@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
 import 'package:flutter_webview/flutter_webview.dart';
@@ -68,27 +67,27 @@ class AnalyzerFilter implements Analyzer {
   }
 
   @override
-  Future<List<String>> getElements(String rule) {
+  Future<List<Map>> getElements(String rule) {
     return getStringList(rule);
   }
 
   @override
-  Future<List<String>> getString(String rule) async {
+  Future<List<Map>> getString(String rule) async {
     return getStringList(rule);
   }
 
-  String covertHeaders(Map args) {
+  Map covertHeaders(Map args) {
     args["headers"] = Map.fromIterable(
       args["headers"],
       key: (e) => (e as Map).keys.first,
       value: (e) => (e as Map).values.first,
     );
-    return jsonEncode(args);
+    return args;
   }
 
   @override
-  Future<List<String>> getStringList(String rule) async {
-    List<String> result = <String>[];
+  Future<List<Map>> getStringList(String rule) async {
+    List<Map> result = <Map>[];
     final r = rule.split("@@");
     final duration = r.length > 1 ? int.parse(r[1]) : 6;
     await webview(url, duration, {
