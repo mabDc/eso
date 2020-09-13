@@ -12,7 +12,7 @@ Future<dynamic> webview(String url, int duration, Map options) async {
     if (method == "onNavigationCompleted") {
       await Future.delayed(Duration(seconds: duration));
       if (!c.isCompleted)
-        c.completeError("Webview Call timeout 10 seconds after page completed.");
+        c.completeError("Webview Call timeout $duration seconds after page completed.");
     }
     var callback = options[method];
     if (callback != null) if ((await callback(args)) == true) {
@@ -23,7 +23,7 @@ Future<dynamic> webview(String url, int duration, Map options) async {
   if (options["ua"] != null) await webview.setUserAgent(options["ua"]);
   await webview.navigate(url);
   Future.delayed(Duration(seconds: duration * 5)).then((value) {
-    if (!c.isCompleted) c.completeError("Webview Call timeout 100 seconds.");
+    if (!c.isCompleted) c.completeError("Webview Call timeout ${duration * 5} seconds.");
   });
   try {
     return await c.future;

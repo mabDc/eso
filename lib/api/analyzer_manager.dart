@@ -6,6 +6,8 @@ import 'package:eso/api/analyzer_regexp.dart';
 import 'package:eso/api/analyzer_xpath.dart';
 import 'package:eso/database/rule.dart';
 
+import 'analyzer_decode.dart';
+import 'analyzer_encode.dart';
 import 'analyzer_filter.dart';
 import 'analyzer_http.dart';
 import 'analyzer_match.dart';
@@ -32,6 +34,10 @@ class AnalyzerManager {
       "@filter:" // @filter:lrc, @filter:m3u8, @filter:mp3
       "|"
       "@replace:" // @replace:</?em>, @replace:(?=\d+)@@播放量
+      "|"
+      "@encode:" // @encode:utf8|gbk|md5|base64|hmac|sha|sha256|aes
+      "|"
+      "@decode:" // @decode:utf8|gbk|base64|hmac|sha|sha256|aes
       "|"
       "^", // 首规则用如下符号开头 $(jsonpath), /(xpath), :(正则)
       caseSensitive: false);
@@ -375,6 +381,12 @@ class AnalyzerManager {
           } else if (r.startsWith(RegExp(r"@filter:", caseSensitive: false))) {
             r = r.substring(8);
             analyzer = AnalyzerFilter(_rule);
+          } else if (r.startsWith(RegExp(r"@encode:", caseSensitive: false))) {
+            r = r.substring(8);
+            analyzer = AnalyzerEncode();
+          } else if (r.startsWith(RegExp(r"@decode:", caseSensitive: false))) {
+            r = r.substring(8);
+            analyzer = AnalyzerDecode();
           } else if (r.startsWith(RegExp(r"@replace:", caseSensitive: false))) {
             r = r.substring(9);
             analyzer = AnalyzerReplace();
