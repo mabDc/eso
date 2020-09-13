@@ -39,7 +39,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 首次进入显示版本信息
   - [x] 主题颜色（自定义）
   - [x] 夜间模式（自动、手动）
-  - [x] 字体选择
+  - [x] 字体选择（正文、界面）
   - [ ] 启动时检查章节更新
   - [ ] 换源
 - 搜索
@@ -87,7 +87,34 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 规则调试
   - [x] 规则排序
   - [x] 嗅探
-
+- 规则列表
+  ```dart
+      "@js:" // @js: code
+      "|"
+      "@css:" // @css:a, @css:a@href, @css:a@text
+      "|"
+      "@json:" // @json:$.books.*, @json:$.name
+      "|"
+      "@http:" // @http:, @http:/api/$result
+      "|"
+      "@xpath:" // @xpath://a, @xpath:/a/@href, @xpath: /a/text()
+      "|"
+      "@match:" // @match:http.*?jpg， @match:url\("?(.*?jpg)@@1
+      "|"
+      "@regex:" // @regexp:h3[\s\S]*?h3
+      "|"
+      "@regexp:" // @regexp:h3[\s\S]*?h3
+      "|"
+      "@filter:" // @filter:lrc, @filter:m3u8, @filter:mp3
+      "|"
+      "@replace:" // @replace:</?em>, @replace:(?=\d+)@@播放量
+      "|"
+      "@encode:" // @encode:utf8|gbk|md5|base64|hmac|sha|sha256|aes
+      "|"
+      "@decode:" // @decode:utf8|gbk|base64|hmac|sha|sha256|aes
+      "|"
+      "^", // 首规则用如下符号开头 $(jsonpath), /(xpath), :(正则)
+  ```
 # 编译指南
 
 不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml，macos和linux编译需要dev分支，windows需要master分支。
