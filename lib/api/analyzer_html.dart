@@ -89,8 +89,10 @@ class AnalyzerHtml implements Analyzer {
         //  .replaceAll(RegExp(r"^\s*|</?(?!img)\w+[^>]*>"), "");
         return html.splitMapJoin(
           imgReg,
-          onMatch: (match) => match.group(0),
-          onNonMatch: (noMatch) => parser.parse("$noMatch").documentElement.text,
+          onMatch: (match) => match.group(0) + "\n",
+          onNonMatch: (noMatch) => noMatch.trim().isEmpty
+              ? ""
+              : parser.parse("$noMatch").documentElement.text + "\n",
         );
       default:
         final r = e.attributes[lastRule];
