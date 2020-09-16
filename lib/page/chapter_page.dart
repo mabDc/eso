@@ -255,8 +255,8 @@ class _ChapterPageState extends State<ChapterPage> {
     final width = MediaQuery.of(context).size.width - 2 * horizontalPadding;
     final offset = Offset(width, 6);
     final fontColor = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
-    final style =
-        TextStyle(fontSize: fontSize, color: fontColor, fontFamily: Profile.staticFontFamily);
+    final style = TextStyle(
+        fontSize: fontSize, color: fontColor, fontFamily: Profile.staticFontFamily);
     final paragraphs =
         description.split(RegExp(r"^\s*|\n\s*")).map((s) => s.trimLeft()).toList();
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
@@ -403,7 +403,7 @@ class _ChapterPageState extends State<ChapterPage> {
           return Container(
             child: _buildChapterButton(
                 context,
-                searchItem.durChapterIndex == index,
+                searchItem.durChapterIndex == showIndex,
                 Text(
                   '${searchItem.chapters[showIndex].name}'.trim(),
                   maxLines: 1,
