@@ -115,17 +115,17 @@ flutter:
         - asset: fonts/Roboto/Roboto-Black.ttf
           weight: 900
     
-    - family: Lolita_V2
-      fonts:
-        - asset: fonts/Lolita_V2.ttf
+    # - family: Lolita_V2
+    #   fonts:
+    #     - asset: fonts/Lolita_V2.ttf
 
-    - family: 腾祥嘉丽
-      fonts:
-        - asset: fonts/腾祥嘉丽.ttf
+    # - family: 腾祥嘉丽
+    #   fonts:
+    #     - asset: fonts/腾祥嘉丽.ttf
 
-    - family: 文泉驿
-      fonts:
-        - asset: fonts/文泉驿.ttf
+    # - family: 文泉驿
+    #   fonts:
+    #     - asset: fonts/文泉驿.ttf
 
     # - family: 文泉驿点阵正黑
     #   fonts:
