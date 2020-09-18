@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart' as path;
+import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as path;
 
@@ -202,9 +203,13 @@ class CacheUtil {
 
   /// 获取缓存放置目录 (写了一堆，提升兼容性）
   static Future<String> getCacheBasePath([bool storage]) async {
+    print("zcxxzcxz");
     if (_cacheStoragePath == null) {
       try {
-        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        if (Platform.isWindows) {
+          final PathProviderWindows provider = PathProviderWindows();
+          _cacheStoragePath = await provider.getApplicationDocumentsPath();
+        } else if (Platform.isMacOS || Platform.isLinux) {
           _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
         } else if (Platform.isAndroid) {
           _cacheStoragePath = (await path.getExternalStorageDirectory()).path;
@@ -221,9 +226,19 @@ class CacheUtil {
       } catch (e) {}
     }
     if (_cacheBasePath == null) {
-      _cacheBasePath = (await path.getApplicationDocumentsDirectory()).path;
+      if (Platform.isWindows) {
+        final PathProviderWindows provider = PathProviderWindows();
+        _cacheBasePath = await provider.getApplicationDocumentsPath();
+      } else {
+        _cacheBasePath = (await path.getApplicationDocumentsDirectory()).path;
+      }
       if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-        _cacheBasePath = (await path.getApplicationSupportDirectory()).path;
+        if (Platform.isWindows) {
+          final PathProviderWindows provider = PathProviderWindows();
+          _cacheBasePath = await provider.getApplicationSupportPath();
+        } else {
+          _cacheBasePath = (await path.getApplicationSupportDirectory()).path;
+        }
         if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
           _cacheBasePath = (await path.getTemporaryDirectory()).path;
         }

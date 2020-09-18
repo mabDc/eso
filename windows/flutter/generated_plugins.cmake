@@ -3,9 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  path_provider_fde
-  url_launcher_fde
   flutter_js
+  flutter_webview
+  url_launcher_windows
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

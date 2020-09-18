@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:path/path.dart' as path;
 
 /// 事件bus
@@ -77,6 +78,11 @@ class Utils {
 
   /// 获取下载目录
   static Future<String> getDownloadsPath() async {
+    print("dadsa");
+    if (Platform.isWindows) {
+      final PathProviderWindows provider = PathProviderWindows();
+      return provider.getApplicationDocumentsPath();
+    }
     if (Platform.isIOS)
       return (await getApplicationDocumentsDirectory()).path;
     else {

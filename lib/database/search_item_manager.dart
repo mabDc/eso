@@ -152,12 +152,12 @@ class SearchItemManager {
       showToast("${item.name} 章节为空");
       return;
     }
-    final newCount = item.chaptersCount - item.chapters.length;
+    final newCount = chapters.length - item.chapters.length;
     if (newCount > 0) {
       showToast("${item.name} 新增 $newCount 章节");
       item.chapters = chapters;
-      item.chapter = item.chapters.last?.name;
-      item.chaptersCount = item.chapters.length;
+      item.chapter = chapters.last?.name;
+      item.chaptersCount = chapters.length;
       await SearchItemManager.saveChapter(item.id, item.chapters);
     } else {
       showToast("${item.name} 无新增章节");
