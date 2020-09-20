@@ -203,7 +203,6 @@ class CacheUtil {
 
   /// 获取缓存放置目录 (写了一堆，提升兼容性）
   static Future<String> getCacheBasePath([bool storage]) async {
-    print("zcxxzcxz");
     if (_cacheStoragePath == null) {
       try {
         if (Platform.isWindows) {

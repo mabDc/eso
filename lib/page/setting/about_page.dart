@@ -8,7 +8,6 @@ import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -67,8 +66,8 @@ class AboutPage extends StatelessWidget {
                           builder: (BuildContext context) => DarkModpage())),
                     ),
                     ListTile(
-                      title: Text('字体设置'),
-                      subtitle: Text('选择字体'),
+                      title: Text('字体管理'),
+                      subtitle: Text('全局界面、正文字体设置'),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => FontFamilyPage())),
                     ),
@@ -470,7 +469,7 @@ class AboutPage extends StatelessWidget {
               ),
               onTap: () {
                 Provider.of<Profile>(context, listen: false).updateVersion();
-                showToast("在设置中可再次查看", position: ToastPosition.bottom);
+                Utils.toast("在设置中可再次查看");
                 Navigator.of(context).pop();
               },
             ),

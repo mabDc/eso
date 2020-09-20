@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:eso/api/api_manager.dart';
-import 'package:oktoast/oktoast.dart' as oktoast;
-
+import 'package:eso/utils.dart';
 import 'chapter_item.dart';
 import 'search_item.dart';
 import '../global.dart';
@@ -124,17 +123,13 @@ class SearchItemManager {
         refreshItem(item),
         (SearchItem temp) async {
           await Future.delayed(Duration(seconds: 5), () {
-            if (current == temp.name) showToast("${temp.name} 章节更新超时");
+            if (current == temp.name) Utils.toast("${temp.name} 章节更新超时");
           });
         }(item),
       ]);
       current = null;
     }
     return;
-  }
-
-  static void showToast(String msg) {
-    oktoast.showToast(msg, position: oktoast.ToastPosition.bottom);
   }
 
   static Future<void> refreshItem(SearchItem item) async {
@@ -145,22 +140,22 @@ class SearchItemManager {
     try {
       chapters = await APIManager.getChapter(item.originTag, item.url);
     } catch (e) {
-      showToast("${item.name} 章节获取失败");
+      Utils.toast("${item.name} 章节获取失败");
       return;
     }
     if (chapters.isEmpty) {
-      showToast("${item.name} 章节为空");
+      Utils.toast("${item.name} 章节为空");
       return;
     }
     final newCount = chapters.length - item.chapters.length;
     if (newCount > 0) {
-      showToast("${item.name} 新增 $newCount 章节");
+      Utils.toast("${item.name} 新增 $newCount 章节");
       item.chapters = chapters;
       item.chapter = chapters.last?.name;
       item.chaptersCount = chapters.length;
       await SearchItemManager.saveChapter(item.id, item.chapters);
     } else {
-      showToast("${item.name} 无新增章节");
+      Utils.toast("${item.name} 无新增章节");
     }
     return;
   }
