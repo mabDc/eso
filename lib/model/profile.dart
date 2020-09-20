@@ -13,6 +13,7 @@ class Profile with ChangeNotifier {
     final source = LocalStorage.getString(Global.profileKey);
     final json = source == null
         ? {
+            'mangaFullScreen': true,
             'fontFamily': null,
             'novelFontFamily': null,
             'version': "",
@@ -91,6 +92,7 @@ class Profile with ChangeNotifier {
   String _colorName;
   int _customColor;
   bool _showMangaInfo;
+  bool _mangaFullScreen;
   double _novelFontSize;
   double _novelHeight;
   double _novelTopPadding;
@@ -124,6 +126,7 @@ class Profile with ChangeNotifier {
   String get colorName => _colorName;
   int get customColor => _customColor;
   bool get showMangaInfo => _showMangaInfo;
+  bool get mangaFullScreen => _mangaFullScreen;
   double get novelFontSize => _novelFontSize;
   double get novelHeight => _novelHeight;
   double get novelTopPadding => _novelTopPadding;
@@ -226,6 +229,13 @@ class Profile with ChangeNotifier {
     final color = Color(_customColor);
     if (value != color.blue) {
       _customColor = color.withBlue(value).value;
+      _saveProfile();
+    }
+  }
+
+  set mangaFullScreen(bool value) {
+    if (_mangaFullScreen != value) {
+      _mangaFullScreen = value;
       _saveProfile();
     }
   }
@@ -526,6 +536,7 @@ class Profile with ChangeNotifier {
     _switchLongPress = json['switchLongPress'];
     _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
     _showMangaInfo = json['showMangaInfo'] ?? true;
+    _mangaFullScreen = json['mangaFullScreen'] ?? true;
     _autoRefresh = json['autoRefresh'];
     _darkMode = json['darkMode'].toString();
     _colorName = json['colorName'];
@@ -563,6 +574,7 @@ class Profile with ChangeNotifier {
         'switchFavoriteStyle': _switchFavoriteStyle,
         // 'switchDiscoverStyle': _switchDiscoverStyle,
         'showMangaInfo': _showMangaInfo,
+        'mangaFullScreen': _mangaFullScreen,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'colorName': _colorName,

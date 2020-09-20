@@ -70,7 +70,11 @@ class _MangaPageState extends State<MangaPage> {
             if (__provider == null) {
               __provider = provider;
             }
-            SystemChrome.setEnabledSystemUIOverlays([]);
+            if (profile.mangaFullScreen) {
+              SystemChrome.setEnabledSystemUIOverlays([]);
+            } else {
+              SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
+            }
             if (provider.content == null) {
               return LandingPage();
             }
@@ -96,8 +100,8 @@ class _MangaPageState extends State<MangaPage> {
                       : Container(),
                   provider.showMenu
                       ? UIMangaMenu(
-                        searchItem: widget.searchItem,
-                      )
+                          searchItem: widget.searchItem,
+                        )
                       : Container(),
                   provider.showChapter
                       ? UIChapterSelect(
@@ -324,17 +328,22 @@ class _MangaPageState extends State<MangaPage> {
         final path = '${provider.content[index]}';
         return GestureDetector(
           onLongPress: () {
-            Utils.startPageWait(context, PhotoViewPage(
-              items: provider.content.map((e) => PhotoItem(e, headers: provider.headers)).toList(),
-              index: index,
-            ));
+            Utils.startPageWait(
+                context,
+                PhotoViewPage(
+                  items: provider.content
+                      .map((e) => PhotoItem(e, headers: provider.headers))
+                      .toList(),
+                  index: index,
+                ));
           },
           // child: FadeInImage(
           //   placeholder: AssetImage(Global.waitingPath),
           //   image: checkUrl(path, provider.headers),
           //   fit: BoxFit.fitWidth,
           // ),
-          child: UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 200),
+          child:
+              UIFadeInImage(url: path, header: provider.headers, placeHolderHeight: 200),
         );
       },
     );
