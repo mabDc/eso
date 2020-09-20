@@ -25,7 +25,12 @@ class AnalyzerJS implements Analyzer {
         _content = jsonEncode(content.map((e) => e.outerHtml).toList());
       }
     } else if (content is List && content.length == 1) {
-      _content = jsonEncode("${content[0]}");
+      final temp = content[0];
+      if (temp is List || temp is Map) {
+        _content = jsonEncode(temp);
+      } else {
+        _content = jsonEncode('${content[0]}');
+      }
     } else {
       try {
         _content = jsonEncode(content);

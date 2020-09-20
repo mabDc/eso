@@ -17,7 +17,12 @@ class AnalyzerHttp implements Analyzer {
   @override
   AnalyzerHttp parse(content) {
     if (content is List && content.length > 0) {
-      _content = '${content.first}';
+      final temp = content[0];
+      if (temp is Map) {
+        _content = jsonEncode(temp);
+      } else {
+        _content = '$temp';
+      }
     } else if (content is Map) {
       _content = jsonEncode(content);
     } else {

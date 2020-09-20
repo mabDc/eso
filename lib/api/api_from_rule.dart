@@ -260,7 +260,9 @@ class APIFromRUle implements API {
     }
     final discovers = (discoverUrl is List)
         ? discoverUrl.map((e) => "$e")
-        : (discoverUrl is String) ? discoverUrl.split(RegExp(r"\n\s*|&&")) : <String>[];
+        : (discoverUrl is String)
+            ? discoverUrl.split(RegExp(r"\n\s*|&&"))
+            : <String>[];
     for (var url in discovers) {
       if (url.trim().isEmpty) continue;
       final d = url.split("::");
@@ -284,6 +286,17 @@ class APIFromRUle implements API {
         ]));
       } else {
         map[table[tab]].pairs.add(DiscoverPair(className, rule));
+      }
+    }
+    if (map.isEmpty) {
+      if (rule.host.startsWith("http")) {
+        map.add(DiscoverMap("全部", <DiscoverPair>[
+          DiscoverPair("全部", rule.host),
+        ]));
+      } else {
+        map.add(DiscoverMap("example", <DiscoverPair>[
+          DiscoverPair("example", "http://example.com/"),
+        ]));
       }
     }
     return map;
