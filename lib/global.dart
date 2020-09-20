@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/utils/local_storage_utils.dart';
 import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,8 @@ import 'database/database.dart';
 import 'database/rule_dao.dart';
 export 'utils/local_storage_utils.dart';
 import 'package:package_info/package_info.dart';
+
+import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
   static String appName = '亦搜';
@@ -33,6 +37,28 @@ class Global with ChangeNotifier {
   static RuleDao _ruleDao;
   static RuleDao get ruleDao => _ruleDao;
 
+  static Future<void> initFont() async {
+    final profile = Profile();
+    final fontFamily = profile.fontFamily;
+    final novelFamily = profile.novelFontFamily;
+    Profile.staticNovelFontFamily = novelFamily;
+    if (fontFamily == null && novelFamily == null) return;
+    final _cacheUtil = CacheUtil(backup: true, basePath: "font");
+    final dir = await _cacheUtil.cacheDir();
+    if (fontFamily != null && fontFamily.contains('.')) {
+      await loadFontFromList(
+        await File(dir + fontFamily).readAsBytes(),
+        fontFamily: fontFamily,
+      );
+    }
+    if (novelFamily != null && novelFamily.contains('.')) {
+      await loadFontFromList(
+        await File(dir + novelFamily).readAsBytes(),
+        fontFamily: novelFamily,
+      );
+    }
+  }
+
   static Future<bool> init() async {
     await LocalStorage.init();
     SearchItemManager.initSearchItem();
@@ -54,7 +80,7 @@ class Global with ChangeNotifier {
           .build();
       _ruleDao = _database.ruleDao;
     }
-    await Future.delayed(Duration(seconds: 1));
+    await initFont();
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       appVersion = packageInfo.version;

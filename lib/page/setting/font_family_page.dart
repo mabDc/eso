@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:eso/page/langding_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,31 +20,68 @@ class FontFamilyPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("字体管理"),
       ),
-      body: Container(
-        child: InkWell(
-          child: Text(''),
-          onTap: () async {},
-        ),
+      body: ChangeNotifierProvider(
+        create: (context) => _FontFamilyProvider(),
+        builder: (context, child) {
+          context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
+          final profile = Provider.of<Profile>(context, listen: true);
+          final fontFamilyProvider =
+              Provider.of<_FontFamilyProvider>(context, listen: false);
+          if (fontFamilyProvider.ttfList == null) {
+            return LandingPage();
+          }
+          return ListView(
+            children: [
+              _buildFontListTile("默认", null, profile),
+              _buildFontListTile("Roboto", 'Roboto', profile),
+              for (final ttf in fontFamilyProvider.ttfList)
+                _buildFontListTile(ttf, ttf, profile),
+              ListTile(
+                title: InkWell(
+                  onTap: fontFamilyProvider.pickFont,
+                  child: Row(
+                    children: [
+                      Icon(Icons.add_outlined),
+                      Text('添加本地 ttf或ttc或otf 字体文件'),
+                    ],
+                  ),
+                ),
+                subtitle: Text('字体路径 ${fontFamilyProvider.dir}'),
+              )
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildColorListTile(MapEntry<String, String> font) {
-    return Consumer<Profile>(
-      builder: (BuildContext context, Profile profile, Widget widget) {
-        return ListTile(
-          title: Text(
-            font.key,
-            style: TextStyle(fontFamily: font.value),
-          ),
-          trailing: font.value == profile.fontFamily
-              ? Icon(Icons.done,
-                  size: 32,
-                  color: Color(Global.colors[profile.colorName] ?? profile.customColor))
-              : null,
-          onTap: () => profile.fontFamily = font.value,
-        );
-      },
+  Widget _buildFontListTile(String name, String fontFamily, Profile profile) {
+    return ListTile(
+      title: Text(
+        name,
+        style: TextStyle(fontFamily: fontFamily),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (profile.fontFamily == name)
+            Text(
+              '√全局 ',
+              style: TextStyle(
+                color: Color(Global.colors[profile.colorName] ?? profile.customColor),
+              ),
+            ),
+          if (profile.novelFontFamily == name)
+            Text(
+              '√正文 ',
+              style: TextStyle(
+                color: Color(Global.colors[profile.colorName] ?? profile.customColor),
+              ),
+            ),
+        ],
+      ),
+      onTap: () => profile.fontFamily = name,
+      onLongPress: () => profile.novelFontFamily = name,
     );
   }
 }
@@ -61,7 +99,7 @@ class _FontFamilyProvider with ChangeNotifier {
   }
 
   void init() async {
-    _cacheUtil = CacheUtil(backup: true, basePath: "ttf_font");
+    _cacheUtil = CacheUtil(backup: true, basePath: "font");
     _dir = await _cacheUtil.cacheDir();
     await refreshList();
   }
@@ -70,10 +108,14 @@ class _FontFamilyProvider with ChangeNotifier {
     _ttfList?.clear();
     _ttfList = null;
     notifyListeners();
+    if (!Directory(_dir).existsSync()) {
+      await Directory(_dir).create(recursive: true);
+    }
     final directory = Directory(_dir);
     final files = directory.listSync();
     _ttfList =
         files.map((file) => file.path.substring(file.parent.path.length + 1)).toList();
+    _ttfList.forEach((ttf) async => await _loadFont(ttf));
     notifyListeners();
     return;
   }
@@ -81,21 +123,27 @@ class _FontFamilyProvider with ChangeNotifier {
   void pickFont() async {
     FilePickerResult ttfPick = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: <String>['ttf', 'otf'],
+      allowedExtensions: <String>['ttf', 'otf', 'ttc'],
     );
-    if (ttfPick == null) return;
+    if (ttfPick == null) {
+      Utils.toast('未选取字体文件');
+      return;
+    }
     final ttf = ttfPick.files.single;
-    if (ttf.extension != 'ttf' && ttf.extension != 'otf') return;
+    if (ttf.extension != 'ttf' && ttf.extension != 'ttc' && ttf.extension != 'otf') {
+      Utils.toast('只支持扩展名为ttf或otf或ttc的字体文件');
+      return;
+    }
     final cache = CacheUtil(backup: true, basePath: "ttf_font");
     await cache.putFile(ttf.name, File(ttf.path));
+    await loadFontFromList(ttf.bytes, fontFamily: ttf.name);
+    _ttfList.add(ttf.name);
+    notifyListeners();
     Utils.toast('字体已保存到$_dir');
-    await loadFontFromList(ttf.bytes, fontFamily: ttf.name.replaceAll('.', '_'));
-    Utils.toast('字体已加载');
   }
 
-  void loadFont(String fontName) async {
+  Future<void> _loadFont(String fontName) async {
     await loadFontFromList(await File(dir + fontName).readAsBytes(),
-        fontFamily: fontName.replaceAll('.', '_'));
-    Utils.toast('字体已加载');
+        fontFamily: fontName);
   }
 }

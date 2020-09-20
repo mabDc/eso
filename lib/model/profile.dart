@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/ui/edit/bottom_input_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +14,7 @@ class Profile with ChangeNotifier {
     final json = source == null
         ? {
             'fontFamily': null,
+            'novelFontFamily': null,
             'version': "",
             'showMangaInfo': true,
             'switchLongPress': false,
@@ -83,6 +83,7 @@ class Profile with ChangeNotifier {
   }
 
   String _fontFamily;
+  String _novelFontFamily;
   bool _switchLongPress;
   bool _switchFavoriteStyle;
   bool _autoRefresh;
@@ -115,6 +116,7 @@ class Profile with ChangeNotifier {
   int _searchOption;
 
   String get fontFamily => _fontFamily;
+  String get novelFontFamily => _novelFontFamily;
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
   bool get autoRefresh => _autoRefresh;
@@ -149,7 +151,15 @@ class Profile with ChangeNotifier {
   set fontFamily(String value) {
     if (value != _fontFamily) {
       _fontFamily = value;
-      fontFamily = value;
+      staticFontFamily = value;
+      _saveProfile();
+    }
+  }
+
+  set novelFontFamily(String value) {
+    if (value != _novelFontFamily) {
+      _novelFontFamily = value;
+      staticNovelFontFamily = value;
       _saveProfile();
     }
   }
@@ -447,6 +457,7 @@ class Profile with ChangeNotifier {
   }
 
   static String staticFontFamily;
+  static String staticNovelFontFamily;
 
   ThemeData getTheme(String fontFamily, {bool isDarkMode: false}) {
     switch (darkMode) {
@@ -462,7 +473,7 @@ class Profile with ChangeNotifier {
     final _color = Color(Global.colors[colorName] ?? customColor);
     staticFontFamily = fontFamily;
     final theme = ThemeData(
-      fontFamily: fontFamily,
+      fontFamily: staticFontFamily,
       primaryColor: _color,
       primaryColorDark: Global.colorLight(_color, -0.25),
       primaryColorLight: Global.colorLight(_color, 0.25),
@@ -511,6 +522,7 @@ class Profile with ChangeNotifier {
   void fromJson(Map<String, dynamic> json) {
     _version = json['version'];
     _fontFamily = json['fontFamily'];
+    _novelFontFamily = json['novelFontFamily'];
     _switchLongPress = json['switchLongPress'];
     _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
     _showMangaInfo = json['showMangaInfo'] ?? true;
@@ -545,6 +557,7 @@ class Profile with ChangeNotifier {
 
   Map<String, dynamic> toJson() => {
         'fontFamily': _fontFamily,
+        'novelFontFamily': _novelFontFamily,
         'version': _version,
         'switchLongPress': _switchLongPress,
         'switchFavoriteStyle': _switchFavoriteStyle,

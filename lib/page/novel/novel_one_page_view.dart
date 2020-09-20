@@ -17,14 +17,19 @@ class NovelOnePageView extends StatelessWidget {
   final String pageInfo;
 
   /// 底部分隔线
-  static Widget bottomLine (Color fontColor) => UIDash(
-    height: Global.lineSize,
-    dashWidth: 2,
-    color: fontColor.withOpacity(0.5),
-  );
+  static Widget bottomLine(Color fontColor) => UIDash(
+        height: Global.lineSize,
+        dashWidth: 2,
+        color: fontColor.withOpacity(0.5),
+      );
 
   /// 底部状态栏
-  static Widget buildFooterStatus({String chapter, String msg, Color fontColor, double padding, NovelPageProvider provider}) {
+  static Widget buildFooterStatus(
+      {String chapter,
+      String msg,
+      Color fontColor,
+      double padding,
+      NovelPageProvider provider}) {
     final _txt = Text(
       msg,
       textAlign: TextAlign.right,
@@ -36,37 +41,41 @@ class NovelOnePageView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: padding),
           height: 24,
           child: DefaultTextStyle(
-            style: TextStyle(color: fontColor, fontSize: 12,
-                fontFamily: Profile.staticFontFamily),
+            style: TextStyle(
+                color: fontColor, fontSize: 12, fontFamily: Profile.staticFontFamily),
             child: Row(
-              children: (Provider.of<NovelPageProvider>(context, listen: true)?.useSelectableText ?? false) ? [
-                ButtonTheme(
-                  padding: EdgeInsets.zero,
-                  minWidth: 10,
-                  child: FlatButton(
-                    child: IconText(
-                      '退出复制模式',
-                      style: TextStyle(color: fontColor,
-                          fontFamily: Profile.staticFontFamily),
-                      icon: Icon(Icons.clear),
-                      iconSize: 16,
-                    ),
-                    onPressed: () => provider.useSelectableText = false,
-                  ),
-                ),
-                Expanded(child: SizedBox()),
-                _txt,
-              ] : [
-                Expanded(
-                  child: Text(
-                    '$chapter',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                SizedBox(width: 8),
-                _txt,
-              ],
+              children: (Provider.of<NovelPageProvider>(context, listen: true)
+                          ?.useSelectableText ??
+                      false)
+                  ? [
+                      ButtonTheme(
+                        padding: EdgeInsets.zero,
+                        minWidth: 10,
+                        child: FlatButton(
+                          child: IconText(
+                            '退出复制模式',
+                            style: TextStyle(
+                                color: fontColor, fontFamily: Profile.staticFontFamily),
+                            icon: Icon(Icons.clear),
+                            iconSize: 16,
+                          ),
+                          onPressed: () => provider.useSelectableText = false,
+                        ),
+                      ),
+                      Expanded(child: SizedBox()),
+                      _txt,
+                    ]
+                  : [
+                      Expanded(
+                        child: Text(
+                          '$chapter',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      _txt,
+                    ],
             ),
           ),
         );
@@ -82,7 +91,7 @@ class NovelOnePageView extends StatelessWidget {
     this.fontColor,
     this.chapterName,
     this.pageInfo,
-  }): super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +108,12 @@ class NovelOnePageView extends StatelessWidget {
                 right: profile.novelLeftPadding - 5,
               ),
               width: double.infinity,
-              child: RichText(text: TextSpan(children: spans,
-                  style: TextStyle(color: fontColor,
-                      fontFamily: Profile.staticFontFamily))),
+              child: RichText(
+                  text: TextSpan(
+                children: spans,
+                style: TextStyle(
+                    color: fontColor, fontFamily: Profile.staticNovelFontFamily),
+              )),
             ),
           ),
           SizedBox(height: 4),
