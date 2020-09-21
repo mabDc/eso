@@ -37,6 +37,9 @@ class CacheUtil {
   }
 
   Future<String> cacheDir([bool allCache]) async {
+    try {
+      await requestPermission();
+    } catch (e) {}
     if (_cacheDir != null && allCache != true) return _cacheDir;
     var dir = await getCacheBasePath(backup);
     if (dir == null || dir.isEmpty) return null;

@@ -19,6 +19,16 @@ class FontFamilyPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("字体管理"),
+        actions: [
+          Tooltip(
+            message: '点击设置全局字体\n长按设置正文字体',
+            child: IconButton(
+              icon: Icon(Icons.help_outline),
+              onPressed: () => null,
+              tooltip: '点击设置全局字体\n长按设置正文字体',
+            ),
+          ),
+        ],
       ),
       body: ChangeNotifierProvider(
         create: (context) => _FontFamilyProvider(),
@@ -104,6 +114,18 @@ class _FontFamilyProvider with ChangeNotifier {
 
   void init() async {
     _cacheUtil = CacheUtil(backup: true, basePath: "font");
+    try {
+      final p = await _cacheUtil.requestPermission();
+      if (!p) {
+        Utils.toast('读取字体需要存储权限');
+        _ttfList = <String>[];
+        return;
+      }
+    } catch (e) {
+      Utils.toast('读取字体需要存储权限');
+      _ttfList = <String>[];
+      return;
+    }
     _dir = await _cacheUtil.cacheDir();
     await refreshList();
   }

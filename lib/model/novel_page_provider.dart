@@ -580,7 +580,10 @@ class NovelPageProvider with ChangeNotifier {
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
     final width = mediaQueryData.size.width - __profile.novelLeftPadding * 2;
     final offset = Offset(width, 6);
-    final tp = TextPainter(textDirection: TextDirection.ltr);
+    final tp = TextPainter(
+      textDirection: TextDirection.ltr,
+      strutStyle: StrutStyle(fontFamily: profile.novelFontFamily),
+    );
     final oneLineHeight = __profile.novelFontSize * __profile.novelHeight;
     final height = mediaQueryData.size.height -
         __profile.novelTopPadding * 2 -
@@ -594,14 +597,17 @@ class NovelPageProvider with ChangeNotifier {
     final commonStyle = TextStyle(
       fontSize: __profile.novelFontSize,
       height: __profile.novelHeight,
+      fontFamily: profile.novelFontFamily,
       //color: fontColor,
     );
     final _buildHeightSpan = (double height) {
       return TextSpan(
+        
           text: " ",
           style: TextStyle(
             height: 1,
             fontSize: height,
+            fontFamily: profile.novelFontFamily,
           ));
     };
     final paragraphLine = _buildHeightSpan(__profile.novelParagraphPadding);
@@ -639,6 +645,7 @@ class NovelPageProvider with ChangeNotifier {
           //color: fontColor,
           height: __profile.novelHeight,
           fontWeight: FontWeight.bold,
+          fontFamily: profile.novelFontFamily,
         ),
       ),
       newLine,
@@ -733,6 +740,7 @@ class NovelPageProvider with ChangeNotifier {
                 style: TextStyle(
                   fontSize: __profile.novelFontSize,
                   height: __profile.novelHeight,
+                  fontFamily: profile.novelFontFamily,
                   //color: fontColor,
                 )));
           }
@@ -750,6 +758,7 @@ class NovelPageProvider with ChangeNotifier {
             fontSize: __profile.novelFontSize,
             //color: fontColor,
             height: __profile.novelHeight,
+            fontFamily: profile.novelFontFamily,
           ),
         );
         tp.layout();
@@ -764,6 +773,7 @@ class NovelPageProvider with ChangeNotifier {
               //color: fontColor,
               height: __profile.novelHeight,
               letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+              fontFamily: profile.novelFontFamily,
             )));
         currentSpans.add(TextSpan(
           text: text.substring(text.length - 1),
