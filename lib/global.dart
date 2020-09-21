@@ -45,18 +45,22 @@ class Global with ChangeNotifier {
     if (fontFamily == null && novelFamily == null) return;
     final _cacheUtil = CacheUtil(backup: true, basePath: "font");
     final dir = await _cacheUtil.cacheDir();
-    if (fontFamily != null && fontFamily.contains('.')) {
-      await loadFontFromList(
-        await File(dir + fontFamily).readAsBytes(),
-        fontFamily: fontFamily,
-      );
-    }
-    if (novelFamily != null && novelFamily.contains('.')) {
-      await loadFontFromList(
-        await File(dir + novelFamily).readAsBytes(),
-        fontFamily: novelFamily,
-      );
-    }
+    try {
+      if (fontFamily != null && fontFamily.contains('.')) {
+        await loadFontFromList(
+          await File(dir + fontFamily).readAsBytes(),
+          fontFamily: fontFamily,
+        );
+      }
+    } catch (e) {}
+    try {
+      if (novelFamily != null && novelFamily.contains('.')) {
+        await loadFontFromList(
+          await File(dir + novelFamily).readAsBytes(),
+          fontFamily: novelFamily,
+        );
+      }
+    } catch (e) {}
   }
 
   static Future<bool> init() async {

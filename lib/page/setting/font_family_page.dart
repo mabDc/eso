@@ -61,17 +61,21 @@ class FontFamilyPage extends StatelessWidget {
         name,
         style: TextStyle(fontFamily: fontFamily),
       ),
+      subtitle: Text(
+        '这是一段测试文本',
+        style: TextStyle(fontFamily: fontFamily),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (profile.fontFamily == name)
+          if (profile.fontFamily == fontFamily)
             Text(
               '√全局 ',
               style: TextStyle(
                 color: Color(Global.colors[profile.colorName] ?? profile.customColor),
               ),
             ),
-          if (profile.novelFontFamily == name)
+          if (profile.novelFontFamily == fontFamily)
             Text(
               '√正文 ',
               style: TextStyle(
@@ -80,8 +84,8 @@ class FontFamilyPage extends StatelessWidget {
             ),
         ],
       ),
-      onTap: () => profile.fontFamily = name,
-      onLongPress: () => profile.novelFontFamily = name,
+      onTap: () => profile.fontFamily = fontFamily,
+      onLongPress: () => profile.novelFontFamily = fontFamily,
     );
   }
 }
@@ -105,9 +109,6 @@ class _FontFamilyProvider with ChangeNotifier {
   }
 
   Future<void> refreshList() async {
-    _ttfList?.clear();
-    _ttfList = null;
-    notifyListeners();
     if (!Directory(_dir).existsSync()) {
       await Directory(_dir).create(recursive: true);
     }
@@ -134,8 +135,7 @@ class _FontFamilyProvider with ChangeNotifier {
       Utils.toast('只支持扩展名为ttf或otf或ttc的字体文件');
       return;
     }
-    final cache = CacheUtil(backup: true, basePath: "ttf_font");
-    await cache.putFile(ttf.name, File(ttf.path));
+    await _cacheUtil.putFile(ttf.name, File(ttf.path));
     await loadFontFromList(ttf.bytes, fontFamily: ttf.name);
     _ttfList.add(ttf.name);
     notifyListeners();
