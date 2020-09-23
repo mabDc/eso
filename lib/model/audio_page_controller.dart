@@ -6,11 +6,13 @@ import 'package:eso/model/audio_service.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_lyric/lyric.dart';
 import 'package:flutter_share/flutter_share.dart';
 
 class AudioPageController with ChangeNotifier {
   AudioService _audioService;
   Timer _timer;
+  Duration get positionDuration => _audioService.positionDuration;
   int get seconds => _audioService.duration.inSeconds;
   int get postionSeconds => _audioService.positionDuration.inSeconds;
   String get durationText => _getTimeString(seconds);
@@ -27,11 +29,20 @@ class AudioPageController with ChangeNotifier {
     }
   }
 
+  List<Lyric> get lyrics => _audioService?.lyrics;
+  bool _showLyric;
+  bool get showLyric => _showLyric;
+  void toggleLyric() {
+    _showLyric = !_showLyric;
+    notifyListeners();
+  }
+
   AudioPageController({@required SearchItem searchItem}) {
     // init
     _audioService = AudioService();
+    _showLyric = false;
     _showChapter = false;
-    _timer = Timer.periodic(Duration(milliseconds: 300), (_) {
+    _timer = Timer.periodic(Duration(milliseconds: 200), (_) {
       notifyListeners();
     });
     // searchItem
@@ -39,7 +50,6 @@ class AudioPageController with ChangeNotifier {
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
-    if (_audioService.searchItem == searchItem && AudioService.isPlaying) return;
     _audioService.playChapter(searchItem.durChapterIndex, searchItem: searchItem);
   }
 
@@ -55,16 +65,6 @@ class AudioPageController with ChangeNotifier {
   /// all -> all secends
   String _getTimeString(int all) {
     return Utils.formatDuration(Duration(seconds: all));
-    // int c = all % 60;
-    // String s = '${c > 9 ? '' : '0'}$c';
-    // all = all ~/ 60;
-    // c = all % 60;
-    // s = '${c > 9 ? '' : '0'}$c:$s';
-    // if (all >= 60) {
-    //   all = all ~/ 60;
-    //   s = '$all:$s';
-    // }
-    // return s;
   }
 
   void switchRepeatMode() {

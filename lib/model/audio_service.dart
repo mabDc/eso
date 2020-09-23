@@ -5,6 +5,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/utils.dart';
+import 'package:flutter_lyric/lyric.dart';
 
 class AudioService {
   static const int REPEAT_FAVORITE = 3;
@@ -15,8 +16,7 @@ class AudioService {
   static AudioService __internal;
 
   static AudioService getAudioService() {
-    if (__internal == null)
-      __internal = AudioService._internal();
+    if (__internal == null) __internal = AudioService._internal();
     return __internal;
   }
 
@@ -31,16 +31,21 @@ class AudioService {
 
   static String getRepeatName(int value) {
     switch (value) {
-      case REPEAT_FAVORITE: return "跨源循环";
-      case REPEAT_ALL: return "列表循环";
-      case REPEAT_ONE: return "单曲循环";
-      case REPEAT_NONE: return "不循环";
+      case REPEAT_FAVORITE:
+        return "跨源循环";
+      case REPEAT_ALL:
+        return "列表循环";
+      case REPEAT_ONE:
+        return "单曲循环";
+      case REPEAT_NONE:
+        return "不循环";
     }
     return null;
   }
 
   AudioService._internal() {
     if (_player == null) {
+      _lyrics = <Lyric>[];
       _durChapterIndex = -1;
       _player = AudioPlayer();
       _repeatMode = REPEAT_ALL;
@@ -83,7 +88,8 @@ class AudioService {
   }
 
   /// 是否正在播放
-  bool get __isPlaying => _playerState != null &&
+  bool get __isPlaying =>
+      _playerState != null &&
       _playerState != AudioPlayerState.STOPPED &&
       _playerState != AudioPlayerState.COMPLETED &&
       _playerState != AudioPlayerState.PAUSED;
@@ -114,7 +120,8 @@ class AudioService {
       if (allFavorite != true) {
         playChapter(0);
       } else {
-        eventBus.fire(AudioStateEvent(_searchItem, AudioPlayerState.COMPLETED, playNext: true));
+        eventBus.fire(
+            AudioStateEvent(_searchItem, AudioPlayerState.COMPLETED, playNext: true));
       }
     } else {
       playChapter(_searchItem.durChapterIndex + 1);
@@ -125,8 +132,12 @@ class AudioService {
       ? _searchItem.chapters.length - 1
       : _searchItem.durChapterIndex - 1);
 
-  Future<void> playChapter(int chapterIndex, {SearchItem searchItem, bool tryNext = false}) async {
-    if (searchItem == null || _searchItem == searchItem) {
+  List<Lyric> _lyrics;
+  List<Lyric> get lyrics => _lyrics;
+  final durationReg = RegExp(r'\[(\d{1,2}):(\d{1,2})(\.\d{1,3})?\]');
+  Future<void> playChapter(int chapterIndex,
+      {SearchItem searchItem, bool tryNext = false}) async {
+    if (searchItem == null) {
       if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length) return;
       if (_url != null && _searchItem.durChapterIndex == chapterIndex) {
         replay();
@@ -144,14 +155,68 @@ class AudioService {
     } catch (e) {}
     _player.stop();
     _durChapterIndex = chapterIndex;
-    if (_searchItem.chapters == null || _searchItem.chapters.isEmpty)
-      return;
+    if (_searchItem.chapters == null || _searchItem.chapters.isEmpty) return;
     final content = await APIManager.getContent(
         _searchItem.originTag, _searchItem.chapters[chapterIndex].url);
     if (content == null || content.length == 0) return;
     _url = content[0];
-    if (content.length == 2 && content[1].substring(0, 5) == 'cover') {
-      _searchItem.chapters[chapterIndex].cover = content[1].substring(5);
+    _lyrics.clear();
+    for (final c in content.skip(1)) {
+      if (c.startsWith('@cover')) {
+        _searchItem.chapters[chapterIndex].cover = c.substring(6);
+      }
+      if (c.startsWith('@lrc')) {
+        // 一行一行解析
+        _lyrics = c.substring(4).trim().split('\n').map((l) {
+          final m = durationReg.allMatches(l).toList();
+          Duration start = Duration.zero;
+          Duration end;
+          int startIndex = 0;
+          int endIndex = l.length;
+          if (m.length > 0) {
+            final startM = m.first;
+            startIndex = startM.end;
+            start = Duration(
+              minutes: int.parse(startM.group(1)),
+              seconds: int.parse(startM.group(2)),
+              milliseconds: int.parse(startM.group(3)?.substring(1) ?? '0'),
+            );
+          }
+          if (m.length > 1) {
+            final endM = m.last;
+            endIndex = endM.start;
+            end = Duration(
+              minutes: int.parse(endM.group(1)),
+              seconds: int.parse(endM.group(2)),
+              milliseconds: int.parse(endM.group(3) ?? '0'),
+            );
+          }
+          return Lyric(
+            l.substring(startIndex, endIndex),
+            startTime: start,
+            endTime: end,
+          );
+        }).toList();
+        for (var i = 0; i < _lyrics.length - 1; i++) {
+          if (_lyrics[i].endTime == null) {
+            _lyrics[i].endTime = _lyrics[i + 1].startTime;
+          }
+        }
+        if (_lyrics.last.startTime.inSeconds == 0) {
+          _lyrics.last.endTime = _lyrics.last.startTime;
+        } else {
+          _lyrics.last.endTime = _lyrics.last.startTime + Duration(seconds: 10);
+        }
+      }
+    }
+    if (_lyrics == null || _lyrics.isEmpty) {
+      _lyrics = <Lyric>[
+        Lyric(
+          '没有歌词 >_<',
+          startTime: Duration.zero,
+          endTime: Duration.zero,
+        ),
+      ];
     }
     _searchItem.durChapterIndex = chapterIndex;
     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
@@ -161,12 +226,11 @@ class AudioService {
     print(_url);
     try {
       await _player.play(_url);
-    } catch(e) {
+    } catch (e) {
       print(e);
       if (tryNext == true) {
         await Utils.sleep(3000);
-        if (!AudioService.isPlaying)
-          playNext();
+        if (!AudioService.isPlaying) playNext();
       }
     }
   }
@@ -199,8 +263,10 @@ class AudioService {
   AudioPlayerState get playerState => _playerState;
 
   /// 当前播放的节目
-  ChapterItem get curChapter => _durChapterIndex < 0 || _durChapterIndex >= (_searchItem?.chapters?.length ?? 0) ? null : _searchItem.chapters[_durChapterIndex];
-
+  ChapterItem get curChapter =>
+      _durChapterIndex < 0 || _durChapterIndex >= (_searchItem?.chapters?.length ?? 0)
+          ? null
+          : _searchItem.chapters[_durChapterIndex];
 
   void dispose() {
     try {

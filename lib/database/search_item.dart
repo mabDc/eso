@@ -3,7 +3,13 @@ import 'package:eso/database/chapter_item.dart';
 import 'package:eso/model/chapter_page_provider.dart';
 import 'package:flutter/cupertino.dart';
 
-class SearchItem {
+class SearchItem{
+  bool operator ==(Object other) =>
+      other is SearchItem && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id;
+
   int id;
   /// 源名
   String origin;      

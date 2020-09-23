@@ -73,6 +73,11 @@ dependencies:
   permission_handler: ^5.0.1
   moor_ffi: ^0.8.0
   file_picker: ^2.0.0
+  # flutter_lyric: ^1.0.2
+  flutter_lyric:
+    git: 
+      url: https://github.com/mabDc/flutter_lyric.git
+      ref: patch-kotlin1_3
 
 dev_dependencies:
   flutter_test:

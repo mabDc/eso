@@ -602,7 +602,6 @@ class NovelPageProvider with ChangeNotifier {
     );
     final _buildHeightSpan = (double height) {
       return TextSpan(
-        
           text: " ",
           style: TextStyle(
             height: 1,

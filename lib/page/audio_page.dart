@@ -13,6 +13,9 @@ import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lyric/lyric.dart';
+import 'package:flutter_lyric/lyric_widget.dart';
+import 'package:flutter_lyric/lyric_controller.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
@@ -31,14 +34,23 @@ class AudioPage extends StatefulWidget {
   _AudioPageState createState() => _AudioPageState();
 }
 
-class _AudioPageState extends State<AudioPage> {
+class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   Widget _audioPage;
   AudioPageController __provider;
   SearchItem searchItem;
   StreamSubscription stream;
-
+  LyricController _lyricController;
+  bool _showSelect = false;
   @override
   void initState() {
+    _lyricController = LyricController(vsync: this)
+      ..addListener(() {
+        if (_showSelect != _lyricController.isDragging) {
+          setState(() {
+            _showSelect = _lyricController.isDragging;
+          });
+        }
+      });
     searchItem = widget.searchItem;
     super.initState();
 
@@ -62,6 +74,7 @@ class _AudioPageState extends State<AudioPage> {
   void dispose() {
     __provider?.dispose();
     stream?.cancel();
+    _lyricController?.dispose();
     super.dispose();
   }
 
@@ -95,33 +108,115 @@ class _AudioPageState extends State<AudioPage> {
                       child: Column(
                         children: <Widget>[
                           _buildAppBar(provider, chapter.name, chapter.time),
-                          Expanded(
-                            child: Center(
-                                child: SizedBox(
-                              width: 300,
-                              height: 300,
-                              child: AnimationRotateView(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Utils.empty(chapter.cover)
-                                        ? Colors.black26
-                                        : null,
-                                    image: Utils.empty(chapter.cover)
-                                        ? null
-                                        : DecorationImage(
-                                            image: NetworkImage(chapter.cover ?? ''),
-                                            fit: BoxFit.cover,
-                                          ),
+                          if (provider.showLyric)
+                            if (provider.lyrics == null ||
+                                provider.positionDuration == null)
+                              Expanded(
+                                child: InkWell(
+                                  onTap: provider.toggleLyric,
+                                  child: LyricWidget(
+                                    size: Size(double.infinity, double.infinity),
+                                    controller: _lyricController,
+                                    lyricStyle: TextStyle(color: Colors.white),
+                                    lyrics: <Lyric>[
+                                      Lyric(
+                                        '加载中...',
+                                        startTime: Duration.zero,
+                                        endTime: Duration.zero,
+                                      ),
+                                    ],
                                   ),
-                                  child: Utils.empty(chapter.cover)
-                                      ? Icon(Icons.audiotrack,
-                                          color: Colors.white30, size: 200)
-                                      : null,
                                 ),
-                              ),
-                            )),
-                          ),
+                              )
+                            else
+                              () {
+                                _lyricController.progress = provider.positionDuration;
+                                return Expanded(
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Center(
+                                        child: LyricWidget(
+                                          size: Size(double.infinity, double.infinity),
+                                          controller: _lyricController,
+                                          lyrics: provider.lyrics,
+                                          lyricStyle: TextStyle(
+                                              color: Colors.white, fontSize: 16),
+                                          currLyricStyle:
+                                              TextStyle(color: Colors.red, fontSize: 16),
+                                        ),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.bottomCenter,
+                                        child: InkWell(
+                                          child: Icon(
+                                            Icons.close_outlined,
+                                            color: Colors.white,
+                                            size: 30,
+                                          ),
+                                          onTap: provider.toggleLyric,
+                                        ),
+                                      ),
+                                      Offstage(
+                                        offstage: !_showSelect,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            //点击选择器后移动歌词到滑动位置;
+                                            _lyricController.draggingComplete();
+                                            provider.seekSeconds(_lyricController
+                                                .draggingProgress.inSeconds);
+                                          },
+                                          child: Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.play_circle_outline,
+                                                color: Colors.green,
+                                                size: 30,
+                                              ),
+                                              Expanded(
+                                                child: Divider(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }()
+                          else
+                            Expanded(
+                              child: Center(
+                                  child: SizedBox(
+                                width: 300,
+                                height: 300,
+                                child: AnimationRotateView(
+                                  child: InkWell(
+                                    onTap: provider.toggleLyric,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Utils.empty(chapter.cover)
+                                            ? Colors.black26
+                                            : null,
+                                        image: Utils.empty(chapter.cover)
+                                            ? null
+                                            : DecorationImage(
+                                                image: NetworkImage(chapter.cover ?? ''),
+                                                fit: BoxFit.cover,
+                                              ),
+                                      ),
+                                      child: Utils.empty(chapter.cover)
+                                          ? Icon(Icons.audiotrack,
+                                              color: Colors.white30, size: 200)
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                              )),
+                            ),
                           SizedBox(height: 50),
                           _buildProgressBar(provider),
                           SizedBox(height: 10),
@@ -130,30 +225,31 @@ class _AudioPageState extends State<AudioPage> {
                         ],
                       ),
                     ),
-                    SafeArea(
-                        child: Center(
-                      child: Container(
-                        height: 300,
-                        alignment: Alignment.bottomCenter,
-                        child: DefaultTextStyle(
-                          style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12,
-                              fontFamily: Profile.staticFontFamily,
-                              height: 1.75),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(chapter.name, style: TextStyle(fontSize: 15)),
-                              Text(Utils.link(searchItem.origin, searchItem.name,
-                                      divider: ' | ')
-                                  .link(searchItem.chapter)
-                                  .value),
-                            ],
+                    if (!provider.showLyric)
+                      SafeArea(
+                          child: Center(
+                        child: Container(
+                          height: 300,
+                          alignment: Alignment.bottomCenter,
+                          child: DefaultTextStyle(
+                            style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                                fontFamily: Profile.staticFontFamily,
+                                height: 1.75),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(chapter.name, style: TextStyle(fontSize: 15)),
+                                Text(Utils.link(searchItem.origin, searchItem.name,
+                                        divider: ' | ')
+                                    .link(searchItem.chapter)
+                                    .value),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    )),
+                      )),
                     provider.showChapter
                         ? UIChapterSelect(
                             searchItem: searchItem,
