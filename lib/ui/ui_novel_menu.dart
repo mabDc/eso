@@ -364,7 +364,11 @@ class UINovelMenu extends StatelessWidget {
                       height: 28,
                       child: FlatButton(
                         child: Text('调色板'),
-                        onPressed: () => Utils.startPageWait(context, ColorLensPage()),
+                        onPressed: () => Utils.startPageWait(
+                            context,
+                            ColorLensPage(
+                              option: ColorLensPage.novelBackground,
+                            )),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                           side: BorderSide(color: color, width: Global.borderSize),

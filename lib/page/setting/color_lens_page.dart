@@ -6,7 +6,11 @@ import '../../global.dart';
 import '../../model/profile.dart';
 
 class ColorLensPage extends StatelessWidget {
-  const ColorLensPage({Key key}) : super(key: key);
+  static const primaryColor = 0;
+  static const novelColor = 0;
+  static const novelBackground = 0;
+  final int option;
+  const ColorLensPage({Key key, this.option = primaryColor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +22,14 @@ class ColorLensPage extends StatelessWidget {
       ),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
-          return ListView.builder(
-            itemCount: keys.length * 2 + 2,
+          return ListView.separated(
+            separatorBuilder: (context, index) => Divider(),
+            itemCount: keys.length + 1,
             itemBuilder: (BuildContext context, int index) {
-              if (index % 2 == 1) {
-                return Divider();
-              }
               if (index == 0) {
                 return _buildCustomColor();
               }
-              String colorName = keys[index ~/ 2 - 1];
+              String colorName = keys[index - 1];
               return _buildColorListTile(colorName, Color(colors[colorName]));
             },
           );
