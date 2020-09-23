@@ -37,6 +37,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] Macos
 - 其他
   - [x] 首次进入显示版本信息
+  - [x] 备份和恢复
   - [x] 主题颜色（自定义）
   - [x] 夜间模式（自动、手动）
   - [x] 字体修改（正文、界面）
@@ -68,6 +69,8 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 预加载
   - [x] 使用缓存加速正文加载
   - [x] 章节快速拖拽
+  - [x] 字体设置
+  - [x] 字体颜色、背景颜色、背景图片
 - 图片查看
   - [x] 方向可选上到下、左到右、右到左
   - [x] 显示章节、系统信息
@@ -123,6 +126,34 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
 
+- 打包Android
+```bash
+flutter build apk
+flutter build apk --target-platform android-arm
+flutter build apk --target-platform android-arm64
+flutter build apk --target-platform android-x64
+# 分隔包
+flutter build apk --split-per-abi
+flutter build apk --target-platform android-arm64 --split-per-abi
+```
+
+- 打包ios
+```bash
+flutter build ios --release
+# 再到xcode下进行打包
+```
+
+- 启用桌面应用开关
+```bash
+flutter config --enable-linux-desktop # to enable Linux.
+flutter config --enablesh-macos-desktop # to enable macOS.
+flutter config --enable-windows-desktop # to enable Windows.
+
+flutter build windows -v
+flutter build linux -v
+flutter build macos -v
+```
+
 # 规则获取
 
 规则仓库 [eso_source](https://github.com/mabDc/eso_source)
@@ -151,7 +182,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 # LICENSE
 
-[GPL_v3](LICENSE)
+仓库开源使用GPL_v3协议 [GPL_v3](LICENSE)
 
 # 一些图片
 

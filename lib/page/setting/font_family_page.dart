@@ -12,7 +12,11 @@ import '../../model/profile.dart';
 import '../../global.dart';
 
 class FontFamilyPage extends StatelessWidget {
-  const FontFamilyPage({Key key}) : super(key: key);
+  final checkGlobal;
+  const FontFamilyPage({
+    Key key,
+    this.checkGlobal = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +25,21 @@ class FontFamilyPage extends StatelessWidget {
         title: Text("字体管理"),
         actions: [
           Tooltip(
-            message: '点击设置全局字体\n长按设置正文字体',
+            message: '选择配置项\n点击设置',
             child: IconButton(
               icon: Icon(Icons.help_outline),
               onPressed: () => null,
-              tooltip: '点击设置全局字体\n长按设置正文字体',
+              tooltip: '选择配置项\n点击设置',
             ),
           ),
         ],
       ),
       body: ChangeNotifierProvider(
-        create: (context) => _FontFamilyProvider(),
+        create: (context) => _FontFamilyProvider(checkGlobal),
         builder: (context, child) {
           context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
+          bool checkGlobal =
+              context.select((_FontFamilyProvider provider) => provider.checkGlobal);
           final profile = Provider.of<Profile>(context, listen: true);
           final fontFamilyProvider =
               Provider.of<_FontFamilyProvider>(context, listen: false);
@@ -42,10 +48,31 @@ class FontFamilyPage extends StatelessWidget {
           }
           return ListView(
             children: [
-              _buildFontListTile("默认", null, profile),
-              _buildFontListTile("Roboto", 'Roboto', profile),
+              Row(
+                children: [
+                  Expanded(
+                    child: CheckboxListTile(
+                      value: checkGlobal,
+                      title: Text('全局界面', style: TextStyle(fontSize: 16)),
+                      dense: true,
+                      onChanged: (value) => fontFamilyProvider.checkGlobal = true,
+                    ),
+                  ),
+                  Expanded(
+                    child: CheckboxListTile(
+                      value: !checkGlobal,
+                      title: Text('文字正文', style: TextStyle(fontSize: 16)),
+                      dense: true,
+                      onChanged: (value) => fontFamilyProvider.checkGlobal = false,
+                    ),
+                  ),
+                ],
+              ),
+              Divider(),
+              _buildFontListTile("默认", null, profile, checkGlobal),
+              _buildFontListTile("Roboto", 'Roboto', profile, checkGlobal),
               for (final ttf in fontFamilyProvider.ttfList)
-                _buildFontListTile(ttf, ttf, profile),
+                _buildFontListTile(ttf, ttf, profile, checkGlobal),
               ListTile(
                 title: InkWell(
                   onTap: fontFamilyProvider.pickFont,
@@ -65,7 +92,8 @@ class FontFamilyPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFontListTile(String name, String fontFamily, Profile profile) {
+  Widget _buildFontListTile(
+      String name, String fontFamily, Profile profile, bool checkGlobal) {
     return ListTile(
       title: Text(
         name,
@@ -94,8 +122,14 @@ class FontFamilyPage extends StatelessWidget {
             ),
         ],
       ),
-      onTap: () => profile.fontFamily = fontFamily,
-      onLongPress: () => profile.novelFontFamily = fontFamily,
+      onTap: () {
+        if (checkGlobal) {
+          profile.fontFamily = fontFamily;
+        } else {
+          profile.novelFontFamily = fontFamily;
+        }
+      },
+      // onLongPress: () => profile.novelFontFamily = fontFamily,
     );
   }
 }
@@ -107,8 +141,17 @@ class _FontFamilyProvider with ChangeNotifier {
 
   List<String> _ttfList;
   List<String> get ttfList => _ttfList;
+  bool _checkGlobal;
+  bool get checkGlobal => _checkGlobal;
+  set checkGlobal(bool value) {
+    if (_checkGlobal != value) {
+      _checkGlobal = value;
+      notifyListeners();
+    }
+  }
 
-  _FontFamilyProvider() {
+  _FontFamilyProvider(bool checkGlobal) {
+    _checkGlobal = checkGlobal != false;
     init();
   }
 

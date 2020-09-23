@@ -2,6 +2,8 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/novel_auto_cache_page.dart';
+import 'package:eso/page/setting/color_lens_page.dart';
+import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:eso/utils/text_input_formatter.dart';
@@ -328,6 +330,46 @@ class UINovelMenu extends StatelessWidget {
                                 onTap: () => profile.setNovelColor(color[0], color[1]),
                               ))
                           .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    width: 50,
+                    child: Text("其他", style: TextStyle(color: color.withOpacity(0.7))),
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: 28,
+                      child: FlatButton(
+                        child: Text('字体管理'),
+                        onPressed: () => Utils.startPageWait(
+                            context, FontFamilyPage(checkGlobal: false)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: BorderSide(color: color, width: Global.borderSize),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: Container(
+                      height: 28,
+                      child: FlatButton(
+                        child: Text('调色板'),
+                        onPressed: () => Utils.startPageWait(context, ColorLensPage()),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: BorderSide(color: color, width: Global.borderSize),
+                        ),
+                      ),
                     ),
                   ),
                 ],

@@ -20,6 +20,17 @@ class HistoryManager {
     return false;
   }
 
+  Future<bool> restore(List searchHistory, bool clean) async {
+    if (clean) {
+      _searchHistory.clear();
+      _searchHistory.addAll(searchHistory.map((e) => '$e'));
+      return await _saveSearchHistory();
+    }
+    _searchHistory.clear();
+    _searchHistory.addAll(searchHistory.map((e) => '$e').where((e) => !_searchHistory.contains(e)));
+    return await _saveSearchHistory();
+  }
+
   Future<bool> clearHistory() async {
     _searchHistory.clear();
     return await _saveSearchHistory();

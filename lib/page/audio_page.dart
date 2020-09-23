@@ -143,7 +143,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                                           lyricStyle: TextStyle(
                                               color: Colors.white, fontSize: 16),
                                           currLyricStyle:
-                                              TextStyle(color: Colors.red, fontSize: 16),
+                                              TextStyle(color: Colors.red, fontSize: 18),
                                         ),
                                       ),
                                       Container(

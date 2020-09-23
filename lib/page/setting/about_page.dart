@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/restore_event.dart';
+import 'package:eso/model/history_manager.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
@@ -162,6 +163,15 @@ class AboutPage extends StatelessWidget {
                                     } catch (e) {
                                       print("备份规则列表： $e");
                                     }
+                                    try {
+                                      final searchHistory =
+                                          HistoryManager().searchHistory;
+                                      cache.putData('searchHistory.json', searchHistory,
+                                          hashCodeKey: false);
+                                      print("备份搜索记录成功");
+                                    } catch (e) {
+                                      print("备份搜索记录： $e");
+                                    }
                                     Utils.toast("备份成功($_dir)");
                                   }),
                             ],
@@ -227,6 +237,20 @@ class AboutPage extends StatelessWidget {
                                       }
                                       print("恢复规则列表成功");
                                     } catch (e) {}
+                                    try {
+                                      final searchHistory = await cache.getData(
+                                          'searchHistory.json',
+                                          defaultValue: null,
+                                          hashCodeKey: false);
+                                      if (searchHistory != null &&
+                                          searchHistory is List) {
+                                        await HistoryManager()
+                                            .restore(searchHistory, _clean);
+                                      }
+                                      print("恢复搜索记录列表成功");
+                                    } catch (e) {
+                                      print("恢复搜索记录列表成功 $e");
+                                    }
                                     // 发送一个通知
                                     eventBus.fire(RestoreEvent());
                                     Utils.toast("恢复成功");
