@@ -167,9 +167,10 @@ class AudioService {
       }
       if (c.startsWith('@lrc')) {
         // 一行一行解析
+        // start继承最后一个，否则鬼畜
+        Duration start = Duration.zero;
         _lyrics = c.substring(4).trim().split('\n').map((l) {
           final m = durationReg.allMatches(l).toList();
-          Duration start = Duration.zero;
           Duration end;
           int startIndex = 0;
           int endIndex = l.length;
