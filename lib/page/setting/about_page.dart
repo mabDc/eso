@@ -221,7 +221,7 @@ class AboutPage extends StatelessWidget {
                                     onTap: () async {
                                       if (Global.isDesktop) {
                                         final f = await showOpenPanel(
-                                          confirmButtonText: '选择这个文件',
+                                          confirmButtonText: '选择规则',
                                           allowedFileTypes: <FileTypeFilterGroup>[
                                             FileTypeFilterGroup(
                                               label: '规则文件',

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
+import 'package:file_chooser/file_chooser.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -207,23 +208,51 @@ class _FontFamilyProvider with ChangeNotifier {
   }
 
   void pickFont() async {
-    FilePickerResult ttfPick = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-    );
-    if (ttfPick == null) {
-      Utils.toast('未选取字体文件');
-      return;
+    if (Global.isDesktop) {
+      final f = await showOpenPanel(
+        confirmButtonText: '选择字体',
+        allowedFileTypes: <FileTypeFilterGroup>[
+          FileTypeFilterGroup(
+            label: '字体文件',
+            fileExtensions: <String>['ttf', 'ttc', 'otf'],
+          ),
+          FileTypeFilterGroup(
+            label: '其他',
+            fileExtensions: <String>[],
+          ),
+        ],
+      );
+      if (f.canceled) {
+        Utils.toast('未选取字体文件');
+        return;
+      }
+      final ttf = f.paths.first;
+      final file = File(ttf);
+      final name = ttf.split(Platform.isWindows ? '\\' : '/').last;
+      await _cacheUtil.putFile(name, file);
+      await loadFontFromList(file.readAsBytesSync(), fontFamily: name);
+      _ttfList.add(name);
+      notifyListeners();
+      Utils.toast('字体已保存到$_dir');
+    } else {
+      FilePickerResult ttfPick = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+      );
+      if (ttfPick == null) {
+        Utils.toast('未选取字体文件');
+        return;
+      }
+      final ttf = ttfPick.files.single;
+      if (ttf.extension != 'ttf' && ttf.extension != 'ttc' && ttf.extension != 'otf') {
+        Utils.toast('只支持扩展名为ttf或otf或ttc的字体文件');
+        return;
+      }
+      await _cacheUtil.putFile(ttf.name, File(ttf.path));
+      await loadFontFromList(ttf.bytes, fontFamily: ttf.name);
+      _ttfList.add(ttf.name);
+      notifyListeners();
+      Utils.toast('字体已保存到$_dir');
     }
-    final ttf = ttfPick.files.single;
-    if (ttf.extension != 'ttf' && ttf.extension != 'ttc' && ttf.extension != 'otf') {
-      Utils.toast('只支持扩展名为ttf或otf或ttc的字体文件');
-      return;
-    }
-    await _cacheUtil.putFile(ttf.name, File(ttf.path));
-    await loadFontFromList(ttf.bytes, fontFamily: ttf.name);
-    _ttfList.add(ttf.name);
-    notifyListeners();
-    Utils.toast('字体已保存到$_dir');
   }
 
   Future<void> _loadFont(String fontName) async {
