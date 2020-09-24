@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart' as path;
-import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as path;
+
+import '../global.dart';
 
 /// 缓存
 class CacheUtil {
@@ -28,7 +29,7 @@ class CacheUtil {
   /// 请求权限
   Future<bool> requestPermission() async {
     // 检查并请求权限
-    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) return true;
+    if (Global.isDesktop) return true;
     if (await Permission.storage.status != PermissionStatus.granted) {
       var _status = await Permission.storage.request();
       if (_status != PermissionStatus.granted) return false;
@@ -208,10 +209,7 @@ class CacheUtil {
   static Future<String> getCacheBasePath([bool storage]) async {
     if (_cacheStoragePath == null) {
       try {
-        if (Platform.isWindows) {
-          final PathProviderWindows provider = PathProviderWindows();
-          _cacheStoragePath = await provider.getApplicationDocumentsPath();
-        } else if (Platform.isMacOS || Platform.isLinux) {
+        if (Global.isDesktop) {
           _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
         } else if (Platform.isAndroid) {
           _cacheStoragePath = (await path.getExternalStorageDirectory()).path;
@@ -228,19 +226,9 @@ class CacheUtil {
       } catch (e) {}
     }
     if (_cacheBasePath == null) {
-      if (Platform.isWindows) {
-        final PathProviderWindows provider = PathProviderWindows();
-        _cacheBasePath = await provider.getApplicationDocumentsPath();
-      } else {
-        _cacheBasePath = (await path.getApplicationDocumentsDirectory()).path;
-      }
+      _cacheBasePath = (await path.getApplicationDocumentsDirectory()).path;
       if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
-        if (Platform.isWindows) {
-          final PathProviderWindows provider = PathProviderWindows();
-          _cacheBasePath = await provider.getApplicationSupportPath();
-        } else {
-          _cacheBasePath = (await path.getApplicationSupportDirectory()).path;
-        }
+        _cacheBasePath = (await path.getApplicationSupportDirectory()).path;
         if (_cacheBasePath == null || _cacheBasePath.isEmpty) {
           _cacheBasePath = (await path.getTemporaryDirectory()).path;
         }

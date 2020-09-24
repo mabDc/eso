@@ -4,12 +4,11 @@ import 'dart:ui';
 import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/utils/local_storage_utils.dart';
 import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database.dart';
 import 'database/rule_dao.dart';
-export 'utils/local_storage_utils.dart';
 import 'package:package_info/package_info.dart';
 
 import 'utils/cache_util.dart';
@@ -30,7 +29,10 @@ class Global with ChangeNotifier {
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
-  static const testRuleKey = "testRule";
+  static SharedPreferences _prefs;
+  static SharedPreferences get prefs => _prefs;
+  static bool _isDesktop;
+  static bool get isDesktop => _isDesktop;
   static const fullSpace = "　";
   static int currentHomePage;
 
@@ -64,9 +66,9 @@ class Global with ChangeNotifier {
   }
 
   static Future<bool> init() async {
-    await LocalStorage.init();
+    _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+    _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
-
     final _migrations = [migration4to5, migration5to6];
     if (Platform.isWindows || Platform.isLinux) {
       // 初始化 sqlite

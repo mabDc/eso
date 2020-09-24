@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
@@ -8,6 +10,8 @@ import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +28,7 @@ class AboutPage extends StatelessWidget {
   joinGroup([String group]) {
     final key =
         "7588a53508787a254b910d39476959823e3f36a7c894a6fc72504ac92e782ec2"; //1群key
-    if (Platform.isWindows) {
+    if (Global.isDesktop) {
       final s = "https://shang.qq.com/wpa/qunwpa?idkey=$key&source_id=1_40001";
       launch(s);
     } else {
@@ -184,24 +188,81 @@ class AboutPage extends StatelessWidget {
                       subtitle: Text('从备份数据中恢复收藏夹、规则列表'),
                       onTap: () async {
                         bool _clean = false;
+                        String _ruleFile;
+                        Uint8List _ruleBytes;
                         showDialog(
                           context: context,
                           builder: (BuildContext context) => AlertDialog(
                             backgroundColor: Theme.of(context).canvasColor,
                             title: Text("恢复"),
-                            content: Row(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Expanded(
-                                  child: Text("恢复前清空当前数据"),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text("恢复前清空当前数据"),
+                                    ),
+                                    StatefulBuilder(builder: (context, _state) {
+                                      return Switch(
+                                          value: _clean,
+                                          onChanged: (v) {
+                                            _clean = v;
+                                            _state(() => null);
+                                          });
+                                    })
+                                  ],
                                 ),
                                 StatefulBuilder(builder: (context, _state) {
-                                  return Switch(
-                                      value: _clean,
-                                      onChanged: (v) {
-                                        _clean = v;
+                                  return ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: Text('点击选择规则文件'),
+                                    subtitle: Text(_ruleFile ?? '使用默认文件'),
+                                    onTap: () async {
+                                      if (Global.isDesktop) {
+                                        final f = await showOpenPanel(
+                                          confirmButtonText: '选择这个文件',
+                                          allowedFileTypes: <FileTypeFilterGroup>[
+                                            FileTypeFilterGroup(
+                                              label: '规则文件',
+                                              fileExtensions: <String>['json', 'txt'],
+                                            ),
+                                            FileTypeFilterGroup(
+                                              label: '其他',
+                                              fileExtensions: <String>[],
+                                            ),
+                                          ],
+                                        );
+                                        if (f.canceled) {
+                                          Utils.toast('未选取规则文件');
+                                          return;
+                                        }
+                                        _ruleFile = f.paths.first;
+                                        _ruleBytes = File(_ruleFile).readAsBytesSync();
                                         _state(() => null);
-                                      });
-                                })
+                                      } else {
+                                        FilePickerResult jsonPick =
+                                            await FilePicker.platform.pickFiles(
+                                          type: FileType.custom,
+                                        );
+                                        if (jsonPick == null) {
+                                          Utils.toast('未选取规则文件');
+                                          return;
+                                        }
+                                        final json = jsonPick.files.single;
+                                        if (json.extension != 'json' &&
+                                            json.extension != 'txt' &&
+                                            json.extension != 'mainfest') {
+                                          Utils.toast('只支持扩展名为json或txt或mainfest的规则文件');
+                                          return;
+                                        }
+                                        _ruleFile = json.path;
+                                        _ruleBytes = json.bytes;
+                                        _state(() => null);
+                                      }
+                                    },
+                                  );
+                                }),
                               ],
                             ),
                             actions: <Widget>[
@@ -211,50 +272,57 @@ class AboutPage extends StatelessWidget {
                                           TextStyle(color: Theme.of(context).hintColor)),
                                   onPressed: () => Navigator.pop(context)),
                               FlatButton(
-                                  child: Text('恢复数据'),
-                                  onPressed: () async {
-                                    Navigator.pop(context);
-                                    final cache = CacheUtil(backup: true);
-                                    await cache.requestPermission();
-                                    final _dir = await cache.cacheDir();
-                                    if (!CacheUtil.existPath(_dir)) {
-                                      Utils.toast("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中");
-                                      return;
+                                child: Text('恢复数据'),
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  final cache = CacheUtil(backup: true);
+                                  await cache.requestPermission();
+                                  final _dir = await cache.cacheDir();
+                                  if (!CacheUtil.existPath(_dir)) {
+                                    Utils.toast("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中");
+                                    return;
+                                  }
+                                  try {
+                                    String _favorite =
+                                        await cache.get('favorite.json', null, false);
+                                    if (!Utils.empty(_favorite)) {
+                                      await SearchItemManager.restore(_favorite);
+                                      print("恢复收藏夹成功");
                                     }
-                                    try {
-                                      String _favorite =
-                                          await cache.get('favorite.json', null, false);
-                                      if (!Utils.empty(_favorite)) {
-                                        await SearchItemManager.restore(_favorite);
-                                        print("恢复收藏夹成功");
-                                      }
-                                    } catch (e) {}
-                                    try {
+                                  } catch (e) {}
+                                  try {
+                                    if (_ruleBytes == null || _ruleBytes.isEmpty) {
                                       final _rules = await cache.getData('rules.json',
                                           defaultValue: null, hashCodeKey: false);
                                       if (_rules != null && _rules is List) {
                                         await Rule.restore(_rules, _clean);
                                       }
                                       print("恢复规则列表成功");
-                                    } catch (e) {}
-                                    try {
-                                      final searchHistory = await cache.getData(
-                                          'searchHistory.json',
-                                          defaultValue: null,
-                                          hashCodeKey: false);
-                                      if (searchHistory != null &&
-                                          searchHistory is List) {
-                                        await HistoryManager()
-                                            .restore(searchHistory, _clean);
+                                    } else {
+                                      final _rules = jsonDecode(utf8.decode(_ruleBytes));
+                                      if (_rules != null && _rules is List) {
+                                        await Rule.restore(_rules, _clean);
                                       }
-                                      print("恢复搜索记录列表成功");
-                                    } catch (e) {
-                                      print("恢复搜索记录列表成功 $e");
                                     }
-                                    // 发送一个通知
-                                    eventBus.fire(RestoreEvent());
-                                    Utils.toast("恢复成功");
-                                  }),
+                                  } catch (e) {}
+                                  try {
+                                    final searchHistory = await cache.getData(
+                                        'searchHistory.json',
+                                        defaultValue: null,
+                                        hashCodeKey: false);
+                                    if (searchHistory != null && searchHistory is List) {
+                                      await HistoryManager()
+                                          .restore(searchHistory, _clean);
+                                    }
+                                    print("恢复搜索记录列表成功");
+                                  } catch (e) {
+                                    print("恢复搜索记录列表成功 $e");
+                                  }
+                                  // 发送一个通知
+                                  eventBus.fire(RestoreEvent());
+                                  Utils.toast("恢复成功");
+                                },
+                              ),
                             ],
                           ),
                         );

@@ -171,10 +171,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         actions: [
           IconButton(
             icon: Icon(
-                Platform.isLinux || Platform.isWindows ? FIcons.copy : FIcons.share_2),
-            tooltip: Platform.isLinux || Platform.isWindows ? "复制" : "分享",
+                Global.isDesktop ? FIcons.copy : FIcons.share_2),
+            tooltip: Global.isDesktop ? "复制" : "分享",
             onPressed: () {
-              if (Platform.isLinux || Platform.isWindows) {
+              if (Global.isDesktop) {
                 Clipboard.setData(ClipboardData(text: RuleCompress.compass(rule)));
                 Utils.toast("已保存到剪贴板");
               } else {

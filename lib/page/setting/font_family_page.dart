@@ -12,10 +12,12 @@ import '../../model/profile.dart';
 import '../../global.dart';
 
 class FontFamilyPage extends StatelessWidget {
-  final checkGlobal;
+  static const setGlobal = 0;
+  static const setNovel = 1;
+  final int option;
   const FontFamilyPage({
     Key key,
-    this.checkGlobal = true,
+    this.option = setGlobal,
   }) : super(key: key);
 
   @override
@@ -25,21 +27,20 @@ class FontFamilyPage extends StatelessWidget {
         title: Text("字体管理"),
         actions: [
           Tooltip(
-            message: '选择配置项\n点击设置',
+            message: '请选配置项再设置字体',
             child: IconButton(
               icon: Icon(Icons.help_outline),
               onPressed: () => null,
-              tooltip: '选择配置项\n点击设置',
+              tooltip: '请选配置项再设置字体',
             ),
           ),
         ],
       ),
       body: ChangeNotifierProvider(
-        create: (context) => _FontFamilyProvider(checkGlobal),
+        create: (context) => _FontFamilyProvider(option),
         builder: (context, child) {
           context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
-          bool checkGlobal =
-              context.select((_FontFamilyProvider provider) => provider.checkGlobal);
+          int option = context.select((_FontFamilyProvider provider) => provider.option);
           final profile = Provider.of<Profile>(context, listen: true);
           final fontFamilyProvider =
               Provider.of<_FontFamilyProvider>(context, listen: false);
@@ -50,29 +51,49 @@ class FontFamilyPage extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  SizedBox(width: 16),
+                  Text('配置'),
                   Expanded(
-                    child: CheckboxListTile(
-                      value: checkGlobal,
-                      title: Text('全局界面', style: TextStyle(fontSize: 16)),
-                      dense: true,
-                      onChanged: (value) => fontFamilyProvider.checkGlobal = true,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 160,
+                            child: RadioListTile(
+                              value: setGlobal,
+                              groupValue: option,
+                              onChanged: (value) => fontFamilyProvider.option = value,
+                              title: Text(
+                                '全局界面',
+                                style: TextStyle(fontSize: option == setGlobal ? 16 : 14),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 160,
+                            child: RadioListTile(
+                              value: setNovel,
+                              groupValue: option,
+                              onChanged: (value) => fontFamilyProvider.option = value,
+                              title: Text(
+                                '文字正文',
+                                style: TextStyle(fontSize: option == setNovel ? 16 : 14),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: CheckboxListTile(
-                      value: !checkGlobal,
-                      title: Text('文字正文', style: TextStyle(fontSize: 16)),
-                      dense: true,
-                      onChanged: (value) => fontFamilyProvider.checkGlobal = false,
-                    ),
-                  ),
+                  )
                 ],
               ),
               Divider(),
-              _buildFontListTile("默认", null, profile, checkGlobal),
-              _buildFontListTile("Roboto", 'Roboto', profile, checkGlobal),
+              _buildFontListTile("默认", null, profile, option),
+              _buildFontListTile("Roboto", 'Roboto', profile, option),
               for (final ttf in fontFamilyProvider.ttfList)
-                _buildFontListTile(ttf, ttf, profile, checkGlobal),
+                _buildFontListTile(ttf, ttf, profile, option),
               ListTile(
                 title: InkWell(
                   onTap: fontFamilyProvider.pickFont,
@@ -92,8 +113,7 @@ class FontFamilyPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFontListTile(
-      String name, String fontFamily, Profile profile, bool checkGlobal) {
+  Widget _buildFontListTile(String name, String fontFamily, Profile profile, int option) {
     return ListTile(
       title: Text(
         name,
@@ -123,7 +143,7 @@ class FontFamilyPage extends StatelessWidget {
         ],
       ),
       onTap: () {
-        if (checkGlobal) {
+        if (option == setGlobal) {
           profile.fontFamily = fontFamily;
         } else {
           profile.novelFontFamily = fontFamily;
@@ -141,17 +161,17 @@ class _FontFamilyProvider with ChangeNotifier {
 
   List<String> _ttfList;
   List<String> get ttfList => _ttfList;
-  bool _checkGlobal;
-  bool get checkGlobal => _checkGlobal;
-  set checkGlobal(bool value) {
-    if (_checkGlobal != value) {
-      _checkGlobal = value;
+  int _option;
+  int get option => _option;
+  set option(int value) {
+    if (_option != value) {
+      _option = value;
       notifyListeners();
     }
   }
 
-  _FontFamilyProvider(bool checkGlobal) {
-    _checkGlobal = checkGlobal != false;
+  _FontFamilyProvider(int option) {
+    _option = option;
     init();
   }
 
@@ -189,7 +209,6 @@ class _FontFamilyProvider with ChangeNotifier {
   void pickFont() async {
     FilePickerResult ttfPick = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: <String>['ttf', 'otf', 'ttc'],
     );
     if (ttfPick == null) {
       Utils.toast('未选取字体文件');

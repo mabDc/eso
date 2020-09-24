@@ -7,8 +7,8 @@ import '../../model/profile.dart';
 
 class ColorLensPage extends StatelessWidget {
   static const primaryColor = 0;
-  static const novelColor = 0;
-  static const novelBackground = 0;
+  static const novelColor = 1;
+  static const novelBackground = 2;
   final int option;
   const ColorLensPage({Key key, this.option = primaryColor}) : super(key: key);
 
@@ -19,22 +19,90 @@ class ColorLensPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('调色板'),
+        actions: [
+          Tooltip(
+            message: '文字色和背景色是文字正文配置项\n请选配置项再设置颜色',
+            child: IconButton(
+              icon: Icon(Icons.help_outline),
+              onPressed: () => null,
+              tooltip: '文字色和背景色是文字正文配置项\n请选配置项再设置颜色',
+            ),
+          ),
+        ],
       ),
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView.separated(
             separatorBuilder: (context, index) => Divider(),
-            itemCount: keys.length + 1,
+            itemCount: keys.length + 2,
             itemBuilder: (BuildContext context, int index) {
               if (index == 0) {
+                return _buildOption();
+              }
+              if (index == 1) {
                 return _buildCustomColor();
               }
-              String colorName = keys[index - 1];
+              String colorName = keys[index - 2];
               return _buildColorListTile(colorName, Color(colors[colorName]));
             },
           );
         },
       ),
+    );
+  }
+
+  Widget _buildOption() {
+    return Row(
+      children: [
+        SizedBox(width: 16),
+        Text('配置'),
+        Expanded(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              children: [
+                Container(
+                  width: 140,
+                  child: RadioListTile(
+                    value: primaryColor,
+                    groupValue: option,
+                    onChanged: (value) => null,
+                    title: Text(
+                      '主题色',
+                      style: TextStyle(fontSize: option == primaryColor ? 16 : 14),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 140,
+                  child: RadioListTile(
+                    value: novelColor,
+                    groupValue: option,
+                    onChanged: (value) => null,
+                    title: Text(
+                      '文字色',
+                      style: TextStyle(fontSize: option == novelColor ? 16 : 14),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 140,
+                  child: RadioListTile(
+                    value: novelBackground,
+                    groupValue: option,
+                    onChanged: (value) => null,
+                    title: Text(
+                      '背景色',
+                      style: TextStyle(fontSize: option == novelBackground ? 16 : 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -175,5 +243,20 @@ class ColorLensPage extends StatelessWidget {
       height: 32,
       width: 32,
     );
+  }
+}
+
+class _ColorLensProvider with ChangeNotifier {
+  int _option;
+  int get option => _option;
+  set option(int value) {
+    if (_option != value) {
+      _option = value;
+      notifyListeners();
+    }
+  }
+
+  _FontFamilyProvider(int option) {
+    _option = option;
   }
 }

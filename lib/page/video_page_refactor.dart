@@ -239,7 +239,7 @@ class VideoPage extends StatelessWidget {
             ),
           ),
         if (vertical)
-          Platform.isLinux || Platform.isWindows || Platform.isMacOS
+          Global.isDesktop
               ? Container(
                   height: 20,
                   child: IconButton(
@@ -385,7 +385,7 @@ class VideoPage extends StatelessWidget {
                     tooltip: "旋转",
                   ),
                   if (provider.screenAxis == Axis.horizontal)
-                    Platform.isLinux || Platform.isWindows || Platform.isMacOS
+                    Global.isDesktop
                         ? IconButton(
                             color: Colors.white,
                             iconSize: 20,
@@ -510,7 +510,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         return;
       }
       if (_disposed) return;
-      if (Platform.isWindows || Platform.isMacOS) {
+      if (Global.isDesktop) {
         loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
         loadingText.add("window或macos下将自动跳转浏览器播放，也可以手动点击左下角[使用其他播放器打开]");
         notifyListeners();
@@ -627,7 +627,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void openInNew() {
     if (_disposed || _content == null) return;
-    if (Platform.isWindows) {
+    if (Global.isDesktop) {
       launch("http://www.m3u8player.top/?play=${content[0]}");
       return;
     }
