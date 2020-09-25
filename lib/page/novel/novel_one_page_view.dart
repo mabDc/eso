@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../global.dart';
+import '../../utils.dart';
 
 /// 显示指定页
 class NovelOnePageView extends StatelessWidget {
@@ -96,7 +97,7 @@ class NovelOnePageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color(profile.novelBackgroundColor),
+      decoration: Utils.parseNovelBackground(profile.novelBackground),
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Column(
         children: [

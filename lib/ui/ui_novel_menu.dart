@@ -1,3 +1,4 @@
+import 'package:about/about.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
@@ -310,7 +311,7 @@ class UINovelMenu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: colors
                           .map((color) => InkWell(
-                                child: color[0].value == profile.novelBackgroundColor &&
+                                child: color[0].value == profile.novelBackground &&
                                         color[1].value == profile.novelFontColor
                                     ? Container(
                                         width: 32.0,
@@ -349,8 +350,23 @@ class UINovelMenu extends StatelessWidget {
                       height: 28,
                       child: FlatButton(
                         child: Text('字体管理'),
-                        onPressed: () => Utils.startPageWait(
-                            context, FontFamilyPage(option: FontFamilyPage.setGlobal)),
+                        onPressed: () => showMenu(
+                          position: RelativeRect.fromLTRB(220, 20, 620, 620),
+                          context: context,
+                          items: <PopupMenuItem<String>>[
+                            PopupMenuItem(
+                              value: 'WhyFarther.harder',
+                              child: Container(
+                                height: 600,
+                                width: 400,
+                                child: FontFamilyPage(
+                                  option: FontFamilyPage.setNovel,
+                                  showAppbar: false,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                           side: BorderSide(color: color, width: Global.borderSize),
@@ -364,8 +380,23 @@ class UINovelMenu extends StatelessWidget {
                       height: 28,
                       child: FlatButton(
                         child: Text('调色板'),
-                        onPressed: () => Utils.startPageWait(context,
-                            ColorLensPage(option: ColorLensPage.novelBackground)),
+                        onPressed: () => showMenu(
+                          position: RelativeRect.fromLTRB(220, 20, 620, 620),
+                          context: context,
+                          items: <PopupMenuItem<String>>[
+                            PopupMenuItem(
+                              value: 'WhyFarther.harder',
+                              child: Container(
+                                height: 600,
+                                width: 400,
+                                child: ColorLensPage(
+                                  option: ColorLensPage.novelBackground,
+                                  showAppbar: false,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                           side: BorderSide(color: color, width: Global.borderSize),

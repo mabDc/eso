@@ -16,27 +16,31 @@ class FontFamilyPage extends StatelessWidget {
   static const setGlobal = 0;
   static const setNovel = 1;
   final int option;
+  final bool showAppbar;
   const FontFamilyPage({
     Key key,
     this.option = setGlobal,
+    this.showAppbar = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("字体管理"),
-        actions: [
-          Tooltip(
-            message: '请选配置项再设置字体',
-            child: IconButton(
-              icon: Icon(Icons.help_outline),
-              onPressed: () => null,
-              tooltip: '请选配置项再设置字体',
-            ),
-          ),
-        ],
-      ),
+      appBar: showAppbar
+          ? AppBar(
+              title: Text("字体管理"),
+              actions: [
+                Tooltip(
+                  message: '请选配置项再设置字体',
+                  child: IconButton(
+                    icon: Icon(Icons.help_outline),
+                    onPressed: () => null,
+                    tooltip: '请选配置项再设置字体',
+                  ),
+                ),
+              ],
+            )
+          : null,
       body: ChangeNotifierProvider(
         create: (context) => _FontFamilyProvider(option),
         builder: (context, child) {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';

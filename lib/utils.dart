@@ -7,6 +7,8 @@ import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
+import 'global.dart';
+
 /// 事件bus
 EventBus eventBus = EventBus();
 
@@ -45,6 +47,24 @@ class Utils {
   static unFocus(BuildContext context) {
     var f = FocusScope.of(context);
     if (f != null && f.hasFocus) f.unfocus(disposition: UnfocusDisposition.scope);
+  }
+
+  static BoxDecoration parseNovelBackground(String novelBackground) {
+    BoxDecoration background;
+    if (novelBackground.startsWith('#')) {
+      background = BoxDecoration(
+        color: Color(int.parse(novelBackground.substring(1), radix: 16)),
+      );
+    } else if (novelBackground.startsWith('@file')) {
+      background = BoxDecoration(
+        image: DecorationImage(image: FileImage(File(novelBackground))),
+      );
+    } else {
+      background = BoxDecoration(
+        color: Color(Global.colors[novelBackground]),
+      );
+    }
+    return background;
   }
 
   /// 开始一个页面，并等待结束

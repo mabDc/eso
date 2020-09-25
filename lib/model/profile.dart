@@ -32,7 +32,7 @@ class Profile with ChangeNotifier {
             'novelParagraphPadding': 20.0,
             'novelPageSwitch': novelScroll,
             'novelIndentation': 2,
-            'novelBackgroundColor': 0xFFF5DEB3,
+            'novelBackground': '#FFF5DEB3',
             'novelFontColor': Colors.black.value,
             'novelKeepOn': false,
             'novelSortIndex': SortType.CREATE.index,
@@ -100,7 +100,7 @@ class Profile with ChangeNotifier {
   double _novelParagraphPadding;
   int _novelPageSwitch;
   int _novelIndentation;
-  int _novelBackgroundColor;
+  String _novelBackground;
   int _novelFontColor;
   bool _novelKeepOn;
   bool _mangaKeepOn;
@@ -134,7 +134,7 @@ class Profile with ChangeNotifier {
   double get novelParagraphPadding => _novelParagraphPadding;
   int get novelPageSwitch => _novelPageSwitch;
   int get novelIndentation => _novelIndentation;
-  int get novelBackgroundColor => _novelBackgroundColor;
+  String get novelBackground => _novelBackground;
   int get novelFontColor => _novelFontColor;
   bool get novelKeepOn => _novelKeepOn;
   bool get mangaKeepOn => _mangaKeepOn;
@@ -332,9 +332,9 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set novelBackgroundColor(int value) {
-    if (value != _novelBackgroundColor) {
-      _novelBackgroundColor = value;
+  set novelBackground(String value) {
+    if (value != _novelBackground) {
+      _novelBackground = value;
       _saveProfile();
     }
   }
@@ -348,8 +348,9 @@ class Profile with ChangeNotifier {
 
   void setNovelColor(Color bgColor, Color fontColor) {
     var change = false;
-    if (bgColor.value != _novelBackgroundColor) {
-      _novelBackgroundColor = bgColor.value;
+    final bg = bgColor.value.toRadixString(16);
+    if (bg != _novelBackground) {
+      _novelBackground = '#$bg';
       change = true;
     }
     if (fontColor.value != novelFontColor) {
@@ -543,7 +544,7 @@ class Profile with ChangeNotifier {
     _customColor = json['customColor'];
     _novelFontSize = json['novelFontSize'] ?? 18.0;
     _novelHeight = json["novelHeight"] ?? 1.5;
-    _novelBackgroundColor = json["novelBackgroundColor"] ?? 0xFFF5DEB3;
+    _novelBackground = json["novelBackground"] ?? '#FFF5DEB3';
     _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
     _novelTopPadding = json["novelTopPadding"] ?? 5.0;
     _novelLeftPadding = json["novelLeftPadding"] ?? 15.0;
@@ -581,7 +582,7 @@ class Profile with ChangeNotifier {
         'customColor': _customColor,
         'novelFontSize': _novelFontSize,
         'novelHeight': _novelHeight,
-        'novelBackgroundColor': _novelBackgroundColor,
+        'novelBackground': _novelBackground,
         'novelFontColor': _novelFontColor,
         'novelKeepOn': _novelKeepOn,
         'mangaKeepOn': _mangaKeepOn,
