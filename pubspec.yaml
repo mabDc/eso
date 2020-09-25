@@ -50,6 +50,7 @@ dependencies:
   url_launcher: ^5.7.1
   path_provider: ^1.6.18
   shared_preferences: ^0.5.12
+  flutter_material_color_picker: ^1.0.5
   intl: ^0.16.1
   screen: ^0.0.5
   cupertino_icons: ^0.1.3

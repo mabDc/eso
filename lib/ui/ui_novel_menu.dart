@@ -8,8 +8,11 @@ import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:eso/utils/text_input_formatter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -304,14 +307,15 @@ class UINovelMenu extends StatelessWidget {
                 children: [
                   Container(
                     width: 50,
-                    child: Text("背景", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("配色", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: colors
                           .map((color) => InkWell(
-                                child: color[0].value == profile.novelBackground &&
+                                child: '#' + color[0].value.toRadixString(16) ==
+                                            profile.novelBackground &&
                                         color[1].value == profile.novelFontColor
                                     ? Container(
                                         width: 32.0,
@@ -343,29 +347,22 @@ class UINovelMenu extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: 50,
-                    child: Text("其他", style: TextStyle(color: color.withOpacity(0.7))),
+                    child: Text("更多", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
+                    flex: 3,
                     child: Container(
                       height: 28,
                       child: FlatButton(
                         child: Text('字体管理'),
-                        onPressed: () => showMenu(
-                          position: RelativeRect.fromLTRB(220, 20, 620, 620),
+                        onPressed: () => showDialog(
                           context: context,
-                          items: <PopupMenuItem<String>>[
-                            PopupMenuItem(
-                              value: 'WhyFarther.harder',
-                              child: Container(
-                                height: 600,
-                                width: 400,
-                                child: FontFamilyPage(
-                                  option: FontFamilyPage.setNovel,
-                                  showAppbar: false,
-                                ),
-                              ),
+                          builder: (context) => Dialog(
+                            child: FontFamilyPage(
+                              option: FontFamilyPage.setNovel,
+                              showAppbar: false,
                             ),
-                          ],
+                          ),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
@@ -374,28 +371,49 @@ class UINovelMenu extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 20),
+                  SizedBox(width: 12),
                   Expanded(
+                    flex: 2,
                     child: Container(
                       height: 28,
                       child: FlatButton(
-                        child: Text('调色板'),
-                        onPressed: () => showMenu(
-                          position: RelativeRect.fromLTRB(220, 20, 620, 620),
+                        child: Text('字色'),
+                        onPressed: () => showDialog(
                           context: context,
-                          items: <PopupMenuItem<String>>[
-                            PopupMenuItem(
-                              value: 'WhyFarther.harder',
-                              child: Container(
-                                height: 600,
-                                width: 400,
-                                child: ColorLensPage(
-                                  option: ColorLensPage.novelBackground,
-                                  showAppbar: false,
-                                ),
-                              ),
+                          builder: (context) => AlertDialog(
+                            contentPadding: const EdgeInsets.all(6.0),
+                            content: MaterialColorPicker(
+                              onColorChange: (Color color) {
+                                profile.novelFontColor = color.value;
+                              },
+                              onlyShadeSelection: true,
+                              selectedColor: Color(profile.novelFontColor),
+                              shrinkWrap: true,
                             ),
-                          ],
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: BorderSide(color: color, width: Global.borderSize),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: 28,
+                      child: FlatButton(
+                        child: Text('背景'),
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            child: ColorLensPage(
+                              option: ColorLensPage.novelBackground,
+                              showAppbar: false,
+                            ),
+                          ),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),

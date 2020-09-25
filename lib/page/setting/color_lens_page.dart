@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../global.dart';
@@ -58,19 +59,34 @@ class ColorLensPage extends StatelessWidget {
               oncheck = (colorName) => profile.colorName = colorName;
               break;
           }
-          if (colorName == '自定义') colorName = keys.first;
           return ListView.separated(
             separatorBuilder: (context, index) => Divider(),
-            itemCount: keys.length + 2,
+            itemCount: keys.length + 1,
             itemBuilder: (BuildContext context, int index) {
+              // if (index == 0) {
+              //   return _buildOption(provider, option);
+              // }
               if (index == 0) {
-                return _buildOption(provider, option);
-              }
-              if (index == 1) {
-                return ListTile(title: Text('hls调色板（在画了）'));
+                // return ListTile(title: Text('hls调色板（在画了）'));
                 // return _buildCustomColor(custom);
+                return MaterialColorPicker(
+                  iconSelected: Icons.add_circle_outline,
+                  onColorChange: (Color color) {
+                    if (option == primaryColor) {
+                      profile.colorName = '自定义';
+                      profile.customColor = color.value;
+                      provider.fresh();
+                    } else {
+                      profile.novelBackground = '#' + color.value.toRadixString(16);
+                      provider.fresh();
+                    }
+                  },
+                  onlyShadeSelection: true,
+                  selectedColor: Color(profile.customColor),
+                  shrinkWrap: true,
+                );
               }
-              String buildColor = keys[index - 2];
+              String buildColor = keys[index - 1];
               int c = buildColor.startsWith('#')
                   ? int.parse(buildColor.substring(1), radix: 16)
                   : colors[buildColor];
@@ -280,6 +296,8 @@ class _ColorLensProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void fresh() => notifyListeners();
 
   _ColorLensProvider(int option) {
     _option = option;

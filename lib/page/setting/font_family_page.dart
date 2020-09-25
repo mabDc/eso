@@ -100,16 +100,19 @@ class FontFamilyPage extends StatelessWidget {
               for (final ttf in fontFamilyProvider.ttfList)
                 _buildFontListTile(ttf, ttf, profile, option),
               ListTile(
-                title: InkWell(
-                  onTap: fontFamilyProvider.pickFont,
-                  child: Row(
-                    children: [
-                      Icon(Icons.add_outlined),
-                      Text('添加本地 ttf或ttc或otf 字体文件'),
-                    ],
-                  ),
+                onTap: fontFamilyProvider.pickFont,
+                title: Row(
+                  children: [
+                    Icon(Icons.add_outlined),
+                    Expanded(
+                      child: Text(
+                        '添加本地字体文件',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                subtitle: Text('字体路径 ${fontFamilyProvider.dir}'),
+                subtitle: Text('路径 ${fontFamilyProvider.dir}'),
               )
             ],
           );
