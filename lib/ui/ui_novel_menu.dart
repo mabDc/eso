@@ -386,6 +386,7 @@ class UINovelMenu extends StatelessWidget {
                               contentPadding: const EdgeInsets.all(6.0),
                               content: StatefulBuilder(builder: (context, _state) {
                                 return Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Row(
                                       children: [
