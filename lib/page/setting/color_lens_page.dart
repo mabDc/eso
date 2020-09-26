@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
-
 import '../../global.dart';
 import '../../model/profile.dart';
 
@@ -63,27 +62,48 @@ class ColorLensPage extends StatelessWidget {
             separatorBuilder: (context, index) => Divider(),
             itemCount: keys.length + 1,
             itemBuilder: (BuildContext context, int index) {
-              // if (index == 0) {
-              //   return _buildOption(provider, option);
-              // }
               if (index == 0) {
-                // return ListTile(title: Text('hls调色板（在画了）'));
-                // return _buildCustomColor(custom);
-                return MaterialColorPicker(
-                  iconSelected: Icons.add_circle_outline,
-                  onColorChange: (Color color) {
-                    if (option == primaryColor) {
-                      profile.colorName = '自定义';
-                      profile.customColor = color.value;
-                      provider.fresh();
-                    } else {
-                      profile.novelBackground = '#' + color.value.toRadixString(16);
-                      provider.fresh();
-                    }
-                  },
-                  onlyShadeSelection: true,
-                  selectedColor: Color(profile.customColor),
-                  shrinkWrap: true,
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ColorPicker(
+                      pickerColor: Color(profile.customColor),
+                      onColorChanged: (Color color) {
+                        if (option == primaryColor) {
+                          profile.colorName = '自定义';
+                          profile.customColor = color.value;
+                          provider.fresh();
+                        } else {
+                          profile.novelBackground = '#' + color.value.toRadixString(16);
+                          provider.fresh();
+                        }
+                      },
+                      showLabel: true,
+                      enableAlpha: false,
+                      pickerAreaHeightPercent: 0.8,
+                    ),
+                    SlidePicker(
+                      pickerColor: Color(profile.customColor),
+                      onColorChanged: (Color color) {
+                        if (option == primaryColor) {
+                          profile.colorName = '自定义';
+                          profile.customColor = color.value;
+                          provider.fresh();
+                        } else {
+                          profile.novelBackground = '#' + color.value.toRadixString(16);
+                          provider.fresh();
+                        }
+                      },
+                      paletteType: PaletteType.rgb,
+                      enableAlpha: false,
+                      displayThumbColor: false,
+                      showLabel: true,
+                      showIndicator: false,
+                      indicatorBorderRadius: const BorderRadius.vertical(
+                        top: const Radius.circular(25.0),
+                      ),
+                    ),
+                  ],
                 );
               }
               String buildColor = keys[index - 1];

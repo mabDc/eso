@@ -22,6 +22,8 @@ abstract class RuleDao {
   static const String name = "name";
   // 规则作者
   static const String author = "author";
+  // 规则分组
+  static const String group = "`group`";
 
   @Query('SELECT * FROM rule WHERE id = :id')
   Future<Rule> findRuleById(String id);

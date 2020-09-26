@@ -1,4 +1,3 @@
-import 'package:about/about.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
@@ -12,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -83,6 +82,7 @@ class UINovelMenu extends StatelessWidget {
       // ["上下滑动", Profile.novelVerticalSlide],
       // ["左右滑动", Profile.novelHorizontalSlide],
     ];
+    final primaryColor = Theme.of(context).primaryColor;
     return IconTheme(
       data: IconThemeData(size: 22, color: color),
       child: Container(
@@ -350,7 +350,6 @@ class UINovelMenu extends StatelessWidget {
                     child: Text("更多", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
-                    flex: 3,
                     child: Container(
                       height: 28,
                       child: FlatButton(
@@ -373,25 +372,102 @@ class UINovelMenu extends StatelessWidget {
                   ),
                   SizedBox(width: 12),
                   Expanded(
-                    flex: 2,
                     child: Container(
                       height: 28,
                       child: FlatButton(
-                        child: Text('字色'),
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            contentPadding: const EdgeInsets.all(6.0),
-                            content: MaterialColorPicker(
-                              onColorChange: (Color color) {
-                                profile.novelFontColor = color.value;
-                              },
-                              onlyShadeSelection: true,
-                              selectedColor: Color(profile.novelFontColor),
-                              shrinkWrap: true,
+                        child: Text('字色和背景'),
+                        onPressed: () {
+                          final fontColor = 0;
+                          final backgroundColor = 1;
+                          int option = fontColor;
+                          return showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              contentPadding: const EdgeInsets.all(6.0),
+                              content: StatefulBuilder(builder: (context, _state) {
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(width: 12),
+                                        Text('配置'),
+                                        Container(
+                                          width: 118,
+                                          child: RadioListTile(
+                                            value: fontColor,
+                                            groupValue: option,
+                                            onChanged: (value) =>
+                                                _state(() => option = value),
+                                            title: Text(
+                                              '字色',
+                                              style: TextStyle(
+                                                  fontSize:
+                                                      option == fontColor ? 14 : 12),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 118,
+                                          child: RadioListTile(
+                                            value: backgroundColor,
+                                            groupValue: option,
+                                            onChanged: (value) =>
+                                                _state(() => option = value),
+                                            title: Text(
+                                              '背景',
+                                              style: TextStyle(
+                                                  fontSize: option == backgroundColor
+                                                      ? 14
+                                                      : 12),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    ColorPicker(
+                                      pickerColor: Color(option == fontColor
+                                          ? profile.novelFontColor
+                                          : int.parse(
+                                              profile.novelBackground.substring(1),
+                                              radix: 16)),
+                                      onColorChanged: (Color color) {
+                                        if (option == fontColor) {
+                                          profile.novelFontColor = color.value;
+                                        } else {
+                                          profile.novelBackground =
+                                              '#' + color.value.toRadixString(16);
+                                        }
+                                      },
+                                      pickerAreaHeightPercent: 0.6,
+                                    ),
+                                    SlidePicker(
+                                      pickerColor: Color(option == fontColor
+                                          ? profile.novelFontColor
+                                          : int.parse(
+                                              profile.novelBackground.substring(1),
+                                              radix: 16)),
+                                      onColorChanged: (Color color) {
+                                        if (option == fontColor) {
+                                          profile.novelFontColor = color.value;
+                                        } else {
+                                          profile.novelBackground =
+                                              '#' + color.value.toRadixString(16);
+                                        }
+                                      },
+                                      paletteType: PaletteType.rgb,
+                                      showLabel: false,
+                                      showIndicator: false,
+                                      enableAlpha: false,
+                                      indicatorBorderRadius: const BorderRadius.vertical(
+                                        top: const Radius.circular(10.0),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                           side: BorderSide(color: color, width: Global.borderSize),
@@ -399,29 +475,29 @@ class UINovelMenu extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      height: 28,
-                      child: FlatButton(
-                        child: Text('背景'),
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (context) => Dialog(
-                            child: ColorLensPage(
-                              option: ColorLensPage.novelBackground,
-                              showAppbar: false,
-                            ),
-                          ),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          side: BorderSide(color: color, width: Global.borderSize),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // SizedBox(width: 12),
+                  // Expanded(
+                  //   flex: 2,
+                  //   child: Container(
+                  //     height: 28,
+                  //     child: FlatButton(
+                  //       child: Text('背景'),
+                  //       onPressed: () => showDialog(
+                  //         context: context,
+                  //         builder: (context) => Dialog(
+                  //           child: ColorLensPage(
+                  //             option: ColorLensPage.novelBackground,
+                  //             showAppbar: false,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(30.0),
+                  //         side: BorderSide(color: color, width: Global.borderSize),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

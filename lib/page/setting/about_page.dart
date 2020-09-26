@@ -252,6 +252,7 @@ class AboutPage extends StatelessWidget {
                                         final json = jsonPick.files.single;
                                         if (json.extension != 'json' &&
                                             json.extension != 'txt' &&
+                                            json.extension != 'bin' &&
                                             json.extension != 'mainfest') {
                                           Utils.toast('只支持扩展名为json或txt或mainfest的规则文件');
                                           return;
