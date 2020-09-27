@@ -83,7 +83,7 @@ class DebugRuleProvider with ChangeNotifier {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            fontFamily: Profile.fontFamily,
+            fontFamily: Profile.staticFontFamily,
             height: 2,
           ),
         ),
@@ -324,10 +324,7 @@ class DebugRuleProvider with ChangeNotifier {
         }
         final chapterUrl = res.request.url.toString();
         _addContent("地址", chapterUrl, true);
-        final reversed = rule.chapterList.startsWith("-");
-        if (reversed) {
-          _addContent("检测规则以\"-\"开始, 结果将反序");
-        }
+
         if (engineId == null) {
           engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
           await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
@@ -336,10 +333,35 @@ class DebugRuleProvider with ChangeNotifier {
               "baseUrl = ${jsonEncode(chapterUrl)};page = ${jsonEncode(page)};",
               engineId);
         }
-        final chapterList = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                engineId,
-                rule)
+        AnalyzerManager analyzerManager;
+        if (rule.enableMultiRoads) {
+          final roads = await AnalyzerManager(
+                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                  engineId,
+                  rule)
+              .getElements(rule.chapterRoads);
+          final count = roads.length;
+          if (count == 0) {
+            _addContent("线路个数为0，解析结束！");
+            break;
+          } else {
+            _addContent("个数", count.toString());
+          }
+          final road = roads.first;
+          analyzerManager = AnalyzerManager(road, engineId, rule);
+          _addContent("线路名称", await analyzerManager.getString(rule.chapterRoadName));
+        } else {
+          analyzerManager = AnalyzerManager(
+              DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+              engineId,
+              rule);
+        }
+        final reversed = rule.chapterList.startsWith("-");
+        if (reversed) {
+          _addContent("检测规则以\"-\"开始, 结果将反序");
+        }
+
+        final chapterList = await analyzerManager
             .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
         final count = chapterList.length;
         if (count == 0) {

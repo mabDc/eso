@@ -161,37 +161,80 @@ class APIFromRUle implements API {
             "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};", engineId);
       }
       try {
-        final list = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                engineId,
-                rule)
-            .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
-        if (list.isEmpty) {
-          break;
-        }
-        for (var item in (reversed ? list.reversed : list)) {
-          final analyzer = AnalyzerManager(item, engineId, rule);
-          final lock = await analyzer.getString(rule.chapterLock);
-          // final unLock = await analyzer.getString(rule.chapterUnLock);
-          var name = (await analyzer.getString(rule.chapterName))
-              .trim()
-              .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace);
-          // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
-          //   name = "🔓" + name;
-          // }else
-          if (lock != null &&
-              lock.isNotEmpty &&
-              lock != "undefined" &&
-              lock != "false" &&
-              lock != "0") {
-            name = "🔒" + name;
+        if (rule.enableMultiRoads) {
+          final roads = await AnalyzerManager(
+                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                  engineId,
+                  rule)
+              .getElements(rule.chapterRoads);
+          for (final road in roads) {
+            final roadAnalyzer = AnalyzerManager(road, engineId, rule);
+            result.add(ChapterItem(
+              name: "@线路" + await roadAnalyzer.getString(rule.chapterRoadName),
+            ));
+            final list = await roadAnalyzer
+                .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+            if (list.isEmpty) {
+              break;
+            }
+            for (final item in (reversed ? list.reversed : list)) {
+              final analyzer = AnalyzerManager(item, engineId, rule);
+              final lock = await analyzer.getString(rule.chapterLock);
+              // final unLock = await analyzer.getString(rule.chapterUnLock);
+              var name = (await analyzer.getString(rule.chapterName))
+                  .trim()
+                  .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace);
+              // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+              //   name = "🔓" + name;
+              // }else
+              if (lock != null &&
+                  lock.isNotEmpty &&
+                  lock != "undefined" &&
+                  lock != "false" &&
+                  lock != "0") {
+                name = "🔒" + name;
+              }
+              result.add(ChapterItem(
+                cover: await analyzer.getString(rule.chapterCover),
+                name: name,
+                time: await analyzer.getString(rule.chapterTime),
+                url: await analyzer.getString(rule.chapterResult),
+              ));
+            }
           }
-          result.add(ChapterItem(
-            cover: await analyzer.getString(rule.chapterCover),
-            name: name,
-            time: await analyzer.getString(rule.chapterTime),
-            url: await analyzer.getString(rule.chapterResult),
-          ));
+        } else {
+          final list = await AnalyzerManager(
+                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
+                  engineId,
+                  rule)
+              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+          if (list.isEmpty) {
+            break;
+          }
+          for (final item in (reversed ? list.reversed : list)) {
+            final analyzer = AnalyzerManager(item, engineId, rule);
+            final lock = await analyzer.getString(rule.chapterLock);
+            // final unLock = await analyzer.getString(rule.chapterUnLock);
+            var name = (await analyzer.getString(rule.chapterName))
+                .trim()
+                .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace);
+            // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+            //   name = "🔓" + name;
+            // }else
+            if (lock != null &&
+                lock.isNotEmpty &&
+                lock != "undefined" &&
+                lock != "false" &&
+                lock != "0") {
+              name = "🔒" + name;
+            }
+            result.add(ChapterItem(
+              cover: await analyzer.getString(rule.chapterCover),
+              name: name,
+              time: await analyzer.getString(rule.chapterTime),
+              url: await analyzer.getString(rule.chapterResult),
+            ));
+          }
         }
       } catch (e) {
         break;
