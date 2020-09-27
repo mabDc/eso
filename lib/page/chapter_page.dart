@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/api/api.dart';
+import 'package:eso/database/chapter_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
@@ -322,6 +323,15 @@ class _ChapterPageState extends State<ChapterPage> {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+        child: Text(
+          '全部(${searchItem.chapters?.length ?? 0})',
+          style: TextStyle(fontSize: 16),
+        ),
+      ),
+    );
+    return Consumer<ChapterPageProvider>(
+      builder: (context, provider, child) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -356,6 +366,24 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
+  List<ChapterRoad> parseChapers(List<ChapterItem> chapters) {
+    final roads = <ChapterRoad>[];
+    if (chapters.isEmpty || !chapters.first.name.startsWith('@线路')) return roads;
+    var roadName = chapters.first.name.substring(3);
+    var startIndex = 1;
+    for (var i = 1, len = chapters.length; i < len; i++) {
+      if (chapters[i].name.startsWith('@线路')) {
+        // 上一个线路
+        roads.add(ChapterRoad(roadName, startIndex, i - startIndex));
+        roadName = chapters[i].name.substring(3);
+        startIndex = i + 1;
+      }
+    }
+    // 最后一个线路
+    roads.add(ChapterRoad(roadName, startIndex, chapters.length - startIndex));
+    return roads;
+  }
+
   Widget _buildChapter(BuildContext context) {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) {
@@ -370,12 +398,92 @@ class _ChapterPageState extends State<ChapterPage> {
               .push(ContentPageRoute().route(searchItem))
               .whenComplete(provider.adjustScroll);
         };
-        return SliverPadding(
-          padding: EdgeInsets.symmetric(
-            horizontal: searchItem.ruleContentType == API.NOVEL ? 8 : 20,
-            vertical: 8,
+
+        final roads = parseChapers(searchItem.chapters);
+        if (roads.isEmpty) {
+          return SliverPadding(
+            padding: EdgeInsets.symmetric(
+              horizontal: searchItem.ruleContentType == API.NOVEL ? 8 : 20,
+              vertical: 8,
+            ),
+            sliver: _buildGridView(context, onTap),
+          );
+        }
+
+        var currentRoad = 0;
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) => SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Container(
+                  height: 40,
+                  alignment: Alignment.centerLeft,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    separatorBuilder: (context, index) => index == 0
+                        ? Container()
+                        : Container(
+                            alignment: Alignment.center,
+                            child: Text('|'),
+                          ),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: roads.length + 1,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == 0) {
+                        return Container(
+                          alignment: Alignment.center,
+                          child: Text('线路:'),
+                        );
+                      }
+                      return InkWell(
+                        onTap: () {
+                          currentRoad = index - 1;
+                          setState(() => null);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${roads[index - 1].name}(${roads[index - 1].length})',
+                            style: TextStyle(
+                              color: index - 1 == currentRoad
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).textTheme.bodyText1.color,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  shrinkWrap: true,
+                  itemCount: roads[currentRoad].length,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    final road = roads[currentRoad];
+                    final chapterIndex = road.startIndex + index;
+                    return InkWell(
+                      onTap: () => onTap(road.startIndex + index),
+                      child: Container(
+                        height: 40,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          searchItem.chapters[chapterIndex].name,
+                          style: TextStyle(
+                            color: chapterIndex == searchItem.durChapterIndex
+                                ? Theme.of(context).primaryColor
+                                : Theme.of(context).textTheme.bodyText1.color,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-          sliver: _buildGridView(context, onTap),
         );
       },
     );
@@ -505,4 +613,11 @@ class ArcClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class ChapterRoad {
+  final String name;
+  final int startIndex;
+  final int length;
+  ChapterRoad(this.name, this.startIndex, this.length);
 }

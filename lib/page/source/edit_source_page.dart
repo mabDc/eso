@@ -161,6 +161,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   "名称": RuleDao.name,
                   "s5": "|",
                   "作者": RuleDao.author,
+                  "s6": "|",
+                  "分组": RuleDao.group,
                 }.entries)
                   if (sort.key.startsWith("s"))
                     Text(sort.value)
@@ -388,6 +390,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
     final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
+      if (text.startsWith('http')) {
+        Utils.toast("开始导入$text", duration: Duration(seconds: 1));
+        final count = await provider.addFromUrl(text.trim(), false);
+        Utils.toast("导入完成，一共$count条", duration: Duration(seconds: 1));
+        return true;
+      }
       final rule = text.startsWith(RuleCompress.tag)
           ? RuleCompress.decompass(text)
           : Rule.fromJson(jsonDecode(text));
@@ -421,10 +429,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
       {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
-      {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
+      // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       {'title': '清空源', 'icon': FIcons.x_circle, 'type': DELETE_ALL_RULES},
     ];
     return PopupMenuButton<int>(
