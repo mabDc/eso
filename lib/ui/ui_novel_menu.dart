@@ -2,7 +2,6 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/novel_auto_cache_page.dart';
-import 'package:eso/page/setting/color_lens_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
@@ -72,7 +71,7 @@ class UINovelMenu extends StatelessWidget {
       [const Color(0xff010203), const Color(0x3fffffff)], //纯黑
     ];
     final styles = [
-      ["无", Profile.novelNone],
+      ["无动画", Profile.novelNone],
       ["滚动", Profile.novelScroll],
       ["覆盖", Profile.novelCover],
       ["淡入", Profile.novelFade],
@@ -82,7 +81,6 @@ class UINovelMenu extends StatelessWidget {
       // ["上下滑动", Profile.novelVerticalSlide],
       // ["左右滑动", Profile.novelHorizontalSlide],
     ];
-    final primaryColor = Theme.of(context).primaryColor;
     return IconTheme(
       data: IconThemeData(size: 22, color: color),
       child: Container(
@@ -314,8 +312,7 @@ class UINovelMenu extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: colors
                           .map((color) => InkWell(
-                                child: '#' + color[0].value.toRadixString(16) ==
-                                            profile.novelBackground &&
+                                child: color[0].value == profile.novelBackgroundColor &&
                                         color[1].value == profile.novelFontColor
                                     ? Container(
                                         width: 32.0,
@@ -428,15 +425,12 @@ class UINovelMenu extends StatelessWidget {
                                     ColorPicker(
                                       pickerColor: Color(option == fontColor
                                           ? profile.novelFontColor
-                                          : int.parse(
-                                              profile.novelBackground.substring(1),
-                                              radix: 16)),
+                                          : profile.novelBackgroundColor),
                                       onColorChanged: (Color color) {
                                         if (option == fontColor) {
                                           profile.novelFontColor = color.value;
                                         } else {
-                                          profile.novelBackground =
-                                              '#' + color.value.toRadixString(16);
+                                          profile.novelBackgroundColor = color.value;
                                         }
                                       },
                                       pickerAreaHeightPercent: 0.6,
@@ -444,15 +438,12 @@ class UINovelMenu extends StatelessWidget {
                                     SlidePicker(
                                       pickerColor: Color(option == fontColor
                                           ? profile.novelFontColor
-                                          : int.parse(
-                                              profile.novelBackground.substring(1),
-                                              radix: 16)),
+                                          : profile.novelBackgroundColor),
                                       onColorChanged: (Color color) {
                                         if (option == fontColor) {
                                           profile.novelFontColor = color.value;
                                         } else {
-                                          profile.novelBackground =
-                                              '#' + color.value.toRadixString(16);
+                                          profile.novelBackgroundColor = color.value;
                                         }
                                       },
                                       paletteType: PaletteType.rgb,
@@ -476,29 +467,6 @@ class UINovelMenu extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // SizedBox(width: 12),
-                  // Expanded(
-                  //   flex: 2,
-                  //   child: Container(
-                  //     height: 28,
-                  //     child: FlatButton(
-                  //       child: Text('背景'),
-                  //       onPressed: () => showDialog(
-                  //         context: context,
-                  //         builder: (context) => Dialog(
-                  //           child: ColorLensPage(
-                  //             option: ColorLensPage.novelBackground,
-                  //             showAppbar: false,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(30.0),
-                  //         side: BorderSide(color: color, width: Global.borderSize),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),

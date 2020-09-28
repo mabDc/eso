@@ -178,7 +178,6 @@ class ChapterPageProvider with ChangeNotifier {
       notifyListeners();
       await Future.delayed(Duration(milliseconds: 10));
     }
-    adjustScroll();
   }
 
   @override

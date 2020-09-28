@@ -9,48 +9,13 @@ import '../global.dart';
 enum SearchOption { Normal, None, Accurate }
 
 class Profile with ChangeNotifier {
-  Profile() {
+  static final Profile _profile = Profile._internal();
+  factory Profile() => _profile;
+
+  Profile._internal() {
+    print('***************  initProfile   **************');
     final source = Global.prefs.getString(Global.profileKey);
-    final json = source == null
-        ? {
-            'mangaFullScreen': true,
-            'fontFamily': null,
-            'novelFontFamily': null,
-            'version': "",
-            'showMangaInfo': true,
-            'switchLongPress': false,
-            'switchFavoriteStyle': false,
-            'switchDiscoverStyle': false,
-            'autoRefresh': false,
-            'darkMode': "跟随系统",
-            'colorName': Global.colors.keys.first,
-            'customColor': Global.colors.values.first,
-            'novelFontSize': 18.0,
-            'novelHeight': 1.5,
-            'novelTopPadding': 5.0,
-            'novelLeftPadding': 15.0,
-            'novelParagraphPadding': 20.0,
-            'novelPageSwitch': novelScroll,
-            'novelIndentation': 2,
-            'novelBackground': '#FFF5DEB3',
-            'novelFontColor': Colors.black.value,
-            'novelKeepOn': false,
-            'novelSortIndex': SortType.CREATE.index,
-            'mangaSortIndex': SortType.CREATE.index,
-            'audioSortIndex': SortType.CREATE.index,
-            'videoSortIndex': SortType.CREATE.index,
-            'novelEnableSearch': true,
-            'mangaEnableSearch': true,
-            'audioEnableSearch': true,
-            'videoEnableSearch': true,
-            'mangaKeepOn': false,
-            'mangaLandscape': false,
-            'mangaDirection': mangaDirectionTopToBottom,
-            'searchCount': 10,
-            'searchOption': SearchOption.Normal.index,
-          }
-        : jsonDecode(source);
-    fromJson(json);
+    fromJson(source == null ? {} : jsonDecode(source) ?? {});
   }
 
   static const mangaDirectionTopToBottom = 0; //'topToBottom';
@@ -66,31 +31,54 @@ class Profile with ChangeNotifier {
   static const novelHorizontalSlide = 6;
   static const novelFade = 7;
 
+  static const dartModeAuto = '跟随系统';
+  static const dartModeDark = '开启';
+  static const dartModeLight = '关闭';
+
+  Profile.newProfile() {
+    _version = '';
+    _fontFamily = null;
+    _novelFontFamily = null;
+    _switchLongPress = false;
+    _switchFavoriteStyle = false;
+    _showMangaInfo = true;
+    _mangaFullScreen = true;
+    _autoRefresh = false;
+    _darkMode = dartModeAuto;
+    _primaryColor = 0xFF4BB0A0;
+    _novelFontSize = 18.0;
+    _novelHeight = 1.5;
+    _novelBackgroundColor = 0xFFF5DEB3;
+    _novelFontColor = Colors.black.value;
+    _novelTopPadding = 5.0;
+    _novelLeftPadding = 15.0;
+    _novelParagraphPadding = 15.0;
+    _novelPageSwitch = novelScroll;
+    _novelIndentation = 2;
+    _novelKeepOn = false;
+    _mangaKeepOn = false;
+    _mangaLandscape = false;
+    _mangaDirection = mangaDirectionTopToBottom;
+    _novelSortIndex = SortType.CREATE.index;
+    _mangaSortIndex = SortType.CREATE.index;
+    _audioSortIndex = SortType.CREATE.index;
+    _videoSortIndex = SortType.CREATE.index;
+    _searchCount = 10;
+    _searchOption = SearchOption.Normal.index;
+    _novelEnableSearch = true;
+    _mangaEnableSearch = true;
+    _audioEnableSearch = true;
+    _videoEnableSearch = true;
+  }
+
   String _version;
-  bool isNewVersion() {
-    final version = '${Global.appVersion}+${Global.appBuildNumber}';
-    if (_version != version) {
-      return true;
-    }
-    return false;
-  }
-
-  void updateVersion() {
-    final version = '${Global.appVersion}+${Global.appBuildNumber}';
-    if (_version != version) {
-      _version = version;
-      _saveProfile(false);
-    }
-  }
-
   String _fontFamily;
   String _novelFontFamily;
   bool _switchLongPress;
   bool _switchFavoriteStyle;
   bool _autoRefresh;
   String _darkMode;
-  String _colorName;
-  int _customColor;
+  int _primaryColor;
   bool _showMangaInfo;
   bool _mangaFullScreen;
   double _novelFontSize;
@@ -100,7 +88,8 @@ class Profile with ChangeNotifier {
   double _novelParagraphPadding;
   int _novelPageSwitch;
   int _novelIndentation;
-  String _novelBackground;
+  int _novelBackgroundColor;
+  String _novelBackgroundImage;
   int _novelFontColor;
   bool _novelKeepOn;
   bool _mangaKeepOn;
@@ -117,14 +106,14 @@ class Profile with ChangeNotifier {
   int _searchCount;
   int _searchOption;
 
+  String get version => _version;
   String get fontFamily => _fontFamily;
   String get novelFontFamily => _novelFontFamily;
   bool get switchLongPress => _switchLongPress;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
   bool get autoRefresh => _autoRefresh;
   String get darkMode => _darkMode;
-  String get colorName => _colorName;
-  int get customColor => _customColor;
+  int get primaryColor => _primaryColor;
   bool get showMangaInfo => _showMangaInfo;
   bool get mangaFullScreen => _mangaFullScreen;
   double get novelFontSize => _novelFontSize;
@@ -134,7 +123,8 @@ class Profile with ChangeNotifier {
   double get novelParagraphPadding => _novelParagraphPadding;
   int get novelPageSwitch => _novelPageSwitch;
   int get novelIndentation => _novelIndentation;
-  String get novelBackground => _novelBackground;
+  int get novelBackgroundColor => _novelBackgroundColor;
+  String get novelBackgroundImage => _novelBackgroundImage;
   int get novelFontColor => _novelFontColor;
   bool get novelKeepOn => _novelKeepOn;
   bool get mangaKeepOn => _mangaKeepOn;
@@ -150,6 +140,20 @@ class Profile with ChangeNotifier {
   bool get videoEnableSearch => _videoEnableSearch;
   int get searchCount => _searchCount;
   int get searchOption => _searchOption;
+
+  String get lastestVersion => '${Global.appVersion}+${Global.appBuildNumber}';
+
+  void updateVersion() {
+    version = lastestVersion;
+  }
+
+  set version(String value) {
+    final version = value;
+    if (_version != version) {
+      _version = version;
+      _saveProfile(false);
+    }
+  }
 
   set fontFamily(String value) {
     if (value != _fontFamily) {
@@ -195,40 +199,9 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set colorName(String value) {
-    if (value != _colorName) {
-      _colorName = value;
-      _saveProfile();
-    }
-  }
-
-  set customColor(int value) {
-    if (value != _customColor) {
-      _customColor = value;
-      _saveProfile();
-    }
-  }
-
-  set customColorRed(int value) {
-    final color = Color(_customColor);
-    if (value != color.red) {
-      _customColor = color.withRed(value).value;
-      _saveProfile();
-    }
-  }
-
-  set customColorGreen(int value) {
-    final color = Color(_customColor);
-    if (value != color.green) {
-      _customColor = color.withGreen(value).value;
-      _saveProfile();
-    }
-  }
-
-  set customColorBlue(int value) {
-    final color = Color(_customColor);
-    if (value != color.blue) {
-      _customColor = color.withBlue(value).value;
+  set primaryColor(int value) {
+    if (value != _primaryColor) {
+      _primaryColor = value;
       _saveProfile();
     }
   }
@@ -332,9 +305,10 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set novelBackground(String value) {
-    if (value != _novelBackground) {
-      _novelBackground = value;
+  set novelBackgroundColor(int value) {
+    if (value != _novelBackgroundColor) {
+      _novelBackgroundColor = value;
+      _novelBackgroundImage = null;
       _saveProfile();
     }
   }
@@ -348,9 +322,12 @@ class Profile with ChangeNotifier {
 
   void setNovelColor(Color bgColor, Color fontColor) {
     var change = false;
-    final bg = bgColor.value.toRadixString(16);
-    if (bg != _novelBackground) {
-      _novelBackground = '#$bg';
+    if (_novelBackgroundImage != null) {
+      _novelBackgroundImage = null;
+      change = true;
+    }
+    if (bgColor.value != _novelBackgroundColor) {
+      _novelBackgroundColor = bgColor.value;
       change = true;
     }
     if (fontColor.value != novelFontColor) {
@@ -481,7 +458,7 @@ class Profile with ChangeNotifier {
       default:
         break;
     }
-    final _color = Color(Global.colors[colorName] ?? customColor);
+    final _color = Color(_primaryColor);
     staticFontFamily = fontFamily;
     final theme = ThemeData(
       fontFamily: staticFontFamily,
@@ -526,45 +503,46 @@ class Profile with ChangeNotifier {
     );
   }
 
-  Profile.fromJson(Map<String, dynamic> json) {
-    fromJson(json);
-  }
-
   void fromJson(Map<String, dynamic> json) {
-    _version = json['version'];
-    _fontFamily = json['fontFamily'];
-    _novelFontFamily = json['novelFontFamily'];
-    _switchLongPress = json['switchLongPress'];
-    _switchFavoriteStyle = json['switchFavoriteStyle'] ?? false;
-    _showMangaInfo = json['showMangaInfo'] ?? true;
-    _mangaFullScreen = json['mangaFullScreen'] ?? true;
-    _autoRefresh = json['autoRefresh'];
-    _darkMode = json['darkMode'].toString();
-    _colorName = json['colorName'];
-    _customColor = json['customColor'];
-    _novelFontSize = json['novelFontSize'] ?? 18.0;
-    _novelHeight = json["novelHeight"] ?? 1.5;
-    _novelBackground = json["novelBackground"] ?? '#FFF5DEB3';
-    _novelFontColor = json["novelFontColor"] ?? Colors.black.value;
-    _novelTopPadding = json["novelTopPadding"] ?? 5.0;
-    _novelLeftPadding = json["novelLeftPadding"] ?? 15.0;
-    _novelParagraphPadding = json["novelParagraphPadding"] ?? 20.0;
-    _novelPageSwitch = json["novelPageSwitch"] ?? novelScroll;
-    _novelIndentation = json["novelIndentation"] ?? 2;
-    _novelKeepOn = json["novelKeepOn"] ?? false;
-    _mangaKeepOn = json["mangaKeepOn"] ?? false;
-    _mangaLandscape = json["mangaLandscape"] ?? false;
-    _mangaDirection = json['mangaDirection'] ?? mangaDirectionTopToBottom;
-    _novelSortIndex = json["novelSortIndex"] ?? SortType.CREATE.index;
-    _mangaSortIndex = json["mangaSortIndex"] ?? SortType.CREATE.index;
-    _audioSortIndex = json["audioSortIndex"] ?? SortType.CREATE.index;
-    _videoSortIndex = json["videoSortIndex"] ?? SortType.CREATE.index;
-    _searchCount = json["searchCount"] ?? 10;
-    _searchOption = json["searchOption"] ?? SearchOption.Normal.index;
-    _novelEnableSearch = json['novelEnableSearch'] ?? true;
-    _mangaEnableSearch = json['mangaEnableSearch'] ?? true;
-    _audioEnableSearch = json['audioEnableSearch'] ?? true;
-    _videoEnableSearch = json['videoEnableSearch'] ?? true;
+    final defaultProfile = Profile.newProfile();
+    _version = json['version'] ?? defaultProfile.version;
+    _fontFamily = json['fontFamily'] ?? defaultProfile.fontFamily;
+    _novelFontFamily = json['novelFontFamily'] ?? defaultProfile.novelFontFamily;
+    _switchLongPress = json['switchLongPress'] ?? defaultProfile.switchLongPress;
+    _switchFavoriteStyle =
+        json['switchFavoriteStyle'] ?? defaultProfile.switchFavoriteStyle;
+    _showMangaInfo = json['showMangaInfo'] ?? defaultProfile.showMangaInfo;
+    _mangaFullScreen = json['mangaFullScreen'] ?? defaultProfile.mangaFullScreen;
+    _autoRefresh = json['autoRefresh'] ?? defaultProfile.autoRefresh;
+    _darkMode = json['darkMode'] ?? defaultProfile.darkMode;
+    _primaryColor = json['primaryColor'] ?? defaultProfile.primaryColor;
+    _novelFontSize = json['novelFontSize'] ?? defaultProfile.novelFontSize;
+    _novelHeight = json["novelHeight"] ?? defaultProfile.novelHeight;
+    _novelBackgroundColor =
+        json["novelBackgroundColor"] ?? defaultProfile.novelBackgroundColor;
+    _novelBackgroundImage =
+        json["novelBackgroundImage"] ?? defaultProfile.novelBackgroundImage;
+    _novelFontColor = json["novelFontColor"] ?? defaultProfile.novelFontColor;
+    _novelTopPadding = json["novelTopPadding"] ?? defaultProfile.novelTopPadding;
+    _novelLeftPadding = json["novelLeftPadding"] ?? defaultProfile.novelLeftPadding;
+    _novelParagraphPadding =
+        json["novelParagraphPadding"] ?? defaultProfile.novelParagraphPadding;
+    _novelPageSwitch = json["novelPageSwitch"] ?? defaultProfile.novelPageSwitch;
+    _novelIndentation = json["novelIndentation"] ?? defaultProfile.novelIndentation;
+    _novelKeepOn = json["novelKeepOn"] ?? defaultProfile.novelKeepOn;
+    _mangaKeepOn = json["mangaKeepOn"] ?? defaultProfile.mangaKeepOn;
+    _mangaLandscape = json["mangaLandscape"] ?? defaultProfile.mangaLandscape;
+    _mangaDirection = json['mangaDirection'] ?? defaultProfile.mangaDirection;
+    _novelSortIndex = json["novelSortIndex"] ?? defaultProfile.novelSortIndex;
+    _mangaSortIndex = json["mangaSortIndex"] ?? defaultProfile.mangaSortIndex;
+    _audioSortIndex = json["audioSortIndex"] ?? defaultProfile.audioSortIndex;
+    _videoSortIndex = json["videoSortIndex"] ?? defaultProfile.videoSortIndex;
+    _searchCount = json["searchCount"] ?? defaultProfile.searchCount;
+    _searchOption = json["searchOption"] ?? defaultProfile.searchOption;
+    _novelEnableSearch = json['novelEnableSearch'] ?? defaultProfile.novelEnableSearch;
+    _mangaEnableSearch = json['mangaEnableSearch'] ?? defaultProfile.mangaEnableSearch;
+    _audioEnableSearch = json['audioEnableSearch'] ?? defaultProfile.audioEnableSearch;
+    _videoEnableSearch = json['videoEnableSearch'] ?? defaultProfile.videoEnableSearch;
   }
 
   Map<String, dynamic> toJson() => {
@@ -578,11 +556,11 @@ class Profile with ChangeNotifier {
         'mangaFullScreen': _mangaFullScreen,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
-        'colorName': _colorName,
-        'customColor': _customColor,
+        'primaryColor': _primaryColor,
         'novelFontSize': _novelFontSize,
         'novelHeight': _novelHeight,
-        'novelBackground': _novelBackground,
+        'novelBackgroundColor': _novelBackgroundColor,
+        'novelBackgroundImage': _novelBackgroundImage,
         'novelFontColor': _novelFontColor,
         'novelKeepOn': _novelKeepOn,
         'mangaKeepOn': _mangaKeepOn,

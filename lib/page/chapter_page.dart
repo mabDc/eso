@@ -319,48 +319,15 @@ class _ChapterPageState extends State<ChapterPage> {
 
   //排序
   Widget _sortWidget(BuildContext context) {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-        child: Text(
-          '全部(${searchItem.chapters?.length ?? 0})',
-          style: TextStyle(fontSize: 16),
-        ),
-      ),
-    );
-    return Consumer<ChapterPageProvider>(
-      builder: (context, provider, child) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(
-                '全部(${searchItem.chapters?.length ?? 0})',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-            GestureDetector(
-              child: Row(
-                children: [
-                  searchItem.reverseChapter
-                      ? SizedBox()
-                      : Transform.rotate(
-                          child: Icon(Icons.sort, color: theme.primaryColor, size: 18),
-                          angle: pi,
-                        ),
-                  Text(
-                    searchItem.reverseChapter ? "倒序" : "顺序",
-                    style: TextStyle(color: theme.primaryColor),
-                  ),
-                  searchItem.reverseChapter
-                      ? Icon(Icons.sort, color: theme.primaryColor, size: 18)
-                      : SizedBox(),
-                ],
-              ),
-              onTap: provider.toggleReverse,
-            ),
-          ],
+        child: Expanded(
+          child: Text(
+            '全部(${searchItem.chapters?.length ?? 0})',
+            style: TextStyle(fontSize: 16),
+          ),
         ),
       ),
     );
@@ -432,7 +399,7 @@ class _ChapterPageState extends State<ChapterPage> {
                       if (index == 0) {
                         return Container(
                           alignment: Alignment.center,
-                          child: Text('线路:'),
+                          child: Text('线路(${roads.length}):'),
                         );
                       }
                       return InkWell(
@@ -456,6 +423,7 @@ class _ChapterPageState extends State<ChapterPage> {
                     },
                   ),
                 ),
+                Divider(),
                 ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   shrinkWrap: true,

@@ -138,14 +138,14 @@ class FontFamilyPage extends StatelessWidget {
             Text(
               '√全局 ',
               style: TextStyle(
-                color: Color(Global.colors[profile.colorName] ?? profile.customColor),
+                color: Color(profile.primaryColor),
               ),
             ),
           if (profile.novelFontFamily == fontFamily)
             Text(
               '√正文 ',
               style: TextStyle(
-                color: Color(Global.colors[profile.colorName] ?? profile.customColor),
+                color: Color(profile.primaryColor),
               ),
             ),
         ],
