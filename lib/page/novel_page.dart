@@ -65,29 +65,31 @@ class _NovelPageState extends State<NovelPage> {
                   // 按下时触发
                   if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
 
-                  if (event.data is RawKeyEventDataMacOs) {
-                    RawKeyEventDataMacOs data = event.data;
-                    print(data.keyCode);
-                    switch (data.keyCode) {
-                      case 123: // 方向键左
-                        provider.tapLastPage();
-                        break;
-                      case 124: // 方向键右
-                        provider.tapNextPage();
-                        break;
-                      case 53: // esc
-                        Navigator.pop(context);
-                        break;
-                      case 27: // -
-                        provider.switchChapter(profile, searchItem.durChapterIndex - 1);
-                        break;
-                      case 24: // +
-                        provider.switchChapter(profile, searchItem.durChapterIndex + 1);
-                        break;
-                      case 36: //enter
-                        provider.showMenu = !provider.showMenu;
-                        break;
-                    }
+                  if (event.data is RawKeyEventDataMacOs ||
+                      event.data is RawKeyEventDataLinux ||
+                      event.data is RawKeyEventDataWindows) {
+                    LogicalKeyboardKey logicalKey = event.data.logicalKey;
+                    print(logicalKey == LogicalKeyboardKey.arrowUp);
+                    // switch (logicalKey) {
+                    //   case LogicalKeyboardKey.arrowUp: // 方向键左
+                    //     provider.tapLastPage();
+                    //     break;
+                    //   case LogicalKeyboardKey.arrowRight: // 方向键右
+                    //     provider.tapNextPage();
+                    //     break;
+                    //   case LogicalKeyboardKey.escape: // esc
+                    //     Navigator.pop(context);
+                    //     break;
+                    //   case LogicalKeyboardKey.keyL: // -
+                    //     provider.switchChapter(profile, searchItem.durChapterIndex - 1);
+                    //     break;
+                    //   case LogicalKeyboardKey.keyK: // +
+                    //     provider.switchChapter(profile, searchItem.durChapterIndex + 1);
+                    //     break;
+                    //   case LogicalKeyboardKey.enter: //enter
+                    //     provider.showMenu = !provider.showMenu;
+                    //     break;
+                    // }
                   }
                 }
               },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
@@ -21,8 +22,9 @@ class ColorLensPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              constraints: BoxConstraints(maxWidth: 320),
               child: ColorPicker(
                 pickerColor: currentColor,
                 onColorChanged: changeColor,
