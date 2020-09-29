@@ -64,32 +64,26 @@ class _NovelPageState extends State<NovelPage> {
                   provider.enPress = event.runtimeType.toString();
                   // 按下时触发
                   if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
-
                   if (event.data is RawKeyEventDataMacOs ||
                       event.data is RawKeyEventDataLinux ||
                       event.data is RawKeyEventDataWindows) {
-                    LogicalKeyboardKey logicalKey = event.data.logicalKey;
+                    final logicalKey = event.data.logicalKey;
                     print(logicalKey == LogicalKeyboardKey.arrowUp);
-                    // switch (logicalKey) {
-                    //   case LogicalKeyboardKey.arrowUp: // 方向键左
-                    //     provider.tapLastPage();
-                    //     break;
-                    //   case LogicalKeyboardKey.arrowRight: // 方向键右
-                    //     provider.tapNextPage();
-                    //     break;
-                    //   case LogicalKeyboardKey.escape: // esc
-                    //     Navigator.pop(context);
-                    //     break;
-                    //   case LogicalKeyboardKey.keyL: // -
-                    //     provider.switchChapter(profile, searchItem.durChapterIndex - 1);
-                    //     break;
-                    //   case LogicalKeyboardKey.keyK: // +
-                    //     provider.switchChapter(profile, searchItem.durChapterIndex + 1);
-                    //     break;
-                    //   case LogicalKeyboardKey.enter: //enter
-                    //     provider.showMenu = !provider.showMenu;
-                    //     break;
-                    // }
+                    if (logicalKey == LogicalKeyboardKey.arrowUp ||
+                        logicalKey == LogicalKeyboardKey.arrowLeft ||
+                        logicalKey == LogicalKeyboardKey.pageUp) {
+                      provider.tapLastPage();
+                    } else if (logicalKey == LogicalKeyboardKey.arrowDown ||
+                        logicalKey == LogicalKeyboardKey.arrowRight ||
+                        logicalKey == LogicalKeyboardKey.pageDown) {
+                      provider.tapNextPage();
+                    } else if (logicalKey == LogicalKeyboardKey.minus) {
+                      provider.switchChapter(profile, searchItem.durChapterIndex - 1);
+                    } else if (logicalKey == LogicalKeyboardKey.numpadAdd) {
+                      provider.switchChapter(profile, searchItem.durChapterIndex + 1);
+                    } else if (logicalKey == LogicalKeyboardKey.minus) {
+                      provider.showMenu = !provider.showMenu;
+                    }
                   }
                 }
               },

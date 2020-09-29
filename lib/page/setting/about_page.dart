@@ -243,8 +243,7 @@ class AboutPage extends StatelessWidget {
                                       } else {
                                         FilePickerResult jsonPick =
                                             await FilePicker.platform.pickFiles(
-                                          type: FileType.custom,
-                                        );
+                                                type: FileType.custom, withData: true);
                                         if (jsonPick == null) {
                                           Utils.toast('未选取规则文件');
                                           return;
@@ -279,7 +278,7 @@ class AboutPage extends StatelessWidget {
                                   final cache = CacheUtil(backup: true);
                                   await cache.requestPermission();
                                   final _dir = await cache.cacheDir();
-                                  if (!CacheUtil.existPath(_dir)) {
+                                  if (_ruleFile == null && !CacheUtil.existPath(_dir)) {
                                     Utils.toast("恢复失败: 找不到备份数据。请将备份数据存放到（$_dir）中");
                                     return;
                                   }

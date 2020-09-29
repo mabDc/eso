@@ -67,7 +67,7 @@ dependencies:
   video_player: ^0.10.11+2
   encrypt: ^4.0.0
   battery: 0.3.1+10
-  json_path: ^0.0.2
+  json_path: ^0.2.0
   uuid: ^2.0.4
   floor: ^0.13.0
   oktoast: ^2.3.2
