@@ -68,7 +68,7 @@ class _NovelPageState extends State<NovelPage> {
                       event.data is RawKeyEventDataLinux ||
                       event.data is RawKeyEventDataWindows) {
                     final logicalKey = event.data.logicalKey;
-                    print(logicalKey == LogicalKeyboardKey.arrowUp);
+                    print(logicalKey);
                     if (logicalKey == LogicalKeyboardKey.arrowUp ||
                         logicalKey == LogicalKeyboardKey.arrowLeft ||
                         logicalKey == LogicalKeyboardKey.pageUp) {
@@ -77,11 +77,16 @@ class _NovelPageState extends State<NovelPage> {
                         logicalKey == LogicalKeyboardKey.arrowRight ||
                         logicalKey == LogicalKeyboardKey.pageDown) {
                       provider.tapNextPage();
-                    } else if (logicalKey == LogicalKeyboardKey.minus) {
+                    } else if (logicalKey == LogicalKeyboardKey.bracketLeft ||
+                        logicalKey == LogicalKeyboardKey.minus ||
+                        logicalKey == LogicalKeyboardKey.insert) {
                       provider.switchChapter(profile, searchItem.durChapterIndex - 1);
-                    } else if (logicalKey == LogicalKeyboardKey.numpadAdd) {
+                    } else if (logicalKey == LogicalKeyboardKey.bracketRight ||
+                        logicalKey == LogicalKeyboardKey.numpadAdd ||
+                        logicalKey == LogicalKeyboardKey.delete) {
                       provider.switchChapter(profile, searchItem.durChapterIndex + 1);
-                    } else if (logicalKey == LogicalKeyboardKey.minus) {
+                    } else if (logicalKey == LogicalKeyboardKey.enter ||
+                        logicalKey == LogicalKeyboardKey.numpadEnter) {
                       provider.showMenu = !provider.showMenu;
                     }
                   }
