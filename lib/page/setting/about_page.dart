@@ -176,6 +176,14 @@ class AboutPage extends StatelessWidget {
                                     } catch (e) {
                                       print("备份搜索记录： $e");
                                     }
+                                    try {
+                                      final profile = Profile().toJson();
+                                      cache.putData('profile.json', profile,
+                                          hashCodeKey: false);
+                                      print("备份配置成功");
+                                    } catch (e) {
+                                      print("备份配置： $e");
+                                    }
                                     Utils.toast("备份成功($_dir)");
                                   }),
                             ],
@@ -289,7 +297,9 @@ class AboutPage extends StatelessWidget {
                                       await SearchItemManager.restore(_favorite);
                                       print("恢复收藏夹成功");
                                     }
-                                  } catch (e) {}
+                                  } catch (e) {
+                                    print("恢复收藏夹 $e");
+                                  }
                                   try {
                                     if (_ruleBytes == null || _ruleBytes.isEmpty) {
                                       final _rules = await cache.getData('rules.json',
@@ -306,6 +316,16 @@ class AboutPage extends StatelessWidget {
                                     }
                                   } catch (e) {}
                                   try {
+                                    final profile = await cache.getData('profile.json',
+                                        defaultValue: null, hashCodeKey: false);
+                                    if (profile != null && profile is Map) {
+                                      Profile.restore(profile);
+                                    }
+                                    print("恢复配置成功");
+                                  } catch (e) {
+                                    print("恢复配置 $e");
+                                  }
+                                  try {
                                     final searchHistory = await cache.getData(
                                         'searchHistory.json',
                                         defaultValue: null,
@@ -316,7 +336,7 @@ class AboutPage extends StatelessWidget {
                                     }
                                     print("恢复搜索记录列表成功");
                                   } catch (e) {
-                                    print("恢复搜索记录列表成功 $e");
+                                    print("恢复搜索记录列表 $e");
                                   }
                                   // 发送一个通知
                                   eventBus.fire(RestoreEvent());

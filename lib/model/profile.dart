@@ -18,6 +18,11 @@ class Profile with ChangeNotifier {
     fromJson(source == null ? {} : jsonDecode(source) ?? {});
   }
 
+  static restore(Map<String, dynamic> profile) {
+    _profile.fromJson(profile);
+    _profile.notifyListeners();
+  }
+
   static const mangaDirectionTopToBottom = 0; //'topToBottom';
   static const mangaDirectionLeftToRight = 1; //'leftToRight';
   static const mangaDirectionRightToLeft = 2; //'rightToLeft';
@@ -309,6 +314,13 @@ class Profile with ChangeNotifier {
     if (value != _novelBackgroundColor) {
       _novelBackgroundColor = value;
       _novelBackgroundImage = null;
+      _saveProfile();
+    }
+  }
+
+  set novelBackgroundImage(String value) {
+    if (value != _novelBackgroundImage) {
+      _novelBackgroundImage = value;
       _saveProfile();
     }
   }

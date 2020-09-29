@@ -9,6 +9,7 @@ import 'package:eso/page/novel/novel_none_view.dart';
 import 'package:eso/page/novel/novel_scroll_view.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +98,10 @@ class _NovelPageState extends State<NovelPage> {
                   children: <Widget>[
                     AnnotatedRegion<SystemUiOverlayStyle>(
                       value: SystemUiOverlayStyle.light,
-                      child: _buildContent(provider, profile),
+                      child: Container(
+                        decoration: Utils.getNovelBackground(),
+                        child: _buildContent(provider, profile),
+                      ),
                     ),
                     if (provider.showChapter || provider.showMenu || provider.showSetting)
                       WillPopScope(

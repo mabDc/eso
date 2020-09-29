@@ -235,7 +235,7 @@ class _FontFamilyProvider with ChangeNotifier {
       }
       final ttf = f.paths.first;
       final file = File(ttf);
-      final name = ttf.split(Platform.isWindows ? '\\' : '/').last;
+      final name = Utils.getFileName(ttf);
       await _cacheUtil.putFile(name, file);
       await loadFontFromList(file.readAsBytesSync(), fontFamily: name);
       _ttfList.add(name);

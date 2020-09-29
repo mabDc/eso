@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/novel_auto_cache_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:eso/utils/text_input_formatter.dart';
+import 'package:file_chooser/file_chooser.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -347,6 +352,7 @@ class UINovelMenu extends StatelessWidget {
                     child: Text("更多", style: TextStyle(color: color.withOpacity(0.7))),
                   ),
                   Expanded(
+                    flex: 4,
                     child: Container(
                       height: 28,
                       child: FlatButton(
@@ -369,6 +375,7 @@ class UINovelMenu extends StatelessWidget {
                   ),
                   SizedBox(width: 12),
                   Expanded(
+                    flex: 5,
                     child: Container(
                       height: 28,
                       child: FlatButton(
@@ -459,6 +466,94 @@ class UINovelMenu extends StatelessWidget {
                               }),
                             ),
                           );
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: BorderSide(color: color, width: Global.borderSize),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      height: 28,
+                      child: FlatButton(
+                        child: Text('图片'),
+                        onPressed: () async {
+                          if (Global.isDesktop) {
+                            final f = await showOpenPanel(
+                              confirmButtonText: '选择图片',
+                              allowedFileTypes: <FileTypeFilterGroup>[
+                                FileTypeFilterGroup(
+                                  label: '图片',
+                                  fileExtensions: <String>['jpg', 'jpeg', 'png', 'gif'],
+                                ),
+                                FileTypeFilterGroup(
+                                  label: '其他',
+                                  fileExtensions: <String>[],
+                                ),
+                              ],
+                            );
+                            if (f.canceled) {
+                              Utils.toast('未选取图片');
+                              return;
+                            }
+                            final image = f.paths.first;
+                            final file = File(image);
+                            final name = Utils.getFileNameAndExt(image);
+                            final _cacheUtil =
+                                CacheUtil(backup: true, basePath: "background");
+                            try {
+                              final p = await _cacheUtil.requestPermission();
+                              if (!p) {
+                                Utils.toast('读取图片需要存储权限');
+                                return;
+                              }
+                            } catch (e) {
+                              Utils.toast('读取图片需要存储权限');
+                              return;
+                            }
+                            final _dir = await _cacheUtil.cacheDir();
+                            await _cacheUtil.putFile(name, file);
+                            Utils.toast('图片已保存到$_dir $name');
+                            profile.novelBackgroundImage = _dir + name;
+                          } else {
+                            FilePickerResult imagePick =
+                                await FilePicker.platform.pickFiles(type: FileType.image);
+                            if (imagePick == null) {
+                              Utils.toast('未选取图片');
+                              return;
+                            }
+                            final image = imagePick.files.single;
+                            if (image.extension != 'jpg' &&
+                                image.extension != 'jpeg' &&
+                                image.extension != 'png' &&
+                                image.extension != 'gif') {
+                              Utils.toast('只支持扩展名为jpg或jpeg或png或gif的图片');
+                              return;
+                            }
+
+                            final file = File(image.path);
+                            final name = Utils.getFileNameAndExt(image.path);
+                            final _cacheUtil =
+                                CacheUtil(backup: true, basePath: "background");
+                            try {
+                              final p = await _cacheUtil.requestPermission();
+                              if (!p) {
+                                Utils.toast('读取图片需要存储权限');
+                                return;
+                              }
+                            } catch (e) {
+                              Utils.toast('读取图片需要存储权限');
+                              return;
+                            }
+                            final _dir = await _cacheUtil.cacheDir();
+                            await _cacheUtil.putFile(name, file);
+                            Utils.toast('图片已保存到$_dir $name');
+                            profile.novelBackgroundImage = _dir + name;
+                          }
                         },
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
