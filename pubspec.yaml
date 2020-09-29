@@ -30,12 +30,6 @@ dependencies:
     path: modules/flutter_webview
     # git: https://github.com/ekibun/flutter_webview
 
-  # flutter_lyric: ^1.0.2
-  flutter_lyric:
-    git: 
-      url: https://github.com/mabDc/flutter_lyric.git
-      ref: patch-kotlin1_3
-      
   file_picker: ^2.0.3
   file_chooser:
     git:

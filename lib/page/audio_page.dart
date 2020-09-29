@@ -13,9 +13,9 @@ import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_lyric/lyric.dart';
-import 'package:flutter_lyric/lyric_widget.dart';
-import 'package:flutter_lyric/lyric_controller.dart';
+import '../lyric/lyric.dart';
+import '../lyric/lyric_widget.dart';
+import '../lyric/lyric_controller.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 

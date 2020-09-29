@@ -6,7 +6,7 @@ import 'package:eso/model/audio_service.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter_lyric/lyric.dart';
+import '../lyric/lyric.dart';
 import 'package:flutter_share/flutter_share.dart';
 
 class AudioPageController with ChangeNotifier {

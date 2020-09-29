@@ -5,7 +5,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/utils.dart';
-import 'package:flutter_lyric/lyric.dart';
+import '../lyric/lyric.dart';
 
 class AudioService {
   static const int REPEAT_FAVORITE = 3;
