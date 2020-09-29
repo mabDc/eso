@@ -22,7 +22,7 @@ class Utils {
         try {
           image = DecorationImage(
             image: FileImage(file),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
             onError: (_, __) => image = null,
           );
         } catch (e) {}
