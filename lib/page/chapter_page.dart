@@ -323,11 +323,9 @@ class _ChapterPageState extends State<ChapterPage> {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-        child: Expanded(
-          child: Text(
-            '全部(${searchItem.chapters?.length ?? 0})',
-            style: TextStyle(fontSize: 16),
-          ),
+        child: Text(
+          '全部(${searchItem.chapters?.length ?? 0})',
+          style: TextStyle(fontSize: 16),
         ),
       ),
     );
