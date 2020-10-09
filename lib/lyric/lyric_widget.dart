@@ -283,7 +283,6 @@ class _LyricWidgetState extends State<LyricWidget> {
             .subLyricTextPaints[widget.remarkLyrics.indexOf(subLyric)]
           ..text = TextSpan(text: subLyric.lyric, style: widget.remarkStyle);
         currentPaint.layout(maxWidth: lyricMaxWidth);
-        ;
         totalHeight += widget.remarkLyricGap + currentPaint.height;
       });
     }
