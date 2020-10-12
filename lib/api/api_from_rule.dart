@@ -137,6 +137,7 @@ class APIFromRUle implements API {
   Future<List<ChapterItem>> chapter(final String url) async {
     final result = <ChapterItem>[];
     int engineId;
+    final reversed = rule.chapterList.startsWith("-");
     for (var page = 1;; page++) {
       final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
       if (page > 1 && !chapterUrlRule.contains(APIConst.pagePattern)) {
@@ -152,7 +153,6 @@ class APIFromRUle implements API {
         break;
       }
       final chapterUrl = res.request.url.toString();
-      final reversed = rule.chapterList.startsWith("-");
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
         await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);

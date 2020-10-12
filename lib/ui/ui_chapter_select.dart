@@ -99,7 +99,7 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
               style: TextStyle(color: widget.fontColor ??
                   Theme.of(context).textTheme.bodyText1.color,
                   fontSize: 16,
-                  fontFamily: Profile.fontFamily
+                  fontFamily: Profile.staticFontFamily
               ),
               child: _count > 64 ? DraggableScrollbar.semicircle(
                 controller: _controller,

@@ -2,8 +2,7 @@ import '../global.dart';
 
 class HistoryManager {
   HistoryManager() {
-    _searchHistory =
-        LocalStorage.getStringList(Global.searchHistoryKey) ?? <String>[];
+    _searchHistory = Global.prefs.getStringList(Global.searchHistoryKey) ?? <String>[];
   }
 
   List<String> _searchHistory;
@@ -14,7 +13,21 @@ class HistoryManager {
   }
 
   Future<bool> newSearch(String keyWord) async {
-    _searchHistory.add(keyWord);
+    if (!_searchHistory.contains(keyWord)) {
+      _searchHistory.add(keyWord);
+      return await _saveSearchHistory();
+    }
+    return false;
+  }
+
+  Future<bool> restore(List searchHistory, bool clean) async {
+    if (clean) {
+      _searchHistory.clear();
+      _searchHistory.addAll(searchHistory.map((e) => '$e'));
+      return await _saveSearchHistory();
+    }
+    _searchHistory.clear();
+    _searchHistory.addAll(searchHistory.map((e) => '$e').where((e) => !_searchHistory.contains(e)));
     return await _saveSearchHistory();
   }
 
@@ -24,6 +37,6 @@ class HistoryManager {
   }
 
   Future<bool> _saveSearchHistory() async {
-    return await LocalStorage.set(Global.searchHistoryKey, _searchHistory);
+    return await Global.prefs.setStringList(Global.searchHistoryKey, _searchHistory);
   }
 }

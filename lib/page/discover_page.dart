@@ -169,6 +169,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
     final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
+      if (text.startsWith('http')) {
+        Utils.toast("开始导入$text", duration: Duration(seconds: 1));
+        final count = await provider.addFromUrl(text.trim(), false);
+        Utils.toast("导入完成，一共$count条", duration: Duration(seconds: 1));
+        return true;
+      }
       final rule = text.startsWith(RuleCompress.tag)
           ? RuleCompress.decompass(text)
           : Rule.fromJson(jsonDecode(text));
@@ -201,7 +207,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
       {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
       {'title': '规则管理', 'icon': FIcons.edit, 'type': FROM_EDIT_SOURCE},
     ];
@@ -232,25 +238,25 @@ class _DiscoverPageState extends State<DiscoverPage> {
     Widget _child = ListTile(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => FutureBuilder<List<DiscoverMap>>(
-              future: APIFromRUle(rule).discoverMap(),
-              initialData: null,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasError) {
-                  return Scaffold(
-                    body: Text("error: ${snapshot.error}"),
+                future: APIFromRUle(rule).discoverMap(),
+                initialData: null,
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasError) {
+                    return Scaffold(
+                      body: Text("error: ${snapshot.error}"),
+                    );
+                  }
+                  if (!snapshot.hasData) {
+                    return LandingPage();
+                  }
+                  return DiscoverSearchPage(
+                    rule: rule,
+                    originTag: rule.id,
+                    origin: rule.name,
+                    discoverMap: snapshot.data,
                   );
-                }
-                if (!snapshot.hasData) {
-                  return LandingPage();
-                }
-                return DiscoverSearchPage(
-                  rule: rule,
-                  originTag: rule.id,
-                  origin: rule.name,
-                  discoverMap: snapshot.data,
-                );
-              },
-            ))),
+                },
+              ))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
           .whenComplete(() => refreshData(provider)),

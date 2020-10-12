@@ -98,7 +98,7 @@ class FavoriteListPage extends StatelessWidget {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                await Future.delayed(Duration(seconds: 1));
+                await SearchItemManager.refreshAll();
                 return;
               },
               child: _buildFavoriteGrid(context),

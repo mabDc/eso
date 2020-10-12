@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/database/rule_dao.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
@@ -143,6 +144,60 @@ class _EditSourcePageState extends State<EditSourcePage> {
               Provider.of<EditSourceProvider>(context, listen: false),
             ),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(22),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (var sort in {
+                  "修改": RuleDao.modifiedTime,
+                  "s1": "|",
+                  "创建": RuleDao.createTime,
+                  "s2": "|",
+                  "置顶": RuleDao.sort,
+                  "s3": "|",
+                  "类型": RuleDao.contentType,
+                  "s4": "|",
+                  "名称": RuleDao.name,
+                  "s5": "|",
+                  "作者": RuleDao.author,
+                  "s6": "|",
+                  "分组": RuleDao.group,
+                }.entries)
+                  if (sort.key.startsWith("s"))
+                    Text(sort.value)
+                  else if (sort.value == RuleDao.sortName)
+                    InkWell(
+                      child: Text(
+                        " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).primaryColor),
+                      ),
+                      onTap: () {
+                        if (RuleDao.sortOrder == RuleDao.desc) {
+                          RuleDao.sortOrder = RuleDao.asc;
+                        } else {
+                          RuleDao.sortOrder = RuleDao.desc;
+                        }
+                        Provider.of<EditSourceProvider>(context, listen: false)
+                            .refreshData();
+                      },
+                    )
+                  else
+                    InkWell(
+                      child: Text(
+                        " ${sort.key} ",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      onTap: () {
+                        RuleDao.sortName = sort.value;
+                        Provider.of<EditSourceProvider>(context, listen: false)
+                            .refreshData();
+                      },
+                    )
+              ],
+            ),
+          ),
         ),
         body: Consumer<EditSourceProvider>(
           builder: (context, provider, child) {
@@ -217,7 +272,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    fontFamily: Profile.fontFamily,
+                    fontFamily: Profile.staticFontFamily,
                     color: Global.lightness(___leadColor) > 180
                         ? _theme.primaryColorDark
                         : Colors.white)),
@@ -335,6 +390,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
     final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
+      if (text.startsWith('http')) {
+        Utils.toast("开始导入$text", duration: Duration(seconds: 1));
+        final count = await provider.addFromUrl(text.trim(), false);
+        Utils.toast("导入完成，一共$count条", duration: Duration(seconds: 1));
+        return true;
+      }
       final rule = text.startsWith(RuleCompress.tag)
           ? RuleCompress.decompass(text)
           : Rule.fromJson(jsonDecode(text));
@@ -368,10 +429,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
       {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '粘贴单条规则', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
       {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
-      {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
+      // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       {'title': '清空源', 'icon': FIcons.x_circle, 'type': DELETE_ALL_RULES},
     ];
     return PopupMenuButton<int>(

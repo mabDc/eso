@@ -11,7 +11,6 @@ import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter_share/flutter_share.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
@@ -193,11 +192,11 @@ class NovelPageProvider with ChangeNotifier {
 
   void exportCache({bool isShare = false, bool isSaveLocal = false}) async {
     if (_exportLoading == true) {
-      showToastBottom("正在导出...");
+      Utils.toast("正在导出...");
       return;
     }
     _exportLoading = true;
-    showToastBottom("开始导出已缓存章节");
+    Utils.toast("开始导出已缓存章节");
 
     try {
       final chapters = searchItem.chapters;
@@ -231,12 +230,12 @@ class NovelPageProvider with ChangeNotifier {
       await cache.putData(name, export.join("\n"),
           hashCodeKey: false, shouldEncode: false);
       final filePath = await cache.cacheDir() + name;
-      showToastBottom("成功导出到 $filePath");
+      Utils.toast("成功导出到 $filePath");
       if (isShare == true) {
         await FlutterShare.shareFile(title: name, filePath: filePath);
       }
     } catch (e) {
-      showToastBottom("失败 $e");
+      Utils.toast("失败 $e");
     }
     _exportLoading = false;
   }
@@ -248,14 +247,14 @@ class NovelPageProvider with ChangeNotifier {
   void toggleAutoCache() {
     if (_autoCacheDoing == null || _autoCacheDoing == false) {
       _autoCacheDoing = true;
-      showToastBottom("开始自动缓存");
+      Utils.toast("开始自动缓存");
       notifyListeners();
       _updateCacheToken();
       _autoCacheTask(_autoCacheToken);
     } else {
       _updateCacheToken();
       _autoCacheDoing = false;
-      showToastBottom("取消自动缓存");
+      Utils.toast("取消自动缓存");
       notifyListeners();
     }
   }
@@ -280,10 +279,8 @@ class NovelPageProvider with ChangeNotifier {
     }
     _autoCacheDoing = false;
     notifyListeners();
-    showToastBottom("自动缓存 已完成");
+    Utils.toast("自动缓存 已完成");
   }
-
-  void showToastBottom(String msg) => showToast(msg, position: ToastPosition.bottom);
 
   List<int> _cacheChapterIndex;
   List<int> get cacheChapterIndex => _cacheChapterIndex;
@@ -583,7 +580,10 @@ class NovelPageProvider with ChangeNotifier {
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
     final width = mediaQueryData.size.width - __profile.novelLeftPadding * 2;
     final offset = Offset(width, 6);
-    final tp = TextPainter(textDirection: TextDirection.ltr);
+    final tp = TextPainter(
+      textDirection: TextDirection.ltr,
+      strutStyle: StrutStyle(fontFamily: profile.novelFontFamily),
+    );
     final oneLineHeight = __profile.novelFontSize * __profile.novelHeight;
     final height = mediaQueryData.size.height -
         __profile.novelTopPadding * 2 -
@@ -597,6 +597,7 @@ class NovelPageProvider with ChangeNotifier {
     final commonStyle = TextStyle(
       fontSize: __profile.novelFontSize,
       height: __profile.novelHeight,
+      fontFamily: profile.novelFontFamily,
       //color: fontColor,
     );
     final _buildHeightSpan = (double height) {
@@ -605,6 +606,7 @@ class NovelPageProvider with ChangeNotifier {
           style: TextStyle(
             height: 1,
             fontSize: height,
+            fontFamily: profile.novelFontFamily,
           ));
     };
     final paragraphLine = _buildHeightSpan(__profile.novelParagraphPadding);
@@ -642,6 +644,7 @@ class NovelPageProvider with ChangeNotifier {
           //color: fontColor,
           height: __profile.novelHeight,
           fontWeight: FontWeight.bold,
+          fontFamily: profile.novelFontFamily,
         ),
       ),
       newLine,
@@ -736,6 +739,7 @@ class NovelPageProvider with ChangeNotifier {
                 style: TextStyle(
                   fontSize: __profile.novelFontSize,
                   height: __profile.novelHeight,
+                  fontFamily: profile.novelFontFamily,
                   //color: fontColor,
                 )));
           }
@@ -753,6 +757,7 @@ class NovelPageProvider with ChangeNotifier {
             fontSize: __profile.novelFontSize,
             //color: fontColor,
             height: __profile.novelHeight,
+            fontFamily: profile.novelFontFamily,
           ),
         );
         tp.layout();
@@ -767,6 +772,7 @@ class NovelPageProvider with ChangeNotifier {
               //color: fontColor,
               height: __profile.novelHeight,
               letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+              fontFamily: profile.novelFontFamily,
             )));
         currentSpans.add(TextSpan(
           text: text.substring(text.length - 1),

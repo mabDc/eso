@@ -2,6 +2,8 @@ import 'package:eso/api/api.dart';
 import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
 
+import '../global.dart';
+
 @entity
 class Rule {
   // 基本信息
@@ -195,6 +197,21 @@ class Rule {
     this.contentUrl,
     this.contentItems,
   );
+
+  static Future<List<Rule>> backupRules() async {
+    return await Global.ruleDao.findAllRules();
+  }
+
+  static Future<bool> restore(List<dynamic> rules, bool reset) async {
+    // if (reset) await Global.ruleDao.clearAllRules();
+    if (rules != null) {
+      for (var item in rules) {
+        var _rule = Rule.fromJson(item);
+        await Global.ruleDao.insertOrUpdateRule(_rule);
+      }
+    }
+    return true;
+  }
 
   Rule.fromJson(Map<String, dynamic> json, [Rule rule]) {
     final defaultRule = rule ?? Rule.newRule();

@@ -57,7 +57,7 @@ class _UISystemInfoState extends State<UISystemInfo> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
-                  fontFamily: Profile.fontFamily,
+                  fontFamily: Profile.staticFontFamily,
                   textBaseline: TextBaseline.alphabetic,
                 ),
                 child: Row(

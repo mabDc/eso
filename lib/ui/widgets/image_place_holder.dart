@@ -26,7 +26,7 @@ class ImagePlaceHolder extends StatelessWidget {
               SizedBox(height: 2),
               Text("eso", style: TextStyle(fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  fontFamily: Profile.fontFamily,
+                  fontFamily: Profile.staticFontFamily,
                   color: Theme.of(context).primaryColor.withOpacity(0.1)))
             ],
           ),

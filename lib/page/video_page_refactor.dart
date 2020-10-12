@@ -108,6 +108,7 @@ class VideoPage extends StatelessWidget {
   Widget _buildPlayer(BuildContext context) {
     final controller =
         context.select((VideoPageProvider provider) => provider.controller);
+    context.select((VideoPageProvider provider) => provider.aspectRatio);
     final provider = Provider.of<VideoPageProvider>(context, listen: false);
     return GestureDetector(
       child: Container(
@@ -116,10 +117,13 @@ class VideoPage extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         alignment: Alignment.center,
-        child: AspectRatio(
-          aspectRatio: controller.value.aspectRatio,
-          child: VideoPlayer(controller),
-        ),
+        child: provider.aspectRatio == VideoAspectRatio.full ||
+                provider.getAspectRatio() == 0
+            ? VideoPlayer(controller)
+            : AspectRatio(
+                aspectRatio: provider.getAspectRatio(),
+                child: VideoPlayer(controller),
+              ),
       ),
       onDoubleTap: provider.playOrPause,
       onTap: provider.toggleControllerBar,
@@ -228,38 +232,33 @@ class VideoPage extends StatelessWidget {
           ),
         ),
         if (vertical)
-          Container(
-            height: 20,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.open_in_new, size: 20),
-              onPressed: provider.openInNew,
-              color: Colors.white,
-              tooltip: "使用其他播放器打开",
-            ),
+          IconButton(
+            color: Colors.white,
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.airplay),
+            onPressed: () => provider.openDLNA(context),
+            tooltip: "DLNA投屏",
           ),
         if (vertical)
-          Platform.isLinux || Platform.isWindows || Platform.isMacOS
-              ? Container(
-                  height: 20,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.zoom_out_map, size: 20),
-                    onPressed: provider.zoom,
-                    color: Colors.white,
-                    tooltip: "缩放",
-                  ),
-                )
-              : Container(
-                  height: 20,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.format_list_bulleted, size: 20),
-                    onPressed: () => provider.toggleChapterList(),
-                    color: Colors.white,
-                    tooltip: "节目列表",
-                  ),
-                ),
+          IconButton(
+            color: Colors.white,
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.zoom_out_map),
+            onPressed: provider.zoom,
+            tooltip: "缩放",
+          ),
+        Container(
+          height: 20,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.format_list_bulleted, size: 20),
+            onPressed: () => provider.toggleChapterList(),
+            color: Colors.white,
+            tooltip: "节目列表",
+          ),
+        ),
       ],
     );
   }
@@ -329,23 +328,23 @@ class VideoPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  IconButton(
+                    color: Colors.white,
+                    iconSize: 20,
+                    padding: EdgeInsets.zero,
+                    icon: Icon(Icons.open_in_new),
+                    onPressed: provider.openInNew,
+                    tooltip: "使用其他播放器打开",
+                  ),
                   if (provider.screenAxis == Axis.horizontal)
                     IconButton(
                       color: Colors.white,
                       iconSize: 20,
                       padding: EdgeInsets.zero,
-                      icon: Icon(Icons.open_in_new),
-                      onPressed: provider.openInNew,
-                      tooltip: "使用其他播放器打开",
+                      icon: Icon(Icons.airplay),
+                      onPressed: () => provider.openDLNA(context),
+                      tooltip: "DLNA投屏",
                     ),
-                  IconButton(
-                    color: Colors.white,
-                    iconSize: 20,
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.airplay),
-                    onPressed: () => provider.openDLNA(context),
-                    tooltip: "DLNA投屏",
-                  ),
                   IconButton(
                     color: Colors.white,
                     iconSize: 25,
@@ -376,6 +375,15 @@ class VideoPage extends StatelessWidget {
                         provider.parseContent(searchItem.durChapterIndex + 1),
                     tooltip: "下一集",
                   ),
+                  if (provider.screenAxis == Axis.horizontal)
+                    IconButton(
+                      color: Colors.white,
+                      iconSize: 20,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.zoom_out_map),
+                      onPressed: provider.zoom,
+                      tooltip: "缩放",
+                    ),
                   IconButton(
                     color: Colors.white,
                     iconSize: 20,
@@ -384,24 +392,6 @@ class VideoPage extends StatelessWidget {
                     onPressed: provider.screenRotation,
                     tooltip: "旋转",
                   ),
-                  if (provider.screenAxis == Axis.horizontal)
-                    Platform.isLinux || Platform.isWindows || Platform.isMacOS
-                        ? IconButton(
-                            color: Colors.white,
-                            iconSize: 20,
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.zoom_out_map),
-                            onPressed: provider.zoom,
-                            tooltip: "缩放",
-                          )
-                        : IconButton(
-                            color: Colors.white,
-                            iconSize: 20,
-                            padding: EdgeInsets.zero,
-                            icon: Icon(Icons.format_list_bulleted),
-                            onPressed: () => provider.toggleChapterList(),
-                            tooltip: "节目列表",
-                          ),
                 ],
               )
             ],
@@ -468,6 +458,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     _titleText = "${searchItem.name} - ${searchItem.durChapter}";
     _screenAxis = Axis.horizontal;
     _disposed = false;
+    _aspectRatio = VideoAspectRatio.uninit;
     setHorizontal();
     parseContent(null);
   }
@@ -510,7 +501,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         return;
       }
       if (_disposed) return;
-      if (Platform.isWindows || Platform.isMacOS) {
+      if (Global.isDesktop) {
         loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
         loadingText.add("window或macos下将自动跳转浏览器播放，也可以手动点击左下角[使用其他播放器打开]");
         notifyListeners();
@@ -524,6 +515,9 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       _controller?.dispose();
       if (_disposed) return;
       _controller = VideoPlayerController.network(_content[0]);
+      if (_aspectRatio == VideoAspectRatio.uninit) {
+        _aspectRatio = VideoAspectRatio.auto;
+      }
       notifyListeners();
       AudioService.stop();
       await _controller.initialize();
@@ -627,7 +621,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void openInNew() {
     if (_disposed || _content == null) return;
-    if (Platform.isWindows) {
+    if (Global.isDesktop) {
       launch("http://www.m3u8player.top/?play=${content[0]}");
       return;
     }
@@ -733,10 +727,50 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
+  VideoAspectRatio _aspectRatio;
+  VideoAspectRatio get aspectRatio => _aspectRatio;
+  double getAspectRatio() {
+    switch (_aspectRatio) {
+      case VideoAspectRatio.auto:
+        return controller?.value?.aspectRatio ?? 16 / 9;
+      case VideoAspectRatio.a169:
+        return 16 / 9;
+      case VideoAspectRatio.a43:
+        return 4 / 3;
+      case VideoAspectRatio.a916:
+        return 9 / 16;
+      default:
+        return 0;
+    }
+  }
+
   void zoom() {
     // if (_disposed || isLoading) return;
     _controllerTime = DateTime.now();
-    setHintText("暂无功能");
+    switch (_aspectRatio) {
+      case VideoAspectRatio.auto:
+        _aspectRatio = VideoAspectRatio.full;
+        setHintText('充满');
+        break;
+      case VideoAspectRatio.full:
+        _aspectRatio = VideoAspectRatio.a169;
+        setHintText('16 : 9');
+        break;
+      case VideoAspectRatio.a169:
+        _aspectRatio = VideoAspectRatio.a43;
+        setHintText('4 : 3');
+        break;
+      case VideoAspectRatio.a43:
+        _aspectRatio = VideoAspectRatio.a916;
+        setHintText('9 : 16');
+        break;
+      case VideoAspectRatio.a916:
+        _aspectRatio = VideoAspectRatio.auto;
+        setHintText('自动');
+        break;
+      default:
+        break;
+    }
   }
 
   void loadChapter(int index) {
@@ -868,4 +902,13 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     _dragStartPosition = details.globalPosition.dy;
     _draging = false;
   }
+}
+
+enum VideoAspectRatio {
+  uninit, // 未初始化
+  auto, // 自动
+  full, // 充满
+  a43, // 4：3
+  a169, // 16：9
+  a916, // 9：16
 }

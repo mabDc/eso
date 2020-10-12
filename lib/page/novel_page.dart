@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:eso/database/search_item.dart';
-import 'package:eso/global.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
@@ -10,13 +9,12 @@ import 'package:eso/page/novel/novel_none_view.dart';
 import 'package:eso/page/novel/novel_scroll_view.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
-// import 'package:eso_plugin/eso_plugin.dart';
 
 /// 文字阅读页面
 class NovelPage extends StatefulWidget {
@@ -29,9 +27,7 @@ class NovelPage extends StatefulWidget {
 
 class _NovelPageState extends State<NovelPage> {
   final SearchItem searchItem;
-  _NovelPageState(this.searchItem): super();
-
-  // VolumeChangeEvent onVolumeInc, onVolumeDec;
+  _NovelPageState(this.searchItem) : super();
 
   @override
   void initState() {
@@ -40,8 +36,6 @@ class _NovelPageState extends State<NovelPage> {
 
   @override
   void dispose() {
-    // EsoPlugin.captureVolumeKeyboard(false, onVolumeInc: onVolumeInc,
-    //     onVolumeDec: onVolumeDec);
     super.dispose();
   }
 
@@ -58,62 +52,43 @@ class _NovelPageState extends State<NovelPage> {
         height: height,
       ),
       builder: (context, child) => Scaffold(
-        backgroundColor: Color(profile.novelBackgroundColor),
         body: Consumer2<NovelPageProvider, Profile>(
-          builder: (BuildContext context, NovelPageProvider provider,
-              Profile profile, _) {
+          builder:
+              (BuildContext context, NovelPageProvider provider, Profile profile, _) {
             if (provider.paragraphs == null) {
-              return LandingPage(color: Color(profile.novelBackgroundColor));
+              return LandingPage();
             }
-            final _lightens =
-            Global.lightness(Color(profile.novelBackgroundColor));
-
-            // 音量键翻页 仅安卓
-            // if(Platform.isAndroid){
-            //   if (onVolumeDec == null) onVolumeDec = (v) {
-            //     provider.tapNextPage();
-            //   };
-            //   if (onVolumeInc == null) onVolumeInc = (v) {
-            //     provider.tapLastPage();
-            //   };
-            // }
-
-            // final _volumeSwitchPage = provider.showChapter || provider.showMenu || provider.showSetting;
-            // EsoPlugin.captureVolumeKeyboard(!_volumeSwitchPage,
-            //     onVolumeInc: onVolumeInc, onVolumeDec: onVolumeDec);
-
             return RawKeyboardListener(
               focusNode: _backNode,
               onKey: (event) {
-                if (event.runtimeType.toString()!=provider.enPress){
+                if (event.runtimeType.toString() != provider.enPress) {
                   provider.enPress = event.runtimeType.toString();
                   // 按下时触发
-                  if (event.runtimeType.toString()=='RawKeyUpEvent') return;
-
-                  if(event.data is RawKeyEventDataMacOs){
-                    RawKeyEventDataMacOs data = event.data;
-                    print(data.keyCode);
-                    switch(data.keyCode){
-                      case 123:// 方向键左
-                        provider.tapLastPage();
-                        break;
-                      case 124:// 方向键右
-                        provider.tapNextPage();
-                        break;
-                      case 53:// esc
-                        Navigator.pop(context);
-                        break;
-                      case 27:// -
-                        provider.switchChapter(
-                            profile, searchItem.durChapterIndex - 1);
-                        break;
-                      case 24:// +
-                        provider.switchChapter(
-                            profile, searchItem.durChapterIndex + 1);
-                        break;
-                      case 36: //enter
-                        provider.showMenu = !provider.showMenu;
-                        break;
+                  if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
+                  if (event.data is RawKeyEventDataMacOs ||
+                      event.data is RawKeyEventDataLinux ||
+                      event.data is RawKeyEventDataWindows) {
+                    final logicalKey = event.data.logicalKey;
+                    print(logicalKey);
+                    if (logicalKey == LogicalKeyboardKey.arrowUp ||
+                        logicalKey == LogicalKeyboardKey.arrowLeft ||
+                        logicalKey == LogicalKeyboardKey.pageUp) {
+                      provider.tapLastPage();
+                    } else if (logicalKey == LogicalKeyboardKey.arrowDown ||
+                        logicalKey == LogicalKeyboardKey.arrowRight ||
+                        logicalKey == LogicalKeyboardKey.pageDown) {
+                      provider.tapNextPage();
+                    } else if (logicalKey == LogicalKeyboardKey.bracketLeft ||
+                        logicalKey == LogicalKeyboardKey.minus ||
+                        logicalKey == LogicalKeyboardKey.insert) {
+                      provider.switchChapter(profile, searchItem.durChapterIndex - 1);
+                    } else if (logicalKey == LogicalKeyboardKey.bracketRight ||
+                        logicalKey == LogicalKeyboardKey.numpadAdd ||
+                        logicalKey == LogicalKeyboardKey.delete) {
+                      provider.switchChapter(profile, searchItem.durChapterIndex + 1);
+                    } else if (logicalKey == LogicalKeyboardKey.enter ||
+                        logicalKey == LogicalKeyboardKey.numpadEnter) {
+                      provider.showMenu = !provider.showMenu;
                     }
                   }
                 }
@@ -122,12 +97,9 @@ class _NovelPageState extends State<NovelPage> {
                 child: Stack(
                   children: <Widget>[
                     AnnotatedRegion<SystemUiOverlayStyle>(
-                      value: _lightens > 128 ||
-                          _lightens < 3 // 亮度小于3说明是纯黑背景，大晚上的，顶部的时间如果高亮就亮瞎眼了
-                          ? SystemUiOverlayStyle.dark
-                          : SystemUiOverlayStyle.light,
-                      child: ColoredBox(
-                        color: Color(profile.novelBackgroundColor),
+                      value: SystemUiOverlayStyle.light,
+                      child: Container(
+                        decoration: Utils.getNovelBackground(),
                         child: _buildContent(provider, profile),
                       ),
                     ),
@@ -159,8 +131,7 @@ class _NovelPageState extends State<NovelPage> {
                               borderRadius: BorderRadius.circular(20),
                               color: Theme.of(context).canvasColor,
                             ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 42, vertical: 20),
+                            padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -209,8 +180,6 @@ class _NovelPageState extends State<NovelPage> {
                 },
               ),
             );
-
-            //return ;
           },
         ),
       ),
@@ -220,15 +189,17 @@ class _NovelPageState extends State<NovelPage> {
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
     switch (profile.novelPageSwitch) {
       case Profile.novelScroll:
-        return NovelScrollView(profile: profile, provider: provider, searchItem: searchItem);
+        return NovelScrollView(
+            profile: profile, provider: provider, searchItem: searchItem);
       case Profile.novelNone:
-        return NovelNoneView(profile: profile, provider: provider, searchItem: searchItem);
+        return NovelNoneView(
+            profile: profile, provider: provider, searchItem: searchItem);
       case Profile.novelCover:
       case Profile.novelFade:
-        return NovelRoteView(profile: profile, provider: provider, searchItem: searchItem);
+        return NovelRoteView(
+            profile: profile, provider: provider, searchItem: searchItem);
       default:
         return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
     }
   }
-
 }

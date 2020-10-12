@@ -1,18 +1,16 @@
 package io.abner.flutter_js
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import kotlinx.coroutines.runBlocking
-import android.os.Looper
-import android.os.Handler
 
 /** FlutterJsPlugin */
 class FlutterJsPlugin: FlutterPlugin, MethodCallHandler {
@@ -59,7 +57,7 @@ class FlutterJsPlugin: FlutterPlugin, MethodCallHandler {
       Thread {
         //runBlocking {
           try {
-            Log.d("FlutterJs", call.arguments.toString())
+            // Log.d("FlutterJs", call.arguments.toString())
             val jsCommand: String = call.argument<String>("command")!!
             val engineId: Int = call.argument<Int>("engineId")!!
             val resultJS = jsEngineMap[engineId]!!.eval(jsCommand)
@@ -69,7 +67,9 @@ class FlutterJsPlugin: FlutterPlugin, MethodCallHandler {
             }
           } catch (e: Exception) {
             Handler(Looper.getMainLooper()).post {
-              result.error("FlutterJSException", e.message + e.toString(), null)
+              result.error("FlutterJSException",
+                      "${e.message}, ${e.stackTrace.joinToString("\n## ")}",
+                      null)
             }
           }
 

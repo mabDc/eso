@@ -6,7 +6,7 @@ class SearchEdit extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final bool autofocus;
-  final FocusNode focusNote;
+  final FocusNode focusNode;
   final Widget prefix;
   final TextInputAction textInputAction;
   final ValueChanged<String> onSubmitted;
@@ -17,7 +17,7 @@ class SearchEdit extends StatelessWidget {
     this.hintText,
     this.autofocus = false,
     this.prefix,
-    this.focusNote,
+    this.focusNode,
     this.textInputAction = TextInputAction.search,
     this.onChanged,
     this.onSubmitted}): super(key: key);
@@ -30,7 +30,7 @@ class SearchEdit extends StatelessWidget {
       cursorColor: Theme.of(context).primaryColor,
       cursorRadius: Radius.circular(2),
       selectionHeightStyle: BoxHeightStyle.includeLineSpacingMiddle,
-      focusNode: focusNote,
+      focusNode: focusNode,
       textInputAction: textInputAction,
       decoration: InputDecoration(
         filled: true,

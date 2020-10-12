@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as path;
 
+import '../global.dart';
+
 /// 缓存
 class CacheUtil {
   static const String _basePath = 'cache';
@@ -27,7 +29,7 @@ class CacheUtil {
   /// 请求权限
   Future<bool> requestPermission() async {
     // 检查并请求权限
-    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) return true;
+    if (Global.isDesktop) return true;
     if (await Permission.storage.status != PermissionStatus.granted) {
       var _status = await Permission.storage.request();
       if (_status != PermissionStatus.granted) return false;
@@ -36,6 +38,9 @@ class CacheUtil {
   }
 
   Future<String> cacheDir([bool allCache]) async {
+    try {
+      await requestPermission();
+    } catch (e) {}
     if (_cacheDir != null && allCache != true) return _cacheDir;
     var dir = await getCacheBasePath(backup);
     if (dir == null || dir.isEmpty) return null;
@@ -204,7 +209,7 @@ class CacheUtil {
   static Future<String> getCacheBasePath([bool storage]) async {
     if (_cacheStoragePath == null) {
       try {
-        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        if (Global.isDesktop) {
           _cacheStoragePath = (await path.getApplicationDocumentsDirectory()).path;
         } else if (Platform.isAndroid) {
           _cacheStoragePath = (await path.getExternalStorageDirectory()).path;

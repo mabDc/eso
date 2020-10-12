@@ -34,9 +34,9 @@ class AnalyzerJSonPath implements Analyzer {
       final attr = m[1];
       list = JsonPath(rule.replaceFirst(m.group(0), "[?$attr]"), filter: {
         attr: (e) => e is Map && e[attr] != null,
-      }).filter(_ctx).map((e) => e.value).toList();
+      }).read(_ctx).map((e) => e.value).toList();
     } else {
-      list = JsonPath(rule).filter(_ctx).map((e) => e.value).toList();
+      list = JsonPath(rule).read(_ctx).map((e) => e.value).toList();
     }
     if (list == null || list.isEmpty) return <String>[];
     if (list.length == 1) {
@@ -62,9 +62,9 @@ class AnalyzerJSonPath implements Analyzer {
       final attr = m[1];
       return JsonPath(rule.replaceFirst(m.group(0), "[?$attr]"), filter: {
         attr: (e) => e is Map && e[attr] != null,
-      }).filter(_ctx).map((e) => e.value).join("  ");
+      }).read(_ctx).map((e) => e.value).join("  ");
     }
-    return JsonPath(rule).filter(_ctx).map((e) => e.value).join("  ");
+    return JsonPath(rule).read(_ctx).map((e) => e.value).join("  ");
   }
 
   @override

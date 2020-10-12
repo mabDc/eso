@@ -118,13 +118,11 @@ namespace
       {
         version += "7";
       }
-      flutter::EncodableValue response(version);
-      result->Success(&response);
+      result->Success(flutter::EncodableValue(version));
     }
     else if (method_call.method_name().compare("initEngine") == 0)
     {
-      int engineId = (int)(method_call.arguments());
-      std::cout << engineId << std::endl;
+      const auto *engineId = std::get_if<int>(method_call.arguments());
       qjs::Runtime *runtime = new qjs::Runtime();
       qjs::Context *context = new qjs::Context(*runtime);
       // export classes as a module
@@ -138,9 +136,8 @@ namespace
                     "console.log = function(s) { return windowsBaseMoudle.println(s); };"
                     "http = {};"
                     "http.get = function(s) { return windowsBaseMoudle.httpGet(s); };");
-      jsEngineMap[engineId] = context;
-      flutter::EncodableValue response(engineId);
-      result->Success(&response);
+      jsEngineMap[*engineId] = context;
+      result->Success(flutter::EncodableValue(*engineId));
     }
     else if (method_call.method_name().compare("evaluate") == 0)
     {
@@ -151,8 +148,7 @@ namespace
       try
       {
         auto resultJS = ctx->eval(command);
-        flutter::EncodableValue response(resultJS.toJSON());
-        result->Success(&response);
+        result->Success(flutter::EncodableValue(resultJS.toJSON()));
       }
       catch (qjs::exception)
       {

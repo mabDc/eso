@@ -3,8 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  url_launcher_linux
+  file_chooser
   flutter_js
+  url_launcher_linux
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

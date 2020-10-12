@@ -47,25 +47,27 @@ class MyApp extends StatelessWidget {
           child: Consumer<Profile>(
             builder: (BuildContext context, Profile profile, Widget widget) {
               return OKToast(
-                textStyle: TextStyle(fontSize: 16.0, color: Colors.white,
-                    fontFamily: Profile.fontFamily),
-                backgroundColor: Colors.black.withOpacity(0.8),
-                radius: 20.0,
-                textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-                child: MaterialApp(
-                  theme: profile.getTheme(isDarkMode: false),
-                  darkTheme: profile.getTheme(isDarkMode: true),
-                  title: Global.appName,
-                  localizationsDelegates: [
-                    LocalizationsCupertinoDelegate.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                  ],
-                  locale: Locale('zh', 'CH'),
-                  supportedLocales: [Locale('zh', 'CH')],
-                  home: HomePage(),
-                )
-              );
+                  textStyle: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.white,
+                    fontFamily: profile.fontFamily,
+                  ),
+                  backgroundColor: Colors.black.withOpacity(0.8),
+                  radius: 20.0,
+                  textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                  child: MaterialApp(
+                    theme: profile.getTheme(profile.fontFamily, isDarkMode: false),
+                    darkTheme: profile.getTheme(profile.fontFamily, isDarkMode: true),
+                    title: Global.appName,
+                    localizationsDelegates: [
+                      LocalizationsCupertinoDelegate.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                    ],
+                    locale: Locale('zh', 'CH'),
+                    supportedLocales: [Locale('zh', 'CH')],
+                    home: HomePage(),
+                  ));
             },
           ),
         );

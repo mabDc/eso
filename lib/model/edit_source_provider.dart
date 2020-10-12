@@ -148,8 +148,6 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = false;
   }
 
-  SourceSortType lastSortType;
-
   DateTime _loadTime;
   void getRuleListByNameDebounce(String name) {
     _loadTime = DateTime.now();
@@ -194,28 +192,4 @@ class EditSourceProvider with ChangeNotifier {
     _eventStream.cancel();
     super.dispose();
   }
-
-  static Future<List<Rule>> backupRules() async {
-    return await Global.ruleDao.findAllRules();
-  }
-
-  static Future<bool> restore(List<dynamic> rules, bool reset) async {
-    if (reset) await Global.ruleDao.clearAllRules();
-    if (rules != null) {
-      for (var item in rules) {
-        var _rule = Rule.fromJson(item);
-        await Global.ruleDao.insertOrUpdateRule(_rule);
-      }
-    }
-    return true;
-  }
-}
-
-/// 规则排序类型
-enum SourceSortType {
-  type,
-  name,
-  author,
-  updateTime,
-  createTime,
 }

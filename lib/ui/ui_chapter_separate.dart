@@ -31,7 +31,7 @@ class UIChapterSeparate extends StatelessWidget {
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          fontFamily: Profile.fontFamily,
+          fontFamily: Profile.staticFontFamily,
           height: 2,
           color: color,
         ),

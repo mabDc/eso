@@ -300,7 +300,8 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
           }
 
           return Stack(
-            overflow: Overflow.visible,
+            
+            // overflow: Overflow.visible,
             children: <Widget>[
 //                  ..._points,
               Container(
@@ -308,7 +309,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
                 height: _containerHeight,
                 width: _containerWidth,
                 child: Stack(
-                  overflow: Overflow.visible,
+                  // overflow: Overflow.visible,
                   children: drawHandlers(),
                 ),
                 foregroundDecoration: widget.foregroundDecoration,
@@ -1437,7 +1438,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
         child: Draggable(
             axis: widget.axis,
             child: Stack(
-              overflow: Overflow.visible,
+              // overflow: Overflow.visible,
               children: <Widget>[
                 _tooltip(
                     offsetLeft: _leftHandlerXPosition,
@@ -1557,7 +1558,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
         child: Draggable(
             axis: Axis.horizontal,
             child: Stack(
-              overflow: Overflow.visible,
+              // overflow: Overflow.visible,
               children: <Widget>[
                 _tooltip(
                     offsetLeft: _rightHandlerXPosition,

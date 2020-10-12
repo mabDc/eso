@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.20.2+12002
+version: 1.20.12+12012
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -12,22 +12,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  url_launcher: ^5.5.0
-  url_launcher_fde:
-    git:
-      url: https://github.com/google/flutter-desktop-embedding
-      path: plugins/flutter_plugins/url_launcher_fde
-
-  path_provider: ^1.6.5
-  path_provider_fde:
-    git:
-      url: https://github.com/google/flutter-desktop-embedding
-      path: plugins/flutter_plugins/path_provider_fde
-
   # audioplayers: ^0.15.1
-  audioplayers: 
+  audioplayers:
     path: modules/audioplayers
-    
+
   # webview_flutter: ^0.3.22+1
   webview_flutter:
     path: modules/webview_flutter
@@ -38,16 +26,29 @@ dependencies:
   flutter_js:
     path: modules/flutter_js
     # git: https://github.com/abner/flutter_js
+  flutter_webview:
+    path: modules/flutter_webview
+    # git: https://github.com/ekibun/flutter_webview
+
+  file_picker: ^2.0.3
+  file_chooser:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/file_chooser
 
   # xpath_parse: ^1.0.2
   xpath_parse:
     path: modules/xpath
 
+  url_launcher: ^5.7.2
+  path_provider: ^1.6.18
+  shared_preferences: ^0.5.12
+  flutter_colorpicker: ^0.3.4
+
   intl: ^0.16.1
   screen: ^0.0.5
   cupertino_icons: ^0.1.3
   provider: ^4.0.5
-  shared_preferences: ^0.5.6+3
   http: ^0.12.1
   equatable: ^1.1.1
   archive: ^2.0.13
@@ -58,10 +59,10 @@ dependencies:
   sqflite: ^1.3.1
   matrix_gesture_detector: ^0.1.0
   flutter_slidable: ^0.5.4
-  video_player: ^0.10.11+2
+  video_player: ^0.11.0
   encrypt: ^4.0.0
   battery: 0.3.1+10
-  json_path: ^0.0.1
+  json_path: ^0.2.0
   uuid: ^2.0.4
   floor: ^0.13.0
   oktoast: ^2.3.2
@@ -88,8 +89,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - CHANGELOG.md
+    - README.md
+    - LICENSE
     - lib/assets/
-    - lib/assets/md/
   fonts:
     - family: fonticons
       fonts:
@@ -108,20 +111,5 @@ flutter:
         - asset: fonts/Roboto/Roboto-Bold.ttf
           weight: 700
         - asset: fonts/Roboto/Roboto-Black.ttf
-          weight: 900
-
-    - family: wqy
-      fonts:
-        - asset: fonts/wqy.ttf
-          weight: 100
-        - asset: fonts/wqy.ttf
-          weight: 300
-        - asset: fonts/wqy.ttf
-          weight: 400
-        - asset: fonts/wqy.ttf
-          weight: 500
-        - asset: fonts/wqy.ttf
-          weight: 700
-        - asset: fonts/wqy.ttf
           weight: 900
 

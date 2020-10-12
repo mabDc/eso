@@ -1,19 +1,22 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/utils/local_storage_utils.dart';
+import 'package:eso/model/profile.dart';
 import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database.dart';
 import 'database/rule_dao.dart';
-export 'utils/local_storage_utils.dart';
 import 'package:package_info/package_info.dart';
+
+import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
   static String appName = '亦搜';
-  static String appVersion = '1.13.11';
-  static String appBuildNumber = '11000';
+  static String appVersion = '1.20.4';
+  static String appBuildNumber = '12004';
   static String appPackageName = "com.mabdc.eso";
 
   static const waitingPath = "lib/assets/waiting.png";
@@ -26,17 +29,46 @@ class Global with ChangeNotifier {
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
-  static const testRuleKey = "testRule";
+  static SharedPreferences _prefs;
+  static SharedPreferences get prefs => _prefs;
+  static bool _isDesktop;
+  static bool get isDesktop => _isDesktop;
   static const fullSpace = "　";
   static int currentHomePage;
 
   static RuleDao _ruleDao;
   static RuleDao get ruleDao => _ruleDao;
 
-  static Future<bool> init() async {
-    await LocalStorage.init();
-    SearchItemManager.initSearchItem();
+  static Future<void> initFont() async {
+    final profile = Profile();
+    final fontFamily = profile.fontFamily;
+    final novelFamily = profile.novelFontFamily;
+    Profile.staticNovelFontFamily = novelFamily;
+    if (fontFamily == null && novelFamily == null) return;
+    final _cacheUtil = CacheUtil(backup: true, basePath: "font");
+    final dir = await _cacheUtil.cacheDir();
+    try {
+      if (fontFamily != null && fontFamily.contains('.')) {
+        await loadFontFromList(
+          await File(dir + fontFamily).readAsBytes(),
+          fontFamily: fontFamily,
+        );
+      }
+    } catch (e) {}
+    try {
+      if (novelFamily != null && novelFamily.contains('.')) {
+        await loadFontFromList(
+          await File(dir + novelFamily).readAsBytes(),
+          fontFamily: novelFamily,
+        );
+      }
+    } catch (e) {}
+  }
 
+  static Future<bool> init() async {
+    _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+    _prefs = await SharedPreferences.getInstance();
+    SearchItemManager.initSearchItem();
     final _migrations = [migration4to5, migration5to6];
     if (Platform.isWindows || Platform.isLinux) {
       // 初始化 sqlite
@@ -54,7 +86,7 @@ class Global with ChangeNotifier {
           .build();
       _ruleDao = _database.ruleDao;
     }
-    await Future.delayed(Duration(seconds: 1));
+    await initFont();
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       appVersion = packageInfo.version;

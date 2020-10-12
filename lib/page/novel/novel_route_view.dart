@@ -9,6 +9,8 @@ import 'package:eso/ui/route/empty_page_route.dart';
 import 'package:eso/ui/route/fade_page_route.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils.dart';
+
 /// 导航翻页模式
 class NovelRoteView extends StatelessWidget {
   final NovelPageProvider provider;
@@ -23,8 +25,8 @@ class NovelRoteView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpans(NovelPageProvider.buildSpans(context,
-        profile, provider.searchItem, provider.paragraphs))
+        ? provider.updateSpans(NovelPageProvider.buildSpans(
+            context, profile, provider.searchItem, provider.paragraphs))
         : provider.spans;
 
     return NovelDragView(
@@ -95,10 +97,9 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
     if (lastPage != null) {
       // owner.provider.showMenu
       bool isChangePage = (lastPageIndex != owner.provider.currentPage ||
-              lastChapterIndex != owner.searchItem.durChapterIndex);
+          lastChapterIndex != owner.searchItem.durChapterIndex);
       if (isChangePage) {
         if (owner.profile.novelPageSwitch == Profile.novelCover) {
-
           if (_controller == null) {
             _controller = AnimationController(
               vsync: this,
@@ -118,17 +119,23 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
           else
             _controller.forward(from: -1.2);
           return Stack(
-            children: _isNext ? [
-              lastPage,
-              SlideTransition(position: _animation.drive(
-                  Tween(end: Offset(-1.1, 0.0), begin: Offset.zero)
-                      .chain(CurveTween(curve: Curves.linear))), child: _last),
-            ] : [
-              _last,
-              SlideTransition(position: _animation.drive(
-                  Tween(begin: Offset(-1.1, 0.0), end: Offset.zero)
-                      .chain(CurveTween(curve: Curves.linear))), child: lastPage),
-            ],
+            children: _isNext
+                ? [
+                    lastPage,
+                    SlideTransition(
+                        position: _animation.drive(
+                            Tween(end: Offset(-1.1, 0.0), begin: Offset.zero)
+                                .chain(CurveTween(curve: Curves.linear))),
+                        child: _last),
+                  ]
+                : [
+                    _last,
+                    SlideTransition(
+                        position: _animation.drive(
+                            Tween(begin: Offset(-1.1, 0.0), end: Offset.zero)
+                                .chain(CurveTween(curve: Curves.linear))),
+                        child: lastPage),
+                  ],
           );
         } else {
           changePage();
@@ -144,15 +151,17 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
     lastPageIndex = owner.provider.currentPage;
     lastChapterIndex = owner.searchItem.durChapterIndex;
     return Material(
-      elevation: owner.profile.novelPageSwitch == Profile.novelCover
-          ? 20 : 0,
-      child: NovelOnePageView(
-        provider: owner.provider,
-        profile: owner.profile,
-        spans: NovelRoteView.spans[owner.provider.currentPage - 1],
-        fontColor: Color(owner.profile.novelFontColor),
-        pageInfo: '${owner.provider.currentPage}/${NovelRoteView.spans.length}',
-        chapterName: owner.searchItem.durChapter,
+      elevation: owner.profile.novelPageSwitch == Profile.novelCover ? 20 : 0,
+      child: Container(
+        decoration: Utils.getNovelBackground(),
+        child: NovelOnePageView(
+          provider: owner.provider,
+          profile: owner.profile,
+          spans: NovelRoteView.spans[owner.provider.currentPage - 1],
+          fontColor: Color(owner.profile.novelFontColor),
+          pageInfo: '${owner.provider.currentPage}/${NovelRoteView.spans.length}',
+          chapterName: owner.searchItem.durChapter,
+        ),
       ),
     );
   }
@@ -162,8 +171,7 @@ class _CoverPageState extends State<_CoverPage> with SingleTickerProviderStateMi
   // 是否进入下一页
   bool get isNext => !(curChapterIndex < lastChapterIndex ||
       (curChapterIndex == lastChapterIndex &&
-          lastPageIndex > owner.provider.currentPage
-      ));
+          lastPageIndex > owner.provider.currentPage));
 
   changePage() async {
     Timer(Duration(milliseconds: 20), () {

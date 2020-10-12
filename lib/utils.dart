@@ -7,10 +7,33 @@ import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
+import 'model/profile.dart';
+
 /// 事件bus
 EventBus eventBus = EventBus();
 
 class Utils {
+  static BoxDecoration getNovelBackground() {
+    final profile = Profile();
+    DecorationImage image;
+    if (profile.novelBackgroundImage != null) {
+      final file = File(profile.novelBackgroundImage);
+      if (file.existsSync()) {
+        try {
+          image = DecorationImage(
+            image: FileImage(file),
+            fit: BoxFit.fill,
+            onError: (_, __) => image = null,
+          );
+        } catch (e) {}
+      }
+    }
+    return BoxDecoration(
+      color: Color(profile.novelBackgroundColor),
+      image: image,
+    );
+  }
+
   /// 时间字符串显示
   static String formatDuration(Duration d) {
     if (d == null) return "--:--";

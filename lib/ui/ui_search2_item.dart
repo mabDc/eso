@@ -63,7 +63,7 @@ class _UiSearchItem extends StatelessWidget {
     final _txtColor =
         Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7);
     final _textStyle = TextStyle(color: _txtColor,
-        fontFamily: Profile.fontFamily, height: 1.0, fontSize: 13);
+        fontFamily: Profile.staticFontFamily, height: 1.0, fontSize: 13);
     final _chapterText = Utils.empty(_chapter)
         ? null
         : Text(_chapter, maxLines: 1, style: _textStyle);
@@ -91,7 +91,7 @@ class _UiSearchItem extends StatelessWidget {
             name?.trim() ?? '',
             maxLines: 2,
             style: TextStyle(
-                fontFamily: Profile.fontFamily,
+                fontFamily: Profile.staticFontFamily,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyText1.color,
                 fontSize: 16),
@@ -112,7 +112,7 @@ class _UiSearchItem extends StatelessWidget {
                     fontSize: 11,
                     height: 1.4,
                     color: Colors.white,
-                    fontFamily: Profile.fontFamily,
+                    fontFamily: Profile.staticFontFamily,
                     textBaseline: TextBaseline.alphabetic,
                   ),
                 ),
@@ -169,7 +169,7 @@ class _UiSearchItem extends StatelessWidget {
       constraints: BoxConstraints(minHeight: 105, minWidth: double.infinity),
       child: DefaultTextStyle(
         style: TextStyle(
-            fontFamily: Profile.fontFamily,
+            fontFamily: Profile.staticFontFamily,
             fontSize: 12, color: Theme.of(context).hintColor, height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Column(

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:eso/api/api_manager.dart';
+import 'package:eso/utils.dart';
 import 'chapter_item.dart';
 import 'search_item.dart';
 import '../global.dart';
@@ -55,7 +57,7 @@ class SearchItemManager {
   }
 
   static List<ChapterItem> getChapter(int id) {
-    return LocalStorage
+    return Global.prefs
         .getStringList(genChapterKey(id))
         .map((item) => ChapterItem.fromJson(jsonDecode(item)))
         .toList();
@@ -63,34 +65,33 @@ class SearchItemManager {
 
   static void initSearchItem() {
     _searchItem = <SearchItem>[];
-    LocalStorage
+    Global.prefs
         .getStringList(key)
         ?.forEach((item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
   }
 
   static Future<bool> removeSearchItem(String url, int id) async {
-    await LocalStorage.remove(genChapterKey(id));
+    await Global.prefs.remove(genChapterKey(id));
     _searchItem.removeWhere((item) => item.url == url);
     return saveSearchItem();
   }
 
   static Future<bool> saveSearchItem() async {
-    return await LocalStorage.set(
+    return await Global.prefs.setStringList(
         key, _searchItem.map((item) => jsonEncode(item.toJson())).toList());
   }
 
   static Future<bool> removeChapter(int id) {
-    return LocalStorage.remove(genChapterKey(id));
+    return Global.prefs.remove(genChapterKey(id));
   }
 
   static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return await LocalStorage.set(
+    return await Global.prefs.setStringList(
         genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 
   static Future<String> backupItems() async {
-    if (_searchItem == null || _searchItem.isEmpty)
-      initSearchItem();
+    if (_searchItem == null || _searchItem.isEmpty) initSearchItem();
     String s = json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
       json["chapters"] =
@@ -114,6 +115,51 @@ class SearchItemManager {
     });
     saveSearchItem();
     return true;
+  }
+
+  static Future<void> refreshAll() async {
+    // 先用单并发，加延时5s判定
+    for (var item in _searchItem) {
+      var current = item.name;
+      await Future.any([
+        refreshItem(item),
+        (SearchItem temp) async {
+          await Future.delayed(Duration(seconds: 5), () {
+            if (current == temp.name) Utils.toast("${temp.name} 章节更新超时");
+          });
+        }(item),
+      ]);
+      current = null;
+    }
+    return;
+  }
+
+  static Future<void> refreshItem(SearchItem item) async {
+    if (item.chapters.isEmpty) {
+      item.chapters = SearchItemManager.getChapter(item.id);
+    }
+    List<ChapterItem> chapters;
+    try {
+      chapters = await APIManager.getChapter(item.originTag, item.url);
+    } catch (e) {
+      Utils.toast("${item.name} 章节获取失败");
+      return;
+    }
+    if (chapters.isEmpty) {
+      Utils.toast("${item.name} 章节为空");
+      return;
+    }
+    final newCount = chapters.length - item.chapters.length;
+    if (newCount > 0) {
+      Utils.toast("${item.name} 新增 $newCount 章节");
+      item.chapters = chapters;
+      item.chapter = chapters.last?.name;
+      item.chaptersCount = chapters.length;
+      await SearchItemManager.saveChapter(item.id, item.chapters);
+    } else {
+      Utils.toast("${item.name} 无新增章节");
+    }
+    return;
   }
 }
 
