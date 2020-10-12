@@ -260,7 +260,7 @@ class MangaPageProvider with ChangeNotifier {
 
   Future<bool> removeFormFavorite() async {
     if (!isFavorite) return true;
-    return await SearchItemManager.removeSearchItem(searchItem.url, searchItem.id);
+    return await SearchItemManager.removeSearchItem(searchItem.id);
   }
 
   void refreshCurrent() async {
