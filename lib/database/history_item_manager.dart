@@ -11,15 +11,19 @@ class HistoryItemManager {
   static String genChapterKey(int id) => "chapter$id";
 
   /// 根据类型和排序规则取出收藏
-  static List<SearchItem> getHistoryItemByType([int contentType]) {
-    _historyItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
+  static List<SearchItem> getHistoryItemByType(String name, int contentType) {
     if (contentType != null) {
       return _historyItem
-          .where((element) => element.ruleContentType == contentType)
+          .where((element) =>
+              element.ruleContentType == contentType && element.name.contains(name))
           .toList();
     } else {
-      return _historyItem;
+      return _historyItem.where((element) => element.name.contains(name ?? '')).toList();
     }
+  }
+
+  static void sortReadTime() {
+    _historyItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
   }
 
   static bool isHistory(String originTag, String url) {
@@ -40,10 +44,10 @@ class HistoryItemManager {
 
   static Future<bool> removeSearchItem(int id) async {
     _historyItem.removeWhere((item) => item.id == id);
-    return saveSearchItem();
+    return saveHistoryItem();
   }
 
-  static Future<bool> saveSearchItem() async {
+  static Future<bool> saveHistoryItem() async {
     return await Global.prefs.setStringList(
         key, _historyItem.map((item) => jsonEncode(item.toJson())).toList());
   }
@@ -56,7 +60,7 @@ class HistoryItemManager {
   static Future<bool> restore(String data) async {
     List json = jsonDecode(data);
     json.forEach((item) => _historyItem.add(SearchItem.fromJson(item)));
-    saveSearchItem();
+    saveHistoryItem();
     return true;
   }
 }
