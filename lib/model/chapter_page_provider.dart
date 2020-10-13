@@ -1,5 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
+import 'package:eso/database/history_item_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
 import '../api/api_manager.dart';
@@ -134,6 +135,7 @@ class ChapterPageProvider with ChangeNotifier {
   }
 
   void changeChapter(int index) async {
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     if (searchItem.durChapterIndex != index) {
       searchItem.durChapterIndex = index;
       searchItem.durChapter = searchItem.chapters[index].name;

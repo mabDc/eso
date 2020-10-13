@@ -2,10 +2,12 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../global.dart';
+import 'chapter_page.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({Key key}) : super(key: key);
@@ -65,10 +67,90 @@ class HistoryPage extends StatelessWidget {
   List<Widget> buildItems(BuildContext context) {
     final historyItem =
         context.select((HistoryPageProvider provider) => provider.historyItem);
-    return List.generate(
-      100,
-      (index) => ListTile(
-        title: Text('$index'),
+    final list = <Widget>[];
+    final now = DateTime.now();
+    int days = -1;
+    for (var item in historyItem) {
+      final lastRead = DateTime.fromMicrosecondsSinceEpoch(item.lastReadTime);
+      final _days = now.difference(lastRead).inDays;
+      if (days != _days) {
+        days = _days;
+        list.add(ListTile(
+          title: Text(
+            days == 0
+                ? '今天'
+                : days == 1
+                    ? '昨天'
+                    : '$days天前',
+            style: TextStyle(fontSize: 12),
+          ),
+        ));
+      }
+      list.add(buildItem(context, item, lastRead));
+      list.add(Divider());
+    }
+    return list;
+  }
+
+  Widget buildItem(BuildContext context, SearchItem item, DateTime lastRead) {
+    return GestureDetector(
+      onTap: () {
+        if (item.chapters.isEmpty) {
+          item.chapters = null;
+        }
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => ChapterPage(searchItem: item)))
+            .whenComplete(
+                () => Provider.of<HistoryPageProvider>(context, listen: false).refresh());
+      },
+      child: Container(
+        height: 90,
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 70,
+              child: UIImageItem(
+                cover: item.cover,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    item.durChapter,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    lastRead.toString().substring(0, 19),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  Text(
+                    item.origin,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 10),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -109,13 +191,11 @@ class HistoryPage extends StatelessWidget {
 class HistoryPageProvider with ChangeNotifier {
   HistoryPageProvider() {
     _editingController = TextEditingController();
-    HistoryItemManager.sortReadTime();
     _historyItem =
         HistoryItemManager.getHistoryItemByType(_editingController.text, _contentType);
   }
 
   Future<void> refresh() async {
-    HistoryItemManager.sortReadTime();
     getRuleListByName(_editingController.text);
   }
 
@@ -124,7 +204,7 @@ class HistoryPageProvider with ChangeNotifier {
   set contentType(int value) {
     if (value != _contentType) {
       _contentType = value;
-      getRuleListByName('');
+      getRuleListByName(_editingController.text);
     }
   }
 

@@ -16,23 +16,31 @@ class HistoryItemManager {
       return _historyItem
           .where((element) =>
               element.ruleContentType == contentType && element.name.contains(name))
+          .toList()
+          .reversed
           .toList();
     } else {
-      return _historyItem.where((element) => element.name.contains(name ?? '')).toList();
+      return _historyItem
+          .where((element) => element.name.contains(name ?? ''))
+          .toList()
+          .reversed
+          .toList();
     }
   }
 
-  static void sortReadTime() {
-    _historyItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
-  }
+  // static void sortReadTime() {
+  //   _historyItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
+  // }
 
-  static bool isHistory(String originTag, String url) {
-    return _historyItem.any((item) => item.originTag == originTag && item.url == url);
-  }
-
-  static Future<bool> addHistoryItem(SearchItem searchItem) async {
+  static Future<bool> insertOrUpdateHistoryItem(SearchItem searchItem) async {
+    for (final item in _historyItem) {
+      if (item.originTag == searchItem.originTag && item.url == searchItem.url) {
+        _historyItem.remove(item);
+        break;
+      }
+    }
     _historyItem.add(searchItem);
-    return true;
+    return saveHistoryItem();
   }
 
   static void initHistoryItem() {
