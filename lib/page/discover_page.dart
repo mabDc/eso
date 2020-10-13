@@ -119,10 +119,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
           _buildFilterItemView(context, provider, API.NOVEL),
           SizedBox(width: 8),
           _buildFilterItemView(context, provider, API.MANGA),
-          SizedBox(width: 8),
-          _buildFilterItemView(context, provider, API.AUDIO),
-          SizedBox(width: 8),
-          _buildFilterItemView(context, provider, API.VIDEO),
         ],
       ),
     );
@@ -178,24 +174,29 @@ class _DiscoverPageState extends State<DiscoverPage> {
       final rule = text.startsWith(RuleCompress.tag)
           ? RuleCompress.decompass(text)
           : Rule.fromJson(jsonDecode(text));
-      if (provider.rules.any((r) => r.id == rule.id)) {
-        await Global.ruleDao.insertOrUpdateRule(rule);
-        provider.rules.removeWhere((r) => r.id == rule.id);
-        provider.rules.add(rule);
-        Utils.toast("更新成功");
-      } else {
-        provider.rules.add(rule);
-        await Global.ruleDao.insertOrUpdateRule(rule);
-        Utils.toast("添加成功");
+      if (rule.contentType<2){
+        if (provider.rules.any((r) => r.id == rule.id)) {
+          await Global.ruleDao.insertOrUpdateRule(rule);
+          provider.rules.removeWhere((r) => r.id == rule.id);
+          provider.rules.add(rule);
+          Utils.toast("更新成功");
+        } else {
+          provider.rules.add(rule);
+          await Global.ruleDao.insertOrUpdateRule(rule);
+          Utils.toast("添加成功");
+        }
+        if (showEditPage) {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
+              .whenComplete(() => refreshData(provider));
+        } else {
+          provider.refreshData(false);
+        }
+        return true;
+      }else{
+        Utils.toast("失败！暂不支持的站点", duration: Duration(seconds: 2));
       }
-      if (showEditPage) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-            .whenComplete(() => refreshData(provider));
-      } else {
-        provider.refreshData(false);
-      }
-      return true;
+
     } catch (e) {
       Utils.toast("失败！" + e.toString(), duration: Duration(seconds: 2));
       return false;

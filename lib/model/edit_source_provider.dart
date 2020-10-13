@@ -43,7 +43,7 @@ class EditSourceProvider with ChangeNotifier {
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
       });
       final json = jsonDecode(utf8.decode(res.bodyBytes));
-      if (json is Map) {
+      if (json is Map && json['contentType']<2) {
         final id = await Global.ruleDao.insertOrUpdateRule(
             isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
         if (id != null) {
@@ -52,6 +52,10 @@ class EditSourceProvider with ChangeNotifier {
           return 1;
         }
       } else if (json is List) {
+        var rlist = json
+            .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
+            .toList();
+        rlist.removeWhere((element) => element.contentType>1);
         final ids = await Global.ruleDao.insertOrUpdateRules(json
             .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
             .toList());

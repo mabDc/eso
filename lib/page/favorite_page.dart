@@ -13,9 +13,7 @@ class FavoritePage extends StatelessWidget {
 
   static const tabs = [
     ["文字", API.NOVEL],
-    ["图片", API.MANGA],
-    ["音频", API.AUDIO],
-    ["视频", API.VIDEO],
+    ["图片", API.MANGA]
   ];
 
   @override

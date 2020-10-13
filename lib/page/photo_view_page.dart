@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+//import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -208,17 +208,18 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
     Map<String, String> headers = provider.headers;
     File file = await mgr.getSingleFile(url, headers: headers);
 
-    final result = Platform.isWindows || Platform.isLinux
-        ? await CacheUtil(basePath: "download").putFile(Utils.getFileNameAndExt(file.path), file)
-        : await ImageGallerySaver.saveImage(file.readAsBytesSync());
-    if (result is bool && result == true) {
-      Utils.toast("保存成功");
-    } else if (result is String && null != result  && result.isNotEmpty) {
-      String str = Uri.decodeComponent(result);
-      Utils.toast("成功保存到\n$str");
-    } else {
-      Utils.toast("保存失败");
-    }
+    Utils.toast("保存失败");
+    // final result = Platform.isWindows || Platform.isLinux
+    //     ? await CacheUtil(basePath: "download").putFile(Utils.getFileNameAndExt(file.path), file)
+    //     : await ImageGallerySaver.saveImage(file.readAsBytesSync());
+    // if (result is bool && result == true) {
+    //   Utils.toast("保存成功");
+    // } else if (result is String && null != result  && result.isNotEmpty) {
+    //   String str = Uri.decodeComponent(result);
+    //   Utils.toast("成功保存到\n$str");
+    // } else {
+    //   Utils.toast("保存失败");
+    // }
   }
 
   /// 生成 iOS 风格底部弹出框需要的 button
