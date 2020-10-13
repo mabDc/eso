@@ -7,8 +7,6 @@ import 'package:eso/evnts/restore_event.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/foundation.dart';
 
-import 'audio_service.dart';
-
 class FavoriteListProvider with ChangeNotifier {
   List<SearchItem> _searchList;
   List<SearchItem> get searchList => _searchList;
@@ -35,11 +33,6 @@ class FavoriteListProvider with ChangeNotifier {
 
   void updateList() {
     _searchList = SearchItemManager.getSearchItemByType(type, _sortType);
-    if (type == API.AUDIO &&
-        AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(AudioService().searchItem.originTag,AudioService().searchItem.url)) {
-      _searchList.add(AudioService().searchItem);
-    }
     notifyListeners();
   }
 
