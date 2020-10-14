@@ -362,7 +362,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                   });
                 },
                 items: List.generate(
-                  5,
+                  2,
                   (index) => DropdownMenuItem<int>(
                     child: Text(API.getRuleContentTypeName(index)),
                     value: index,

@@ -13,6 +13,9 @@ import '../utils.dart';
 import 'discover_page.dart';
 import 'favorite_page.dart';
 
+// import 'package:uni_links/uni_links.dart';
+// import 'package:flutter/services.dart' show PlatformException;
+
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
 
@@ -21,9 +24,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  //StreamSubscription _sub;
   StreamSubscription stream;
   bool lastAudioPlaying = false;
-  StateSetter _audioState;
+  // StateSetter _audioState;
+
+  @override
+  void initState() {
+    super.initState();
+    //initUniLinks();
+  }
 
   @override
   void dispose() {
@@ -126,4 +136,12 @@ class _HomePageState extends State<HomePage> {
         ? Theme.of(context).primaryColor
         : Theme.of(context).textTheme.bodyText1.color;
   }
+
+  // Future<Null> initUniLinks() async {
+  //   _sub = getLinksStream().listen((String link) {
+  //     print(link);
+  //   }, onError: (err) {
+  //     print(err);
+  //   });
+  // }
 }

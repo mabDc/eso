@@ -68,12 +68,6 @@ class _SearchPageState extends State<SearchPage> {
                       DropdownMenuItem<int>(
                           child: Text(API.getRuleContentTypeName(API.MANGA)),
                           value: API.MANGA),
-                      DropdownMenuItem<int>(
-                          child: Text(API.getRuleContentTypeName(API.AUDIO)),
-                          value: API.AUDIO),
-                      DropdownMenuItem<int>(
-                          child: Text(API.getRuleContentTypeName(API.VIDEO)),
-                          value: API.VIDEO),
                     ],
                     value: Provider.of<SearchProvider>(context, listen: true).sourceType,
                   ),

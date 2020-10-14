@@ -55,10 +55,13 @@ class EditSourceProvider with ChangeNotifier {
         var rlist = json
             .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
             .toList();
-        rlist.removeWhere((element) => element.contentType>1);
-        final ids = await Global.ruleDao.insertOrUpdateRules(json
-            .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
-            .toList());
+        rlist.removeWhere((element) => element.contentType > 1);
+
+        rlist.forEach((element) {
+          print(element.name+", "+element.id);
+        });
+
+        final ids = await Global.ruleDao.insertOrUpdateRules(rlist);
         if (ids.length > 0) {
           _isLoadingUrl = false;
           refreshData();
