@@ -373,13 +373,22 @@ class _ChapterPageState extends State<ChapterPage> {
                 (BuildContext context, int index) {
                   final chapter = searchItem.chapters[index];
                   if (chapter.url == null || chapter.url.isEmpty) {
-                    return Card(child: ListTile(title: Text(chapter.name)));
+                    return ListTile(
+                      title: Text(
+                        chapter.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                    );
                   }
                   return Card(
                     child: ListTile(
                       onTap: () => onTap(index),
                       title: Text(
                         chapter.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: index == searchItem.durChapterIndex
                               ? Theme.of(context).primaryColor
@@ -455,13 +464,22 @@ class _ChapterPageState extends State<ChapterPage> {
                   final chapterIndex = road.startIndex + index - 2;
                   final chapter = searchItem.chapters[chapterIndex];
                   if (chapter.url == null || chapter.url.isEmpty) {
-                    return Card(child: ListTile(title: Text(chapter.name)));
+                    return ListTile(
+                      title: Text(
+                        chapter.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 6),
+                    );
                   }
                   return Card(
                     child: ListTile(
                       onTap: () => onTap(road.startIndex + index),
                       title: Text(
                         searchItem.chapters[chapterIndex].name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: chapterIndex == searchItem.durChapterIndex
                               ? Theme.of(context).primaryColor
