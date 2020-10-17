@@ -349,6 +349,50 @@ class _ChapterPageState extends State<ChapterPage> {
     return roads;
   }
 
+  Widget buildChapterButton(int chapterIndex, void Function(int) onTap) {
+    final chapter = searchItem.chapters[chapterIndex];
+    if (chapter.url == null || chapter.url.isEmpty) {
+      return ListTile(
+        title: Text(
+          chapter.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 6),
+      );
+    }
+    return Card(
+      child: ListTile(
+        onTap: () => onTap(chapterIndex),
+        title: Text(
+          chapter.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: chapterIndex == searchItem.durChapterIndex
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).textTheme.bodyText1.color,
+          ),
+        ),
+        subtitle: chapter.time == null || chapter.time.isEmpty
+            ? null
+            : Text(
+                chapter.time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: chapterIndex == searchItem.durChapterIndex
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).textTheme.bodyText1.color,
+                ),
+              ),
+        trailing: chapter.cover == null || chapter.cover.isEmpty
+            ? null
+            : UIImageItem(cover: chapter.cover),
+      ),
+    );
+  }
+
   Widget _buildChapter(BuildContext context) {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) {
@@ -371,32 +415,7 @@ class _ChapterPageState extends State<ChapterPage> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  final chapter = searchItem.chapters[index];
-                  if (chapter.url == null || chapter.url.isEmpty) {
-                    return ListTile(
-                      title: Text(
-                        chapter.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 6),
-                    );
-                  }
-                  return Card(
-                    child: ListTile(
-                      onTap: () => onTap(index),
-                      title: Text(
-                        chapter.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: index == searchItem.durChapterIndex
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context).textTheme.bodyText1.color,
-                        ),
-                      ),
-                    ),
-                  );
+                  return buildChapterButton(index, onTap);
                 },
                 childCount: searchItem.chapters.length,
               ),
@@ -459,35 +478,8 @@ class _ChapterPageState extends State<ChapterPage> {
                   if (index == 1) {
                     return Divider();
                   }
-
-                  final road = roads[currentRoad];
-                  final chapterIndex = road.startIndex + index - 2;
-                  final chapter = searchItem.chapters[chapterIndex];
-                  if (chapter.url == null || chapter.url.isEmpty) {
-                    return ListTile(
-                      title: Text(
-                        chapter.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 6),
-                    );
-                  }
-                  return Card(
-                    child: ListTile(
-                      onTap: () => onTap(road.startIndex + index),
-                      title: Text(
-                        searchItem.chapters[chapterIndex].name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: chapterIndex == searchItem.durChapterIndex
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context).textTheme.bodyText1.color,
-                        ),
-                      ),
-                    ),
-                  );
+                  return buildChapterButton(
+                      roads[currentRoad].startIndex + index - 2, onTap);
                 },
                 childCount: roads[currentRoad].length + 2,
               ),
