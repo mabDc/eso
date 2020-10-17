@@ -9,6 +9,7 @@ class UIImageItem extends StatelessWidget {
   final String cover;
   final double radius;
   final double initWidth;
+  final double initHeight;
   final BoxFit fit;
   final String hero;
 
@@ -16,6 +17,7 @@ class UIImageItem extends StatelessWidget {
     this.cover,
     this.radius = 3.0,
     this.initWidth,
+    this.initHeight,
     this.fit,
     this.hero,
     Key key,
@@ -26,7 +28,7 @@ class UIImageItem extends StatelessWidget {
     if (cover == null) {
       return Image.asset(
         Global.waitingPath,
-        fit: BoxFit.cover,
+        fit: fit,
       );
     }
     String _cover = cover;
@@ -38,11 +40,21 @@ class UIImageItem extends StatelessWidget {
     }
     if (radius == null || radius <= 0.0)
       return UIFadeInImage(
-          url: _cover, header: headers, fit: fit, placeHolderWidth: initWidth);
+        url: _cover,
+        header: headers,
+        fit: fit,
+        placeHolderWidth: initWidth,
+        placeHolderHeight: initHeight,
+      );
     final _child = ClipRRect(
       borderRadius: BorderRadius.circular(3.0),
       child: UIFadeInImage(
-          url: _cover, header: headers, fit: fit, placeHolderWidth: initWidth),
+        url: _cover,
+        header: headers,
+        fit: fit,
+        placeHolderWidth: initWidth,
+        placeHolderHeight: initHeight,
+      ),
     );
     if (hero == null || hero.isEmpty) return _child;
     return Hero(

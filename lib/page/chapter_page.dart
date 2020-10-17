@@ -388,7 +388,12 @@ class _ChapterPageState extends State<ChapterPage> {
               ),
         trailing: chapter.cover == null || chapter.cover.isEmpty
             ? null
-            : UIImageItem(cover: chapter.cover),
+            : UIImageItem(
+                cover: chapter.cover,
+                fit: BoxFit.cover,
+                initHeight: 50,
+                initWidth: 50,
+              ),
       ),
     );
   }
