@@ -89,6 +89,11 @@ class AnalyzerFilter implements Analyzer {
   Future<List<Map>> getStringList(String rule) async {
     List<Map> result = <Map>[];
     final r = rule.split("@@");
+    if (url.contains(RegExp(r[0]))) {
+      return [
+        {"url": url},
+      ];
+    }
     final duration = r.length > 1 ? int.parse(r[1]) : 8;
     await webview(url, duration, {
       "ua": _rule.userAgent.trim().isNotEmpty

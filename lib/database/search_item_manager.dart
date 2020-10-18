@@ -40,7 +40,7 @@ class SearchItemManager {
 
   static Future<bool> toggleFavorite(SearchItem searchItem) {
     if (isFavorite(searchItem.originTag, searchItem.url)) {
-      return removeSearchItem(searchItem.url, searchItem.id);
+      return removeSearchItem(searchItem.id);
     } else {
       //添加时间信息
       searchItem.createTime = DateTime.now().microsecondsSinceEpoch;
@@ -70,9 +70,9 @@ class SearchItemManager {
         ?.forEach((item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
   }
 
-  static Future<bool> removeSearchItem(String url, int id) async {
+  static Future<bool> removeSearchItem(int id) async {
     await Global.prefs.remove(genChapterKey(id));
-    _searchItem.removeWhere((item) => item.url == url);
+    _searchItem.removeWhere((item) => item.id == id);
     return saveSearchItem();
   }
 

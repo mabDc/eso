@@ -349,6 +349,55 @@ class _ChapterPageState extends State<ChapterPage> {
     return roads;
   }
 
+  Widget buildChapterButton(int chapterIndex, void Function(int) onTap) {
+    final chapter = searchItem.chapters[chapterIndex];
+    if (chapter.url == null || chapter.url.isEmpty) {
+      return ListTile(
+        title: Text(
+          chapter.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 6),
+      );
+    }
+    return Card(
+      child: ListTile(
+        onTap: () => onTap(chapterIndex),
+        title: Text(
+          chapter.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: chapterIndex == searchItem.durChapterIndex
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).textTheme.bodyText1.color,
+          ),
+        ),
+        subtitle: chapter.time == null || chapter.time.isEmpty
+            ? null
+            : Text(
+                chapter.time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: chapterIndex == searchItem.durChapterIndex
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).textTheme.bodyText1.color,
+                ),
+              ),
+        trailing: chapter.cover == null || chapter.cover.isEmpty
+            ? null
+            : UIImageItem(
+                cover: chapter.cover,
+                fit: BoxFit.cover,
+                initHeight: 50,
+                initWidth: 50,
+              ),
+      ),
+    );
+  }
+
   Widget _buildChapter(BuildContext context) {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) {
@@ -367,159 +416,83 @@ class _ChapterPageState extends State<ChapterPage> {
         final roads = parseChapers(searchItem.chapters);
         if (roads.isEmpty) {
           return SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: searchItem.ruleContentType == API.NOVEL ? 8 : 20,
-              vertical: 8,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return buildChapterButton(index, onTap);
+                },
+                childCount: searchItem.chapters.length,
+              ),
             ),
-            sliver: _buildGridView(context, onTap),
           );
         }
 
         var currentRoad = 0;
         return StatefulBuilder(
-          builder: (BuildContext context, setState) => SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                Container(
-                  height: 40,
-                  alignment: Alignment.centerLeft,
-                  child: ListView.separated(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    separatorBuilder: (context, index) => index == 0
-                        ? Container()
-                        : Container(
-                            alignment: Alignment.center,
-                            child: Text('|'),
-                          ),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: roads.length + 1,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        return Container(
-                          alignment: Alignment.center,
+          builder: (BuildContext context, setState) => SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  if (index == 0) {
+                    return Row(
+                      children: [
+                        Container(
+                          height: 40,
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 10),
                           child: Text('线路(${roads.length}):'),
-                        );
-                      }
-                      return InkWell(
-                        onTap: () {
-                          currentRoad = index - 1;
-                          setState(() => null);
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '${roads[index - 1].name}(${roads[index - 1].length})',
-                            style: TextStyle(
-                              color: index - 1 == currentRoad
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).textTheme.bodyText1.color,
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            alignment: Alignment.centerLeft,
+                            child: ListView.separated(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              separatorBuilder: (context, index) => Container(
+                                  alignment: Alignment.center, child: Text('|')),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: roads.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () {
+                                    currentRoad = index;
+                                    setState(() => null);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '${roads[index].name}(${roads[index].length})',
+                                      style: TextStyle(
+                                        color: index == currentRoad
+                                            ? Theme.of(context).primaryColor
+                                            : Theme.of(context).textTheme.bodyText1.color,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-                Divider(),
-                ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  shrinkWrap: true,
-                  itemCount: roads[currentRoad].length,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemBuilder: (BuildContext context, int index) {
-                    final road = roads[currentRoad];
-                    final chapterIndex = road.startIndex + index;
-                    return InkWell(
-                      onTap: () => onTap(road.startIndex + index),
-                      child: Container(
-                        height: 40,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          searchItem.chapters[chapterIndex].name,
-                          style: TextStyle(
-                            color: chapterIndex == searchItem.durChapterIndex
-                                ? Theme.of(context).primaryColor
-                                : Theme.of(context).textTheme.bodyText1.color,
-                          ),
-                        ),
-                      ),
+                      ],
                     );
-                  },
-                ),
-              ],
+                  }
+                  if (index == 1) {
+                    return Divider();
+                  }
+                  return buildChapterButton(
+                      roads[currentRoad].startIndex + index - 2, onTap);
+                },
+                childCount: roads[currentRoad].length + 2,
+              ),
             ),
           ),
         );
       },
     );
-  }
-
-  Widget _buildGridView(BuildContext context, Function(int index) onTap) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    var countOfLine = screenWidth ~/ 180;
-    if (countOfLine < 2) {
-      countOfLine = 2;
-    } else if (countOfLine > 6) {
-      countOfLine = 6;
-    }
-    return SliverGrid(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: countOfLine,
-        childAspectRatio: (screenWidth - 2 - 16) / 50 / countOfLine,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          final showIndex =
-              searchItem.reverseChapter ? searchItem.chaptersCount - index - 1 : index;
-          return Container(
-            child: _buildChapterButton(
-                context,
-                searchItem.durChapterIndex == showIndex,
-                Text(
-                  '${searchItem.chapters[showIndex].name}'.trim(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.start,
-                  style: TextStyle(fontSize: 12),
-                ),
-                () => onTap(showIndex)),
-          );
-        },
-        childCount: searchItem.chapters.length,
-      ),
-    );
-  }
-
-  Widget _buildChapterButton(
-      BuildContext context, bool isDurIndex, Widget child, VoidCallback onPress) {
-    return isDurIndex
-        ? RaisedButton(
-            padding: EdgeInsets.all(4),
-            elevation: 0,
-            onPressed: onPress,
-            color: Theme.of(context).primaryColor,
-            textColor: Theme.of(context).canvasColor,
-            shape: RoundedRectangleBorder(
-                side: BorderSide(
-                    color: Theme.of(context).primaryColorDark, width: Global.borderSize),
-                borderRadius: BorderRadius.circular(3.0)),
-            child: child,
-          )
-        : RaisedButton(
-            padding: EdgeInsets.all(4),
-            elevation: 0,
-            onPressed: onPress,
-            color: Theme.of(context).canvasColor,
-            textColor: Theme.of(context).textTheme.bodyText1.color,
-            shape: RoundedRectangleBorder(
-                side: BorderSide(
-                    color: Theme.of(context).dividerColor, width: Global.borderSize),
-                borderRadius: BorderRadius.circular(3.0)),
-            child: child,
-          );
   }
 }
 

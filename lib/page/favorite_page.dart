@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
 import '../fonticons_icons.dart';
+import 'history_page.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
@@ -51,6 +52,11 @@ class FavoritePage extends StatelessWidget {
                 .toList(),
           ),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.history),
+              tooltip: "浏览历史",
+              onPressed: () => Utils.startPageWait(context, HistoryPage()),
+            ),
             IconButton(
               icon: Icon(FIcons.settings),
               tooltip: "设置",

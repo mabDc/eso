@@ -8,6 +8,7 @@ import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database.dart';
+import 'database/history_item_manager.dart';
 import 'database/rule_dao.dart';
 import 'package:package_info/package_info.dart';
 
@@ -29,6 +30,7 @@ class Global with ChangeNotifier {
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
+  static const historyItemKey = "historyItem";
   static SharedPreferences _prefs;
   static SharedPreferences get prefs => _prefs;
   static bool _isDesktop;
@@ -69,6 +71,7 @@ class Global with ChangeNotifier {
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
+    HistoryItemManager.initHistoryItem();
     final _migrations = [migration4to5, migration5to6];
     if (Platform.isWindows || Platform.isLinux) {
       // 初始化 sqlite

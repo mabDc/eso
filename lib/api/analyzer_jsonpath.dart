@@ -17,7 +17,7 @@ class AnalyzerJSonPath implements Analyzer {
       _ctx = content;
     } else {
       try {
-        _ctx = jsonDecode("$content");
+        _ctx = jsonDecode("$content".replaceAll(RegExp(r",\s*(?=\]|\})"), ""));
       } catch (e) {
         _ctx = ["$content"];
       }
