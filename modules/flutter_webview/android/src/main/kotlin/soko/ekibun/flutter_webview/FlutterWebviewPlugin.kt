@@ -45,6 +45,13 @@ class FlutterWebviewPlugin: FlutterPlugin, MethodCallHandler {
       val url = call.argument<String>("url")
       webviews[id]?.loadUrl(url)
       result.success(webviews[id] != null)
+    } else if (call.method == "setCookies") {
+      val id = call.argument<Int>("webview")!!
+      val url = call.argument<String>("url")
+      val cookies = call.argument<String>("cookies")
+      val cookieManager = android.webkit.CookieManager.getInstance();
+      cookieManager.setCookie(url, cookies)
+      result.success(webviews[id] != null)
     } else if (call.method == "setUserAgent") {
       val id = call.argument<Int>("webview")!!
       val ua = call.argument<String>("ua")

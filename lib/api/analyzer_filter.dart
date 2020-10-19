@@ -5,7 +5,13 @@ import 'package:flutter_webview/flutter_webview.dart';
 
 import 'analyzer.dart';
 
-Future<dynamic> webview(String url, int duration, Map options) async {
+Future<dynamic> webview({
+  String url,
+  int duration,
+  bool Function(dynamic args) callback,
+  String ua,
+  String cookies,
+}) async {
   Completer c = new Completer();
   var webview = FlutterWebview();
   await webview.setMethodHandler((String method, dynamic args) async {
@@ -14,13 +20,13 @@ Future<dynamic> webview(String url, int duration, Map options) async {
       if (!c.isCompleted)
         c.completeError("Webview Call timeout $duration seconds after page completed.");
     }
-    var callback = options[method];
-    if (callback != null) if ((await callback(args)) == true) {
-      if (!c.isCompleted) c.complete(args);
+    if (callback(args) == true && !c.isCompleted) {
+      c.complete(args);
     }
     return;
   });
-  if (options["ua"] != null) await webview.setUserAgent(options["ua"]);
+  if (ua != null && ua.isNotEmpty) await webview.setUserAgent(ua);
+  if (cookies != null && cookies.isNotEmpty) await webview.setCookies(url, cookies);
   await webview.navigate(url);
   Future.delayed(Duration(seconds: duration * 5)).then((value) {
     if (!c.isCompleted) c.completeError("Webview Call timeout ${duration * 5} seconds.");
@@ -95,18 +101,21 @@ class AnalyzerFilter implements Analyzer {
       ];
     }
     final duration = r.length > 1 ? int.parse(r[1]) : 8;
-    await webview(url, duration, {
-      "ua": _rule.userAgent.trim().isNotEmpty
-          ? _rule.userAgent
-          : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.42 Safari/537.36 Edg/86.0.622.19',
-      "onRequest": (args) {
+    await webview(
+      url: url,
+      duration: duration,
+      callback: (args) {
         if ((args["url"] as String).contains(RegExp(r[0]))) {
           result.add(covertHeaders(args));
           return true;
         }
         return false;
-      }
-    });
+      },
+      ua: _rule.userAgent.trim().isNotEmpty
+          ? _rule.userAgent
+          : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.42 Safari/537.36 Edg/86.0.622.19',
+      cookies: _rule.cookies,
+    );
     return result;
   }
 }
