@@ -19,6 +19,9 @@ class APIFromRUle implements API {
   int _ruleContentType;
   int _engineId;
 
+  String _nextPage;
+  String get nextPage => _nextPage;
+
   @override
   String get origin => _origin;
 
@@ -43,23 +46,26 @@ class APIFromRUle implements API {
     if (page > 1 && !discoverRule.contains(APIConst.pagePattern)) {
       return <SearchItem>[];
     }
-    final res = await AnalyzeUrl.urlRuleParser(
-      discoverRule,
-      rule,
-      page: page,
-      pageSize: pageSize,
-    );
-    if (res.contentLength == 0) {
-      return <SearchItem>[];
+    var discoverUrl = '';
+    var body = '';
+    if (discoverRule == 'null') {
+      final res = await AnalyzeUrl.urlRuleParser(
+        discoverRule,
+        rule,
+        page: page,
+        pageSize: pageSize,
+      );
+      if (res.contentLength == 0) {
+        return <SearchItem>[];
+      }
+      discoverUrl = res.request.url.toString();
+      body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
     }
-    final discoverUrl = res.request.url.toString();
+
     final engineId = await APIConst.initJSEngine(rule, discoverUrl);
     await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-    final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-            engineId,
-            rule)
-        .getElements(rule.discoverList);
+    final list =
+        await AnalyzerManager(body, engineId, rule).getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzerManager(item, engineId, rule);
@@ -90,24 +96,25 @@ class APIFromRUle implements API {
     if (page > 1 && !rule.searchUrl.contains(APIConst.pagePattern)) {
       return <SearchItem>[];
     }
-    final res = await AnalyzeUrl.urlRuleParser(
-      rule.searchUrl,
-      rule,
-      page: page,
-      pageSize: pageSize,
-      keyword: query,
-    );
-    if (res.contentLength == 0) {
-      return <SearchItem>[];
+    var searchUrl = '';
+    var body = '';
+    if (rule.searchUrl == 'null') {
+      final res = await AnalyzeUrl.urlRuleParser(
+        rule.searchUrl,
+        rule,
+        page: page,
+        pageSize: pageSize,
+        keyword: query,
+      );
+      if (res.contentLength == 0) {
+        return <SearchItem>[];
+      }
+      searchUrl = res.request.url.toString();
+      body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
     }
-    final searchUrl = res.request.url.toString();
     final engineId = await APIConst.initJSEngine(rule, searchUrl, engineId: _engineId);
     await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-    final list = await AnalyzerManager(
-            DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-            engineId,
-            rule)
-        .getElements(rule.searchList);
+    final list = await AnalyzerManager(body, engineId, rule).getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
       final analyzer = AnalyzerManager(item, engineId, rule);
@@ -143,16 +150,21 @@ class APIFromRUle implements API {
       if (page > 1 && !chapterUrlRule.contains(APIConst.pagePattern)) {
         break;
       }
-      final res = await AnalyzeUrl.urlRuleParser(
-        chapterUrlRule,
-        rule,
-        result: url,
-        page: page,
-      );
-      if (res.contentLength == 0) {
-        break;
+      var chapterUrl = '';
+      var body = '';
+      if (chapterUrlRule == 'null') {
+        final res = await AnalyzeUrl.urlRuleParser(
+          chapterUrlRule,
+          rule,
+          result: url,
+          page: page,
+        );
+        if (res.contentLength == 0) {
+          break;
+        }
+        chapterUrl = res.request.url.toString();
+        body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
       }
-      final chapterUrl = res.request.url.toString();
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
         await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
@@ -162,11 +174,8 @@ class APIFromRUle implements API {
       }
       try {
         if (rule.enableMultiRoads) {
-          final roads = await AnalyzerManager(
-                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                  engineId,
-                  rule)
-              .getElements(rule.chapterRoads);
+          final roads =
+              await AnalyzerManager(body, engineId, rule).getElements(rule.chapterRoads);
           for (final road in roads) {
             final roadAnalyzer = AnalyzerManager(road, engineId, rule);
             result.add(ChapterItem(
@@ -203,10 +212,7 @@ class APIFromRUle implements API {
             }
           }
         } else {
-          final list = await AnalyzerManager(
-                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                  engineId,
-                  rule)
+          final list = await AnalyzerManager(body, engineId, rule)
               .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
           if (list.isEmpty) {
             break;
@@ -250,17 +256,24 @@ class APIFromRUle implements API {
     int engineId;
     for (var page = 1;; page++) {
       final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : url;
-      if (page > 1 && !contentUrlRule.contains(APIConst.pagePattern)) break;
-      final res = await AnalyzeUrl.urlRuleParser(
-        contentUrlRule,
-        rule,
-        result: url,
-        page: page,
-      );
-      if (res.contentLength == 0) {
+      if (page > 1 && !contentUrlRule.contains(APIConst.pagePattern)) {
         break;
       }
-      final contentUrl = res.request.url.toString();
+      var contentUrl = '';
+      var body = '';
+      if (contentUrlRule == 'null') {
+        final res = await AnalyzeUrl.urlRuleParser(
+          contentUrlRule,
+          rule,
+          result: url,
+          page: page,
+        );
+        if (res.contentLength == 0) {
+          break;
+        }
+        contentUrl = res.request.url.toString();
+        body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+      }
       if (engineId == null) {
         engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
         await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
@@ -269,11 +282,8 @@ class APIFromRUle implements API {
             "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};", engineId);
       }
       try {
-        final list = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                engineId,
-                rule)
-            .getStringList(rule.contentItems);
+        final list =
+            await AnalyzerManager(body, engineId, rule).getStringList(rule.contentItems);
         if (list == null || list.isEmpty || list.join().trim().isEmpty) {
           break;
         }
