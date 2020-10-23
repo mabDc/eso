@@ -4,26 +4,22 @@ import 'package:floor/floor.dart';
 @dao
 abstract class RuleDao {
   static String get order => "$sortName $sortOrder";
-  static String sortName = sort;
+  static String sortName = sortMap["置顶"];
   static String sortOrder = desc;
   // 逆序
   static const String desc = "desc";
   // 正序
   static const String asc = "asc";
-  // 修改时间
-  static const String modifiedTime = "modifiedTime";
-  // 创建时间
-  static const String createTime = "createTime";
-  // 置顶顺序
-  static const String sort = "sort";
-  // 规则类型
-  static const String contentType = "contentType";
-  // 规则名称
-  static const String name = "name";
-  // 规则作者
-  static const String author = "author";
-  // 规则分组
-  static const String group = "`group`";
+
+  static const sortMap = {
+    "修改": "modifiedTime",
+    "创建": "createTime",
+    "置顶": "sort",
+    "类型": "contentType",
+    "名称": "name",
+    "作者": "author",
+    "分组": "`group`",
+  };
 
   @Query('SELECT * FROM rule WHERE id = :id')
   Future<Rule> findRuleById(String id);

@@ -48,7 +48,7 @@ class APIFromRUle implements API {
     }
     var discoverUrl = '';
     var body = '';
-    if (discoverRule == 'null') {
+    if (discoverRule != 'null') {
       final res = await AnalyzeUrl.urlRuleParser(
         discoverRule,
         rule,
@@ -98,7 +98,7 @@ class APIFromRUle implements API {
     }
     var searchUrl = '';
     var body = '';
-    if (rule.searchUrl == 'null') {
+    if (rule.searchUrl != 'null') {
       final res = await AnalyzeUrl.urlRuleParser(
         rule.searchUrl,
         rule,
@@ -152,7 +152,7 @@ class APIFromRUle implements API {
       }
       var chapterUrl = '';
       var body = '';
-      if (chapterUrlRule == 'null') {
+      if (chapterUrlRule != 'null') {
         final res = await AnalyzeUrl.urlRuleParser(
           chapterUrlRule,
           rule,
@@ -261,7 +261,7 @@ class APIFromRUle implements API {
       }
       var contentUrl = '';
       var body = '';
-      if (contentUrlRule == 'null') {
+      if (contentUrlRule != 'null') {
         final res = await AnalyzeUrl.urlRuleParser(
           contentUrlRule,
           rule,
