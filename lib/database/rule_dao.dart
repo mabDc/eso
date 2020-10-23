@@ -57,6 +57,6 @@ abstract class RuleDao {
   Future<List<Rule>> getRuleByName(String name, String group);
 
   @Query(
-      'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :group) ORDER \${RuleDao.order}')
+      'SELECT * FROM rule WHERE enableDiscover = 1 and (name like :name or `group` like :group) ORDER BY \${RuleDao.order}')
   Future<List<Rule>> getDiscoverRuleByName(String name, String group);
 }

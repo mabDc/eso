@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
-import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database/database.dart';
@@ -73,22 +71,12 @@ class Global with ChangeNotifier {
     SearchItemManager.initSearchItem();
     HistoryItemManager.initHistoryItem();
     final _migrations = [migration4to5, migration5to6];
-    if (Platform.isWindows || Platform.isLinux) {
-      // 初始化 sqlite
-      var db = await SQFLiteWinUtil.setup(
-        migrations: _migrations,
-        version: dbVersion, // 版本号需要与database.dart中定义的一致
-        name: 'eso_database.db',
-        createSQL: createTableSQL,
-      );
-      _ruleDao = RuleDaoWin(db, null);
-    } else {
-      final _database = await $FloorAppDatabase
-          .databaseBuilder('eso_database.db')
-          .addMigrations(_migrations)
-          .build();
-      _ruleDao = _database.ruleDao;
-    }
+
+    final _database = await $FloorAppDatabase
+        .databaseBuilder('eso_database.db')
+        .addMigrations(_migrations)
+        .build();
+    _ruleDao = _database.ruleDao;
     await initFont();
     try {
       final packageInfo = await PackageInfo.fromPlatform();
