@@ -68,7 +68,8 @@ class HistoryPage extends StatelessWidget {
     final historyItem =
         context.select((HistoryPageProvider provider) => provider.historyItem);
     final list = <Widget>[];
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+        .add(Duration(days: 1));
     int days = -1;
     for (var item in historyItem) {
       final lastRead = DateTime.fromMicrosecondsSinceEpoch(item.lastReadTime);
