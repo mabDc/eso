@@ -28,6 +28,8 @@ final migration5to6 = Migration(5, 6, (database) async {
 });
 
 final migration6to7 = Migration(6, 7, (database) async {
-  await database.execute('ALTER TABLE Rule ADD COLUMN loginUrl TEXT');
-  await database.execute('ALTER TABLE Rule ADD COLUMN cookies TEXT');
+  await database.execute('ALTER TABLE Rule ADD COLUMN discoverNextUrl TEXT');
+  await database.execute('ALTER TABLE Rule ADD COLUMN searchNextUrl TEXT');
+  await database.execute('ALTER TABLE Rule ADD COLUMN chapterNextUrl TEXT');
+  await database.execute('ALTER TABLE Rule ADD COLUMN contentNextUrl TEXT');
 });
