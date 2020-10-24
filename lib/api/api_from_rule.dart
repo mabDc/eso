@@ -215,29 +215,31 @@ class APIFromRUle implements API {
       if (chapterUrlRule == null) {
         break;
       }
-      var chapterUrl = '';
-      var body = '';
-      if (chapterUrlRule != 'null') {
-        final res = await AnalyzeUrl.urlRuleParser(
-          chapterUrlRule,
-          rule,
-          result: lastResult,
-          page: page,
-        );
-        if (res.contentLength == 0) {
-          break;
-        }
-        chapterUrl = res.request.url.toString();
-        body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
-      }
-      if (engineId == null) {
-        engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
-        await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-      } else {
-        await FlutterJs.evaluate(
-            "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};", engineId);
-      }
       try {
+        var chapterUrl = '';
+        var body = '';
+        if (chapterUrlRule != 'null') {
+          final res = await AnalyzeUrl.urlRuleParser(
+            chapterUrlRule,
+            rule,
+            result: lastResult,
+            page: page,
+          );
+          if (res.contentLength == 0) {
+            break;
+          }
+          chapterUrl = res.request.url.toString();
+          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+        }
+        if (engineId == null) {
+          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
+          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+        } else {
+          await FlutterJs.evaluate(
+              "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};",
+              engineId);
+        }
+
         final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
         if (hasNextUrlRule) {
           next = await bodyAnalyzer.getString(rule.chapterNextUrl);
@@ -345,31 +347,33 @@ class APIFromRUle implements API {
         contentUrlRule = url;
       }
       if (contentUrlRule == null) {
-        break;
-      }
-      var contentUrl = '';
-      var body = '';
-      if (contentUrlRule != 'null') {
-        final res = await AnalyzeUrl.urlRuleParser(
-          contentUrlRule,
-          rule,
-          result: lastResult,
-          page: page,
-        );
-        if (res.contentLength == 0) {
-          break;
-        }
-        contentUrl = res.request.url.toString();
-        body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
-      }
-      if (engineId == null) {
-        engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
-        await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-      } else {
-        await FlutterJs.evaluate(
-            "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};", engineId);
+        FlutterJs.close(engineId);
+        return result;
       }
       try {
+        var contentUrl = '';
+        var body = '';
+        if (contentUrlRule != 'null') {
+          final res = await AnalyzeUrl.urlRuleParser(
+            contentUrlRule,
+            rule,
+            result: lastResult,
+            page: page,
+          );
+          if (res.contentLength == 0) {
+            break;
+          }
+          contentUrl = res.request.url.toString();
+          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+        }
+        if (engineId == null) {
+          engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
+          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+        } else {
+          await FlutterJs.evaluate(
+              "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};",
+              engineId);
+        }
         final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
         if (hasNextUrlRule) {
           next = await bodyAnalyzer.getString(rule.chapterNextUrl);

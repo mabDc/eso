@@ -4,6 +4,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_const.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/profile.dart';
+import 'package:eso/ui/ui_image_item_gaussion_background.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import '../api/analyze_url.dart';
@@ -119,26 +120,32 @@ class DebugRuleProvider with ChangeNotifier {
                   : "")
           .split("::")
           .last;
-      final discoverResult = await AnalyzeUrl.urlRuleParser(
-        discoverFirst,
-        rule,
-        page: 1,
-        pageSize: 20,
-      );
-      if (discoverResult.contentLength == 0) {
-        _addContent("响应内容为空，终止解析！");
-        return;
+      var body = "";
+      var discoverUrl = "";
+      if (discoverFirst == 'null') {
+        _addContent("地址为null跳过请求");
+      } else {
+        final discoverResult = await AnalyzeUrl.urlRuleParser(
+          discoverFirst,
+          rule,
+          page: 1,
+          pageSize: 20,
+        );
+        if (discoverResult.contentLength == 0) {
+          _addContent("响应内容为空，终止解析！");
+          return;
+        }
+        discoverUrl = discoverResult.request.url.toString();
+        body = DecodeBody()
+            .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]);
+        _addContent("地址", discoverUrl, true);
       }
-      final discoverUrl = discoverResult.request.url.toString();
-      _addContent("地址", discoverUrl, true);
+
       engineId = await APIConst.initJSEngine(rule, discoverUrl);
       await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
       _addContent("初始化js");
-      final analyzer = AnalyzerManager(
-          DecodeBody()
-              .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]),
-          engineId,
-          rule);
+      final analyzer = AnalyzerManager(body, engineId, rule);
+      _addContent("下一页", await analyzer.getString(rule.discoverNextUrl));
       final discoverList = await analyzer.getElements(rule.discoverList);
       final resultCount = discoverList.length;
       if (resultCount == 0) {
@@ -173,6 +180,15 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("章节", await analyzer.getString(rule.discoverChapter));
       final coverUrl = await analyzer.getString(rule.discoverCover);
       _addContent("封面", coverUrl, true);
+      rows.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 100,
+            child: UIImageItem(cover: coverUrl),
+          ),
+        ],
+      ));
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.discoverDescription));
       final tags = await analyzer.getString(rule.discoverTags);
@@ -210,28 +226,33 @@ class DebugRuleProvider with ChangeNotifier {
     int engineId;
     _beginEvent("搜索");
     try {
-      final searchResult = await AnalyzeUrl.urlRuleParser(
-        rule.searchUrl,
-        rule,
-        keyword: value,
-        page: 1,
-        pageSize: 20,
-      );
-      if (searchResult.contentLength == 0) {
-        _addContent("响应内容为空，终止解析！");
-        FlutterJs.close(engineId);
-        return;
+      String searchUrl = "";
+      String body = "";
+      if (rule.searchUrl == 'null') {
+        _addContent("地址为null跳过请求");
+      } else {
+        final searchResult = await AnalyzeUrl.urlRuleParser(
+          rule.searchUrl,
+          rule,
+          keyword: value,
+          page: 1,
+          pageSize: 20,
+        );
+        if (searchResult.contentLength == 0) {
+          _addContent("响应内容为空，终止解析！");
+          FlutterJs.close(engineId);
+          return;
+        }
+        searchUrl = searchResult.request.url.toString();
+        _addContent("地址", searchUrl, true);
+        body = DecodeBody()
+            .decode(searchResult.bodyBytes, searchResult.headers["content-type"]);
       }
-      final searchUrl = searchResult.request.url.toString();
-      _addContent("地址", searchUrl, true);
       engineId = await APIConst.initJSEngine(rule, searchUrl);
       await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
       _addContent("初始化js");
-      final analyzer = AnalyzerManager(
-          DecodeBody()
-              .decode(searchResult.bodyBytes, searchResult.headers["content-type"]),
-          engineId,
-          rule);
+      final analyzer = AnalyzerManager(body, engineId, rule);
+      _addContent("下一页", await analyzer.getString(rule.searchNextUrl));
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -266,6 +287,15 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("章节", await analyzer.getString(rule.searchChapter));
       final coverUrl = await analyzer.getString(rule.searchCover);
       _addContent("封面", coverUrl, true);
+      rows.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 100,
+            child: UIImageItem(cover: coverUrl),
+          ),
+        ],
+      ));
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.searchDescription));
       final tags = await analyzer.getString(rule.searchTags);
@@ -301,29 +331,49 @@ class DebugRuleProvider with ChangeNotifier {
     _beginEvent("目录");
     int engineId;
     dynamic firstChapter;
+    String next;
+    String chapterUrlRule;
+    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
     for (var page = 1;; page++) {
       if (disposeFlag) return;
-      final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : result;
-      if (page > 1) {
-        if (!chapterUrlRule.contains(APIConst.pagePattern)) {
-          break;
-        } else {
-          _addContent("解析第$page页");
+      final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty
+          ? rule.chapterUrl
+          : result;
+      if (page == 1) {
+        chapterUrlRule = url;
+      } else if (hasNextUrlRule) {
+        if (next != null && next.isNotEmpty) {
+          chapterUrlRule = next;
         }
+      } else if (url.contains(APIConst.pagePattern)) {
+        chapterUrlRule = url;
+      }
+      _addContent("解析第$page页");
+      _addContent("chapterUrlRule $chapterUrlRule");
+      if (chapterUrlRule == null) {
+        _addContent("下一页结束");
+        break;
       }
       try {
-        final res = await AnalyzeUrl.urlRuleParser(
-          chapterUrlRule,
-          rule,
-          result: result,
-          page: page,
-        );
-        if (res.contentLength == 0) {
-          _addContent("响应内容为空，终止解析！");
-          break;
+        String chapterUrl = "";
+        String body = "";
+        if (rule.chapterUrl == 'null') {
+          _addContent("地址为null跳过请求");
+        } else {
+          final res = await AnalyzeUrl.urlRuleParser(
+            chapterUrlRule,
+            rule,
+            result: result,
+            page: page,
+          );
+          if (res.contentLength == 0) {
+            _addContent("响应内容为空，终止解析！");
+            break;
+          }
+          chapterUrl = res.request.url.toString();
+          _addContent("地址", chapterUrl, true);
+          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
-        final chapterUrl = res.request.url.toString();
-        _addContent("地址", chapterUrl, true);
 
         if (engineId == null) {
           engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
@@ -333,13 +383,11 @@ class DebugRuleProvider with ChangeNotifier {
               "baseUrl = ${jsonEncode(chapterUrl)};page = ${jsonEncode(page)};",
               engineId);
         }
+        final analyzer = AnalyzerManager(body, engineId, rule);
+        _addContent("下一页", await analyzer.getString(rule.chapterNextUrl));
         AnalyzerManager analyzerManager;
         if (rule.enableMultiRoads) {
-          final roads = await AnalyzerManager(
-                  DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                  engineId,
-                  rule)
-              .getElements(rule.chapterRoads);
+          final roads = await analyzer.getElements(rule.chapterRoads);
           final count = roads.length;
           if (count == 0) {
             _addContent("线路个数为0，解析结束！");
@@ -351,10 +399,7 @@ class DebugRuleProvider with ChangeNotifier {
           analyzerManager = AnalyzerManager(road, engineId, rule);
           _addContent("线路名称", await analyzerManager.getString(rule.chapterRoadName));
         } else {
-          analyzerManager = AnalyzerManager(
-              DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-              engineId,
-              rule);
+          analyzerManager = analyzer;
         }
         final reversed = rule.chapterList.startsWith("-");
         if (reversed) {
@@ -416,6 +461,15 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("时间", await analyzer.getString(rule.chapterTime));
       final coverUrl = await analyzer.getString(rule.chapterCover);
       _addContent("封面", coverUrl, true);
+      rows.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 100,
+            child: UIImageItem(cover: coverUrl),
+          ),
+        ],
+      ));
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       final result = await analyzer.getString(rule.chapterResult);
       _addContent("结果", result);
@@ -440,31 +494,54 @@ class DebugRuleProvider with ChangeNotifier {
   void praseContent(String result) async {
     _beginEvent("正文");
     int engineId;
+    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final url =
+        rule.contentUrl != null && rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
+    String next;
+    String contentUrlRule;
     for (var page = 1;; page++) {
       if (disposeFlag) return;
-      final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
-      if (page > 1) {
-        if (!contentUrlRule.contains(APIConst.pagePattern)) {
-          FlutterJs.close(engineId);
-          return;
-        } else {
-          _addContent("解析第$page页");
+      contentUrlRule = null;
+      if (page == 1) {
+        contentUrlRule = url;
+      } else if (hasNextUrlRule) {
+        if (next != null && next.isNotEmpty) {
+          contentUrlRule = next;
         }
+      } else if (url.contains(APIConst.pagePattern)) {
+        contentUrlRule = url;
+      }
+      if (contentUrlRule == null) {
+        FlutterJs.close(engineId);
+        return;
+      }
+      _addContent("解析第$page页");
+      _addContent("contentUrlRule $contentUrlRule");
+      if (contentUrlRule == null) {
+        _addContent("下一页结束");
+        break;
       }
       try {
-        final res = await AnalyzeUrl.urlRuleParser(
-          contentUrlRule,
-          rule,
-          result: result,
-          page: page,
-        );
-        if (res.contentLength == 0) {
-          _addContent("响应内容为空，终止解析！");
-          FlutterJs.close(engineId);
-          return;
+        var contentUrl = '';
+        var body = '';
+        if (contentUrlRule == 'null') {
+          _addContent("地址为null跳过请求");
+        } else {
+          final res = await AnalyzeUrl.urlRuleParser(
+            contentUrlRule,
+            rule,
+            result: result,
+            page: page,
+          );
+          if (res.contentLength == 0) {
+            _addContent("响应内容为空，终止解析！");
+            FlutterJs.close(engineId);
+            return;
+          }
+          contentUrl = res.request.url.toString();
+          _addContent("地址", contentUrl, true);
+          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
-        final contentUrl = res.request.url.toString();
-        _addContent("地址", contentUrl, true);
         if (engineId == null) {
           engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
           await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
@@ -473,11 +550,9 @@ class DebugRuleProvider with ChangeNotifier {
               "baseUrl = ${jsonEncode(contentUrl)};page = ${jsonEncode(page)};",
               engineId);
         }
-        var contentItems = await AnalyzerManager(
-                DecodeBody().decode(res.bodyBytes, res.headers["content-type"]),
-                engineId,
-                rule)
-            .getStringList(rule.contentItems);
+        final analyzer = AnalyzerManager(body, engineId, rule);
+        _addContent("下一页", await analyzer.getString(rule.contentNextUrl));
+        var contentItems = await analyzer.getStringList(rule.contentItems);
         if (rule.contentType == API.NOVEL) {
           contentItems = contentItems.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
         }
