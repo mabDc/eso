@@ -1,4 +1,5 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -178,6 +179,7 @@ class DiscoverPageController with ChangeNotifier {
 
   @override
   void dispose() {
+    APIFromRUle.clearNextUrl();
     _items?.forEach((element) {
       element.dispose();
     });

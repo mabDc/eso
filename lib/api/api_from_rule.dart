@@ -19,8 +19,19 @@ class APIFromRUle implements API {
   int _ruleContentType;
   int _engineId;
 
-  String _nextUrl;
-  String get nextUrl => _nextUrl;
+  static Map<String, String> _nextUrl;
+  static Map<String, String> get nextUrl => _nextUrl;
+  static void setNextUrl(String url, String next) {
+    if (_nextUrl == null) {
+      _nextUrl = {url: next};
+    } else {
+      _nextUrl[url] = next;
+    }
+  }
+
+  static void clearNextUrl() {
+    _nextUrl?.clear();
+  }
 
   @override
   String get origin => _origin;
@@ -42,8 +53,21 @@ class APIFromRUle implements API {
   Future<List<SearchItem>> discover(
       Map<String, DiscoverPair> params, int page, int pageSize) async {
     if (params.isEmpty) return <SearchItem>[];
-    final discoverRule = params.values.first.value;
-    if (page > 1 && !discoverRule.contains(APIConst.pagePattern)) {
+    final hasNextUrlRule =
+        rule.discoverNextUrl != null && rule.discoverNextUrl.isNotEmpty;
+    String discoverRule;
+    final url = params.values.first.value;
+    if (page == 1) {
+      discoverRule = url;
+    } else if (hasNextUrlRule) {
+      final next = _nextUrl[url];
+      if (next != null || next.isNotEmpty) {
+        discoverRule = next;
+      }
+    } else if (url.contains(APIConst.pagePattern)) {
+      discoverRule = url;
+    }
+    if (discoverRule == null) {
       return <SearchItem>[];
     }
     var discoverUrl = '';
@@ -65,10 +89,10 @@ class APIFromRUle implements API {
     final engineId = await APIConst.initJSEngine(rule, discoverUrl);
     await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
     final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
-    if (rule.discoverNextUrl != null && rule.discoverNextUrl.isNotEmpty) {
-      _nextUrl = await bodyAnalyzer.getString(rule.discoverNextUrl);
+    if (hasNextUrlRule) {
+      setNextUrl(url, await bodyAnalyzer.getString(rule.discoverNextUrl));
     } else {
-      _nextUrl = '';
+      setNextUrl(url, null);
     }
     final list = await bodyAnalyzer.getElements(rule.discoverList);
     final result = <SearchItem>[];
@@ -120,11 +144,6 @@ class APIFromRUle implements API {
     final engineId = await APIConst.initJSEngine(rule, searchUrl, engineId: _engineId);
     await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
     final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
-    if (rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty) {
-      _nextUrl = await bodyAnalyzer.getString(rule.searchNextUrl);
-    } else {
-      _nextUrl = '';
-    }
     final list = await bodyAnalyzer.getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
