@@ -80,7 +80,7 @@ class DebugRuleProvider with ChangeNotifier {
             "• [${DateFormat("mm:ss.SSS").format(DateTime.fromMicrosecondsSinceEpoch(d))}] 预览: ",
             style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
           ),
-          UIImageItem(cover: s),
+          Expanded(child: UIImageItem(cover: s)),
         ],
       ));
     }
