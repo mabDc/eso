@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/utils.dart';
 import '../global.dart';
 import 'analyze_url.dart';
 import 'package:eso/utils/decode_body.dart';
@@ -190,13 +191,28 @@ class APIFromRUle implements API {
   }
 
   @override
-  Future<List<ChapterItem>> chapter(final String url) async {
+  Future<List<ChapterItem>> chapter(final String lastResult) async {
     final result = <ChapterItem>[];
     int engineId;
     final reversed = rule.chapterList.startsWith("-");
+    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty
+        ? rule.chapterUrl
+        : lastResult;
+    String next;
+    String chapterUrlRule;
     for (var page = 1;; page++) {
-      final chapterUrlRule = rule.chapterUrl.isNotEmpty ? rule.chapterUrl : url;
-      if (page > 1 && !chapterUrlRule.contains(APIConst.pagePattern)) {
+      chapterUrlRule = null;
+      if (page == 1) {
+        chapterUrlRule = url;
+      } else if (hasNextUrlRule) {
+        if (next != null && next.isNotEmpty) {
+          chapterUrlRule = next;
+        }
+      } else if (url.contains(APIConst.pagePattern)) {
+        chapterUrlRule = url;
+      }
+      if (chapterUrlRule == null) {
         break;
       }
       var chapterUrl = '';
@@ -205,7 +221,7 @@ class APIFromRUle implements API {
         final res = await AnalyzeUrl.urlRuleParser(
           chapterUrlRule,
           rule,
-          result: url,
+          result: lastResult,
           page: page,
         );
         if (res.contentLength == 0) {
@@ -222,9 +238,17 @@ class APIFromRUle implements API {
             "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};", engineId);
       }
       try {
+        final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
+        if (hasNextUrlRule) {
+          next = await bodyAnalyzer.getString(rule.chapterNextUrl);
+        } else {
+          next = null;
+        }
         if (rule.enableMultiRoads) {
-          final roads =
-              await AnalyzerManager(body, engineId, rule).getElements(rule.chapterRoads);
+          final roads = await bodyAnalyzer.getElements(rule.chapterRoads);
+          if (roads.isEmpty) {
+            break;
+          }
           for (final road in roads) {
             final roadAnalyzer = AnalyzerManager(road, engineId, rule);
             result.add(ChapterItem(
@@ -261,7 +285,7 @@ class APIFromRUle implements API {
             }
           }
         } else {
-          final list = await AnalyzerManager(body, engineId, rule)
+          final list = await bodyAnalyzer
               .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
           if (list.isEmpty) {
             break;
@@ -300,12 +324,27 @@ class APIFromRUle implements API {
   }
 
   @override
-  Future<List<String>> content(final String url) async {
+  Future<List<String>> content(final String lastResult) async {
     final result = <String>[];
     int engineId;
+    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final url = rule.contentUrl != null && rule.contentUrl.isNotEmpty
+        ? rule.contentUrl
+        : lastResult;
+    String next;
+    String contentUrlRule;
     for (var page = 1;; page++) {
-      final contentUrlRule = rule.contentUrl.isNotEmpty ? rule.contentUrl : url;
-      if (page > 1 && !contentUrlRule.contains(APIConst.pagePattern)) {
+      contentUrlRule = null;
+      if (page == 1) {
+        contentUrlRule = url;
+      } else if (hasNextUrlRule) {
+        if (next != null && next.isNotEmpty) {
+          contentUrlRule = next;
+        }
+      } else if (url.contains(APIConst.pagePattern)) {
+        contentUrlRule = url;
+      }
+      if (contentUrlRule == null) {
         break;
       }
       var contentUrl = '';
@@ -314,7 +353,7 @@ class APIFromRUle implements API {
         final res = await AnalyzeUrl.urlRuleParser(
           contentUrlRule,
           rule,
-          result: url,
+          result: lastResult,
           page: page,
         );
         if (res.contentLength == 0) {
@@ -331,17 +370,35 @@ class APIFromRUle implements API {
             "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};", engineId);
       }
       try {
-        final list =
-            await AnalyzerManager(body, engineId, rule).getStringList(rule.contentItems);
+        final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
+        if (hasNextUrlRule) {
+          next = await bodyAnalyzer.getString(rule.chapterNextUrl);
+        } else {
+          next = null;
+        }
+        final list = await bodyAnalyzer.getStringList(rule.contentItems);
         if (list == null || list.isEmpty || list.join().trim().isEmpty) {
           break;
         }
         result.addAll(list);
       } catch (e) {
-        /// 视频正文解析失败抛出错误
-        if (_ruleContentType == API.VIDEO && result.isEmpty) {
+        /// 内容为空抛出错误
+        if (result.isEmpty) {
           FlutterJs.close(engineId);
-          throw e;
+          Utils.toast("解析失败: $e");
+          switch (_ruleContentType) {
+            // 视频正文解析失败抛出错误
+            case API.VIDEO:
+              throw e;
+              break;
+            case API.NOVEL:
+              throw e;
+              break;
+            case API.AUDIO:
+            case API.MANGA:
+              break;
+            default:
+          }
         }
         break;
       }
