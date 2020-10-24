@@ -89,6 +89,8 @@ class _NovelPageState extends State<NovelPage> {
                     } else if (logicalKey == LogicalKeyboardKey.enter ||
                         logicalKey == LogicalKeyboardKey.numpadEnter) {
                       provider.showMenu = !provider.showMenu;
+                    } else if (logicalKey == LogicalKeyboardKey.escape) {
+                      Navigator.of(context).pop();
                     }
                   }
                 }

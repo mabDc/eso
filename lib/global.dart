@@ -5,11 +5,13 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/src/factory_mixin.dart' as impl;
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
 import 'database/rule_dao.dart';
 import 'package:package_info/package_info.dart';
-
 import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
@@ -67,6 +69,12 @@ class Global with ChangeNotifier {
 
   static Future<bool> init() async {
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+    if (isDesktop) {
+      sqflite.databaseFactory = databaseFactoryFfi;
+      final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
+      factory.setDatabasesPath(
+          await CacheUtil(backup: true, basePath: "database").cacheDir());
+    }
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
     HistoryItemManager.initHistoryItem();

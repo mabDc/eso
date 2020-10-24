@@ -1,10 +1,4 @@
-// database.dart
-
-// required package imports
 import 'dart:async';
-import 'package:path/path.dart';
-import 'package:eso/global.dart';
-import 'package:eso/utils/cache_util.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 

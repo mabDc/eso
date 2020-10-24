@@ -32,23 +32,10 @@ class _$AppDatabaseBuilder {
     return this;
   }
 
-  /// Adds a database [Callback] to the builder.
-  _$AppDatabaseBuilder addCallback(Callback callback) {
-    _callback = callback;
-    return this;
-  }
-
   /// Creates the database and initializes it.
   Future<AppDatabase> build() async {
-    var path = ':memory:';
-    if (name != null) {
-      if (Global.isDesktop) {
-        path = await CacheUtil(backup: true, basePath: "database").cacheDir();
-        path = normalize(join(path, name));
-      } else {
-        path = await sqfliteDatabaseFactory.getDatabasePath(name);
-      }
-    }
+    final path =
+        name != null ? await sqfliteDatabaseFactory.getDatabasePath(name) : ':memory:';
     final database = _$AppDatabase();
     database.database = await database.open(
       path,

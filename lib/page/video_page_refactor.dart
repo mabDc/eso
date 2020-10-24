@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
+import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/cupertino.dart';
@@ -486,8 +487,12 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     loadingText.add("开始解析...");
     await controller?.pause();
     notifyListeners();
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-    SearchItemManager.saveSearchItem();
+    () async {
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      await SearchItemManager.saveSearchItem();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      await HistoryItemManager.saveHistoryItem();
+    }();
     if (_disposed) return;
     try {
       _content = await APIManager.getContent(searchItem.originTag,
@@ -570,8 +575,12 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       controller.pause();
       controller.dispose();
     }
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-    SearchItemManager.saveSearchItem();
+    () async {
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      await SearchItemManager.saveSearchItem();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      await HistoryItemManager.saveHistoryItem();
+    }();
     if (Platform.isIOS || Platform.isAndroid) {
       Screen.keepOn(false);
       if (Platform.isAndroid) {

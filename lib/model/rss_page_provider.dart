@@ -1,4 +1,5 @@
 import 'package:eso/api/api_manager.dart';
+import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,8 @@ class RSSPageProvider with ChangeNotifier {
   }
 
   void _initContent() async {
-    _content = await APIManager.getContent(searchItem.originTag,
-        searchItem.chapters[searchItem.durChapterIndex].url);
+    _content = await APIManager.getContent(
+        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
     notifyListeners();
   }
 
@@ -48,6 +49,8 @@ class RSSPageProvider with ChangeNotifier {
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
     await SearchItemManager.saveSearchItem();
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    await HistoryItemManager.saveHistoryItem();
     _isLoading = false;
     notifyListeners();
   }
@@ -55,7 +58,12 @@ class RSSPageProvider with ChangeNotifier {
   @override
   void dispose() {
     content.clear();
-    SearchItemManager.saveSearchItem();
+    () async {
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      await SearchItemManager.saveSearchItem();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      await HistoryItemManager.saveHistoryItem();
+    }();
     super.dispose();
   }
 }

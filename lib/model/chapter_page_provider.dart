@@ -141,6 +141,8 @@ class ChapterPageProvider with ChangeNotifier {
       searchItem.durChapter = searchItem.chapters[index].name;
       searchItem.durContentIndex = 1;
       await SearchItemManager.saveSearchItem();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      await HistoryItemManager.saveHistoryItem();
       notifyListeners();
     }
   }

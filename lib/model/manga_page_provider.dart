@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
+import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:flutter/services.dart';
@@ -189,9 +190,9 @@ class MangaPageProvider with ChangeNotifier {
     if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
       Future.delayed(Duration(milliseconds: 100), () async {
         if (_cache[index + 1] == null) {
-          _cache[index+1] = await APIManager.getContent(
+          _cache[index + 1] = await APIManager.getContent(
             searchItem.originTag,
-            searchItem.chapters[index+1].url,
+            searchItem.chapters[index + 1].url,
           );
         }
       });
@@ -223,6 +224,8 @@ class MangaPageProvider with ChangeNotifier {
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    await HistoryItemManager.saveHistoryItem();
     _hideLoading = false;
     if (searchItem.ruleContentType != API.RSS) {
       _controller.jumpTo(1);
@@ -244,6 +247,8 @@ class MangaPageProvider with ChangeNotifier {
     searchItem.durContentIndex = 1;
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    await HistoryItemManager.saveHistoryItem();
     _isLoading = false;
     if (searchItem.ruleContentType != API.RSS) {
       _controller.jumpTo(1);
@@ -251,7 +256,8 @@ class MangaPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isFavorite => SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
+  bool get isFavorite =>
+      SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
 
   Future<bool> addToFavorite() async {
     if (isFavorite) return null;
@@ -294,9 +300,13 @@ class MangaPageProvider with ChangeNotifier {
     _timer?.cancel();
     content.clear();
     _controller.dispose();
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-    _cache.clear();
-    SearchItemManager.saveSearchItem();
+    () async {
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      _cache.clear();
+      await SearchItemManager.saveSearchItem();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      await HistoryItemManager.saveHistoryItem();
+    }();
     super.dispose();
   }
 }

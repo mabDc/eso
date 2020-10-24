@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/chapter_item.dart';
+import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
@@ -224,6 +225,8 @@ class AudioService {
     _searchItem.durContentIndex = 1;
     _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
     await SearchItemManager.saveSearchItem();
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    await HistoryItemManager.saveHistoryItem();
     print(_url);
     try {
       await _player.play(_url);

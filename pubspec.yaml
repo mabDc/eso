@@ -61,13 +61,13 @@ dependencies:
   url_launcher: ^5.7.7
   uuid: ^2.2.2
   video_player: ^0.11.1+2
+  sqflite_common_ffi: ^1.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.10.3
   floor_generator: ^0.17.0
-  sqflite_common_ffi: ^1.1.1
 
 flutter:
   uses-material-design: true

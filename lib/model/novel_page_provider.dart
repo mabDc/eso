@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:eso/api/api_manager.dart';
+import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/photo_view_page.dart';
@@ -419,6 +420,8 @@ class NovelPageProvider with ChangeNotifier {
     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     searchItem.durChapterIndex = chapterIndex;
     await SearchItemManager.saveSearchItem();
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    await HistoryItemManager.saveHistoryItem();
   }
 
   int _currentPage;
@@ -520,8 +523,12 @@ class NovelPageProvider with ChangeNotifier {
     spans?.clear();
     spansFlat?.clear();
     _controller?.dispose();
-    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-    SearchItemManager.saveSearchItem();
+    () async {
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      await SearchItemManager.saveSearchItem();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      await HistoryItemManager.saveHistoryItem();
+    }();
     refreshController.dispose();
     _cache?.clear();
     _isLoading = null;
