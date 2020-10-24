@@ -366,6 +366,7 @@ class SearchProvider with ChangeNotifier {
     _historyManager = HistoryManager();
     _history = List.from(_historyManager.searchHistory);
     _focusNode = FocusNode()..addListener(_handleFocusChange);
+    APIFromRUle.clearNextUrl();
     init();
   }
 
@@ -555,6 +556,7 @@ class SearchProvider with ChangeNotifier {
     _historyManager.searchHistory.clear();
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();
+    APIFromRUle.clearNextUrl();
     super.dispose();
   }
 }
