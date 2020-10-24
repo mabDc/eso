@@ -48,6 +48,7 @@ class DiscoverPageController with ChangeNotifier {
     _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
+    APIFromRUle.clearNextUrl();
     initItems();
     fetchData(_items.first);
   }
