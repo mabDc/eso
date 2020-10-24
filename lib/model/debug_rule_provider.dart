@@ -4,7 +4,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_const.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/ui/ui_image_item_gaussion_background.dart';
+import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import '../api/analyze_url.dart';
@@ -72,6 +72,18 @@ class DebugRuleProvider with ChangeNotifier {
         _buildText(s ?? "", isUrl),
       ],
     ));
+    if (sInfo == "封面") {
+      rows.add(Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "• [${DateFormat("mm:ss.SSS").format(DateTime.fromMicrosecondsSinceEpoch(d))}] 预览: ",
+            style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
+          ),
+          UIImageItem(cover: s),
+        ],
+      ));
+    }
     notifyListeners();
   }
 
@@ -180,15 +192,6 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("章节", await analyzer.getString(rule.discoverChapter));
       final coverUrl = await analyzer.getString(rule.discoverCover);
       _addContent("封面", coverUrl, true);
-      rows.add(Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 100,
-            child: UIImageItem(cover: coverUrl),
-          ),
-        ],
-      ));
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.discoverDescription));
       final tags = await analyzer.getString(rule.discoverTags);
@@ -287,15 +290,6 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("章节", await analyzer.getString(rule.searchChapter));
       final coverUrl = await analyzer.getString(rule.searchCover);
       _addContent("封面", coverUrl, true);
-      rows.add(Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 100,
-            child: UIImageItem(cover: coverUrl),
-          ),
-        ],
-      ));
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       _addContent("简介", await analyzer.getString(rule.searchDescription));
       final tags = await analyzer.getString(rule.searchTags);
@@ -336,6 +330,7 @@ class DebugRuleProvider with ChangeNotifier {
     final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
     for (var page = 1;; page++) {
       if (disposeFlag) return;
+      chapterUrlRule = null;
       final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty
           ? rule.chapterUrl
           : result;
@@ -349,7 +344,7 @@ class DebugRuleProvider with ChangeNotifier {
         chapterUrlRule = url;
       }
       _addContent("解析第$page页");
-      _addContent("chapterUrlRule $chapterUrlRule");
+      _addContent("规则", "$chapterUrlRule");
       if (chapterUrlRule == null) {
         _addContent("下一页结束");
         break;
@@ -461,15 +456,6 @@ class DebugRuleProvider with ChangeNotifier {
       _addContent("时间", await analyzer.getString(rule.chapterTime));
       final coverUrl = await analyzer.getString(rule.chapterCover);
       _addContent("封面", coverUrl, true);
-      rows.add(Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 100,
-            child: UIImageItem(cover: coverUrl),
-          ),
-        ],
-      ));
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       final result = await analyzer.getString(rule.chapterResult);
       _addContent("结果", result);
@@ -516,7 +502,7 @@ class DebugRuleProvider with ChangeNotifier {
         return;
       }
       _addContent("解析第$page页");
-      _addContent("contentUrlRule $contentUrlRule");
+      _addContent("规则", "$contentUrlRule");
       if (contentUrlRule == null) {
         _addContent("下一页结束");
         break;
