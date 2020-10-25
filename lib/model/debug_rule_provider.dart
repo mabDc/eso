@@ -157,7 +157,13 @@ class DebugRuleProvider with ChangeNotifier {
       await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
       _addContent("初始化js");
       final analyzer = AnalyzerManager(body, engineId, rule);
-      _addContent("下一页", await analyzer.getString(rule.discoverNextUrl));
+      String next;
+      if (rule.discoverNextUrl != null && rule.discoverNextUrl.isNotEmpty) {
+        next = await analyzer.getString(rule.discoverNextUrl);
+      } else {
+        next = null;
+      }
+      _addContent("下一页", next);
       final discoverList = await analyzer.getElements(rule.discoverList);
       final resultCount = discoverList.length;
       if (resultCount == 0) {
@@ -255,7 +261,13 @@ class DebugRuleProvider with ChangeNotifier {
       await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
       _addContent("初始化js");
       final analyzer = AnalyzerManager(body, engineId, rule);
-      _addContent("下一页", await analyzer.getString(rule.searchNextUrl));
+      String next;
+      if (rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty) {
+        next = await analyzer.getString(rule.searchNextUrl);
+      } else {
+        next = null;
+      }
+      _addContent("下一页", next);
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
@@ -327,7 +339,7 @@ class DebugRuleProvider with ChangeNotifier {
     dynamic firstChapter;
     String next;
     String chapterUrlRule;
-    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final hasNextUrlRule = rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
     for (var page = 1;; page++) {
       if (disposeFlag) return;
       chapterUrlRule = null;
@@ -379,6 +391,11 @@ class DebugRuleProvider with ChangeNotifier {
               engineId);
         }
         final analyzer = AnalyzerManager(body, engineId, rule);
+        if (hasNextUrlRule) {
+          next = await analyzer.getString(rule.chapterNextUrl);
+        } else {
+          next = null;
+        }
         _addContent("下一页", await analyzer.getString(rule.chapterNextUrl));
         AnalyzerManager analyzerManager;
         if (rule.enableMultiRoads) {
@@ -480,7 +497,7 @@ class DebugRuleProvider with ChangeNotifier {
   void praseContent(String result) async {
     _beginEvent("正文");
     int engineId;
-    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final hasNextUrlRule = rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
     final url =
         rule.contentUrl != null && rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
     String next;
@@ -498,6 +515,7 @@ class DebugRuleProvider with ChangeNotifier {
         contentUrlRule = url;
       }
       if (contentUrlRule == null) {
+        _addContent("下一页结束");
         FlutterJs.close(engineId);
         return;
       }
@@ -537,7 +555,12 @@ class DebugRuleProvider with ChangeNotifier {
               engineId);
         }
         final analyzer = AnalyzerManager(body, engineId, rule);
-        _addContent("下一页", await analyzer.getString(rule.contentNextUrl));
+        if (hasNextUrlRule) {
+          next = await analyzer.getString(rule.contentNextUrl);
+        } else {
+          next = null;
+        }
+        _addContent("下一页", next);
         var contentItems = await analyzer.getStringList(rule.contentItems);
         if (rule.contentType == API.NOVEL) {
           contentItems = contentItems.join("\n").split(RegExp(r"\n\s*|\s{2,}"));

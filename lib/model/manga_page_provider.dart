@@ -161,8 +161,10 @@ class MangaPageProvider with ChangeNotifier {
     if (_content.length == 0) return;
     final first = _content[0].split('@headers');
     if (first.length == 1) return;
-    _content[0] = first[0];
     _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+    for (var i = 0; i < _content.length; i++) {
+      _content[i] = _content[i].split('@headers')[0];
+    }
   }
 
   Map<int, List<String>> _cache;

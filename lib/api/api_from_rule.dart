@@ -195,7 +195,7 @@ class APIFromRUle implements API {
     final result = <ChapterItem>[];
     int engineId;
     final reversed = rule.chapterList.startsWith("-");
-    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final hasNextUrlRule = rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
     final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty
         ? rule.chapterUrl
         : lastResult;
@@ -329,7 +329,7 @@ class APIFromRUle implements API {
   Future<List<String>> content(final String lastResult) async {
     final result = <String>[];
     int engineId;
-    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final hasNextUrlRule = rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
     final url = rule.contentUrl != null && rule.contentUrl.isNotEmpty
         ? rule.contentUrl
         : lastResult;
@@ -376,7 +376,7 @@ class APIFromRUle implements API {
         }
         final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
         if (hasNextUrlRule) {
-          next = await bodyAnalyzer.getString(rule.chapterNextUrl);
+          next = await bodyAnalyzer.getString(rule.contentNextUrl);
         } else {
           next = null;
         }
