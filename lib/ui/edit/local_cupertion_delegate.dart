@@ -7,8 +7,7 @@ class LocalizationsCupertinoDelegate
   const LocalizationsCupertinoDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'zh'].contains(locale.languageCode);
 
   @override
   SynchronousFuture<_DefaultCupertinoLocalizations> load(Locale locale) {
@@ -24,11 +23,9 @@ class LocalizationsCupertinoDelegate
 }
 
 class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
-  _DefaultCupertinoLocalizations(this._languageCode)
-      : assert(_languageCode != null);
+  _DefaultCupertinoLocalizations(this._languageCode) : assert(_languageCode != null);
 
-  final DefaultCupertinoLocalizations _en =
-  const DefaultCupertinoLocalizations();
+  final DefaultCupertinoLocalizations _en = const DefaultCupertinoLocalizations();
   final String _languageCode;
 
   final Map<String, Map<String, String>> _dict = <String, Map<String, String>>{
@@ -75,19 +72,16 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   DatePickerDateOrder get datePickerDateOrder => _en.datePickerDateOrder;
 
   @override
-  DatePickerDateTimeOrder get datePickerDateTimeOrder =>
-      _en.datePickerDateTimeOrder;
+  DatePickerDateTimeOrder get datePickerDateTimeOrder => _en.datePickerDateTimeOrder;
 
   @override
-  String datePickerDayOfMonth(int dayIndex) =>
-      _en.datePickerDayOfMonth(dayIndex);
+  String datePickerDayOfMonth(int dayIndex) => _en.datePickerDayOfMonth(dayIndex);
 
   @override
   String datePickerHour(int hour) => _en.datePickerHour(hour);
 
   @override
-  String datePickerHourSemanticsLabel(int hour) =>
-      _en.datePickerHourSemanticsLabel(hour);
+  String datePickerHourSemanticsLabel(int hour) => _en.datePickerHourSemanticsLabel(hour);
 
   @override
   String datePickerMediumDate(DateTime date) => _en.datePickerMediumDate(date);
@@ -115,15 +109,13 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   String timerPickerMinute(int minute) => _en.timerPickerMinute(minute);
 
   @override
-  String timerPickerMinuteLabel(int minute) =>
-      _en.timerPickerMinuteLabel(minute);
+  String timerPickerMinuteLabel(int minute) => _en.timerPickerMinuteLabel(minute);
 
   @override
   String timerPickerSecond(int second) => _en.timerPickerSecond(second);
 
   @override
-  String timerPickerSecondLabel(int second) =>
-      _en.timerPickerSecondLabel(second);
+  String timerPickerSecondLabel(int second) => _en.timerPickerSecondLabel(second);
 
   String _get(String key) {
     return _dict[_languageCode][key];
@@ -137,6 +129,15 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
 
   @override
   String tabSemanticsLabel({int tabIndex, int tabCount}) {
-    return _en.tabSemanticsLabel(tabIndex: tabCount);
+    return _en.tabSemanticsLabel(tabIndex: tabCount, tabCount: tabCount);
   }
+
+  @override
+  List<String> get timerPickerHourLabels => throw UnimplementedError();
+
+  @override
+  List<String> get timerPickerMinuteLabels => throw UnimplementedError();
+
+  @override
+  List<String> get timerPickerSecondLabels => throw UnimplementedError();
 }

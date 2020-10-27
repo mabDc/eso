@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
-import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_image_item.dart';

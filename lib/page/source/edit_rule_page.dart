@@ -169,8 +169,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           IconButton(
-            icon: Icon(
-                Global.isDesktop ? FIcons.copy : FIcons.share_2),
+            icon: Icon(Global.isDesktop ? FIcons.copy : FIcons.share_2),
             tooltip: Global.isDesktop ? "复制" : "分享",
             onPressed: () {
               if (Global.isDesktop) {
@@ -446,6 +445,11 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           (text) => rule.discoverUrl = text,
         ),
         _buildEditText(
+          rule.discoverNextUrl,
+          '下一页(discoverNextUrl)',
+          (text) => rule.discoverNextUrl = text,
+        ),
+        _buildEditText(
           rule.discoverList,
           '列表(discoverList)',
           (text) => rule.discoverList = text,
@@ -508,6 +512,11 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           rule.searchUrl,
           '地址(searchUrl)',
           (text) => rule.searchUrl = text,
+        ),
+        _buildEditText(
+          rule.searchNextUrl,
+          '下一页(searchNextUrl)',
+          (text) => rule.searchNextUrl = text,
         ),
         _buildEditText(
           rule.searchList,
@@ -574,6 +583,11 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           (text) => rule.chapterUrl = text,
         ),
         _buildEditText(
+          rule.chapterNextUrl,
+          '下一页(chapterNextUrl)',
+          (text) => rule.chapterNextUrl = text,
+        ),
+        _buildEditText(
           rule.chapterRoads,
           '线路(chapterRoads)',
           (text) => rule.chapterRoads = text,
@@ -636,6 +650,11 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           rule.contentUrl,
           '地址(contentUrl)',
           (text) => rule.contentUrl = text,
+        ),
+        _buildEditText(
+          rule.contentNextUrl,
+          '下一页(contentNextUrl)',
+          (text) => rule.contentNextUrl = text,
         ),
         _buildEditText(
           rule.contentItems,

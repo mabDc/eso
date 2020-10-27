@@ -68,7 +68,8 @@ class HistoryPage extends StatelessWidget {
     final historyItem =
         context.select((HistoryPageProvider provider) => provider.historyItem);
     final list = <Widget>[];
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+        .add(Duration(days: 1));
     int days = -1;
     for (var item in historyItem) {
       final lastRead = DateTime.fromMicrosecondsSinceEpoch(item.lastReadTime);
@@ -82,7 +83,6 @@ class HistoryPage extends StatelessWidget {
                 : days == 1
                     ? '昨天'
                     : '$days天前',
-            style: TextStyle(fontSize: 12),
           ),
         ));
       }
@@ -93,7 +93,7 @@ class HistoryPage extends StatelessWidget {
   }
 
   Widget buildItem(BuildContext context, SearchItem item, DateTime lastRead) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         if (item.chapters.isEmpty) {
           item.chapters = null;
@@ -126,13 +126,13 @@ class HistoryPage extends StatelessWidget {
                     item.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     item.durChapter,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 12),
                   ),
                   Text(
                     lastRead.toString().substring(0, 19),
@@ -144,7 +144,7 @@ class HistoryPage extends StatelessWidget {
                     item.origin,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 10),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),

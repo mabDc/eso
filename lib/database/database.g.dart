@@ -5,6 +5,7 @@ part of 'database.dart';
 // **************************************************************************
 // FloorGenerator
 // **************************************************************************
+
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
@@ -28,12 +29,6 @@ class _$AppDatabaseBuilder {
   /// Adds migrations to the builder.
   _$AppDatabaseBuilder addMigrations(List<Migration> migrations) {
     _migrations.addAll(migrations);
-    return this;
-  }
-
-  /// Adds a database [Callback] to the builder.
-  _$AppDatabaseBuilder addCallback(Callback callback) {
-    _callback = callback;
     return this;
   }
 
@@ -61,7 +56,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 6,
+      version: 7,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
@@ -76,7 +71,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `viewStyle` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `loginUrl` TEXT, `cookies` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterUrl` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `viewStyle` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `loginUrl` TEXT, `cookies` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverNextUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchNextUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterUrl` TEXT, `chapterNextUrl` TEXT, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentNextUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -117,6 +112,7 @@ class _$RuleDao extends RuleDao {
                   'enableDiscover':
                       item.enableDiscover == null ? null : (item.enableDiscover ? 1 : 0),
                   'discoverUrl': item.discoverUrl,
+                  'discoverNextUrl': item.discoverNextUrl,
                   'discoverItems': item.discoverItems,
                   'discoverList': item.discoverList,
                   'discoverTags': item.discoverTags,
@@ -129,6 +125,7 @@ class _$RuleDao extends RuleDao {
                   'enableSearch':
                       item.enableSearch == null ? null : (item.enableSearch ? 1 : 0),
                   'searchUrl': item.searchUrl,
+                  'searchNextUrl': item.searchNextUrl,
                   'searchItems': item.searchItems,
                   'searchList': item.searchList,
                   'searchTags': item.searchTags,
@@ -141,9 +138,10 @@ class _$RuleDao extends RuleDao {
                   'enableMultiRoads': item.enableMultiRoads == null
                       ? null
                       : (item.enableMultiRoads ? 1 : 0),
+                  'chapterUrl': item.chapterUrl,
+                  'chapterNextUrl': item.chapterNextUrl,
                   'chapterRoads': item.chapterRoads,
                   'chapterRoadName': item.chapterRoadName,
-                  'chapterUrl': item.chapterUrl,
                   'chapterItems': item.chapterItems,
                   'chapterList': item.chapterList,
                   'chapterName': item.chapterName,
@@ -152,6 +150,7 @@ class _$RuleDao extends RuleDao {
                   'chapterTime': item.chapterTime,
                   'chapterResult': item.chapterResult,
                   'contentUrl': item.contentUrl,
+                  'contentNextUrl': item.contentNextUrl,
                   'contentItems': item.contentItems
                 }),
         _ruleDeletionAdapter = DeletionAdapter(
@@ -179,6 +178,7 @@ class _$RuleDao extends RuleDao {
                   'enableDiscover':
                       item.enableDiscover == null ? null : (item.enableDiscover ? 1 : 0),
                   'discoverUrl': item.discoverUrl,
+                  'discoverNextUrl': item.discoverNextUrl,
                   'discoverItems': item.discoverItems,
                   'discoverList': item.discoverList,
                   'discoverTags': item.discoverTags,
@@ -191,6 +191,7 @@ class _$RuleDao extends RuleDao {
                   'enableSearch':
                       item.enableSearch == null ? null : (item.enableSearch ? 1 : 0),
                   'searchUrl': item.searchUrl,
+                  'searchNextUrl': item.searchNextUrl,
                   'searchItems': item.searchItems,
                   'searchList': item.searchList,
                   'searchTags': item.searchTags,
@@ -203,9 +204,10 @@ class _$RuleDao extends RuleDao {
                   'enableMultiRoads': item.enableMultiRoads == null
                       ? null
                       : (item.enableMultiRoads ? 1 : 0),
+                  'chapterUrl': item.chapterUrl,
+                  'chapterNextUrl': item.chapterNextUrl,
                   'chapterRoads': item.chapterRoads,
                   'chapterRoadName': item.chapterRoadName,
-                  'chapterUrl': item.chapterUrl,
                   'chapterItems': item.chapterItems,
                   'chapterList': item.chapterList,
                   'chapterName': item.chapterName,
@@ -214,6 +216,7 @@ class _$RuleDao extends RuleDao {
                   'chapterTime': item.chapterTime,
                   'chapterResult': item.chapterResult,
                   'contentUrl': item.contentUrl,
+                  'contentNextUrl': item.contentNextUrl,
                   'contentItems': item.contentItems
                 });
 
@@ -242,6 +245,7 @@ class _$RuleDao extends RuleDao {
         row['cookies'],
         row['enableDiscover'] as int != 0,
         row['discoverUrl'],
+        row['discoverNextUrl'],
         row['discoverItems'],
         row['discoverList'],
         row['discoverTags'],
@@ -253,6 +257,7 @@ class _$RuleDao extends RuleDao {
         row['discoverResult'],
         row['enableSearch'] as int != 0,
         row['searchUrl'],
+        row['searchNextUrl'],
         row['searchItems'],
         row['searchList'],
         row['searchTags'],
@@ -264,6 +269,7 @@ class _$RuleDao extends RuleDao {
         row['searchResult'],
         row['enableMultiRoads'] as int != 0,
         row['chapterUrl'],
+        row['chapterNextUrl'],
         row['chapterRoads'],
         row['chapterRoadName'],
         row['chapterItems'],
@@ -274,6 +280,7 @@ class _$RuleDao extends RuleDao {
         row['chapterTime'],
         row['chapterResult'],
         row['contentUrl'],
+        row['contentNextUrl'],
         row['contentItems'],
       );
 

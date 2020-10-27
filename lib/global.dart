@@ -1,17 +1,17 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
-import 'package:eso/database/rule_dao_windows.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/utils/sqflite_win_util.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/src/factory_mixin.dart' as impl;
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
 import 'database/rule_dao.dart';
 import 'package:package_info/package_info.dart';
-
 import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
@@ -69,26 +69,22 @@ class Global with ChangeNotifier {
 
   static Future<bool> init() async {
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+    if (isDesktop) {
+      sqflite.databaseFactory = databaseFactoryFfi;
+      final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
+      factory.setDatabasesPath(
+          await CacheUtil(backup: true, basePath: "database").cacheDir());
+    }
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
     HistoryItemManager.initHistoryItem();
-    final _migrations = [migration4to5, migration5to6];
-    if (Platform.isWindows || Platform.isLinux) {
-      // 初始化 sqlite
-      var db = await SQFLiteWinUtil.setup(
-        migrations: _migrations,
-        version: dbVersion, // 版本号需要与database.dart中定义的一致
-        name: 'eso_database.db',
-        createSQL: createTableSQL,
-      );
-      _ruleDao = RuleDaoWin(db, null);
-    } else {
-      final _database = await $FloorAppDatabase
-          .databaseBuilder('eso_database.db')
-          .addMigrations(_migrations)
-          .build();
-      _ruleDao = _database.ruleDao;
-    }
+    final _migrations = [migration4to5, migration5to6, migration6to7];
+
+    final _database = await $FloorAppDatabase
+        .databaseBuilder('eso_database.db')
+        .addMigrations(_migrations)
+        .build();
+    _ruleDao = _database.ruleDao;
     await initFont();
     try {
       final packageInfo = await PackageInfo.fromPlatform();

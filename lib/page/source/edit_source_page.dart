@@ -149,24 +149,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                for (var sort in {
-                  "修改": RuleDao.modifiedTime,
-                  "s1": "|",
-                  "创建": RuleDao.createTime,
-                  "s2": "|",
-                  "置顶": RuleDao.sort,
-                  "s3": "|",
-                  "类型": RuleDao.contentType,
-                  "s4": "|",
-                  "名称": RuleDao.name,
-                  "s5": "|",
-                  "作者": RuleDao.author,
-                  "s6": "|",
-                  "分组": RuleDao.group,
-                }.entries)
-                  if (sort.key.startsWith("s"))
-                    Text(sort.value)
-                  else if (sort.value == RuleDao.sortName)
+                for (var sort in RuleDao.sortMap.entries)
+                  if (sort.value == RuleDao.sortName)
                     InkWell(
                       child: Text(
                         " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",

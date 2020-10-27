@@ -47,6 +47,12 @@ class FlutterWebview {
     return _FlutterWebview.instance._channel.invokeMethod("setUserAgent", arguments);
   }
 
+  Future<void> setCookies(String url, String cookies) async {
+    await _ensureEngine();
+    var arguments = {"webview": _webview, "cookies": cookies, "url": url};
+    return _FlutterWebview.instance._channel.invokeMethod("setCookies", arguments);
+  }
+
   Future<bool> navigate(String url, {String script}) async {
     await _ensureEngine();
     var arguments = {"webview": _webview, "url": url, "script": script ?? ""};

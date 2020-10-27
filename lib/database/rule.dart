@@ -33,6 +33,7 @@ class Rule {
   // 发现规则
   bool enableDiscover = true;
   String discoverUrl = '';
+  String discoverNextUrl = '';
   String discoverItems = '';
 
   String discoverList = '';
@@ -47,6 +48,7 @@ class Rule {
   // 搜索规则
   bool enableSearch = true;
   String searchUrl = '';
+  String searchNextUrl = '';
   String searchItems = '';
 
   String searchList = '';
@@ -60,9 +62,10 @@ class Rule {
 
   // 章节规则
   bool enableMultiRoads = false;
+  String chapterUrl = '';
+  String chapterNextUrl = '';
   String chapterRoads = '';
   String chapterRoadName = '';
-  String chapterUrl = '';
   String chapterItems = '';
 
   String chapterList = '';
@@ -74,6 +77,7 @@ class Rule {
 
   // 正文规则
   String contentUrl = '';
+  String contentNextUrl = '';
   String contentItems = '';
 
   get ruleTypeName => API.getRuleContentTypeName(contentType);
@@ -100,6 +104,7 @@ class Rule {
     // 发现规则
     enableDiscover = true;
     discoverUrl = '';
+    discoverNextUrl = '';
     discoverItems = '';
 
     discoverList = '';
@@ -114,6 +119,7 @@ class Rule {
     // 搜索规则
     enableSearch = true;
     searchUrl = '';
+    searchNextUrl = '';
     searchItems = '';
 
     searchList = '';
@@ -128,6 +134,7 @@ class Rule {
     // 章节规则
     enableMultiRoads = false;
     chapterUrl = '';
+    chapterNextUrl = '';
     chapterRoads = '';
     chapterRoadName = '';
     chapterItems = '';
@@ -141,6 +148,7 @@ class Rule {
 
     // 正文规则
     contentUrl = '';
+    contentNextUrl = '';
     contentItems = '';
   }
 
@@ -163,6 +171,7 @@ class Rule {
     this.cookies,
     this.enableDiscover,
     this.discoverUrl,
+    this.discoverNextUrl,
     this.discoverItems,
     this.discoverList,
     this.discoverTags,
@@ -174,6 +183,7 @@ class Rule {
     this.discoverResult,
     this.enableSearch,
     this.searchUrl,
+    this.searchNextUrl,
     this.searchItems,
     this.searchList,
     this.searchTags,
@@ -185,6 +195,7 @@ class Rule {
     this.searchResult,
     this.enableMultiRoads,
     this.chapterUrl,
+    this.chapterNextUrl,
     this.chapterRoads,
     this.chapterRoadName,
     this.chapterItems,
@@ -195,6 +206,7 @@ class Rule {
     this.chapterTime,
     this.chapterResult,
     this.contentUrl,
+    this.contentNextUrl,
     this.contentItems,
   );
 
@@ -231,6 +243,7 @@ class Rule {
     userAgent = json['userAgent'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
     discoverUrl = json['discoverUrl'] ?? defaultRule.discoverUrl;
+    discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
     discoverList = json['discoverList'] ?? defaultRule.discoverList;
     discoverTags = json['discoverTags'] ?? defaultRule.discoverTags;
@@ -242,6 +255,7 @@ class Rule {
     discoverResult = json['discoverResult'] ?? defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
     searchUrl = json['searchUrl'] ?? defaultRule.searchUrl;
+    searchNextUrl = json['searchNextUrl'] ?? defaultRule.searchNextUrl;
     searchItems = json['searchItems'] ?? defaultRule.searchItems;
     searchList = json['searchList'] ?? defaultRule.searchList;
     searchTags = json['searchTags'] ?? defaultRule.searchTags;
@@ -255,6 +269,7 @@ class Rule {
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
     chapterRoadName = json['chapterRoadName'] ?? defaultRule.chapterRoadName;
     chapterUrl = json['chapterUrl'] ?? defaultRule.chapterUrl;
+    chapterNextUrl = json['chapterNextUrl'] ?? defaultRule.chapterNextUrl;
     chapterItems = json['chapterItems'] ?? defaultRule.chapterItems;
     chapterList = json['chapterList'] ?? defaultRule.chapterList;
     chapterName = json['chapterName'] ?? defaultRule.chapterName;
@@ -263,6 +278,7 @@ class Rule {
     chapterTime = json['chapterTime'] ?? defaultRule.chapterTime;
     chapterResult = json['chapterResult'] ?? defaultRule.chapterResult;
     contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
+    contentNextUrl = json['contentNextUrl'] ?? defaultRule.contentNextUrl;
     contentItems = json['contentItems'] ?? defaultRule.contentItems;
     loginUrl = json['loginUrl'] ?? defaultRule.loginUrl;
     cookies = json['cookies'] ?? defaultRule.cookies;
@@ -309,7 +325,9 @@ class Rule {
     host = json['bookSourceUrl'] ?? defaultRule.host;
     contentType = json['contentType'] ?? json['bookSourceType'] == 'CARTOON'
         ? API.MANGA
-        : json['bookSourceType'] == '' ? API.NOVEL : defaultRule.contentType;
+        : json['bookSourceType'] == ''
+            ? API.NOVEL
+            : defaultRule.contentType;
     sort = json['serialNumber'] ?? defaultRule.sort;
     viewStyle = 0;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
@@ -317,6 +335,7 @@ class Rule {
     userAgent = json['httpUserAgent'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
     discoverUrl = json['ruleFindUrl'] ?? defaultRule.discoverUrl;
+    discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
     discoverList =
         json["ruleFindList"] ?? json['ruleSearchList'] ?? defaultRule.discoverList;
@@ -340,6 +359,7 @@ class Rule {
         defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
     searchUrl = json['ruleSearchUrl'] ?? defaultRule.searchUrl;
+    searchNextUrl = json['searchNextUrl'] ?? defaultRule.searchNextUrl;
     searchItems = json['searchItems'] ?? defaultRule.searchItems;
     searchList = json['ruleSearchList'] ?? defaultRule.searchList;
     searchTags = json['ruleSearchKind'] ?? defaultRule.searchTags;
@@ -353,6 +373,7 @@ class Rule {
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
     chapterRoadName = json['chapterRoadName'] ?? defaultRule.chapterRoadName;
     chapterUrl = json['ruleChapterUrl'] ?? defaultRule.chapterUrl;
+    chapterNextUrl = json['chapterNextUrl'] ?? defaultRule.chapterNextUrl;
     chapterItems = json['chapterItems'] ?? defaultRule.chapterItems;
     chapterList = json['ruleChapterList'] ?? defaultRule.chapterList;
     chapterName = json['ruleChapterName'] ?? defaultRule.chapterName;
@@ -361,6 +382,7 @@ class Rule {
     chapterTime = json['chapterTime'] ?? defaultRule.chapterTime;
     chapterResult = json['ruleContentUrl'] ?? defaultRule.chapterResult;
     contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
+    contentNextUrl = json['contentNextUrl'] ?? defaultRule.contentNextUrl;
     contentItems = json['ruleBookContent'] ?? defaultRule.contentItems;
     loginUrl = json['loginUrl'] ?? defaultRule.loginUrl;
     cookies = json['cookies'] ?? defaultRule.cookies;
@@ -382,6 +404,7 @@ class Rule {
         'userAgent': userAgent,
         'enableDiscover': enableDiscover,
         'discoverUrl': discoverUrl,
+        'discoverNextUrl': discoverNextUrl,
         'discoverItems': discoverItems,
         'discoverList': discoverList,
         'discoverTags': discoverTags,
@@ -393,6 +416,7 @@ class Rule {
         'discoverResult': discoverResult,
         'enableSearch': enableSearch,
         'searchUrl': searchUrl,
+        'searchNextUrl': searchNextUrl,
         'searchItems': searchItems,
         'searchList': searchList,
         'searchTags': searchTags,
@@ -406,6 +430,7 @@ class Rule {
         'chapterRoads': chapterRoads,
         'chapterRoadName': chapterRoadName,
         'chapterUrl': chapterUrl,
+        'chapterNextUrl': chapterNextUrl,
         'chapterItems': chapterItems,
         'chapterList': chapterList,
         'chapterName': chapterName,
@@ -414,6 +439,7 @@ class Rule {
         'chapterTime': chapterTime,
         'chapterResult': chapterResult,
         'contentUrl': contentUrl,
+        'contentNextUrl': contentNextUrl,
         'contentItems': contentItems,
         'loginUrl': loginUrl,
         'cookies': withCookies == true ? cookies : "",

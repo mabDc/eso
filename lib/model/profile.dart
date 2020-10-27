@@ -19,7 +19,7 @@ class Profile with ChangeNotifier {
   }
 
   static restore(Map<String, dynamic> profile) {
-    _profile.fromJson(profile);
+    _profile.fromJson(profile, false);
     _profile.notifyListeners();
   }
 
@@ -515,9 +515,11 @@ class Profile with ChangeNotifier {
     );
   }
 
-  void fromJson(Map<String, dynamic> json) {
+  void fromJson(Map<String, dynamic> json, [bool notIgnoreVersion = true]) {
     final defaultProfile = Profile.newProfile();
-    _version = json['version'] ?? defaultProfile.version;
+    if (notIgnoreVersion) {
+      _version = json['version'] ?? defaultProfile.version;
+    }
     _fontFamily = json['fontFamily'] ?? defaultProfile.fontFamily;
     _novelFontFamily = json['novelFontFamily'] ?? defaultProfile.novelFontFamily;
     _switchLongPress = json['switchLongPress'] ?? defaultProfile.switchLongPress;
