@@ -223,6 +223,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
     final _leadBorder = rule.contentType == API.NOVEL
         ? Border.all(color: _theme.primaryColor, width: 1.0)
         : null;
+    const bottomDecration = const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 1.0)));
+    final enableDecration = BoxDecoration(
+        border: Border(bottom: BorderSide(color: _theme.primaryColor, width: 1.0)));
+    const urlDecration = const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.blueAccent, width: 1.0)));
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 12),
       leading: Container(
@@ -246,126 +252,28 @@ class _EditSourcePageState extends State<EditSourcePage> {
         ),
       ),
       dense: true,
-      title: Text('${rule.name}', style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            margin: EdgeInsets.only(right: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
-                width: 1.0,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "搜索",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
-                  ),
-                ),
-                Icon(
-                  rule.enableSearch ? Icons.check : Icons.close,
-                  size: 12,
-                  color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            margin: EdgeInsets.only(right: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
-                width: 1.0,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "发现",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
-                  ),
-                ),
-                Icon(
-                  rule.enableDiscover ? Icons.check : Icons.close,
-                  size: 12,
-                  color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
-                ),
-              ],
-            ),
-          ),
-          if (rule.author != null && rule.author.isNotEmpty)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 2),
-              margin: EdgeInsets.only(right: 4),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 1.0,
-                ),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                '@${rule.author}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          if (rule.host != null && rule.host.isNotEmpty)
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 2),
-                margin: EdgeInsets.only(right: 4),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey,
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                ),
-              ),
-            ),
-        ],
-      ),
-      trailing: Row(
+      title: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          Expanded(
+              child: Text('${rule.name}', style: TextStyle(fontWeight: FontWeight.bold))),
           IconButton(
               tooltip: "编辑",
               icon: Icon(FIcons.edit_3, size: 20),
-              constraints: const BoxConstraints(
-                maxWidth: 26,
-              ),
+              constraints: const BoxConstraints(maxWidth: 26, maxHeight: 26),
               onPressed: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
                   .whenComplete(() => refreshData(provider))),
           IconButton(
             tooltip: "置顶",
             icon: Icon(OMIcons.arrowUpward, size: 20),
-            constraints: const BoxConstraints(maxWidth: 26),
+            constraints: const BoxConstraints(maxWidth: 26, maxHeight: 26),
             onPressed: () => provider.setSortMax(rule),
           ),
           IconButton(
               tooltip: "删除",
               icon: Icon(OMIcons.deleteSweep, size: 20),
-              constraints: const BoxConstraints(maxWidth: 26),
+              constraints: const BoxConstraints(maxWidth: 26, maxHeight: 26),
               onPressed: () {
                 showDialog(
                     context: context,
@@ -395,6 +303,77 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       );
                     });
               }),
+        ],
+      ),
+      subtitle: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Container(
+            margin: EdgeInsets.only(right: 4),
+            decoration: rule.enableSearch ? enableDecration : bottomDecration,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "搜索",
+                  style: TextStyle(
+                    fontSize: 10,
+                    height: 1.2,
+                    color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                  ),
+                ),
+                Icon(
+                  rule.enableSearch ? Icons.check : Icons.close,
+                  size: 10,
+                  color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(right: 4),
+            decoration: rule.enableDiscover ? enableDecration : bottomDecration,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "发现",
+                  style: TextStyle(
+                    fontSize: 10,
+                    height: 1.2,
+                    color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                  ),
+                ),
+                Icon(
+                  rule.enableDiscover ? Icons.check : Icons.close,
+                  size: 10,
+                  color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          if (rule.author != null && rule.author.isNotEmpty)
+            Container(
+              margin: EdgeInsets.only(right: 4),
+              decoration: bottomDecration,
+              child: Text(
+                '@${rule.author}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10, height: 1.2),
+              ),
+            ),
+          if (rule.host != null && rule.host.isNotEmpty)
+            Container(
+              margin: EdgeInsets.only(right: 4),
+              decoration: urlDecration,
+              child: Text(
+                '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                style: TextStyle(fontSize: 10, height: 1.2, color: Colors.blueAccent),
+              ),
+            ),
         ],
       ),
       onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
