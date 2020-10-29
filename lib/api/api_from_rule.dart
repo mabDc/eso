@@ -232,7 +232,7 @@ class APIFromRUle implements API {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: url);
+          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: lastResult);
           await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
         } else {
           await FlutterJs.evaluate(
@@ -367,7 +367,7 @@ class APIFromRUle implements API {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: url);
+          engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: lastResult);
           await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
         } else {
           await FlutterJs.evaluate(
