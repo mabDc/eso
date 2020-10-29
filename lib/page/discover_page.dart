@@ -167,7 +167,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Future<bool> _addFromClipBoard(
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
-    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text.trim();
     try {
       if (text.startsWith('http')) {
         Utils.toast("开始导入$text", duration: Duration(seconds: 1));

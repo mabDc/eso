@@ -103,13 +103,22 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   ///启用、禁用
-  void toggleEnableSearch(Rule rule, [bool enable, bool notify = true]) async {
+  void toggleEnableSearch(Rule rule) async {
     if (_isLoading) return;
     _isLoading = true;
-    rule.enableSearch = enable ?? !rule.enableSearch;
+    // 11 01 00 10
+    if (rule.enableSearch && rule.enableDiscover) {
+      rule.enableSearch = false;
+    } else if (!rule.enableSearch && rule.enableDiscover) {
+      rule.enableDiscover = false;
+    } else if (!rule.enableSearch && !rule.enableDiscover) {
+      rule.enableSearch = true;
+    } else {
+      rule.enableDiscover = true;
+    }
     await Global.ruleDao.insertOrUpdateRule(rule);
-    if (notify == true) notifyListeners();
     _isLoading = false;
+    notifyListeners();
   }
 
   ///删除规则
@@ -178,6 +187,18 @@ class EditSourceProvider with ChangeNotifier {
     int _enCheck = _rules.indexWhere((e) => (!e.enableSearch), 0);
     _rules.forEach((rule) {
       rule.enableSearch = !(_enCheck < 0);
+    });
+    notifyListeners();
+    //保存到数据库
+    await Global.ruleDao.insertOrUpdateRules(_rules);
+  }
+
+  ///全选
+  Future<void> toggleCheckAllRuleDiscover() async {
+    //循环处理（如果有未勾选则全选 没有则全不选）
+    int _enCheck = _rules.indexWhere((e) => (!e.enableDiscover), 0);
+    _rules.forEach((rule) {
+      rule.enableDiscover = !(_enCheck < 0);
     });
     notifyListeners();
     //保存到数据库

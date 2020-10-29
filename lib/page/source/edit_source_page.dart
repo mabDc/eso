@@ -134,16 +134,32 @@ class _EditSourcePageState extends State<EditSourcePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(OMIcons.checkCircleOutline),
+              icon: Icon(
+                FIcons.check_square,
+                size: 20,
+              ),
               tooltip: "启用搜索",
               constraints: BoxConstraints(maxWidth: 30),
               onPressed: Provider.of<EditSourceProvider>(context, listen: false)
                   .toggleCheckAllRule,
             ),
-            _buildpopupMenu(
-              context,
-              context.select((EditSourceProvider provider) => provider.isLoadingUrl),
-              Provider.of<EditSourceProvider>(context, listen: false),
+            IconButton(
+              icon: Icon(
+                FIcons.check_circle,
+                size: 20,
+              ),
+              tooltip: "启用发现",
+              constraints: BoxConstraints(maxWidth: 30),
+              onPressed: Provider.of<EditSourceProvider>(context, listen: false)
+                  .toggleCheckAllRuleDiscover,
+            ),
+            Container(
+              constraints: BoxConstraints(maxWidth: 32),
+              child: _buildpopupMenu(
+                context,
+                context.select((EditSourceProvider provider) => provider.isLoadingUrl),
+                Provider.of<EditSourceProvider>(context, listen: false),
+              ),
             ),
           ],
           bottom: PreferredSize(
@@ -223,13 +239,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
     final _leadBorder = rule.contentType == API.NOVEL
         ? Border.all(color: _theme.primaryColor, width: 1.0)
         : null;
-    const bottomDecration = const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 1.0)));
-    final enableDecration = BoxDecoration(
-        border: Border(bottom: BorderSide(color: _theme.primaryColor, width: 1.0)));
-    const urlDecration = const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.blueAccent, width: 1.0)));
     return ListTile(
+      onTap: () => provider.toggleEnableSearch(rule),
       contentPadding: EdgeInsets.symmetric(horizontal: 12),
       leading: Container(
         height: 36,
@@ -305,73 +316,68 @@ class _EditSourcePageState extends State<EditSourcePage> {
               }),
         ],
       ),
-      subtitle: Row(
-        mainAxisSize: MainAxisSize.max,
+      subtitle: Wrap(
+        spacing: 6,
         children: [
-          Container(
-            margin: EdgeInsets.only(right: 4),
-            decoration: rule.enableSearch ? enableDecration : bottomDecration,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "搜索",
-                  style: TextStyle(
-                    fontSize: 10,
-                    height: 1.2,
-                    color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
-                  ),
-                ),
-                Icon(
-                  rule.enableSearch ? Icons.check : Icons.close,
-                  size: 10,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                rule.enableSearch ? FIcons.check_square : FIcons.square,
+                size: 10,
+                color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+              ),
+              Text(
+                "搜索",
+                style: TextStyle(
+                  fontSize: 10,
+                  height: 1.2,
                   color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                  decoration: TextDecoration.underline,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Container(
-            margin: EdgeInsets.only(right: 4),
-            decoration: rule.enableDiscover ? enableDecration : bottomDecration,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "发现",
-                  style: TextStyle(
-                    fontSize: 10,
-                    height: 1.2,
-                    color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
-                  ),
-                ),
-                Icon(
-                  rule.enableDiscover ? Icons.check : Icons.close,
-                  size: 10,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                rule.enableDiscover ? FIcons.check_circle : FIcons.circle,
+                size: 10,
+                color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+              ),
+              Text(
+                "发现",
+                style: TextStyle(
+                  fontSize: 10,
+                  height: 1.2,
                   color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                  decoration: TextDecoration.underline,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           if (rule.author != null && rule.author.isNotEmpty)
-            Container(
-              margin: EdgeInsets.only(right: 4),
-              decoration: bottomDecration,
-              child: Text(
-                '@${rule.author}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 10, height: 1.2),
+            Text(
+              '@${rule.author}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                height: 1.2,
+                decoration: TextDecoration.underline,
               ),
             ),
           if (rule.host != null && rule.host.isNotEmpty)
-            Container(
-              margin: EdgeInsets.only(right: 4),
-              decoration: urlDecration,
-              child: Text(
-                '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
-                maxLines: 1,
-                overflow: TextOverflow.clip,
-                style: TextStyle(fontSize: 10, height: 1.2, color: Colors.blueAccent),
+            Text(
+              '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+              style: TextStyle(
+                fontSize: 10,
+                height: 1.2,
+                color: Colors.blueAccent,
+                decoration: TextDecoration.underline,
               ),
             ),
         ],
@@ -403,7 +409,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
 
   Future<bool> _addFromClipBoard(
       BuildContext context, EditSourceProvider provider, bool showEditPage) async {
-    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text.trim();
     try {
       if (text.startsWith('http')) {
         Utils.toast("开始导入$text", duration: Duration(seconds: 1));
