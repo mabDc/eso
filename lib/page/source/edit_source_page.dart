@@ -154,7 +154,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   .toggleCheckAllRuleDiscover,
             ),
             Container(
-              constraints: BoxConstraints(maxWidth: 32),
+              constraints: BoxConstraints(maxWidth: 30),
+              margin: EdgeInsets.only(right: 10),
               child: _buildpopupMenu(
                 context,
                 context.select((EditSourceProvider provider) => provider.isLoadingUrl),
@@ -365,7 +366,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
               style: TextStyle(
                 fontSize: 10,
                 height: 1.2,
-                decoration: TextDecoration.underline,
               ),
             ),
           if (rule.host != null && rule.host.isNotEmpty)
