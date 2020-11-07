@@ -191,6 +191,8 @@ class NovelPageProvider with ChangeNotifier {
   bool _exportLoading;
   bool get exportLoading => _exportLoading;
 
+  TextEditingController exportChapterName = TextEditingController(text: "\$name");
+
   void exportCache({bool isShare = false, bool isSaveLocal = false}) async {
     if (_exportLoading == true) {
       Utils.toast("正在导出...");
@@ -216,7 +218,9 @@ class NovelPageProvider with ChangeNotifier {
           temp = _cache[index].join("\n");
         }
         export.add("");
-        export.add(chapters[index].name);
+        export.add(exportChapterName.text
+            .replaceAll("\$index", (index+1).toString())
+            .replaceAll("\$name", chapters[index].name));
         export.add("");
         if (temp != null && temp.isNotEmpty) {
           export.add(temp);
@@ -532,6 +536,7 @@ class NovelPageProvider with ChangeNotifier {
     refreshController.dispose();
     _cache?.clear();
     _isLoading = null;
+    exportChapterName.dispose();
     super.dispose();
   }
 

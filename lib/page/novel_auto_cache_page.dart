@@ -58,17 +58,35 @@ class NovelAutoCachePage extends StatelessWidget {
               labelTextBuilder: (double offset) => Text("${offset ~/ 30 + 1}"),
               child: ListView.builder(
                 controller: scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 cacheExtent: 30,
-                itemCount: searchItem.chaptersCount,
-                itemBuilder: (BuildContext context, int index) {
+                itemCount: searchItem.chaptersCount + 1,
+                itemBuilder: (BuildContext context, int i) {
+                  if (i == 0) {
+                    return TextField(
+                      maxLines: 10,
+                      minLines: 1,
+                      controller: provider.exportChapterName,
+                      decoration: InputDecoration(
+                        hintText: "序号(\$index) 名称(\$name) 可空",
+                        labelText: "自定义导出章节名格式",
+                      ),
+                      autofocus: false,
+                    );
+                  }
+                  final index = i - 1;
                   return Container(
                     height: 30,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    margin: const EdgeInsets.only(),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(chapters[index].name ?? 0),
+                        Expanded(
+                          child: Text(
+                            chapters[index].name ?? 0,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
                         cacheIndex.contains(index) ? cacheText : noCacheText,
                       ],
                     ),
