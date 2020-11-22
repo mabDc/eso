@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:screen/screen.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
@@ -30,6 +31,11 @@ class MangaPageProvider with ChangeNotifier {
   String get bottomTime => _bottomTime;
   bool _showChapter;
   bool get showChapter => _showChapter;
+
+  ItemScrollController _mangaScroller;
+  ItemScrollController get mangaScroller => _mangaScroller;
+  ItemPositionsListener _mangaPositionsListener;
+  ItemPositionsListener get mangaPositionsListener => _mangaPositionsListener;
 
   set showChapter(bool value) {
     if (_showChapter != value) {
@@ -100,12 +106,24 @@ class MangaPageProvider with ChangeNotifier {
     }
   }
 
+  void syncContentIndex() {
+    if (searchItem.durContentIndex !=
+        _mangaPositionsListener.itemPositions.value.first.index) {
+      searchItem.durContentIndex =
+          _mangaPositionsListener.itemPositions.value.first.index;
+      notifyListeners();
+    }
+  }
+
   MangaPageProvider({
     this.searchItem,
     this.keepOn = false,
     this.landscape = false,
     this.direction = Profile.mangaDirectionTopToBottom,
   }) {
+    _mangaScroller = ItemScrollController();
+    _mangaPositionsListener = ItemPositionsListener.create();
+    _mangaPositionsListener.itemPositions.addListener(syncContentIndex);
     _brightness = 0.5;
     _bottomTime = _format.format(DateTime.now());
     _isLoading = false;

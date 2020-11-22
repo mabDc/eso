@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 
-version: 1.20.16+12016
+version: 1.20.17+12017
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -62,6 +62,7 @@ dependencies:
   uuid: ^2.2.2
   video_player: ^0.11.1+2
   sqflite_common_ffi: ^1.1.1
+  scrollable_positioned_list: ^0.1.8
 
 dev_dependencies:
   flutter_test:
