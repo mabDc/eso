@@ -417,8 +417,7 @@ class BassWinUtil {
 
   static String cStringToString(Pointer<Uint8> str, int len) {
     if (str == null || len <= 0) return null;
-    List<int> units = List(len);
-    for (int i = 0; i < len; ++i) units[i] = str.elementAt(i).value;
+    List<int> units = str.asTypedList(len).map((e) => e).toList();
     return Utf8Codec().decode(units);
   }
 }

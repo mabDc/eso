@@ -19,8 +19,6 @@ dependencies:
     # The example app is bundled with the plugin so we use a path dependency on
     # the parent directory to use the current plugin's version.
     path: ../
-  flutter_qjs:
-    path: ../../flutter_qjs/
   highlight: 0.6.0
   flutter_highlight: 0.6.0
 

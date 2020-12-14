@@ -1,10 +1,10 @@
 name: eso
 description: 亦搜，亦看，亦闻
-
+publish_to: none
 version: 1.20.17+12017
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.2.2 <3.2.0"
 
 dependencies:
   flutter:
@@ -45,7 +45,7 @@ dependencies:
   html: ^0.14.0+4
   http: ^0.12.2
   image_gallery_saver: ^1.6.1
-  intl: ^0.16.1
+  intl: ^0.17.0-nullsafety.2
   json_path: ^0.2.0
   matrix_gesture_detector: ^0.1.0
   oktoast: ^2.3.2

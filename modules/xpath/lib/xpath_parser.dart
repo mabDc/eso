@@ -8,7 +8,7 @@ SelectorGroup parseSelectorGroup(String xpath) {
   String output;
 
   var matches = RegExp("//|/").allMatches(xpath).toList();
-  var selectorSources = List<String>();
+  var selectorSources = <String>[];
   for (var index = 0; index < matches.length; index++) {
     if (index > 0) {
       selectorSources
@@ -34,8 +34,7 @@ SelectorGroup parseSelectorGroup(String xpath) {
     var simpleSelector = firstSelector.simpleSelectors.first;
     if (simpleSelector != null &&
         (simpleSelector.name != "body" || simpleSelector.name != "head")) {
-      selectors.insert(
-          0, Selector(TokenKind.CHILD, [ElementSelector("body", "/body")]));
+      selectors.insert(0, Selector(TokenKind.CHILD, [ElementSelector("body", "/body")]));
     }
   }
 
@@ -73,8 +72,7 @@ Selector _parseSelector(String input) {
     var group = match.group(2);
     //匹配Attr
     if (group.startsWith("@")) {
-      var m =
-          RegExp("^@(.+?)(=|!=|\\^=|~=|\\*=|\\\$=)(.+)\$").firstMatch(group);
+      var m = RegExp("^@(.+?)(=|!=|\\^=|~=|\\*=|\\\$=)(.+)\$").firstMatch(group);
       if (m != null) {
         var name = m.group(1);
         var op = TokenKind.matchAttrOperator(m.group(2));
@@ -98,8 +96,7 @@ Selector _parseSelector(String input) {
     if (m != null) {
       var op = TokenKind.matchPositionOperator(m.group(1));
       var value = int.tryParse(m.group(2));
-      selector.positionSelector =
-          PositionSelector(TokenKind.POSITION, op, value, input);
+      selector.positionSelector = PositionSelector(TokenKind.POSITION, op, value, input);
     }
 
     //匹配last()方法
@@ -107,8 +104,7 @@ Selector _parseSelector(String input) {
     if (m != null) {
       var op = TokenKind.matchPositionOperator(m.group(1));
       var value = int.tryParse(m.group(2) ?? "");
-      selector.positionSelector =
-          PositionSelector(TokenKind.LAST, op, value, input);
+      selector.positionSelector = PositionSelector(TokenKind.LAST, op, value, input);
     }
   } else {
     simpleSelectors.add(ElementSelector(source, input));
