@@ -8,6 +8,7 @@ import 'package:eso/database/rule_dao.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
+import 'package:eso/page/source/add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/ui/edit/bottom_input_border.dart';
 import 'package:eso/ui/edit/edit_view.dart';
@@ -32,6 +33,7 @@ const int FROM_YICIYUAN = 4;
 const int DELETE_ALL_RULES = 5;
 const int FROM_CLIPBOARD = 6;
 const int FROM_EDIT_SOURCE = 7;
+const int ADD_RULE_DIALOG = 8;
 
 /// 规则管理页
 class EditSourcePage extends StatefulWidget {
@@ -120,104 +122,115 @@ class _EditSourcePageState extends State<EditSourcePage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<EditSourceProvider>(
       create: (context) => EditSourceProvider(),
-      builder: (context, child) => Scaffold(
-        appBar: AppBar(
-          titleSpacing: 0.0,
-          title: SearchEdit(
-            controller: _searchEdit,
-            hintText:
-                "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
-            onSubmitted:
-                Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
-            onChanged: Provider.of<EditSourceProvider>(context, listen: false)
-                .getRuleListByNameDebounce,
+      builder: (context, child) {
+        final provider = Provider.of<EditSourceProvider>(context, listen: false);
+        return Scaffold(
+          appBar: AppBar(
+            titleSpacing: 0.0,
+            title: SearchEdit(
+              controller: _searchEdit,
+              hintText:
+                  "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
+              onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
+                  .getRuleListByName,
+              onChanged: Provider.of<EditSourceProvider>(context, listen: false)
+                  .getRuleListByNameDebounce,
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
+              ),
+              IconButton(
+                icon: Icon(FIcons.x_circle),
+                onPressed: () => EditSourcePage.showDeleteAllDialog(context, provider),
+              ),
+              // IconButton(
+              //   icon: Icon(
+              //     FIcons.check_square,
+              //     size: 20,
+              //   ),
+              //   tooltip: "启用搜索",
+              //   constraints: BoxConstraints(maxWidth: 30),
+              //   onPressed: Provider.of<EditSourceProvider>(context, listen: false)
+              //       .toggleCheckAllRule,
+              // ),
+              // IconButton(
+              //   icon: Icon(
+              //     FIcons.check_circle,
+              //     size: 20,
+              //   ),
+              //   tooltip: "启用发现",
+              //   constraints: BoxConstraints(maxWidth: 30),
+              //   onPressed: Provider.of<EditSourceProvider>(context, listen: false)
+              //       .toggleCheckAllRuleDiscover,
+              // ),
+              // Container(
+              //   constraints: BoxConstraints(maxWidth: 30),
+              //   margin: EdgeInsets.only(right: 10),
+              //   child: _buildpopupMenu(
+              //     context,
+              //     context.select((EditSourceProvider provider) => provider.isLoadingUrl),
+              //     Provider.of<EditSourceProvider>(context, listen: false),
+              //   ),
+              // ),
+            ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(22),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  for (var sort in RuleDao.sortMap.entries)
+                    if (sort.value == RuleDao.sortName)
+                      InkWell(
+                        child: Text(
+                          " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
+                          style: TextStyle(
+                              fontSize: 12, color: Theme.of(context).primaryColor),
+                        ),
+                        onTap: () {
+                          if (RuleDao.sortOrder == RuleDao.desc) {
+                            RuleDao.sortOrder = RuleDao.asc;
+                          } else {
+                            RuleDao.sortOrder = RuleDao.desc;
+                          }
+                          Provider.of<EditSourceProvider>(context, listen: false)
+                              .refreshData();
+                        },
+                      )
+                    else
+                      InkWell(
+                        child: Text(
+                          " ${sort.key} ",
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        onTap: () {
+                          RuleDao.sortName = sort.value;
+                          Provider.of<EditSourceProvider>(context, listen: false)
+                              .refreshData();
+                        },
+                      )
+                ],
+              ),
+            ),
           ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                FIcons.check_square,
-                size: 20,
-              ),
-              tooltip: "启用搜索",
-              constraints: BoxConstraints(maxWidth: 30),
-              onPressed: Provider.of<EditSourceProvider>(context, listen: false)
-                  .toggleCheckAllRule,
-            ),
-            IconButton(
-              icon: Icon(
-                FIcons.check_circle,
-                size: 20,
-              ),
-              tooltip: "启用发现",
-              constraints: BoxConstraints(maxWidth: 30),
-              onPressed: Provider.of<EditSourceProvider>(context, listen: false)
-                  .toggleCheckAllRuleDiscover,
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: 30),
-              margin: EdgeInsets.only(right: 10),
-              child: _buildpopupMenu(
-                context,
-                context.select((EditSourceProvider provider) => provider.isLoadingUrl),
-                Provider.of<EditSourceProvider>(context, listen: false),
-              ),
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(22),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (var sort in RuleDao.sortMap.entries)
-                  if (sort.value == RuleDao.sortName)
-                    InkWell(
-                      child: Text(
-                        " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
-                        style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).primaryColor),
-                      ),
-                      onTap: () {
-                        if (RuleDao.sortOrder == RuleDao.desc) {
-                          RuleDao.sortOrder = RuleDao.asc;
-                        } else {
-                          RuleDao.sortOrder = RuleDao.desc;
-                        }
-                        Provider.of<EditSourceProvider>(context, listen: false)
-                            .refreshData();
-                      },
-                    )
-                  else
-                    InkWell(
-                      child: Text(
-                        " ${sort.key} ",
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      onTap: () {
-                        RuleDao.sortName = sort.value;
-                        Provider.of<EditSourceProvider>(context, listen: false)
-                            .refreshData();
-                      },
-                    )
-              ],
-            ),
+          body: Consumer<EditSourceProvider>(
+            builder: (context, provider, child) {
+              if (provider.isLoading) {
+                return LandingPage();
+              }
+              return ListView.separated(
+                separatorBuilder: (BuildContext context, int index) => Container(),
+                itemCount: provider.rules.length,
+                physics: BouncingScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildItem(context, provider, provider.rules[index]);
+                },
+              );
+            },
           ),
-        ),
-        body: Consumer<EditSourceProvider>(
-          builder: (context, provider, child) {
-            if (provider.isLoading) {
-              return LandingPage();
-            }
-            return ListView.separated(
-              separatorBuilder: (BuildContext context, int index) => Container(),
-              itemCount: provider.rules.length,
-              physics: BouncingScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return _buildItem(context, provider, provider.rules[index]);
-              },
-            );
-          },
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -449,10 +462,11 @@ class _EditSourcePageState extends State<EditSourcePage> {
     final primaryColor = Theme.of(context).primaryColor;
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
-      {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      // {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
+      // {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      {'title': '自由添加规则', 'icon': FIcons.book, 'type': ADD_RULE_DIALOG},
       // {'title': '文件导入', 'icon': Icons.file_download, 'type': FROM_FILE},
-      {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
+      // {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
       // {'title': '阅读或异次元', 'icon': Icons.cloud_queue, 'type': FROM_YICIYUAN},
       {'title': '清空源', 'icon': FIcons.x_circle, 'type': DELETE_ALL_RULES},
     ];
@@ -462,6 +476,9 @@ class _EditSourcePageState extends State<EditSourcePage> {
       offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
+          case ADD_RULE_DIALOG:
+            addRuleDialog(context, () => refreshData(provider));
+            break;
           case ADD_RULE:
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => EditRulePage()))

@@ -232,7 +232,8 @@ class APIFromRUle implements API {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: lastResult);
+          engineId =
+              await APIConst.initJSEngine(rule, chapterUrl, lastResult: lastResult);
           await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
         } else {
           await FlutterJs.evaluate(
@@ -367,7 +368,8 @@ class APIFromRUle implements API {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: lastResult);
+          engineId =
+              await APIConst.initJSEngine(rule, contentUrl, lastResult: lastResult);
           await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
         } else {
           await FlutterJs.evaluate(
@@ -416,41 +418,43 @@ class APIFromRUle implements API {
     final map = <DiscoverMap>[];
     final table = Map<String, int>();
     dynamic discoverUrl = rule.discoverUrl.trimLeft();
-    if (discoverUrl.startsWith("@js:")) {
-      final engineId = await APIConst.initJSEngine(rule, "");
-      discoverUrl = await FlutterJs.evaluate(discoverUrl.substring(4), engineId);
-      FlutterJs.close(engineId);
-    }
-    final discovers = (discoverUrl is List)
-        ? discoverUrl.map((e) => "$e")
-        : (discoverUrl is String)
-            ? discoverUrl.split(RegExp(r"\n\s*|&&"))
-            : <String>[];
-    for (var url in discovers) {
-      if (url.trim().isEmpty) continue;
-      final d = url.split("::");
-      final rule = d.last.trim();
-      String tab;
-      String className;
-      if (d.length == 1) {
-        tab = "全部";
-        className = "全部";
-      } else if (d.length == 2) {
-        tab = d[0].trim();
-        className = "全部";
-      } else if (d.length == 3) {
-        tab = d[0].trim();
-        className = d[1].trim();
+    try {
+      if (discoverUrl.startsWith("@js:")) {
+        final engineId = await APIConst.initJSEngine(rule, "");
+        discoverUrl = await FlutterJs.evaluate(discoverUrl.substring(4), engineId);
+        FlutterJs.close(engineId);
       }
-      if (table[tab] == null) {
-        table[tab] = map.length;
-        map.add(DiscoverMap(tab, <DiscoverPair>[
-          DiscoverPair(className, rule),
-        ]));
-      } else {
-        map[table[tab]].pairs.add(DiscoverPair(className, rule));
+      final discovers = (discoverUrl is List)
+          ? discoverUrl.map((e) => "$e")
+          : (discoverUrl is String)
+              ? discoverUrl.split(RegExp(r"\n\s*|&&"))
+              : <String>[];
+      for (var url in discovers) {
+        if (url.trim().isEmpty) continue;
+        final d = url.split("::");
+        final rule = d.last.trim();
+        String tab;
+        String className;
+        if (d.length == 1) {
+          tab = "全部";
+          className = "全部";
+        } else if (d.length == 2) {
+          tab = d[0].trim();
+          className = "全部";
+        } else if (d.length == 3) {
+          tab = d[0].trim();
+          className = d[1].trim();
+        }
+        if (table[tab] == null) {
+          table[tab] = map.length;
+          map.add(DiscoverMap(tab, <DiscoverPair>[
+            DiscoverPair(className, rule),
+          ]));
+        } else {
+          map[table[tab]].pairs.add(DiscoverPair(className, rule));
+        }
       }
-    }
+    } catch (e) {}
     if (map.isEmpty) {
       if (rule.host.startsWith("http")) {
         map.add(DiscoverMap("全部", <DiscoverPair>[

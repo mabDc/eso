@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
+import 'source/add_rule_dialog.dart';
 import 'source/edit_rule_page.dart';
 
 class DiscoverPage extends StatefulWidget {
@@ -51,22 +52,31 @@ class _DiscoverPageState extends State<DiscoverPage> {
     return ChangeNotifierProvider.value(
       value: EditSourceProvider(type: 2),
       builder: (BuildContext context, _) {
+        final provider = Provider.of<EditSourceProvider>(context, listen: false);
         return Scaffold(
           appBar: AppBar(
             centerTitle: false,
             titleSpacing: NavigationToolbar.kMiddleSpacing,
             title: SearchEdit(
               controller: _searchEdit,
-              hintText:
-                  "搜索发现站点(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
+              hintText: "搜索发现站点(共${provider.rules?.length ?? 0}条)",
               onSubmitted: (value) => __provider.getRuleListByName(value),
               onChanged: (value) => __provider.getRuleListByNameDebounce(value),
             ),
             actions: [
-              _buildPopupMenu(
-                context,
-                Provider.of<EditSourceProvider>(context, listen: false),
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
               ),
+              IconButton(
+                icon: Icon(FIcons.edit),
+                onPressed: () => Utils.startPageWait(context, EditSourcePage())
+                    .whenComplete(() => refreshData(provider)),
+              ),
+              // _buildPopupMenu(
+              //   context,
+              //   Provider.of<EditSourceProvider>(context, listen: false),
+              // ),
             ],
           ),
           body: Consumer<EditSourceProvider>(
@@ -206,9 +216,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
     final popupIconColor = Theme.of(context).primaryColor;
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
-      {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
-      {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
-      {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
+      // {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
+      // {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
+      // {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
+      {'title': '自由添加规则', 'icon': FIcons.book, 'type': ADD_RULE_DIALOG},
       {'title': '规则管理', 'icon': FIcons.edit, 'type': FROM_EDIT_SOURCE},
     ];
     return PopupMenuButton<int>(
@@ -360,6 +371,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   onPopupMenuClick(int value, EditSourceProvider provider) {
     switch (value) {
+      case ADD_RULE_DIALOG:
+        addRuleDialog(context, () => refreshData(provider));
+        break;
       case ADD_RULE:
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => EditRulePage()))

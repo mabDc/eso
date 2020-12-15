@@ -87,11 +87,13 @@ class Global with ChangeNotifier {
     _ruleDao = _database.ruleDao;
     await initFont();
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      appVersion = packageInfo.version;
-      appBuildNumber = packageInfo.buildNumber;
-      appName = packageInfo.appName;
-      appPackageName = packageInfo.packageName;
+      if (!isDesktop) {
+        final packageInfo = await PackageInfo.fromPlatform();
+        appVersion = packageInfo.version;
+        appBuildNumber = packageInfo.buildNumber;
+        appName = packageInfo.appName;
+        appPackageName = packageInfo.packageName;
+      }
     } catch (e) {}
     return true;
   }
