@@ -1,8 +1,12 @@
 import 'dart:convert';
 
 import 'package:eso/utils.dart';
+import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
+import '../../global.dart';
 
 Future addRuleDialog(BuildContext context, VoidCallback refresh) async {
   showDialog(
@@ -104,12 +108,22 @@ class AddRuleProvider extends ChangeNotifier {
 
   final TextEditingController ruleController = TextEditingController();
   final VoidCallback refresh;
+
+  String _fileName = '[未选择文件]';
+  String _fileContent = '';
+  String get fileName => _fileName;
+  int _currentFileIndex = 0;
+  int get currentFileIndex => _currentFileIndex;
+  int _totalFileIndex = 0;
+  int get totalFileIndex => _totalFileIndex;
+
   String _importText = "格式不符";
   String get importText => _importText;
   ImportType _importType;
 
   final httpStart = RegExp("https?://", caseSensitive: false);
-  final esoStart = RegExp("\\[|\\{|eso://");
+  final esoStart = RuleCompress.tag;
+  final jsonStart = RegExp("\\[|\\{");
   void ruleListener() {
     if (_importType == ImportType.file) return;
     final s = ruleController.text.trim();
@@ -117,6 +131,14 @@ class AddRuleProvider extends ChangeNotifier {
     if (s.startsWith(httpStart)) {
       importType = ImportType.http;
     } else if (s.startsWith(esoStart)) {
+      try {
+        final ds = RuleCompress.decompassString(s);
+        ruleController.text = prettyJson(ds);
+        importType = ImportType.eso;
+      } catch (e) {
+        Utils.toast("eso://内容格式不对");
+      }
+    } else if (s.startsWith(jsonStart)) {
       importType = ImportType.eso;
     }
     if (importType != _importType) {
@@ -136,14 +158,69 @@ class AddRuleProvider extends ChangeNotifier {
     ruleController.addListener(ruleListener);
   }
 
-  void clear() => ruleController.clear();
+  void clear() {
+    _importType = ImportType.error;
+    _fileName = '[未选择文件]';
+    _fileContent = '';
+    _currentFileIndex = 0;
+    _totalFileIndex = 0;
+    ruleController.clear();
+  }
+
+  String prettyJson(String s) => JsonEncoder.withIndent("  ").convert(jsonDecode(s));
 
   void stringify() {
     final s = ruleController.text.trim();
     if (s.startsWith("[") || s.startsWith("{")) {
-      ruleController.text = JsonEncoder.withIndent("  ").convert(jsonDecode(s));
+      try {
+        ruleController.text = prettyJson(s);
+      } catch (e) {
+        Utils.toast("json格式不对");
+      }
     } else {
-      Utils.toast("格式化必须是json");
+      Utils.toast("只能格式化json");
+    }
+  }
+
+  void import() {
+    if (_importType == ImportType.eso) {
+      insertOrUpdateRule(ruleController.text);
+    } else if (_importType == ImportType.file) {
+      insertOrUpdateRule(_fileContent);
+    } else if (_importType == ImportType.http) {
+      () async {
+        final res = await http.get("${ruleController.text.trim()}", headers: {
+          'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+        });
+        insertOrUpdateRule(utf8.decode(res.bodyBytes));
+      }();
+    }
+  }
+
+  void selectFile(){
+    
+  }
+
+  void insertOrUpdateRule(String s) {
+    final json = jsonDecode(s.trim());
+    if (json is Map) {
+      final id = await Global.ruleDao.insertOrUpdateRule(
+          isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
+      if (id != null) {
+        _isLoadingUrl = false;
+        refreshData();
+        return 1;
+      }
+    } else if (json is List) {
+      final ids = await Global.ruleDao.insertOrUpdateRules(json
+          .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
+          .toList());
+      if (ids.length > 0) {
+        _isLoadingUrl = false;
+        refreshData();
+        return ids.length;
+      }
     }
   }
 }
