@@ -13,9 +13,9 @@ on:
 
 jobs:
   Apk_Build:
+    runs-on: ubuntu-latest
     env: 
       ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout ESO Project
         uses: actions/checkout@v2
