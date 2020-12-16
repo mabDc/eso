@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import '../../global.dart';
+import 'edit_rule_page.dart';
 
 Future addRuleDialog(BuildContext context, VoidCallback refresh) async {
   showDialog(
@@ -44,26 +45,34 @@ class _AddRule extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Wrap(
-                spacing: 6,
-                children: [
-                  OutlinedButton(
-                    child: Text(provider.fileName),
-                    onPressed: provider.selectFile,
-                  ),
-                  Text(
-                    '${provider.currentFileIndex}/${provider.totalFileIndex}',
-                    style: TextStyle(height: 1.5),
-                  ),
-                  OutlinedButton(
-                    child: Text("前"),
-                    onPressed: provider.pre,
-                  ),
-                  OutlinedButton(
-                    child: Text("后"),
-                    onPressed: provider.next,
-                  ),
-                ],
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Wrap(
+                  spacing: 6,
+                  children: [
+                    OutlinedButton(
+                      child: Text('新建'),
+                      onPressed: () => Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => EditRulePage())),
+                    ),
+                    OutlinedButton(
+                      child: Text(provider.fileName),
+                      onPressed: provider.selectFile,
+                    ),
+                    Text(
+                      '${provider.currentFileIndex}/${provider.totalFileIndex}',
+                      style: TextStyle(height: 1.5),
+                    ),
+                    OutlinedButton(
+                      child: Text("前"),
+                      onPressed: provider.pre,
+                    ),
+                    OutlinedButton(
+                      child: Text("后"),
+                      onPressed: provider.next,
+                    ),
+                  ],
+                ),
               ),
               TextField(
                 controller: provider.ruleController,
@@ -74,26 +83,29 @@ class _AddRule extends StatelessWidget {
                 ),
               ),
               Container(height: 6),
-              Wrap(
-                spacing: 6,
-                children: [
-                  OutlinedButton(
-                    child: Text("取消"),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  OutlinedButton(
-                    child: Text("重置"),
-                    onPressed: provider.clear,
-                  ),
-                  OutlinedButton(
-                    child: Text("格式化"),
-                    onPressed: provider.stringify,
-                  ),
-                  OutlinedButton(
-                    child: Text(provider.importText),
-                    onPressed: provider.import,
-                  ),
-                ],
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Wrap(
+                  spacing: 6,
+                  children: [
+                    OutlinedButton(
+                      child: Text("取消"),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    OutlinedButton(
+                      child: Text("重置"),
+                      onPressed: provider.clear,
+                    ),
+                    OutlinedButton(
+                      child: Text("格式化"),
+                      onPressed: provider.stringify,
+                    ),
+                    OutlinedButton(
+                      child: Text(provider.importText),
+                      onPressed: provider.import,
+                    ),
+                  ],
+                ),
               )
             ],
           );

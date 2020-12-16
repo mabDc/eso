@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/evnts/restore_event.dart';
@@ -7,7 +6,6 @@ import 'package:eso/global.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class EditSourceProvider with ChangeNotifier {
   List<Rule> _rulesFilter;
@@ -31,40 +29,6 @@ class EditSourceProvider with ChangeNotifier {
       refreshData();
     });
     refreshData();
-  }
-
-  Future<int> addFromUrl(String url, bool isFromYICIYUAN) async {
-    if (isLoadingUrl) return 0;
-    _isLoadingUrl = true;
-    notifyListeners();
-    try {
-      final res = await http.get("$url", headers: {
-        'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
-      });
-      final json = jsonDecode(utf8.decode(res.bodyBytes));
-      if (json is Map) {
-        final id = await Global.ruleDao.insertOrUpdateRule(
-            isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
-        if (id != null) {
-          _isLoadingUrl = false;
-          refreshData();
-          return 1;
-        }
-      } else if (json is List) {
-        final ids = await Global.ruleDao.insertOrUpdateRules(json
-            .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
-            .toList());
-        if (ids.length > 0) {
-          _isLoadingUrl = false;
-          refreshData();
-          return ids.length;
-        }
-      }
-    } catch (e) {}
-    _isLoadingUrl = false;
-    notifyListeners();
-    return 0;
   }
 
   _setRuleContentType(int value) {

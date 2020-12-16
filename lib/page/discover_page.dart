@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
-import 'package:eso/database/rule.dart';
 import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
@@ -12,9 +10,7 @@ import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
-import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
@@ -66,17 +62,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
             actions: [
               IconButton(
                 icon: Icon(Icons.add),
+                tooltip: '新增规则',
                 onPressed: () => addRuleDialog(context, () => refreshData(provider)),
               ),
               IconButton(
                 icon: Icon(FIcons.edit),
+                tooltip: '规则管理',
                 onPressed: () => Utils.startPageWait(context, EditSourcePage())
                     .whenComplete(() => refreshData(provider)),
               ),
-              // _buildPopupMenu(
-              //   context,
-              //   Provider.of<EditSourceProvider>(context, listen: false),
-              // ),
             ],
           ),
           body: Consumer<EditSourceProvider>(
@@ -172,75 +166,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Future<bool> _addFromClipBoard(
-      BuildContext context, EditSourceProvider provider, bool showEditPage) async {
-    final text = (await Clipboard.getData(Clipboard.kTextPlain)).text.trim();
-    try {
-      if (text.startsWith('http')) {
-        Utils.toast("开始导入$text", duration: Duration(seconds: 1));
-        final count = await provider.addFromUrl(text.trim(), false);
-        Utils.toast("导入完成，一共$count条", duration: Duration(seconds: 1));
-        return true;
-      }
-      final rule = text.startsWith(RuleCompress.tag)
-          ? RuleCompress.decompass(text)
-          : Rule.fromJson(jsonDecode(text));
-      if (provider.rules.any((r) => r.id == rule.id)) {
-        await Global.ruleDao.insertOrUpdateRule(rule);
-        provider.rules.removeWhere((r) => r.id == rule.id);
-        provider.rules.add(rule);
-        Utils.toast("更新成功");
-      } else {
-        provider.rules.add(rule);
-        await Global.ruleDao.insertOrUpdateRule(rule);
-        Utils.toast("添加成功");
-      }
-      if (showEditPage) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-            .whenComplete(() => refreshData(provider));
-      } else {
-        provider.refreshData(false);
-      }
-      return true;
-    } catch (e) {
-      Utils.toast("失败！" + e.toString(), duration: Duration(seconds: 2));
-      return false;
-    }
-  }
-
-  Widget _buildPopupMenu(BuildContext context, EditSourceProvider provider) {
-    final popupIconColor = Theme.of(context).primaryColor;
-    const list = [
-      {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},
-      // {'title': '从剪贴板新建', 'icon': FIcons.clipboard, 'type': ADD_FROM_CLIPBOARD},
-      // {'title': '从剪贴板导入', 'icon': FIcons.file, 'type': FROM_CLIPBOARD},
-      // {'title': '网络导入', 'icon': FIcons.download_cloud, 'type': FROM_CLOUD},
-      {'title': '自由添加规则', 'icon': FIcons.book, 'type': ADD_RULE_DIALOG},
-      {'title': '规则管理', 'icon': FIcons.edit, 'type': FROM_EDIT_SOURCE},
-    ];
-    return PopupMenuButton<int>(
-      elevation: 20,
-      icon: Icon(FIcons.plus),
-      offset: Offset(0, 40),
-      onSelected: (value) => onPopupMenuClick(value, provider),
-      itemBuilder: (context) => list
-          .map(
-            (element) => PopupMenuItem<int>(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(element['title']),
-                  Icon(element['icon'], color: popupIconColor),
-                ],
-              ),
-              value: element['type'],
-            ),
-          )
-          .toList(),
     );
   }
 
@@ -344,16 +269,18 @@ class _DiscoverPageState extends State<DiscoverPage> {
             runSpacing: 6,
             children: [
               FlatButton(
+                child: Text("导入规则", style: _txtStyle),
+                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
+              ),
+              FlatButton(
                 child: Text("新建规则", style: _txtStyle),
-                onPressed: () => onPopupMenuClick(ADD_RULE, provider),
+                onPressed: () => () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditRulePage())),
               ),
               FlatButton(
                 child: Text("规则管理", style: _txtStyle),
-                onPressed: () => onPopupMenuClick(FROM_EDIT_SOURCE, provider),
-              ),
-              FlatButton(
-                child: Text("网络导入", style: _txtStyle),
-                onPressed: () => onPopupMenuClick(FROM_CLOUD, provider),
+                onPressed: () => () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditSourcePage())),
               ),
             ],
           ),
@@ -367,32 +294,5 @@ class _DiscoverPageState extends State<DiscoverPage> {
       provider.refreshData();
     else
       provider.getRuleListByName(_searchEdit.text);
-  }
-
-  onPopupMenuClick(int value, EditSourceProvider provider) {
-    switch (value) {
-      case ADD_RULE_DIALOG:
-        addRuleDialog(context, () => refreshData(provider));
-        break;
-      case ADD_RULE:
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-            .whenComplete(() => refreshData(provider));
-        break;
-      case ADD_FROM_CLIPBOARD:
-        _addFromClipBoard(context, provider, true);
-        break;
-      case FROM_CLIPBOARD:
-        _addFromClipBoard(context, provider, false);
-        break;
-      case FROM_CLOUD:
-        EditSourcePage.showURLDialog(context, provider.isLoadingUrl, provider, false);
-        break;
-      case FROM_EDIT_SOURCE:
-        Utils.startPageWait(context, EditSourcePage())
-            .whenComplete(() => refreshData(provider));
-        break;
-      default:
-    }
   }
 }
