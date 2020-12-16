@@ -13,6 +13,8 @@ on:
 
 jobs:
   Apk_Build:
+    env: 
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ESO Project
@@ -44,12 +46,12 @@ jobs:
           flutter pub get
           flutter build apk --split-per-abi -v
 
-      # - name: Upload Android APP
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ESO_APK
-      #     path: eso/build/app/outputs/apk/release/*.apk
-      #     if-no-files-found: error
+      - name: Upload Android APP
+        uses: actions/upload-artifact@v2
+        with:
+          name: ESO_APK
+          path: eso/build/app/outputs/apk/release/*.apk
+          if-no-files-found: error
 
   # Windows_Build:
   #   runs-on: windows-latest
