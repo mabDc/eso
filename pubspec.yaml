@@ -11,8 +11,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  audioplayers:
-    path: modules/audioplayers
+  audioplayers: ^0.17.0
+    #path: modules/audioplayers
   flutter_js:
     path: modules/flutter_js
   flutter_webview:
