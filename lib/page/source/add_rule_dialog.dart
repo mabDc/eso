@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
+import 'package:file_chooser/file_chooser.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -12,11 +16,15 @@ Future addRuleDialog(BuildContext context, VoidCallback refresh) async {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (BuildContext context) => Dialog(
-        child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: _AddRule(refresh: refresh),
-    )),
+    builder: (BuildContext context) => AlertDialog(
+      contentPadding: const EdgeInsets.all(6.0),
+      content: _AddRule(refresh: refresh),
+    ),
+    // Dialog(
+    //     child: Padding(
+    //   padding: const EdgeInsets.all(8.0),
+    //   child: _AddRule(refresh: refresh),
+    // )),
   );
 }
 
@@ -30,32 +38,30 @@ class _AddRule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AddRuleProvider>(
-        create: (_) => AddRuleProvider(refresh),
+        create: (context) => AddRuleProvider(refresh, () => Navigator.pop(context)),
         builder: (context, child) {
-          final importText =
-              context.select((AddRuleProvider provider) => provider.importText);
-          final provider = Provider.of<AddRuleProvider>(context, listen: false);
+          final provider = Provider.of<AddRuleProvider>(context, listen: true);
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Wrap(
-                spacing: 10,
+                spacing: 6,
                 children: [
                   OutlinedButton(
-                    child: Text("[未选择文件]"),
-                    onPressed: null,
+                    child: Text(provider.fileName),
+                    onPressed: provider.selectFile,
                   ),
                   Text(
-                    '0/0',
+                    '${provider.currentFileIndex}/${provider.totalFileIndex}',
                     style: TextStyle(height: 1.5),
                   ),
                   OutlinedButton(
-                    child: Text("前一个"),
-                    onPressed: null,
+                    child: Text("前"),
+                    onPressed: provider.pre,
                   ),
                   OutlinedButton(
-                    child: Text("后一个"),
-                    onPressed: null,
+                    child: Text("后"),
+                    onPressed: provider.next,
                   ),
                 ],
               ),
@@ -67,16 +73,16 @@ class _AddRule extends StatelessWidget {
                   hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件",
                 ),
               ),
+              Container(height: 6),
               Wrap(
-                spacing: 16,
-                alignment: WrapAlignment.spaceBetween,
+                spacing: 6,
                 children: [
                   OutlinedButton(
                     child: Text("取消"),
                     onPressed: () => Navigator.pop(context),
                   ),
                   OutlinedButton(
-                    child: Text("清空"),
+                    child: Text("重置"),
                     onPressed: provider.clear,
                   ),
                   OutlinedButton(
@@ -84,8 +90,8 @@ class _AddRule extends StatelessWidget {
                     onPressed: provider.stringify,
                   ),
                   OutlinedButton(
-                    child: Text(importText),
-                    onPressed: null,
+                    child: Text(provider.importText),
+                    onPressed: provider.import,
                   ),
                 ],
               )
@@ -108,9 +114,10 @@ class AddRuleProvider extends ChangeNotifier {
 
   final TextEditingController ruleController = TextEditingController();
   final VoidCallback refresh;
+  final VoidCallback close;
 
-  String _fileName = '[未选择文件]';
-  String _fileContent = '';
+  String _fileName = '[未选择]';
+  List _fileContent = [];
   String get fileName => _fileName;
   int _currentFileIndex = 0;
   int get currentFileIndex => _currentFileIndex;
@@ -119,13 +126,16 @@ class AddRuleProvider extends ChangeNotifier {
 
   String _importText = "格式不符";
   String get importText => _importText;
-  ImportType _importType;
+  ImportType _importType = ImportType.error;
 
   final httpStart = RegExp("https?://", caseSensitive: false);
   final esoStart = RuleCompress.tag;
   final jsonStart = RegExp("\\[|\\{");
   void ruleListener() {
-    if (_importType == ImportType.file) return;
+    if (_importType == ImportType.file) {
+      _importText = '导入文件';
+      return;
+    }
     final s = ruleController.text.trim();
     ImportType importType = ImportType.error;
     if (s.startsWith(httpStart)) {
@@ -154,17 +164,18 @@ class AddRuleProvider extends ChangeNotifier {
     }
   }
 
-  AddRuleProvider(this.refresh) {
+  AddRuleProvider(this.refresh, this.close) {
     ruleController.addListener(ruleListener);
   }
 
   void clear() {
     _importType = ImportType.error;
-    _fileName = '[未选择文件]';
-    _fileContent = '';
+    _fileName = '[未选择]';
+    _fileContent = [];
     _currentFileIndex = 0;
     _totalFileIndex = 0;
     ruleController.clear();
+    notifyListeners();
   }
 
   String prettyJson(String s) => JsonEncoder.withIndent("  ").convert(jsonDecode(s));
@@ -182,45 +193,137 @@ class AddRuleProvider extends ChangeNotifier {
     }
   }
 
-  void import() {
-    if (_importType == ImportType.eso) {
-      insertOrUpdateRule(ruleController.text);
-    } else if (_importType == ImportType.file) {
-      insertOrUpdateRule(_fileContent);
-    } else if (_importType == ImportType.http) {
-      () async {
-        final res = await http.get("${ruleController.text.trim()}", headers: {
-          'User-Agent':
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
-        });
-        insertOrUpdateRule(utf8.decode(res.bodyBytes));
-      }();
+  void selectFile() async {
+    String fileContent;
+    if (Global.isDesktop) {
+      final f = await showOpenPanel(
+        confirmButtonText: '选择规则文件',
+        allowedFileTypes: <FileTypeFilterGroup>[
+          FileTypeFilterGroup(
+            label: 'json或txt文本',
+            fileExtensions: <String>['json', 'txt', 'bin'],
+          ),
+          FileTypeFilterGroup(
+            label: '其他',
+            fileExtensions: <String>[],
+          ),
+        ],
+      );
+      if (f.canceled) {
+        Utils.toast('未选取文件');
+        return;
+      }
+      final rules = f.paths.first;
+      _fileName = Utils.getFileNameAndExt(rules);
+      fileContent = File(rules).readAsStringSync();
+    } else {
+      FilePickerResult rulesPick =
+          await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
+      if (rulesPick == null) {
+        Utils.toast('未选取文件');
+        return;
+      }
+      final rules = rulesPick.files.single;
+      _fileName = Utils.getFileNameAndExt(rules.path);
+      fileContent = utf8.decode(rules.bytes);
     }
+    fileContent = fileContent.trim();
+    if (fileContent.startsWith(esoStart)) {
+      fileContent = RuleCompress.decompassString(fileContent);
+    }
+    try {
+      final json = jsonDecode(fileContent);
+      if (json is Map) {
+        _fileContent = [json];
+      } else if (json is List) {
+        _fileContent = json;
+      }
+      if (_fileContent.length == 0) {
+        _currentFileIndex = 0;
+        Utils.toast("$_fileName is empty");
+      } else {
+        _currentFileIndex = 1;
+        _importType = ImportType.file;
+        ruleController.text = JsonEncoder.withIndent("  ").convert(_fileContent.first);
+      }
+      _totalFileIndex = _fileContent.length;
+    } catch (e) {
+      Utils.toast("文件格式不对");
+    }
+    notifyListeners();
   }
 
-  void selectFile(){
-    
+  void pre() {
+    if (_fileContent.length < 2) return;
+    _currentFileIndex = _currentFileIndex - 1;
+    if (_currentFileIndex < 1) {
+      _currentFileIndex = _totalFileIndex;
+    }
+    ruleController.text =
+        JsonEncoder.withIndent("  ").convert(_fileContent[_currentFileIndex - 1]);
+    notifyListeners();
   }
 
-  void insertOrUpdateRule(String s) {
-    final json = jsonDecode(s.trim());
-    if (json is Map) {
-      final id = await Global.ruleDao.insertOrUpdateRule(
-          isFromYICIYUAN ? Rule.fromYiCiYuan(json) : Rule.fromJson(json));
-      if (id != null) {
-        _isLoadingUrl = false;
-        refreshData();
-        return 1;
+  void next() {
+    if (_fileContent.length < 2) return;
+    _currentFileIndex = _currentFileIndex + 1;
+    if (_currentFileIndex >= _totalFileIndex) {
+      _currentFileIndex = 1;
+    }
+    ruleController.text =
+        JsonEncoder.withIndent("  ").convert(_fileContent[_currentFileIndex - 1]);
+    notifyListeners();
+  }
+
+  VoidCallback get import {
+    final importType = _importType;
+    if (importType == ImportType.error) return null;
+    return () {
+      _importText = "导入中..";
+      _importType = ImportType.error;
+      notifyListeners();
+      if (importType == ImportType.eso) {
+        insertOrUpdateRule(ruleController.text);
+      } else if (importType == ImportType.file) {
+        insertOrUpdateRule('', _fileContent);
+      } else if (importType == ImportType.http) {
+        () async {
+          final res = await http.get("${ruleController.text.trim()}", headers: {
+            'User-Agent':
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
+          });
+          insertOrUpdateRule(utf8.decode(res.bodyBytes));
+        }();
       }
-    } else if (json is List) {
-      final ids = await Global.ruleDao.insertOrUpdateRules(json
-          .map((rule) => isFromYICIYUAN ? Rule.fromYiCiYuan(rule) : Rule.fromJson(rule))
-          .toList());
-      if (ids.length > 0) {
-        _isLoadingUrl = false;
-        refreshData();
-        return ids.length;
+    };
+  }
+
+  void insertOrUpdateRule(String s, [List l]) async {
+    try {
+      dynamic json;
+      if (l != null) {
+        json = l;
+      } else {
+        json = jsonDecode(s.trim());
       }
+      if (json is Map) {
+        final id = await Global.ruleDao.insertOrUpdateRule(Rule.fromJson(json));
+        if (id != null) {
+          Utils.toast("成功 1 条规则");
+        }
+      } else if (json is List) {
+        final ids = await Global.ruleDao
+            .insertOrUpdateRules(json.map((rule) => Rule.fromJson(rule)).toList());
+        if (ids.length > 0) {
+          Utils.toast("成功 ${ids.length} 条规则");
+        } else {
+          Utils.toast("失败，未导入规则！");
+        }
+      }
+      close();
+      refresh();
+    } catch (e) {
+      Utils.toast("格式不对");
     }
   }
 }

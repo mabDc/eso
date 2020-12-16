@@ -14,9 +14,11 @@ import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
 import '../fonticons_icons.dart';
+import '../global.dart';
 import '../model/chapter_page_provider.dart';
 import 'content_page_manager.dart';
 import 'langding_page.dart';
+import 'source/edit_rule_page.dart';
 
 class ChapterPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -123,6 +125,15 @@ class _ChapterPageState extends State<ChapterPage> {
             iconSize: 21,
             onPressed: provider.toggleFavorite,
           ),
+        ),
+        IconButton(
+          icon: Icon(FIcons.edit),
+          tooltip: "编辑规则",
+          onPressed: () async {
+            final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
+          },
         ),
         IconButton(
           icon: Icon(FIcons.share_2),
