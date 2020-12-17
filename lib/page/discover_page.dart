@@ -11,6 +11,7 @@ import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
@@ -61,8 +62,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ),
             actions: [
               IconButton(
+                icon: Icon(OMIcons.settingsEthernet),
+                tooltip: '编辑空白规则',
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                    .whenComplete(() => refreshData(provider)),
+              ),
+              IconButton(
                 icon: Icon(Icons.add),
-                tooltip: '新增规则',
+                tooltip: '添加规则',
                 onPressed: () => addRuleDialog(context, () => refreshData(provider)),
               ),
               IconButton(
@@ -274,12 +282,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ),
               FlatButton(
                 child: Text("新建规则", style: _txtStyle),
-                onPressed: () => () => Navigator.of(context)
+                onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => EditRulePage())),
               ),
               FlatButton(
                 child: Text("规则管理", style: _txtStyle),
-                onPressed: () => () => Navigator.of(context)
+                onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => EditSourcePage())),
               ),
             ],

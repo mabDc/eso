@@ -16,7 +16,7 @@ import 'edit_rule_page.dart';
 Future addRuleDialog(BuildContext context, VoidCallback refresh) async {
   showDialog(
     context: context,
-    barrierDismissible: false,
+    // barrierDismissible: false,
     builder: (BuildContext context) => AlertDialog(
       contentPadding: const EdgeInsets.all(6.0),
       content: _AddRule(refresh: refresh),
@@ -49,19 +49,19 @@ class _AddRule extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Wrap(
                   spacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    OutlinedButton(
-                      child: Text('新建'),
-                      onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => EditRulePage())),
-                    ),
+                    // OutlinedButton(
+                    //   child: Text('新建'),
+                    //   onPressed: () => Navigator.of(context).pushReplacement(
+                    //       MaterialPageRoute(builder: (context) => EditRulePage())),
+                    // ),
                     OutlinedButton(
                       child: Text(provider.fileName),
                       onPressed: provider.selectFile,
                     ),
                     Text(
                       '${provider.currentFileIndex}/${provider.totalFileIndex}',
-                      style: TextStyle(height: 1.5),
                     ),
                     OutlinedButton(
                       child: Text("前"),
@@ -88,9 +88,14 @@ class _AddRule extends StatelessWidget {
                 child: Wrap(
                   spacing: 6,
                   children: [
+                    // OutlinedButton(
+                    //   child: Text("取消"),
+                    //   onPressed: () => Navigator.pop(context),
+                    // ),
                     OutlinedButton(
-                      child: Text("取消"),
-                      onPressed: () => Navigator.pop(context),
+                      child: Text("新建"),
+                      onPressed: () => Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => EditRulePage())),
                     ),
                     OutlinedButton(
                       child: Text("重置"),
@@ -128,7 +133,7 @@ class AddRuleProvider extends ChangeNotifier {
   final VoidCallback refresh;
   final VoidCallback close;
 
-  String _fileName = '[未选择]';
+  String _fileName = '[未选择文件]';
   List _fileContent = [];
   String get fileName => _fileName;
   int _currentFileIndex = 0;
@@ -182,7 +187,7 @@ class AddRuleProvider extends ChangeNotifier {
 
   void clear() {
     _importType = ImportType.error;
-    _fileName = '[未选择]';
+    _fileName = '[未选择文件]';
     _fileContent = [];
     _currentFileIndex = 0;
     _totalFileIndex = 0;

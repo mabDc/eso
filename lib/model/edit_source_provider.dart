@@ -67,18 +67,23 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   ///启用、禁用
-  void toggleEnableSearch(Rule rule) async {
+  void toggleEnableSearch(Rule rule, int type) async {
     if (_isLoading) return;
     _isLoading = true;
-    // 11 01 00 10
-    if (rule.enableSearch && rule.enableDiscover) {
-      rule.enableSearch = false;
-    } else if (!rule.enableSearch && rule.enableDiscover) {
-      rule.enableDiscover = false;
-    } else if (!rule.enableSearch && !rule.enableDiscover) {
-      rule.enableSearch = true;
-    } else {
-      rule.enableDiscover = true;
+    switch (type) {
+      case ENABLE_SEARCH:
+        rule.enableSearch = true;
+        break;
+      case DISABLE_SEARCH:
+        rule.enableSearch = false;
+        break;
+      case ENABLE_DISCOVER:
+        rule.enableDiscover = true;
+        break;
+      case ENABLE_DISCOVER:
+        rule.enableDiscover = false;
+        break;
+      default:
     }
     await Global.ruleDao.insertOrUpdateRule(rule);
     _isLoading = false;
@@ -178,3 +183,12 @@ class EditSourceProvider with ChangeNotifier {
     super.dispose();
   }
 }
+
+const ENABLE_SEARCH = 0;
+const DISABLE_SEARCH = 1;
+const ENABLE_DISCOVER = 2;
+const DISABLE_DISCOVER = 3;
+const SET_TOP = 4;
+const ADD_GROUP = 5;
+const DELETE_GROUP = 6;
+const DELETE = 7;

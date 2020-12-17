@@ -12,6 +12,7 @@ import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -25,60 +26,47 @@ class EditSourcePage extends StatefulWidget {
 
   @override
   _EditSourcePageState createState() => _EditSourcePageState();
-
-  static void showDeleteAllDialog(BuildContext context, EditSourceProvider provider) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Text("警告"),
-            ],
-          ),
-          content: Text("是否删除所有站点？"),
-          actions: [
-            FlatButton(
-              child: Text(
-                "取消",
-                style: TextStyle(color: Theme.of(context).hintColor),
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            FlatButton(
-              child: Text(
-                "确定",
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                provider.deleteAllRules();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 class _EditSourcePageState extends State<EditSourcePage> {
   final SlidableController slidableController = SlidableController();
   TextEditingController _searchEdit = TextEditingController();
 
+  buildPopupMenuItem(int value, String text, IconData icon, [bool color]) {
+    final primaryColor = Theme.of(context).primaryColor;
+    return PopupMenuItem<int>(
+      height: 35,
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: color == null
+                ? null
+                : color
+                    ? primaryColor
+                    : Colors.grey,
+            size: 16,
+          ),
+          SizedBox(width: 12),
+          Text(text),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<EditSourceProvider>(
       create: (context) => EditSourceProvider(),
       builder: (context, child) {
-        final provider = Provider.of<EditSourceProvider>(context, listen: false);
+        final provider = Provider.of<EditSourceProvider>(context, listen: true);
         return Scaffold(
           appBar: AppBar(
             titleSpacing: 0.0,
             title: SearchEdit(
               controller: _searchEdit,
-              hintText:
-                  "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
+              hintText: "搜索名称和分组",
               onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
                   .getRuleListByName,
               onChanged: Provider.of<EditSourceProvider>(context, listen: false)
@@ -86,14 +74,16 @@ class _EditSourcePageState extends State<EditSourcePage> {
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.add),
-                tooltip: '新增规则',
-                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
+                icon: Icon(OMIcons.settingsEthernet),
+                tooltip: '编辑空白规则',
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                    .whenComplete(() => refreshData(provider)),
               ),
               IconButton(
-                icon: Icon(FIcons.x_circle),
-                tooltip: '清空规则',
-                onPressed: () => EditSourcePage.showDeleteAllDialog(context, provider),
+                icon: Icon(Icons.add),
+                tooltip: '添加规则',
+                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
               ),
             ],
             bottom: PreferredSize(
@@ -107,7 +97,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                         child: Text(
                           " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
                           style: TextStyle(
-                              fontSize: 12, color: Theme.of(context).primaryColor),
+                              fontSize: 14, color: Theme.of(context).primaryColor),
                         ),
                         onTap: () {
                           if (RuleDao.sortOrder == RuleDao.desc) {
@@ -123,7 +113,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       InkWell(
                         child: Text(
                           " ${sort.key} ",
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(fontSize: 14),
                         ),
                         onTap: () {
                           RuleDao.sortName = sort.value;
@@ -140,13 +130,59 @@ class _EditSourcePageState extends State<EditSourcePage> {
               if (provider.isLoading) {
                 return LandingPage();
               }
-              return ListView.separated(
-                separatorBuilder: (BuildContext context, int index) => Container(),
-                itemCount: provider.rules.length,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildItem(context, provider, provider.rules[index]);
-                },
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.separated(
+                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                      padding: const EdgeInsets.all(12),
+                      itemCount: provider.rules.length,
+                      physics: BouncingScrollPhysics(),
+                      itemBuilder: (BuildContext context, int index) {
+                        return _buildItem(context, provider, provider.rules[index]);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_box_outline_blank),
+                        Text('全选(0/${provider.rules.length})'),
+                        Spacer(),
+                        OutlineButton(child: Text('反选'), onPressed: null),
+                        SizedBox(width: 4),
+                        OutlineButton(child: Text('删除'), onPressed: null),
+                        PopupMenuButton<int>(
+                          tooltip: "更多",
+                          icon: Icon(OMIcons.moreVert),
+                          offset: Offset(0, -260),
+                          padding: EdgeInsets.only(),
+                          onSelected: (value) {
+                            switch (value) {
+                              case ENABLE_SEARCH:
+                                break;
+                              default:
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            buildPopupMenuItem(
+                                ENABLE_SEARCH, '启用搜索', FIcons.check_square, true),
+                            buildPopupMenuItem(
+                                DISABLE_SEARCH, '禁用搜索', FIcons.square, false),
+                            buildPopupMenuItem(
+                                ENABLE_DISCOVER, '启用发现', FIcons.check_circle, true),
+                            buildPopupMenuItem(
+                                DISABLE_DISCOVER, '禁用发现', FIcons.circle, false),
+                            buildPopupMenuItem(ADD_GROUP, '添加分组', OMIcons.addToPhotos),
+                            buildPopupMenuItem(DELETE_GROUP, '移除分组', OMIcons.adjust),
+                            buildPopupMenuItem(SET_TOP, '置顶所选', OMIcons.arrowUpward),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
               );
             },
           ),
@@ -174,170 +210,196 @@ class _EditSourcePageState extends State<EditSourcePage> {
     final _leadBorder = rule.contentType == API.NOVEL
         ? Border.all(color: _theme.primaryColor, width: 1.0)
         : null;
-    return ListTile(
-      onTap: () => provider.toggleEnableSearch(rule),
-      contentPadding: EdgeInsets.symmetric(horizontal: 12),
-      leading: Container(
-        height: 36,
-        width: 36,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _leadColor,
-          shape: BoxShape.circle,
-          border: _leadBorder,
-        ),
-        child: Text(
-          rule.ruleTypeName,
-          style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              fontFamily: Profile.staticFontFamily,
-              color: Global.lightness(_leadColor) > 180
-                  ? _theme.primaryColorDark
-                  : Colors.white),
+    return InkWell(
+      onTap: () => Utils.toast('点击选择未实现, 长按可以预览发现'),
+      onLongPress: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => FutureBuilder<List<DiscoverMap>>(
+            future: APIFromRUle(rule).discoverMap(),
+            initialData: null,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasError) {
+                return Scaffold(
+                  body: Text("error: ${snapshot.error}"),
+                );
+              }
+              if (!snapshot.hasData) {
+                return LandingPage();
+              }
+              return DiscoverSearchPage(
+                rule: rule,
+                originTag: rule.id,
+                origin: rule.name,
+                discoverMap: snapshot.data,
+              );
+            },
+          ),
         ),
       ),
-      dense: true,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+      child: Row(
+        children: [
+          Icon(OMIcons.checkBoxOutlineBlank, color: Colors.grey, size: 20),
+          SizedBox(width: 4),
+          Container(
+            height: 28,
+            width: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _leadColor,
+              shape: BoxShape.circle,
+              border: _leadBorder,
+            ),
+            child: Text(
+              rule.ruleTypeName,
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: Profile.staticFontFamily,
+                  color: Global.lightness(_leadColor) > 180
+                      ? _theme.primaryColorDark
+                      : Colors.white),
+            ),
+          ),
+          SizedBox(width: 4),
           Expanded(
-              child: Text('${rule.name}', style: TextStyle(fontWeight: FontWeight.bold))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${rule.name}',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 16),
+                  maxLines: 1,
+                ),
+                SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      rule.enableSearch ? FIcons.check_square : FIcons.square,
+                      size: 10,
+                      color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                    ),
+                    Text(
+                      "搜索",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                        // decoration: TextDecoration.underline,
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(
+                      rule.enableDiscover ? FIcons.check_circle : FIcons.circle,
+                      size: 10,
+                      color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                    ),
+                    Text(
+                      "发现",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                        // decoration: TextDecoration.underline,
+                      ),
+                    ),
+                    if (rule.author != null && rule.author.isNotEmpty)
+                      Text(
+                        ' @${rule.author}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    if (rule.host != null && rule.host.isNotEmpty) SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blueAccent,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           IconButton(
               tooltip: "编辑",
-              icon: Icon(FIcons.edit_3, size: 20),
-              constraints: const BoxConstraints(maxWidth: 26, maxHeight: 26),
+              icon: Icon(OMIcons.settingsEthernet),
               onPressed: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
                   .whenComplete(() => refreshData(provider))),
-          IconButton(
-            tooltip: "置顶",
-            icon: Icon(OMIcons.arrowUpward, size: 20),
-            constraints: const BoxConstraints(maxWidth: 26, maxHeight: 26),
-            onPressed: () => provider.setSortMax(rule),
-          ),
-          IconButton(
-              tooltip: "删除",
-              icon: Icon(OMIcons.deleteSweep, size: 20),
-              constraints: const BoxConstraints(maxWidth: 26, maxHeight: 26),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("警告"),
-                        content: Text("确认删除 ${rule.name}"),
-                        actions: [
-                          FlatButton(
-                            child: Text(
-                              "取消",
-                              style: TextStyle(color: Theme.of(context).hintColor),
+          PopupMenuButton<int>(
+            tooltip: "选项",
+            icon: Icon(OMIcons.editAttributes),
+            offset: Offset(0, 20),
+            padding: EdgeInsets.only(),
+            onSelected: (value) {
+              switch (value) {
+                case ENABLE_SEARCH:
+                  provider.toggleEnableSearch(rule, ENABLE_SEARCH);
+                  break;
+                case DISABLE_SEARCH:
+                  provider.toggleEnableSearch(rule, DISABLE_SEARCH);
+                  break;
+                case ENABLE_DISCOVER:
+                  provider.toggleEnableSearch(rule, ENABLE_DISCOVER);
+                  break;
+                case DISABLE_DISCOVER:
+                  provider.toggleEnableSearch(rule, DISABLE_DISCOVER);
+                  break;
+                case SET_TOP:
+                  provider.setSortMax(rule);
+                  break;
+                case DELETE:
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("警告(不可恢复)"),
+                          content: Text("删除 ${rule.name}"),
+                          actions: [
+                            FlatButton(
+                              child: Text(
+                                "取消",
+                                style: TextStyle(color: Theme.of(context).hintColor),
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
                             ),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                          FlatButton(
-                            child: Text(
-                              "确定",
-                              style: TextStyle(color: Colors.red),
+                            FlatButton(
+                              child: Text(
+                                "确定",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              onPressed: () {
+                                provider.deleteRule(rule);
+                                Navigator.of(context).pop();
+                              },
                             ),
-                            onPressed: () {
-                              provider.deleteRule(rule);
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    });
-              }),
-        ],
-      ),
-      subtitle: Wrap(
-        spacing: 6,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                rule.enableSearch ? FIcons.check_square : FIcons.square,
-                size: 10,
-                color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
-              ),
-              Text(
-                "搜索",
-                style: TextStyle(
-                  fontSize: 10,
-                  height: 1.2,
-                  color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+                          ],
+                        );
+                      });
+                  break;
+                default:
+              }
+            },
+            itemBuilder: (context) => [
+              rule.enableSearch
+                  ? buildPopupMenuItem(DISABLE_SEARCH, '禁用搜索', FIcons.square, false)
+                  : buildPopupMenuItem(ENABLE_SEARCH, '启用搜索', FIcons.check_square, true),
+              rule.enableDiscover
+                  ? buildPopupMenuItem(DISABLE_DISCOVER, '禁用发现', FIcons.circle, false)
+                  : buildPopupMenuItem(
+                      ENABLE_DISCOVER, '启用发现', FIcons.check_circle, true),
+              buildPopupMenuItem(SET_TOP, '置顶', OMIcons.arrowUpward),
+              buildPopupMenuItem(DELETE, '删除', OMIcons.deleteSweep),
             ],
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                rule.enableDiscover ? FIcons.check_circle : FIcons.circle,
-                size: 10,
-                color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
-              ),
-              Text(
-                "发现",
-                style: TextStyle(
-                  fontSize: 10,
-                  height: 1.2,
-                  color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ],
-          ),
-          if (rule.author != null && rule.author.isNotEmpty)
-            Text(
-              '@${rule.author}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10,
-                height: 1.2,
-              ),
-            ),
-          if (rule.host != null && rule.host.isNotEmpty)
-            Text(
-              '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
-              maxLines: 1,
-              overflow: TextOverflow.clip,
-              style: TextStyle(
-                fontSize: 10,
-                height: 1.2,
-                color: Colors.blueAccent,
-                decoration: TextDecoration.underline,
-              ),
-            ),
         ],
       ),
-      onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => FutureBuilder<List<DiscoverMap>>(
-          future: APIFromRUle(rule).discoverMap(),
-          initialData: null,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasError) {
-              return Scaffold(
-                body: Text("error: ${snapshot.error}"),
-              );
-            }
-            if (!snapshot.hasData) {
-              return LandingPage();
-            }
-            return DiscoverSearchPage(
-              rule: rule,
-              originTag: rule.id,
-              origin: rule.name,
-              discoverMap: snapshot.data,
-            );
-          },
-        ),
-      )),
     );
   }
 
