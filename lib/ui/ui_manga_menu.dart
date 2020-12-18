@@ -223,7 +223,6 @@ class UIMangaMenu extends StatelessWidget {
       elevation: 20,
       icon: Icon(FIcons.more_vertical, color: color),
       color: bgColor,
-      offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
           case TO_CLICPBOARD:

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import '../database/search_item_manager.dart';
@@ -127,7 +128,7 @@ class _ChapterPageState extends State<ChapterPage> {
           ),
         ),
         IconButton(
-          icon: Icon(FIcons.edit),
+          icon: Icon(OMIcons.settingsEthernet),
           tooltip: "编辑规则",
           onPressed: () async {
             final rule = await Global.ruleDao.findRuleById(searchItem.originTag);

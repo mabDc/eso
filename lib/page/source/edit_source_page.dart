@@ -35,7 +35,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
   buildPopupMenuItem(int value, String text, IconData icon, [bool color]) {
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuItem<int>(
-      height: 35,
+      height: 45,
       value: value,
       child: Row(
         children: [
@@ -74,19 +74,44 @@ class _EditSourcePageState extends State<EditSourcePage> {
             ),
             actions: [
               IconButton(
-                icon: Icon(OMIcons.settingsEthernet),
-                tooltip: '编辑空白规则',
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                    .whenComplete(() => refreshData(provider)),
-              ),
-              IconButton(
                 icon: Icon(Icons.add),
                 tooltip: '添加规则',
                 onPressed: () => showDialog(
                   context: context,
-                  builder: (context) => UIAddRuleDialog(refresh: () => refreshData(provider)),
+                  builder: (context) =>
+                      UIAddRuleDialog(refresh: () => refreshData(provider)),
                 ),
+              ),
+              IconButton(
+                icon: Icon(OMIcons.settingsEthernet),
+                tooltip: '新建空白规则',
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                    .whenComplete(() => refreshData(provider)),
+              ),
+              PopupMenuButton<int>(
+                tooltip: "更多",
+                icon: Icon(OMIcons.moreVert),
+                offset: Offset(0, -260),
+                padding: EdgeInsets.only(),
+                onSelected: (value) {
+                  switch (value) {
+                    case ENABLE_SEARCH:
+                      break;
+                    default:
+                  }
+                },
+                itemBuilder: (context) => [
+                  buildPopupMenuItem(SELECT_ALL, '全选', OMIcons.album),
+                  buildPopupMenuItem(SET_TOP, '置顶所选', OMIcons.arrowUpward),
+                  buildPopupMenuItem(ENABLE_SEARCH, '启用搜索', FIcons.check_square, true),
+                  buildPopupMenuItem(DISABLE_SEARCH, '禁用搜索', FIcons.square, false),
+                  buildPopupMenuItem(ENABLE_DISCOVER, '启用发现', FIcons.check_circle, true),
+                  buildPopupMenuItem(DISABLE_DISCOVER, '禁用发现', FIcons.circle, false),
+                  buildPopupMenuItem(ADD_GROUP, '添加分组', OMIcons.addToPhotos),
+                  buildPopupMenuItem(DELETE_GROUP, '移除分组', OMIcons.adjust),
+                  buildPopupMenuItem(DELETE, '删除所选', OMIcons.deleteSweep),
+                ],
               ),
             ],
             bottom: PreferredSize(
@@ -133,59 +158,14 @@ class _EditSourcePageState extends State<EditSourcePage> {
               if (provider.isLoading) {
                 return LandingPage();
               }
-              return Column(
-                children: [
-                  Expanded(
-                    child: ListView.separated(
-                      separatorBuilder: (BuildContext context, int index) => Divider(),
-                      padding: const EdgeInsets.all(12),
-                      itemCount: provider.rules.length,
-                      physics: BouncingScrollPhysics(),
-                      itemBuilder: (BuildContext context, int index) {
-                        return _buildItem(context, provider, provider.rules[index]);
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_box_outline_blank),
-                        Text('全选(0/${provider.rules.length})'),
-                        Spacer(),
-                        OutlineButton(child: Text('反选'), onPressed: null),
-                        SizedBox(width: 4),
-                        OutlineButton(child: Text('删除'), onPressed: null),
-                        PopupMenuButton<int>(
-                          tooltip: "更多",
-                          icon: Icon(OMIcons.moreVert),
-                          offset: Offset(0, -260),
-                          padding: EdgeInsets.only(),
-                          onSelected: (value) {
-                            switch (value) {
-                              case ENABLE_SEARCH:
-                                break;
-                              default:
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            buildPopupMenuItem(
-                                ENABLE_SEARCH, '启用搜索', FIcons.check_square, true),
-                            buildPopupMenuItem(
-                                DISABLE_SEARCH, '禁用搜索', FIcons.square, false),
-                            buildPopupMenuItem(
-                                ENABLE_DISCOVER, '启用发现', FIcons.check_circle, true),
-                            buildPopupMenuItem(
-                                DISABLE_DISCOVER, '禁用发现', FIcons.circle, false),
-                            buildPopupMenuItem(ADD_GROUP, '添加分组', OMIcons.addToPhotos),
-                            buildPopupMenuItem(DELETE_GROUP, '移除分组', OMIcons.adjust),
-                            buildPopupMenuItem(SET_TOP, '置顶所选', OMIcons.arrowUpward),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ],
+              return ListView.separated(
+                separatorBuilder: (BuildContext context, int index) => Divider(),
+                padding: const EdgeInsets.all(12),
+                itemCount: provider.rules.length,
+                physics: BouncingScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildItem(context, provider, provider.rules[index]);
+                },
               );
             },
           ),
@@ -241,8 +221,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
       ),
       child: Row(
         children: [
-          Icon(OMIcons.checkBoxOutlineBlank, color: Colors.grey, size: 20),
-          SizedBox(width: 4),
+          Icon(OMIcons.checkBoxOutlineBlank, color: Colors.grey),
+          SizedBox(width: 8),
           Container(
             height: 28,
             width: 28,
@@ -263,7 +243,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       : Colors.white),
             ),
           ),
-          SizedBox(width: 4),
+          SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,8 +317,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   .whenComplete(() => refreshData(provider))),
           PopupMenuButton<int>(
             tooltip: "选项",
-            icon: Icon(OMIcons.editAttributes),
-            offset: Offset(0, 20),
+            icon: Icon(OMIcons.moreVert),
             padding: EdgeInsets.only(),
             onSelected: (value) {
               switch (value) {

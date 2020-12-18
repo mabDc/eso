@@ -192,3 +192,4 @@ const SET_TOP = 4;
 const ADD_GROUP = 5;
 const DELETE_GROUP = 6;
 const DELETE = 7;
+const SELECT_ALL = 8;

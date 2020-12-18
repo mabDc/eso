@@ -183,7 +183,7 @@ class FieldRightPopupMenu extends StatelessWidget {
                   TextSelection(baseOffset: 0, extentOffset: controller.text.length);
               break;
             case CUT:
-              if (_sel != null) {
+              if (_sel != null && _sel.end > _sel.start) {
                 Clipboard.setData(
                     ClipboardData(text: controller.text.substring(_sel.start, _sel.end)));
                 controller.text = controller.text.substring(0, _sel.start) +

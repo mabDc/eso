@@ -4,6 +4,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
@@ -311,22 +312,25 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     final controller = TextEditingController(text: text);
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: TextField(
-        focusNode: FocusNode()
-          ..addListener(() {
-            currentController = controller;
-            currentOnChanged = onChanged;
-          }),
-        minLines: minLines,
-        maxLines: maxLines,
+      child: FieldRightPopupMenu(
         controller: controller,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(4),
+        child: TextField(
+          focusNode: FocusNode()
+            ..addListener(() {
+              currentController = controller;
+              currentOnChanged = onChanged;
+            }),
+          minLines: minLines,
+          maxLines: maxLines,
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
           ),
+          onChanged: onChanged,
         ),
-        onChanged: onChanged,
       ),
     );
   }
@@ -715,7 +719,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     final primaryColor = Theme.of(context).primaryColor;
     return PopupMenuButton<int>(
       icon: Icon(FIcons.more_vertical),
-      offset: Offset(0, 40),
       onSelected: (int value) {
         switch (value) {
           case SAVE:

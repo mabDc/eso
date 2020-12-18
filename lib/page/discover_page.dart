@@ -62,19 +62,20 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ),
             actions: [
               IconButton(
-                icon: Icon(OMIcons.settingsEthernet),
-                tooltip: '编辑空白规则',
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                    .whenComplete(() => refreshData(provider)),
-              ),
-              IconButton(
                 icon: Icon(Icons.add),
                 tooltip: '添加规则',
                 onPressed: () => showDialog(
                   context: context,
-                  builder: (context) => UIAddRuleDialog(refresh: () => refreshData(provider)),
+                  builder: (context) =>
+                      UIAddRuleDialog(refresh: () => refreshData(provider)),
                 ),
+              ),
+              IconButton(
+                icon: Icon(OMIcons.settingsEthernet),
+                tooltip: '新建空白规则',
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                    .whenComplete(() => refreshData(provider)),
               ),
               IconButton(
                 icon: Icon(FIcons.edit),
@@ -283,7 +284,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 child: Text("导入规则", style: _txtStyle),
                 onPressed: () => showDialog(
                   context: context,
-                  builder: (context) => UIAddRuleDialog(refresh: () => refreshData(provider)),
+                  builder: (context) =>
+                      UIAddRuleDialog(refresh: () => refreshData(provider)),
                 ),
               ),
               FlatButton(
