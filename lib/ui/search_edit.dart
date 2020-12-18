@@ -153,9 +153,10 @@ class EditRightPopupMenu extends StatelessWidget {
           switch (value) {
             case COPY:
               if (_sel != null && _sel.end > _sel.start) {
-                Clipboard.setData(
-                    ClipboardData(text: controller.text.substring(_sel.start, _sel.end)));
-                controller.selection = _sel;
+                final _data = controller.text.substring(_sel.start, _sel.end);
+                Clipboard.setData(ClipboardData(text: _data));
+                controller.selection = TextSelection.fromPosition(
+                    TextPosition(offset: _data.length + _sel.start));
               }
               break;
             case PASTE:
