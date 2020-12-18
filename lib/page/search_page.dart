@@ -7,7 +7,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/history_manager.dart';
 import 'package:eso/model/profile.dart';
-import 'package:eso/ui/search_edit.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
@@ -38,7 +38,7 @@ class _SearchPageState extends State<SearchPage> {
           return Scaffold(
             appBar: AppBar(
               titleSpacing: 0,
-              title: SearchEdit(
+              title: SearchTextField(
                 autofocus: true,
                 focusNode: Provider.of<SearchProvider>(context, listen: false).focusNode,
                 controller:

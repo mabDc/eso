@@ -11,7 +11,7 @@ import 'package:eso/ui/ui_search2_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
-import 'package:eso/ui/search_edit.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/widgets/right_sheet.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:eso/ui/widgets/state_view.dart';
@@ -136,7 +136,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                             ),
                             _buildSwitchStyle(context),
                           ],
-                    title: SearchEdit(
+                    title: SearchTextField(
                       controller: pageController.queryController,
                       autofocus: true,
                       hintText: '搜索 ${widget.origin}',
@@ -271,7 +271,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: SearchEdit(
+              child: SearchTextField(
                 hintText: "搜索分类名称",
                 controller: _popupMenuController,
                 onChanged: (v) => _updateList(v),

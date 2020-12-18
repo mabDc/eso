@@ -1,7 +1,7 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/ui/search_edit.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +21,7 @@ class HistoryPage extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             titleSpacing: 0,
-            title: SearchEdit(
+            title: SearchTextField(
               controller: provider.editingController,
               hintText: "搜索历史(共${provider.historyItem.length ?? 0}条)",
               onSubmitted: (value) => provider.getRuleListByName(value),

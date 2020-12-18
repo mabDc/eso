@@ -5,8 +5,19 @@ import 'package:flutter/services.dart';
 
 import '../global.dart';
 
+class RuleTextField extends StatelessWidget {
+  const RuleTextField({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: null,
+    );
+  }
+}
+
 /// 搜索框
-class SearchEdit extends StatelessWidget {
+class SearchTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final bool autofocus;
@@ -16,7 +27,7 @@ class SearchEdit extends StatelessWidget {
   final ValueChanged<String> onSubmitted;
   final ValueChanged<String> onChanged;
 
-  const SearchEdit({
+  const SearchTextField({
     Key key,
     this.controller,
     this.hintText,
@@ -33,7 +44,7 @@ class SearchEdit extends StatelessWidget {
     if (controller != null && onChanged != null) {
       controller.addListener(() => onChanged(controller.text));
     }
-    return EditRightPopupMenu(
+    return FieldRightPopupMenu(
       controller: controller,
       child: TextField(
         controller: controller,
@@ -74,22 +85,20 @@ class SearchEdit extends StatelessWidget {
               ),
           prefixIconConstraints: BoxConstraints(),
           suffixIconConstraints: BoxConstraints(maxHeight: 24),
-          suffixIcon: controller.text.isEmpty
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 1, 8, 1),
-                  child: InkWell(
-                    child: Container(
-                      width: 16.0,
-                      height: 16.0,
-                      child: Icon(Icons.clear,
-                          color: Theme.of(context).dividerColor, size: 14.0),
-                    ),
-                    onTap: () {
-                      controller.text = '';
-                    },
-                  ),
-                ),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.fromLTRB(4, 1, 8, 1),
+            child: InkWell(
+              child: Container(
+                width: 16.0,
+                height: 16.0,
+                child:
+                    Icon(Icons.clear, color: Theme.of(context).dividerColor, size: 14.0),
+              ),
+              onTap: () {
+                controller.text = '';
+              },
+            ),
+          ),
         ),
         maxLines: 1,
         autofocus: autofocus,
@@ -103,10 +112,10 @@ class SearchEdit extends StatelessWidget {
   }
 }
 
-class EditRightPopupMenu extends StatelessWidget {
+class FieldRightPopupMenu extends StatelessWidget {
   final Widget child;
   final TextEditingController controller;
-  const EditRightPopupMenu({
+  const FieldRightPopupMenu({
     this.controller,
     this.child,
     Key key,
@@ -128,9 +137,9 @@ class EditRightPopupMenu extends StatelessWidget {
         showMenu<int>(
           context: context,
           position: RelativeRect.fromLTRB(
-            v.localPosition.dx + 12,
-            v.localPosition.dy + 12,
-            v.localPosition.dx + 60,
+            v.globalPosition.dx,
+            v.globalPosition.dy,
+            v.globalPosition.dx + 60,
             0,
           ),
           items: [

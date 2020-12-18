@@ -10,111 +10,101 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-import '../../global.dart';
-import 'edit_rule_page.dart';
+import '../global.dart';
+import 'ui_text_field.dart';
 
-Future addRuleDialog(BuildContext context, VoidCallback refresh) async {
-  showDialog(
-    context: context,
-    // barrierDismissible: false,
-    builder: (BuildContext context) => AlertDialog(
-      contentPadding: const EdgeInsets.all(6.0),
-      content: _AddRule(refresh: refresh),
-    ),
-    // Dialog(
-    //     child: Padding(
-    //   padding: const EdgeInsets.all(8.0),
-    //   child: _AddRule(refresh: refresh),
-    // )),
-  );
-}
-
-class _AddRule extends StatelessWidget {
+class UIAddRuleDialog extends StatelessWidget {
   final VoidCallback refresh;
-  const _AddRule({
+  const UIAddRuleDialog({
     Key key,
     this.refresh,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AddRuleProvider>(
-        create: (context) => AddRuleProvider(refresh, () => Navigator.pop(context)),
-        builder: (context, child) {
-          final provider = Provider.of<AddRuleProvider>(context, listen: true);
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Wrap(
-                  spacing: 6,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    // OutlinedButton(
-                    //   child: Text('新建'),
-                    //   onPressed: () => Navigator.of(context).pushReplacement(
-                    //       MaterialPageRoute(builder: (context) => EditRulePage())),
-                    // ),
-                    OutlinedButton(
-                      child: Text(provider.fileName),
-                      onPressed: provider.selectFile,
-                    ),
-                    Text(
-                      '${provider.currentFileIndex}/${provider.totalFileIndex}',
-                    ),
-                    OutlinedButton(
-                      child: Text("前"),
-                      onPressed: provider.pre,
-                    ),
-                    OutlinedButton(
-                      child: Text("后"),
-                      onPressed: provider.next,
-                    ),
-                  ],
+    return AlertDialog(
+      contentPadding: const EdgeInsets.all(6.0),
+      content: ChangeNotifierProvider<AddRuleProvider>(
+          create: (context) => AddRuleProvider(refresh, () => Navigator.pop(context)),
+          builder: (context, child) {
+            final provider = Provider.of<AddRuleProvider>(context, listen: true);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Wrap(
+                    spacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      // OutlinedButton(
+                      //   child: Text('新建'),
+                      //   onPressed: () => Navigator.of(context).pushReplacement(
+                      //       MaterialPageRoute(builder: (context) => EditRulePage())),
+                      // ),
+                      OutlinedButton(
+                        child: Text(provider.fileName),
+                        onPressed: provider.selectFile,
+                      ),
+                      Text(
+                        '${provider.currentFileIndex}/${provider.totalFileIndex}',
+                      ),
+                      OutlinedButton(
+                        child: Text("前"),
+                        onPressed: provider.pre,
+                      ),
+                      OutlinedButton(
+                        child: Text("后"),
+                        onPressed: provider.next,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              TextField(
-                controller: provider.ruleController,
-                minLines: 1,
-                maxLines: 10,
-                decoration: InputDecoration(
-                  hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件",
+                FieldRightPopupMenu(
+                  controller: provider.ruleController,
+                  child: TextField(
+                    controller: provider.ruleController,
+                    minLines: 1,
+                    maxLines: 10,
+                    decoration: InputDecoration(
+                      hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件",
+                    ),
+                  ),
                 ),
-              ),
-              Container(height: 6),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Wrap(
-                  spacing: 6,
-                  children: [
-                    // OutlinedButton(
-                    //   child: Text("取消"),
-                    //   onPressed: () => Navigator.pop(context),
-                    // ),
-                    OutlinedButton(
-                      child: Text("新建"),
-                      onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => EditRulePage())),
-                    ),
-                    OutlinedButton(
-                      child: Text("重置"),
-                      onPressed: provider.clear,
-                    ),
-                    OutlinedButton(
-                      child: Text("格式化"),
-                      onPressed: provider.stringify,
-                    ),
-                    OutlinedButton(
-                      child: Text(provider.importText),
-                      onPressed: provider.import,
-                    ),
-                  ],
-                ),
-              )
-            ],
-          );
-        });
+                Container(height: 6),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Wrap(
+                    spacing: 12,
+                    children: [
+                      // OutlinedButton(
+                      //   child: Text("取消"),
+                      //   onPressed: () => Navigator.pop(context),
+                      // ),
+                      // OutlinedButton(
+                      //   child: Text("新建"),
+                      //   onPressed: () => Navigator.of(context).pushReplacement(
+                      //       MaterialPageRoute(builder: (context) => EditRulePage())),
+                      // ),
+                      FlatButton(
+                        child: Text("重置"),
+                        onPressed: provider.clear,
+                      ),
+                      FlatButton(
+                        child: Text("格式化"),
+                        onPressed: provider.stringify,
+                      ),
+                      FlatButton(
+                        child: Text(provider.importText),
+                        onPressed: provider.import,
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            );
+          }),
+    );
   }
 }
 
@@ -141,7 +131,7 @@ class AddRuleProvider extends ChangeNotifier {
   int _totalFileIndex = 0;
   int get totalFileIndex => _totalFileIndex;
 
-  String _importText = "格式不符";
+  String _importText = "格式不对";
   String get importText => _importText;
   ImportType _importType = ImportType.error;
 
@@ -171,7 +161,7 @@ class AddRuleProvider extends ChangeNotifier {
     if (importType != _importType) {
       _importType = importType;
       final import = const [
-        "格式不符", //0
+        "格式不对", //0
         "导入网址", //1
         "添加规则", //2
         "导入文件", //3
@@ -187,6 +177,7 @@ class AddRuleProvider extends ChangeNotifier {
 
   void clear() {
     _importType = ImportType.error;
+    _importText = '格式不对';
     _fileName = '[未选择文件]';
     _fileContent = [];
     _currentFileIndex = 0;

@@ -1,5 +1,6 @@
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/debug_rule_provider.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +19,12 @@ class DebugRulePage extends StatelessWidget {
       create: (_) => DebugRuleProvider(rule, textColor),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
-          title: _buildTextField(
-            context,
-            Provider.of<DebugRuleProvider>(context, listen: false).search,
+          title: SearchTextField(
+            controller:
+                Provider.of<DebugRuleProvider>(context, listen: false).searchController,
+            hintText: '请输入关键词开始搜索',
+            autofocus: true,
+            onSubmitted: Provider.of<DebugRuleProvider>(context, listen: false).search,
           ),
           actions: [
             IconButton(
@@ -56,20 +60,6 @@ class DebugRulePage extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(BuildContext context, void Function(String) onSubmitted) {
-    return TextField(
-      onSubmitted: onSubmitted,
-      cursorColor: Theme.of(context).primaryTextTheme.headline6.color,
-      style: TextStyle(
-        color: Theme.of(context).primaryTextTheme.headline6.color,
-      ),
-      autofocus: true,
-      decoration: InputDecoration(hintText: "请输入关键词开始搜索"),
-      maxLines: 1,
-      textInputAction: TextInputAction.search,
     );
   }
 }

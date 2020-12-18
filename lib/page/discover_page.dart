@@ -6,7 +6,7 @@ import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/page/langding_page.dart';
-import 'package:eso/ui/search_edit.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
@@ -16,7 +16,7 @@ import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
-import 'source/add_rule_dialog.dart';
+import '../ui/ui_add_rule_dialog.dart';
 import 'source/edit_rule_page.dart';
 
 class DiscoverPage extends StatefulWidget {
@@ -54,7 +54,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           appBar: AppBar(
             centerTitle: false,
             titleSpacing: NavigationToolbar.kMiddleSpacing,
-            title: SearchEdit(
+            title: SearchTextField(
               controller: _searchEdit,
               hintText: "搜索发现站点(共${provider.rules?.length ?? 0}条)",
               onSubmitted: (value) => __provider.getRuleListByName(value),
@@ -71,7 +71,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
               IconButton(
                 icon: Icon(Icons.add),
                 tooltip: '添加规则',
-                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => UIAddRuleDialog(refresh: () => refreshData(provider)),
+                ),
               ),
               IconButton(
                 icon: Icon(FIcons.edit),
@@ -278,7 +281,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
             children: [
               FlatButton(
                 child: Text("导入规则", style: _txtStyle),
-                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => UIAddRuleDialog(refresh: () => refreshData(provider)),
+                ),
               ),
               FlatButton(
                 child: Text("新建规则", style: _txtStyle),

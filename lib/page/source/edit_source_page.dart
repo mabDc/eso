@@ -7,9 +7,9 @@ import 'package:eso/database/rule_dao.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
-import 'package:eso/page/source/add_rule_dialog.dart';
+import 'package:eso/ui/ui_add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
-import 'package:eso/ui/search_edit.dart';
+import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -64,7 +64,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
         return Scaffold(
           appBar: AppBar(
             titleSpacing: 0.0,
-            title: SearchEdit(
+            title: SearchTextField(
               controller: _searchEdit,
               hintText: "搜索名称和分组",
               onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
@@ -83,7 +83,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
               IconButton(
                 icon: Icon(Icons.add),
                 tooltip: '添加规则',
-                onPressed: () => addRuleDialog(context, () => refreshData(provider)),
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => UIAddRuleDialog(refresh: () => refreshData(provider)),
+                ),
               ),
             ],
             bottom: PreferredSize(

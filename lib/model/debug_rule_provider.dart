@@ -34,6 +34,7 @@ class DebugRuleProvider with ChangeNotifier {
     rows.clear();
     disposeFlag = true;
     _controller.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -228,6 +229,8 @@ class DebugRuleProvider with ChangeNotifier {
       FlutterJs.close(engineId);
     }
   }
+
+  final TextEditingController searchController = TextEditingController();
 
   void search(String value) async {
     _startTime = DateTime.now();
