@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:eso/ui/edit/local_cupertion_delegate.dart';
+import 'package:eso/utils/local_cupertion_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';

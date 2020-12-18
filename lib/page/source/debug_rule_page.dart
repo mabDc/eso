@@ -1,14 +1,5 @@
-/*
- * @Author: your name
- * @Date: 2020-07-08 21:57:29
- * @LastEditTime: 2020-07-26 21:20:36
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \eso\lib\page\source\debug_rule_page.dart
- */
 import 'package:eso/database/rule.dart';
 import 'package:eso/model/debug_rule_provider.dart';
-import 'package:eso/ui/edit/edit_view.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
@@ -69,14 +60,14 @@ class DebugRulePage extends StatelessWidget {
   }
 
   Widget _buildTextField(BuildContext context, void Function(String) onSubmitted) {
-    return EditView(
+    return TextField(
       onSubmitted: onSubmitted,
       cursorColor: Theme.of(context).primaryTextTheme.headline6.color,
       style: TextStyle(
         color: Theme.of(context).primaryTextTheme.headline6.color,
       ),
       autofocus: true,
-      hint: "请输入关键词开始搜索",
+      decoration: InputDecoration(hintText: "请输入关键词开始搜索"),
       maxLines: 1,
       textInputAction: TextInputAction.search,
     );

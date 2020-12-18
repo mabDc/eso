@@ -5,11 +5,44 @@ import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/model/profile.dart';
 import 'package:eso/page/novel/novel_drag_view.dart';
 import 'package:eso/page/novel/novel_one_page_view.dart';
-import 'package:eso/ui/route/empty_page_route.dart';
-import 'package:eso/ui/route/fade_page_route.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils.dart';
+
+class FadePageRoute extends PageRouteBuilder {
+  final WidgetBuilder builder;
+  final int milliseconds;
+  final bool isNext;
+
+  FadePageRoute({this.builder, this.milliseconds = 500, this.isNext})
+      : super(
+            transitionDuration: Duration(milliseconds: milliseconds),
+            pageBuilder: (context, ani1, ani2) {
+              return builder(context);
+            },
+            transitionsBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2, Widget child) {
+              return FadeTransition(
+                  opacity: Tween(begin: 0.0, end: 1.0).animate(
+                      CurvedAnimation(parent: animation1, curve: Curves.easeInOut)),
+                  child: child);
+            });
+}
+
+class EmptyPageRoute extends PageRouteBuilder {
+  final WidgetBuilder builder;
+
+  EmptyPageRoute({this.builder})
+      : super(
+            transitionDuration: const Duration(microseconds: 100),
+            pageBuilder: (context, ani1, ani2) {
+              return builder(context);
+            },
+            transitionsBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2, Widget child) {
+              return child;
+            });
+}
 
 /// 导航翻页模式
 class NovelRoteView extends StatelessWidget {

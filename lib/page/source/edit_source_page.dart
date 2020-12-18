@@ -9,7 +9,7 @@ import 'package:eso/model/profile.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
-import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/search_edit.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

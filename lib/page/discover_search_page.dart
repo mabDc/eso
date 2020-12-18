@@ -11,7 +11,7 @@ import 'package:eso/ui/ui_search2_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/keep_alive_widget.dart';
 import 'package:eso/ui/widgets/load_more_view.dart';
-import 'package:eso/ui/edit/search_edit.dart';
+import 'package:eso/ui/search_edit.dart';
 import 'package:eso/ui/widgets/right_sheet.dart';
 import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:eso/ui/widgets/state_view.dart';

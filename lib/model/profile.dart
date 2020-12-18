@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/ui/edit/bottom_input_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -509,9 +508,7 @@ class Profile with ChangeNotifier {
             color: theme.textTheme.bodyText1.color.withOpacity(0.8),
             fontFamily: _fontFamily),
       ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: BottomInputBorder(theme.dividerColor, width: Global.borderSize),
-      ),
+      
     );
   }
 
