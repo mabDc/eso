@@ -6,6 +6,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_source.dart';
+import 'package:eso/menu/menu_item.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/langding_page.dart';
@@ -33,29 +34,6 @@ class EditSourcePage extends StatefulWidget {
 class _EditSourcePageState extends State<EditSourcePage> {
   final SlidableController slidableController = SlidableController();
   TextEditingController _searchEdit = TextEditingController();
-
-  buildPopupMenuItem(int value, String text, IconData icon, [bool color]) {
-    final primaryColor = Theme.of(context).primaryColor;
-    return PopupMenuItem<int>(
-      height: 45,
-      value: value,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: color == null
-                ? null
-                : color
-                    ? primaryColor
-                    : Colors.grey,
-            size: 16,
-          ),
-          SizedBox(width: 12),
-          Text(text),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -301,28 +279,57 @@ class _EditSourcePageState extends State<EditSourcePage> {
               onPressed: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
                   .whenComplete(() => refreshData(provider))),
-          PopupMenuButton<int>(
+          Menu<MenuEditSource>(
             tooltip: "选项",
-            icon: Icon(OMIcons.moreVert),
-            padding: EdgeInsets.only(),
-            onSelected: (value) {
+            items: [
+              rule.enableSearch
+                  ? MenuItem(
+                      text: '搜索',
+                      icon: OMIcons.toggleOn,
+                      color: Global.primaryColor,
+                      value: MenuEditSource.disable_search,
+                    )
+                  : MenuItem(
+                      text: '搜索',
+                      icon: OMIcons.toggleOff,
+                      color: Colors.grey,
+                      value: MenuEditSource.enable_search,
+                    ),
+              rule.enableDiscover
+                  ? MenuItem(
+                      text: '发现',
+                      icon: OMIcons.toggleOn,
+                      color: Global.primaryColor,
+                      value: MenuEditSource.disable_discover,
+                    )
+                  : MenuItem(
+                      text: '发现',
+                      icon: OMIcons.toggleOff,
+                      color: Colors.grey,
+                      value: MenuEditSource.enable_discover,
+                    ),
+              MenuItem(text: '置顶', icon: OMIcons.arrowUpward, value: MenuEditSource.top),
+              MenuItem(
+                  text: '删除', icon: OMIcons.deleteSweep, value: MenuEditSource.delete),
+            ],
+            onSelect: (value) {
               switch (value) {
-                case ENABLE_SEARCH:
-                  provider.toggleEnableSearch(rule, ENABLE_SEARCH);
+                case MenuEditSource.enable_search:
+                  provider.toggleEnableSearch(rule, MenuEditSource.enable_search);
                   break;
-                case DISABLE_SEARCH:
-                  provider.toggleEnableSearch(rule, DISABLE_SEARCH);
+                case MenuEditSource.disable_search:
+                  provider.toggleEnableSearch(rule, MenuEditSource.disable_search);
                   break;
-                case ENABLE_DISCOVER:
-                  provider.toggleEnableSearch(rule, ENABLE_DISCOVER);
+                case MenuEditSource.enable_discover:
+                  provider.toggleEnableSearch(rule, MenuEditSource.enable_discover);
                   break;
-                case DISABLE_DISCOVER:
-                  provider.toggleEnableSearch(rule, DISABLE_DISCOVER);
+                case MenuEditSource.disable_discover:
+                  provider.toggleEnableSearch(rule, MenuEditSource.disable_discover);
                   break;
-                case SET_TOP:
+                case MenuEditSource.top:
                   provider.setSortMax(rule);
                   break;
-                case DELETE:
+                case MenuEditSource.delete:
                   showDialog(
                       context: context,
                       builder: (context) {
@@ -354,17 +361,6 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 default:
               }
             },
-            itemBuilder: (context) => [
-              rule.enableSearch
-                  ? buildPopupMenuItem(DISABLE_SEARCH, '禁用搜索', FIcons.square, false)
-                  : buildPopupMenuItem(ENABLE_SEARCH, '启用搜索', FIcons.check_square, true),
-              rule.enableDiscover
-                  ? buildPopupMenuItem(DISABLE_DISCOVER, '禁用发现', FIcons.circle, false)
-                  : buildPopupMenuItem(
-                      ENABLE_DISCOVER, '启用发现', FIcons.check_circle, true),
-              buildPopupMenuItem(SET_TOP, '置顶', OMIcons.arrowUpward),
-              buildPopupMenuItem(DELETE, '删除', OMIcons.deleteSweep),
-            ],
           ),
         ],
       ),

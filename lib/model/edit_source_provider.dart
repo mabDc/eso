@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:eso/database/rule.dart';
 import 'package:eso/evnts/restore_event.dart';
 import 'package:eso/global.dart';
+import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -79,24 +80,25 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   ///启用、禁用
-  void toggleEnableSearch(Rule rule, int type) async {
+  void toggleEnableSearch(Rule rule, MenuEditSource type) async {
     if (_isLoading) return;
-    _isLoading = true;
     switch (type) {
-      case ENABLE_SEARCH:
+      case MenuEditSource.enable_search:
         rule.enableSearch = true;
         break;
-      case DISABLE_SEARCH:
+      case MenuEditSource.disable_search:
         rule.enableSearch = false;
         break;
-      case ENABLE_DISCOVER:
+      case MenuEditSource.enable_discover:
         rule.enableDiscover = true;
         break;
-      case ENABLE_DISCOVER:
+      case MenuEditSource.disable_discover:
         rule.enableDiscover = false;
         break;
       default:
+        return;
     }
+    _isLoading = true;
     await Global.ruleDao.insertOrUpdateRule(rule);
     _isLoading = false;
     notifyListeners();
@@ -202,14 +204,3 @@ class EditSourceProvider with ChangeNotifier {
     super.dispose();
   }
 }
-
-const ENABLE_SEARCH = 0;
-const DISABLE_SEARCH = 1;
-const ENABLE_DISCOVER = 2;
-const DISABLE_DISCOVER = 3;
-const SET_TOP = 4;
-const ADD_GROUP = 5;
-const DELETE_GROUP = 6;
-const DELETE = 7;
-const SELECT_ALL = 8;
-const SELECT_RECERT = 09;
