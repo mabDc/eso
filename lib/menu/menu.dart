@@ -13,7 +13,6 @@ class Menu<T> extends StatelessWidget {
   final String tooltip;
   final FutureOr Function(T value) onSelect;
   final Widget child;
-  final bool onSecondaryTapDown;
 
   const Menu({
     Key key,
@@ -23,7 +22,6 @@ class Menu<T> extends StatelessWidget {
     this.child,
     this.items,
     this.onSelect = voidValueFunction,
-    this.onSecondaryTapDown = false,
   }) : super(key: key);
 
   @override
@@ -35,31 +33,26 @@ class Menu<T> extends StatelessWidget {
             icon: Icon(icon, color: color),
             onPressed: null,
           ),
-      onTapDown:
-          onSecondaryTapDown ? null : (TapDownDetails details) => show(context, details),
-      onSecondaryTapDown:
-          onSecondaryTapDown ? (TapDownDetails details) => show(context, details) : null,
+      onTapDown: (TapDownDetails details) {
+        showMenu<T>(
+          context: context,
+          position: RelativeRect.fromLTRB(details.globalPosition.dx,
+              details.globalPosition.dy, details.globalPosition.dx + 60, 0),
+          items: [
+            for (final item in items)
+              PopupMenuItem<T>(
+                value: item.value,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(item.text),
+                    Icon(item.icon, color: item.color),
+                  ],
+                ),
+              ),
+          ],
+        ).then(onSelect);
+      },
     );
-  }
-
-  void show(BuildContext context, TapDownDetails details) {
-    showMenu<T>(
-      context: context,
-      position: RelativeRect.fromLTRB(details.globalPosition.dx,
-          details.globalPosition.dy, details.globalPosition.dx + 60, 0),
-      items: [
-        for (final item in items)
-          PopupMenuItem<T>(
-            value: item.value,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(item.text),
-                Icon(item.icon, color: item.color),
-              ],
-            ),
-          ),
-      ],
-    ).then(onSelect);
   }
 }
