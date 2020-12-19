@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -37,6 +37,7 @@ class Global with ChangeNotifier {
   static bool get isDesktop => _isDesktop;
   static const fullSpace = "　";
   static int currentHomePage;
+  static Color primaryColor;
 
   static RuleDao _ruleDao;
   static RuleDao get ruleDao => _ruleDao;

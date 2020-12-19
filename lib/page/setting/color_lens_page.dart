@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/profile.dart';
+import '../../profile.dart';
 
 class ColorLensPage extends StatelessWidget {
   const ColorLensPage({Key key}) : super(key: key);

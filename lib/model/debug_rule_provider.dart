@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_const.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';

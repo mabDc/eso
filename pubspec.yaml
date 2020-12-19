@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.20.17+12017
+version: 1.20.18+12018
 
 environment:
   sdk: ">=2.2.2 <3.2.0"
@@ -60,7 +60,7 @@ dependencies:
   shared_preferences: ^0.5.12+2
   url_launcher: ^5.7.7
   uuid: ^2.2.2
-  video_player: ^0.11.1+2
+  video_player: ^2.0.0-nullsafety.3
   sqflite_common_ffi: ^1.1.1
   scrollable_positioned_list: ^0.1.8
 

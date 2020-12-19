@@ -1,5 +1,5 @@
 import 'package:eso/model/novel_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_dash.dart';
 import 'package:eso/ui/widgets/icon_text.dart';
 import 'package:flutter/material.dart';

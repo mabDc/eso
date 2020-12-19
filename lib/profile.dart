@@ -3,7 +3,7 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../global.dart';
+import 'global.dart';
 
 enum SearchOption { Normal, None, Accurate }
 
@@ -470,6 +470,7 @@ class Profile with ChangeNotifier {
         break;
     }
     final _color = Color(_primaryColor);
+    Global.primaryColor = _color;
     staticFontFamily = fontFamily;
     final theme = ThemeData(
       fontFamily: staticFontFamily,
@@ -508,7 +509,6 @@ class Profile with ChangeNotifier {
             color: theme.textTheme.bodyText1.color.withOpacity(0.8),
             fontFamily: _fontFamily),
       ),
-      
     );
   }
 

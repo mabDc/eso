@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/novel/novel_route_view.dart';
 import 'package:eso/page/novel/novel_none_view.dart';

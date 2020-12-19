@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/profile.dart';
+import '../../profile.dart';
 
 class DarkModpage extends StatelessWidget {
   const DarkModpage({Key key}) : super(key: key);

@@ -7,7 +7,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-import 'model/profile.dart';
+import 'profile.dart';
 
 /// 事件bus
 EventBus eventBus = EventBus();

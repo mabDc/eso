@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:eso/model/manga_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/ui_manga_menu.dart';

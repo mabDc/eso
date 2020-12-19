@@ -1,6 +1,6 @@
 
 import 'package:dlna/dlna.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

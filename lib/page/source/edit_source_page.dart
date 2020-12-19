@@ -4,8 +4,10 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
+import 'package:eso/menu/menu.dart';
+import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/model/edit_source_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/ui_add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
@@ -66,7 +68,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
             titleSpacing: 0.0,
             title: SearchTextField(
               controller: _searchEdit,
-              hintText: "搜索名称和分组",
+              hintText:
+                  "搜索名称和分组(共${Provider.of<EditSourceProvider>(context, listen: false)?.rules?.length ?? 0}条)",
               onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
                   .getRuleListByName,
               onChanged: Provider.of<EditSourceProvider>(context, listen: false)
@@ -89,29 +92,9 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     .push(MaterialPageRoute(builder: (context) => EditRulePage()))
                     .whenComplete(() => refreshData(provider)),
               ),
-              PopupMenuButton<int>(
-                tooltip: "更多",
-                icon: Icon(OMIcons.moreVert),
-                offset: Offset(0, -260),
-                padding: EdgeInsets.only(),
-                onSelected: (value) {
-                  switch (value) {
-                    case ENABLE_SEARCH:
-                      break;
-                    default:
-                  }
-                },
-                itemBuilder: (context) => [
-                  buildPopupMenuItem(SELECT_ALL, '全选', OMIcons.album),
-                  buildPopupMenuItem(SET_TOP, '置顶所选', OMIcons.arrowUpward),
-                  buildPopupMenuItem(ENABLE_SEARCH, '启用搜索', FIcons.check_square, true),
-                  buildPopupMenuItem(DISABLE_SEARCH, '禁用搜索', FIcons.square, false),
-                  buildPopupMenuItem(ENABLE_DISCOVER, '启用发现', FIcons.check_circle, true),
-                  buildPopupMenuItem(DISABLE_DISCOVER, '禁用发现', FIcons.circle, false),
-                  buildPopupMenuItem(ADD_GROUP, '添加分组', OMIcons.addToPhotos),
-                  buildPopupMenuItem(DELETE_GROUP, '移除分组', OMIcons.adjust),
-                  buildPopupMenuItem(DELETE, '删除所选', OMIcons.deleteSweep),
-                ],
+              Menu(
+                tooltip: "编辑选中规则",
+                items: editSourceMenus,
               ),
             ],
             bottom: PreferredSize(
@@ -160,7 +143,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               }
               return ListView.separated(
                 separatorBuilder: (BuildContext context, int index) => Divider(),
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 9),
                 itemCount: provider.rules.length,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
@@ -194,7 +177,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
         ? Border.all(color: _theme.primaryColor, width: 1.0)
         : null;
     return InkWell(
-      onTap: () => Utils.toast('点击选择未实现, 长按可以预览发现'),
+      onTap: () => provider.toggleSelect(rule.id),
       onLongPress: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => FutureBuilder<List<DiscoverMap>>(
@@ -221,7 +204,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
       ),
       child: Row(
         children: [
-          Icon(OMIcons.checkBoxOutlineBlank, color: Colors.grey),
+          Checkbox(
+            value: provider.checkSelectMap[rule.id] ?? false,
+            onChanged: (value) => provider.toggleSelect(rule.id, value),
+          ),
           SizedBox(width: 8),
           Container(
             height: 28,

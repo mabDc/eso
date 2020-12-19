@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';

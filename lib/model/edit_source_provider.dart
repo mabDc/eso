@@ -11,6 +11,18 @@ class EditSourceProvider with ChangeNotifier {
   List<Rule> _rulesFilter;
   List<Rule> _rules;
   final int type;
+
+  final Map<String, bool> checkSelectMap = {};
+  void toggleSelect(String id, [bool value]) {
+    if (value == null) {
+      checkSelectMap[id] = !(checkSelectMap[id] ?? false);
+      notifyListeners();
+    } else if (checkSelectMap[id] != value) {
+      checkSelectMap[id] = value;
+      notifyListeners();
+    }
+  }
+
   List<Rule> get rules => _ruleContentType < 0 ? _rules : _rulesFilter;
   bool _isLoading;
   bool get isLoading => _isLoading;
@@ -101,7 +113,7 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   ///清空源
-  void deleteAllRules() async {
+  void deleteRules() async {
     if (_isLoading) return;
     _isLoading = true;
     _rules.clear();
@@ -126,18 +138,23 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = false;
   }
 
-  DateTime _loadTime;
+  DateTime _loadTime = DateTime.now();
+  bool _lockDataBase = false;
   void getRuleListByNameDebounce(String name) {
+    if (_lockDataBase) return;
     _loadTime = DateTime.now();
-    Future.delayed(const Duration(milliseconds: 301), () {
-      if (DateTime.now().difference(_loadTime).inMilliseconds > 300) {
-        getRuleListByName(name);
+    Future.delayed(const Duration(milliseconds: 200), () async {
+      if (DateTime.now().difference(_loadTime).inMilliseconds > 200) {
+        await getRuleListByName(name);
       }
     });
   }
 
   ///搜索
-  void getRuleListByName(String name) async {
+  Future<void> getRuleListByName(String name) async {
+    if (_lockDataBase) return;
+    _lockDataBase = true;
+    print("读取数据库");
     switch (this.type) {
       case 1:
         _rules = await Global.ruleDao.getRuleByName('%$name%', '%$name%');
@@ -146,6 +163,7 @@ class EditSourceProvider with ChangeNotifier {
         _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%', '%$name%');
         break;
     }
+    _lockDataBase = false;
     _setRuleContentType(_ruleContentType);
     notifyListeners();
   }
@@ -180,6 +198,7 @@ class EditSourceProvider with ChangeNotifier {
   void dispose() {
     _rules.clear();
     _eventStream.cancel();
+    checkSelectMap.clear();
     super.dispose();
   }
 }
@@ -193,3 +212,4 @@ const ADD_GROUP = 5;
 const DELETE_GROUP = 6;
 const DELETE = 7;
 const SELECT_ALL = 8;
+const SELECT_RECERT = 09;

@@ -6,7 +6,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:intl/intl.dart' as intl;

@@ -213,7 +213,9 @@ class HistoryPageProvider with ChangeNotifier {
   TextEditingController _editingController;
   TextEditingController get editingController => _editingController;
   DateTime _loadTime;
+  bool _lockDataBase = false;
   void getRuleListByNameDebounce(String name) {
+    if (_lockDataBase) return;
     _loadTime = DateTime.now();
     Future.delayed(const Duration(milliseconds: 301), () {
       if (DateTime.now().difference(_loadTime).inMilliseconds > 300) {
@@ -223,7 +225,10 @@ class HistoryPageProvider with ChangeNotifier {
   }
 
   void getRuleListByName(String name) {
+    if (_lockDataBase) return;
+    _lockDataBase = true;
     _historyItem = HistoryItemManager.getHistoryItemByType(name, _contentType);
     notifyListeners();
+    _lockDataBase = false;
   }
 }

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/page/novel_auto_cache_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/utils.dart';

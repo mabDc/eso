@@ -2,7 +2,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:eso/page/content_page_manager.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/model/favorite_list_provider.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:flutter/material.dart';

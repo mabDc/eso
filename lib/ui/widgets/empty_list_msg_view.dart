@@ -1,5 +1,5 @@
 import 'package:eso/fonticons_icons.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 

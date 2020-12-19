@@ -17,7 +17,7 @@ import 'package:screen/screen.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
-import 'profile.dart';
+import '../profile.dart';
 
 class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;

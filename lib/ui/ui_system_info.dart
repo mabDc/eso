@@ -1,4 +1,4 @@
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/model/system_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

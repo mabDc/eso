@@ -7,7 +7,7 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';

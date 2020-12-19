@@ -1,5 +1,5 @@
 import 'package:eso/model/novel_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:flutter/cupertino.dart';
 
 /// 文字阅读 手势处理

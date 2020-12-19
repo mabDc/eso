@@ -1,6 +1,6 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/manga_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:eso/database/search_item.dart';
 import 'package:eso/model/novel_page_provider.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/page/novel/novel_drag_view.dart';
 import 'package:eso/page/novel/novel_one_page_view.dart';
 import 'package:flutter/material.dart';

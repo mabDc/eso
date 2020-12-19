@@ -16,7 +16,7 @@ import 'package:provider/provider.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
 import '../model/page_switch.dart';
-import '../model/profile.dart';
+import '../profile.dart';
 import '../utils.dart';
 import 'discover_page.dart';
 import 'favorite_page.dart';

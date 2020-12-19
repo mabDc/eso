@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'global.dart';
-import 'model/profile.dart';
+import 'profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
 

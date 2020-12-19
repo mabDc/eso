@@ -1,5 +1,5 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 
 import 'ui_image_item.dart';
 import '../database/search_item.dart';

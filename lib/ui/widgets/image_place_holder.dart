@@ -1,4 +1,4 @@
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:flutter/material.dart';
 
 import '../../global.dart';

@@ -6,7 +6,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/history_manager.dart';
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';

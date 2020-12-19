@@ -1,4 +1,4 @@
-import 'package:eso/model/profile.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
 
 import '../database/search_item.dart';

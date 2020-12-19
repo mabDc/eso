@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../global.dart';
-import '../../model/profile.dart';
+import '../../profile.dart';
 import 'darkmod_page.dart';
 import 'color_lens_page.dart';
 import 'package:about/about.dart';
