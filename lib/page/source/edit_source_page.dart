@@ -70,9 +70,46 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     .push(MaterialPageRoute(builder: (context) => EditRulePage()))
                     .whenComplete(() => refreshData(provider)),
               ),
-              Menu(
+              Menu<MenuEditSource>(
                 tooltip: "编辑选中规则",
                 items: editSourceMenus,
+                onSelect: (value) {
+                  final rules = provider.rules
+                      .where((element) => provider.checkSelectMap[element.id] == true)
+                      .toList();
+                  if (value == MenuEditSource.delete) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("警告(不可恢复)"),
+                          content: Text("删除选中${rules.length}条规则"),
+                          actions: [
+                            FlatButton(
+                              child: Text(
+                                "取消",
+                                style: TextStyle(color: Theme.of(context).hintColor),
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                            FlatButton(
+                              child: Text(
+                                "确定",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              onPressed: () {
+                                provider.deleteRules(rules);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    provider.handleSelect(rules, value);
+                  }
+                },
               ),
             ],
             bottom: PreferredSize(
@@ -331,32 +368,33 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   break;
                 case MenuEditSource.delete:
                   showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("警告(不可恢复)"),
-                          content: Text("删除 ${rule.name}"),
-                          actions: [
-                            FlatButton(
-                              child: Text(
-                                "取消",
-                                style: TextStyle(color: Theme.of(context).hintColor),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(),
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("警告(不可恢复)"),
+                        content: Text("删除 ${rule.name}"),
+                        actions: [
+                          FlatButton(
+                            child: Text(
+                              "取消",
+                              style: TextStyle(color: Theme.of(context).hintColor),
                             ),
-                            FlatButton(
-                              child: Text(
-                                "确定",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                              onPressed: () {
-                                provider.deleteRule(rule);
-                                Navigator.of(context).pop();
-                              },
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          FlatButton(
+                            child: Text(
+                              "确定",
+                              style: TextStyle(color: Colors.red),
                             ),
-                          ],
-                        );
-                      });
+                            onPressed: () {
+                              provider.deleteRule(rule);
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                   break;
                 default:
               }

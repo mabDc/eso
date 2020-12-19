@@ -4,7 +4,6 @@ import 'package:eso/menu/menu_item.dart';
 import 'package:flutter/material.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
-void voidFunction() {}
 void voidValueFunction(_) {}
 
 class Menu<T> extends StatelessWidget {
@@ -56,11 +55,7 @@ class Menu<T> extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(item.text),
-                Spacer(),
-                Icon(
-                  item.icon,
-                  color: item.color,
-                )
+                Icon(item.icon, color: item.color),
               ],
             ),
           ),

@@ -16,7 +16,7 @@ class EditSourceProvider with ChangeNotifier {
   final Map<String, bool> checkSelectMap = {};
   void toggleSelect(String id, [bool value]) {
     if (value == null) {
-      checkSelectMap[id] = !(checkSelectMap[id] ?? false);
+      checkSelectMap[id] = !(checkSelectMap[id] == true);
       notifyListeners();
     } else if (checkSelectMap[id] != value) {
       checkSelectMap[id] = value;
@@ -104,6 +104,51 @@ class EditSourceProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void handleSelect(List<Rule> rules, MenuEditSource type) async {
+    if (_isLoading) return;
+    bool updateFlag = false;
+    switch (type) {
+      case MenuEditSource.all:
+        _rules.forEach((rule) => checkSelectMap[rule.id] = true);
+        break;
+      case MenuEditSource.revert:
+        final ids = _rules
+            .where((rule) => checkSelectMap[rule.id] != true)
+            .map((rule) => rule.id);
+        checkSelectMap.clear();
+        ids.forEach((id) => checkSelectMap[id] = true);
+        break;
+      case MenuEditSource.top:
+        int maxSort = (await Global.ruleDao.findMaxSort()).sort + 1;
+        rules.forEach((rule) => rule.sort = maxSort++);
+        updateFlag = true;
+        break;
+      case MenuEditSource.enable_search:
+        rules.forEach((rule) => rule.enableSearch = true);
+        updateFlag = true;
+        break;
+      case MenuEditSource.disable_search:
+        rules.forEach((rule) => rule.enableSearch = false);
+        updateFlag = true;
+        break;
+      case MenuEditSource.enable_discover:
+        rules.forEach((rule) => rule.enableDiscover = true);
+        updateFlag = true;
+        break;
+      case MenuEditSource.disable_discover:
+        rules.forEach((rule) => rule.enableDiscover = false);
+        updateFlag = true;
+        break;
+    }
+    if (updateFlag) {
+      _isLoading = true;
+      await Global.ruleDao.insertOrUpdateRules(rules);
+      _isLoading = false;
+    }
+    if (type != MenuEditSource.add_group && type != MenuEditSource.delete_group)
+      notifyListeners();
+  }
+
   ///删除规则
   void deleteRule(Rule rule) async {
     if (_isLoading) return;
@@ -115,11 +160,11 @@ class EditSourceProvider with ChangeNotifier {
   }
 
   ///清空源
-  void deleteRules() async {
+  void deleteRules(List<Rule> rules) async {
     if (_isLoading) return;
     _isLoading = true;
     _rules.clear();
-    await Global.ruleDao.clearAllRules();
+    await Global.ruleDao.deleteRules(rules);
     notifyListeners();
     _isLoading = false;
   }
