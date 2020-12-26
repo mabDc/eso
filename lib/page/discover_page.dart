@@ -5,6 +5,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_discover_source.dart';
+import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
@@ -273,7 +274,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               );
               break;
             case MenuDiscoverSource.top:
-              provider.setSortMax(rule);
+              provider.handleSelect([rule], MenuEditSource.top);
               break;
             case MenuDiscoverSource.edit:
               Navigator.of(context)
@@ -301,7 +302,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                             style: TextStyle(color: Colors.red),
                           ),
                           onPressed: () {
-                            provider.deleteRule(rule);
+                            provider.handleSelect([rule], MenuEditSource.delete_this);
                             Navigator.of(context).pop();
                           },
                         ),

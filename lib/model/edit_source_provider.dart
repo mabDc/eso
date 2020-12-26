@@ -78,6 +78,7 @@ class EditSourceProvider with ChangeNotifier {
 
   void handleSelect(List<Rule> rules, MenuEditSource type, [String group]) async {
     if (_isLoading) return;
+    if (rules == null || rules.isEmpty) return;
     bool updateFlag = false;
     switch (type) {
       case MenuEditSource.all:
@@ -129,6 +130,14 @@ class EditSourceProvider with ChangeNotifier {
         _rules.removeWhere((rule) => checkSelectMap[rule.id] == true);
         _isLoading = true;
         await Global.ruleDao.deleteRules(rules);
+        _isLoading = false;
+        notifyListeners();
+        return;
+      case MenuEditSource.delete_this:
+        final rule = rules.first;
+        _rules.remove(rule);
+        _isLoading = true;
+        await Global.ruleDao.deleteRule(rule);
         _isLoading = false;
         notifyListeners();
         return;

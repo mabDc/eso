@@ -16,6 +16,7 @@ enum MenuEditSource {
   add_group,
   delete_group,
   delete,
+  delete_this,
   preview,
 }
 

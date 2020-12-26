@@ -380,12 +380,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
               MenuItem(
                 text: '删除',
                 icon: OMIcons.deleteSweep,
-                value: MenuEditSource.delete,
+                value: MenuEditSource.delete_this,
                 color: Global.primaryColor,
               ),
             ],
             onSelect: (value) {
-              if (value == MenuEditSource.delete) {
+              if (value == MenuEditSource.delete_this) {
                 alert(
                   Text("警告(不可恢复)"),
                   Text("删除选中${rule.name}条规则"),
