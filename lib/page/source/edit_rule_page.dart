@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
+import 'package:eso/menu/menu.dart';
+import 'package:eso/menu/menu_edit_rule.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:eso/ui/ui_text_field.dart';
@@ -14,6 +17,8 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
 import '../../fonticons_icons.dart';
+import '../discover_search_page.dart';
+import '../langding_page.dart';
 import 'login_rule_page.dart';
 
 class EditRulePage extends StatefulWidget {
@@ -170,20 +175,15 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
         actions: [
           IconButton(
-            icon: Icon(Global.isDesktop ? FIcons.copy : FIcons.share_2),
-            tooltip: Global.isDesktop ? "复制" : "分享",
+            icon: Icon(FIcons.share_2),
+            tooltip: "分享",
             onPressed: () {
-              if (Global.isDesktop) {
-                Clipboard.setData(ClipboardData(text: RuleCompress.compass(rule)));
-                Utils.toast("已保存到剪贴板");
-              } else {
-                FlutterShare.share(
-                  title: '亦搜 eso',
-                  text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
-                  //linkUrl: '${searchItem.url}',
-                  chooserTitle: '选择分享的应用',
-                );
-              }
+              FlutterShare.share(
+                title: '亦搜 eso',
+                text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
+                //linkUrl: '${searchItem.url}',
+                chooserTitle: '选择分享的应用',
+              );
             },
           ),
           IconButton(
@@ -705,56 +705,31 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     }
   }
 
-  PopupMenuButton _buildpopupMenu(BuildContext context) {
-    const SAVE = 0;
-    const FROM_CLIPBOARD = 1;
-    const TO_CLIPBOARD = 2;
-    const DEBUG_WITHOUT_SAVE = 3;
-    const FROM_YICIYUAN = 4;
-    const TO_SHARE = 5;
-    const SOURCE_HELP = 6;
-    const LOGIN = 7;
-    const SHARE = 8;
-    const HELP = 9;
-    final primaryColor = Theme.of(context).primaryColor;
-    return PopupMenuButton<int>(
-      icon: Icon(FIcons.more_vertical),
-      onSelected: (int value) {
+  Menu _buildpopupMenu(BuildContext context) {
+    return Menu<MenuEditRule>(
+      items: editRuleMenus,
+      onSelect: (value) {
         switch (value) {
-          case SAVE:
-            _saveRule(context);
-            break;
-          case FROM_CLIPBOARD:
-            _loadFromClipBoard(context, false);
-            break;
-          case FROM_YICIYUAN:
-            _loadFromClipBoard(context, true);
-            break;
-          case TO_CLIPBOARD:
-            Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
-            Utils.toast("已保存到剪贴板");
-            break;
-          case DEBUG_WITHOUT_SAVE:
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
-            break;
-          case TO_SHARE:
-            FlutterShare.share(
-              title: '亦搜 eso',
-              text: jsonEncode(rule.toJson()),
-              //linkUrl: '${searchItem.url}',
-              chooserTitle: '选择分享的应用',
-            );
-            break;
-          case SOURCE_HELP:
-            launch('https://github.com/mabDc/eso_source/blob/master/README.md');
-            break;
-          case LOGIN:
+          case MenuEditRule.login:
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)))
                 .whenComplete(() => setState(() {}));
             break;
-          case SHARE:
+          case MenuEditRule.import:
+            _loadFromClipBoard(context, false);
+            break;
+          case MenuEditRule.yiciyuan:
+            _loadFromClipBoard(context, true);
+            break;
+          case MenuEditRule.copy:
+            Clipboard.setData(ClipboardData(text: RuleCompress.compass(rule)));
+            Utils.toast("已保存到剪贴板");
+            break;
+          case MenuEditRule.copy_origin:
+            Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
+            Utils.toast("已保存到剪贴板");
+            break;
+          case MenuEditRule.share_origin:
             FlutterShare.share(
               title: '亦搜 eso',
               text: jsonEncode(rule.toJson()),
@@ -762,144 +737,70 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               chooserTitle: '选择分享的应用',
             );
             break;
-          case HELP:
+          case MenuEditRule.preview:
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => FutureBuilder<List<DiscoverMap>>(
+                  future: APIFromRUle(rule).discoverMap(),
+                  initialData: null,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasError) {
+                      return Scaffold(
+                        body: Text("error: ${snapshot.error}"),
+                      );
+                    }
+                    if (!snapshot.hasData) {
+                      return LandingPage();
+                    }
+                    return DiscoverSearchPage(
+                      rule: rule,
+                      originTag: rule.id,
+                      origin: rule.name,
+                      discoverMap: snapshot.data,
+                    );
+                  },
+                ),
+              ),
+            );
+            break;
+          case MenuEditRule.delete:
+            final _context = context;
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("警告(不可恢复)"),
+                  content: Text("删除 ${rule.name}"),
+                  actions: [
+                    FlatButton(
+                      child: Text(
+                        "取消",
+                        style: TextStyle(color: Theme.of(context).hintColor),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    FlatButton(
+                      child: Text(
+                        "确定",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onPressed: () {
+                        Global.ruleDao.deleteRule(rule);
+                        Navigator.of(context).pop();
+                        Navigator.of(_context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+            break;
+          case MenuEditRule.help:
             launch('https://github.com/mabDc/eso_source/blob/master/README.md');
             break;
           default:
         }
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('登录'),
-              Icon(
-                FIcons.user,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: LOGIN,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('从剪贴板导入'),
-              Icon(
-                FIcons.clipboard,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_CLIPBOARD,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('阅读或异次元'),
-              Icon(
-                FIcons.book_open,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: FROM_YICIYUAN,
-        ),
-        // PopupMenuItem(
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: <Widget>[
-        //       Text('分享规则至'),
-        //       Icon(
-        //         Icons.share,
-        //         color: primaryColor,
-        //       ),
-        //     ],
-        //   ),
-        //   value: TO_CLIPBOARD,
-        // ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('导出到剪贴板'),
-              Icon(
-                FIcons.copy,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: TO_CLIPBOARD,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('分享原始文本'),
-              Icon(
-                FIcons.share_2,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: SHARE,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('调试但不保存'),
-              Icon(
-                Icons.bug_report,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: DEBUG_WITHOUT_SAVE,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('帮助'),
-              Icon(
-                FIcons.help_circle,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: HELP,
-        ),
-        // PopupMenuItem(
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: <Widget>[
-        //       Text('保存规则'),
-        //       Icon(
-        //         FIcons.save,
-        //         color: primaryColor,
-        //       ),
-        //     ],
-        //   ),
-        //   value: SAVE,
-        // ),
-        // PopupMenuItem(
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: <Widget>[
-        //       Text('规则说明'),
-        //       Icon(
-        //         FIcons.help_circle,
-        //         color: primaryColor,
-        //       ),
-        //     ],
-        //   ),
-        //   value: SOURCE_HELP,
-        // ),
-      ],
     );
   }
 }

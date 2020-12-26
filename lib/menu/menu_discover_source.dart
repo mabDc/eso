@@ -20,15 +20,15 @@ List<MenuItem<MenuDiscoverSource>> discoverSourceMenus = [
     color: Global.primaryColor,
   ),
   MenuItem<MenuDiscoverSource>(
-    text: '删除',
-    icon: OMIcons.deleteSweep,
-    value: MenuDiscoverSource.delete,
-    color: Global.primaryColor,
-  ),
-  MenuItem<MenuDiscoverSource>(
     text: '置顶',
     icon: OMIcons.arrowUpward,
     value: MenuDiscoverSource.top,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuDiscoverSource>(
+    text: '删除',
+    icon: OMIcons.deleteSweep,
+    value: MenuDiscoverSource.delete,
     color: Global.primaryColor,
   ),
   MenuItem<MenuDiscoverSource>(
