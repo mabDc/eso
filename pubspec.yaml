@@ -50,14 +50,14 @@ dependencies:
   matrix_gesture_detector: ^0.1.0
   oktoast: ^2.3.2
   outline_material_icons: ^0.1.1
-  package_info: ^0.4.3
-  path_provider: ^1.6.21
+  package_info_plus: ^0.6.3
+  path_provider: ^1.6.24
   permission_handler: ^5.0.1+1
   photo_view: ^0.10.2
   provider: ^4.3.2+2
   pull_to_refresh: ^1.6.2
   screen: ^0.0.5
-  shared_preferences: ^0.5.12+2
+  shared_preferences: ^0.5.12+4
   url_launcher: ^5.7.7
   uuid: ^2.2.2
   video_player: ^2.0.0-nullsafety.3

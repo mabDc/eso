@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
+import 'package:eso/menu/menu.dart';
+import 'package:eso/menu/menu_discover_source.dart';
 import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
@@ -10,10 +13,12 @@ import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
-
 import '../fonticons_icons.dart';
 import '../global.dart';
 import '../ui/ui_add_rule_dialog.dart';
@@ -249,6 +254,64 @@ class _DiscoverPageState extends State<DiscoverPage> {
         rule.author == '' ? '${rule.host}' : '@${rule.author}',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Menu<MenuDiscoverSource>(
+        tooltip: "选项",
+        items: discoverSourceMenus,
+        onSelect: (value) {
+          switch (value) {
+            case MenuDiscoverSource.copy:
+              Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
+              Utils.toast("已复制 ${rule.name}");
+              break;
+            case MenuDiscoverSource.share:
+              FlutterShare.share(
+                title: '亦搜 eso',
+                text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
+                //linkUrl: '${searchItem.url}',
+                chooserTitle: '选择分享的应用',
+              );
+              break;
+            case MenuDiscoverSource.top:
+              provider.setSortMax(rule);
+              break;
+            case MenuDiscoverSource.edit:
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
+                  .whenComplete(() => refreshData(provider));
+              break;
+            case MenuDiscoverSource.delete:
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text("警告(不可恢复)"),
+                      content: Text("删除 ${rule.name}"),
+                      actions: [
+                        FlatButton(
+                          child: Text(
+                            "取消",
+                            style: TextStyle(color: Theme.of(context).hintColor),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        FlatButton(
+                          child: Text(
+                            "确定",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          onPressed: () {
+                            provider.deleteRule(rule);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  });
+              break;
+            default:
+          }
+        },
       ),
     );
     if (index < provider.rules.length - 1) return _child;

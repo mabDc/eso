@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -11,7 +12,6 @@ import 'package:sqflite/src/factory_mixin.dart' as impl;
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
 import 'database/rule_dao.dart';
-import 'package:package_info/package_info.dart';
 import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
@@ -87,15 +87,11 @@ class Global with ChangeNotifier {
         .build();
     _ruleDao = _database.ruleDao;
     await initFont();
-    try {
-      if (!isDesktop) {
-        final packageInfo = await PackageInfo.fromPlatform();
-        appVersion = packageInfo.version;
-        appBuildNumber = packageInfo.buildNumber;
-        appName = packageInfo.appName;
-        appPackageName = packageInfo.packageName;
-      }
-    } catch (e) {}
+    final packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
+    appBuildNumber = packageInfo.buildNumber;
+    appName = packageInfo.appName;
+    appPackageName = packageInfo.packageName;
     return true;
   }
 
