@@ -9,15 +9,14 @@ enum MenuEditSource {
   all,
   revert,
   top,
-  search,
   enable_search,
   disable_search,
-  discover,
   enable_discover,
   disable_discover,
   add_group,
   delete_group,
   delete,
+  preview,
 }
 
 List<MenuItem<MenuEditSource>> editSourceMenus = [
@@ -71,7 +70,7 @@ List<MenuItem<MenuEditSource>> editSourceMenus = [
   ),
   MenuItem<MenuEditSource>(
     text: '移除分组',
-    icon: OMIcons.borderOuter,
+    icon: OMIcons.filterNone,
     value: MenuEditSource.delete_group,
     color: Global.primaryColor,
   ),

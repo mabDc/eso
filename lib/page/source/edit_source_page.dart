@@ -34,7 +34,7 @@ class EditSourcePage extends StatefulWidget {
 class _EditSourcePageState extends State<EditSourcePage> {
   final SlidableController slidableController = SlidableController();
   TextEditingController _searchEdit = TextEditingController();
-
+  String group;
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<EditSourceProvider>(
@@ -70,9 +70,37 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     .push(MaterialPageRoute(builder: (context) => EditRulePage()))
                     .whenComplete(() => refreshData(provider)),
               ),
-              Menu(
+              Menu<MenuEditSource>(
                 tooltip: "编辑选中规则",
                 items: editSourceMenus,
+                onSelect: (value) {
+                  final rules = provider.rules
+                      .where((element) => provider.checkSelectMap[element.id] == true)
+                      .toList();
+                  if (value != MenuEditSource.all &&
+                      value != MenuEditSource.revert &&
+                      rules.isEmpty) {
+                    Utils.toast("请先选择规则");
+                    return;
+                  }
+                  if (value == MenuEditSource.delete) {
+                    alert(
+                      Text("警告(不可恢复)"),
+                      Text("删除选中${rules.length}条规则"),
+                      () => provider.handleSelect(rules, value),
+                    );
+                  } else if (value == MenuEditSource.add_group ||
+                      value == MenuEditSource.delete_group) {
+                    group = "";
+                    alert(
+                      value == MenuEditSource.add_group ? Text('添加分组') : Text('移除分组'),
+                      TextField(onChanged: (value) => group = value),
+                      () => provider.handleSelect(rules, value, group),
+                    );
+                  } else {
+                    provider.handleSelect(rules, value);
+                  }
+                },
               ),
             ],
             bottom: PreferredSize(
@@ -137,26 +165,34 @@ class _EditSourcePageState extends State<EditSourcePage> {
 
   final cleanHost = RegExp(r"(?:\s*https?://(?:www.|m.)?)([^/:]*)");
 
-  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
-    final _theme = Theme.of(context);
-    final _leadColor = () {
-      switch (rule.contentType) {
-        case API.MANGA:
-          return _theme.primaryColorLight;
-        case API.VIDEO:
-          return _theme.primaryColor;
-        case API.AUDIO:
-          return _theme.primaryColorDark;
-        default:
-          return Colors.white;
-      }
-    }();
-    final _leadBorder = rule.contentType == API.NOVEL
-        ? Border.all(color: _theme.primaryColor, width: 1.0)
-        : null;
-    return InkWell(
-      onTap: () => provider.toggleSelect(rule.id),
-      onLongPress: () => Navigator.of(context).push(
+  void alert(Widget title, Widget content, VoidCallback handle) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: title,
+          content: content,
+          actions: [
+            FlatButton(
+              child: Text(
+                "取消",
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              child: Text(
+                "确定",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                handle();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+
+  void preview(Rule rule) => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => FutureBuilder<List<DiscoverMap>>(
             future: APIFromRUle(rule).discoverMap(),
@@ -179,7 +215,28 @@ class _EditSourcePageState extends State<EditSourcePage> {
             },
           ),
         ),
-      ),
+      );
+
+  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
+    final _theme = Theme.of(context);
+    final _leadColor = () {
+      switch (rule.contentType) {
+        case API.MANGA:
+          return _theme.primaryColorLight;
+        case API.VIDEO:
+          return _theme.primaryColor;
+        case API.AUDIO:
+          return _theme.primaryColorDark;
+        default:
+          return Colors.white;
+      }
+    }();
+    final _leadBorder = rule.contentType == API.NOVEL
+        ? Border.all(color: _theme.primaryColor, width: 1.0)
+        : null;
+    return InkWell(
+      onTap: () => provider.toggleSelect(rule.id),
+      onLongPress: () => preview(rule),
       child: Row(
         children: [
           Checkbox(
@@ -308,57 +365,36 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       color: Colors.grey,
                       value: MenuEditSource.enable_discover,
                     ),
-              MenuItem(text: '置顶', icon: OMIcons.arrowUpward, value: MenuEditSource.top),
               MenuItem(
-                  text: '删除', icon: OMIcons.deleteSweep, value: MenuEditSource.delete),
+                text: '置顶',
+                icon: OMIcons.arrowUpward,
+                value: MenuEditSource.top,
+                color: Global.primaryColor,
+              ),
+              MenuItem(
+                text: '预览',
+                icon: OMIcons.category,
+                value: MenuEditSource.preview,
+                color: Global.primaryColor,
+              ),
+              MenuItem(
+                text: '删除',
+                icon: OMIcons.deleteSweep,
+                value: MenuEditSource.delete,
+                color: Global.primaryColor,
+              ),
             ],
             onSelect: (value) {
-              switch (value) {
-                case MenuEditSource.enable_search:
-                  provider.toggleEnableSearch(rule, MenuEditSource.enable_search);
-                  break;
-                case MenuEditSource.disable_search:
-                  provider.toggleEnableSearch(rule, MenuEditSource.disable_search);
-                  break;
-                case MenuEditSource.enable_discover:
-                  provider.toggleEnableSearch(rule, MenuEditSource.enable_discover);
-                  break;
-                case MenuEditSource.disable_discover:
-                  provider.toggleEnableSearch(rule, MenuEditSource.disable_discover);
-                  break;
-                case MenuEditSource.top:
-                  provider.setSortMax(rule);
-                  break;
-                case MenuEditSource.delete:
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("警告(不可恢复)"),
-                          content: Text("删除 ${rule.name}"),
-                          actions: [
-                            FlatButton(
-                              child: Text(
-                                "取消",
-                                style: TextStyle(color: Theme.of(context).hintColor),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                            FlatButton(
-                              child: Text(
-                                "确定",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                              onPressed: () {
-                                provider.deleteRule(rule);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      });
-                  break;
-                default:
+              if (value == MenuEditSource.delete) {
+                alert(
+                  Text("警告(不可恢复)"),
+                  Text("删除选中${rule.name}条规则"),
+                  () => provider.handleSelect([rule], value),
+                );
+              } else if (value == MenuEditSource.preview) {
+                preview(rule);
+              } else {
+                provider.handleSelect([rule], value);
               }
             },
           ),
