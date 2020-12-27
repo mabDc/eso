@@ -24,17 +24,25 @@ class UIFadeInImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final startIndex = url.indexOf(";base64,");
     if (startIndex > -1) {
-      return Image.memory(
-        base64Decode(url.substring(startIndex+8)),
-        fit: fit ?? BoxFit.cover,
-        errorBuilder: (context, url, err) {
-          return ImagePlaceHolder(
-            height: placeHolderHeight,
-            width: placeHolderWidth,
-            error: true,
-          );
-        },
-      );
+      try {
+        return Image.memory(
+          base64Decode(url.substring(startIndex + 8)),
+          fit: fit ?? BoxFit.cover,
+          errorBuilder: (context, url, err) {
+            return ImagePlaceHolder(
+              height: placeHolderHeight,
+              width: placeHolderWidth,
+              error: true,
+            );
+          },
+        );
+      } catch (e) {
+        return ImagePlaceHolder(
+          height: placeHolderHeight,
+          width: placeHolderWidth,
+          error: true,
+        );
+      }
     }
     return CachedNetworkImage(
       imageUrl: url,
