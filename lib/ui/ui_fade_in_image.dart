@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +22,20 @@ class UIFadeInImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final startIndex = url.indexOf(";base64,");
+    if (startIndex > -1) {
+      return Image.memory(
+        base64Decode(url.substring(startIndex+8)),
+        fit: fit ?? BoxFit.cover,
+        errorBuilder: (context, url, err) {
+          return ImagePlaceHolder(
+            height: placeHolderHeight,
+            width: placeHolderWidth,
+            error: true,
+          );
+        },
+      );
+    }
     return CachedNetworkImage(
       imageUrl: url,
       httpHeaders: header,
