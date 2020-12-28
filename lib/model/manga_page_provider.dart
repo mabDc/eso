@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
@@ -21,8 +20,6 @@ class MangaPageProvider with ChangeNotifier {
   final SearchItem searchItem;
   List<String> _content;
   List<String> get content => _content;
-  ScrollController _controller;
-  ScrollController get controller => _controller;
   bool _isLoading;
   bool get isLoading => _isLoading;
   Map<String, String> _headers;
@@ -107,10 +104,10 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   void syncContentIndex() {
-    if (searchItem.durContentIndex !=
-        _mangaPositionsListener.itemPositions.value.first.index) {
-      searchItem.durContentIndex =
-          _mangaPositionsListener.itemPositions.value.first.index;
+    final index = _mangaPositionsListener.itemPositions.value.first.index;
+    if (index == 0) {
+    } else if (searchItem.durContentIndex != index) {
+      searchItem.durContentIndex = index;
       notifyListeners();
     }
   }
@@ -131,22 +128,11 @@ class MangaPageProvider with ChangeNotifier {
     _showMenu = false;
     _showSetting = false;
     _headers = Map<String, String>();
-    _controller = ScrollController();
-//    _controller.addListener(() {
-//      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-//        loadChapter(searchItem.durChapterIndex + 1);
-//      }
-//    });
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent();
-  }
-
-  void refreshProgress() {
-    // searchItem.durContentIndex = _controller.position.pixels.floor();
-    // notifyListeners();
   }
 
   void _initContent() async {
@@ -247,9 +233,10 @@ class MangaPageProvider with ChangeNotifier {
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     await HistoryItemManager.saveHistoryItem();
     _hideLoading = false;
-    if (searchItem.ruleContentType != API.RSS) {
-      _controller.jumpTo(1);
-    }
+    // if (searchItem.ruleContentType != API.RSS) {
+    //   _controller.jumpTo(1);
+    // }
+    mangaScroller.jumpTo(index: 1);
     notifyListeners();
   }
 
@@ -270,9 +257,9 @@ class MangaPageProvider with ChangeNotifier {
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     await HistoryItemManager.saveHistoryItem();
     _isLoading = false;
-    if (searchItem.ruleContentType != API.RSS) {
-      _controller.jumpTo(1);
-    }
+    // if (searchItem.ruleContentType != API.RSS) {
+    //   _controller.jumpTo(1);
+    // }
     notifyListeners();
   }
 
@@ -319,7 +306,7 @@ class MangaPageProvider with ChangeNotifier {
     ]);
     _timer?.cancel();
     content.clear();
-    _controller.dispose();
+    // _controller.dispose();
     () async {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       _cache.clear();

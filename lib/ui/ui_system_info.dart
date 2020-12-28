@@ -8,9 +8,11 @@ import 'battery_view.dart';
 class UISystemInfo extends StatefulWidget {
   final String mangaInfo;
   final int mangaCount;
+  final int mangeCurrent;
   const UISystemInfo({
     this.mangaInfo,
     this.mangaCount,
+    this.mangeCurrent,
     Key key,
   }) : super(key: key);
 
@@ -72,7 +74,7 @@ class _UISystemInfoState extends State<UISystemInfo> {
                         maxLines: 1,
                       ),
                     ),
-                    Text('  |  ${widget.mangaCount}P'),
+                    Text('${widget.mangeCurrent}/${widget.mangaCount}'),
                     SizedBox(width: 8),
                     Text('${provider.now}'),
                     SizedBox(width: 6),
