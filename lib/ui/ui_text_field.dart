@@ -5,17 +5,6 @@ import 'package:flutter/services.dart';
 
 import '../global.dart';
 
-class RuleTextField extends StatelessWidget {
-  const RuleTextField({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: null,
-    );
-  }
-}
-
 /// 搜索框
 class SearchTextField extends StatelessWidget {
   final TextEditingController controller;

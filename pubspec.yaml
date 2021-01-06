@@ -21,10 +21,7 @@ dependencies:
     path: modules/webview_flutter
   xpath_parse:
     path: modules/xpath
-  file_chooser:
-    git:
-      url: https://github.com/google/flutter-desktop-embedding
-      path: plugins/file_chooser
+  file_chooser: ^0.1.6
   about: ^1.2.0
   archive: ^2.0.13
   battery: ^1.0.7

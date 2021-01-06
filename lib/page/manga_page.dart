@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_chapter_loding.dart';
@@ -7,13 +5,11 @@ import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_fade_in_image.dart';
 import 'package:eso/ui/ui_manga_menu.dart';
 import 'package:eso/ui/ui_system_info.dart';
-import 'package:eso/ui/zoom_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../database/search_item.dart';
 import 'langding_page.dart';

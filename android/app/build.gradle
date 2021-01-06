@@ -39,7 +39,7 @@ android {
     
     ndkVersion '21.3.6528147'
 
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -52,7 +52,7 @@ android {
     defaultConfig {
         applicationId "com.mabdc.eso"
         minSdkVersion 18
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         archivesBaseName = "ESO-$versionName-$versionCode"
