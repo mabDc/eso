@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:eso/database/search_item.dart';
+import 'package:eso/global.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/langding_page.dart';
@@ -60,38 +61,35 @@ class _NovelPageState extends State<NovelPage> {
             }
             return RawKeyboardListener(
               focusNode: _backNode,
+              autofocus: true,
               onKey: (event) {
-                if (event.runtimeType.toString() != provider.enPress) {
-                  provider.enPress = event.runtimeType.toString();
-                  // 按下时触发
-                  if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
-                  if (event.data is RawKeyEventDataMacOs ||
-                      event.data is RawKeyEventDataLinux ||
-                      event.data is RawKeyEventDataWindows) {
-                    final logicalKey = event.data.logicalKey;
-                    print(logicalKey);
-                    if (logicalKey == LogicalKeyboardKey.arrowUp ||
-                        logicalKey == LogicalKeyboardKey.arrowLeft ||
-                        logicalKey == LogicalKeyboardKey.pageUp) {
-                      provider.tapLastPage();
-                    } else if (logicalKey == LogicalKeyboardKey.arrowDown ||
-                        logicalKey == LogicalKeyboardKey.arrowRight ||
-                        logicalKey == LogicalKeyboardKey.pageDown) {
-                      provider.tapNextPage();
-                    } else if (logicalKey == LogicalKeyboardKey.bracketLeft ||
-                        logicalKey == LogicalKeyboardKey.minus ||
-                        logicalKey == LogicalKeyboardKey.insert) {
-                      provider.switchChapter(profile, searchItem.durChapterIndex - 1);
-                    } else if (logicalKey == LogicalKeyboardKey.bracketRight ||
-                        logicalKey == LogicalKeyboardKey.numpadAdd ||
-                        logicalKey == LogicalKeyboardKey.delete) {
-                      provider.switchChapter(profile, searchItem.durChapterIndex + 1);
-                    } else if (logicalKey == LogicalKeyboardKey.enter ||
-                        logicalKey == LogicalKeyboardKey.numpadEnter) {
-                      provider.showMenu = !provider.showMenu;
-                    } else if (logicalKey == LogicalKeyboardKey.escape) {
-                      Navigator.of(context).pop();
-                    }
+                if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
+                if (event.data is RawKeyEventDataMacOs ||
+                    event.data is RawKeyEventDataLinux ||
+                    event.data is RawKeyEventDataWindows) {
+                  final logicalKey = event.data.logicalKey;
+                  print(logicalKey);
+                  if (logicalKey == LogicalKeyboardKey.arrowUp ||
+                      logicalKey == LogicalKeyboardKey.arrowLeft ||
+                      logicalKey == LogicalKeyboardKey.pageUp) {
+                    provider.tapLastPage();
+                  } else if (logicalKey == LogicalKeyboardKey.arrowDown ||
+                      logicalKey == LogicalKeyboardKey.arrowRight ||
+                      logicalKey == LogicalKeyboardKey.pageDown) {
+                    provider.tapNextPage();
+                  } else if (logicalKey == LogicalKeyboardKey.bracketLeft ||
+                      logicalKey == LogicalKeyboardKey.minus ||
+                      logicalKey == LogicalKeyboardKey.insert) {
+                    provider.switchChapter(profile, searchItem.durChapterIndex - 1);
+                  } else if (logicalKey == LogicalKeyboardKey.bracketRight ||
+                      logicalKey == LogicalKeyboardKey.numpadAdd ||
+                      logicalKey == LogicalKeyboardKey.delete) {
+                    provider.switchChapter(profile, searchItem.durChapterIndex + 1);
+                  } else if (logicalKey == LogicalKeyboardKey.enter ||
+                      logicalKey == LogicalKeyboardKey.numpadEnter) {
+                    provider.showMenu = !provider.showMenu;
+                  } else if (logicalKey == LogicalKeyboardKey.escape) {
+                    Navigator.of(context).pop();
                   }
                 }
               },
@@ -99,7 +97,7 @@ class _NovelPageState extends State<NovelPage> {
                 child: Stack(
                   children: <Widget>[
                     AnnotatedRegion<SystemUiOverlayStyle>(
-                      value: SystemUiOverlayStyle.light,
+                      value: Global.novelLightOrDark(),
                       child: Container(
                         decoration: Utils.getNovelBackground(),
                         child: _buildContent(provider, profile),

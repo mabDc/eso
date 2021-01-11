@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../global.dart';
 import '../../profile.dart';
+import 'auto_backup_page.dart';
 import 'darkmod_page.dart';
 import 'color_lens_page.dart';
 import 'package:about/about.dart';
@@ -128,6 +129,12 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
+                    ListTile(
+                      title: Text('自动备份与webdav'),
+                      subtitle: Text('开启每日备份 开启webdav自动同步'),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => AutoBackupPage())),
+                    ),
                     ListTile(
                       title: Text('备份'),
                       subtitle: Text('备份收藏夹、规则数据到本地存储'),

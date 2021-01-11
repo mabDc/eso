@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -272,5 +273,11 @@ class Global with ChangeNotifier {
   /// 返回该颜色的亮度, 亮度值介于 0 - 255之间
   static double lightness(Color color) {
     return 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue;
+  }
+
+  static SystemUiOverlayStyle novelLightOrDark() {
+    return lightness(Color(Profile().novelFontColor)) > 127
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
   }
 }

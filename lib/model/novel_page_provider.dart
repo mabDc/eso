@@ -29,7 +29,6 @@ class NovelPageProvider with ChangeNotifier {
   ScrollController get controller => _controller;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-  String enPress = 'RawKeyUpEvent';
 
   bool _showMenu;
   bool get showMenu => _showMenu;
