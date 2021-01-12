@@ -1,7 +1,9 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.20.20+12020
+version: 1.21.01+12101
+homepage: https://github.com/mabdc/eso
+author: mabdc
 
 environment:
   sdk: ">=2.2.2 <3.2.0"
@@ -60,6 +62,7 @@ dependencies:
   video_player: ^2.0.0-nullsafety.3
   sqflite_common_ffi: ^1.1.1
   scrollable_positioned_list: ^0.1.8
+  webdav: ^1.0.8-dev
 
 dev_dependencies:
   flutter_test:

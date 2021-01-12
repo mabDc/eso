@@ -39,6 +39,9 @@ class Profile with ChangeNotifier {
   static const dartModeDark = '开启';
   static const dartModeLight = '关闭';
 
+  static const autoBackupNone = 0;
+  static const autoBackupDay = 1;
+
   Profile.newProfile() {
     _version = '';
     _fontFamily = null;
@@ -73,6 +76,65 @@ class Profile with ChangeNotifier {
     _mangaEnableSearch = true;
     _audioEnableSearch = true;
     _videoEnableSearch = true;
+    _autoBackRate = autoBackupDay;
+    _autoBackupLastDay = "";
+    _enableWebdav = false;
+    _webdavServer = "https://dav.jianguoyun.com/dav/";
+    _webdavAccount = "";
+    _webdavPassword = "";
+  }
+  String _webdavAccount;
+  String get webdavAccount => _webdavAccount;
+  set webdavAccount(String value) {
+    if (value != _webdavAccount) {
+      _webdavAccount = value;
+      _saveProfile();
+    }
+  }
+
+  String _webdavPassword;
+  String get webdavPassword => _webdavPassword;
+  set webdavPassword(String value) {
+    if (value != _webdavPassword) {
+      _webdavPassword = value;
+      _saveProfile();
+    }
+  }
+
+  String _webdavServer;
+  String get webdavServer => _webdavServer;
+  set webdavServer(String value) {
+    if (value != _webdavServer) {
+      _webdavServer = value;
+      _saveProfile();
+    }
+  }
+
+  bool _enableWebdav;
+  bool get enableWebdav => _enableWebdav;
+  set enableWebdav(bool value) {
+    if (value != _enableWebdav) {
+      _enableWebdav = value;
+      _saveProfile();
+    }
+  }
+
+  String _autoBackupLastDay;
+  String get autoBackupLastDay => _autoBackupLastDay;
+  set autoBackupLastDay(String value) {
+    if (value != _autoBackupLastDay) {
+      _autoBackupLastDay = value;
+      _saveProfile();
+    }
+  }
+
+  int _autoBackRate;
+  int get autoBackRate => _autoBackRate;
+  set autoBackRate(int value) {
+    if (value != _autoBackRate) {
+      _autoBackRate = value;
+      _saveProfile();
+    }
   }
 
   String _version;
@@ -517,6 +579,12 @@ class Profile with ChangeNotifier {
     if (notIgnoreVersion) {
       _version = json['version'] ?? defaultProfile.version;
     }
+    _webdavPassword = json['webdavPassword'] ?? defaultProfile.webdavPassword;
+    _webdavAccount = json['webdavAccount'] ?? defaultProfile.webdavAccount;
+    _autoBackupLastDay = json['autoBackupLastDay'] ?? defaultProfile.autoBackupLastDay;
+    _autoBackRate = json['autoBackRate'] ?? defaultProfile.autoBackRate;
+    _enableWebdav = json['enableWebdav'] ?? defaultProfile.enableWebdav;
+    _webdavServer = json['webdavServer'] ?? defaultProfile.webdavServer;
     _fontFamily = json['fontFamily'] ?? defaultProfile.fontFamily;
     _novelFontFamily = json['novelFontFamily'] ?? defaultProfile.novelFontFamily;
     _switchLongPress = json['switchLongPress'] ?? defaultProfile.switchLongPress;
@@ -557,6 +625,12 @@ class Profile with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() => {
+        'webdavAccount': _webdavAccount,
+        'webdavPassword': _webdavPassword,
+        'autoBackupLastDay': _autoBackupLastDay,
+        'enableWebdav': _enableWebdav,
+        'autoBackRate': _autoBackRate,
+        'webdavServer': _webdavServer,
         'fontFamily': _fontFamily,
         'novelFontFamily': _novelFontFamily,
         'version': _version,
