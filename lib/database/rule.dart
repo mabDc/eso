@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:eso/api/api.dart';
 import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
@@ -210,8 +212,9 @@ class Rule {
     this.contentItems,
   );
 
-  static Future<List<Rule>> backupRules() async {
-    return await Global.ruleDao.findAllRules();
+  static Future<String> backupRules() async {
+    final rules = await Global.ruleDao.findAllRules();
+    return jsonEncode(rules.map((e) => e.toJson()).toList());
   }
 
   static Future<bool> restore(List<dynamic> rules, bool reset) async {

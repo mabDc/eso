@@ -211,9 +211,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   );
                 },
               ))),
-      onLongPress: () => Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
-          .whenComplete(() => refreshData(provider)),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,

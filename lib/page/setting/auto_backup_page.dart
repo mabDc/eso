@@ -1,11 +1,26 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:archive/archive.dart';
+import 'package:eso/database/history_item_manager.dart';
+import 'package:eso/database/rule.dart';
+import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/model/history_manager.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/cache_util.dart';
+import 'package:file_chooser/file_chooser.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webdav/webdav.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:path/path.dart';
+
+import '../../global.dart';
 
 class AutoBackupPage extends StatelessWidget {
   const AutoBackupPage({Key key}) : super(key: key);
@@ -59,9 +74,6 @@ class AutoBackupPage extends StatelessWidget {
         children: [
           ListTile(
             title: Text('自动备份'),
-            subtitle: Text(profile.autoBackupLastDay.isEmpty
-                ? "上次备份：从未备份"
-                : '上次备份：${profile.autoBackupLastDay}.zip'),
           ),
           Divider(),
           RadioListTile<int>(
@@ -77,12 +89,32 @@ class AutoBackupPage extends StatelessWidget {
             onChanged: (int value) => profile.autoBackRate = value,
           ),
           Divider(),
+          ListTile(
+            title: Text('备份'),
+            subtitle: Text(profile.autoBackupLastDay.isEmpty
+                ? "上次备份：从未备份"
+                : '上次备份：${profile.autoBackupLastDay}.zip'),
+            onTap: backup,
+          ),
+          ListTile(
+            title: Text('分享'),
+            subtitle: Text('发送最近备份文件至其他app'),
+            onTap: share,
+          ),
+          GestureDetector(
+            child: ListTile(
+              title: Text('恢复'),
+              subtitle: Text('选择文件恢复'),
+            ),
+            onTapUp: (TapUpDetails details) =>
+                restoreLocal(context, details.globalPosition),
+          ),
+          Divider(),
           SwitchListTile(
             title: Text('启用webdav自动同步'),
             onChanged: (value) => profile.enableWebdav = value,
             value: profile.enableWebdav,
           ),
-          Divider(),
           ListTile(
             title: Text('坚果云webdav帮助'),
             subtitle: Text("https://help.jianguoyun.com/?p=2064"),
@@ -146,6 +178,142 @@ class AutoBackupPage extends StatelessWidget {
     );
   }
 
+  share() async {
+    final profile = Profile();
+    if (profile.autoBackupLastDay.isEmpty) {
+      Utils.toast("从未备份");
+      return;
+    }
+    final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final dir = join(await CacheUtil(backup: true).cacheDir(), "$today.zip");
+    FlutterShare.shareFile(title: "$today.zip", filePath: dir, text: "$today.zip");
+  }
+
+  static backup([bool autoBackup = false]) async {
+    final profile = Profile();
+    final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final dir = join(await CacheUtil(backup: true).cacheDir(), "$today.zip");
+    if (autoBackup) {
+      if (today == profile.autoBackupLastDay ||
+          profile.autoBackRate != Profile.autoBackupDay) return;
+      Utils.toast("1s后开始自动每日备份，路径$dir，可在设置中取消");
+      await Future.delayed(Duration(seconds: 1));
+    } else {}
+    try {
+      final store = SharedPreferencesStorePlatform.instance;
+      final pf = await store.getAll();
+      final _rules = await Rule.backupRules();
+      // final _favorite = await SearchItemManager.backupItems();
+      // final _searchHistory = HistoryManager().searchHistory;
+      // final _profile = profile.toJson();
+      final archive = Archive();
+      archive.addFile(getArchiveFile("pf.json", jsonEncode(pf)));
+      archive.addFile(getArchiveFile("rules.json", _rules));
+      final bytes = ZipEncoder().encode(archive);
+      File(dir)
+        ..create(recursive: true)
+        ..writeAsBytes(bytes);
+      Utils.toast("$dir 文件写入成功");
+      profile.autoBackupLastDay = today;
+      if (profile.enableWebdav) {
+        try {
+          Client client = Client(
+              profile.webdavServer, profile.webdavAccount, profile.webdavPassword, "");
+          final ds = (await client.ls()).map((e) => e.name).toList();
+          if (!ds.contains("ESO")) {
+            await client.mkdir("ESO");
+          }
+          client.upload(bytes, "ESO/$today.zip");
+          Utils.toast("备份至webdav成功");
+        } catch (e, st) {
+          print("备份至webdav错误 e:$e, st: $st");
+          Utils.toast("备份至webdav错误 e:$e\n请检查账户密码或网络", duration: Duration(seconds: 3));
+        }
+      }
+    } catch (e) {
+      print("获取备份信息[收藏夹、规则、搜索关键词记录、个人配置]失败 $e");
+    }
+  }
+
+  void restore(List<int> bytes) {
+    ZipDecoder().decodeBytes(bytes).files.forEach((file) async {
+      if (file.name == "rules.json") {
+        final rules = jsonDecode(utf8.decode(file.content));
+        if (rules is List) {
+          Rule.restore(rules, false);
+          Utils.toast("规则恢复${rules.length}条");
+        }
+      } else if (file.name == "pf.json") {
+        final pf = jsonDecode(utf8.decode(file.content));
+        await Global.prefs.setString("profile", pf["flutter.profile"] ?? "");
+        await Global.prefs.setStringList("historyItem", (pf["flutter.historyItem"] as List)?.map((e) => "$e")?.toList() ?? []);
+        await Global.prefs.setStringList("searchItem", (pf["flutter.searchItem"] as List)?.map((e) => "$e")?.toList() ?? []);
+        await Global.prefs.setStringList("searchHistory", (pf["flutter.searchHistory"] as List)?.map((e) => "$e")?.toList() ?? []);
+        // if (pf is Map<String, dynamic>) {
+        //   for (final entry in pf.entries) {
+        //     if (entry.key == "flutter.profile") {
+        //       await Global.prefs
+        //           .setString(entry.key.substring("flutter.".length), entry.value);
+        //     } else if (entry.value is List) {
+        //       await Global.prefs.setStringList(entry.key.substring("flutter.".length),
+        //           (entry.value as List).map((e) => "$e").toList());
+        //     }
+        //   }
+        // }
+        SearchItemManager.initSearchItem();
+        HistoryItemManager.initHistoryItem();
+        Profile()..initProfile();
+      }
+    });
+  }
+
+  void restoreLocal(BuildContext context, Offset pos, [String dir]) async {
+    if (dir == null) {
+      dir = await CacheUtil(backup: true).cacheDir();
+    }
+    final d = Directory(dir);
+    if (!d.existsSync()) {
+      d.createSync(recursive: true);
+    }
+    final fs = <String>["选择文件夹 $dir"]..addAll(d.listSync().map((e) => basename(e.path)));
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx + 100, 0),
+      items: fs
+          .map((f) => PopupMenuItem<String>(
+                value: f,
+                child: Text(f),
+              ))
+          .toList(),
+    ).then((value) async {
+      if (value == null) return;
+      if (value.startsWith("选择文件夹")) {
+        String path;
+        if (Global.isDesktop) {
+          final r = await showOpenPanel(canSelectDirectories: true);
+          if (!r.canceled) {
+            path = r.paths.first;
+          }
+        } else {
+          final r = await FilePicker.platform.getDirectoryPath();
+          path = r;
+        }
+        if (path == null) {
+          Utils.toast("未选择文件夹");
+        } else {
+          restoreLocal(context, pos, path);
+        }
+      } else {
+        restore(File(join(dir, value)).readAsBytesSync());
+      }
+    });
+  }
+
+  static getArchiveFile(String name, String s) {
+    final bytes = utf8.encode(s);
+    return ArchiveFile(name, bytes.length, bytes);
+  }
+
   void restoreFromWebDav(BuildContext context, Offset pos) async {
     final profile = Profile();
     try {
@@ -168,7 +336,14 @@ class AutoBackupPage extends StatelessWidget {
                   child: Text(f),
                 ))
             .toList(),
-      );
+      ).then((value) async {
+        if (value == null) return;
+        final req =
+            await client.httpClient.getUrl(Uri.parse(client.getUrl("ESO/$value")));
+        final res = await req.close();
+        final r = await res.toList();
+        restore(r.reduce((value, element) => <int>[]..addAll(value)..addAll(element)));
+      });
     } catch (e, st) {
       print("restoreFromWebDav 错误 e:$e, st: $st");
       Utils.toast("错误 e:$e\n请检查账户密码或网络", duration: Duration(seconds: 3));

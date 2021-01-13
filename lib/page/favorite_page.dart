@@ -1,4 +1,5 @@
 import 'package:eso/api/api.dart';
+import 'package:eso/page/setting/auto_backup_page.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/setting/about_page.dart';
 import 'package:eso/utils.dart';
@@ -23,6 +24,8 @@ class FavoritePage extends StatelessWidget {
     if (Profile().version != Profile().lastestVersion) {
       Future.delayed(
           Duration(milliseconds: 10), () => AboutPage.showAbout(context, true));
+    } else {
+      AutoBackupPage.backup(true);
     }
     return DefaultTabController(
       length: tabs.length,

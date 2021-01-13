@@ -8,6 +8,12 @@ import 'global.dart';
 enum SearchOption { Normal, None, Accurate }
 
 class Profile with ChangeNotifier {
+  initProfile() {
+    final source = Global.prefs.getString(Global.profileKey);
+    fromJson(source == null ? {} : jsonDecode(source) ?? {});
+    notifyListeners();
+  }
+
   static final Profile _profile = Profile._internal();
   factory Profile() => _profile;
 
@@ -437,6 +443,13 @@ class Profile with ChangeNotifier {
     if (value != _mangaDirection) {
       _mangaDirection = value;
       _saveProfile();
+    }
+  }
+
+  void saveProfile([bool shouldNotifyListeners = true]) async {
+    await Global.prefs.setString(Global.profileKey, jsonEncode(toJson()));
+    if (shouldNotifyListeners) {
+      notifyListeners();
     }
   }
 

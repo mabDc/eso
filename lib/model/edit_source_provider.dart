@@ -78,11 +78,12 @@ class EditSourceProvider with ChangeNotifier {
 
   void handleSelect(List<Rule> rules, MenuEditSource type, [String group]) async {
     if (_isLoading) return;
-    if (rules == null || rules.isEmpty) return;
+    if (type != MenuEditSource.all && (rules == null || rules.isEmpty)) return;
     bool updateFlag = false;
     switch (type) {
       case MenuEditSource.all:
         _rules.forEach((rule) => checkSelectMap[rule.id] = true);
+        updateFlag = true;
         break;
       case MenuEditSource.revert:
         final ids = _rules

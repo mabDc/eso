@@ -90,7 +90,7 @@ class SearchItemManager {
         genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 
-  static Future<String> backupItems() async {
+  static String backupItems() {
     if (_searchItem == null || _searchItem.isEmpty) initSearchItem();
     String s = json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
