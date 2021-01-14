@@ -60,15 +60,24 @@ class HistoryItemManager {
         key, _historyItem.map((item) => jsonEncode(item.toJson())).toList());
   }
 
-  static Future<String> backupItems() async {
-    if (_historyItem == null || _historyItem.isEmpty) initHistoryItem();
-    return json.encode(_historyItem);
-  }
+  // static String backupItems() {
+  //   if (_searchItem == null || _searchItem.isEmpty) initSearchItem();
+  //   return json.encode(_searchItem.map((item) {
+  //     Map<String, dynamic> json = item.toJson();
+  //     json["chapters"] =
+  //         getChapter(item.id).map((chapter) => jsonEncode(chapter.toJson())).toList();
+  //     return json;
+  //   }).toList());
+  // }
 
   static Future<bool> restore(String data) async {
-    List json = jsonDecode(data);
-    json.forEach((item) => _historyItem.add(SearchItem.fromJson(item)));
-    saveHistoryItem();
-    return true;
+    final json = jsonDecode(data);
+    if (json != null && json is List && json.isNotEmpty) {
+      _historyItem.clear();
+      json.forEach((item) => _historyItem.add(SearchItem.fromJson(jsonDecode(item))));
+      saveHistoryItem();
+      return true;
+    }
+    return false;
   }
 }

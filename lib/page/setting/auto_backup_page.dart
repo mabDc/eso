@@ -14,7 +14,6 @@ import 'package:file_chooser/file_chooser.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
-import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webdav/webdav.dart';
 import 'package:intl/intl.dart' as intl;
@@ -189,6 +188,19 @@ class AutoBackupPage extends StatelessWidget {
     FlutterShare.shareFile(title: "$today.zip", filePath: dir, text: "$today.zip");
   }
 
+  /// type: 0->s, 1->getString, 2-> getStringList
+  static getArchiveFile(String key, String s, int type) {
+    List<int> bytes;
+    if (type == 0) {
+      bytes = utf8.encode(s);
+    } else if (type == 1) {
+      bytes = utf8.encode(Global.prefs.getString(key));
+    } else if (type == 2) {
+      bytes = utf8.encode(jsonEncode(Global.prefs.getStringList(key)));
+    }
+    return ArchiveFile("$key.json", bytes.length, bytes);
+  }
+
   static backup([bool autoBackup = false]) async {
     final profile = Profile();
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -200,15 +212,14 @@ class AutoBackupPage extends StatelessWidget {
       await Future.delayed(Duration(seconds: 1));
     } else {}
     try {
-      final store = SharedPreferencesStorePlatform.instance;
-      final pf = await store.getAll();
-      final _rules = await Rule.backupRules();
-      // final _favorite = await SearchItemManager.backupItems();
-      // final _searchHistory = HistoryManager().searchHistory;
-      // final _profile = profile.toJson();
+      final rules = await Rule.backupRules();
+      final favorite = SearchItemManager.backupItems();
       final archive = Archive();
-      archive.addFile(getArchiveFile("pf.json", jsonEncode(pf)));
-      archive.addFile(getArchiveFile("rules.json", _rules));
+      archive.addFile(getArchiveFile("rules", rules, 0));
+      archive.addFile(getArchiveFile(Global.searchItemKey, favorite, 0));
+      archive.addFile(getArchiveFile(Global.profileKey, "", 1));
+      archive.addFile(getArchiveFile(Global.historyItemKey, "", 2));
+      archive.addFile(getArchiveFile(Global.searchHistoryKey, "", 2));
       final bytes = ZipEncoder().encode(archive);
       File(dir)
         ..create(recursive: true)
@@ -243,26 +254,31 @@ class AutoBackupPage extends StatelessWidget {
           Rule.restore(rules, false);
           Utils.toast("规则恢复${rules.length}条");
         }
-      } else if (file.name == "pf.json") {
-        final pf = jsonDecode(utf8.decode(file.content));
-        await Global.prefs.setString("profile", pf["flutter.profile"] ?? "");
-        await Global.prefs.setStringList("historyItem", (pf["flutter.historyItem"] as List)?.map((e) => "$e")?.toList() ?? []);
-        await Global.prefs.setStringList("searchItem", (pf["flutter.searchItem"] as List)?.map((e) => "$e")?.toList() ?? []);
-        await Global.prefs.setStringList("searchHistory", (pf["flutter.searchHistory"] as List)?.map((e) => "$e")?.toList() ?? []);
-        // if (pf is Map<String, dynamic>) {
-        //   for (final entry in pf.entries) {
-        //     if (entry.key == "flutter.profile") {
-        //       await Global.prefs
-        //           .setString(entry.key.substring("flutter.".length), entry.value);
-        //     } else if (entry.value is List) {
-        //       await Global.prefs.setStringList(entry.key.substring("flutter.".length),
-        //           (entry.value as List).map((e) => "$e").toList());
-        //     }
-        //   }
-        // }
-        SearchItemManager.initSearchItem();
-        HistoryItemManager.initHistoryItem();
-        Profile()..initProfile();
+      } else if (file.name == "${Global.searchItemKey}.json") {
+        final favorite = utf8.decode(file.content);
+        if (favorite != null && favorite is String) {
+          SearchItemManager.restore(favorite);
+        }
+      } else if (file.name == "${Global.profileKey}.json") {
+        final profile = utf8.decode(file.content);
+        if (profile != null && profile is String && profile.isNotEmpty) {
+          Profile().restore(profile);
+        }
+      } else if (file.name == "${Global.searchItemKey}.json") {
+        final searchItem = utf8.decode(file.content);
+        if (searchItem != null && searchItem is String && searchItem.isNotEmpty) {
+          SearchItemManager.restore(searchItem);
+        }
+      } else if (file.name == "${Global.historyItemKey}.json") {
+        final historyItem = utf8.decode(file.content);
+        if (historyItem != null && historyItem is String && historyItem.isNotEmpty) {
+          HistoryItemManager.restore(historyItem);
+        }
+      } else if (file.name == "${Global.searchHistoryKey}.json") {
+        final history = utf8.decode(file.content);
+        if (history != null && history is String && history.isNotEmpty) {
+          HistoryManager.restore(history);
+        }
       }
     });
   }
@@ -307,11 +323,6 @@ class AutoBackupPage extends StatelessWidget {
         restore(File(join(dir, value)).readAsBytesSync());
       }
     });
-  }
-
-  static getArchiveFile(String name, String s) {
-    final bytes = utf8.encode(s);
-    return ArchiveFile(name, bytes.length, bytes);
   }
 
   void restoreFromWebDav(BuildContext context, Offset pos) async {

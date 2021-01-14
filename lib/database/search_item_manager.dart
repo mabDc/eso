@@ -92,13 +92,12 @@ class SearchItemManager {
 
   static String backupItems() {
     if (_searchItem == null || _searchItem.isEmpty) initSearchItem();
-    String s = json.encode(_searchItem.map((item) {
+    return json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
       json["chapters"] =
           getChapter(item.id).map((chapter) => jsonEncode(chapter.toJson())).toList();
       return json;
     }).toList());
-    return s;
   }
 
   static Future<bool> restore(String data) async {

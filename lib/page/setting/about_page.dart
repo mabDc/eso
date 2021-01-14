@@ -1,17 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:eso/database/rule.dart';
-import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/evnts/restore_event.dart';
-import 'package:eso/model/history_manager.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_chooser/file_chooser.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';

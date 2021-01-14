@@ -8,9 +8,9 @@ import 'global.dart';
 enum SearchOption { Normal, None, Accurate }
 
 class Profile with ChangeNotifier {
-  initProfile() {
-    final source = Global.prefs.getString(Global.profileKey);
-    fromJson(source == null ? {} : jsonDecode(source) ?? {});
+  restore(String profile) {
+    if (profile == null || profile.isEmpty) return;
+    fromJson(jsonDecode(profile));
     notifyListeners();
   }
 
@@ -21,11 +21,6 @@ class Profile with ChangeNotifier {
     print('***************  initProfile   **************');
     final source = Global.prefs.getString(Global.profileKey);
     fromJson(source == null ? {} : jsonDecode(source) ?? {});
-  }
-
-  static restore(Map<String, dynamic> profile) {
-    _profile.fromJson(profile, false);
-    _profile.notifyListeners();
   }
 
   static const mangaDirectionTopToBottom = 0; //'topToBottom';
@@ -443,13 +438,6 @@ class Profile with ChangeNotifier {
     if (value != _mangaDirection) {
       _mangaDirection = value;
       _saveProfile();
-    }
-  }
-
-  void saveProfile([bool shouldNotifyListeners = true]) async {
-    await Global.prefs.setString(Global.profileKey, jsonEncode(toJson()));
-    if (shouldNotifyListeners) {
-      notifyListeners();
     }
   }
 

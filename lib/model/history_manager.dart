@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../global.dart';
 
 class HistoryManager {
@@ -20,15 +22,17 @@ class HistoryManager {
     return false;
   }
 
-  Future<bool> restore(List searchHistory, bool clean) async {
-    if (clean) {
-      _searchHistory.clear();
-      _searchHistory.addAll(searchHistory.map((e) => '$e'));
-      return await _saveSearchHistory();
-    }
-    _searchHistory.clear();
-    _searchHistory.addAll(searchHistory.map((e) => '$e').where((e) => !_searchHistory.contains(e)));
-    return await _saveSearchHistory();
+  // Future<bool> restore(List searchHistory) async {
+  //   _searchHistory.clear();
+  //   _searchHistory.addAll(searchHistory.map((e) => '$e'));
+  //   return await _saveSearchHistory();
+  // }
+
+  static Future<bool> restore(String history) async {
+    if (history == null || history.isEmpty) return false;
+    final searchHistory = (jsonDecode(history) as List)?.map((e) => '$e')?.toList();
+    if (searchHistory == null) return false;
+    return await Global.prefs.setStringList(Global.searchHistoryKey, searchHistory);
   }
 
   Future<bool> clearHistory() async {
