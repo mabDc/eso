@@ -218,7 +218,7 @@ class NovelPageProvider with ChangeNotifier {
         }
         export.add("");
         export.add(exportChapterName.text
-            .replaceAll("\$index", (index+1).toString())
+            .replaceAll("\$index", (index + 1).toString())
             .replaceAll("\$name", chapters[index].name));
         export.add("");
         if (temp != null && temp.isNotEmpty) {
@@ -666,7 +666,6 @@ class NovelPageProvider with ChangeNotifier {
     tp.layout(maxWidth: width);
     var currentHeight = tp.height;
     tp.maxLines = 1;
-    bool firstLine = true;
     final indentation = Global.fullSpace * __profile.novelIndentation;
     for (var paragraph in paragraphs) {
       if (!(paragraph is String)) continue;
@@ -708,17 +707,12 @@ class NovelPageProvider with ChangeNotifier {
         ]);
         continue;
       }
+      paragraph = indentation + paragraph;
       while (true) {
         if (currentHeight >= height) {
           _spans.add(currentSpans);
           currentHeight = 0;
           currentSpans = [];
-        }
-        var firstPos = 1;
-        if (firstLine) {
-          firstPos = 3;
-          firstLine = false;
-          paragraph = indentation + paragraph;
         }
         tp.text = TextSpan(text: paragraph, style: commonStyle);
         tp.layout(maxWidth: width);
@@ -729,21 +723,13 @@ class NovelPageProvider with ChangeNotifier {
           // 最后一行调整宽度保证单行显示
           if (width - tp.width - __profile.novelFontSize < 0) {
             currentSpans.add(TextSpan(
-              text: text.substring(0, firstPos),
-              style: commonStyle,
-            ));
-            currentSpans.add(TextSpan(
-                text: text.substring(firstPos, text.length - 1),
+                text: text,
                 style: TextStyle(
                   fontSize: __profile.novelFontSize,
                   //color: fontColor,
                   height: __profile.novelHeight,
-                  letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+                  letterSpacing: (width - tp.width) / text.length,
                 )));
-            currentSpans.add(TextSpan(
-              text: text.substring(text.length - 1),
-              style: commonStyle,
-            ));
           } else {
             currentSpans.add(TextSpan(
                 text: text,
@@ -759,7 +745,6 @@ class NovelPageProvider with ChangeNotifier {
           currentSpans.add(newLine);
           currentHeight += oneLineHeight;
           currentHeight += __profile.novelParagraphPadding;
-          firstLine = true;
           break;
         }
         tp.text = TextSpan(
@@ -773,22 +758,14 @@ class NovelPageProvider with ChangeNotifier {
         );
         tp.layout();
         currentSpans.add(TextSpan(
-          text: text.substring(0, firstPos),
-          style: commonStyle,
-        ));
-        currentSpans.add(TextSpan(
-            text: text.substring(firstPos, text.length - 1),
+            text: text,
             style: TextStyle(
               fontSize: __profile.novelFontSize,
               //color: fontColor,
               height: __profile.novelHeight,
-              letterSpacing: (width - tp.width) / (text.length - firstPos - 1),
+              letterSpacing: (width - tp.width) / text.length,
               fontFamily: profile.novelFontFamily,
             )));
-        currentSpans.add(TextSpan(
-          text: text.substring(text.length - 1),
-          style: commonStyle,
-        ));
         currentHeight += oneLineHeight;
       }
     }
