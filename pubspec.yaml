@@ -45,7 +45,7 @@ dependencies:
   http: ^0.12.2
   image_gallery_saver: ^1.6.1
   intl: ^0.17.0-nullsafety.2
-  json_path: ^0.2.0
+  json_path: ^0.2.1
   matrix_gesture_detector: ^0.1.0
   oktoast: ^2.3.2
   outline_material_icons: ^0.1.1
@@ -63,6 +63,8 @@ dependencies:
   sqflite_common_ffi: ^1.1.1
   scrollable_positioned_list: ^0.1.8
   webdav: ^1.0.8-dev
+  sys_volume:
+    git: https://github.com/befovy/flutter_volume
 
 dev_dependencies:
   flutter_test:

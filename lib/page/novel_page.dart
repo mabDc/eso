@@ -16,6 +16,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:sys_volume/flutter_volume.dart';
 
 /// 文字阅读页面
 class NovelPage extends StatefulWidget {
