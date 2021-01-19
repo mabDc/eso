@@ -92,7 +92,7 @@ class AutoBackupPage extends StatelessWidget {
             title: Text('备份'),
             subtitle: Text(profile.autoBackupLastDay.isEmpty
                 ? "上次备份：从未备份"
-                : '上次备份：${profile.autoBackupLastDay}.zip'),
+                : '上次备份：${profile.autoBackupLastDay}.${Platform.operatingSystem}.zip'),
             onTap: backup,
           ),
           ListTile(
@@ -204,7 +204,9 @@ class AutoBackupPage extends StatelessWidget {
   static backup([bool autoBackup = false]) async {
     final profile = Profile();
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final dir = join(await CacheUtil(backup: true).cacheDir(), "$today.zip");
+    // final fileName = '$today.${Platform.operatingSystem}.${Platform.operatingSystemVersion}.zip';
+    final fileName = '$today.${Platform.operatingSystem}.zip';
+    final dir = join(await CacheUtil(backup: true).cacheDir(), fileName);
     if (autoBackup) {
       if (today == profile.autoBackupLastDay ||
           profile.autoBackRate != Profile.autoBackupDay) return;
@@ -234,7 +236,7 @@ class AutoBackupPage extends StatelessWidget {
           if (!ds.contains("ESO")) {
             await client.mkdir("ESO");
           }
-          client.upload(bytes, "ESO/$today.zip");
+          client.upload(bytes, "ESO/$fileName");
           Utils.toast("备份至webdav成功");
         } catch (e, st) {
           print("备份至webdav错误 e:$e, st: $st");

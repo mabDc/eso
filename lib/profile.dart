@@ -43,14 +43,24 @@ class Profile with ChangeNotifier {
   static const autoBackupNone = 0;
   static const autoBackupDay = 1;
 
+  static const searchDocker = 0;
+  static const searchFloat = 1;
+  static const searchAction = 2;
+
   Profile.newProfile() {
     _version = '';
     _fontFamily = null;
     _novelFontFamily = null;
     _switchLongPress = false;
+    _showHistoryOnAbout = true;
+    _showHistoryOnFavorite = true;
     _switchFavoriteStyle = false;
+    _showMangaStatus = false;
     _showMangaInfo = true;
-    _mangaFullScreen = true;
+    _showNovelStatus = true;
+    _showNovelInfo = true;
+    _searchPostion = searchDocker;
+    _bottomCount = 2;
     _autoRefresh = false;
     _darkMode = dartModeAuto;
     _primaryColor = 0xFF4BB0A0;
@@ -142,12 +152,18 @@ class Profile with ChangeNotifier {
   String _fontFamily;
   String _novelFontFamily;
   bool _switchLongPress;
+  bool _showHistoryOnAbout;
+  bool _showHistoryOnFavorite;
   bool _switchFavoriteStyle;
   bool _autoRefresh;
   String _darkMode;
   int _primaryColor;
+  bool _showMangaStatus;
   bool _showMangaInfo;
-  bool _mangaFullScreen;
+  bool _showNovelStatus;
+  bool _showNovelInfo;
+  int _searchPostion;
+  int _bottomCount;
   double _novelFontSize;
   double _novelHeight;
   double _novelTopPadding;
@@ -177,12 +193,18 @@ class Profile with ChangeNotifier {
   String get fontFamily => _fontFamily;
   String get novelFontFamily => _novelFontFamily;
   bool get switchLongPress => _switchLongPress;
+  bool get showHistoryOnAbout => _showHistoryOnAbout;
+  bool get showHistoryOnFavorite => _showHistoryOnFavorite;
   bool get switchFavoriteStyle => _switchFavoriteStyle;
   bool get autoRefresh => _autoRefresh;
   String get darkMode => _darkMode;
   int get primaryColor => _primaryColor;
+  bool get showMangaStatus => _showMangaStatus;
   bool get showMangaInfo => _showMangaInfo;
-  bool get mangaFullScreen => _mangaFullScreen;
+  bool get showNovelStatus => _showNovelStatus;
+  bool get showNovelInfo => _showNovelInfo;
+  int get searchPostion => _searchPostion;
+  int get bottomCount => _bottomCount;
   double get novelFontSize => _novelFontSize;
   double get novelHeight => _novelHeight;
   double get novelTopPadding => _novelTopPadding;
@@ -252,6 +274,20 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set showHistoryOnAbout(bool value) {
+    if (value != _showHistoryOnAbout) {
+      _showHistoryOnAbout = value;
+      _saveProfile();
+    }
+  }
+
+  set showHistoryOnFavorite(bool value) {
+    if (value != _showHistoryOnFavorite) {
+      _showHistoryOnFavorite = value;
+      _saveProfile();
+    }
+  }
+
   set autoRefresh(bool value) {
     if (value != _autoRefresh) {
       _autoRefresh = value;
@@ -273,9 +309,9 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set mangaFullScreen(bool value) {
-    if (_mangaFullScreen != value) {
-      _mangaFullScreen = value;
+  set showMangaStatus(bool value) {
+    if (_showMangaStatus != value) {
+      _showMangaStatus = value;
       _saveProfile();
     }
   }
@@ -283,6 +319,34 @@ class Profile with ChangeNotifier {
   set showMangaInfo(bool value) {
     if (_showMangaInfo != value) {
       _showMangaInfo = value;
+      _saveProfile();
+    }
+  }
+
+  set showNovelStatus(bool value) {
+    if (_showNovelStatus != value) {
+      _showNovelStatus = value;
+      _saveProfile();
+    }
+  }
+
+  set showNovelInfo(bool value) {
+    if (_showNovelInfo != value) {
+      _showNovelInfo = value;
+      _saveProfile();
+    }
+  }
+
+  set searchPostion(int value) {
+    if (_searchPostion != value) {
+      _searchPostion = value;
+      _saveProfile();
+    }
+  }
+
+  set bottomCount(int value) {
+    if (_bottomCount != value) {
+      _bottomCount = value;
       _saveProfile();
     }
   }
@@ -589,11 +653,18 @@ class Profile with ChangeNotifier {
     _fontFamily = json['fontFamily'] ?? defaultProfile.fontFamily;
     _novelFontFamily = json['novelFontFamily'] ?? defaultProfile.novelFontFamily;
     _switchLongPress = json['switchLongPress'] ?? defaultProfile.switchLongPress;
+    _showHistoryOnAbout = json['showHistoryOnAbout'] ?? defaultProfile.showHistoryOnAbout;
+    _showHistoryOnFavorite =
+        json['showHistoryOnFavorite'] ?? defaultProfile.showHistoryOnFavorite;
     _switchFavoriteStyle =
         json['switchFavoriteStyle'] ?? defaultProfile.switchFavoriteStyle;
+    _showMangaStatus = json['showMangaStatus'] ?? defaultProfile.showMangaStatus;
     _showMangaInfo = json['showMangaInfo'] ?? defaultProfile.showMangaInfo;
-    _mangaFullScreen = json['mangaFullScreen'] ?? defaultProfile.mangaFullScreen;
-    _autoRefresh = json['autoRefresh'] ?? defaultProfile.autoRefresh;
+    _showNovelStatus = json['showNovelStatus'] ?? defaultProfile.showNovelStatus;
+    _showNovelInfo = json['showNovelInfo'] ?? defaultProfile.showNovelInfo;
+    _showNovelStatus = json['showNovelStatus'] ?? defaultProfile.showNovelStatus;
+    _searchPostion = json['searchPostion'] ?? defaultProfile.searchPostion;
+    _bottomCount = json['bottomCount'] ?? defaultProfile.bottomCount;
     _darkMode = json['darkMode'] ?? defaultProfile.darkMode;
     _primaryColor = json['primaryColor'] ?? defaultProfile.primaryColor;
     _novelFontSize = json['novelFontSize'] ?? defaultProfile.novelFontSize;
@@ -636,10 +707,16 @@ class Profile with ChangeNotifier {
         'novelFontFamily': _novelFontFamily,
         'version': _version,
         'switchLongPress': _switchLongPress,
+        'showHistoryOnAbout': _showHistoryOnAbout,
+        'showHistoryOnFavorite': _showHistoryOnFavorite,
         'switchFavoriteStyle': _switchFavoriteStyle,
         // 'switchDiscoverStyle': _switchDiscoverStyle,
+        'showMangaStatus': _showMangaStatus,
         'showMangaInfo': _showMangaInfo,
-        'mangaFullScreen': _mangaFullScreen,
+        'showNovelStatus': _showNovelStatus,
+        'showNovelInfo': _showNovelInfo,
+        'searchPostion': _searchPostion,
+        'bottomCount': _bottomCount,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'primaryColor': _primaryColor,

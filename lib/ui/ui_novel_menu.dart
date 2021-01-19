@@ -145,7 +145,13 @@ class UINovelMenu extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                ],
+              ),
+            ),
+            Container(
+              height: 40,
+              child: Row(
+                children: [
                   Text("常亮"),
                   Switch(
                     value: profile.novelKeepOn,
@@ -153,6 +159,18 @@ class UINovelMenu extends StatelessWidget {
                       profile.novelKeepOn = value;
                       provider.setKeepOn(value);
                     },
+                  ),
+                  Spacer(),
+                  Text("状态栏"),
+                  Switch(
+                    value: profile.showNovelStatus,
+                    onChanged: (value) => profile.showNovelStatus = value,
+                  ),
+                  Spacer(),
+                  Text("章节信息"),
+                  Switch(
+                    value: profile.showNovelInfo,
+                    onChanged: (value) => profile.showNovelInfo = value,
                   ),
                 ],
               ),

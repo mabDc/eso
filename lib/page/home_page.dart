@@ -7,7 +7,9 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/page/audio_page.dart';
+import 'package:eso/page/history_page.dart';
 import 'package:eso/page/search_page.dart';
+import 'package:eso/page/setting/about_page.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +84,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = Profile();
     return ChangeNotifierProvider(
       create: (BuildContext context) => PageSwitch(Global.currentHomePage),
       child: Consumer<PageSwitch>(
@@ -93,6 +96,8 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               FavoritePage(),
               DiscoverPage(),
+              if (profile.bottomCount == 4) HistoryPage(),
+              if (profile.bottomCount == 4) AboutPage(),
             ],
             onPageChanged: (index) => pageSwitch.changePage(index, false),
             physics: NeverScrollableScrollPhysics(), //禁止主页左右滑动
@@ -116,62 +121,115 @@ class _HomePageState extends State<HomePage> {
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 5),
                     child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         Expanded(
-                          child: FlatButton(
-                            onPressed: () => pageSwitch.changePage(0),
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(
-                                  FIcons.heart,
-                                  color: getColor(pageSwitch, context, 0),
+                          flex: 3,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: FlatButton(
+                                  onPressed: () => pageSwitch.changePage(0),
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Icon(FIcons.heart,
+                                          color: getColor(pageSwitch, context, 0)),
+                                      Text("收藏",
+                                          style: TextStyle(
+                                              color: getColor(pageSwitch, context, 0)))
+                                    ],
+                                  ),
                                 ),
-                                Text(
-                                  "收藏",
-                                  style:
-                                      TextStyle(color: getColor(pageSwitch, context, 0)),
-                                )
+                              ),
+                              Expanded(
+                                child: FlatButton(
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onPressed: () => pageSwitch.changePage(1),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Icon(FIcons.compass,
+                                          color: getColor(pageSwitch, context, 1)),
+                                      Text("发现",
+                                          style: TextStyle(
+                                              color: getColor(pageSwitch, context, 1)))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (profile.searchPostion == Profile.searchDocker &&
+                            profile.bottomCount == 4)
+                          Spacer(),
+                        if (profile.bottomCount == 4)
+                          Expanded(
+                            flex: 3,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
+                                  child: FlatButton(
+                                    onPressed: () => pageSwitch.changePage(2),
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Icon(Icons.history,
+                                            color: getColor(pageSwitch, context, 2)),
+                                        Text("历史",
+                                            style: TextStyle(
+                                                color: getColor(pageSwitch, context, 2)))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: FlatButton(
+                                    onPressed: () => pageSwitch.changePage(3),
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Icon(Icons.info_outline_rounded,
+                                            color: getColor(pageSwitch, context, 3)),
+                                        Text("关于",
+                                            style: TextStyle(
+                                                color: getColor(pageSwitch, context, 3)))
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: FlatButton(
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onPressed: () => pageSwitch.changePage(1),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(FIcons.compass,
-                                    color: getColor(pageSwitch, context, 1)),
-                                Text("发现",
-                                    style: TextStyle(
-                                        color: getColor(pageSwitch, context, 1)))
-                              ],
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 );
               },
             ),
-            floatingActionButton: FloatingActionButton(
-              elevation: 1,
-              tooltip: "搜索",
-              backgroundColor: Theme.of(context).primaryColor,
-              onPressed: () => Utils.startPageWait(context, SearchPage())
-                  .whenComplete(() => pageSwitch.refreshList()),
-              child: Icon(FIcons.search, color: Theme.of(context).canvasColor),
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: profile.searchPostion == Profile.searchAction
+                ? null
+                : FloatingActionButton(
+                    elevation: 1,
+                    tooltip: "搜索",
+                    backgroundColor: Theme.of(context).primaryColor,
+                    onPressed: () => Utils.startPageWait(context, SearchPage())
+                        .whenComplete(() => pageSwitch.refreshList()),
+                    child: Icon(FIcons.search, color: Theme.of(context).canvasColor),
+                  ),
+            floatingActionButtonLocation: profile.searchPostion == Profile.searchAction
+                ? null
+                : profile.searchPostion == Profile.searchFloat
+                    ? FloatingActionButtonLocation.endFloat
+                    : FloatingActionButtonLocation.centerDocked,
           );
         },
       ),

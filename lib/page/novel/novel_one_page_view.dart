@@ -115,14 +115,15 @@ class NovelOnePageView extends StatelessWidget {
               )),
             ),
           ),
-          SizedBox(height: 4),
-          bottomLine(fontColor),
-          buildFooterStatus(
-              chapter: chapterName,
-              msg: pageInfo,
-              padding: profile.novelLeftPadding,
-              fontColor: fontColor,
-              provider: provider)
+          if (profile.showNovelInfo) SizedBox(height: 4),
+          if (profile.showNovelInfo) bottomLine(fontColor),
+          if (profile.showNovelInfo)
+            buildFooterStatus(
+                chapter: chapterName,
+                msg: pageInfo,
+                padding: profile.novelLeftPadding,
+                fontColor: fontColor,
+                provider: provider)
         ],
       ),
     );

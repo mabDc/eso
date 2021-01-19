@@ -178,9 +178,9 @@ class UIMangaMenu extends StatelessWidget {
               height: 50,
               alignment: Alignment.center,
               child: SwitchListTile(
-                value: profile.mangaFullScreen,
-                onChanged: (value) => profile.mangaFullScreen = value,
-                title: Text("全屏浏览"),
+                value: profile.showMangaStatus,
+                onChanged: (value) => profile.showMangaStatus = value,
+                title: Text("显示状态栏"),
               ),
             ),
             Container(

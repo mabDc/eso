@@ -67,15 +67,11 @@ class _MangaPageState extends State<MangaPage> {
             if (__provider == null) {
               __provider = provider;
             }
-            if (profile.mangaFullScreen) {
-              SystemChrome.setEnabledSystemUIOverlays([]);
-            } else {
-              SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
-            }
+
             if (provider.content == null) {
               return LandingPage();
             }
-            updateSystemChrome(provider.showMenu);
+            updateSystemChrome(provider.showMenu, profile);
             return Stack(
               alignment: AlignmentDirectional.bottomEnd,
               children: <Widget>[
@@ -100,7 +96,7 @@ class _MangaPageState extends State<MangaPage> {
             );
           },
         ),
-      ),
+      ), 
     );
   }
 
@@ -217,12 +213,12 @@ class _MangaPageState extends State<MangaPage> {
 
   bool lastShowMenu = false;
 
-  updateSystemChrome(bool showMenu) {
+  updateSystemChrome(bool showMenu, Profile profile) {
     if (showMenu == lastShowMenu) return;
     if (showMenu) {
       SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    } else {
+    } else if (!profile.showMangaStatus) {
       SystemChrome.setEnabledSystemUIOverlays([]);
-    }
+    } 
   }
 }

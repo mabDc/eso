@@ -8,6 +8,7 @@ import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
 import '../fonticons_icons.dart';
 import 'history_page.dart';
+import 'search_page.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({Key key}) : super(key: key);
@@ -21,7 +22,8 @@ class FavoritePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Profile().version != Profile().lastestVersion) {
+    final profile = Profile();
+    if (profile.version != profile.lastestVersion) {
       Future.delayed(
           Duration(milliseconds: 10), () => AboutPage.showAbout(context, true));
     } else {
@@ -55,16 +57,22 @@ class FavoritePage extends StatelessWidget {
                 .toList(),
           ),
           actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.history),
-              tooltip: "浏览历史",
-              onPressed: () => Utils.startPageWait(context, HistoryPage()),
-            ),
-            IconButton(
-              icon: Icon(FIcons.settings),
-              tooltip: "设置",
-              onPressed: () => Utils.startPageWait(context, AboutPage()),
-            ),
+            if (profile.searchPostion == Profile.searchAction)
+              IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () => Utils.startPageWait(context, SearchPage())),
+            if (profile.showHistoryOnFavorite)
+              IconButton(
+                icon: Icon(Icons.history),
+                tooltip: "浏览历史",
+                onPressed: () => Utils.startPageWait(context, HistoryPage()),
+              ),
+            if (profile.bottomCount != 4)
+              IconButton(
+                icon: Icon(FIcons.settings),
+                tooltip: "设置",
+                onPressed: () => Utils.startPageWait(context, AboutPage()),
+              ),
           ],
         ),
         body: TabBarView(

@@ -18,13 +18,16 @@ class NovelScrollView extends StatelessWidget {
 
   static Color _fontColor, _fontColor70;
 
-  get _txtStyle => TextStyle(color: _fontColor70, fontFamily: Profile.staticNovelFontFamily);
-  get _txtNormal => TextStyle(color: _fontColor, fontFamily: Profile.staticNovelFontFamily);
+  get _txtStyle =>
+      TextStyle(color: _fontColor70, fontFamily: Profile.staticNovelFontFamily);
+  get _txtNormal =>
+      TextStyle(color: _fontColor, fontFamily: Profile.staticNovelFontFamily);
 
   @override
   Widget build(BuildContext context) {
     _fontColor = Color(profile.novelFontColor);
-    _fontColor70 = _fontColor.withOpacity(_fontColor.opacity > 0.7 ? 0.7 : _fontColor.opacity - 0.02);
+    _fontColor70 = _fontColor
+        .withOpacity(_fontColor.opacity > 0.7 ? 0.7 : _fontColor.opacity - 0.02);
 
     return NotificationListener(
       onNotification: (t) {
@@ -37,11 +40,10 @@ class NovelScrollView extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(
-      BuildContext context, RefreshController refreshController) {
+  Widget _buildContent(BuildContext context, RefreshController refreshController) {
     final spans = provider.didUpdateReadSetting(profile)
-        ? provider.updateSpansFlat(NovelPageProvider.buildSpans(context,
-            profile, provider.searchItem, provider.paragraphs))
+        ? provider.updateSpansFlat(NovelPageProvider.buildSpans(
+            context, profile, provider.searchItem, provider.paragraphs))
         : provider.spansFlat;
 
     return Container(
@@ -91,11 +93,9 @@ class NovelScrollView extends StatelessWidget {
                   }),
             ),
           ),
-          SizedBox(
-            height: 4,
-          ),
-          NovelOnePageView.bottomLine(_fontColor),
-          _buildFooterStatus(),
+          if (profile.showNovelInfo) SizedBox(height: 4),
+          if (profile.showNovelInfo) NovelOnePageView.bottomLine(_fontColor),
+          if (profile.showNovelInfo) _buildFooterStatus(),
         ],
       ),
     );
@@ -194,11 +194,10 @@ class NovelScrollView extends StatelessWidget {
 
   Widget _buildFooterStatus() {
     return NovelOnePageView.buildFooterStatus(
-      chapter: searchItem.durChapter,
-      msg: '${provider.progress}%',
-      padding: profile.novelLeftPadding,
-      fontColor: _fontColor,
-      provider: provider
-    );
+        chapter: searchItem.durChapter,
+        msg: '${provider.progress}%',
+        padding: profile.novelLeftPadding,
+        fontColor: _fontColor,
+        provider: provider);
   }
 }

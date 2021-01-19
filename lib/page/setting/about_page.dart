@@ -1,6 +1,7 @@
 import 'dart:io';
+import 'package:eso/page/history_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
-import 'package:eso/page/setting/home_ui_setting.dart';
+import 'package:eso/page/setting/ui_setting.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -52,6 +53,12 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                     Divider(),
+                    if (profile.showHistoryOnAbout)
+                      ListTile(
+                        title: Text('历史记录'),
+                        subtitle: Text('浏览历史，界面设置可关闭'),
+                        onTap: () => Utils.startPageWait(context, HistoryPage()),
+                      ),
                     ListTile(
                       title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
@@ -91,14 +98,6 @@ class AboutPage extends StatelessWidget {
                         );
                       },
                     ),
-                    SwitchListTile(
-                      title: Text('交换收藏点击和长按效果'),
-                      subtitle: Text(
-                          profile.switchLongPress ? '点击进入目录，长按查看内容' : '点击查看内容，长按进入目录'),
-                      value: profile.switchLongPress,
-                      onChanged: (value) => profile.switchLongPress = value,
-                      activeColor: Theme.of(context).primaryColor,
-                    ),
                   ],
                 ),
               ),
@@ -108,11 +107,17 @@ class AboutPage extends StatelessWidget {
                   children: <Widget>[
                     ListTile(
                       title: Text(
-                        '主题',
+                        '界面',
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
                     Divider(),
+                    ListTile(
+                      title: Text('界面与布局'),
+                      subtitle: Text('正文状态栏信息栏和按钮布局'),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (BuildContext context) => UISetting())),
+                    ),
                     ListTile(
                       title: Text('夜间模式'),
                       subtitle: Text('切换夜间模式'),
@@ -131,13 +136,6 @@ class AboutPage extends StatelessWidget {
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => FontFamilyPage())),
                     ),
-                    ListTile(
-                      title: Text('界面与布局'),
-                      subtitle: Text('全屏和按钮位置调整'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => HomeUISetting())),
-                    ),
-                    
                   ],
                 ),
               ),

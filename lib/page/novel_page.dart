@@ -38,6 +38,7 @@ class _NovelPageState extends State<NovelPage> {
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
   }
 
@@ -60,6 +61,7 @@ class _NovelPageState extends State<NovelPage> {
             if (provider.paragraphs == null) {
               return LandingPage();
             }
+            updateSystemChrome(provider.showMenu, profile);
             return RawKeyboardListener(
               focusNode: _backNode,
               autofocus: true,
@@ -185,6 +187,17 @@ class _NovelPageState extends State<NovelPage> {
         ),
       ),
     );
+  }
+
+  bool lastShowMenu = false;
+
+  updateSystemChrome(bool showMenu, Profile profile) {
+    if (showMenu == lastShowMenu) return;
+    if (showMenu) {
+      SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    } else if (!profile.showMangaStatus) {
+      SystemChrome.setEnabledSystemUIOverlays([]);
+    }
   }
 
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
