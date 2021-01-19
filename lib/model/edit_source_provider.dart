@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/menu/menu_edit_source.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -81,6 +82,14 @@ class EditSourceProvider with ChangeNotifier {
     if (type != MenuEditSource.all && (rules == null || rules.isEmpty)) return;
     bool updateFlag = false;
     switch (type) {
+      case MenuEditSource.enable_upload:
+        rules.forEach((rule) => rule.enableUpload = true);
+        updateFlag = true;
+        break;
+      case MenuEditSource.disable_upload:
+        rules.forEach((rule) => rule.enableUpload = false);
+        updateFlag = true;
+        break;
       case MenuEditSource.all:
         _rules.forEach((rule) => checkSelectMap[rule.id] = true);
         updateFlag = true;
@@ -145,14 +154,19 @@ class EditSourceProvider with ChangeNotifier {
       default:
         return;
     }
-    if (updateFlag) {
-      _isLoading = true;
-      print('edit source update database');
-      await Global.ruleDao.insertOrUpdateRules(rules);
+    try {
+      if (updateFlag) {
+        _isLoading = true;
+        print('edit source update database');
+        await Global.ruleDao.insertOrUpdateRules(rules);
+        _isLoading = false;
+      }
+      if (type != MenuEditSource.add_group && type != MenuEditSource.delete_group)
+        notifyListeners();
+    } catch (e) {
       _isLoading = false;
+      Utils.toast(e);
     }
-    if (type != MenuEditSource.add_group && type != MenuEditSource.delete_group)
-      notifyListeners();
   }
 
   DateTime _loadKey = DateTime.now();

@@ -65,8 +65,8 @@ class AboutPage extends StatelessWidget {
                       onTap: () => Utils.startPageWait(context, EditSourcePage()),
                     ),
                     ListTile(
-                      title: Text('自动备份与webdav'),
-                      subtitle: Text('开启每日备份 开启webdav自动同步'),
+                      title: Text('备份恢复和webdav'),
+                      subtitle: Text('自动备份与恢复，webdav与规则分享'),
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (BuildContext context) => AutoBackupPage())),
                     ),

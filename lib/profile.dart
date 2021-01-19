@@ -93,7 +93,48 @@ class Profile with ChangeNotifier {
     _webdavServer = "https://dav.jianguoyun.com/dav/";
     _webdavAccount = "";
     _webdavPassword = "";
+    _enableWebdavRule = false;
+    _webdavRuleAccount = "";
+    _webdavRuleCheckcode = "";
+    _autoRuleUploadLastDay = "";
   }
+
+  bool _enableWebdavRule;
+  bool get enableWebdavRule => _enableWebdavRule;
+  set enableWebdavRule(bool value) {
+    if (value != _enableWebdavRule) {
+      _enableWebdavRule = value;
+      _saveProfile();
+    }
+  }
+
+  String _webdavRuleAccount;
+  String get webdavRuleAccount => _webdavRuleAccount;
+  set webdavRuleAccount(String value) {
+    if (value != _webdavRuleAccount) {
+      _webdavRuleAccount = value;
+      _saveProfile();
+    }
+  }
+
+  String _webdavRuleCheckcode;
+  String get webdavRuleCheckcode => _webdavRuleCheckcode;
+  set webdavRuleCheckcode(String value) {
+    if (value != _webdavRuleCheckcode) {
+      _webdavRuleCheckcode = value;
+      _saveProfile();
+    }
+  }
+
+  String _autoRuleUploadLastDay;
+  String get autoRuleUploadLastDay => _autoRuleUploadLastDay;
+  set autoRuleUploadLastDay(String value) {
+    if (value != _autoRuleUploadLastDay) {
+      _autoRuleUploadLastDay = value;
+      _saveProfile();
+    }
+  }
+
   String _webdavAccount;
   String get webdavAccount => _webdavAccount;
   set webdavAccount(String value) {
@@ -644,6 +685,12 @@ class Profile with ChangeNotifier {
     if (notIgnoreVersion) {
       _version = json['version'] ?? defaultProfile.version;
     }
+    _webdavRuleCheckcode =
+        json['webdavRuleCheckcode'] ?? defaultProfile.webdavRuleCheckcode;
+    _webdavRuleAccount = json['webdavRuleAccount'] ?? defaultProfile.webdavRuleAccount;
+    _enableWebdavRule = json['enableWebdavRule'] ?? defaultProfile.enableWebdavRule;
+    _autoRuleUploadLastDay =
+        json['autoRuleUploadLastDay'] ?? defaultProfile.autoRuleUploadLastDay;
     _webdavPassword = json['webdavPassword'] ?? defaultProfile.webdavPassword;
     _webdavAccount = json['webdavAccount'] ?? defaultProfile.webdavAccount;
     _autoBackupLastDay = json['autoBackupLastDay'] ?? defaultProfile.autoBackupLastDay;
@@ -697,6 +744,10 @@ class Profile with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() => {
+        'webdavRuleAccount': _webdavRuleAccount,
+        'webdavRuleCheckcode': _webdavRuleCheckcode,
+        'enableWebdavRule': _enableWebdavRule,
+        'autoRuleUploadLastDay': _autoRuleUploadLastDay,
         'webdavAccount': _webdavAccount,
         'webdavPassword': _webdavPassword,
         'autoBackupLastDay': _autoBackupLastDay,

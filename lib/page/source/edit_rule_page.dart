@@ -375,6 +375,15 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             ],
           ),
         ),
+        SwitchListTile(
+          title: Text('允许上传分享'),
+          value: rule.enableUpload,
+          onChanged: (value) {
+            setState(() {
+              rule.enableUpload = value;
+            });
+          },
+        ),
         _buildEditText(
           rule.name,
           '名称(name)',

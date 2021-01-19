@@ -74,6 +74,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 tooltip: "编辑选中规则",
                 items: editSourceMenus,
                 onSelect: (value) {
+                  if (value == null) return;
                   final rules = provider.rules
                       .where((element) => provider.checkSelectMap[element.id] == true)
                       .toList();

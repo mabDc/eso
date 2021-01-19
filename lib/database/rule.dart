@@ -13,6 +13,7 @@ class Rule {
   String id = Uuid().v4();
   int createTime = DateTime.now().microsecondsSinceEpoch; //创建时间
   int modifiedTime = DateTime.now().microsecondsSinceEpoch; //修改时间
+  bool enableUpload;
   String author = ''; //源作者
   String postScript = '';
   String name = ''; //站点名
@@ -88,6 +89,7 @@ class Rule {
     id = Uuid().v4();
     createTime = DateTime.now().microsecondsSinceEpoch;
     modifiedTime = DateTime.now().microsecondsSinceEpoch;
+    enableUpload = true;
     author = '';
     name = '';
     host = '';
@@ -158,6 +160,7 @@ class Rule {
     this.id,
     this.createTime,
     this.modifiedTime,
+    this.enableUpload,
     this.author,
     this.name,
     this.host,
@@ -212,8 +215,10 @@ class Rule {
     this.contentItems,
   );
 
-  static Future<String> backupRules() async {
-    final rules = await Global.ruleDao.findAllRules();
+  static Future<String> backupRules([List<Rule> rules]) async {
+    if (rules == null) {
+      rules = await Global.ruleDao.findAllRules();
+    }
     return jsonEncode(rules.map((e) => e.toJson()).toList());
   }
 
@@ -233,6 +238,7 @@ class Rule {
     id = json['id'] ?? defaultRule.id;
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
+    enableUpload = json['upload'] ?? defaultRule.enableUpload;
     author = json['author'] ?? defaultRule.author;
     postScript = json['postScript'] ?? defaultRule.postScript;
     name = json['name'] ?? defaultRule.name;
@@ -321,6 +327,7 @@ class Rule {
     id = json['id'] ?? defaultRule.id;
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
+    enableUpload = json['upload'] ?? defaultRule.enableUpload;
     author = json['author'] ?? defaultRule.author;
     postScript = json['sourceRemark'] ?? defaultRule.postScript;
     group = json['bookSourceGroup'] ?? defaultRule.group;
@@ -395,6 +402,7 @@ class Rule {
         'id': id,
         'createTime': createTime,
         'modifiedTime': modifiedTime,
+        'enableUpload': enableUpload,
         'author': author,
         'postScript': postScript,
         'name': name,

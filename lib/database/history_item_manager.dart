@@ -50,8 +50,8 @@ class HistoryItemManager {
         ?.forEach((item) => _historyItem.add(SearchItem.fromJson(jsonDecode(item))));
   }
 
-  static Future<bool> removeSearchItem(int id) async {
-    _historyItem.removeWhere((item) => item.id == id);
+  static Future<bool> removeSearchItem(Set<int> id) async {
+    _historyItem.removeWhere((item) => id.contains(item.id));
     return saveHistoryItem();
   }
 

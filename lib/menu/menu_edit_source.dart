@@ -13,6 +13,8 @@ enum MenuEditSource {
   disable_search,
   enable_discover,
   disable_discover,
+  enable_upload,
+  disable_upload,
   add_group,
   delete_group,
   delete,
@@ -61,6 +63,18 @@ List<MenuItem<MenuEditSource>> editSourceMenus = [
     text: '禁用发现',
     icon: FIcons.circle,
     value: MenuEditSource.disable_discover,
+    color: Colors.grey,
+  ),
+  MenuItem<MenuEditSource>(
+    text: '允许上传',
+    icon: Icons.upload_file,
+    value: MenuEditSource.enable_upload,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuEditSource>(
+    text: '禁止上传',
+    icon: Icons.upload_file,
+    value: MenuEditSource.disable_upload,
     color: Colors.grey,
   ),
   MenuItem<MenuEditSource>(

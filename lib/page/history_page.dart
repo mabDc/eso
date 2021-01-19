@@ -3,15 +3,43 @@ import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_image_item.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../fonticons_icons.dart';
 import '../global.dart';
 import 'chapter_page.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({Key key}) : super(key: key);
-
+  void alert(BuildContext context, Widget title, Widget content, VoidCallback handle) =>
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: title,
+          content: content,
+          actions: [
+            FlatButton(
+              child: Text(
+                "取消",
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              child: Text(
+                "确定",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                handle();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<HistoryPageProvider>(
@@ -20,13 +48,32 @@ class HistoryPage extends StatelessWidget {
         final provider = Provider.of<HistoryPageProvider>(context, listen: false);
         return Scaffold(
           appBar: AppBar(
-            titleSpacing: 0,
             title: SearchTextField(
               controller: provider.editingController,
               hintText: "搜索历史(共${provider.historyItem.length ?? 0}条)",
               onSubmitted: (value) => provider.getRuleListByName(value),
               onChanged: (value) => provider.getRuleListByNameDebounce(value),
             ),
+            actions: [
+              IconButton(
+                  icon: Icon(FIcons.check_square), onPressed: provider.toggleCheck),
+              IconButton(
+                icon: Icon(Icons.delete_sweep),
+                onPressed: () {
+                  final checkCount = provider.checkCount;
+                  if (checkCount == 0) {
+                    Utils.toast("请先选择");
+                    return;
+                  }
+                  alert(
+                    context,
+                    Text("警告(不可恢复)"),
+                    Text("删除选中$checkCount条记录"),
+                    () => provider.delete(),
+                  );
+                },
+              ),
+            ],
           ),
           body: RefreshIndicator(
             onRefresh: provider.refresh,
@@ -67,6 +114,7 @@ class HistoryPage extends StatelessWidget {
   List<Widget> buildItems(BuildContext context) {
     final historyItem =
         context.select((HistoryPageProvider provider) => provider.historyItem);
+    final provider = Provider.of<HistoryPageProvider>(context, listen: true);
     final list = <Widget>[];
     final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
         .add(Duration(days: 1));
@@ -86,17 +134,22 @@ class HistoryPage extends StatelessWidget {
           ),
         ));
       }
-      list.add(buildItem(context, item, lastRead));
+      list.add(buildItem(provider, context, item, lastRead));
       list.add(Divider());
     }
     return list;
   }
 
-  Widget buildItem(BuildContext context, SearchItem item, DateTime lastRead) {
+  Widget buildItem(HistoryPageProvider provider, BuildContext context, SearchItem item,
+      DateTime lastRead) {
     return InkWell(
       onTap: () {
-        if (item.chapters.isEmpty) {
+        if (item.chapters != null && item.chapters.isEmpty) {
           item.chapters = null;
+        }
+        if (provider.checkkMode) {
+          provider.checkOne(item.id);
+          return;
         }
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => ChapterPage(searchItem: item)))
@@ -109,6 +162,13 @@ class HistoryPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 14),
         child: Row(
           children: [
+            if (provider.checkkMode)
+              Container(
+                padding: EdgeInsets.all(8),
+                child: Icon(provider.isCheck(item.id)
+                    ? Icons.check_box_outlined
+                    : Icons.check_box_outline_blank),
+              ),
             Container(
               width: 70,
               child: UIImageItem(
@@ -189,6 +249,35 @@ class HistoryPage extends StatelessWidget {
 }
 
 class HistoryPageProvider with ChangeNotifier {
+  bool _checkMode;
+  bool get checkkMode => _checkMode == true;
+
+  toggleCheck() {
+    _checkMode = !checkkMode;
+    if (!_checkMode) _idSet.clear();
+    notifyListeners();
+  }
+
+  final _idSet = Set<int>();
+
+  delete() async {
+    await HistoryItemManager.removeSearchItem(_idSet);
+    _historyItem =
+        HistoryItemManager.getHistoryItemByType(_editingController.text, _contentType);
+    notifyListeners();
+  }
+
+  bool isCheck(int id) => _idSet.contains(id);
+  int get checkCount => _idSet.length;
+  checkOne(int id) {
+    if (isCheck(id)) {
+      _idSet.remove(id);
+    } else {
+      _idSet.add(id);
+    }
+    notifyListeners();
+  }
+
   HistoryPageProvider() {
     _editingController = TextEditingController();
     _historyItem =

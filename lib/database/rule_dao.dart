@@ -30,6 +30,9 @@ abstract class RuleDao {
   @Query('SELECT * FROM rule where enableDiscover = 1 ORDER BY \${RuleDao.order}')
   Future<List<Rule>> findAllDiscoverRules();
 
+  @Query('SELECT * FROM rule where enableUpload = 1')
+  Future<List<Rule>> findUploadRules();
+
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<int> insertOrUpdateRule(Rule rule);
 

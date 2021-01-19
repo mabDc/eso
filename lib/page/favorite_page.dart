@@ -28,6 +28,7 @@ class FavoritePage extends StatelessWidget {
           Duration(milliseconds: 10), () => AboutPage.showAbout(context, true));
     } else {
       AutoBackupPage.backup(true);
+      AutoBackupPage.shareRule(true);
     }
     return DefaultTabController(
       length: tabs.length,

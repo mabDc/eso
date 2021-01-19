@@ -80,7 +80,7 @@ class Global with ChangeNotifier {
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
     HistoryItemManager.initHistoryItem();
-    final _migrations = [migration4to5, migration5to6, migration6to7];
+    final _migrations = [migration4to5, migration5to6, migration6to7, migration7to8];
 
     final _database = await $FloorAppDatabase
         .databaseBuilder('eso_database.db')
