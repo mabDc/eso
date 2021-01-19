@@ -96,7 +96,7 @@ class _MangaPageState extends State<MangaPage> {
             );
           },
         ),
-      ), 
+      ),
     );
   }
 
@@ -215,10 +215,11 @@ class _MangaPageState extends State<MangaPage> {
 
   updateSystemChrome(bool showMenu, Profile profile) {
     if (showMenu == lastShowMenu) return;
+    lastShowMenu = showMenu;
     if (showMenu) {
       SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     } else if (!profile.showMangaStatus) {
       SystemChrome.setEnabledSystemUIOverlays([]);
-    } 
+    }
   }
 }
