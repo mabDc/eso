@@ -1,4 +1,37 @@
-### 10.24
+### 1.21.05
+- 换源
+
+### 1.21.04
+- webdav 规则分享与获取
+- 历史浏览可删除
+- 允许仅恢复规则
+
+### 1.21.03
+- webdav与备份文件，桌面版移动版使用不同文件名
+- 文字、图片正文状态栏信息栏设置
+- 界面按钮允许自定义 多种布局
+
+### 1.21.01 1.21.02
+- fix 文字正文有时候灰屏
+- 备份恢复重写
+- 2021 新春快乐
+- 自动备份
+- webdav
+
+### 1.20.18 1.20.19
+
+- menu重写
+- 详情页增加规则编辑入口
+- 导入重写
+- 规则管理重绘
+- 文本输入框代码清理
+- 完成规则管理批量操作
+- 增加发现页规则编辑入口
+- 支持base64图片地址 `data:image/xx;base64,xx`
+- 监听图片页数 记录和恢复页数进度
+- 更新安卓sdk 修复安卓11闪退
+
+ ### 10.24
 
 - fix 历史记录天数计算
 - 修改数据库
@@ -437,6 +470,38 @@
 2. 增加规则压缩分享 
 
 3. 更新版本至`1.13.0+2002`
+
+    by [mabDc](https://github.com/mabDc)
+
+
+### 6.25
+
+1. 发现增加2级分类
+
+2. 修复响应自动解码 
+
+    by [mabDc](https://github.com/mabDc)
+
+### 6.23 
+
+1. 更新图标 by [yangyxd](https://github.com/yangyxd)
+
+### 6.22 
+
+1. 重写文字正文 by [yangyxd](https://github.com/yangyxd)
+
+### 6.20 
+
+1. 修改发现界面 by [DaguDuiyuan](https://github.com/DaguDuiyuan)
+
+### 6.16 
+
+1. 修改详情页 by [yangyxd](https://github.com/yangyxd)
+
+2. 增加图片正文查看和保存 by [yangyxd](https://github.com/yangyxd)
+
+3. 增加正文下一章预加载 by [mabDc](https://github.com/mabDc)
++2002`
 
     by [mabDc](https://github.com/mabDc)
 
