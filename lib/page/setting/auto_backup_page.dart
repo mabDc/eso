@@ -298,7 +298,7 @@ class AutoBackupPage extends StatelessWidget {
         }
         await client.upload(bytes, "ESO/$fileName");
         profile.autoRuleUploadLastDay = today;
-        Utils.toast("上传分享规则至webdav成功");
+        Utils.toast("上传分享规则（共${rules.length}条）至webdav成功");
       } catch (e, st) {
         print("上传分享规则至webdav错误 e:$e, st: $st");
         Utils.toast("上传分享规则至webdav错误 e:$e\n请检查账户密码或网络", duration: Duration(seconds: 3));
