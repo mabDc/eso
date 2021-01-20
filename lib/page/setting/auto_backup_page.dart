@@ -280,7 +280,7 @@ class AutoBackupPage extends StatelessWidget {
     final fileName = Uri.encodeComponent(
         'share.${profile.webdavRuleCheckcode}.rule.${profile.webdavRuleAccount}.$today.zip');
     if (autoShare) {
-      if (today == profile.autoRuleUploadLastDay || profile.enableWebdavRule) return;
+      if (today == profile.autoRuleUploadLastDay || !profile.enableWebdavRule) return;
       Utils.toast("1s后开始自动每日上传规则，可在设置中取消");
       await Future.delayed(Duration(seconds: 1));
     }
@@ -496,7 +496,8 @@ class AutoBackupPage extends StatelessWidget {
         final bytes =
             r.reduce((value, element) => <int>[]..addAll(value)..addAll(element));
         if (download) {
-          final dir = join(await CacheUtil(backup: true).cacheDir(), decodeShareRuleName(value));
+          final dir =
+              join(await CacheUtil(backup: true).cacheDir(), decodeShareRuleName(value));
           File(dir)
             ..create(recursive: true)
             ..writeAsBytes(bytes);

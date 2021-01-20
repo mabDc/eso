@@ -211,7 +211,7 @@ class _MangaPageState extends State<MangaPage> {
     );
   }
 
-  bool lastShowMenu = false;
+  bool lastShowMenu;
 
   updateSystemChrome(bool showMenu, Profile profile) {
     if (showMenu == lastShowMenu) return;

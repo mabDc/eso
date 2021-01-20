@@ -189,7 +189,7 @@ class _NovelPageState extends State<NovelPage> {
     );
   }
 
-  bool lastShowMenu = false;
+  bool lastShowMenu;
 
   updateSystemChrome(bool showMenu, Profile profile) {
     if (showMenu == lastShowMenu) return;

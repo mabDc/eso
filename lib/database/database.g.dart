@@ -307,14 +307,14 @@ class _$RuleDao extends RuleDao {
 
   @override
   Future<List<Rule>> findAllDiscoverRules() async {
-    return _queryAdapter.queryList('SELECT * FROM rule where enableUpload = 1',
+    return _queryAdapter.queryList(
+        'SELECT * FROM rule where enableDiscover = 1 ORDER BY ${RuleDao.order}',
         mapper: _ruleMapper);
   }
 
   @override
   Future<List<Rule>> findUploadRules() async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM rule where enableDiscover = 1 ORDER BY ${RuleDao.order}',
+    return _queryAdapter.queryList('SELECT * FROM rule where enableUpload = 1',
         mapper: _ruleMapper);
   }
 
