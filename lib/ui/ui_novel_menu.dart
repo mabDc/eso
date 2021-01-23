@@ -38,7 +38,6 @@ class UINovelMenu extends StatelessWidget {
     final color = Theme.of(context).textTheme.bodyText1.color;
     final provider = Provider.of<NovelPageProvider>(context, listen: false);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         AppBar(
           leading: IconButton(
@@ -56,6 +55,15 @@ class UINovelMenu extends StatelessWidget {
             _buildPopupMenu(context, bgColor, color),
           ],
         ),
+        Wrap(
+          children: [
+            RaisedButton(onPressed: provider.speak, child: Text('朗读')),
+            RaisedButton(onPressed: provider.stop, child: Text('停止')),
+            RaisedButton(onPressed: provider.prevPara, child: Text('上一段')),
+            RaisedButton(onPressed: provider.nextPara, child: Text('下一段')),
+          ],
+        ),
+        Spacer(),
         provider.showSetting
             ? _buildSetting(context, bgColor, color)
             : _buildBottomRow(context, bgColor, color),

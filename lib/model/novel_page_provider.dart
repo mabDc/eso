@@ -12,6 +12,7 @@ import 'package:eso/ui/widgets/chapter_page__view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
 import '../database/search_item.dart';
@@ -94,6 +95,7 @@ class NovelPageProvider with ChangeNotifier {
   final RefreshController refreshController = RefreshController();
 
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
+    _tts.setCompletionHandler(nextPara);
     _brightness = 0.5;
     _isLoading = false;
     _showChapter = false;
@@ -523,7 +525,7 @@ class NovelPageProvider with ChangeNotifier {
     _autoCacheDoing = false;
     _paragraphs?.clear();
     _pageController?.dispose();
-    spans?.clear();
+    _spans?.clear();
     spansFlat?.clear();
     _controller?.dispose();
     () async {
@@ -580,6 +582,48 @@ class NovelPageProvider with ChangeNotifier {
       return true;
     }
     return false;
+  }
+
+  final _tts = FlutterTts();
+
+  int _speakParaIndex = 0;
+
+  stop() => _tts.stop();
+
+  void speak() {
+    if (_paragraphs.isEmpty) {
+      Utils.toast("请等待解析结束");
+      return;
+    }
+    if (_speakParaIndex < 0) {
+      _speakParaIndex = -1;
+      _tts.speak('已经是本章开始');
+      Utils.toast("已经是本章开始");
+      return;
+    }
+    if (_speakParaIndex >= _paragraphs.length) {
+      _speakParaIndex = _paragraphs.length;
+      _tts.speak('本章已经结束');
+      Utils.toast("本章已经结束");
+      return;
+    }
+    _tts.speak(_paragraphs[_speakParaIndex]);
+  }
+
+  void nextPara() async {
+    if (_speakParaIndex == _paragraphs.length) {
+      Utils.toast("本章已经结束");
+      
+      stop();
+      return;
+    }
+    _speakParaIndex++;
+    speak();
+  }
+
+  void prevPara() async {
+    _speakParaIndex--;
+    speak();
   }
 
   /// 文字排版部分

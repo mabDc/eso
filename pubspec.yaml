@@ -63,9 +63,8 @@ dependencies:
   sqflite_common_ffi: ^1.1.1
   scrollable_positioned_list: ^0.1.8
   webdav: ^1.0.8-dev
-  sys_volume:
-    git: https://github.com/befovy/flutter_volume
-
+  flutter_tts: ^2.1.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
