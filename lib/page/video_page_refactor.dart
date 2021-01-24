@@ -194,7 +194,7 @@ class VideoPage extends StatelessWidget {
           height: 20,
           child: IconButton(
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.arrow_back_ios, size: 20),
+            icon: Icon(Icons.arrow_back_ios, size: 20, semanticLabel: '返回'),
             onPressed: () => Navigator.of(context).pop(),
             color: Colors.white,
             tooltip: "返回",
@@ -208,28 +208,15 @@ class VideoPage extends StatelessWidget {
             maxLines: 1,
           ),
         ),
-        Consumer<VideoPageProvider>(
-          builder: (context, provider, child) => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "后台播放",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-              ),
-              Container(
-                height: 20,
-                child: Switch(
-                  activeColor: Colors.redAccent,
-                  activeTrackColor: Colors.red,
-                  inactiveTrackColor: Colors.grey,
-                  value: provider.allowPlaybackground,
-                  onChanged: (value) => provider.allowPlaybackground = value,
-                ),
-              ),
-            ],
+        Container(
+          height: 20,
+          child: IconButton(
+            color: provider.allowPlaybackground ? Colors.red : Colors.grey,
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.switch_video, semanticLabel: '后台播放'),
+            onPressed: () => provider.allowPlaybackground = !provider.allowPlaybackground,
+            tooltip: "后台播放",
           ),
         ),
         if (vertical)
@@ -237,7 +224,7 @@ class VideoPage extends StatelessWidget {
             color: Colors.white,
             iconSize: 20,
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.airplay),
+            icon: Icon(Icons.airplay, semanticLabel: 'DLNA投屏'),
             onPressed: () => provider.openDLNA(context),
             tooltip: "DLNA投屏",
           ),
@@ -246,7 +233,7 @@ class VideoPage extends StatelessWidget {
             color: Colors.white,
             iconSize: 20,
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.zoom_out_map),
+            icon: Icon(Icons.zoom_out_map, semanticLabel: '缩放'),
             onPressed: provider.zoom,
             tooltip: "缩放",
           ),
@@ -254,7 +241,7 @@ class VideoPage extends StatelessWidget {
           height: 20,
           child: IconButton(
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.format_list_bulleted, size: 20),
+            icon: Icon(Icons.format_list_bulleted, size: 20, semanticLabel: '节目列表'),
             onPressed: () => provider.toggleChapterList(),
             color: Colors.white,
             tooltip: "节目列表",
@@ -333,7 +320,7 @@ class VideoPage extends StatelessWidget {
                     color: Colors.white,
                     iconSize: 20,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.open_in_new),
+                    icon: Icon(Icons.open_in_new, semanticLabel: '使用其他播放器打开'),
                     onPressed: provider.openInNew,
                     tooltip: "使用其他播放器打开",
                   ),
@@ -342,7 +329,7 @@ class VideoPage extends StatelessWidget {
                       color: Colors.white,
                       iconSize: 20,
                       padding: EdgeInsets.zero,
-                      icon: Icon(Icons.airplay),
+                      icon: Icon(Icons.airplay, semanticLabel: 'DLNA投屏'),
                       onPressed: () => provider.openDLNA(context),
                       tooltip: "DLNA投屏",
                     ),
@@ -350,7 +337,7 @@ class VideoPage extends StatelessWidget {
                     color: Colors.white,
                     iconSize: 25,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.skip_previous),
+                    icon: Icon(Icons.skip_previous, semanticLabel: '上一集'),
                     onPressed: () =>
                         provider.parseContent(searchItem.durChapterIndex - 1),
                     tooltip: "上一集",
@@ -363,6 +350,8 @@ class VideoPage extends StatelessWidget {
                       !provider.isLoading && provider.isPlaying
                           ? Icons.pause
                           : Icons.play_arrow,
+                      semanticLabel:
+                          !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
                     ),
                     onPressed: provider.playOrPause,
                     tooltip: !provider.isLoading && provider.isPlaying ? "暂停" : "播放",
@@ -371,7 +360,7 @@ class VideoPage extends StatelessWidget {
                     color: Colors.white,
                     iconSize: 25,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.skip_next),
+                    icon: Icon(Icons.skip_next, semanticLabel: '下一集'),
                     onPressed: () =>
                         provider.parseContent(searchItem.durChapterIndex + 1),
                     tooltip: "下一集",
@@ -381,7 +370,7 @@ class VideoPage extends StatelessWidget {
                       color: Colors.white,
                       iconSize: 20,
                       padding: EdgeInsets.zero,
-                      icon: Icon(Icons.zoom_out_map),
+                      icon: Icon(Icons.zoom_out_map, semanticLabel: '缩放'),
                       onPressed: provider.zoom,
                       tooltip: "缩放",
                     ),
@@ -389,7 +378,7 @@ class VideoPage extends StatelessWidget {
                     color: Colors.white,
                     iconSize: 20,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.screen_rotation),
+                    icon: Icon(Icons.screen_rotation, semanticLabel: '旋转'),
                     onPressed: provider.screenRotation,
                     tooltip: "旋转",
                   ),
