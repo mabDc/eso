@@ -12,6 +12,7 @@ import 'package:flutter_share/flutter_share.dart';
 class AudioPageController with ChangeNotifier {
   AudioService _audioService;
   Timer _timer;
+  bool get isPlay => _audioService?.playerState == AudioPlayerState.PLAYING;
   Duration get positionDuration => _audioService.positionDuration;
   int get seconds => _audioService.duration.inSeconds;
   int get postionSeconds => _audioService.positionDuration.inSeconds;

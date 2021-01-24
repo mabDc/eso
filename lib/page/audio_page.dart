@@ -148,14 +148,14 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                                       ),
                                       Container(
                                         alignment: Alignment.bottomCenter,
-                                        child: InkWell(
-                                          child: Icon(
-                                            Icons.close_outlined,
-                                            color: Colors.white,
-                                            size: 30,
-                                          ),
-                                          onTap: provider.toggleLyric,
-                                        ),
+                                        child: IconButton(
+                                            icon: Icon(
+                                              Icons.close_outlined,
+                                              color: Colors.white,
+                                              size: 30,
+                                            ),
+                                            tooltip: '关闭歌词',
+                                            onPressed: provider.toggleLyric),
                                       ),
                                       Offstage(
                                         offstage: !_showSelect,
@@ -188,34 +188,38 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                               }()
                           else
                             Expanded(
-                              child: Center(
-                                  child: SizedBox(
-                                width: 300,
-                                height: 300,
-                                child: AnimationRotateView(
-                                  child: InkWell(
-                                    onTap: provider.toggleLyric,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Utils.empty(chapter.cover)
-                                            ? Colors.black26
+                              child: Tooltip(
+                                message: '点击切换显示歌词',
+                                child: Center(
+                                    child: SizedBox(
+                                  width: 300,
+                                  height: 300,
+                                  child: AnimationRotateView(
+                                    child: InkWell(
+                                      onTap: provider.toggleLyric,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Utils.empty(chapter.cover)
+                                              ? Colors.black26
+                                              : null,
+                                          image: Utils.empty(chapter.cover)
+                                              ? null
+                                              : DecorationImage(
+                                                  image:
+                                                      NetworkImage(chapter.cover ?? ''),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                        ),
+                                        child: Utils.empty(chapter.cover)
+                                            ? Icon(Icons.audiotrack,
+                                                color: Colors.white30, size: 200)
                                             : null,
-                                        image: Utils.empty(chapter.cover)
-                                            ? null
-                                            : DecorationImage(
-                                                image: NetworkImage(chapter.cover ?? ''),
-                                                fit: BoxFit.cover,
-                                              ),
                                       ),
-                                      child: Utils.empty(chapter.cover)
-                                          ? Icon(Icons.audiotrack,
-                                              color: Colors.white30, size: 200)
-                                          : null,
                                     ),
                                   ),
-                                ),
-                              )),
+                                )),
+                              ),
                             ),
                           SizedBox(height: 50),
                           _buildProgressBar(provider),
@@ -227,29 +231,31 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                     ),
                     if (!provider.showLyric)
                       SafeArea(
-                          child: Center(
-                        child: Container(
-                          height: 300,
-                          alignment: Alignment.bottomCenter,
-                          child: DefaultTextStyle(
-                            style: TextStyle(
+                        child: Center(
+                          child: Container(
+                            height: 300,
+                            alignment: Alignment.bottomCenter,
+                            child: DefaultTextStyle(
+                              style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 12,
                                 fontFamily: Profile.staticFontFamily,
-                                height: 1.75),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(chapter.name, style: TextStyle(fontSize: 15)),
-                                Text(Utils.link(searchItem.origin, searchItem.name,
-                                        divider: ' | ')
-                                    .link(searchItem.chapter)
-                                    .value),
-                              ],
+                                height: 1.75,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(chapter.name, style: TextStyle(fontSize: 15)),
+                                  Text(Utils.link(searchItem.origin, searchItem.name,
+                                          divider: ' | ')
+                                      .link(searchItem.chapter)
+                                      .value),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      )),
+                      ),
                     provider.showChapter
                         ? UIChapterSelect(
                             searchItem: searchItem,
@@ -403,52 +409,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
     );
   }
 
-  // Widget _buildProgressBar(AudioPageController provider) {
-  //   return Row(
-  //     children: <Widget>[
-  //       Container(
-  //         alignment: Alignment.centerRight,
-  //         child:
-  //             Text(provider.positionDurationText, style: TextStyle(color: Colors.white)),
-  //         width: 52,
-  //       ),
-  //       Expanded(
-  //         child: StatefulBuilder(
-  //           builder: (context, _state) {
-  //             return SliderTheme(
-  //               data: SliderThemeData(
-  //                 trackHeight: 3,
-  //                 thumbColor: Colors.white,
-  //                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
-  //                 activeTrackColor: Colors.white70,
-  //                 inactiveTrackColor: Colors.white38,
-  //                 disabledThumbColor: Colors.grey,
-  //                 trackShape: RectangularSliderTrackShape()
-  //               ),
-  //               child: Slider(
-  //                 value: provider.postionSeconds.toDouble(),
-  //                 min: 0,
-  //                 max: provider.seconds.toDouble(),
-  //                 divisions: provider.seconds <= 0 ? null : provider.seconds,
-  //                 onChanged: (v) {
-  //                   provider.seekSeconds(v.toInt());
-  //                   _state(() => null);
-  //                 },
-  //                 label: "${provider.positionDurationText}",
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //       Container(
-  //         alignment: Alignment.centerLeft,
-  //         child: Text(provider.durationText, style: TextStyle(color: Colors.white)),
-  //         width: 52,
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildBottomController(AudioPageController provider) {
     final _repeatMode = provider.repeatMode;
     return Row(
@@ -470,31 +430,34 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
           padding: EdgeInsets.zero,
           onPressed: provider.switchRepeatMode,
         ),
-        InkWell(
-          child: Icon(
+        IconButton(
+          icon: Icon(
             Icons.skip_previous,
             color: Colors.white,
             size: 26,
           ),
-          onTap: provider.playPrev,
+          onPressed: provider.playPrev,
+          tooltip: '上一曲',
         ),
-        InkWell(
-          child: Icon(
+        IconButton(
+          icon: Icon(
             provider.state == AudioPlayerState.PLAYING
                 ? Icons.pause_circle_outline
                 : Icons.play_circle_outline,
             color: Colors.white,
             size: 42,
           ),
-          onTap: provider.playOrPause,
+          onPressed: provider.playOrPause,
+          tooltip: provider.isPlay ? '暂停' : '播放',
         ),
-        InkWell(
-          child: Icon(
+        IconButton(
+          icon: Icon(
             Icons.skip_next,
             color: Colors.white,
             size: 26,
           ),
-          onTap: provider.playNext,
+          onPressed: provider.playNext,
+          tooltip: '下一曲',
         ),
         IconButton(
           icon: Icon(
