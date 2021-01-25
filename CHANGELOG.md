@@ -1,7 +1,7 @@
 ### 1.21.05
 - 粗糙版 tts
 - 增加无障碍标签
-- windows tts
+- windows tts 感谢 [ekibun](https://github.com/ekibun)
 
 ### 1.21.04 fix
 - 修复正文状态栏自动隐藏

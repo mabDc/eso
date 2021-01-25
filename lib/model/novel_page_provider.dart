@@ -15,7 +15,7 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
-import '../windows_speak.dart';
+import 'package:windows_speak/windows_speak.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
@@ -97,6 +97,7 @@ class NovelPageProvider with ChangeNotifier {
 
   NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
     _tts.setCompletionHandler(nextPara);
+    WindowsSpeak.handleComplete = nextPara;
     _brightness = 0.5;
     _isLoading = false;
     _showChapter = false;
@@ -589,9 +590,7 @@ class NovelPageProvider with ChangeNotifier {
 
   speakS(String s) {
     if (Global.isDesktop) {
-      // if (WindowsSpeak.handleComplete == null) WindowsSpeak.handleComplete = nextPara;
-      windowsSpeak(s);
-      // WindowsSpeak.speak("this is demo");
+      WindowsSpeak.speak(s);
     } else {
       _tts.speak(s);
     }
@@ -601,7 +600,7 @@ class NovelPageProvider with ChangeNotifier {
 
   stop() {
     if (Global.isDesktop) {
-      // WindowsSpeak.handleComplete = null;
+      WindowsSpeak.release();
     } else {
       _tts.stop();
     }

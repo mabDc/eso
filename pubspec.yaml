@@ -64,7 +64,8 @@ dependencies:
   scrollable_positioned_list: ^0.1.8
   webdav: ^1.0.8-dev
   flutter_tts: ^2.1.0
-  # win32: ^1.7.4
+  windows_speak:
+    path: modules/windows_speak
   
 dev_dependencies:
   flutter_test:

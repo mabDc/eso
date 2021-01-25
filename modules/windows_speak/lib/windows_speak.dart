@@ -22,4 +22,12 @@ class WindowsSpeak {
     }
     return false;
   }
+
+  static Future<bool> release() async {
+    final r = await _channel.invokeMethod('release');
+    if (r is bool && r == true) {
+      return true;
+    }
+    return false;
+  }
 }

@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_js
   flutter_webview
   url_launcher_windows
+  windows_speak
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

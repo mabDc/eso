@@ -1,5 +1,9 @@
 ﻿#include "include/windows_speak/windows_speak_plugin.h"
 
+#include <sapi.h>
+#pragma comment(lib, "Ole32.lib") //CoInitialize CoCreateInstance需要调用ole32.dll
+#pragma comment(lib, "SAPI.lib")  //sapi.lib在SDK的lib目录,必需正确配置
+
 // This must be included before many other Windows headers.
 #include <windows.h>
 
@@ -61,78 +65,96 @@ namespace
   std::wstring string2wstring(const std::string &str)
   {
     std::wstring result;
-    int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.size(), NULL, 0);
+    int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), NULL, 0);
     if (len < 0)
       return result;
     wchar_t *buffer = new wchar_t[len + 1];
     if (buffer == NULL)
       return result;
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.size(), buffer, len);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), buffer, len);
     buffer[len] = '\0';
     result.append(buffer);
     delete[] buffer;
     return result;
   }
 
+  struct ThreadParam
+  {
+    std::string str;
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result;
+  };
+
+  static ISpVoice *pVoice = NULL;
+
   bool speak(const std::string &s)
   {
-    ISpVoice *pVoice = NULL;
-    //COM初始化
     if (FAILED(::CoInitialize(NULL)))
     {
       return false;
     }
-    else
+    if (pVoice != NULL)
     {
-      //获取ISpVoice接口
-      HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
-      if (SUCCEEDED(hr))
-      {
-        hr = pVoice->Speak(string2wstring(s).c_str(), 0, NULL);
-        pVoice->Release();
-        pVoice = NULL;
-        //千万不要忘记：
-        ::CoUninitialize();
-        return true;
-      }
-      ::CoUninitialize();
+      pVoice->Pause();
+      pVoice = NULL;
+    }
+    //获取ISpVoice接口
+    HRESULT hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void **)&pVoice);
+    if (FAILED(hr))
+    {
+      pVoice = NULL;
       return false;
     }
+    hr = pVoice->Speak(string2wstring(s).c_str(), 0, NULL);
+    ::CoInitialize(NULL);
+    if (FAILED(hr))
+    {
+      return false;
+    }
+    return true;
+  }
+
+  DWORD WINAPI ThreadProc(LPVOID lpParam)
+  {
+    ThreadParam *threadParam = (ThreadParam *)lpParam;
+    threadParam->result->Success(flutter::EncodableValue(speak(threadParam->str)));
+    delete threadParam;
+    return 0;
   }
 
   void WindowsSpeakPlugin::HandleMethodCall(
       const flutter::MethodCall<flutter::EncodableValue> &method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result)
   {
-    if (method_call.method_name().compare("getPlatformVersion") == 0)
+    if (method_call.method_name().compare("release") == 0)
     {
-      std::ostringstream version_stream;
-      version_stream << "Windows ";
-      if (IsWindows10OrGreater())
+      if (pVoice == NULL)
       {
-        version_stream << "10+";
+        result->Success(flutter::EncodableValue(false));
       }
-      else if (IsWindows8OrGreater())
+      else if (FAILED(::CoInitialize(NULL)))
       {
-        version_stream << "8";
+        result->Success(flutter::EncodableValue(false));
       }
-      else if (IsWindows7OrGreater())
+      else
       {
-        version_stream << "7";
+        pVoice->Pause();
+        pVoice = NULL;
+        ::CoUninitialize();
+        result->Success(flutter::EncodableValue(true));
       }
-      result->Success(flutter::EncodableValue(version_stream.str()));
     }
     else if (method_call.method_name().compare("speak") == 0)
     {
       const auto s = *std::get_if<std::string>(method_call.arguments());
-      // std::async(std::launch::deferred, speak, s);
-      std::thread th = std::thread(speak, s);
-      th.join();
-      // if (std::async(std::launch::async, speak, s).get())
-      // {
-      //   result->Error("WindowsSpeakException", "COM初始化失败");
-      // }
-      // result->Success(flutter::EncodableValue(true));
+      DWORD threadID;
+      CreateThread(
+          NULL,                                  // SD
+          0,                                     // initial stack size
+          (LPTHREAD_START_ROUTINE)ThreadProc,    // thread function
+          new ThreadParam{s, std::move(result)}, // thread argument
+          0,                                     // creation option
+          &threadID                              // thread identifier
+      );
     }
     else
     {
