@@ -15,6 +15,7 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:screen/screen.dart';
+import '../windows_speak.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
@@ -586,9 +587,25 @@ class NovelPageProvider with ChangeNotifier {
 
   final _tts = FlutterTts();
 
+  speakS(String s) {
+    if (Global.isDesktop) {
+      // if (WindowsSpeak.handleComplete == null) WindowsSpeak.handleComplete = nextPara;
+      windowsSpeak(s);
+      // WindowsSpeak.speak("this is demo");
+    } else {
+      _tts.speak(s);
+    }
+  }
+
   int _speakParaIndex = 0;
 
-  stop() => _tts.stop();
+  stop() {
+    if (Global.isDesktop) {
+      // WindowsSpeak.handleComplete = null;
+    } else {
+      _tts.stop();
+    }
+  }
 
   void speak() {
     if (_paragraphs.isEmpty) {
@@ -597,23 +614,22 @@ class NovelPageProvider with ChangeNotifier {
     }
     if (_speakParaIndex < 0) {
       _speakParaIndex = -1;
-      _tts.speak('已经是本章开始');
+      speakS('已经是本章开始');
       Utils.toast("已经是本章开始");
       return;
     }
     if (_speakParaIndex >= _paragraphs.length) {
       _speakParaIndex = _paragraphs.length;
-      _tts.speak('本章已经结束');
+      speakS('本章已经结束');
       Utils.toast("本章已经结束");
       return;
     }
-    _tts.speak(_paragraphs[_speakParaIndex]);
+    speakS(_paragraphs[_speakParaIndex]);
   }
 
   void nextPara() async {
     if (_speakParaIndex == _paragraphs.length) {
       Utils.toast("本章已经结束");
-      
       stop();
       return;
     }

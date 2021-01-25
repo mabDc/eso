@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.21.04+12104
+version: 1.21.05+12105
 homepage: https://github.com/mabdc/eso
 author: mabdc
 
@@ -64,6 +64,7 @@ dependencies:
   scrollable_positioned_list: ^0.1.8
   webdav: ^1.0.8-dev
   flutter_tts: ^2.1.0
+  # win32: ^1.7.4
   
 dev_dependencies:
   flutter_test:
