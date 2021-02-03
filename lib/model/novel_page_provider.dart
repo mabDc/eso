@@ -147,6 +147,11 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
+  void clearCurrent() async {
+    _cache.clear();
+    await _fileCache.putData("list.json", <int>[], hashCodeKey: false);
+  }
+
   /// 刷新当前章节
   void refreshCurrent() async {
     if (isLoading) return;

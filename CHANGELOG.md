@@ -2,6 +2,7 @@
 - 粗糙版 tts
 - 增加无障碍标签
 - windows tts 感谢 [ekibun](https://github.com/ekibun)
+- 正文页增加当前项目缓存清理按钮
 
 ### 1.21.04 fix
 - 修复正文状态栏自动隐藏

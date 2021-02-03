@@ -21,9 +21,10 @@ dependencies:
     path: modules/flutter_webview
   webview_flutter:
     path: modules/webview_flutter
+  windows_speak:
+    path: modules/windows_speak
   xpath_parse:
     path: modules/xpath
-  file_chooser: ^0.1.6
   about: ^1.2.0
   archive: ^2.0.13
   battery: ^1.0.7
@@ -36,11 +37,13 @@ dependencies:
   equatable: ^1.2.5
   event_bus: ^1.1.1
   fast_gbk: ^0.1.2+1
+  file_chooser: ^0.1.6
   file_picker: ^2.0.10
   floor: ^0.17.0
   flutter_colorpicker: ^0.3.4
   flutter_share: ^1.0.2+1
   flutter_slidable: ^0.5.7
+  flutter_tts: ^2.1.0
   html: ^0.14.0+4
   http: ^0.12.2
   image_gallery_saver: ^1.6.1
@@ -54,19 +57,16 @@ dependencies:
   permission_handler: ^5.0.1+1
   photo_view: ^0.10.2
   provider: ^4.3.2+2
-  pull_to_refresh: ^1.6.3
+  pull_to_refresh: ^1.6.4
   screen: ^0.0.5
+  scrollable_positioned_list: ^0.1.8
   shared_preferences: ^0.5.12+4
+  sqflite_common_ffi: ^1.1.1
   url_launcher: ^5.7.7
   uuid: ^2.2.2
   video_player: ^2.0.0-nullsafety.3
-  sqflite_common_ffi: ^1.1.1
-  scrollable_positioned_list: ^0.1.8
   webdav: ^1.0.8-dev
-  flutter_tts: ^2.1.0
-  windows_speak:
-    path: modules/windows_speak
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

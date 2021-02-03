@@ -217,6 +217,7 @@ class UIMangaMenu extends StatelessWidget {
     const LAUCH = 1;
     const ADD_ITEM = 2;
     const REFRESH = 3;
+    const CLEARCACHE = 4;
     final primaryColor = Theme.of(context).primaryColor;
     final provider = Provider.of<MangaPageProvider>(context, listen: false);
     return PopupMenuButton<int>(
@@ -253,6 +254,9 @@ class UIMangaMenu extends StatelessWidget {
           case REFRESH:
             provider.refreshCurrent();
             break;
+          case CLEARCACHE:
+            provider.clearCurrent();
+            break;
           default:
         }
       },
@@ -286,6 +290,16 @@ class UIMangaMenu extends StatelessWidget {
             ],
           ),
           value: REFRESH,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('清理缓存'),
+              Icon(Icons.cleaning_services_outlined, color: primaryColor),
+            ],
+          ),
+          value: CLEARCACHE,
         ),
         PopupMenuItem(
           child: Row(

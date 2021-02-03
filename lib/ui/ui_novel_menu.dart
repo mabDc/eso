@@ -604,6 +604,7 @@ class UINovelMenu extends StatelessWidget {
     const ADD_ITEM = 3;
     const REFRESH = 4;
     const AUTO_CACHE = 5;
+    const CLEARCACHE = 6;
     final primaryColor = Theme.of(context).primaryColor;
     final provider = Provider.of<NovelPageProvider>(context, listen: false);
     return PopupMenuButton<int>(
@@ -651,6 +652,9 @@ class UINovelMenu extends StatelessWidget {
           case REFRESH:
             provider.refreshCurrent();
             break;
+          case CLEARCACHE:
+            provider.clearCurrent();
+            break;
           default:
         }
       },
@@ -694,6 +698,16 @@ class UINovelMenu extends StatelessWidget {
             ],
           ),
           value: REFRESH,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('清理缓存'),
+              Icon(Icons.cleaning_services_outlined, color: primaryColor),
+            ],
+          ),
+          value: CLEARCACHE,
         ),
         PopupMenuItem(
           child: Row(

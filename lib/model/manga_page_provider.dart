@@ -288,6 +288,13 @@ class MangaPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearCurrent() async {
+    _cache?.clear();
+    // if (isLoading) return;
+    // _isLoading = true;
+    // _isLoading = false;
+  }
+
   @override
   void dispose() {
     if (Platform.isAndroid || Platform.isIOS) {
