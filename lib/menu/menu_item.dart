@@ -5,11 +5,13 @@ class MenuItem<T> {
   final String text;
   final IconData icon;
   final Color color;
+  final Color textColor;
 
   const MenuItem({
     this.value,
     this.text,
     this.icon,
     this.color,
+    this.textColor,
   });
 }

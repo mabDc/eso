@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
 import 'package:eso/database/history_item_manager.dart';
+import 'package:eso/menu/menu.dart';
+import 'package:eso/menu/menu_item.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/cupertino.dart';
@@ -188,6 +190,8 @@ class VideoPage extends StatelessWidget {
     final provider = Provider.of<VideoPageProvider>(context, listen: false);
     final vertical = context
         .select((VideoPageProvider provider) => provider.screenAxis == Axis.vertical);
+    final speed = context.select((VideoPageProvider provider) => provider.currentSpeed);
+    final primaryColor = Theme.of(context).primaryColor;
     return Row(
       children: [
         Container(
@@ -217,6 +221,24 @@ class VideoPage extends StatelessWidget {
             icon: Icon(Icons.switch_video),
             onPressed: () => provider.allowPlaybackground = !provider.allowPlaybackground,
             tooltip: "后台播放",
+          ),
+        ),
+        Container(
+          height: 20,
+          child: Menu<double>(
+            tooltip: "倍速",
+            icon: Icons.slow_motion_video_outlined,
+            color: Colors.white,
+            items: [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+                .map((value) => MenuItem<double>(
+                      value: value,
+                      text: "$value",
+                      textColor: (speed - value).abs() < 0.1 ? primaryColor : null,
+                    ))
+                .toList(),
+            onSelect: (double value) async {
+              provider.changeSpeed(value);
+            },
           ),
         ),
         if (vertical)
@@ -658,6 +680,23 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     await Screen.keepOn(false);
     await controller.pause();
     setHintText("已暂停");
+  }
+
+  double _currentSpeed = 1.0;
+  double get currentSpeed => _currentSpeed;
+
+  void changeSpeed(double speed) async {
+    if (speed == null) return;
+    if (controller == null) {
+      setHintText("请先播放视频");
+      return;
+    }
+    if ((currentSpeed - speed).abs() > 0.1) {
+      await controller.setPlaybackSpeed(speed);
+      _currentSpeed = speed;
+      setHintText("播放速度 $speed");
+      notifyListeners();
+    }
   }
 
   void _play() async {

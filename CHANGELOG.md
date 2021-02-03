@@ -3,6 +3,8 @@
 - 增加无障碍标签
 - windows tts 感谢 [ekibun](https://github.com/ekibun)
 - 正文页增加当前项目缓存清理按钮
+- 更新flutter至最新master分支
+- 增加倍速播放
 
 ### 1.21.04 fix
 - 修复正文状态栏自动隐藏

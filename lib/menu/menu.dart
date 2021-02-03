@@ -32,6 +32,8 @@ class Menu<T> extends StatelessWidget {
             tooltip: tooltip,
             icon: Icon(icon, color: color),
             onPressed: null,
+            padding: EdgeInsets.zero,
+            iconSize: 20,
           ),
       onTapDown: (TapDownDetails details) {
         showMenu<T>(
@@ -45,7 +47,7 @@ class Menu<T> extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(item.text),
+                    Text(item.text, style: TextStyle(color: item.textColor),),
                     Icon(item.icon, color: item.color),
                   ],
                 ),
