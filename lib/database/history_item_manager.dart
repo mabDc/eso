@@ -33,12 +33,8 @@ class HistoryItemManager {
   // }
 
   static Future<bool> insertOrUpdateHistoryItem(SearchItem searchItem) async {
-    for (final item in _historyItem) {
-      if (item.originTag == searchItem.originTag && item.url == searchItem.url) {
-        _historyItem.remove(item);
-        break;
-      }
-    }
+    _historyItem.removeWhere(
+        (item) => item.originTag == searchItem.originTag && item.url == searchItem.url);
     _historyItem.add(searchItem);
     return saveHistoryItem();
   }

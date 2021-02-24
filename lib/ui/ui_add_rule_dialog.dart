@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import '../global.dart';
-import 'ui_text_field.dart';
 
 class UIAddRuleDialog extends StatelessWidget {
   final VoidCallback refresh;
@@ -60,15 +59,12 @@ class UIAddRuleDialog extends StatelessWidget {
                     ],
                   ),
                 ),
-                FieldRightPopupMenu(
+                TextField(
                   controller: provider.ruleController,
-                  child: TextField(
-                    controller: provider.ruleController,
-                    minLines: 1,
-                    maxLines: 10,
-                    decoration: InputDecoration(
-                      hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件",
-                    ),
+                  minLines: 1,
+                  maxLines: 10,
+                  decoration: InputDecoration(
+                    hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件",
                   ),
                 ),
                 Container(height: 6),

@@ -47,7 +47,7 @@ class VideoPage extends StatelessWidget {
                 context.select((VideoPageProvider provider) => provider.showChapter);
             return Stack(
               children: [
-                if (!isLoading) _buildPlayer(context),
+                _buildPlayer(!isLoading && !Global.isDesktop, context),
                 if (isLoading)
                   Align(
                     alignment: Alignment.topCenter,
@@ -108,11 +108,36 @@ class VideoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayer(BuildContext context) {
-    final controller =
-        context.select((VideoPageProvider provider) => provider.controller);
-    context.select((VideoPageProvider provider) => provider.aspectRatio);
+  Widget _buildPlayer(bool showPlayer, BuildContext context) {
     final provider = Provider.of<VideoPageProvider>(context, listen: false);
+    if (showPlayer) {
+      final controller =
+          context.select((VideoPageProvider provider) => provider.controller);
+      final aspectRatio =
+          context.select((VideoPageProvider provider) => provider.aspectRatio);
+      return GestureDetector(
+        child: Container(
+          // 增加color才能使全屏手势生效
+          color: Colors.transparent,
+          width: double.infinity,
+          height: double.infinity,
+          alignment: Alignment.center,
+          child: aspectRatio == VideoAspectRatio.full || provider.getAspectRatio() == 0
+              ? VideoPlayer(controller)
+              : AspectRatio(
+                  aspectRatio: provider.getAspectRatio(),
+                  child: VideoPlayer(controller),
+                ),
+        ),
+        onDoubleTap: provider.playOrPause,
+        onTap: provider.toggleControllerBar,
+        onHorizontalDragStart: provider.onHorizontalDragStart,
+        onHorizontalDragUpdate: provider.onHorizontalDragUpdate,
+        onHorizontalDragEnd: provider.onHorizontalDragEnd,
+        onVerticalDragStart: provider.onVerticalDragStart,
+        onVerticalDragUpdate: provider.onVerticalDragUpdate,
+      );
+    }
     return GestureDetector(
       child: Container(
         // 增加color才能使全屏手势生效
@@ -120,21 +145,8 @@ class VideoPage extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         alignment: Alignment.center,
-        child: provider.aspectRatio == VideoAspectRatio.full ||
-                provider.getAspectRatio() == 0
-            ? VideoPlayer(controller)
-            : AspectRatio(
-                aspectRatio: provider.getAspectRatio(),
-                child: VideoPlayer(controller),
-              ),
       ),
-      onDoubleTap: provider.playOrPause,
       onTap: provider.toggleControllerBar,
-      onHorizontalDragStart: provider.onHorizontalDragStart,
-      onHorizontalDragUpdate: provider.onHorizontalDragUpdate,
-      onHorizontalDragEnd: provider.onHorizontalDragEnd,
-      onVerticalDragStart: provider.onVerticalDragStart,
-      onVerticalDragUpdate: provider.onVerticalDragUpdate,
     );
   }
 

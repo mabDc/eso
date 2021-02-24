@@ -48,6 +48,7 @@ class Profile with ChangeNotifier {
   static const searchAction = 2;
 
   Profile.newProfile() {
+    _desktopPlayer = "";
     _version = '';
     _fontFamily = null;
     _novelFontFamily = null;
@@ -97,6 +98,15 @@ class Profile with ChangeNotifier {
     _webdavRuleAccount = "";
     _webdavRuleCheckcode = "";
     _autoRuleUploadLastDay = "";
+  }
+
+  String _desktopPlayer;
+  String get desktopPlayer => _desktopPlayer;
+  set desktopPlayer(String value) {
+    if (value != _desktopPlayer) {
+      _desktopPlayer = value;
+      _saveProfile();
+    }
   }
 
   bool _enableWebdavRule;
@@ -682,6 +692,7 @@ class Profile with ChangeNotifier {
 
   void fromJson(Map<String, dynamic> json, [bool notIgnoreVersion = true]) {
     final defaultProfile = Profile.newProfile();
+    _desktopPlayer = json['desktopPlayer'] ?? defaultProfile.desktopPlayer;
     if (notIgnoreVersion) {
       _version = json['version'] ?? defaultProfile.version;
     }
@@ -744,6 +755,7 @@ class Profile with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() => {
+        'desktopPlayer': _desktopPlayer,
         'webdavRuleAccount': _webdavRuleAccount,
         'webdavRuleCheckcode': _webdavRuleCheckcode,
         'enableWebdavRule': _enableWebdavRule,

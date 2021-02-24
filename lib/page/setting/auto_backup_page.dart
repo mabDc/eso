@@ -7,7 +7,6 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/history_manager.dart';
 import 'package:eso/profile.dart';
-import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:file_chooser/file_chooser.dart';
@@ -30,11 +29,7 @@ class AutoBackupPage extends StatelessWidget {
     TextEditingController controller = TextEditingController(text: s);
     return AlertDialog(
       contentPadding: const EdgeInsets.all(6.0),
-      content: FieldRightPopupMenu(
-          controller: controller,
-          child: TextField(
-            controller: controller,
-          )),
+      content: TextField(controller: controller),
       title: Text(title),
       actions: [
         FlatButton(

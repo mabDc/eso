@@ -19,6 +19,23 @@ void main() {
   }
 }
 
+class ErrorApp extends StatelessWidget {
+  final error;
+  final stackTrace;
+  const ErrorApp({Key key, this.error, this.stackTrace}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: ListView(
+          children: [Text("$error\n$stackTrace")],
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -28,6 +45,7 @@ class MyApp extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
+          return ErrorApp(error: snapshot.error, stackTrace: snapshot.stackTrace);
         }
         if (!snapshot.hasData) {
           return MaterialApp(

@@ -1,3 +1,13 @@
+
+- 重写windows视频播放
+- 如果出现ceatecorewebview2enviroment错误需要安装嗅探工具（二选一）
+    
+    edge内测版 https://www.microsoftedgeinsider.com/zh-cn/
+    
+    或者
+    
+    webview2 运行时 https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/
+
 ### 1.21.05
 - 粗糙版 tts
 - 增加无障碍标签
