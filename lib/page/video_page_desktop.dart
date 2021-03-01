@@ -108,6 +108,11 @@ class VideoPageDesktop extends StatelessWidget {
                           ),
                         ],
                       ),
+                      ListTile(
+                              title: Text('网页打开链接'),
+                              subtitle: Text(provider.url ?? "请先解析"),
+                              onTap: () => launch(provider.url),
+                            ),
                     ],
                   ),
                 ),
@@ -156,6 +161,7 @@ class VPDProvider extends ChangeNotifier {
     parse(true);
   }
   String _url;
+  String get url => _url ;
   Process _process;
   bool _isLoading;
   bool get isLoading => _isLoading == true;
