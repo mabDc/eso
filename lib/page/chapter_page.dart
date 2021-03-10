@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/database/chapter_item.dart';
+import 'package:eso/menu/menu.dart';
+import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_image_item.dart';
@@ -9,17 +11,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import '../database/search_item_manager.dart';
 import '../database/search_item.dart';
-import '../fonticons_icons.dart';
-import '../global.dart';
 import '../model/chapter_page_provider.dart';
 import 'content_page_manager.dart';
 import 'langding_page.dart';
-import 'source/edit_rule_page.dart';
 
 class ChapterPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -112,11 +110,6 @@ class _ChapterPageState extends State<ChapterPage> {
       brightness: Brightness.dark,
       titleSpacing: 0.0,
       actions: <Widget>[
-        IconButton(
-          icon: Icon(FIcons.rotate_cw),
-          tooltip: "刷新",
-          onPressed: provider.updateChapter,
-        ),
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
           builder: (context, provider, child) => IconButton(
@@ -127,18 +120,9 @@ class _ChapterPageState extends State<ChapterPage> {
             onPressed: provider.toggleFavorite,
           ),
         ),
-        IconButton(
-          icon: Icon(OMIcons.settingsEthernet),
-          tooltip: "编辑规则",
-          onPressed: () async {
-            final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
-          },
-        ),
-        IconButton(
-          icon: Icon(FIcons.share_2),
-          onPressed: provider.share,
+        Menu<MenuChapter>(
+          items: chapterMenus,
+          onSelect: (value) => provider.onSelect(value, context),
         ),
       ],
     );
@@ -333,9 +317,32 @@ class _ChapterPageState extends State<ChapterPage> {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-        child: Text(
-          '全部(${searchItem.chapters?.length ?? 0})',
-          style: TextStyle(fontSize: 16),
+        child: Row(
+          children: [
+            Text(
+              '全部 ${searchItem.chapters?.length ?? 0} (阅至 ${searchItem.durChapterIndex + 1}) ',
+              style: TextStyle(fontSize: 16),
+            ),
+            if (searchItem.chapters != null && searchItem.chapters.isNotEmpty)
+              () {
+                try {
+                  final chapter = searchItem.chapters[searchItem.durChapterIndex];
+                  return OutlinedButton(
+                    onPressed: () => Navigator.of(context)
+                        .push(ContentPageRoute().route(searchItem))
+                        .whenComplete(provider.adjustScroll),
+                    child: Text(
+                      "${chapter.name}",
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  );
+                } catch (e) {
+                  return Container();
+                }
+              }(),
+          ],
         ),
       ),
     );

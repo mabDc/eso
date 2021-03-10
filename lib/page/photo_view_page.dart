@@ -41,7 +41,12 @@ class PhotoViewPage extends StatefulWidget {
   final ValueChanged<int> onLongPress;
 
   const PhotoViewPage(
-      {Key key, @required this.items, this.index = 0, this.enableRotation = false, this.heroTag, this.onLongPress})
+      {Key key,
+      @required this.items,
+      this.index = 0,
+      this.enableRotation = false,
+      this.heroTag,
+      this.onLongPress})
       : super(key: key);
 
   @override
@@ -55,7 +60,8 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   @override
   void initState() {
     super.initState();
-    currentIndex = widget.index >= 0 && widget.index < widget.items.length ? widget.index : 0;
+    currentIndex =
+        widget.index >= 0 && widget.index < widget.items.length ? widget.index : 0;
     controller = PageController(initialPage: currentIndex);
   }
 
@@ -73,16 +79,22 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                     var item = widget.items[index];
                     return PhotoViewGalleryPageOptions(
                       //imageProvider: NetworkImage(item.url),
-                      imageProvider: CachedNetworkImageProvider(item.url, headers: item.headers),
-                      heroAttributes: widget.heroTag != null && widget.index == index ? PhotoViewHeroAttributes(tag: widget.heroTag) : null,
+                      imageProvider:
+                          CachedNetworkImageProvider(item.url, headers: item.headers),
+                      heroAttributes: widget.heroTag != null && widget.index == index
+                          ? PhotoViewHeroAttributes(tag: widget.heroTag)
+                          : null,
                     );
                   },
                   itemCount: count,
                   loadingBuilder: (context, event) {
                     return Center(
-                      child: SizedBox(width: 50, height: 50,
-                          child: CircularProgressIndicator(strokeWidth: 1.0, valueColor: AlwaysStoppedAnimation<Color>(Colors.white30))
-                      ),
+                      child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 1.0,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white30))),
                     );
                   },
                   backgroundDecoration: null,
@@ -105,22 +117,41 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
               children: [
                 Material(
                   color: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50.0))),
                   clipBehavior: Clip.antiAliasWithSaveLayer,
+                  child: IconButton(
+                    icon: Icon(Icons.close, color: Colors.white54),
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: "关闭",
+                  ),
                 ),
                 Expanded(
                   child: Text("${currentIndex + 1} / $count",
-                      style: TextStyle(color: Colors.white70, fontSize: 16), textAlign: TextAlign.center),
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                      textAlign: TextAlign.center),
                 ),
                 Material(
                   color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  child: IconButton(
+                    icon: Icon(Icons.close_fullscreen, color: Colors.white54),
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: "退出",
+                  ),
+                ),
+                Material(
+                  color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(50.0))),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
                   child: IconButton(
                     icon: Icon(Icons.more_vert, color: Colors.white54),
                     onPressed: doLongPress,
                     tooltip: "菜单",
                   ),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50.0))),
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
                 ),
               ],
             ),
@@ -128,22 +159,30 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
           Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                width: count >= 9 ? MediaQuery.of(context).size.width - 80 : count >= 6 ? 200 : count < 3 ? 50 : 100,
+                width: count >= 9
+                    ? MediaQuery.of(context).size.width - 80
+                    : count >= 6
+                        ? 200
+                        : count < 3
+                            ? 50
+                            : 100,
                 height: count == 1 ? 0 : 50,
-                child: count < 2 ? null : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(
-                    count,
-                    (i) => GestureDetector(
-                      child: CircleAvatar(
-                        radius: 3.5,
-                        backgroundColor: currentIndex == i
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).primaryColor.withAlpha(100),
+                child: count < 2
+                    ? null
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: List.generate(
+                          count,
+                          (i) => GestureDetector(
+                            child: CircleAvatar(
+                              radius: 3.5,
+                              backgroundColor: currentIndex == i
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).primaryColor.withAlpha(100),
+                            ),
+                          ),
+                        ).toList(),
                       ),
-                    ),
-                  ).toList(),
-                ),
               ))
         ],
       ),
@@ -168,20 +207,39 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        buildPopButton(context, Text("保存图像", style: TextStyle(color: Colors.black87, fontSize: 16)), isLast: false, onTap: () {
+                        buildPopButton(
+                            context,
+                            Text("保存图像",
+                                style: TextStyle(color: Colors.black87, fontSize: 16)),
+                            isLast: false, onTap: () {
                           Navigator.of(context).pop();
-                          saveImage(CachedNetworkImageProvider(widget.items[currentIndex].url));
+                          saveImage(
+                              CachedNetworkImageProvider(widget.items[currentIndex].url));
                         }),
-                        buildPopButton(context, Text("复制图像地址", style: TextStyle(color: Colors.black87, fontSize: 16)), isLast: false, isFirst: false, onTap: () async {
-                          await Clipboard.setData(ClipboardData(text: widget.items[currentIndex].url));
+                        buildPopButton(
+                            context,
+                            Text("复制图像地址",
+                                style: TextStyle(color: Colors.black87, fontSize: 16)),
+                            isLast: false,
+                            isFirst: false, onTap: () async {
+                          await Clipboard.setData(
+                              ClipboardData(text: widget.items[currentIndex].url));
                           Utils.toast("已复制图片地址");
                           Navigator.of(context).pop();
                         }),
-                        buildPopButton(context, Text("在浏览器中打开", style: TextStyle(color: Colors.black87, fontSize: 16)), isFirst: false, onTap: () async {
+                        buildPopButton(
+                            context,
+                            Text("在浏览器中打开",
+                                style: TextStyle(color: Colors.black87, fontSize: 16)),
+                            isFirst: false, onTap: () async {
                           launch(widget.items[currentIndex].url);
                           Navigator.of(context).pop();
                         }),
-                        buildPopButton(context, Text("取消", style: TextStyle(color: Theme.of(context).errorColor)), onTap: () {
+                        buildPopButton(
+                            context,
+                            Text("取消",
+                                style: TextStyle(color: Theme.of(context).errorColor)),
+                            onTap: () {
                           Navigator.of(context).pop();
                         })
                       ],
@@ -209,11 +267,12 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
     File file = await mgr.getSingleFile(url, headers: headers);
 
     final result = Platform.isWindows || Platform.isLinux
-        ? await CacheUtil(basePath: "download").putFile(Utils.getFileNameAndExt(file.path), file)
+        ? await CacheUtil(basePath: "download")
+            .putFile(Utils.getFileNameAndExt(file.path), file)
         : await ImageGallerySaver.saveImage(file.readAsBytesSync());
     if (result is bool && result == true) {
       Utils.toast("保存成功");
-    } else if (result is String && null != result  && result.isNotEmpty) {
+    } else if (result is String && null != result && result.isNotEmpty) {
       String str = Uri.decodeComponent(result);
       Utils.toast("成功保存到\n$str");
     } else {
@@ -224,9 +283,9 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   /// 生成 iOS 风格底部弹出框需要的 button
   static Widget buildPopButton(BuildContext context, Widget text,
       {bool isFirst = true,
-        bool isLast = true,
-        double circular = 10,
-        VoidCallback onTap}) {
+      bool isLast = true,
+      double circular = 10,
+      VoidCallback onTap}) {
     var borderSide = BorderSide(color: Colors.black12, width: 0.5);
     var borderRadius;
     var margin;
@@ -235,15 +294,13 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
       borderRadius = BorderRadius.circular(circular);
       margin = EdgeInsets.only(bottom: 10, left: 10, right: 10);
     } else if (isFirst) {
-      borderRadius = BorderRadius.vertical(
-          top: Radius.circular(circular));
+      borderRadius = BorderRadius.vertical(top: Radius.circular(circular));
       margin = EdgeInsets.only(
         left: 10,
         right: 10,
       );
     } else if (isLast) {
-      borderRadius = BorderRadius.vertical(
-          bottom: Radius.circular(circular));
+      borderRadius = BorderRadius.vertical(bottom: Radius.circular(circular));
       margin = EdgeInsets.only(left: 10, right: 10, bottom: 10);
     } else {
       margin = EdgeInsets.only(left: 10, right: 10);
@@ -257,9 +314,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
         child: text,
         onPressed: onTap,
         shape: RoundedRectangleBorder(
-          borderRadius: borderRadius ?? BorderRadius.zero,
-          side: borderSide
-        ),
+            borderRadius: borderRadius ?? BorderRadius.zero, side: borderSide),
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,

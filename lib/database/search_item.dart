@@ -3,7 +3,10 @@ import 'package:eso/database/chapter_item.dart';
 import 'package:eso/model/chapter_page_provider.dart';
 import 'package:flutter/cupertino.dart';
 
-class SearchItem{
+class SearchItem {
+  String searchUrl;
+  String chapterUrl;
+
   bool operator ==(Object other) =>
       other is SearchItem && runtimeType == other.runtimeType && id == other.id;
 
@@ -11,22 +14,31 @@ class SearchItem{
   int get hashCode => id;
 
   int id;
+
   /// 源名
-  String origin;      
+  String origin;
+
   /// 源id
-  String originTag;   
+  String originTag;
+
   /// 封面
-  String cover;       
+  String cover;
+
   /// 名称
-  String name;        
+  String name;
+
   /// 作者
-  String author;      
+  String author;
+
   /// 最新章节
-  String chapter;     
+  String chapter;
+
   /// 简介
-  String description; 
+  String description;
+
   /// 分类
-  List<String> tags;  
+  List<String> tags;
+
   /// 搜索结果
   String url;
   // Future<String> get absoloteUrl async => (await Global.ruleDao.findRuleById(originTag));
@@ -38,14 +50,19 @@ class SearchItem{
   int chaptersCount;
   bool reverseChapter;
   List<ChapterItem> chapters;
+
   /// 收藏时间
-  int createTime; 
+  int createTime;
+
   /// 更新时间
-  int updateTime; 
+  int updateTime;
+
   /// 最后阅读时间
-  int lastReadTime; 
+  int lastReadTime;
 
   SearchItem({
+    this.searchUrl,
+    this.chapterUrl,
     @required this.cover,
     @required this.name,
     @required this.author,
@@ -96,6 +113,8 @@ class SearchItem{
 //  }
 
   Map<String, dynamic> toJson() => {
+        "searchUrl": searchUrl,
+        "chapterUrl": chapterUrl,
         "id": id,
         "origin": origin,
         "originTag": originTag,
@@ -119,6 +138,8 @@ class SearchItem{
       };
 
   SearchItem.fromJson(Map<String, dynamic> json) {
+    searchUrl = json["searchUrl"];
+    chapterUrl = json["chapterUrl"];
     id = json["id"];
     origin = json["origin"];
     originTag = json["originTag"];
@@ -142,5 +163,23 @@ class SearchItem{
 
     tags = json["tags"]?.split(", ") ?? <String>[];
     chapters = <ChapterItem>[];
+  }
+
+  changeTo(SearchItem searchItem) {
+    searchUrl = searchItem.searchUrl;
+    chapterUrl = searchItem.chapterUrl;
+    origin = searchItem.origin;
+    originTag = searchItem.originTag;
+    cover = searchItem.cover;
+    name = searchItem.name;
+    author = searchItem.author;
+    chapter = searchItem.chapter;
+    description = searchItem.description;
+    url = searchItem.url;
+    tags = searchItem.tags;
+    chapters = <ChapterItem>[];
+    durChapter = "";
+    durChapterIndex = 0;
+    durContentIndex = 1;
   }
 }

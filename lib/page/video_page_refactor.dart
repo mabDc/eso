@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
+import 'package:eso/api/api.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_item.dart';
@@ -227,12 +228,24 @@ class VideoPage extends StatelessWidget {
         Container(
           height: 20,
           child: IconButton(
-            color: provider.allowPlaybackground ? Colors.red : Colors.grey,
+            color: Colors.white,
             iconSize: 20,
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.switch_video),
-            onPressed: () => provider.allowPlaybackground = !provider.allowPlaybackground,
-            tooltip: "后台播放",
+            icon: Icon(Icons.open_in_browser),
+            onPressed: () =>
+                launch(searchItem.chapters[searchItem.durChapterIndex].contentUrl),
+            tooltip: "查看原网页",
+          ),
+        ),
+        Container(
+          height: 20,
+          child: IconButton(
+            color: Colors.white,
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.open_in_new),
+            onPressed: provider.openInNew,
+            tooltip: "使用其他播放器打开",
           ),
         ),
         Container(
@@ -351,12 +364,13 @@ class VideoPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    color: Colors.white,
+                    color: provider.allowPlaybackground ? Colors.red : Colors.grey,
                     iconSize: 20,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.open_in_new),
-                    onPressed: provider.openInNew,
-                    tooltip: "使用其他播放器打开",
+                    icon: Icon(Icons.switch_video),
+                    onPressed: () =>
+                        provider.allowPlaybackground = !provider.allowPlaybackground,
+                    tooltip: "后台播放",
                   ),
                   if (provider.screenAxis == Axis.horizontal)
                     IconButton(
@@ -514,8 +528,9 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     }();
     if (_disposed) return;
     try {
-      _content = await APIManager.getContent(searchItem.originTag,
-          searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex].url);
+      final chapter = searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex];
+      _content = await APIManager.getContent(searchItem.originTag, chapter.url);
+      chapter.contentUrl = API.contentUrl;
       if (_content.isEmpty || _content.first.isEmpty) {
         _content = null;
         _isLoading = null;
@@ -525,14 +540,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         return;
       }
       if (_disposed) return;
-      if (Global.isDesktop) {
-        loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
-        loadingText.add("window或macos下将自动跳转浏览器播放，也可以手动点击左下角[使用其他播放器打开]");
-        notifyListeners();
-        launch("http://www.m3u8player.top/?play=${content[0]}");
-        _isLoading = null;
-        return;
-      }
       loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
       loadingText.add("获取视频信息...");
       notifyListeners();
@@ -649,10 +656,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void openInNew() {
     if (_disposed || _content == null) return;
-    if (Global.isDesktop) {
-      launch("http://www.m3u8player.top/?play=${content[0]}");
-      return;
-    }
     _controllerTime = DateTime.now();
     launch(_content[0]);
   }

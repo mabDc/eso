@@ -1,3 +1,4 @@
+import '../global.dart';
 import 'rule.dart';
 import 'package:floor/floor.dart';
 
@@ -26,6 +27,35 @@ abstract class RuleDao {
 
   @Query('SELECT * FROM rule ORDER BY \${RuleDao.order}')
   Future<List<Rule>> findAllRules();
+
+  /// 改邪归正
+  static Future<void> gaixieguizheng() async {
+    final rules = await Global.ruleDao.findAllRules();
+    final xie = rules
+        .where((rule) =>
+            rule.discoverUrl == "''" ||
+            rule.searchUrl == "''" ||
+            rule.chapterUrl == "''" ||
+            rule.contentUrl == "''")
+        .toList();
+    if (xie.isNotEmpty) {
+      await Global.ruleDao.insertOrUpdateRules(xie.map((rule) {
+        if (rule.discoverUrl == "''") {
+          rule.discoverUrl = "null";
+        }
+        if (rule.searchUrl == "''") {
+          rule.searchUrl = "null";
+        }
+        if (rule.chapterUrl == "''") {
+          rule.chapterUrl = "null";
+        }
+        if (rule.contentUrl == "''") {
+          rule.contentUrl = "null";
+        }
+        return rule;
+      }).toList());
+    }
+  }
 
   @Query('SELECT * FROM rule where enableDiscover = 1 ORDER BY \${RuleDao.order}')
   Future<List<Rule>> findAllDiscoverRules();

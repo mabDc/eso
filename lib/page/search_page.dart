@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/database/rule_dao.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/history_manager.dart';
@@ -305,6 +306,97 @@ class _SearchPageState extends State<SearchPage> {
   }
 }
 
+class SimpleChangeRule extends StatelessWidget {
+  final SearchItem searchItem;
+  const SimpleChangeRule({this.searchItem, Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = Profile();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("${searchItem.name} (${searchItem.author})"),
+      ),
+      body: ChangeNotifierProvider(
+        create: (context) => SearchProvider(
+          threadCount: profile.searchCount,
+          searchOption: SearchOption.Accurate,
+          profile: profile,
+          ruleContentType: searchItem.ruleContentType,
+          searchKey: searchItem.name,
+        ),
+        builder: (context, child) {
+          return Consumer<SearchProvider>(
+            builder: (context, provider, child) {
+              final searchList = provider.searchListAccurate;
+              final count = searchList.length;
+              final progress = provider.rulesCount == 0.0
+                  ? 0.0
+                  : (provider.successCount + provider.failureCount) / provider.rulesCount;
+              return Column(
+                children: [
+                  SizedBox(
+                    height: 4,
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.grey,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(text: '请求数: '),
+                          TextSpan(
+                            text: '${provider.successCount} (成功)',
+                            style: TextStyle(color: Colors.green),
+                          ),
+                          TextSpan(text: ' | '),
+                          TextSpan(
+                            text: '${provider.failureCount} (失败)',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          TextSpan(text: ' | ${provider.rulesCount} (总数) | 结果数: $count'),
+                        ],
+                        style: TextStyle(
+                            fontFamily: Profile.staticFontFamily,
+                            color: Theme.of(context).textTheme.bodyText1.color,
+                            height: 1.55),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: provider.rulesCount == 0
+                        ? EmptyListMsgView(text: Text("尚无可搜索源"))
+                        : searchList.isEmpty
+                            ? EmptyListMsgView(text: Text("没有数据哦！~"))
+                            : ListView.separated(
+                                separatorBuilder: (context, index) => SizedBox(height: 8),
+                                itemCount: searchList.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return InkWell(
+                                    child: UiSearchItem(
+                                      item: searchList[index],
+                                      showType: true,
+                                    ),
+                                    onTap: () =>
+                                        Navigator.of(context).pop(searchList[index]),
+                                  );
+                                },
+                              ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
 class SearchProvider with ChangeNotifier {
   int _threadCount;
   int get threadCount => _threadCount;
@@ -352,9 +444,15 @@ class SearchProvider with ChangeNotifier {
   List<String> get history => _history;
   bool _showHistory;
   bool get showHistory => _showHistory;
-  SearchProvider({int threadCount, SearchOption searchOption, Profile profile}) {
+  SearchProvider({
+    int threadCount,
+    SearchOption searchOption,
+    Profile profile,
+    String searchKey,
+    int ruleContentType,
+  }) {
     _profile = profile;
-    _threadCount = threadCount ?? 10;
+    _threadCount = threadCount ?? profile.searchCount ?? 10;
     _searchOption = searchOption ?? SearchOption.Normal;
     _rulesCount = 0;
     _successCount = 0;
@@ -367,7 +465,7 @@ class SearchProvider with ChangeNotifier {
     _history = List.from(_historyManager.searchHistory);
     _focusNode = FocusNode()..addListener(_handleFocusChange);
     APIFromRUle.clearNextUrl();
-    init();
+    init(ruleContentType, searchKey);
   }
 
   void _handleSearchChange() {
@@ -481,14 +579,27 @@ class SearchProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void init() async {
+  void init(int ruleContentType, String searchKey) async {
+    await RuleDao.gaixieguizheng();
     final rules =
         (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+
     _novelRules = rules.where((r) => r.contentType == API.NOVEL).toList();
     _mangaRules = rules.where((r) => r.contentType == API.MANGA).toList();
     _audioRules = rules.where((r) => r.contentType == API.AUDIO).toList();
     _videoRules = rules.where((r) => r.contentType == API.VIDEO).toList();
-    updateRules();
+
+    if (ruleContentType != null) {
+      _rules = rules.where((r) => r.contentType == ruleContentType).toList();
+      _rulesCount = _rules.length;
+      _sourceType = ruleContentType;
+      notifyListeners();
+    } else {
+      updateRules();
+    }
+    if (searchKey != null) {
+      search(searchKey);
+    }
   }
 
   void search(String keyword) async {

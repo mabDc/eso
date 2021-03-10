@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/profile.dart';
@@ -71,6 +72,20 @@ class VideoPageDesktop extends StatelessWidget {
                           ),
                         ],
                       ),
+                      ListTile(
+                        title: Text('查看目录原网页'),
+                        subtitle: Text(searchItem.chapterUrl ?? "无"),
+                        onTap: () => launch(searchItem.chapterUrl ?? ""),
+                      ),
+                      ListTile(
+                        title: Text('查看正文原网页'),
+                        subtitle: Text(
+                            searchItem.chapters[searchItem.durChapterIndex].contentUrl ??
+                                "请先解析"),
+                        onTap: () => launch(
+                            searchItem.chapters[searchItem.durChapterIndex].contentUrl ??
+                                ""),
+                      ),
                       Row(
                         children: [
                           Expanded(
@@ -109,10 +124,10 @@ class VideoPageDesktop extends StatelessWidget {
                         ],
                       ),
                       ListTile(
-                              title: Text('网页打开链接'),
-                              subtitle: Text(provider.url ?? "请先解析"),
-                              onTap: () => launch(provider.url),
-                            ),
+                        title: Text('网页打开链接'),
+                        subtitle: Text(provider.url ?? "请先解析"),
+                        onTap: () => launch(provider.url),
+                      ),
                     ],
                   ),
                 ),
@@ -161,7 +176,7 @@ class VPDProvider extends ChangeNotifier {
     parse(true);
   }
   String _url;
-  String get url => _url ;
+  String get url => _url;
   Process _process;
   bool _isLoading;
   bool get isLoading => _isLoading == true;
@@ -187,6 +202,7 @@ class VPDProvider extends ChangeNotifier {
     try {
       final content = await APIManager.getContent(
           searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+      searchItem.chapters[searchItem.durChapterIndex].contentUrl = API.contentUrl;
       if (content.isEmpty || content.first.isEmpty) {
         _url = null;
         log("错误 内容为空！");

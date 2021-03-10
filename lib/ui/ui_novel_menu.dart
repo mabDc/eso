@@ -611,7 +611,7 @@ class UINovelMenu extends StatelessWidget {
       elevation: 20,
       icon: Icon(FIcons.more_vertical, color: color),
       color: bgColor,
-      onSelected: (int value) {
+      onSelected: (int value) async {
         switch (value) {
           case AUTO_CACHE:
             Navigator.of(context).push(MaterialPageRoute(
@@ -621,12 +621,24 @@ class UINovelMenu extends StatelessWidget {
                     )));
             break;
           case TO_CLICPBOARD:
-            Clipboard.setData(
-                ClipboardData(text: searchItem.chapters[searchItem.durChapterIndex].url));
-            Utils.toast("已复制地址\n" + searchItem.chapters[searchItem.durChapterIndex].url);
+            final chapter = searchItem.chapters[searchItem.durChapterIndex];
+            final url = chapter.contentUrl ?? chapter.url;
+            if (url != null) {
+              Clipboard.setData(ClipboardData(text: url));
+              Utils.toast("已复制地址\n" + url);
+            } else {
+              Utils.toast("错误 地址为空");
+            }
             break;
           case LAUCH:
-            launch(searchItem.chapters[searchItem.durChapterIndex].url);
+            final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
+            final chapter = searchItem.chapters[searchItem.durChapterIndex];
+            final url = chapter.contentUrl ?? Utils.getUrl(rule.host, chapter.url);
+            if (url != null) {
+              launch(url);
+            } else {
+              Utils.toast("错误 地址为空");
+            }
             break;
           case SELECTABLE:
             if (provider.useSelectableText) {
@@ -654,6 +666,7 @@ class UINovelMenu extends StatelessWidget {
             break;
           case CLEARCACHE:
             provider.clearCurrent();
+            Utils.toast("清理成功");
             break;
           default:
         }

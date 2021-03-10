@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
@@ -158,10 +159,13 @@ class NovelPageProvider with ChangeNotifier {
     _isLoading = true;
     _showChapter = false;
     notifyListeners();
-    final content = await APIManager.getContent(
-        searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
+    final chapter = searchItem.chapters[searchItem.durChapterIndex];
+    final content = await APIManager.getContent(searchItem.originTag, chapter.url);
+    chapter.contentUrl = API.contentUrl;
     _paragraphs = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     _cache[searchItem.durChapterIndex] = _paragraphs;
+    await _fileCache.putData('${searchItem.durChapterIndex}.txt', _paragraphs.join("\n"),
+        hashCodeKey: false, shouldEncode: false);
 
     // 强制刷新界面
     _spansFlat?.clear();
@@ -279,7 +283,9 @@ class NovelPageProvider with ChangeNotifier {
       if (!autoCacheDoing || token != _autoCacheToken) break;
       if (cacheChapterIndex.contains(index)) continue;
       try {
-        final content = await APIManager.getContent(id, chapters[index].url);
+        final chapter = chapters[index];
+        final content = await APIManager.getContent(id, chapter.url);
+        chapter.contentUrl = API.contentUrl;
         final c = content.join("\n").split(RegExp(r"\n\s*|\s{2,}")).join("\n");
         final r = await _fileCache.putData('$index.txt', c,
             hashCodeKey: false, shouldEncode: false);
@@ -332,10 +338,9 @@ class NovelPageProvider with ChangeNotifier {
         return p;
       }
     }
-    List<String> result = await APIManager.getContent(
-      searchItem.originTag,
-      searchItem.chapters[index].url,
-    );
+    final chapter = searchItem.chapters[index];
+    List<String> result = await APIManager.getContent(searchItem.originTag, chapter.url);
+    chapter.contentUrl = API.contentUrl;
     _updateCache(index, result);
     return result;
   }

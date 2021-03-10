@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:eso/database/search_item.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,16 @@ import 'profile.dart';
 EventBus eventBus = EventBus();
 
 class Utils {
+  static String getUrl(String host, String url){
+    if(url == null) return host;
+    if(url.startsWith("http")) return url;
+    if(url.startsWith("//")) {
+      if(host.startsWith("https")) return "https:$url";
+      else return "http:$url";
+    }
+    if(url.startsWith("/")) return "$host$url";
+    return "$host/$url";
+  }
   static BoxDecoration getNovelBackground() {
     final profile = Profile();
     DecorationImage image;

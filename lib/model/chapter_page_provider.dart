@@ -1,11 +1,18 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/history_item_manager.dart';
+import 'package:eso/menu/menu_chapter.dart';
+import 'package:eso/page/search_page.dart';
+import 'package:eso/page/source/edit_rule_page.dart';
+import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
+import '../global.dart';
+import '../utils.dart';
 
 class ChapterPageProvider with ChangeNotifier {
   final Size size;
@@ -90,6 +97,7 @@ class ChapterPageProvider with ChangeNotifier {
   void initChapters() async {
     searchItem.chapters =
         await APIManager.getChapter(searchItem.originTag, searchItem.url);
+    searchItem.chapterUrl = API.chapterUrl;
     searchItem.durChapterIndex = 0;
     searchItem.durContentIndex = 1;
     if (searchItem.chapters.isEmpty) {
@@ -109,16 +117,10 @@ class ChapterPageProvider with ChangeNotifier {
     if (_isLoading) return;
     _isLoading = true;
     notifyListeners();
-    if (searchItem.ruleContentType == API.RSS) {
-      Set<String> chs = Set<String>();
-      chs.addAll(searchItem.chapters?.map((ch) => ch.url));
-      List<ChapterItem> temps =
-          await APIManager.getChapter(searchItem.originTag, searchItem.url);
-      searchItem.chapters.addAll(temps.where((ch) => !chs.contains(ch.url)));
-    } else {
-      searchItem.chapters =
-          await APIManager.getChapter(searchItem.originTag, searchItem.url);
-    }
+
+    searchItem.chapters =
+        await APIManager.getChapter(searchItem.originTag, searchItem.url);
+    searchItem.chapterUrl = API.chapterUrl;
 
     searchItem.chaptersCount = searchItem.chapters.length;
     if (searchItem.chaptersCount > 0) {
@@ -151,13 +153,69 @@ class ChapterPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void share() async {
-    await FlutterShare.share(
-      title: '亦搜 eso',
-      text: '${searchItem.name}\n${searchItem.description}\n${searchItem.url}',
-      //linkUrl: '${searchItem.url}',
-      chooserTitle: '选择分享的应用',
-    );
+  void onSelect(MenuChapter value, BuildContext context) async {
+    switch (value) {
+      case MenuChapter.refresh:
+        updateChapter();
+        break;
+      case MenuChapter.clear_cache:
+        final _fileCache = CacheUtil(cacheName: "searchItem${searchItem.id}");
+        await _fileCache.requestPermission();
+        await _fileCache.clear();
+        Utils.toast("清理成功");
+        break;
+      case MenuChapter.edit:
+        Utils.toast("请等待下个版本");
+        break;
+      case MenuChapter.edit_rule:
+        final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
+        break;
+      case MenuChapter.change:
+        final r = await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => SimpleChangeRule(searchItem: searchItem)));
+        if (r != null && r is SearchItem) {
+          searchItem.changeTo(r);
+          updateChapter();
+        }else{
+          Utils.toast("未选择");
+        }
+        break;
+      case MenuChapter.open_host_url:
+        final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
+        if (rule.host != null) {
+          launch(rule.host);
+        } else {
+          Utils.toast("错误 地址为空");
+        }
+        break;
+      case MenuChapter.open_item_url:
+        final url = searchItem.searchUrl;
+        if (url != null) {
+          launch(url);
+        } else {
+          Utils.toast("错误 地址为空");
+        }
+        break;
+      case MenuChapter.open_chapter_url:
+        final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
+        final url = searchItem.chapterUrl ?? Utils.getUrl(rule.host, searchItem.url);
+        if (url != null) {
+          launch(url);
+        } else {
+          Utils.toast("错误 地址为空");
+        }
+        break;
+      case MenuChapter.share:
+        await FlutterShare.share(
+          title: '亦搜 eso',
+          text: '${searchItem.name}\n${searchItem.description}\n${searchItem.chapterUrl}',
+          chooserTitle: '选择分享的应用',
+        );
+        break;
+      default:
+    }
   }
 
   void scrollerToTop() {

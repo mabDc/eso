@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:eso/api/api.dart';
+import 'package:eso/database/rule_dao.dart';
 import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
 
@@ -216,6 +217,7 @@ class Rule {
   );
 
   static Future<String> backupRules([List<Rule> rules]) async {
+    await RuleDao.gaixieguizheng();
     if (rules == null) {
       rules = await Global.ruleDao.findAllRules();
     }

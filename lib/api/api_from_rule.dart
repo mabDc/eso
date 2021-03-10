@@ -105,6 +105,7 @@ class APIFromRUle implements API {
         tags = tag.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
+        searchUrl: discoverUrl,
         cover: await analyzer.getString(rule.discoverCover),
         name: (await analyzer.getString(rule.discoverName))
             .trim()
@@ -174,6 +175,7 @@ class APIFromRUle implements API {
         tags = tag.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
+        searchUrl: searchUrl,
         cover: await analyzer.getString(rule.searchCover),
         name: (await analyzer.getString(rule.searchName))
             .trim()
@@ -192,6 +194,7 @@ class APIFromRUle implements API {
 
   @override
   Future<List<ChapterItem>> chapter(final String lastResult) async {
+    API.chapterUrl = null;
     final result = <ChapterItem>[];
     int engineId;
     final reversed = rule.chapterList.startsWith("-");
@@ -231,6 +234,7 @@ class APIFromRUle implements API {
           chapterUrl = res.request.url.toString();
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
+        API.chapterUrl = chapterUrl;
         if (engineId == null) {
           engineId =
               await APIConst.initJSEngine(rule, chapterUrl, lastResult: lastResult);
@@ -328,6 +332,7 @@ class APIFromRUle implements API {
 
   @override
   Future<List<String>> content(final String lastResult) async {
+    API.contentUrl = null;
     final result = <String>[];
     int engineId;
     final hasNextUrlRule = rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
@@ -367,6 +372,7 @@ class APIFromRUle implements API {
           contentUrl = res.request.url.toString();
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
+        API.contentUrl = contentUrl;
         if (engineId == null) {
           engineId =
               await APIConst.initJSEngine(rule, contentUrl, lastResult: lastResult);

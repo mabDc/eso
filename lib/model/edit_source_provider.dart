@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:eso/database/rule.dart';
+import 'package:eso/database/rule_dao.dart';
 import 'package:eso/global.dart';
 import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/utils.dart';
@@ -64,6 +65,7 @@ class EditSourceProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     await Future.delayed(Duration(milliseconds: 100));
+    await RuleDao.gaixieguizheng();
     switch (this.type) {
       case 1:
         _rules = await Global.ruleDao.findAllRules();

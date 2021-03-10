@@ -4,6 +4,9 @@ import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 
 abstract class API {
+  static String chapterUrl;
+  static String contentUrl;
+
   static const MANGA = 0;
   static const NOVEL = 1;
   static const VIDEO = 2;
