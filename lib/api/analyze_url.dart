@@ -2,12 +2,10 @@ import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
 import 'package:fast_gbk/fast_gbk.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_js/flutter_js.dart';
 import 'package:http/http.dart' as originalHttp;
 import 'analyze_url_client.dart' as http;
 
-import '../global.dart';
+import 'api_js_engine.dart';
 
 class AnalyzeUrl {
   static Future<originalHttp.Response> urlRuleParser(
@@ -19,26 +17,15 @@ class AnalyzeUrl {
     int pageSize,
   }) async {
     url = url.trim();
+    if (url == "null") return originalHttp.Response("", 200);
     if (url.startsWith("@js:")) {
       // js规则
-      final engineId = await FlutterJs.initEngine(99999);
-      var command = '''
-keyword = ${jsonEncode(keyword)};
-page = ${jsonEncode(page)};
-host = ${jsonEncode(rule.host)};
-result = ${jsonEncode(result)};
-pageSize = ${jsonEncode(pageSize)};
-cookie = ${jsonEncode(rule.cookies)};
-''';
-      await FlutterJs.evaluate(command, engineId);
-      if (rule.loadJs.trim().isNotEmpty || rule.useCryptoJS) {
-        final cryptoJS =
-            rule.useCryptoJS ? await rootBundle.loadString(Global.cryptoJSFile) : "";
-        await FlutterJs.evaluate(cryptoJS + rule.loadJs, engineId);
+      JSEngine.setEnvironment(page, rule, result, rule.host, keyword, result);
+      final re = await JSEngine.evaluate(url.substring(4));
+      if (re is String && re == "null") {
+        return originalHttp.Response("", 200);
       }
-      final re = await FlutterJs.evaluate(url.substring(4), engineId);
-      FlutterJs.close(engineId);
-      final res = await _parser(re, rule, keyword);
+      final res = await parser(re, rule);
       // if (res.statusCode > 400) {
       //   throw "Request Error, statusCode is" + res.statusCode.toString();
       // }
@@ -54,13 +41,12 @@ cookie = ${jsonEncode(rule.cookies)};
         "searchKey": keyword,
         "searchPage": page,
       };
-      final res = await _parser(
+      final res = await parser(
         url.replaceAllMapped(
           RegExp(r"\$keyword|\$page|\$host|\$result|\$pageSize|searchKey|searchPage"),
           (m) => '${json[m.group(0)]}',
         ),
         rule,
-        keyword,
       );
       // if (res.statusCode > 400) {
       //   throw "Request Error, statusCode is" + res.statusCode.toString();
@@ -69,8 +55,7 @@ cookie = ${jsonEncode(rule.cookies)};
     }
   }
 
-  static Future<originalHttp.Response> _parser(
-      dynamic url, Rule rule, String keyword) async {
+  static Future<originalHttp.Response> parser(dynamic url, Rule rule) async {
     if (url is String) {
       url = url.trim();
       if (url.isEmpty) return http.get(rule.host);
@@ -123,6 +108,9 @@ cookie = ${jsonEncode(rule.cookies)};
                 .join());
       }
       if (method == null || method == 'get') {
+        return http.get(u, headers: headers);
+      }
+      if(method == "put"){
         return http.get(u, headers: headers);
       }
       if (method == 'post') {

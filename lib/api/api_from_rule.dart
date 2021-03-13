@@ -6,19 +6,17 @@ import 'package:eso/utils.dart';
 import '../global.dart';
 import 'analyze_url.dart';
 import 'package:eso/utils/decode_body.dart';
-import 'package:flutter_js/flutter_js.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
-import 'api_const.dart';
+import 'api_js_engine.dart';
 
 class APIFromRUle implements API {
   final Rule rule;
   String _origin;
   String _originTag;
   int _ruleContentType;
-  int _engineId;
 
   static Map<String, String> _nextUrl;
   static Map<String, String> get nextUrl => _nextUrl;
@@ -44,7 +42,6 @@ class APIFromRUle implements API {
   int get ruleContentType => _ruleContentType;
 
   APIFromRUle(this.rule, [int engineId]) {
-    _engineId = engineId;
     _origin = rule.name;
     _originTag = rule.id;
     _ruleContentType = rule.contentType;
@@ -86,10 +83,8 @@ class APIFromRUle implements API {
       discoverUrl = res.request.url.toString();
       body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
     }
-
-    final engineId = await APIConst.initJSEngine(rule, discoverUrl);
-    await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-    final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
+    await JSEngine.setEnvironment(page, rule, "", discoverUrl, "", "");
+    final bodyAnalyzer = AnalyzerManager(body);
     if (hasNextUrlRule) {
       setNextUrl(url, await bodyAnalyzer.getString(rule.discoverNextUrl));
     } else {
@@ -98,7 +93,7 @@ class APIFromRUle implements API {
     final list = await bodyAnalyzer.getElements(rule.discoverList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId, rule);
+      final analyzer = AnalyzerManager(item);
       final tag = await analyzer.getString(rule.discoverTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
@@ -118,7 +113,6 @@ class APIFromRUle implements API {
         tags: tags,
       ));
     }
-    FlutterJs.close(engineId);
     return result;
   }
 
@@ -157,9 +151,8 @@ class APIFromRUle implements API {
       searchUrl = res.request.url.toString();
       body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
     }
-    final engineId = await APIConst.initJSEngine(rule, searchUrl, engineId: _engineId);
-    await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
-    final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
+    await JSEngine.setEnvironment(page, rule, "", searchUrl, query, "");
+    final bodyAnalyzer = AnalyzerManager(body);
     if (hasNextUrlRule) {
       setNextUrl(url, await bodyAnalyzer.getString(rule.searchNextUrl));
     } else {
@@ -168,7 +161,7 @@ class APIFromRUle implements API {
     final list = await bodyAnalyzer.getElements(rule.searchList);
     final result = <SearchItem>[];
     for (var item in list) {
-      final analyzer = AnalyzerManager(item, engineId, rule);
+      final analyzer = AnalyzerManager(item);
       final tag = await analyzer.getString(rule.searchTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
@@ -188,7 +181,6 @@ class APIFromRUle implements API {
         tags: tags,
       ));
     }
-    FlutterJs.close(engineId);
     return result;
   }
 
@@ -196,7 +188,6 @@ class APIFromRUle implements API {
   Future<List<ChapterItem>> chapter(final String lastResult) async {
     API.chapterUrl = null;
     final result = <ChapterItem>[];
-    int engineId;
     final reversed = rule.chapterList.startsWith("-");
     final hasNextUrlRule = rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
     final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty
@@ -235,17 +226,14 @@ class APIFromRUle implements API {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         API.chapterUrl = chapterUrl;
-        if (engineId == null) {
-          engineId =
-              await APIConst.initJSEngine(rule, chapterUrl, lastResult: lastResult);
-          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+        if (page == 1) {
+          await JSEngine.setEnvironment(page, rule, "", chapterUrl, "", lastResult);
         } else {
-          await FlutterJs.evaluate(
-              "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};",
-              engineId);
+          await JSEngine.evaluate(
+              "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};");
         }
 
-        final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
+        final bodyAnalyzer = AnalyzerManager(body);
         if (hasNextUrlRule) {
           next = await bodyAnalyzer.getString(rule.chapterNextUrl);
         } else {
@@ -257,7 +245,7 @@ class APIFromRUle implements API {
             break;
           }
           for (final road in roads) {
-            final roadAnalyzer = AnalyzerManager(road, engineId, rule);
+            final roadAnalyzer = AnalyzerManager(road);
             result.add(ChapterItem(
               name: "@线路" + await roadAnalyzer.getString(rule.chapterRoadName),
             ));
@@ -267,7 +255,7 @@ class APIFromRUle implements API {
               break;
             }
             for (final item in (reversed ? list.reversed : list)) {
-              final analyzer = AnalyzerManager(item, engineId, rule);
+              final analyzer = AnalyzerManager(item);
               final lock = await analyzer.getString(rule.chapterLock);
               // final unLock = await analyzer.getString(rule.chapterUnLock);
               var name = (await analyzer.getString(rule.chapterName))
@@ -298,7 +286,7 @@ class APIFromRUle implements API {
             break;
           }
           for (final item in (reversed ? list.reversed : list)) {
-            final analyzer = AnalyzerManager(item, engineId, rule);
+            final analyzer = AnalyzerManager(item);
             final lock = await analyzer.getString(rule.chapterLock);
             // final unLock = await analyzer.getString(rule.chapterUnLock);
             var name = (await analyzer.getString(rule.chapterName))
@@ -326,7 +314,6 @@ class APIFromRUle implements API {
         break;
       }
     }
-    FlutterJs.close(engineId);
     return result;
   }
 
@@ -334,7 +321,6 @@ class APIFromRUle implements API {
   Future<List<String>> content(final String lastResult) async {
     API.contentUrl = null;
     final result = <String>[];
-    int engineId;
     final hasNextUrlRule = rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
     final url = rule.contentUrl != null && rule.contentUrl.isNotEmpty
         ? rule.contentUrl
@@ -353,7 +339,6 @@ class APIFromRUle implements API {
         contentUrlRule = url;
       }
       if (contentUrlRule == null) {
-        FlutterJs.close(engineId);
         return result;
       }
       try {
@@ -373,16 +358,13 @@ class APIFromRUle implements API {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         API.contentUrl = contentUrl;
-        if (engineId == null) {
-          engineId =
-              await APIConst.initJSEngine(rule, contentUrl, lastResult: lastResult);
-          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+        if (page == 1) {
+          await JSEngine.setEnvironment(page, rule, "", contentUrl, "", lastResult);
         } else {
-          await FlutterJs.evaluate(
-              "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};",
-              engineId);
+          await JSEngine.evaluate(
+              "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};");
         }
-        final bodyAnalyzer = AnalyzerManager(body, engineId, rule);
+        final bodyAnalyzer = AnalyzerManager(body);
         if (hasNextUrlRule) {
           next = await bodyAnalyzer.getString(rule.contentNextUrl);
         } else {
@@ -396,7 +378,6 @@ class APIFromRUle implements API {
       } catch (e) {
         /// 内容为空抛出错误
         if (result.isEmpty) {
-          FlutterJs.close(engineId);
           Utils.toast("解析失败: $e");
           switch (_ruleContentType) {
             // 视频正文解析失败抛出错误
@@ -415,7 +396,6 @@ class APIFromRUle implements API {
         break;
       }
     }
-    FlutterJs.close(engineId);
     return result;
   }
 
@@ -426,9 +406,8 @@ class APIFromRUle implements API {
     dynamic discoverUrl = rule.discoverUrl.trimLeft();
     try {
       if (discoverUrl.startsWith("@js:")) {
-        final engineId = await APIConst.initJSEngine(rule, "");
-        discoverUrl = await FlutterJs.evaluate(discoverUrl.substring(4), engineId);
-        FlutterJs.close(engineId);
+        await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
+        discoverUrl = await JSEngine.evaluate(discoverUrl.substring(4));
       }
       final discovers = (discoverUrl is List)
           ? discoverUrl.map((e) => "$e")

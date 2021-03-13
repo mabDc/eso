@@ -15,8 +15,9 @@ dependencies:
     sdk: flutter
   audioplayers:
     path: modules/audioplayers
-  flutter_js:
-    path: modules/flutter_js
+  flutter_qjs: ^0.3.5
+  # flutter_js:
+  #   path: modules/flutter_js
   flutter_webview:
     path: modules/flutter_webview
   webview_flutter:

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
+import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
@@ -13,7 +14,6 @@ import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_js/flutter_js.dart';
 import 'package:provider/provider.dart';
 
 import 'chapter_page.dart';
@@ -643,7 +643,6 @@ class SearchProvider with ChangeNotifier {
               }
             } catch (e) {
               if (_searchId == searchId) {
-                FlutterJs.close(engineId);
                 _failureCount++;
                 print("error   !!!       " * 10);
                 print(_rules[j * threadCount + i].name);

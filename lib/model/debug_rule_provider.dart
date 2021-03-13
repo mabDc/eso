@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:eso/api/api.dart';
-import 'package:eso/api/api_const.dart';
+import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
@@ -11,7 +11,6 @@ import '../api/analyze_url.dart';
 import '../api/analyzer_manager.dart';
 import 'package:eso/utils/decode_body.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_js/flutter_js.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -114,14 +113,12 @@ class DebugRuleProvider with ChangeNotifier {
     _startTime = DateTime.now();
     rows.clear();
     _beginEvent("发现");
-    int engineId;
     try {
       dynamic discoverRule = rule.discoverUrl.trimLeft();
       if (discoverRule.startsWith("@js:")) {
         _addContent("执行发现js规则");
-        final engineId = await APIConst.initJSEngine(rule, "");
-        discoverRule = await FlutterJs.evaluate(discoverRule.substring(4), engineId);
-        FlutterJs.close(engineId);
+        await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
+        discoverRule = await JSEngine.evaluate(discoverRule.substring(4));
         _addContent("结果", "$discoverRule");
       }
       final discoverFirst = (discoverRule is List
@@ -154,10 +151,9 @@ class DebugRuleProvider with ChangeNotifier {
         _addContent("地址", discoverUrl, true);
       }
 
-      engineId = await APIConst.initJSEngine(rule, discoverUrl);
-      await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
+      await JSEngine.setEnvironment(1, rule, "", discoverUrl, "", "");
       _addContent("初始化js");
-      final analyzer = AnalyzerManager(body, engineId, rule);
+      final analyzer = AnalyzerManager(body);
       String next;
       if (rule.discoverNextUrl != null && rule.discoverNextUrl.isNotEmpty) {
         next = await analyzer.getString(rule.discoverNextUrl);
@@ -168,11 +164,10 @@ class DebugRuleProvider with ChangeNotifier {
       final discoverList = await analyzer.getElements(rule.discoverList);
       final resultCount = discoverList.length;
       if (resultCount == 0) {
-        FlutterJs.close(engineId);
         _addContent("发现结果列表个数为0，解析结束！");
       } else {
         _addContent("个数", resultCount.toString());
-        parseFirstDiscover(discoverList.first, engineId);
+        parseFirstDiscover(discoverList.first);
       }
     } catch (e) {
       rows.add(Row(
@@ -186,14 +181,13 @@ class DebugRuleProvider with ChangeNotifier {
         ],
       ));
       _addContent("解析结束！");
-      FlutterJs.close(engineId);
     }
   }
 
-  void parseFirstDiscover(dynamic firstItem, int engineId) async {
+  void parseFirstDiscover(dynamic firstItem) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId, rule);
+      final analyzer = AnalyzerManager(firstItem);
       _addContent("名称", await analyzer.getString(rule.discoverName));
       _addContent("作者", await analyzer.getString(rule.discoverAuthor));
       _addContent("章节", await analyzer.getString(rule.discoverChapter));
@@ -212,7 +206,6 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final result = await analyzer.getString(rule.discoverResult);
       _addContent("结果", result);
-      await FlutterJs.close(engineId);
       parseChapter(result);
     } catch (e, st) {
       rows.add(Row(
@@ -226,7 +219,6 @@ class DebugRuleProvider with ChangeNotifier {
         ],
       ));
       _addContent("解析结束！");
-      FlutterJs.close(engineId);
     }
   }
 
@@ -235,7 +227,6 @@ class DebugRuleProvider with ChangeNotifier {
   void search(String value) async {
     _startTime = DateTime.now();
     rows.clear();
-    int engineId;
     _beginEvent("搜索");
     try {
       String searchUrl = "";
@@ -252,7 +243,6 @@ class DebugRuleProvider with ChangeNotifier {
         );
         if (searchResult.contentLength == 0) {
           _addContent("响应内容为空，终止解析！");
-          FlutterJs.close(engineId);
           return;
         }
         searchUrl = searchResult.request.url.toString();
@@ -260,10 +250,9 @@ class DebugRuleProvider with ChangeNotifier {
         body = DecodeBody()
             .decode(searchResult.bodyBytes, searchResult.headers["content-type"]);
       }
-      engineId = await APIConst.initJSEngine(rule, searchUrl);
-      await FlutterJs.evaluate("page = ${jsonEncode(1)}", engineId);
+      await JSEngine.setEnvironment(1, rule, "", rule.host, value, "");
       _addContent("初始化js");
-      final analyzer = AnalyzerManager(body, engineId, rule);
+      final analyzer = AnalyzerManager(body);
       String next;
       if (rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty) {
         next = await analyzer.getString(rule.searchNextUrl);
@@ -274,11 +263,10 @@ class DebugRuleProvider with ChangeNotifier {
       final searchList = await analyzer.getElements(rule.searchList);
       final resultCount = searchList.length;
       if (resultCount == 0) {
-        FlutterJs.close(engineId);
         _addContent("搜索结果列表个数为0，解析结束！");
       } else {
         _addContent("搜索结果个数", resultCount.toString());
-        parseFirstSearch(searchList.first, engineId);
+        parseFirstSearch(searchList.first);
       }
     } catch (e, st) {
       rows.add(Row(
@@ -292,14 +280,13 @@ class DebugRuleProvider with ChangeNotifier {
         ],
       ));
       _addContent("解析结束！");
-      FlutterJs.close(engineId);
     }
   }
 
-  void parseFirstSearch(dynamic firstItem, int engineId) async {
+  void parseFirstSearch(dynamic firstItem) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId, rule);
+      final analyzer = AnalyzerManager(firstItem);
       _addContent("名称", await analyzer.getString(rule.searchName));
       _addContent("作者", await analyzer.getString(rule.searchAuthor));
       _addContent("章节", await analyzer.getString(rule.searchChapter));
@@ -318,7 +305,6 @@ class DebugRuleProvider with ChangeNotifier {
       }
       final result = await analyzer.getString(rule.searchResult);
       _addContent("结果", result);
-      await FlutterJs.close(engineId);
       parseChapter(result);
     } catch (e, st) {
       rows.add(Row(
@@ -332,13 +318,11 @@ class DebugRuleProvider with ChangeNotifier {
         ],
       ));
       _addContent("解析结束！");
-      FlutterJs.close(engineId);
     }
   }
 
   void parseChapter(String result) async {
     _beginEvent("目录");
-    int engineId;
     dynamic firstChapter;
     String next;
     String chapterUrlRule;
@@ -385,15 +369,13 @@ class DebugRuleProvider with ChangeNotifier {
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
 
-        if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, chapterUrl, lastResult: result);
-          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+        if (page == 1) {
+          await JSEngine.setEnvironment(page, rule, result, chapterUrl, "", result);
         } else {
-          await FlutterJs.evaluate(
-              "baseUrl = ${jsonEncode(chapterUrl)};page = ${jsonEncode(page)};",
-              engineId);
+          await JSEngine.evaluate(
+              "baseUrl = ${jsonEncode(chapterUrl)};page = ${jsonEncode(page)};");
         }
-        final analyzer = AnalyzerManager(body, engineId, rule);
+        final analyzer = AnalyzerManager(body);
         if (hasNextUrlRule) {
           next = await analyzer.getString(rule.chapterNextUrl);
         } else {
@@ -411,7 +393,7 @@ class DebugRuleProvider with ChangeNotifier {
             _addContent("个数", count.toString());
           }
           final road = roads.first;
-          analyzerManager = AnalyzerManager(road, engineId, rule);
+          analyzerManager = AnalyzerManager(road);
           _addContent("线路名称", await analyzerManager.getString(rule.chapterRoadName));
         } else {
           analyzerManager = analyzer;
@@ -450,16 +432,14 @@ class DebugRuleProvider with ChangeNotifier {
     }
     if (disposeFlag) return;
     if (firstChapter != null) {
-      parseFirstChapter(firstChapter, engineId);
-    } else if (engineId != null) {
-      FlutterJs.close(engineId);
+      parseFirstChapter(firstChapter);
     }
   }
 
-  void parseFirstChapter(dynamic firstItem, int engineId) async {
+  void parseFirstChapter(dynamic firstItem) async {
     _addContent("开始解析第一个结果");
     try {
-      final analyzer = AnalyzerManager(firstItem, engineId, rule);
+      final analyzer = AnalyzerManager(firstItem);
       final name = await analyzer.getString(rule.chapterName);
       _addContent("名称", name);
       final lock = await analyzer.getString(rule.chapterLock);
@@ -479,10 +459,8 @@ class DebugRuleProvider with ChangeNotifier {
       //_texts.add(WidgetSpan(child: UIImageItem(cover: coverUrl)));
       final result = await analyzer.getString(rule.chapterResult);
       _addContent("结果", result);
-      await FlutterJs.close(engineId);
       praseContent(result);
     } catch (e, st) {
-      FlutterJs.close(engineId);
       rows.add(Row(
         children: [
           Flexible(
@@ -499,7 +477,6 @@ class DebugRuleProvider with ChangeNotifier {
 
   void praseContent(String result) async {
     _beginEvent("正文");
-    int engineId;
     final hasNextUrlRule = rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
     final url =
         rule.contentUrl != null && rule.contentUrl.isNotEmpty ? rule.contentUrl : result;
@@ -519,7 +496,6 @@ class DebugRuleProvider with ChangeNotifier {
       }
       if (contentUrlRule == null) {
         _addContent("下一页结束");
-        FlutterJs.close(engineId);
         return;
       }
       _addContent("解析第$page页");
@@ -542,22 +518,19 @@ class DebugRuleProvider with ChangeNotifier {
           );
           if (res.contentLength == 0) {
             _addContent("响应内容为空，终止解析！");
-            FlutterJs.close(engineId);
             return;
           }
           contentUrl = res.request.url.toString();
           _addContent("地址", contentUrl, true);
           body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
-        if (engineId == null) {
-          engineId = await APIConst.initJSEngine(rule, contentUrl, lastResult: result);
-          await FlutterJs.evaluate("page = ${jsonEncode(page)}", engineId);
+        if (page == 1) {
+          await JSEngine.setEnvironment(page, rule, result, contentUrl, "", result);
         } else {
-          await FlutterJs.evaluate(
-              "baseUrl = ${jsonEncode(contentUrl)};page = ${jsonEncode(page)};",
-              engineId);
+          await JSEngine.evaluate(
+              "baseUrl = ${jsonEncode(contentUrl)};page = ${jsonEncode(page)};");
         }
-        final analyzer = AnalyzerManager(body, engineId, rule);
+        final analyzer = AnalyzerManager(body);
         if (hasNextUrlRule) {
           next = await analyzer.getString(rule.contentNextUrl);
         } else {
@@ -571,11 +544,9 @@ class DebugRuleProvider with ChangeNotifier {
         final count = contentItems.length;
         if (count == 0) {
           _addContent("正文结果个数为0，解析结束！");
-          FlutterJs.close(engineId);
           return;
         } else if (contentItems.join().trim().isEmpty) {
           _addContent("正文内容为空，解析结束！");
-          FlutterJs.close(engineId);
           return;
         } else {
           _addContent("个数", count.toString());
@@ -608,7 +579,6 @@ class DebugRuleProvider with ChangeNotifier {
           ],
         ));
         _addContent("解析结束！");
-        FlutterJs.close(engineId);
         return;
       }
     }

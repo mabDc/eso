@@ -16,6 +16,10 @@ Future<Response> get(dynamic url, {Map<String, String> headers}) {
   return nosslClient.get(url, headers: headers);
 }
 
+Future<Response> put(dynamic url, {Map<String, String> headers, dynamic body}) {
+  return nosslClient.put(url, headers: headers, body: body);
+}
+
 Future<Response> post(dynamic url,
     {Map<String, String> headers, dynamic body, Encoding encoding}) async {
   final response =

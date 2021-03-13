@@ -1,5 +1,4 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/page/search_page.dart';

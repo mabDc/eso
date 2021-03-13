@@ -1,16 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter_js/flutter_js.dart';
+import 'package:eso/api/api_js_engine.dart';
 import 'package:html/dom.dart';
 import 'analyzer.dart';
 
 class AnalyzerJS implements Analyzer {
   String _content;
-  int _jsEngineId;
-
-  AnalyzerJS(int jsEngineId) {
-    _jsEngineId = jsEngineId;
-  }
 
   @override
   AnalyzerJS parse(content) {
@@ -43,7 +38,7 @@ class AnalyzerJS implements Analyzer {
   }
 
   Future<dynamic> _eval(String rule) {
-    return FlutterJs.evaluate("result = $_content; $rule;", _jsEngineId);
+    return JSEngine.evaluate("result = $_content; $rule;");
   }
 
   @override

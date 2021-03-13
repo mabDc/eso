@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:eso/database/rule.dart';
+import 'package:eso/api/api_js_engine.dart';
 import 'package:flutter_webview/flutter_webview.dart';
 
 import 'analyzer.dart';
@@ -40,20 +40,16 @@ Future<dynamic> webview({
 
 class AnalyzerFilter implements Analyzer {
   String url;
-  Rule _rule;
-
-  AnalyzerFilter(Rule rule) {
-    _rule = rule;
-  }
 
   @override
   AnalyzerFilter parse(content) {
+    final host = JSEngine.rule.host;
     if (content is List) {
       final t = content.map((c) => "$c").where((c) => c.isNotEmpty).toList();
       if (t.isNotEmpty) {
         url = t.first.trim();
       } else {
-        url = _rule.host;
+        url = host;
       }
     } else if (content is Map) {
       url = "${content["url"]}";
@@ -61,13 +57,13 @@ class AnalyzerFilter implements Analyzer {
       url = "$content".trim();
     }
     if (url.startsWith("//")) {
-      if (_rule.host.startsWith("https")) {
+      if (host.startsWith("https")) {
         url = "https:" + url;
       } else {
         url = "http:" + url;
       }
     } else if (url.startsWith("/")) {
-      url = _rule.host + url;
+      url = host + url;
     }
     return this;
   }
@@ -111,10 +107,10 @@ class AnalyzerFilter implements Analyzer {
         }
         return false;
       },
-      ua: _rule.userAgent.trim().isNotEmpty
-          ? _rule.userAgent
+      ua: JSEngine.rule.userAgent.trim().isNotEmpty
+          ? JSEngine.rule.userAgent
           : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.42 Safari/537.36 Edg/86.0.622.19',
-      cookies: _rule.cookies,
+      cookies: JSEngine.rule.cookies,
     );
     return result;
   }

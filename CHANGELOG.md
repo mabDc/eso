@@ -1,3 +1,14 @@
+### 1.21.08
+
+- JS 引擎更换为 flutter_qjs 0.3.5
+- 全局内置 cryptoJS
+- 增加 (其中网络请求是异步)
+  - xpath(html, xpath)
+  - http(url)
+  - http.get(url)
+  - http.post(url, body, \[headers\])
+  - http.put(url, body, \[headers\])
+
 ### 1.21.07
 
 - 增加更多的查看原网页

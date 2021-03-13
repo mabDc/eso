@@ -4,7 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_chooser
-  flutter_js
+  flutter_qjs
   flutter_webview
   url_launcher_windows
   windows_speak

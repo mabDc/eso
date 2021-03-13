@@ -4,12 +4,7 @@ import 'package:eso/api/analyzer_js.dart';
 import 'package:eso/api/analyzer_jsonpath.dart';
 import 'package:eso/api/analyzer_regexp.dart';
 import 'package:eso/api/analyzer_xpath.dart';
-import 'package:eso/database/rule.dart';
-
-import 'analyzer_decode.dart';
-import 'analyzer_encode.dart';
 import 'analyzer_filter.dart';
-import 'analyzer_http.dart';
 import 'analyzer_match.dart';
 import 'analyzer_replace.dart';
 
@@ -44,10 +39,8 @@ class AnalyzerManager {
   final expressionPattern = RegExp(r"\{\{(.*?)\}\}", dotAll: true);
 
   final dynamic _content;
-  final int _idJsEngine;
-  final Rule _rule;
 
-  AnalyzerManager(this._content, this._idJsEngine, this._rule);
+  AnalyzerManager(this._content);
 
   /// from https://github.com/dart-lang/sdk/issues/2336
   String Function(Match) _replacement(String pattern) => (Match match) =>
@@ -356,16 +349,13 @@ class AnalyzerManager {
         case "@":
           if (r.startsWith(RegExp(r"@js:", caseSensitive: false))) {
             r = r.substring(4);
-            analyzer = AnalyzerJS(_idJsEngine);
+            analyzer = AnalyzerJS();
           } else if (r.startsWith(RegExp(r"@css:", caseSensitive: false))) {
             r = r.substring(5);
             analyzer = AnalyzerHtml();
           } else if (r.startsWith(RegExp(r"@json:", caseSensitive: false))) {
             r = r.substring(6);
             analyzer = AnalyzerJSonPath();
-          } else if (r.startsWith(RegExp(r"@http:", caseSensitive: false))) {
-            r = r.substring(6);
-            analyzer = AnalyzerHttp(_rule);
           } else if (r.startsWith(RegExp(r"@xpath:", caseSensitive: false))) {
             r = r.substring(7);
             analyzer = AnalyzerXPath();
@@ -380,13 +370,7 @@ class AnalyzerManager {
             analyzer = AnalyzerRegExp();
           } else if (r.startsWith(RegExp(r"@filter:", caseSensitive: false))) {
             r = r.substring(8);
-            analyzer = AnalyzerFilter(_rule);
-          } else if (r.startsWith(RegExp(r"@encode:", caseSensitive: false))) {
-            r = r.substring(8);
-            analyzer = AnalyzerEncode();
-          } else if (r.startsWith(RegExp(r"@decode:", caseSensitive: false))) {
-            r = r.substring(8);
-            analyzer = AnalyzerDecode();
+            analyzer = AnalyzerFilter();
           } else if (r.startsWith(RegExp(r"@replace:", caseSensitive: false))) {
             r = r.substring(9);
             analyzer = AnalyzerReplace();
