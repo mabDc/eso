@@ -111,7 +111,7 @@ class AnalyzeUrl {
         return http.get(u, headers: headers);
       }
       if(method == "put"){
-        return http.get(u, headers: headers);
+        return http.put(u, headers: headers, body: body);
       }
       if (method == 'post') {
         return http.post(
