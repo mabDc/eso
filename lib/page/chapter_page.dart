@@ -5,6 +5,7 @@ import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
+import 'package:eso/text_composition.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -108,7 +109,6 @@ class _ChapterPageState extends State<ChapterPage> {
         overflow: TextOverflow.ellipsis,
       ),
       brightness: Brightness.dark,
-      titleSpacing: 0.0,
       actions: <Widget>[
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
@@ -247,59 +247,17 @@ class _ChapterPageState extends State<ChapterPage> {
     const horizontalPadding = 20.0;
     final fontSize = 12.0;
     final paragraphPadding = 10.0;
-    final width = MediaQuery.of(context).size.width - 2 * horizontalPadding;
-    final offset = Offset(width, 6);
+    final w = MediaQuery.of(context).size.width;
+    final width = (w > 600 ? w / 2 : w) - 2 * horizontalPadding;
     final fontColor = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
-    final style = TextStyle(
-        fontSize: fontSize, color: fontColor, fontFamily: Profile.staticFontFamily);
-    final paragraphs =
-        description.split(RegExp(r"^\s*|\n\s*")).map((s) => s.trimLeft()).toList();
-    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
-    final spans = <TextSpan>[];
-    final newLine = TextSpan(text: "\n");
-    for (var paragraph in paragraphs) {
-      while (paragraph.isNotEmpty) {
-        tp.text = TextSpan(text: paragraph, style: style);
-        tp.layout(maxWidth: width);
-        final pos = tp.getPositionForOffset(offset).offset;
-        final text = paragraph.substring(0, pos);
-        paragraph = paragraph.substring(pos);
-        if (paragraph.isEmpty) {
-          // 最后一行调整宽度保证单行显示
-          if (width - tp.width - fontSize < 0) {
-            spans.add(TextSpan(
-                text: text,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontFamily: Profile.staticFontFamily,
-                  color: fontColor,
-                  letterSpacing: (width - tp.width) / text.length,
-                )));
-          } else {
-            spans.add(TextSpan(text: text, style: style));
-          }
-          spans.add(newLine);
-          spans.add(TextSpan(
-              text: " ", style: TextStyle(height: 1, fontSize: paragraphPadding)));
-          spans.add(newLine);
-          break;
-        }
-        tp.text = TextSpan(text: text, style: style);
-        tp.layout();
-        spans.add(TextSpan(
-            text: text,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontFamily: Profile.staticFontFamily,
-              color: fontColor,
-              letterSpacing: (width - tp.width) / text.length,
-            )));
-      }
-    }
-    if (spans.length > 1) {
-      spans.removeLast();
-    }
-    if (spans.length == 0) return SizedBox(height: 16);
+    final tc = TextComposition(
+      paragraphs:
+          description.split(RegExp(r"^\s*|(\s{2,}|\n)\s*")).map((s) => s.trimLeft()).toList(),
+      boxSize: Size.fromWidth(width),
+      style: TextStyle(
+          fontSize: fontSize, color: fontColor, fontFamily: Profile.staticFontFamily),
+      paragraph: paragraphPadding,
+    );
     return Container(
       padding: const EdgeInsets.only(
         top: 16.0,
@@ -307,7 +265,7 @@ class _ChapterPageState extends State<ChapterPage> {
         left: horizontalPadding,
         right: horizontalPadding - 5,
       ),
-      child: RichText(text: TextSpan(children: spans)),
+      child: tc.getPageWidget(tc.pages.first),
     );
   }
 
@@ -327,15 +285,19 @@ class _ChapterPageState extends State<ChapterPage> {
               () {
                 try {
                   final chapter = searchItem.chapters[searchItem.durChapterIndex];
-                  return OutlinedButton(
-                    onPressed: () => Navigator.of(context)
-                        .push(ContentPageRoute().route(searchItem))
-                        .whenComplete(provider.adjustScroll),
-                    child: Text(
-                      "${chapter.name}",
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+                  return Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context)
+                          .push(ContentPageRoute().route(searchItem))
+                          .whenComplete(provider.adjustScroll),
+                      child: Text(
+                        "${chapter.name}",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      style: ButtonStyle(alignment: Alignment.centerLeft),
                     ),
                   );
                 } catch (e) {

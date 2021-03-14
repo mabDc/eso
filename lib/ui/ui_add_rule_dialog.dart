@@ -82,15 +82,15 @@ class UIAddRuleDialog extends StatelessWidget {
                       //   onPressed: () => Navigator.of(context).pushReplacement(
                       //       MaterialPageRoute(builder: (context) => EditRulePage())),
                       // ),
-                      FlatButton(
+                      TextButton(
                         child: Text("重置"),
                         onPressed: provider.clear,
                       ),
-                      FlatButton(
+                      TextButton(
                         child: Text("格式化"),
                         onPressed: provider.stringify,
                       ),
-                      FlatButton(
+                      TextButton(
                         child: Text(provider.importText),
                         onPressed: provider.import,
                       ),

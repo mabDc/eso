@@ -172,14 +172,14 @@ class _EditSourcePageState extends State<EditSourcePage> {
           title: title,
           content: content,
           actions: [
-            FlatButton(
+            TextButton(
               child: Text(
                 "取消",
                 style: TextStyle(color: Theme.of(context).hintColor),
               ),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            FlatButton(
+            TextButton(
               child: Text(
                 "确定",
                 style: TextStyle(color: Colors.red),

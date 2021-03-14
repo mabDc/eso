@@ -4,7 +4,6 @@ import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/utils.dart';
 import '../lyric/lyric.dart';
 
@@ -60,7 +59,6 @@ class AudioService {
       });
       _player.onPlayerStateChanged.listen((AudioPlayerState s) {
         _playerState = s;
-        eventBus.fire(AudioStateEvent(_searchItem, s));
       });
       _player.onPlayerCompletion.listen((event) {
         switch (_repeatMode) {
@@ -120,10 +118,7 @@ class AudioService {
     if (_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)) {
       if (allFavorite != true) {
         playChapter(0);
-      } else {
-        eventBus.fire(
-            AudioStateEvent(_searchItem, AudioPlayerState.COMPLETED, playNext: true));
-      }
+      } 
     } else {
       playChapter(_searchItem.durChapterIndex + 1);
     }

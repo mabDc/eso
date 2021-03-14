@@ -5,9 +5,6 @@ import 'package:eso/global.dart';
 import 'package:eso/model/novel_page_provider.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/langding_page.dart';
-import 'package:eso/page/novel/novel_route_view.dart';
-import 'package:eso/page/novel/novel_none_view.dart';
-import 'package:eso/page/novel/novel_scroll_view.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:eso/utils.dart';
@@ -201,17 +198,38 @@ class _NovelPageState extends State<NovelPage> {
   }
 
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
+    if (provider.didUpdateReadSetting(profile)) provider.buildTextComposition(profile);
+
     switch (profile.novelPageSwitch) {
       case Profile.novelScroll:
-        return NovelScrollView(
-            profile: profile, provider: provider, searchItem: searchItem);
+        return Center(
+          child: Container(
+            width: provider.textComposition.boxSize.width,
+            height: provider.textComposition.boxSize.height,
+            child: ListView.builder(
+              itemCount: provider.textComposition.pageCount,
+              itemBuilder: (BuildContext context, int index) {
+                return provider.getTextCompositionPage(index);
+              },
+            ),
+          ),
+        );
       case Profile.novelNone:
-        return NovelNoneView(
-            profile: profile, provider: provider, searchItem: searchItem);
+        return Center(child: provider.getTextCompositionPage());
       case Profile.novelCover:
       case Profile.novelFade:
-        return NovelRoteView(
-            profile: profile, provider: provider, searchItem: searchItem);
+        return Center(
+          child: Container(
+            width: provider.textComposition.boxSize.width,
+            height: provider.textComposition.boxSize.height,
+            child: PageView.builder(
+              itemCount: provider.textComposition.pageCount,
+              itemBuilder: (BuildContext context, int index) {
+                return provider.getTextCompositionPage(index);
+              },
+            ),
+          ),
+        );
       default:
         return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
     }

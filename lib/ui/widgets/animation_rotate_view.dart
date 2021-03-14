@@ -1,8 +1,3 @@
-import 'dart:async';
-
-import 'package:eso/evnts/audio_state_event.dart';
-import 'package:eso/model/audio_service.dart';
-import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
 /// 旋转动画组件
@@ -17,7 +12,6 @@ class AnimationRotateView extends StatefulWidget {
 
 class _AnimationRotateViewState extends State<AnimationRotateView> with SingleTickerProviderStateMixin {
   AnimationController controller;
-  StreamSubscription _stream;
 
   @override
   void initState() {
@@ -30,20 +24,10 @@ class _AnimationRotateViewState extends State<AnimationRotateView> with SingleTi
         controller.forward();
       }
     });
-    if (widget.followAudio) {
-      _stream = eventBus.on<AudioStateEvent>().listen((event) {
-        if (!AudioService.isPlaying) {
-          controller.stop();
-        } else {
-          controller.forward();
-        }
-      });
-    }
   }
 
   @override
   void dispose() {
-    _stream?.cancel();
     controller.dispose();
     super.dispose();
   }

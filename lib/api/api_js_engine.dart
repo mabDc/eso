@@ -122,7 +122,7 @@ lastResult = ${jsonEncode(lastResult)};
 
   static Future<dynamic> evaluate(String command) async {
     await initEngine();
-    return _engine.evaluate(command);
+    return _engine.evaluate(command.replaceAll("let ", "var "));
   }
 
   // static void close() {

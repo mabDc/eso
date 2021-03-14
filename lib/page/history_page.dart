@@ -11,8 +11,56 @@ import '../fonticons_icons.dart';
 import '../global.dart';
 import 'chapter_page.dart';
 
-class HistoryPage extends StatelessWidget {
-  const HistoryPage({Key key}) : super(key: key);
+
+class HistoryPage extends StatefulWidget {
+  @override
+  _HistoryPageState createState() => _HistoryPageState();
+}
+
+class _HistoryPageState extends State<HistoryPage> {
+  var isLargeScreen = false;
+  Widget detailPage;
+
+  @override
+  Widget build(BuildContext context) {
+    return OrientationBuilder(builder: (context, orientation) {
+      if (MediaQuery.of(context).size.width > 600) {
+        isLargeScreen = true;
+      } else {
+        isLargeScreen = false;
+      }
+
+      return Row(children: <Widget>[
+        Expanded(
+          child: HistoryPage2(invokeTap: (Widget detailPage) {
+            if (isLargeScreen) {
+              this.detailPage = detailPage;
+              setState(() {});
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => detailPage,
+                  ));
+            }
+          }),
+        ),
+        SizedBox(
+          height: double.infinity,
+          width:2,
+          child: Material(
+            color: Colors.grey.withAlpha(123),
+          ),
+        ),
+        isLargeScreen ? Expanded(child: detailPage ?? Scaffold()) : Container(),
+      ]);
+    });
+  }
+}
+
+class HistoryPage2 extends StatelessWidget {
+  final void Function(Widget) invokeTap;
+  const HistoryPage2({Key key,this.invokeTap}) : super(key: key);
   void alert(BuildContext context, Widget title, Widget content, VoidCallback handle) =>
       showDialog(
         context: context,
@@ -20,14 +68,14 @@ class HistoryPage extends StatelessWidget {
           title: title,
           content: content,
           actions: [
-            FlatButton(
+            TextButton(
               child: Text(
                 "取消",
                 style: TextStyle(color: Theme.of(context).hintColor),
               ),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            FlatButton(
+            TextButton(
               child: Text(
                 "确定",
                 style: TextStyle(color: Colors.red),
@@ -151,10 +199,7 @@ class HistoryPage extends StatelessWidget {
           provider.checkOne(item.id);
           return;
         }
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ChapterPage(searchItem: item)))
-            .whenComplete(
-                () => Provider.of<HistoryPageProvider>(context, listen: false).refresh());
+       invokeTap(ChapterPage(searchItem: item, key: Key(item.id.toString())));
       },
       child: Container(
         height: 90,

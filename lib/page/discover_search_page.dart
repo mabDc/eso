@@ -42,7 +42,11 @@ class DiscoverSearchPage extends StatefulWidget {
   @override
   _DiscoverSearchPageState createState() => _DiscoverSearchPageState();
 
-  int get viewStyle => rule == null ? 0 : rule.viewStyle == null ? 0 : rule.viewStyle;
+  int get viewStyle => rule == null
+      ? 0
+      : rule.viewStyle == null
+          ? 0
+          : rule.viewStyle;
 
   /// 切换显示样式
   switchViewStyle() async {
@@ -121,7 +125,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           return Scaffold(
             appBar: pageController.showSearchField
                 ? AppBar(
-                    titleSpacing: 0.0,
+                    titleSpacing: 0,
+                    leading: IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => pageController.toggleSearching(),
+                    ),
                     backgroundColor: Theme.of(context).appBarTheme.color,
                     iconTheme: _iconTheme.copyWith(color: _color),
                     actionsIconTheme: _iconTheme.copyWith(color: _color),
@@ -145,7 +153,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                     bottom: _buildAppBarBottom(context, pageController),
                   )
                 : AppBar(
-                    titleSpacing: 0.0,
                     title: Text(pageController.title),
                     actions: <Widget>[
                       IconButton(

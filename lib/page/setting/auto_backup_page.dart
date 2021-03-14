@@ -32,14 +32,14 @@ class AutoBackupPage extends StatelessWidget {
       content: TextField(controller: controller),
       title: Text(title),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text(
             "取消",
             style: TextStyle(color: Theme.of(context).hintColor),
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        FlatButton(
+        TextButton(
           child: Text(
             "确定",
             style: TextStyle(color: Colors.red),
@@ -68,7 +68,6 @@ class AutoBackupPage extends StatelessWidget {
       body: ListView(
         children: [
           Card(
-            margin: EdgeInsets.all(10),
             child: Column(
               children: [
                 ListTile(title: Text('自动备份')),
@@ -118,7 +117,6 @@ class AutoBackupPage extends StatelessWidget {
             ),
           ),
           Card(
-            margin: EdgeInsets.all(10),
             child: Column(
               children: [
                 SwitchListTile(
@@ -183,7 +181,6 @@ class AutoBackupPage extends StatelessWidget {
             ),
           ),
           Card(
-            margin: EdgeInsets.all(10),
             child: Column(
               children: [
                 SwitchListTile(

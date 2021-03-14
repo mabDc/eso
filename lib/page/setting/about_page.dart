@@ -16,8 +16,55 @@ import 'darkmod_page.dart';
 import 'color_lens_page.dart';
 import 'package:about/about.dart';
 
-class AboutPage extends StatelessWidget {
-  const AboutPage({Key key}) : super(key: key);
+class AboutPage extends StatefulWidget {
+  @override
+  _AboutPageState createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  var isLargeScreen = false;
+  Widget detailPage;
+
+  @override
+  Widget build(BuildContext context) {
+    return OrientationBuilder(builder: (context, orientation) {
+      if (MediaQuery.of(context).size.width > 600) {
+        isLargeScreen = true;
+      } else {
+        isLargeScreen = false;
+      }
+
+      return Row(children: <Widget>[
+        Expanded(
+          child: AboutPage2(invokeTap: (Widget detailPage) {
+            if (isLargeScreen) {
+              this.detailPage = detailPage;
+              setState(() {});
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => detailPage,
+                  ));
+            }
+          }),
+        ),
+        SizedBox(
+          height: double.infinity,
+          width:2,
+          child: Material(
+            color: Colors.grey.withAlpha(123),
+          ),
+        ),
+        isLargeScreen ? Expanded(child: detailPage ?? Scaffold()) : Container(),
+      ]);
+    });
+  }
+}
+
+class AboutPage2 extends StatelessWidget {
+  final void Function(Widget) invokeTap;
+  const AboutPage2({Key key, this.invokeTap}) : super(key: key);
 
   joinGroup([String group]) {
     final key =
@@ -41,7 +88,6 @@ class AboutPage extends StatelessWidget {
       body: Consumer<Profile>(
         builder: (BuildContext context, Profile profile, Widget widget) {
           return ListView(
-            padding: const EdgeInsets.all(8.0),
             children: <Widget>[
               Card(
                 child: Column(
@@ -57,18 +103,17 @@ class AboutPage extends StatelessWidget {
                       ListTile(
                         title: Text('历史记录'),
                         subtitle: Text('浏览历史，界面设置可关闭'),
-                        onTap: () => Utils.startPageWait(context, HistoryPage()),
+                        onTap: () => invokeTap(HistoryPage2(invokeTap: invokeTap,)),
                       ),
                     ListTile(
                       title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
-                      onTap: () => Utils.startPageWait(context, EditSourcePage()),
+                      onTap: () =>invokeTap(EditSourcePage()), 
                     ),
                     ListTile(
                       title: Text('备份恢复和webdav'),
                       subtitle: Text('自动备份与恢复，webdav与规则分享'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => AutoBackupPage())),
+                      onTap: () => invokeTap(AutoBackupPage()),
                     ),
                     ListTile(
                       title: Text('清理缓存'),
@@ -81,12 +126,12 @@ class AboutPage extends StatelessWidget {
                             title: Text("清理缓存"),
                             content: Text("此操作将会清除小说缓存，请确定是否继续！"),
                             actions: <Widget>[
-                              FlatButton(
+                              TextButton(
                                   child: Text('取消',
                                       style:
                                           TextStyle(color: Theme.of(context).hintColor)),
                                   onPressed: () => Navigator.pop(context)),
-                              FlatButton(
+                              TextButton(
                                   child: Text('立即清理'),
                                   onPressed: () async {
                                     Navigator.pop(context);
@@ -115,26 +160,22 @@ class AboutPage extends StatelessWidget {
                     ListTile(
                       title: Text('界面与布局'),
                       subtitle: Text('正文状态栏信息栏和按钮布局'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => UISetting())),
+                      onTap: () =>invokeTap(UISetting()), 
                     ),
                     ListTile(
                       title: Text('夜间模式'),
                       subtitle: Text('切换夜间模式'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => DarkModpage())),
+                      onTap: () => invokeTap(DarkModpage()),  
                     ),
                     ListTile(
                       title: Text('调色板'),
                       subtitle: Text('修改主题色'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => ColorLensPage())),
+                      onTap: () => invokeTap(ColorLensPage()),
                     ),
                     ListTile(
                       title: Text('字体管理'),
                       subtitle: Text('全局界面、正文字体设置'),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => FontFamilyPage())),
+                      onTap: () => invokeTap(FontFamilyPage()),
                     ),
                   ],
                 ),

@@ -300,8 +300,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
           }
 
           return Stack(
-            
-            // overflow: Overflow.visible,
+            clipBehavior: Clip.none,
             children: <Widget>[
 //                  ..._points,
               Container(
@@ -309,7 +308,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
                 height: _containerHeight,
                 width: _containerWidth,
                 child: Stack(
-                  // overflow: Overflow.visible,
+                  clipBehavior: Clip.none,
                   children: drawHandlers(),
                 ),
                 foregroundDecoration: widget.foregroundDecoration,
@@ -1438,7 +1437,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
         child: Draggable(
             axis: widget.axis,
             child: Stack(
-              // overflow: Overflow.visible,
+              clipBehavior: Clip.none,
               children: <Widget>[
                 _tooltip(
                     offsetLeft: _leftHandlerXPosition,
@@ -1536,7 +1535,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
     }
   }
 
-  Widget _rightHandlerWidget() {
+  Positioned _rightHandlerWidget() {
     double bottom;
     double right;
     if (widget.axis == Axis.horizontal) {
@@ -1544,10 +1543,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
     } else {
       right = 0;
     }
-    if (_rightHandlerXPosition != null && _rightHandlerXPosition.isNaN)
-      return SizedBox();
-    if (_rightHandlerYPosition != null && _rightHandlerYPosition.isNaN)
-      return SizedBox();
+
     return Positioned(
       key: Key('rightHandler'),
       left: _rightHandlerXPosition,
@@ -1558,7 +1554,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
         child: Draggable(
             axis: Axis.horizontal,
             child: Stack(
-              // overflow: Overflow.visible,
+              clipBehavior: Clip.none,
               children: <Widget>[
                 _tooltip(
                     offsetLeft: _rightHandlerXPosition,
@@ -1674,7 +1670,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
   }
 
   drawHandlers() {
-    List<Widget> items = []..addAll([
+    List<Positioned> items = []..addAll([
         Function.apply(_inactiveTrack, []),
         Function.apply(_centralWidget, []),
         Function.apply(_activeTrack, []),
@@ -1996,9 +1992,9 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
       if (_tooltipData.positionOffset.bottom != null)
         bottom += _tooltipData.positionOffset.bottom;
     }
-    if(_tooltipData.absolutePosition && left != null){
-      left -=  offsetLeft;
-      right +=  offsetLeft;
+    if (_tooltipData.absolutePosition && left != null) {
+      left -= offsetLeft;
+      right += offsetLeft;
     }
 
     tooltipWidget = SlideTransition(position: animation, child: tooltipWidget);
@@ -2061,7 +2057,7 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
     );
   }
 
-  Widget _activeTrack() {
+  Positioned _activeTrack() {
     BoxDecoration boxDecoration = widget.trackBar.activeTrackBar ?? BoxDecoration();
 
     Color trackBarColor = boxDecoration.color ?? Color(0xff2196F3);
@@ -2116,9 +2112,6 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
         }
       }
     }
-
-    if (width.isNaN || height.isNaN)
-      return SizedBox();
 
     width = (width < 0) ? 0 : width;
     height = (height < 0) ? 0 : height;
@@ -2402,9 +2395,7 @@ class FlutterSliderTooltip {
         '-' +
         direction.toString() +
         '-' +
-        positionOffset.toString() +
-        '-' +
-        absolutePosition.toString();
+        positionOffset.toString();
   }
 }
 

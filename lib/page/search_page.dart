@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
-import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
@@ -16,8 +15,6 @@ import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'chapter_page.dart';
-
 class SearchPage extends StatefulWidget {
   SearchPage({Key key}) : super(key: key);
 
@@ -26,10 +23,26 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  var isLargeScreen = false;
+  Widget detailPage;
+
+  void invokeTap(Widget detailPage) {
+    if (isLargeScreen) {
+      this.detailPage = detailPage;
+      setState(() {});
+    } else {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => detailPage,
+          ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = Provider.of<Profile>(context, listen: false);
-    return ChangeNotifierProvider(
+    final child = ChangeNotifierProvider(
         create: (context) => SearchProvider(
               threadCount: profile.searchCount,
               searchOption: SearchOption.values[profile.searchOption],
@@ -160,7 +173,7 @@ class _SearchPageState extends State<SearchPage> {
                         alignment: Alignment.center,
                         child: Row(
                           children: [
-                            FlatButton(
+                            TextButton(
                               onPressed: null,
                               child: Text("结果过滤"),
                             ),
@@ -168,7 +181,7 @@ class _SearchPageState extends State<SearchPage> {
                             _buildFilterOpt(provider, profile, '普通', SearchOption.Normal),
                             _buildFilterOpt(
                                 provider, profile, '精确', SearchOption.Accurate),
-                            FlatButton(
+                            TextButton(
                               onPressed: null,
                               child: Text("并发数"),
                             ),
@@ -263,12 +276,14 @@ class _SearchPageState extends State<SearchPage> {
                                               item: searchList[index],
                                               showType: true,
                                             ),
-                                            onTap: () => Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) => ChapterPage(
-                                                    searchItem: searchList[index]),
-                                              ),
-                                            ),
+                                            onTap: () {
+                                              // Navigator.of(context).push(
+                                              // MaterialPageRoute(
+                                              //   builder: (context) => ChapterPage(
+                                              //       searchItem: searchList[index]),
+                                              // )
+                                              invokeTap(detailPage);
+                                            },
                                           );
                                         },
                                       ),
@@ -280,6 +295,27 @@ class _SearchPageState extends State<SearchPage> {
             ),
           );
         });
+    return OrientationBuilder(builder: (context, orientation) {
+      if (MediaQuery.of(context).size.width > 600) {
+        isLargeScreen = true;
+      } else {
+        isLargeScreen = false;
+      }
+
+      return Row(children: <Widget>[
+        Expanded(
+          child: child,
+        ),
+        SizedBox(
+          height: double.infinity,
+          width: 2,
+          child: Material(
+            color: Colors.grey.withAlpha(123),
+          ),
+        ),
+        isLargeScreen ? Expanded(child: detailPage ?? Scaffold()) : Container(),
+      ]);
+    });
   }
 
   _buildFilterOpt(
@@ -288,18 +324,18 @@ class _SearchPageState extends State<SearchPage> {
     return ButtonTheme(
       height: 25,
       minWidth: 55,
-      child: FlatButton(
+      child: TextButton(
         onPressed: () {
           provider.searchOption = searchOption;
           profile.searchOption = searchOption.index;
         },
-        shape: RoundedRectangleBorder(
+        style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>( RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: _selected
               ? BorderSide(
                   color: Theme.of(context).primaryColor, width: Global.borderSize)
               : BorderSide.none,
-        ),
+        )),),
         child: Text(text, maxLines: 1),
       ),
     );

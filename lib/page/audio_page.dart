@@ -1,10 +1,8 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/evnts/audio_state_event.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/profile.dart';
@@ -38,7 +36,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   Widget _audioPage;
   AudioPageController __provider;
   SearchItem searchItem;
-  StreamSubscription stream;
   LyricController _lyricController;
   bool _showSelect = false;
   @override
@@ -54,12 +51,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
     searchItem = widget.searchItem;
     super.initState();
 
-    stream = eventBus.on<AudioStateEvent>().listen((event) {
-      if (event.state == AudioPlayerState.PLAYING && searchItem != event.item) {
-        searchItem = event.item;
-        if (__provider != null) __provider.update();
-      }
-    });
   }
 
   @override
@@ -73,7 +64,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     __provider?.dispose();
-    stream?.cancel();
     _lyricController?.dispose();
     super.dispose();
   }

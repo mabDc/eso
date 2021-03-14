@@ -123,41 +123,41 @@ class UIMangaMenu extends StatelessWidget {
                   Text("方向"),
                   SizedBox(width: 20),
                   Expanded(
-                    child: OutlineButton(
+                    child: OutlinedButton(
                       child: Text("上->下", style: TextStyle(color: color)),
                       onPressed: () {
                         profile.mangaDirection = Profile.mangaDirectionTopToBottom;
                       },
-                      shape: RoundedRectangleBorder(
+                      style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
-                      ),
+                      ))),
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: OutlineButton(
+                    child: OutlinedButton(
                       child: Text("左->右", style: TextStyle(color: color)),
                       onPressed: () {
                         profile.mangaDirection = Profile.mangaDirectionLeftToRight;
                       },
-                      shape: RoundedRectangleBorder(
+                      style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
-                      ),
+                      ))),
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: OutlineButton(
+                    child: OutlinedButton(
                       child: Text("右->左", style: TextStyle(color: color)),
                       onPressed: () {
                         profile.mangaDirection = Profile.mangaDirectionRightToLeft;
                       },
-                      shape: RoundedRectangleBorder(
+                      style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
-                      ),
+                      ))),
                     ),
                   ),
                 ],
@@ -386,11 +386,12 @@ class UIMangaMenu extends StatelessWidget {
                     ),
                     touchSize: 30,
                     tooltip: FlutterSliderTooltip(
+                      alwaysShowTooltip: true,
                       disableAnimation: true,
                       absolutePosition: true,
                       positionOffset: FlutterSliderTooltipPositionOffset(
                         left: -20,
-                        top: -20,
+                        top: -12,
                         right: 160 - MediaQuery.of(context).size.width,
                       ),
                       custom: (value) {
@@ -410,7 +411,7 @@ class UIMangaMenu extends StatelessWidget {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontFamily: Profile.staticFontFamily,
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   ),
                                 ),
                               ),
@@ -421,7 +422,7 @@ class UIMangaMenu extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   fontFamily: Profile.staticFontFamily,
                                   color: color.withOpacity(0.7),
-                                  fontSize: 20,
+                                  fontSize: 18,
                                 ),
                               ),
                             ],

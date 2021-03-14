@@ -310,11 +310,12 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
       height: 45.0,
       width: double.infinity,
       margin: margin,
-      child: FlatButton(
+      child: TextButton(
         child: text,
         onPressed: onTap,
-        shape: RoundedRectangleBorder(
-            borderRadius: borderRadius ?? BorderRadius.zero, side: borderSide),
+        style: ButtonStyle(
+            shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+                borderRadius: borderRadius ?? BorderRadius.zero, side: borderSide))),
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,

@@ -35,7 +35,6 @@ dependencies:
   dlna: ^0.0.5
   encrypt: ^4.1.0
   equatable: ^1.2.6
-  event_bus: ^1.1.1
   fast_gbk: ^0.1.2+1
   file_chooser: ^0.1.6
   file_picker: ^2.1.6
@@ -57,7 +56,6 @@ dependencies:
   permission_handler: ^5.1.0+2
   photo_view: ^0.10.3
   provider: ^4.3.3
-  pull_to_refresh: ^1.6.4
   screen: ^0.0.5
   scrollable_positioned_list: ^0.1.10
   shared_preferences: ^0.5.12+4

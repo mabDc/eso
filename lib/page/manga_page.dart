@@ -131,7 +131,7 @@ class _MangaPageState extends State<MangaPage> {
       itemCount: provider.content.length + 2,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return FlatButton(
+          return TextButton(
             onPressed: () => provider.loadChapterHideLoading(true),
             child: Container(
               alignment: Alignment.topLeft,
@@ -155,7 +155,7 @@ class _MangaPageState extends State<MangaPage> {
           );
         }
         if (index == provider.content.length + 1) {
-          return FlatButton(
+          return TextButton(
             onPressed: () => provider.loadChapterHideLoading(false),
             child: Container(
               alignment: Alignment.topLeft,

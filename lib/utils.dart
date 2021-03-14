@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:eso/database/search_item.dart';
-import 'package:event_bus/event_bus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -11,7 +9,6 @@ import 'package:path/path.dart' as path;
 import 'profile.dart';
 
 /// 事件bus
-EventBus eventBus = EventBus();
 
 class Utils {
   static String getUrl(String host, String url){

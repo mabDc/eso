@@ -195,7 +195,7 @@ class DLNAUtil {
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        FlatButton(child: Text(isSearching ? "停止搜索" : "搜索设备"), onPressed: () async {
+                        TextButton(child: Text(isSearching ? "停止搜索" : "搜索设备"), onPressed: () async {
                           if (!isSearching) {
                             if (_devices.isEmpty){
                               manager.startSearch();

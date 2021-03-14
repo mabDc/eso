@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/menu/menu.dart';
@@ -16,8 +15,7 @@ import 'package:flutter_share/flutter_share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
 import '../../fonticons_icons.dart';
-import '../discover_search_page.dart';
-import '../langding_page.dart';
+import '../discover_page.dart';
 import 'login_rule_page.dart';
 
 class EditRulePage extends StatefulWidget {
@@ -40,6 +38,21 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   bool _chapterExpanded = true;
   bool _contentExpanded = true;
   ScrollController _controller;
+
+  var isLargeScreen = false;
+  Widget detailPage;
+  void invokeTap(Widget detailPage) {
+    if (isLargeScreen) {
+      this.detailPage = detailPage;
+      setState(() {});
+    } else {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => detailPage,
+          ));
+    }
+  }
 
   @override
   void initState() {
@@ -168,7 +181,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _searchExpanded = rule.enableSearch;
     }
 
-    return Scaffold(
+    final child = Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
@@ -200,8 +213,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
               await Global.ruleDao.insertOrUpdateRule(rule);
               isLoading = false;
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
+              // Navigator.of(context).push(
+              //     MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
+              invokeTap(DebugRulePage(rule: rule));
             },
           ),
           _buildpopupMenu(context),
@@ -241,6 +255,27 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         ],
       ),
     );
+    return OrientationBuilder(builder: (context, orientation) {
+      if (MediaQuery.of(context).size.width > 600) {
+        isLargeScreen = true;
+      } else {
+        isLargeScreen = false;
+      }
+
+      return Row(children: <Widget>[
+        Expanded(
+          child: child,
+        ),
+        SizedBox(
+          height: double.infinity,
+          width: 2,
+          child: Material(
+            color: Colors.grey.withAlpha(123),
+          ),
+        ),
+        isLargeScreen ? Expanded(child: detailPage ?? Scaffold()) : Container(),
+      ]);
+    });
   }
 
   Widget _buildInputHelp(Map<String, String> inputList) {
@@ -716,9 +751,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       onSelect: (value) {
         switch (value) {
           case MenuEditRule.login:
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)))
-                .whenComplete(() => setState(() {}));
+            // Navigator.of(context)
+            //     .push(MaterialPageRoute(builder: (context) => LoginRulePage(rule: rule)))
+            //     .whenComplete(() => setState(() {}));
+            invokeTap(LoginRulePage(rule: rule));
             break;
           case MenuEditRule.import:
             _loadFromClipBoard(context, false);
@@ -743,30 +779,31 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             );
             break;
           case MenuEditRule.preview:
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => FutureBuilder<List<DiscoverMap>>(
-                  future: APIFromRUle(rule).discoverMap(),
-                  initialData: null,
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.hasError) {
-                      return Scaffold(
-                        body: Text("error: ${snapshot.error}"),
-                      );
-                    }
-                    if (!snapshot.hasData) {
-                      return LandingPage();
-                    }
-                    return DiscoverSearchPage(
-                      rule: rule,
-                      originTag: rule.id,
-                      origin: rule.name,
-                      discoverMap: snapshot.data,
-                    );
-                  },
-                ),
-              ),
-            );
+            // Navigator.of(context).push(
+            //   MaterialPageRoute(
+            //     builder: (context) => FutureBuilder<List<DiscoverMap>>(
+            //       future: APIFromRUle(rule).discoverMap(),
+            //       initialData: null,
+            //       builder: (BuildContext context, AsyncSnapshot snapshot) {
+            //         if (snapshot.hasError) {
+            //           return Scaffold(
+            //             body: Text("error: ${snapshot.error}"),
+            //           );
+            //         }
+            //         if (!snapshot.hasData) {
+            //           return LandingPage();
+            //         }
+            //         return DiscoverSearchPage(
+            //           rule: rule,
+            //           originTag: rule.id,
+            //           origin: rule.name,
+            //           discoverMap: snapshot.data,
+            //         );
+            //       },
+            //     ),
+            //   ),
+            // );
+            invokeTap(DiscoverFuture(rule: rule));
             break;
           case MenuEditRule.delete:
             final _context = context;
@@ -777,14 +814,14 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                   title: Text("警告(不可恢复)"),
                   content: Text("删除 ${rule.name}"),
                   actions: [
-                    FlatButton(
+                    TextButton(
                       child: Text(
                         "取消",
                         style: TextStyle(color: Theme.of(context).hintColor),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                    FlatButton(
+                    TextButton(
                       child: Text(
                         "确定",
                         style: TextStyle(color: Colors.red),

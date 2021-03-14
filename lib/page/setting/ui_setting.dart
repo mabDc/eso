@@ -1,6 +1,7 @@
 import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../fonticons_icons.dart';
 
@@ -9,7 +10,7 @@ class UISetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Profile();
+    final profile = Provider.of<Profile>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         title: Text('界面与布局'),
@@ -78,11 +79,11 @@ class UISetting extends StatelessWidget {
                   onChanged: (value) => profile.showHistoryOnAbout = value,
                 ),
                 SwitchListTile(
-                  title: Text('TV模式'),
-                  subtitle: Text('(并没有)'),
-                  value: false,
+                  title: Text('横屏模式 平板 TV'),
+                  subtitle: Text('请开启自动旋转 宽度大于600时自动启用'),
+                  value: MediaQuery.of(context).size.width > 600,
                   onChanged: (value) {
-                    Utils.toast("...");
+                    Utils.toast("不需要手动设置");
                   },
                 ),
               ],

@@ -13,8 +13,9 @@ import 'chapter_page.dart';
 
 /// 收藏夹列表页
 class FavoriteListPage extends StatelessWidget {
+  final void Function(Widget) invokeTap;
   final int type;
-  const FavoriteListPage({this.type, Key key}) : super(key: key);
+  const FavoriteListPage({this.type, Key key, this.invokeTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +130,7 @@ class FavoriteListPage extends StatelessWidget {
         return GridView.builder(
           padding: EdgeInsets.symmetric(horizontal: 6),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _size.width < _size.height ? 3 : 5,
+            crossAxisCount: 3,
             childAspectRatio: 0.55,
             mainAxisSpacing: 0,
             crossAxisSpacing: 0,
@@ -137,11 +138,9 @@ class FavoriteListPage extends StatelessWidget {
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
             final searchItem = searchItems[index];
-            final longPress = Provider.of<Profile>(context, listen: true).switchLongPress;
-            VoidCallback openChapter = () => Navigator.of(context)
-                .push(MaterialPageRoute(
-                    builder: (context) => ChapterPage(searchItem: searchItem)))
-                .whenComplete(() => provider.updateList());
+            final longPress = _size.width > 600 ||
+                Provider.of<Profile>(context, listen: true).switchLongPress;
+            VoidCallback openChapter = () =>  invokeTap(ChapterPage(searchItem: searchItem, key: Key(searchItem.id.toString()),));
             VoidCallback openContent = () => Navigator.of(context)
                 .push(ContentPageRoute().route(searchItem))
                 .whenComplete(() => provider.updateList());

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
+import 'package:eso/database/rule.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_discover_source.dart';
 import 'package:eso/menu/menu_edit_source.dart';
@@ -25,6 +26,35 @@ import '../global.dart';
 import '../ui/ui_add_rule_dialog.dart';
 import 'source/edit_rule_page.dart';
 
+class DiscoverFuture extends StatelessWidget {
+  final Rule rule;
+  const DiscoverFuture({Key key, this.rule}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<DiscoverMap>>(
+      future: APIFromRUle(rule).discoverMap(),
+      initialData: null,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Text("error: ${snapshot.error}"),
+          );
+        }
+        if (!snapshot.hasData) {
+          return LandingPage();
+        }
+        return DiscoverSearchPage(
+          rule: rule,
+          originTag: rule.id,
+          origin: rule.name,
+          discoverMap: snapshot.data,
+        );
+      },
+    );
+  }
+}
+
 class DiscoverPage extends StatefulWidget {
   @override
   _DiscoverPageState createState() => _DiscoverPageState();
@@ -34,6 +64,22 @@ class _DiscoverPageState extends State<DiscoverPage> {
   Widget _page;
   EditSourceProvider __provider;
   TextEditingController _searchEdit = TextEditingController();
+
+  var isLargeScreen = false;
+  Widget detailPage;
+
+  void invokeTap(Widget detailPage) {
+    if (isLargeScreen) {
+      this.detailPage = detailPage;
+      setState(() {});
+    } else {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => detailPage,
+          ));
+    }
+  }
 
   static int _lastContextType = -1;
 
@@ -48,7 +94,27 @@ class _DiscoverPageState extends State<DiscoverPage> {
     if (_page == null) {
       _page = _buildPage();
     }
-    return _page;
+    return OrientationBuilder(builder: (context, orientation) {
+      if (MediaQuery.of(context).size.width > 600) {
+        isLargeScreen = true;
+      } else {
+        isLargeScreen = false;
+      }
+
+      return Row(children: <Widget>[
+        Expanded(
+          child: _page,
+        ),
+        SizedBox(
+          height: double.infinity,
+          width: 2,
+          child: Material(
+            color: Colors.grey.withAlpha(123),
+          ),
+        ),
+        isLargeScreen ? Expanded(child: detailPage ?? Scaffold()) : Container(),
+      ]);
+    });
   }
 
   Widget _buildPage() {
@@ -190,27 +256,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
   Widget _buildItem(EditSourceProvider provider, int index) {
     final rule = provider.rules[index];
     Widget _child = ListTile(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => FutureBuilder<List<DiscoverMap>>(
-                future: APIFromRUle(rule).discoverMap(),
-                initialData: null,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasError) {
-                    return Scaffold(
-                      body: Text("error: ${snapshot.error}"),
-                    );
-                  }
-                  if (!snapshot.hasData) {
-                    return LandingPage();
-                  }
-                  return DiscoverSearchPage(
-                    rule: rule,
-                    originTag: rule.id,
-                    origin: rule.name,
-                    discoverMap: snapshot.data,
-                  );
-                },
-              ))),
+      onTap: () => invokeTap(DiscoverFuture(rule: rule, key: Key(rule.id.toString()))),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
@@ -286,14 +332,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       title: Text("警告(不可恢复)"),
                       content: Text("删除 ${rule.name}"),
                       actions: [
-                        FlatButton(
+                        TextButton(
                           child: Text(
                             "取消",
                             style: TextStyle(color: Theme.of(context).hintColor),
                           ),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
-                        FlatButton(
+                        TextButton(
                           child: Text(
                             "确定",
                             style: TextStyle(color: Colors.red),
@@ -341,7 +387,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             spacing: 8,
             runSpacing: 6,
             children: [
-              FlatButton(
+              TextButton(
                 child: Text("导入规则", style: _txtStyle),
                 onPressed: () => showDialog(
                   context: context,
@@ -349,12 +395,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       UIAddRuleDialog(refresh: () => refreshData(provider)),
                 ),
               ),
-              FlatButton(
+              TextButton(
                 child: Text("新建规则", style: _txtStyle),
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => EditRulePage())),
               ),
-              FlatButton(
+              TextButton(
                 child: Text("规则管理", style: _txtStyle),
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) => EditSourcePage())),

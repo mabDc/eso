@@ -55,12 +55,13 @@ class UINovelMenu extends StatelessWidget {
             _buildPopupMenu(context, bgColor, color),
           ],
         ),
+        SizedBox(height: 6),
         Wrap(
           children: [
-            RaisedButton(onPressed: provider.speak, child: Text('朗读')),
-            RaisedButton(onPressed: provider.stop, child: Text('停止')),
-            RaisedButton(onPressed: provider.prevPara, child: Text('上一段')),
-            RaisedButton(onPressed: provider.nextPara, child: Text('下一段')),
+            ElevatedButton(onPressed: provider.speak, child: Text('朗读')),
+            ElevatedButton(onPressed: provider.stop, child: Text('停止')),
+            ElevatedButton(onPressed: provider.prevPara, child: Text('上一段')),
+            ElevatedButton(onPressed: provider.nextPara, child: Text('下一段')),
           ],
         ),
         Spacer(),
@@ -381,7 +382,7 @@ class UINovelMenu extends StatelessWidget {
                     flex: 4,
                     child: Container(
                       height: 28,
-                      child: FlatButton(
+                      child: TextButton(
                         child: Text('字体管理'),
                         onPressed: () => showDialog(
                           context: context,
@@ -392,9 +393,12 @@ class UINovelMenu extends StatelessWidget {
                             ),
                           ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          side: BorderSide(color: color, width: Global.borderSize),
+                        style: ButtonStyle(
+                          shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            side: BorderSide(color: color, width: Global.borderSize),
+                          )),
                         ),
                       ),
                     ),
@@ -807,11 +811,12 @@ class UINovelMenu extends StatelessWidget {
                     ),
                     touchSize: 30,
                     tooltip: FlutterSliderTooltip(
+                      alwaysShowTooltip: true,
                       disableAnimation: true,
                       absolutePosition: true,
                       positionOffset: FlutterSliderTooltipPositionOffset(
                         left: -20,
-                        top: -20,
+                        top: -12,
                         right: 160 - MediaQuery.of(context).size.width,
                       ),
                       custom: (value) {
@@ -820,20 +825,19 @@ class UINovelMenu extends StatelessWidget {
                           width: MediaQuery.of(context).size.width,
                           color: bgColor,
                           padding: EdgeInsets.all(16),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                searchItem.chapters[index - 1].name,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: Profile.staticFontFamily,
-                                  fontSize: 20,
+                              Expanded(
+                                child: Text(
+                                  searchItem.chapters[index - 1].name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: Profile.staticFontFamily,
+                                    fontSize: 18,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 10,
                               ),
                               Text(
                                 "$index / ${searchItem.chaptersCount}",
@@ -842,7 +846,7 @@ class UINovelMenu extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   fontFamily: Profile.staticFontFamily,
                                   color: color.withOpacity(0.7),
-                                  fontSize: 20,
+                                  fontSize: 18,
                                 ),
                               ),
                             ],

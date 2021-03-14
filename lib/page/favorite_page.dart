@@ -10,8 +10,56 @@ import '../fonticons_icons.dart';
 import 'history_page.dart';
 import 'search_page.dart';
 
-class FavoritePage extends StatelessWidget {
-  const FavoritePage({Key key}) : super(key: key);
+
+class FavoritePage extends StatefulWidget {
+  @override
+  _FavoritePageState createState() => _FavoritePageState();
+}
+
+class _FavoritePageState extends State<FavoritePage> {
+  var isLargeScreen = false;
+  Widget detailPage;
+
+  @override
+  Widget build(BuildContext context) {
+    return OrientationBuilder(builder: (context, orientation) {
+      if (MediaQuery.of(context).size.width > 600) {
+        isLargeScreen = true;
+      } else {
+        isLargeScreen = false;
+      }
+
+      return Row(children: <Widget>[
+        Expanded(
+          child: FavoritePage2(invokeTap: (Widget detailPage) {
+            if (isLargeScreen) {
+              this.detailPage = detailPage;
+              setState(() {});
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => detailPage,
+                  ));
+            }
+          }),
+        ),
+        SizedBox(
+          height: double.infinity,
+          width:2,
+          child: Material(
+            color: Colors.grey.withAlpha(123),
+          ),
+        ),
+        isLargeScreen ? Expanded(child: detailPage ?? Scaffold()) : Container(),
+      ]);
+    });
+  }
+}
+
+class FavoritePage2 extends StatelessWidget {
+  final void Function(Widget) invokeTap;
+  const FavoritePage2({Key key, this.invokeTap}) : super(key: key);
 
   static const tabs = [
     ["文字", API.NOVEL],
@@ -25,7 +73,7 @@ class FavoritePage extends StatelessWidget {
     final profile = Profile();
     if (profile.version != profile.lastestVersion) {
       Future.delayed(
-          Duration(milliseconds: 10), () => AboutPage.showAbout(context, true));
+          Duration(milliseconds: 10), () => AboutPage2.showAbout(context, true));
     } else {
       AutoBackupPage.backup(true);
       AutoBackupPage.shareRule(true);
@@ -66,18 +114,18 @@ class FavoritePage extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.history),
                 tooltip: "浏览历史",
-                onPressed: () => Utils.startPageWait(context, HistoryPage()),
+                onPressed: () => invokeTap(HistoryPage()),
               ),
             if (profile.bottomCount != 4)
               IconButton(
                 icon: Icon(FIcons.settings),
                 tooltip: "设置",
-                onPressed: () => Utils.startPageWait(context, AboutPage()),
+                onPressed: () => invokeTap(AboutPage()),
               ),
           ],
         ),
         body: TabBarView(
-          children: tabs.map((tab) => FavoriteListPage(type: tab[1])).toList(),
+          children: tabs.map((tab) => FavoriteListPage(type: tab[1], invokeTap:invokeTap)).toList(),
         ),
       ),
     );
