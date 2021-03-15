@@ -16,7 +16,7 @@ import '../database/search_item.dart';
 import 'package:flutter/material.dart';
 
 import '../profile.dart';
-import '../text_composition.dart';
+import 'package:text_composition/text_composition.dart';
 
 class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
@@ -24,8 +24,8 @@ class NovelPageProvider with ChangeNotifier {
   int get progress => _progress;
   List<String> _paragraphs;
   List<String> get paragraphs => _paragraphs;
-  ScrollController _controller;
-  ScrollController get controller => _controller;
+  PageController _controller;
+  PageController get controller => _controller;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -95,7 +95,7 @@ class NovelPageProvider with ChangeNotifier {
     _showMenu = false;
     _showSetting = false;
     _useSelectableText = false;
-    _controller = ScrollController();
+    _controller = PageController();
     _progress = 0;
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
@@ -114,8 +114,6 @@ class NovelPageProvider with ChangeNotifier {
         Screen.keepOn(keepOn);
       }
     }
-    _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
-    // await CacheUtil().clear(allCache: true);
     _paragraphs = await loadContent(searchItem.durChapterIndex);
     if (this.mounted) notifyListeners();
   }
@@ -123,20 +121,6 @@ class NovelPageProvider with ChangeNotifier {
   Map<int, List<String>> _cache;
   CacheUtil _fileCache;
   static bool _requestPermission = false;
-
-  /// 切换章节
-  switchChapter(Profile profile, int index) async {
-    switch (profile.novelPageSwitch) {
-      case Profile.novelHorizontalSlide:
-      case Profile.novelVerticalSlide:
-        print("switchChapter");
-        break;
-      default:
-        var _data = await loadChapter(index);
-        if (_data != null) this._paragraphs = _data;
-        break;
-    }
-  }
 
   void clearCurrent() async {
     _cache.clear();
@@ -397,8 +381,11 @@ class NovelPageProvider with ChangeNotifier {
 
     if (changeCurChapter) {
       // 滚动模式
-      if (_readSetting?.pageSwitch == Profile.novelScroll) {
-        _controller.jumpTo(1);
+      if (_readSetting?.pageSwitch != Profile.novelNone) {
+        _readSetting.durChapterIndex = searchItem.durChapterIndex;
+        buildTextComposition(Profile());
+        // _controller = PageController(initialPage: currentPage);
+        _controller.jumpToPage(_currentPage - 1);
       }
     }
 
@@ -407,14 +394,6 @@ class NovelPageProvider with ChangeNotifier {
       notifyListeners();
     }
     return _data;
-  }
-
-  /// 加载上一章或下一章，不显示loading
-  loadChapterHideLoading(bool lastChapter) async {
-    final loadIndex =
-        lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
-    if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
-    await loadChapter(loadIndex, notify: false, changeCurChapter: true);
   }
 
   /// 更新当前章节信息
@@ -441,66 +420,32 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   void tapNextPage() {
-    if (_readSetting.pageSwitch == Profile.novelScroll) {
-      final leftHeight =
-          _controller.position.maxScrollExtent - _controller.position.pixels;
-      if (leftHeight > height) {
-        _controller.animateTo(
-          _controller.position.pixels + height,
-          duration: Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      } else if (leftHeight < 200) {
-        loadChapter(searchItem.durChapterIndex + 1);
-      } else {
-        _controller.animateTo(
-          _controller.position.maxScrollExtent - 40,
-          duration: Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
-    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
-        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-    } else {
-      if (_currentPage < textComposition.pageCount) {
-        _currentPage++;
-        searchItem.durContentIndex =
-            (_currentPage * 10000 / textComposition.pageCount).floor();
+    if (_currentPage < textComposition.pageCount) {
+      _currentPage++;
+      searchItem.durContentIndex =
+          (_currentPage * 10000 / textComposition.pageCount).floor();
+      if (_readSetting.pageSwitch == Profile.novelNone) {
         notifyListeners();
       } else {
-        loadChapter(searchItem.durChapterIndex + 1);
+        _controller.jumpToPage(_currentPage - 1);
       }
+    } else {
+      loadChapter(searchItem.durChapterIndex + 1);
     }
   }
 
   void tapLastPage() {
-    if (_readSetting.pageSwitch == Profile.novelScroll) {
-      if (_controller.position.pixels > height) {
-        _controller.animateTo(
-          _controller.position.pixels - height,
-          duration: Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      } else if (_controller.position.pixels < 10) {
-        loadChapter(searchItem.durChapterIndex - 1);
-      } else {
-        _controller.animateTo(
-          1,
-          duration: Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
-    } else if (_readSetting.pageSwitch == Profile.novelHorizontalSlide ||
-        _readSetting.pageSwitch == Profile.novelVerticalSlide) {
-    } else {
-      if (_currentPage > 1) {
-        _currentPage--;
-        searchItem.durContentIndex =
-            (_currentPage * 10000 / textComposition.pageCount).floor();
+    if (_currentPage > 1) {
+      _currentPage--;
+      searchItem.durContentIndex =
+          (_currentPage * 10000 / textComposition.pageCount).floor();
+      if (_readSetting.pageSwitch == Profile.novelNone) {
         notifyListeners();
       } else {
-        loadChapter(searchItem.durChapterIndex - 1, lastPage: true);
+        _controller.jumpToPage(_currentPage - 1);
       }
+    } else {
+      loadChapter(searchItem.durChapterIndex - 1, lastPage: true);
     }
   }
 
@@ -537,20 +482,19 @@ class NovelPageProvider with ChangeNotifier {
 
   bool get mounted => _isLoading != null;
   ReadSetting _readSetting;
-  bool didUpdateReadSetting(Profile profile) {
+  bool didUpdateReadSetting(Profile profile, Size size) {
+    if (null == _readSetting ||
+        null == textComposition ||
+        _readSetting.didUpdate(profile, searchItem.durChapterIndex, size)) {
+      _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex, size);
+      return true;
+    }
     if (_readSetting.durChapterIndex != searchItem.durChapterIndex) {
-      _currentPage = 1;
       _readSetting.durChapterIndex = searchItem.durChapterIndex;
       return true;
     }
     if (_readSetting.pageSwitch != profile.novelPageSwitch) {
       _readSetting.pageSwitch = profile.novelPageSwitch;
-      return true;
-    }
-    if ((null == textComposition) ||
-        _readSetting.didUpdate(profile, searchItem.durChapterIndex)) {
-      _readSetting = ReadSetting.fromProfile(profile, searchItem.durChapterIndex);
-      print(_readSetting.durChapterIndex);
       return true;
     }
     return false;
@@ -614,8 +558,7 @@ class NovelPageProvider with ChangeNotifier {
   TextComposition _textComposition;
   TextComposition get textComposition => _textComposition;
   Widget getTextCompositionPage([int page]) {
-    return _textComposition
-        .getPageWidget(_textComposition.pages[page ?? (_currentPage - 1)]);
+    return _textComposition.getPageWidget(pageIndex: page ?? (_currentPage - 1));
   }
 
   /// 文字排版部分
@@ -624,16 +567,17 @@ class NovelPageProvider with ChangeNotifier {
     if (paragraphs == null || paragraphs.isEmpty) return;
 
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
-    var width = mediaQueryData.size.width - profile.novelLeftPadding * 2;
-    if (width > 600) {
-      width = (width - 40) / 2;
-    }
+    final width = mediaQueryData.size.width - profile.novelLeftPadding * 2;
     final height = mediaQueryData.size.height -
         profile.novelTopPadding * 2 -
         (profile.showNovelInfo == true ? 32 : 0) -
         mediaQueryData.padding.top;
+
     _textComposition = TextComposition(
-      boxSize: Size(width, height),
+      boxSize: Size(width > 600 ? (width - 40) / 2 : width, height),
+      columnCount: width > 600 ? 2 : 1,
+      columnGap: 40,
+      paragraph: profile.novelParagraphPadding,
       title: searchItem.durChapter,
       titleStyle: TextStyle(
         fontFamily: profile.novelFontFamily,
@@ -681,8 +625,10 @@ class ReadSetting {
   int pageSwitch;
   int indentation;
   int durChapterIndex;
+  Size size;
+  bool showInfo;
 
-  ReadSetting.fromProfile(Profile profile, this.durChapterIndex) {
+  ReadSetting.fromProfile(Profile profile, this.durChapterIndex, Size size) {
     fontSize = profile.novelFontSize;
     height = profile.novelHeight;
     leftPadding = profile.novelLeftPadding;
@@ -690,9 +636,11 @@ class ReadSetting {
     paragraphPadding = profile.novelParagraphPadding;
     pageSwitch = profile.novelPageSwitch;
     indentation = profile.novelIndentation;
+    this.size = size;
+    showInfo = profile.showNovelInfo;
   }
 
-  bool didUpdate(Profile profile, int durChapterIndex) {
+  bool didUpdate(Profile profile, int durChapterIndex, Size size) {
     if ((fontSize - profile.novelFontSize).abs() < 0.1 &&
         (height - profile.novelHeight).abs() < 0.05 &&
         (leftPadding - profile.novelLeftPadding).abs() < 0.1 &&
@@ -700,7 +648,9 @@ class ReadSetting {
         (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
         pageSwitch == profile.novelPageSwitch &&
         indentation == profile.novelIndentation &&
-        this.durChapterIndex == durChapterIndex) {
+        this.durChapterIndex == durChapterIndex &&
+        showInfo == profile.showNovelInfo && 
+        this.size == size) {
       return false;
     }
     return true;

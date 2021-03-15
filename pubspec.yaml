@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.21.07+12107
+version: 1.21.09+12109
 homepage: https://github.com/mabdc/eso
 author: mabdc
 
@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  text_composition:
+    path: modules/text_composition
   audioplayers:
     path: modules/audioplayers
   flutter_qjs: ^0.3.5

@@ -28,11 +28,6 @@ class _NovelPageState extends State<NovelPage> {
   _NovelPageState(this.searchItem) : super();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
@@ -79,11 +74,11 @@ class _NovelPageState extends State<NovelPage> {
                   } else if (logicalKey == LogicalKeyboardKey.bracketLeft ||
                       logicalKey == LogicalKeyboardKey.minus ||
                       logicalKey == LogicalKeyboardKey.insert) {
-                    provider.switchChapter(profile, searchItem.durChapterIndex - 1);
+                    provider.loadChapter(searchItem.durChapterIndex - 1);
                   } else if (logicalKey == LogicalKeyboardKey.bracketRight ||
                       logicalKey == LogicalKeyboardKey.numpadAdd ||
                       logicalKey == LogicalKeyboardKey.delete) {
-                    provider.switchChapter(profile, searchItem.durChapterIndex + 1);
+                    provider.loadChapter(searchItem.durChapterIndex + 1);
                   } else if (logicalKey == LogicalKeyboardKey.enter ||
                       logicalKey == LogicalKeyboardKey.numpadEnter) {
                     provider.showMenu = !provider.showMenu;
@@ -117,9 +112,7 @@ class _NovelPageState extends State<NovelPage> {
                     if (provider.showChapter)
                       UIChapterSelect(
                         searchItem: searchItem,
-                        loadChapter: (index) {
-                          provider.switchChapter(profile, index);
-                        },
+                        loadChapter: provider.loadChapter,
                       ),
                     if (provider.isLoading)
                       Opacity(
@@ -148,21 +141,15 @@ class _NovelPageState extends State<NovelPage> {
                   ],
                 ),
                 onTapUp: (TapUpDetails details) {
-                  if (provider.showMenu || provider.showSetting) {
-                    provider.showMenu = false;
-                    provider.showSetting = false;
-                    return;
-                  }
-
                   final size = MediaQuery.of(context).size;
-                  final _centerX = size.width * (1 / 4);
-                  final _centerR = size.width - _centerX;
-                  final _centerY = 100;
-                  final _centerB = size.height - size.height * (1 / 3);
+                  final _centerL = size.width * (1 / 3);
+                  final _centerR = size.width - _centerL;
+                  final _centerT = size.height * (1 / 3);
+                  final _centerB = size.height - _centerT;
 
-                  if (details.globalPosition.dx > _centerX &&
+                  if (details.globalPosition.dx > _centerL &&
                       details.globalPosition.dx < _centerR &&
-                      details.globalPosition.dy > _centerY &&
+                      details.globalPosition.dy > _centerT &&
                       details.globalPosition.dy < _centerB) {
                     provider.showMenu = !provider.showMenu;
                     provider.showSetting = false;
@@ -198,40 +185,63 @@ class _NovelPageState extends State<NovelPage> {
   }
 
   Widget _buildContent(NovelPageProvider provider, Profile profile) {
-    if (provider.didUpdateReadSetting(profile)) provider.buildTextComposition(profile);
+    final size = MediaQuery.of(context).size;
+    if (provider.didUpdateReadSetting(profile, size))
+      provider.buildTextComposition(profile);
+
+    var scrollDirection = Axis.horizontal;
+    var pageSnapping = true;
+
+    final info = SizedBox(
+      height: 32,
+      child: Center(
+        child:
+            Text("${searchItem.durChapter}   共 ${provider.textComposition.pageCount} 页"),
+      ),
+    );
 
     switch (profile.novelPageSwitch) {
-      case Profile.novelScroll:
-        return Center(
-          child: Container(
-            width: provider.textComposition.boxSize.width,
-            height: provider.textComposition.boxSize.height,
-            child: ListView.builder(
-              itemCount: provider.textComposition.pageCount,
-              itemBuilder: (BuildContext context, int index) {
-                return provider.getTextCompositionPage(index);
-              },
-            ),
-          ),
-        );
       case Profile.novelNone:
-        return Center(child: provider.getTextCompositionPage());
-      case Profile.novelCover:
-      case Profile.novelFade:
-        return Center(
-          child: Container(
-            width: provider.textComposition.boxSize.width,
-            height: provider.textComposition.boxSize.height,
-            child: PageView.builder(
-              itemCount: provider.textComposition.pageCount,
-              itemBuilder: (BuildContext context, int index) {
-                return provider.getTextCompositionPage(index);
-              },
-            ),
-          ),
+        return Column(
+          children: [
+            Expanded(child: provider.getTextCompositionPage()),
+            if (profile.showNovelInfo) info
+          ],
         );
+      case Profile.novelScroll:
+        scrollDirection = Axis.vertical;
+        pageSnapping = false;
+        break;
+      case Profile.novelCover:
+        break;
+      case Profile.novelHorizontalSlide:
+      case Profile.novelVerticalSlide:
+      case Profile.novelFade:
+        break;
       default:
         return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
     }
+    final page = PageView.builder(
+      controller: provider.controller,
+      onPageChanged: (value) => provider.currentPage = value,
+      pageSnapping: pageSnapping,
+      scrollDirection: scrollDirection,
+      physics: BouncingScrollPhysics(),
+      itemCount: provider.textComposition.pageCount,
+      itemBuilder: (BuildContext context, int position) {
+        if (scrollDirection == Axis.horizontal && profile.showNovelInfo) {
+          return Column(
+            children: [Expanded(child: provider.getTextCompositionPage(position)), info],
+          );
+        }
+        return provider.getTextCompositionPage(position);
+      },
+    );
+    if (scrollDirection == Axis.vertical && profile.showNovelInfo) {
+      return Column(
+        children: [Expanded(child: page), info],
+      );
+    }
+    return page;
   }
 }

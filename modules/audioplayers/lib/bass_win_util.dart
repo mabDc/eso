@@ -230,21 +230,21 @@ class BassWinUtil {
         _library.lookup<NativeFunction<Int32 Function()>>("BASS_GetVersion").asFunction();
     print("bass version: ${BASS_GetVersion()}");
     if (isInit != true) {
-      final int Function(int, int, int, int, Pointer<void>) BASS_Init = _library
+      final int Function(int, int, int, int, Pointer<Void>) BASS_Init = _library
           .lookup<
               NativeFunction<
                   Int32 Function(
-                      Int32, Uint32, Uint32, Uint32, Pointer<void>)>>("BASS_Init")
+                      Int32, Uint32, Uint32, Uint32, Pointer<Void>)>>("BASS_Init")
           .asFunction();
       var i = BASS_Init(-1, 44100, 0, 0, Pointer.fromAddress(0));
       isInit = i != 0;
       if (!isInit) return 0;
-      final int Function(int, int, int, Pointer<void>, Pointer<void>) BASS_StreamCreate =
+      final int Function(int, int, int, Pointer<Void>, Pointer<Void>) BASS_StreamCreate =
           _library
               .lookup<
                   NativeFunction<
-                      Uint32 Function(Uint32, Uint32, Uint32, Pointer<void>,
-                          Pointer<void>)>>("BASS_StreamCreate")
+                      Uint32 Function(Uint32, Uint32, Uint32, Pointer<Void>,
+                          Pointer<Void>)>>("BASS_StreamCreate")
               .asFunction();
       floatable = BASS_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT, nil, nil);
       if (floatable > 0) {
@@ -263,12 +263,12 @@ class BassWinUtil {
 
     var chan = 0;
     if (isLocal != true) {
-      final int Function(Pointer<ffi.Utf8>, int, int, Pointer<void>, Pointer<void>)
+      final int Function(Pointer<ffi.Utf8>, int, int, Pointer<Void>, Pointer<Void>)
           BASS_StreamCreateURL = _library
               .lookup<
                   NativeFunction<
-                      Uint32 Function(Pointer<ffi.Utf8>, Uint32, Uint32, Pointer<void>,
-                          Pointer<void>)>>("BASS_StreamCreateURL")
+                      Uint32 Function(Pointer<ffi.Utf8>, Uint32, Uint32, Pointer<Void>,
+                          Pointer<Void>)>>("BASS_StreamCreateURL")
               .asFunction();
       final Pointer<ffi.Utf8> charPointer = ffi.Utf8.toUtf8(url);
       chan = BASS_StreamCreateURL(charPointer, 0, BASS_MUSIC_RAMPS | floatable, nil, nil);

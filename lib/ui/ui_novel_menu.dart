@@ -88,7 +88,7 @@ class UINovelMenu extends StatelessWidget {
       ["无动画", Profile.novelNone],
       ["滚动", Profile.novelScroll],
       ["覆盖", Profile.novelCover],
-      ["淡入", Profile.novelFade],
+      // ["淡入", Profile.novelFade],
       // ["滑动", Profile.novelSlide],
       // ["覆盖", Profile.novelCover],
       // ["仿真", Profile.novelSimulation],

@@ -5,7 +5,7 @@ import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
-import 'package:eso/text_composition.dart';
+import 'package:text_composition/text_composition.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -265,7 +265,7 @@ class _ChapterPageState extends State<ChapterPage> {
         left: horizontalPadding,
         right: horizontalPadding - 5,
       ),
-      child: tc.getPageWidget(tc.pages.first),
+      child: tc.getPageWidget(pageIndex: 0),
     );
   }
 
