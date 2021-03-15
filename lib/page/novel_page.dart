@@ -202,6 +202,7 @@ class _NovelPageState extends State<NovelPage> {
 
     switch (profile.novelPageSwitch) {
       case Profile.novelNone:
+      case Profile.novelFade:
         return Column(
           children: [
             Expanded(child: provider.getTextCompositionPage()),
@@ -216,7 +217,6 @@ class _NovelPageState extends State<NovelPage> {
         break;
       case Profile.novelHorizontalSlide:
       case Profile.novelVerticalSlide:
-      case Profile.novelFade:
         break;
       default:
         return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
@@ -229,12 +229,16 @@ class _NovelPageState extends State<NovelPage> {
       physics: BouncingScrollPhysics(),
       itemCount: provider.textComposition.pageCount,
       itemBuilder: (BuildContext context, int position) {
+        final c =  Padding(
+          padding: EdgeInsets.only(left: profile.novelLeftPadding),
+          child: provider.getTextCompositionPage(position),
+        );
         if (scrollDirection == Axis.horizontal && profile.showNovelInfo) {
           return Column(
-            children: [Expanded(child: provider.getTextCompositionPage(position)), info],
+            children: [Expanded(child: c), info],
           );
         }
-        return provider.getTextCompositionPage(position);
+        return c;
       },
     );
     if (scrollDirection == Axis.vertical && profile.showNovelInfo) {
