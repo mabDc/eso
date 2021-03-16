@@ -94,6 +94,10 @@ class _NovelPageState extends State<NovelPage> {
                       value: Global.novelLightOrDark(),
                       child: Container(
                         decoration: Utils.getNovelBackground(),
+                        padding: EdgeInsets.only(
+                            top: profile.showNovelStatus
+                                ? MediaQuery.of(context).padding.top + profile.novelTopPadding
+                                : profile.novelTopPadding),
                         child: _buildContent(provider, profile),
                       ),
                     ),
@@ -140,6 +144,21 @@ class _NovelPageState extends State<NovelPage> {
                       ),
                   ],
                 ),
+                onVerticalDragEnd: (DragEndDetails details) {
+                  if (details.primaryVelocity.abs() > 100) {
+                    if (provider.showSetting) {
+                      provider.showSetting = false;
+                    } else if (provider.showMenu) {
+                      provider.showMenu = false;
+                    } else {
+                      if (details.primaryVelocity > 0) {
+                        provider.tapLastPage();
+                      } else {
+                        provider.tapNextPage();
+                      }
+                    }
+                  }
+                },
                 onTapUp: (TapUpDetails details) {
                   final size = MediaQuery.of(context).size;
                   final _centerL = size.width * (1 / 3);
@@ -156,10 +175,11 @@ class _NovelPageState extends State<NovelPage> {
                   } else {
                     provider.showChapter = false;
                     if (!provider.showSetting && !provider.showMenu) {
-                      if (details.globalPosition.dx > size.width * 0.5) {
-                        provider.tapNextPage();
-                      } else if (details.globalPosition.dx < size.width * 0.5) {
+                      if (details.globalPosition.dx < size.width * 0.5 &&
+                          details.globalPosition.dy < size.height * 0.5) {
                         provider.tapLastPage();
+                      } else {
+                        provider.tapNextPage();
                       }
                     }
                   }
@@ -189,63 +209,67 @@ class _NovelPageState extends State<NovelPage> {
     if (provider.didUpdateReadSetting(profile, size))
       provider.buildTextComposition(profile);
 
-    var scrollDirection = Axis.horizontal;
-    var pageSnapping = true;
-
-    final info = SizedBox(
-      height: 32,
-      child: Center(
-        child:
-            Text("${searchItem.durChapter}   共 ${provider.textComposition.pageCount} 页"),
-      ),
-    );
+    Axis scrollDirection;
+    final info = (int position)=>profile.showNovelInfo
+        ? Container(
+            padding: EdgeInsets.symmetric(horizontal: profile.novelLeftPadding),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    position == 1
+                        ? "${searchItem.name} (${searchItem.origin})"
+                        : "${searchItem.durChapter}",
+                    style: TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                Text(
+                  "$position/${provider.textComposition.pageCount}",
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          )
+        : Container();
 
     switch (profile.novelPageSwitch) {
       case Profile.novelNone:
       case Profile.novelFade:
+      case Profile.novelCover:
+      case Profile.novelScroll:
         return Column(
           children: [
-            Expanded(child: provider.getTextCompositionPage()),
-            if (profile.showNovelInfo) info
+            provider.getTextCompositionPage(),
+            SizedBox(height: profile.novelTopPadding),
+            info(provider.currentPage),
           ],
         );
-      case Profile.novelScroll:
-        scrollDirection = Axis.vertical;
-        pageSnapping = false;
-        break;
-      case Profile.novelCover:
-        break;
       case Profile.novelHorizontalSlide:
+        scrollDirection = Axis.horizontal;
+        break;
       case Profile.novelVerticalSlide:
+        scrollDirection = Axis.vertical;
         break;
       default:
         return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
     }
-    final page = PageView.builder(
+    return PageView.builder(
       controller: provider.controller,
-      onPageChanged: (value) => provider.currentPage = value,
-      pageSnapping: pageSnapping,
+      onPageChanged: (value) => provider.currentPage = value + 1,
       scrollDirection: scrollDirection,
       physics: BouncingScrollPhysics(),
       itemCount: provider.textComposition.pageCount,
       itemBuilder: (BuildContext context, int position) {
-        final c =  Padding(
-          padding: EdgeInsets.only(left: profile.novelLeftPadding),
-          child: provider.getTextCompositionPage(position),
+        return Column(
+          children: [
+            provider.getTextCompositionPage(position),
+            SizedBox(height: profile.novelTopPadding),
+            info(position + 1),
+          ],
         );
-        if (scrollDirection == Axis.horizontal && profile.showNovelInfo) {
-          return Column(
-            children: [Expanded(child: c), info],
-          );
-        }
-        return c;
       },
     );
-    if (scrollDirection == Axis.vertical && profile.showNovelInfo) {
-      return Column(
-        children: [Expanded(child: page), info],
-      );
-    }
-    return page;
   }
 }

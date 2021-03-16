@@ -413,14 +413,16 @@ class NovelPageProvider with ChangeNotifier {
   int get currentPage => _currentPage;
   set currentPage(int value) {
     if (value > 0 && value < textComposition.pageCount) {
-      _currentPage = value + 1;
+      _currentPage = value;
       searchItem.durContentIndex =
           (_currentPage * 10000 / textComposition.pageCount).floor();
+      notifyListeners();
     }
   }
 
   void tapNextPage() {
     if (_currentPage < textComposition.pageCount) {
+      print("tapNextPage");
       _currentPage++;
       searchItem.durContentIndex =
           (_currentPage * 10000 / textComposition.pageCount).floor();
@@ -493,10 +495,6 @@ class NovelPageProvider with ChangeNotifier {
       _readSetting.durChapterIndex = searchItem.durChapterIndex;
       return true;
     }
-    if (_readSetting.pageSwitch != profile.novelPageSwitch) {
-      _readSetting.pageSwitch = profile.novelPageSwitch;
-      return true;
-    }
     return false;
   }
 
@@ -564,18 +562,22 @@ class NovelPageProvider with ChangeNotifier {
   /// 文字排版部分
   void buildTextComposition(Profile profile) {
     print("** buildTextComposition start ${DateTime.now()}");
-    if (paragraphs == null || paragraphs.isEmpty) return;
+    if (_paragraphs == null || _paragraphs.isEmpty) return;
 
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
     final width = mediaQueryData.size.width - profile.novelLeftPadding * 2;
     final height = mediaQueryData.size.height -
         profile.novelTopPadding * 2 -
-        (profile.showNovelInfo == true ? 32 : 0) -
-        mediaQueryData.padding.top;
+        (profile.showNovelInfo == true ? 20 : 0) -
+        (profile.showNovelStatus == true ? mediaQueryData.padding.top : 0);
 
     _textComposition = TextComposition(
-      boxSize: Size(width > 600 ? (width - 40) / 2 : width, height),
-      columnCount: width > 600 ? 2 : 1,
+      boxSize: Size(width, height),
+      columnCount: width > 1160
+          ? 3
+          : width > 580
+              ? 2
+              : 1,
       columnGap: 40,
       paragraph: profile.novelParagraphPadding,
       title: searchItem.durChapter,
@@ -586,7 +588,7 @@ class NovelPageProvider with ChangeNotifier {
         fontWeight: FontWeight.bold,
         color: Color(profile.novelFontColor),
       ),
-      paragraphs: paragraphs,
+      paragraphs: paragraphs.map((e) => "　" * profile.novelIndentation + e).toList(),
       style: TextStyle(
         fontFamily: profile.novelFontFamily,
         fontSize: profile.novelFontSize,
@@ -646,10 +648,10 @@ class ReadSetting {
         (leftPadding - profile.novelLeftPadding).abs() < 0.1 &&
         (topPadding - profile.novelTopPadding).abs() < 0.1 &&
         (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
-        pageSwitch == profile.novelPageSwitch &&
+        // pageSwitch == profile.novelPageSwitch &&
         indentation == profile.novelIndentation &&
         this.durChapterIndex == durChapterIndex &&
-        showInfo == profile.showNovelInfo && 
+        showInfo == profile.showNovelInfo &&
         this.size == size) {
       return false;
     }
