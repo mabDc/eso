@@ -15,6 +15,8 @@ import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'chapter_page.dart';
+
 class SearchPage extends StatefulWidget {
   SearchPage({Key key}) : super(key: key);
 
@@ -260,34 +262,35 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(height: 4),
                     Divider(height: Global.lineSize),
                     Expanded(
-                      child:
-                          provider.searchListNone.length == 0 && provider.rulesCount == 0
-                              ? EmptyListMsgView(text: Text("尚无可搜索源"))
-                              : searchList.isEmpty
-                                  ? EmptyListMsgView(text: Text("没有数据哦！~"))
-                                  : KeyboardDismissBehaviorView(
-                                      child: ListView.separated(
-                                        separatorBuilder: (context, index) =>
-                                            SizedBox(height: 8),
-                                        itemCount: searchList.length,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          return InkWell(
-                                            child: UiSearchItem(
-                                              item: searchList[index],
-                                              showType: true,
-                                            ),
-                                            onTap: () {
-                                              // Navigator.of(context).push(
-                                              // MaterialPageRoute(
-                                              //   builder: (context) => ChapterPage(
-                                              //       searchItem: searchList[index]),
-                                              // )
-                                              invokeTap(detailPage);
-                                            },
-                                          );
+                      child: provider.searchListNone.length == 0 &&
+                              provider.rulesCount == 0
+                          ? EmptyListMsgView(text: Text("尚无可搜索源"))
+                          : searchList.isEmpty
+                              ? EmptyListMsgView(text: Text("没有数据哦！~"))
+                              : KeyboardDismissBehaviorView(
+                                  child: ListView.separated(
+                                    separatorBuilder: (context, index) =>
+                                        SizedBox(height: 8),
+                                    itemCount: searchList.length,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      return InkWell(
+                                        child: UiSearchItem(
+                                          item: searchList[index],
+                                          showType: true,
+                                        ),
+                                        onTap: () {
+                                          // Navigator.of(context).push(
+                                          // MaterialPageRoute(
+                                          //   builder: (context) => ChapterPage(
+                                          //       searchItem: searchList[index]),
+                                          // )
+                                          invokeTap(
+                                              ChapterPage(searchItem: searchList[index]));
                                         },
-                                      ),
-                                    ),
+                                      );
+                                    },
+                                  ),
+                                ),
                     ),
                   ],
                 );
@@ -329,13 +332,15 @@ class _SearchPageState extends State<SearchPage> {
           provider.searchOption = searchOption;
           profile.searchOption = searchOption.index;
         },
-        style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>( RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: _selected
-              ? BorderSide(
-                  color: Theme.of(context).primaryColor, width: Global.borderSize)
-              : BorderSide.none,
-        )),),
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: _selected
+                ? BorderSide(
+                    color: Theme.of(context).primaryColor, width: Global.borderSize)
+                : BorderSide.none,
+          )),
+        ),
         child: Text(text, maxLines: 1),
       ),
     );
