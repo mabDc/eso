@@ -26,13 +26,16 @@ class _SettingState extends State<Setting> {
       shouldJustifyHeight = true,
       start = DateTime.now(),
       end = DateTime.now(),
-      showMenu = true;
+      showMenu = true,
+      showTip = true,
+      showAnimation = true;
   Widget? content;
   TextComposition? textComposition;
 
   void start11() {
     physicalSize = window.physicalSize;
     ratio = window.devicePixelRatio;
+    final _size = physicalSize / ratio;
     final width = physicalSize.width / ratio;
     start = DateTime.now();
     textComposition = TextComposition(
@@ -52,13 +55,14 @@ class _SettingState extends State<Setting> {
       columnGap: 40,
       columnCount: width > 1200
           ? 3
-          : width > 500
+          : width > 600
               ? 2
               : 1,
       paragraph: double.tryParse(paragraph.text) ?? 10.0,
       padding: EdgeInsets.all(10),
       shouldJustifyHeight: shouldJustifyHeight,
       debug: true,
+      showAnimation: showAnimation,
       // buildFooter: ({TextPage? page, int? pageIndex}) {
       //   return Text(
       //     "烙印纹章 第一卷 一卷全 ${pageIndex == null ? '' : pageIndex + 1}/${textComposition!.pageCount}",
@@ -84,7 +88,7 @@ class _SettingState extends State<Setting> {
     );
     end = DateTime.now();
     setState(() {
-      content = PageListView(
+      content = PageTurn(
         textComposition: textComposition!,
       );
     });
@@ -106,17 +110,67 @@ class _SettingState extends State<Setting> {
       body: Stack(
         children: [
           if (content != null) content!,
+          if (showTip)
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              child: Flex(
+                direction: Axis.horizontal,
+                children: <Widget>[
+                  Flexible(
+                    flex: 8,
+                    child: Container(
+                        color: Colors.green.withAlpha(100),
+                        child: Center(
+                          child: Text("手\n势\n上\n一\n页\n触\n发",
+                              style: TextStyle(fontSize: 28)),
+                        )),
+                  ),
+                  Flexible(
+                    flex: 42,
+                    child: Container(
+                        color: Colors.blue.withAlpha(100),
+                        child: Center(
+                          child: Text("点\n击\n上\n一\n页",
+                              style: TextStyle(fontSize: 28)),
+                        )),
+                  ),
+                  Flexible(
+                    flex: 42,
+                    child: Container(
+                        color: Colors.pink.withAlpha(100),
+                        child: Center(
+                          child: Text("点\n击\n下\n一\n页",
+                              style: TextStyle(fontSize: 28)),
+                        )),
+                  ),
+                  Flexible(
+                    flex: 8,
+                    child: Container(
+                        color: Colors.red.withAlpha(100),
+                        child: Center(
+                          child: Text("手\n势\n下\n一\n页\n触\n发",
+                              style: TextStyle(fontSize: 28)),
+                        )),
+                  ),
+                ],
+              ),
+            ),
           Center(
             child: InkWell(
               child: Container(
-                color: Colors.indigo.withOpacity(0.1),
+                color: showTip
+                    ? Colors.indigo.withOpacity(0.2)
+                    : Colors.transparent,
                 width: _size.width / 3,
                 height: _size.height / 3,
                 child: Center(
-                  child: Text(
-                    "切\n换\n菜\n单\n显\n示",
-                    style: TextStyle(fontSize: 30),
-                  ),
+                  child: showTip
+                      ? Text(
+                          "切\n换\n菜\n单\n显\n示",
+                          style: TextStyle(fontSize: 30),
+                        )
+                      : null,
                 ),
               ),
               onTap: () {
@@ -159,14 +213,41 @@ class _SettingState extends State<Setting> {
                   Text("排版开始 $start"),
                   Text("排版结束 $end"),
                   SizedBox(height: 10),
-                  TextButton(
-                    child: Text("开始"),
-                    onPressed: () {
-                      start11();
-                      setState(() {
-                        showMenu = false;
-                      });
-                    },
+                  Row(
+                    children: [
+                      TextButton(
+                        child: Text("开始"),
+                        onPressed: () {
+                          start11();
+                          setState(() {
+                            showMenu = false;
+                          });
+                        },
+                      ),
+                      TextButton(
+                        child: Text("无动画"),
+                        onPressed: () {
+                          showAnimation = false;
+                          textComposition?.showAnimation = false;
+                        },
+                      ),
+                      TextButton(
+                        child: Text("仿真"),
+                        onPressed: () {
+                          showAnimation = true;
+                          textComposition?.showAnimation = true;
+                        },
+                      ),
+                      TextButton(
+                        child: Text("显示提示"),
+                        onPressed: () {
+                          if (content != null)
+                            setState(() {
+                              showTip = !showTip;
+                            });
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -175,11 +256,14 @@ class _SettingState extends State<Setting> {
       ),
     );
   }
+
+
 }
 
 class PageListView extends StatelessWidget {
   final TextComposition textComposition;
-  const PageListView({required this.textComposition, Key? key}) : super(key: key);
+  const PageListView({required this.textComposition, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(example LANGUAGES CXX)
+project(text_composition_example LANGUAGES CXX)
 
-set(BINARY_NAME "example")
+set(BINARY_NAME "text_composition_example")
 
 cmake_policy(SET CMP0063 NEW)
 

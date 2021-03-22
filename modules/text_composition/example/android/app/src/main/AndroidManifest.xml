@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.textcompositionexample.example">
+    package="com.text_composition_example.text_composition_example">
    <application
-        android:label="example"
+        android:label="text_composition_example"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
