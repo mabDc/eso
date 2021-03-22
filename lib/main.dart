@@ -29,7 +29,12 @@ class ErrorApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         body: ListView(
-          children: [Text("$error\n$stackTrace")],
+          children: [
+            Text(
+              "$error\n$stackTrace",
+              style: TextStyle(color: Color(0xFFF56C6C)),
+            )
+          ],
         ),
       ),
     );
