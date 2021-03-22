@@ -416,14 +416,12 @@ class TextCompositionController extends ChangeNotifier {
   late int _chapterIndex;
   int get chapterIndex => _chapterIndex;
 
-  List<TextPage> previousPages;
+  Map<int, List<TextPage>> cache;
   List<TextPage> pages;
-  List<TextPage> nextPages;
 
   TextCompositionController(this.config, this._loadChapter, this.chapters, this._percent, [double? width])
-      : previousPages = <TextPage>[],
-        pages = <TextPage>[],
-        nextPages = <TextPage>[] {
+      : pages = <TextPage>[],
+        cache = {} {
     _chapterIndex = (_percent * chapterTotal).floor();
     init();
   }
@@ -431,9 +429,9 @@ class TextCompositionController extends ChangeNotifier {
   init() async {
     pages = await startX(_chapterIndex);
     notifyListeners();
-    Future.delayed(Duration(seconds: 1)).then((value) async {
-      if (!lastChapter) nextPages = await startX(_chapterIndex + 1);
-      if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
+    Future.delayed(Duration(milliseconds: 300)).then((value) async {
+      if (!lastChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
+      if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
     });
   }
 
@@ -487,41 +485,25 @@ class TextCompositionController extends ChangeNotifier {
   Future<void> previousChapter() async {
     if (firstChpater) return;
     _chapterIndex = _chapterIndex - 1;
-    nextPages = pages;
-    if (previousPages.isNotEmpty) {
-      pages = previousPages;
-      previousPages = [];
+    if (cache[_chapterIndex] != null && cache[_chapterIndex]!.isNotEmpty) {
+      pages = cache[_chapterIndex]!;
       notifyListeners();
-      Future.delayed(Duration(seconds: 1)).then((value) async {
-        if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
-      });
-    } else {
-      pages = await startX(_chapterIndex - 1);
-      notifyListeners();
-      Future.delayed(Duration(seconds: 1)).then((value) async {
-        if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
-      });
     }
+    Future.delayed(Duration(milliseconds: 300)).then((value) async {
+      if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
+    });
   }
 
   Future<void> nextChapter() async {
     if (lastChapter) return;
     _chapterIndex = _chapterIndex + 1;
-    previousPages = pages;
-    if (nextPages.isNotEmpty) {
-      pages = nextPages;
-      nextPages = [];
+    if (cache[_chapterIndex] != null && cache[_chapterIndex]!.isNotEmpty) {
+      pages = cache[_chapterIndex]!;
       notifyListeners();
-      Future.delayed(Duration(seconds: 1)).then((value) async {
-        if (!lastChapter) nextPages = await startX(_chapterIndex - 1);
-      });
-    } else {
-      pages = await startX(_chapterIndex - 1);
-      notifyListeners();
-      Future.delayed(Duration(seconds: 1)).then((value) async {
-        if (!lastChapter) nextPages = await startX(_chapterIndex - 1);
-      });
     }
+    Future.delayed(Duration(milliseconds: 300)).then((value) async {
+      if (!firstChpater) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
+    });
   }
 
   Future<List<TextPage>> startX(int index) async {
@@ -766,7 +748,7 @@ class TextCompositionEffect extends CustomPainter {
       tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
 
       tp.text = TextSpan(
-        text: '${page.index}/${page.total} ${page.percent}',
+        text: '${page.index + 1}/${page.total} ${page.percent}',
         style: style2,
       );
       tp.layout();
@@ -798,7 +780,9 @@ class TextCompositionEffect extends CustomPainter {
 
   @override
   bool shouldRepaint(TextCompositionEffect oldDelegate) {
-    return oldDelegate.image != image || oldDelegate.amount.value != amount.value;
+    return oldDelegate.image != image ||
+        oldDelegate.amount.value != amount.value ||
+        page.index != oldDelegate.page.index;
   }
 }
 
@@ -909,6 +893,9 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           await nextPage();
         } else {
           await _controllers[pageNumber].forward();
+          if (_isLastPage) {
+            widget.controller.nextChapter();
+          }
         }
       } else {
         if (!_isFirstPage && _controllers[pageNumber - 1].value >= (widget.cuton / 100 + 0.05)) {
@@ -916,6 +903,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
         } else {
           if (_isFirstPage) {
             await _controllers[pageNumber].forward();
+            widget.controller.previousChapter();
           } else {
             await _controllers[pageNumber - 1].reverse();
           }
@@ -926,7 +914,10 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   }
 
   Future<void> nextPage() async {
-    if (_isLastPage) return;
+    if (_isLastPage) {
+      widget.controller.nextChapter();
+      return;
+    }
     if (mounted) {
       if (widget.controller.config.animationTap)
         _controllers[pageNumber].reverse();
@@ -939,7 +930,10 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   }
 
   Future<void> previousPage() async {
-    if (_isFirstPage) return;
+    if (_isFirstPage) {
+      widget.controller.previousChapter();
+      return;
+    }
     if (mounted) {
       if (widget.controller.config.animationTap)
         _controllers[pageNumber - 1].forward();

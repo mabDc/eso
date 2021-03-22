@@ -11,13 +11,12 @@ class NovelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ContentProvider>(context);
-
     return TextComposition(
       controller: TextCompositionController(
         TextCompositionConfig(),
         provider.loadChapter,
         searchItem.chapters.map((e) => e.name).toList(),
-        searchItem.durContentIndex / NovelContentTotal,
+        searchItem.durChapterIndex / searchItem.chapters.length,
       ),
       lastPage: Container(
         width: double.infinity,
