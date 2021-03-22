@@ -8,15 +8,15 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:screen/screen.dart';
-import 'package:windows_speak/windows_speak.dart';
-import '../database/search_item.dart';
-import 'package:flutter/material.dart';
-
-import '../profile.dart';
 import 'package:text_composition/text_composition.dart';
+import 'package:windows_speak/windows_speak.dart';
+
+import '../database/search_item.dart';
+import '../profile.dart';
 
 class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
@@ -71,7 +71,6 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-
   NovelPageProvider({this.searchItem, this.keepOn, Profile profile}) {
     _tts.setCompletionHandler(nextPara);
     WindowsSpeak.handleComplete = nextPara;
@@ -80,8 +79,7 @@ class NovelPageProvider with ChangeNotifier {
     _showChapter = false;
     _showMenu = false;
     _showSetting = false;
-    if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+    if (searchItem.chapters?.length == 0 && SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
     _initContent(profile);
@@ -146,8 +144,7 @@ class NovelPageProvider with ChangeNotifier {
   _updateCache(int index, List<String> content) async {
     final _content = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     _cache = {index: _content};
-    final r = await _fileCache.putData('$index.txt', _content.join("\n"),
-        hashCodeKey: false, shouldEncode: false);
+    final r = await _fileCache.putData('$index.txt', _content.join("\n"), hashCodeKey: false, shouldEncode: false);
     if (r && _content.join("").trim().isNotEmpty) {
       _cacheChapterIndex.add(index);
       await _fileCache.putData("list.json", _cacheChapterIndex, hashCodeKey: false);
@@ -178,8 +175,7 @@ class NovelPageProvider with ChangeNotifier {
       for (final index in List.generate(chapters.length, (index) => index)) {
         String temp;
         if (cacheChapterIndex.contains(index)) {
-          temp = await _fileCache.getData("$index.txt",
-              shouldDecode: false, hashCodeKey: false);
+          temp = await _fileCache.getData("$index.txt", shouldDecode: false, hashCodeKey: false);
         } else if (_cache != null && _cache[index] != null && _cache[index].isNotEmpty) {
           temp = _cache[index].join("\n");
         }
@@ -195,11 +191,9 @@ class NovelPageProvider with ChangeNotifier {
         }
       }
       final cache = CacheUtil(backup: true, basePath: "txt");
-      final name = "${searchItem.name}_${searchItem.author}" +
-          "searchItem${searchItem.id}".hashCode.toString() +
-          ".txt";
-      await cache.putData(name, export.join("\n"),
-          hashCodeKey: false, shouldEncode: false);
+      final name =
+          "${searchItem.name}_${searchItem.author}" + "searchItem${searchItem.id}".hashCode.toString() + ".txt";
+      await cache.putData(name, export.join("\n"), hashCodeKey: false, shouldEncode: false);
       final filePath = await cache.cacheDir() + name;
       Utils.toast("成功导出到 $filePath");
       if (isShare == true) {
@@ -241,8 +235,7 @@ class NovelPageProvider with ChangeNotifier {
         final content = await APIManager.getContent(id, chapter.url);
         chapter.contentUrl = API.contentUrl;
         final c = content.join("\n").split(RegExp(r"\n\s*|\s{2,}")).join("\n");
-        final r = await _fileCache.putData('$index.txt', c,
-            hashCodeKey: false, shouldEncode: false);
+        final r = await _fileCache.putData('$index.txt', c, hashCodeKey: false, shouldEncode: false);
         if (r && c.trim().isNotEmpty) {
           _cacheChapterIndex.add(index);
           await _fileCache.putData("list.json", _cacheChapterIndex, hashCodeKey: false);
@@ -280,8 +273,7 @@ class NovelPageProvider with ChangeNotifier {
   Future<List<String>> _realLoadContent(int index, [bool useCache = true]) async {
     if (useCache) {
       if (_fileCache == null) await _initFileCache();
-      final resp =
-          await _fileCache.getData('$index.txt', hashCodeKey: false, shouldDecode: false);
+      final resp = await _fileCache.getData('$index.txt', hashCodeKey: false, shouldDecode: false);
       if (resp != null && resp is String && resp.isNotEmpty) {
         final p = resp.split("\n");
         if (_cache == null) {
@@ -311,8 +303,7 @@ class NovelPageProvider with ChangeNotifier {
   }
 
   /// 加载章节内容
-  Future<List<String>> loadContent(int index,
-      {bool useCache = true, VoidCallback onWait}) async {
+  Future<List<String>> loadContent(int index, {bool useCache = true, VoidCallback onWait}) async {
     /// 检查当前章节
     if (_cache == null) {
       if (onWait != null) onWait();
@@ -331,13 +322,9 @@ class NovelPageProvider with ChangeNotifier {
 
   /// 加载指定章节
   Future<List<String>> loadChapter(int chapterIndex,
-      {bool useCache = true,
-      bool notify = true,
-      bool changeCurChapter = true,
-      bool lastPage}) async {
+      {bool useCache = true, bool notify = true, bool changeCurChapter = true, bool lastPage}) async {
     _showChapter = false;
-    if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
-      return null;
+    if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length) return null;
     if (notify) _isLoading = true;
     var _data;
     try {
@@ -481,8 +468,8 @@ class NovelPageProvider with ChangeNotifier {
     speak();
   }
 
-  TextComposition _textComposition;
-  TextComposition get textComposition => _textComposition;
+  TextCompositionOri _textComposition;
+  TextCompositionOri get textComposition => _textComposition;
 
   /// 文字排版部分
   void buildTextComposition(Profile profile) {
@@ -491,12 +478,14 @@ class NovelPageProvider with ChangeNotifier {
 
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
 
-    _textComposition = TextComposition(
-      padding: EdgeInsets.fromLTRB(profile.novelLeftPadding,
-    profile.showNovelStatus == true
-    ? profile.novelTopPadding + mediaQueryData.padding.top
-        : profile.novelTopPadding,
-    profile.novelLeftPadding, profile.showNovelInfo == true ? profile.novelTopPadding +24 : profile.novelTopPadding),
+    _textComposition = TextCompositionOri(
+      padding: EdgeInsets.fromLTRB(
+          profile.novelLeftPadding,
+          profile.showNovelStatus == true
+              ? profile.novelTopPadding + mediaQueryData.padding.top
+              : profile.novelTopPadding,
+          profile.novelLeftPadding,
+          profile.showNovelInfo == true ? profile.novelTopPadding + 24 : profile.novelTopPadding),
       columnCount: mediaQueryData.size.width > 1160
           ? 3
           : mediaQueryData.size.width > 580

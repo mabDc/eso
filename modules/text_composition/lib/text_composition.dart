@@ -1,13 +1,14 @@
 library text_composition;
 
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const indentation = "　";
 
-TextPage getOnePage(
-    List<String> paragraphs, TextCompositionConfig config, double? width) {
+TextPage getOnePage(List<String> paragraphs, TextCompositionConfig config, double? width) {
   width ??= ui.window.physicalSize.width / ui.window.devicePixelRatio;
   width -= config.leftPadding + config.rightPadding;
   final width2 = width - config.fontSize;
@@ -67,8 +68,7 @@ class TextCompositionWidget extends StatelessWidget {
     return Container(
       height: page.height,
       width: width,
-      child:
-          CustomPaint(painter: SimpleLinesPainter(page.lines, config, debug)),
+      child: CustomPaint(painter: SimpleLinesPainter(page.lines, config, debug)),
     );
   }
 }
@@ -81,8 +81,7 @@ class SimpleLinesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (debug)
-      print("****** [TextComposition paint start] [${DateTime.now()}] ******");
+    if (debug) print("****** [TextComposition paint start] [${DateTime.now()}] ******");
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
     lines.forEach((line) {
       tp.text = TextSpan(
@@ -98,8 +97,7 @@ class SimpleLinesPainter extends CustomPainter {
       tp.layout();
       tp.paint(canvas, offset);
     });
-    if (debug)
-      print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
+    if (debug) print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
   }
 
   @override
@@ -153,7 +151,7 @@ class TextCompositionConfig {
   Color fontColor;
   double fontSize;
   double fontHeight;
-  String? fontFamily;
+  String fontFamily;
 
   // string
   String background;
@@ -176,11 +174,11 @@ class TextCompositionConfig {
     this.fontColor = const Color(0xFF303133),
     this.fontSize = 18,
     this.fontHeight = 1.6,
-    this.fontFamily,
+    this.fontFamily = '',
     this.background = '#FFFFFFCC',
   });
 
-  bool updateTextCompositionConfig({
+  bool updateConfig({
     bool? animationTap,
     bool? animationDrag,
     bool? animationDragEnd,
@@ -198,6 +196,7 @@ class TextCompositionConfig {
     Color? fontColor,
     double? fontSize,
     double? fontHeight,
+    String? fontFamily,
     String? background,
   }) {
     bool? update;
@@ -303,7 +302,7 @@ class TextCompositionConfig {
       fontColor: Color(encoded['fontColor'] ?? 0xFF303133),
       fontSize: encoded['fontSize'] ?? 18,
       fontHeight: encoded['fontHeight'] ?? 1.6,
-      fontFamily: encoded['fontFamily'],
+      fontFamily: encoded['fontFamily'] ?? '',
       background: encoded['background'] ?? '#FFFFFFCC',
     );
   }
@@ -364,10 +363,9 @@ class TextCompositionConfig {
 
 class TextPage {
   String info;
-  double index;
-  double total;
-  double chIndex;
-  double chTotal;
+  int index;
+  int total;
+  String percent;
   final double height;
   final List<TextLine> lines;
 
@@ -377,8 +375,7 @@ class TextPage {
     required this.lines,
     this.info = '',
     this.total = 1,
-    this.chIndex = 0,
-    this.chTotal = 1,
+    this.percent = '0.00%',
   });
 }
 
@@ -404,16 +401,657 @@ class TextLine {
 
 /// 样式设置与刷新
 /// 动画设置与刷新
-class TextCompositionController extends ValueNotifier<TextCompositionConfig> {
-  TextCompositionController(TextCompositionConfig textCompositionConfig)
-      : super(textCompositionConfig);
+class TextCompositionController extends ChangeNotifier {
+  final TextCompositionConfig config;
+  final Future<List<String>> Function(int chapterIndex) _loadChapter;
+
+  final List<String> chapters;
+  int get chapterTotal => chapters.length;
+
+  double _percent;
+  double get percent => _percent;
+
+  int? _pageIndex;
+  int? get pageIndex => _pageIndex;
+  late int _chapterIndex;
+  int get chapterIndex => _chapterIndex;
+
+  List<TextPage> previousPages;
+  List<TextPage> pages;
+  List<TextPage> nextPages;
+
+  TextCompositionController(this.config, this._loadChapter, this.chapters, this._percent, [double? width])
+      : previousPages = <TextPage>[],
+        pages = <TextPage>[],
+        nextPages = <TextPage>[] {
+    _chapterIndex = (_percent * chapterTotal).floor();
+    init();
+  }
+
+  init() async {
+    pages = await startX(_chapterIndex);
+    notifyListeners();
+    Future.delayed(Duration(seconds: 1)).then((value) async {
+      if (!lastChapter) nextPages = await startX(_chapterIndex - 1);
+      if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
+    });
+  }
+
+  void updateConfig({
+    bool? animationTap,
+    bool? animationDrag,
+    bool? animationDragEnd,
+    bool? justifyHeight,
+    bool? showInfo,
+    double? topPadding,
+    double? leftPadding,
+    double? bottomPadding,
+    double? rightPadding,
+    double? titlePadding,
+    double? paragraphPadding,
+    double? columnPadding,
+    int? columns,
+    int? indentation,
+    Color? fontColor,
+    double? fontSize,
+    double? fontHeight,
+    String? fontFamily,
+    String? background,
+  }) {
+    if (config.updateConfig(
+      animationTap: animationTap,
+      animationDrag: animationDrag,
+      animationDragEnd: animationDragEnd,
+      justifyHeight: justifyHeight,
+      showInfo: showInfo,
+      topPadding: topPadding,
+      leftPadding: leftPadding,
+      bottomPadding: bottomPadding,
+      rightPadding: rightPadding,
+      titlePadding: titlePadding,
+      paragraphPadding: paragraphPadding,
+      columnPadding: columnPadding,
+      columns: columns,
+      indentation: indentation,
+      fontColor: fontColor,
+      fontSize: fontSize,
+      fontHeight: fontHeight,
+      fontFamily: fontFamily,
+      background: background,
+    )) notifyListeners();
+  }
+
+  bool get firstChpater => _chapterIndex <= 0;
+  bool get lastChapter => _chapterIndex >= chapterTotal;
+
+  Future<void> previousChapter() async {
+    if (firstChpater) return;
+    _chapterIndex = _chapterIndex - 1;
+    nextPages = pages;
+    if (previousPages.isNotEmpty) {
+      pages = previousPages;
+      previousPages = [];
+      notifyListeners();
+      Future.delayed(Duration(seconds: 1)).then((value) async {
+        if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
+      });
+    } else {
+      pages = await startX(_chapterIndex - 1);
+      notifyListeners();
+      Future.delayed(Duration(seconds: 1)).then((value) async {
+        if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
+      });
+    }
+  }
+
+  Future<void> nextChapter() async {
+    if (lastChapter) return;
+    _chapterIndex = _chapterIndex + 1;
+    previousPages = pages;
+    if (nextPages.isNotEmpty) {
+      pages = nextPages;
+      nextPages = [];
+      notifyListeners();
+      Future.delayed(Duration(seconds: 1)).then((value) async {
+        if (!lastChapter) nextPages = await startX(_chapterIndex - 1);
+      });
+    } else {
+      pages = await startX(_chapterIndex - 1);
+      notifyListeners();
+      Future.delayed(Duration(seconds: 1)).then((value) async {
+        if (!lastChapter) nextPages = await startX(_chapterIndex - 1);
+      });
+    }
+  }
+
+  Future<List<TextPage>> startX(int index) async {
+    final pages = <TextPage>[];
+    final paragraphs = await _loadChapter(index);
+    final size = ui.window.physicalSize / ui.window.devicePixelRatio;
+    final columns = config.columns > 0
+        ? config.columns
+        : size.width > 1200
+            ? 3
+            : size.width > 580
+                ? 2
+                : 1;
+    final _width =
+        (size.width - config.leftPadding - config.rightPadding - (columns - 1) * config.columnPadding) / columns;
+    final _width2 = _width - config.fontSize;
+    final _height = size.height - config.topPadding - config.bottomPadding - (config.showInfo ? 24 : 0);
+    final _height2 = _height - config.fontSize * config.fontHeight;
+
+    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final offset = Offset(_width, 1);
+    final _dx = config.leftPadding;
+    final _dy = config.topPadding;
+
+    var lines = <TextLine>[];
+    var columnNum = 1;
+    var dx = _dx;
+    var dy = _dy;
+    var startLine = 0;
+
+    final titleStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: config.fontSize,
+      fontFamily: config.fontFamily,
+      color: config.fontColor,
+    );
+    final style = TextStyle(
+      fontSize: config.fontSize,
+      fontFamily: config.fontFamily,
+      color: config.fontColor,
+    );
+
+    // String t = chapters[index].replaceAll(RegExp("^\s*|\n|\s\$"), "");
+    final chapter = chapters[index];
+    var _t = chapter.isEmpty ? "第$index章" : chapter;
+    while (true) {
+      tp.text = TextSpan(text: _t, style: titleStyle);
+      tp.layout(maxWidth: _width);
+      final textCount = tp.getPositionForOffset(offset).offset;
+      final text = _t.substring(0, textCount);
+      double? spacing;
+      if (tp.width > _width2) {
+        tp.text = TextSpan(text: text, style: titleStyle);
+        tp.layout();
+        double _spacing = (_width - tp.width) / textCount;
+        if (_spacing < -0.1 || _spacing > 0.1) {
+          spacing = _spacing;
+        }
+      }
+      lines.add(TextLine(text, dx, dy, spacing, true));
+      dy += tp.height;
+      if (_t.length == textCount) {
+        break;
+      } else {
+        _t = _t.substring(textCount);
+      }
+    }
+
+    var pageIndex = 0;
+
+    /// 下一页 判断分页 依据: `_boxHeight` `_boxHeight2`是否可以容纳下一行
+    void newPage([bool shouldJustifyHeight = true, bool lastPage = false]) {
+      if (shouldJustifyHeight && config.justifyHeight) {
+        final len = lines.length - startLine;
+        double justify = (_height - dy) / (len - 1);
+        for (var i = 0; i < len; i++) {
+          lines[i + startLine].justifyDy(justify * i);
+        }
+      }
+      if (columnNum == columns || lastPage) {
+        pages.add(TextPage(lines: lines, height: dy, index: pageIndex++, info: chapter));
+        lines = <TextLine>[];
+        columnNum = 1;
+        dx = _dx;
+      } else {
+        columnNum++;
+        dx += _width + config.columnPadding;
+      }
+      dy = _dy;
+      startLine = lines.length;
+    }
+
+    /// 新段落
+    void newParagraph() {
+      if (dy > _height2) {
+        newPage();
+      } else {
+        dy += config.paragraphPadding;
+      }
+    }
+
+    for (var p in paragraphs) {
+      while (true) {
+        tp.text = TextSpan(text: p, style: style);
+        tp.layout(maxWidth: _width);
+        final textCount = tp.getPositionForOffset(offset).offset;
+        double? spacing;
+        final text = p.substring(0, textCount);
+        if (tp.width > _width2) {
+          tp.text = TextSpan(text: text, style: style);
+          tp.layout();
+          spacing = (_width - tp.width) / textCount;
+        }
+        lines.add(TextLine(text, dx, dy, spacing));
+        dy += tp.height;
+        if (p.length == textCount) {
+          newParagraph();
+          break;
+        } else {
+          p = p.substring(textCount);
+          if (dy > _height2) {
+            newPage();
+          }
+        }
+      }
+    }
+    if (lines.isNotEmpty) {
+      newPage(false, true);
+    }
+    if (pages.length == 0) {
+      pages.add(TextPage(lines: [], height: config.topPadding + config.bottomPadding, index: 0, info: chapter));
+    }
+
+    final basePercent = index / chapterTotal;
+    final total = pages.length;
+    pages.forEach((page) {
+      page.percent = (page.index / total / chapterTotal + basePercent).toStringAsFixed(2) + "%";
+    });
+    return pages;
+  }
+}
+
+class TextCompositionEffect extends CustomPainter {
+  TextCompositionEffect({
+    required this.amount,
+    required this.backgroundColor,
+    required this.page,
+    required this.config,
+    this.radius = 0.18,
+  }) : super(repaint: amount);
+
+  final Animation<double> amount;
+  ui.Image? image;
+  final Color backgroundColor;
+  final double radius;
+  final TextPage page;
+  final TextCompositionConfig config;
+
+  @override
+  void paint(ui.Canvas canvas, ui.Size size) {
+    final pos = amount.value;
+    final movX = (1.0 - pos) * 0.85;
+    final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
+    final wHRatio = 1 - calcR;
+
+    final w = size.width.toDouble();
+    final h = size.height.toDouble();
+    final c = canvas;
+    final shadowXf = (wHRatio - movX);
+    final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
+    final pageRect = Rect.fromLTRB(0.0, 0.0, w * shadowXf, h);
+    c.drawRect(pageRect, Paint()..color = backgroundColor);
+    if (pos != 0 && pos != 1) {
+      c.drawRect(
+        pageRect,
+        Paint()
+          ..color = Colors.black54
+          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+      );
+    }
+
+    if (image == null || pos > 0.99) {
+      ui.PictureRecorder? pic;
+      ui.Canvas? c;
+      if (image == null) {
+        pic = ui.PictureRecorder();
+        c = Canvas(pic);
+      }
+      final lineCount = page.lines.length;
+      final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+      final titleStyle = TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: config.fontSize,
+        fontFamily: config.fontFamily,
+        color: config.fontColor,
+      );
+      final style = TextStyle(
+        fontSize: config.fontSize,
+        fontFamily: config.fontFamily,
+        color: config.fontColor,
+      );
+      for (var i = 0; i < lineCount; i++) {
+        final line = page.lines[i];
+        if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+          tp.text = TextSpan(
+            text: line.text,
+            style: line.isTitle
+                ? TextStyle(
+                    letterSpacing: line.letterSpacing,
+                    fontWeight: FontWeight.bold,
+                    fontSize: config.fontSize,
+                    fontFamily: config.fontFamily,
+                    color: config.fontColor,
+                  )
+                : TextStyle(
+                    letterSpacing: line.letterSpacing,
+                    fontSize: config.fontSize,
+                    fontFamily: config.fontFamily,
+                    color: config.fontColor,
+                  ),
+          );
+        } else {
+          tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
+        }
+        final offset = Offset(line.dx, line.dy);
+        tp.layout();
+        tp.paint(canvas, offset);
+        if (c != null) tp.paint(c, offset);
+      }
+      final style2 = TextStyle(
+        fontSize: 10,
+        fontFamily: config.fontFamily,
+        color: config.fontColor,
+      );
+
+      tp.text = TextSpan(text: page.info, style: style2);
+      tp.layout(
+        maxWidth: size.width - config.leftPadding - config.rightPadding - 100,
+      );
+      tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
+
+      tp.text = TextSpan(
+        text: '${page.index}/${page.total} ${page.percent}',
+        style: style2,
+      );
+      tp.layout();
+      tp.paint(
+        canvas,
+        Offset(size.width - config.rightPadding - tp.width, size.height - 24),
+      );
+
+      pic?.endRecording().toImage(size.width.round(), size.height.round()).then((value) => image = value);
+      return;
+    }
+
+    final hWRatio = image!.height / image!.width;
+    final hWCorrection = (hWRatio - 1.0) / 2.0;
+
+    final ip = Paint();
+    for (double x = 0; x < size.width; x++) {
+      final xf = (x / w);
+      final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
+      final xv = (xf * wHRatio) - movX;
+      final sx = (xf * image!.width);
+      final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());
+      final yv = ((h * calcR * movX) * hWRatio) - hWCorrection;
+      final ds = (yv * v);
+      final dr = Rect.fromLTRB(xv * w, 0.0 - ds, xv * w + 1.0, h + ds);
+      c.drawImageRect(image!, sr, dr, ip);
+    }
+  }
+
+  @override
+  bool shouldRepaint(TextCompositionEffect oldDelegate) {
+    return oldDelegate.image != image || oldDelegate.amount.value != amount.value;
+  }
+}
+
+class TextComposition extends StatefulWidget {
+  TextComposition({
+    Key? key,
+    this.duration = const Duration(milliseconds: 300),
+    this.cuton = 8,
+    this.cutoff = 92,
+    required this.controller,
+    required this.lastPage,
+  }) : super(key: key);
+
+  final Duration duration;
+  final int cutoff;
+  final int cuton;
+  final TextCompositionController controller;
+  final Widget lastPage;
+
+  @override
+  TextCompositionState createState() => TextCompositionState();
+}
+
+class TextCompositionState extends State<TextComposition> with TickerProviderStateMixin {
+  int pageNumber = 0;
+  List<Widget> pages = [];
+
+  List<AnimationController> _controllers = [];
+  bool? _isForward;
+
+  @override
+  void didUpdateWidget(TextComposition oldWidget) {
+    // if (oldWidget.duration != widget.duration) {
+    //   _setUp();
+    // }
+    // if (oldWidget.backgroundColor != widget.backgroundColor) {
+    //   _setUp();
+    // }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.dispose();
+    _controllers.forEach((c) => c.dispose());
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(() {
+      setState(() {});
+    });
+    _setUp();
+  }
+
+  void _setUp() {
+    if (widget.controller.pages.isEmpty) return;
+    _controllers.clear();
+    pages.clear();
+    for (var i = 0; i < widget.controller.pages.length; i++) {
+      final _controller = AnimationController(
+        value: 1,
+        duration: widget.duration,
+        vsync: this,
+      );
+      _controllers.add(_controller);
+      var _child = CustomPaint(
+        painter: TextCompositionEffect(
+          amount: _controller,
+          backgroundColor: const Color(0xFFFFFFCC),
+          page: widget.controller.pages[i],
+          config: widget.controller.config,
+        ),
+      );
+      pages.add(_child);
+    }
+    pages = pages.reversed.toList();
+    pageNumber = 0;
+  }
+
+  bool get _isLastPage => pages.length - 1 == pageNumber;
+
+  bool get _isFirstPage => pageNumber == 0;
+
+  void _turnPage(DragUpdateDetails details, BoxConstraints dimens) {
+    final _ratio = details.delta.dx / dimens.maxWidth;
+    if (_isForward == null) {
+      if (details.delta.dx > 0) {
+        _isForward = false;
+      } else {
+        _isForward = true;
+      }
+    }
+    if (_isForward!) {
+      _controllers[pageNumber].value += _ratio;
+    } else {
+      _controllers[pageNumber - 1].value += _ratio;
+    }
+  }
+
+  Future<void> _onDragFinish() async {
+    if (_isForward != null) {
+      if (_isForward!) {
+        if (!_isLastPage && _controllers[pageNumber].value <= (widget.cutoff / 100 + 0.03)) {
+          await nextPage();
+        } else {
+          await _controllers[pageNumber].forward();
+        }
+      } else {
+        if (!_isFirstPage && _controllers[pageNumber - 1].value >= (widget.cuton / 100 + 0.05)) {
+          await previousPage();
+        } else {
+          if (_isFirstPage) {
+            await _controllers[pageNumber].forward();
+          } else {
+            await _controllers[pageNumber - 1].reverse();
+          }
+        }
+      }
+    }
+    _isForward = null;
+  }
+
+  Future<void> nextPage() async {
+    if (_isLastPage) return;
+    if (mounted) {
+      if (widget.controller.config.animationTap)
+        _controllers[pageNumber].reverse();
+      else
+        _controllers[pageNumber].value = 0;
+      setState(() {
+        pageNumber++;
+      });
+    }
+  }
+
+  Future<void> previousPage() async {
+    if (_isFirstPage) return;
+    if (mounted) {
+      if (widget.controller.config.animationTap)
+        _controllers[pageNumber - 1].forward();
+      else
+        _controllers[pageNumber - 1].value = 1;
+      setState(() {
+        pageNumber--;
+      });
+    }
+  }
+
+  Future<void> goToPage(int index) async {
+    if (mounted) {
+      if (index > pageNumber) {
+        _controllers[index - 1].reverse();
+      } else {
+        _controllers[index].forward();
+      }
+      setState(() {
+        pageNumber = index;
+      });
+      for (var i = 0; i < _controllers.length; i++) {
+        if (i < index - 1) {
+          _controllers[i].value = 0;
+        } else if (i > index) {
+          _controllers[i].value = 1;
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int i = 0;
+    return Material(
+      child: LayoutBuilder(
+        builder: (context, dimens) => RawKeyboardListener(
+          focusNode: new FocusNode(),
+          autofocus: true,
+          onKey: (event) {
+            if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
+            if (event.data is RawKeyEventDataMacOs ||
+                event.data is RawKeyEventDataLinux ||
+                event.data is RawKeyEventDataWindows) {
+              final logicalKey = event.data.logicalKey;
+              print(logicalKey);
+              if (logicalKey == LogicalKeyboardKey.arrowUp) {
+                previousPage();
+              } else if (logicalKey == LogicalKeyboardKey.arrowLeft) {
+                previousPage();
+              } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
+                nextPage();
+              } else if (logicalKey == LogicalKeyboardKey.arrowRight) {
+                nextPage();
+              } else if (logicalKey == LogicalKeyboardKey.home) {
+                goToPage(0);
+              } else if (logicalKey == LogicalKeyboardKey.end) {
+                goToPage(pages.length - 1);
+              } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
+                //
+              } else if (logicalKey == LogicalKeyboardKey.escape) {
+                Navigator.of(context).pop();
+              }
+            }
+          },
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragCancel: () => _isForward = null,
+            onHorizontalDragUpdate: (details) => _turnPage(details, dimens),
+            onHorizontalDragEnd: (details) => _onDragFinish(),
+            child: Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                widget.lastPage,
+                ...pages.map((p) {
+                  i++;
+                  final pn = pages.length - pageNumber;
+                  final ret = Offstage(offstage: !(i >= pn - 2 && i <= pn + 1), child: p);
+                  return ret;
+                }).toList(),
+                Positioned.fill(
+                  child: Flex(
+                    direction: Axis.horizontal,
+                    children: <Widget>[
+                      Flexible(
+                        flex: 50 - widget.cuton,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: previousPage,
+                        ),
+                      ),
+                      Flexible(
+                        flex: widget.cutoff - 50,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: nextPage,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// * 暂不支持图片
 /// * 文本排版
 /// * 两端对齐
 /// * 底栏对齐
-class TextComposition {
+class TextCompositionOri {
   /// 待渲染文本段落
   /// 已经预处理: 不重新计算空行 不重新缩进
   final List<String> paragraphs;
@@ -490,7 +1128,7 @@ class TextComposition {
   /// * [columnCount] 分栏个数
   /// * [columnGap] 分栏间距
   /// * onLinkTap canvas 点击事件不生效
-  TextComposition({
+  TextCompositionOri({
     String? text,
     List<String>? paragraphs,
     required this.style,
@@ -514,10 +1152,8 @@ class TextComposition {
     // this.onLinkTap,
   })  : pages = pages ?? <TextPage>[],
         paragraphs = paragraphs ?? text?.split("\n") ?? <String>[],
-        boxSize =
-            boxSize ?? ui.window.physicalSize / ui.window.devicePixelRatio,
-        columnWidth = ((boxSize?.width ??
-                    ui.window.physicalSize.width / ui.window.devicePixelRatio) -
+        boxSize = boxSize ?? ui.window.physicalSize / ui.window.devicePixelRatio,
+        columnWidth = ((boxSize?.width ?? ui.window.physicalSize.width / ui.window.devicePixelRatio) -
                 (padding?.horizontal ?? 0) -
                 (columnCount - 1) * columnGap) /
             columnCount {
@@ -624,9 +1260,7 @@ class TextComposition {
       newPage(false, true);
     }
     if (this.pages.length == 0) {
-      this
-          .pages
-          .add(TextPage(lines: [], height: padding?.horizontal ?? 0, index: 0));
+      this.pages.add(TextPage(lines: [], height: padding?.horizontal ?? 0, index: 0));
     }
   }
 
@@ -637,27 +1271,21 @@ class TextComposition {
     // if (pageIndex != null && !changePage(pageIndex)) return Container();
     return Container(
       width: boxSize.width,
-      height:
-          boxSize.height.isInfinite ? pages[pageIndex].height : boxSize.height,
-      child: CustomPaint(
-          painter: PagePainter(
-              pageIndex, pages[pageIndex], style, titleStyle, debug)),
+      height: boxSize.height.isInfinite ? pages[pageIndex].height : boxSize.height,
+      child: CustomPaint(painter: PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)),
     );
   }
 
   Future<ui.Image?> getImage(int pageIndex) async {
     final recorder = ui.PictureRecorder();
-    final canvas = new Canvas(recorder,
-        Rect.fromPoints(Offset.zero, Offset(boxSize.width, boxSize.height)));
-    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)
-        .paint(canvas, boxSize);
+    final canvas = new Canvas(recorder, Rect.fromPoints(Offset.zero, Offset(boxSize.width, boxSize.height)));
+    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug).paint(canvas, boxSize);
     final picture = recorder.endRecording();
     return await picture.toImage(boxSize.width.floor(), boxSize.height.floor());
   }
 
   void paint(int pageIndex, Canvas canvas) {
-    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)
-        .paint(canvas, boxSize);
+    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug).paint(canvas, boxSize);
   }
 }
 
@@ -667,19 +1295,16 @@ class PagePainter extends CustomPainter {
   final TextStyle? titleStyle;
   final int pageIndex;
   final bool debug;
-  const PagePainter(this.pageIndex, this.page, this.style, this.titleStyle,
-      [this.debug = false]);
+  const PagePainter(this.pageIndex, this.page, this.style, this.titleStyle, [this.debug = false]);
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (debug)
-      print("****** [TextComposition paint start] [${DateTime.now()}] ******");
+    if (debug) print("****** [TextComposition paint start] [${DateTime.now()}] ******");
     final lineCount = page.lines.length;
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
     for (var i = 0; i < lineCount; i++) {
       final line = page.lines[i];
-      if (line.letterSpacing != null &&
-          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+      if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
         tp.text = TextSpan(
           text: line.text,
           style: line.isTitle
@@ -687,16 +1312,14 @@ class PagePainter extends CustomPainter {
               : style.copyWith(letterSpacing: line.letterSpacing),
         );
       } else {
-        tp.text =
-            TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
+        tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
       }
       final offset = Offset(line.dx, line.dy);
       if (debug) print("$offset ${line.text}");
       tp.layout();
       tp.paint(canvas, offset);
     }
-    if (debug)
-      print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
+    if (debug) print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/page/content_page_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:text_composition/text_composition.dart';
 
 class NovelPage extends StatelessWidget {
   final SearchItem searchItem;
@@ -10,16 +11,19 @@ class NovelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ContentProvider>(context);
-    return FutureBuilder(
-      future: provider.loadChapter(0),
-      initialData: "获取章节",
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return Material(
-          child: Center(
-            child: Text("${snapshot.data}"),
-          ),
-        );
-      },
+
+    return TextComposition(
+      controller: TextCompositionController(
+        TextCompositionConfig(),
+        provider.loadChapter,
+        searchItem.chapters.map((e) => e.name).toList(),
+        searchItem.durContentIndex / NovelContentTotal,
+      ),
+      lastPage: Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: Center(child: Text("${searchItem.name}\n 这是最后一页")),
+      ),
     );
   }
 }
