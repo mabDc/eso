@@ -9,10 +9,10 @@ import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_novel_menu.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:text_composition/text_composition.dart';
 
 /// 文字阅读页面
 class NovelPage extends StatefulWidget {
@@ -20,12 +20,10 @@ class NovelPage extends StatefulWidget {
   const NovelPage({this.searchItem, Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _NovelPageState(this.searchItem);
+  State<StatefulWidget> createState() => _NovelPageState();
 }
 
 class _NovelPageState extends State<NovelPage> {
-  final SearchItem searchItem;
-  _NovelPageState(this.searchItem) : super();
 
   @override
   void dispose() {
@@ -36,160 +34,80 @@ class _NovelPageState extends State<NovelPage> {
   @override
   Widget build(BuildContext context) {
     final profile = Provider.of<Profile>(context, listen: false);
-    final FocusNode _backNode = new FocusNode();
-    final height = MediaQuery.of(context).size.height - 100;
-    return ChangeNotifierProvider<NovelPageProvider>(
-      create: (BuildContext context) => NovelPageProvider(
-        searchItem: searchItem,
-        keepOn: profile.novelKeepOn,
-        profile: profile,
-        height: height,
-      ),
-      builder: (context, child) => Scaffold(
-        body: Consumer2<NovelPageProvider, Profile>(
-          builder:
-              (BuildContext context, NovelPageProvider provider, Profile profile, _) {
-            if (provider.paragraphs == null) {
-              return LandingPage();
-            }
-            updateSystemChrome(provider.showMenu, profile);
-            return RawKeyboardListener(
-              focusNode: _backNode,
-              autofocus: true,
-              onKey: (event) {
-                if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
-                if (event.data is RawKeyEventDataMacOs ||
-                    event.data is RawKeyEventDataLinux ||
-                    event.data is RawKeyEventDataWindows) {
-                  final logicalKey = event.data.logicalKey;
-                  print(logicalKey);
-                  if (logicalKey == LogicalKeyboardKey.arrowUp ||
-                      logicalKey == LogicalKeyboardKey.arrowLeft ||
-                      logicalKey == LogicalKeyboardKey.pageUp) {
-                    provider.tapLastPage();
-                  } else if (logicalKey == LogicalKeyboardKey.arrowDown ||
-                      logicalKey == LogicalKeyboardKey.arrowRight ||
-                      logicalKey == LogicalKeyboardKey.pageDown) {
-                    provider.tapNextPage();
-                  } else if (logicalKey == LogicalKeyboardKey.bracketLeft ||
-                      logicalKey == LogicalKeyboardKey.minus ||
-                      logicalKey == LogicalKeyboardKey.insert) {
-                    provider.loadChapter(searchItem.durChapterIndex - 1);
-                  } else if (logicalKey == LogicalKeyboardKey.bracketRight ||
-                      logicalKey == LogicalKeyboardKey.numpadAdd ||
-                      logicalKey == LogicalKeyboardKey.delete) {
-                    provider.loadChapter(searchItem.durChapterIndex + 1);
-                  } else if (logicalKey == LogicalKeyboardKey.enter ||
-                      logicalKey == LogicalKeyboardKey.numpadEnter) {
-                    provider.showMenu = !provider.showMenu;
-                  } else if (logicalKey == LogicalKeyboardKey.escape) {
-                    Navigator.of(context).pop();
-                  }
-                }
-              },
-              child: GestureDetector(
-                child: Stack(
-                  children: <Widget>[
-                    AnnotatedRegion<SystemUiOverlayStyle>(
-                      value: Global.novelLightOrDark(),
-                      child: Container(
-                        decoration: Utils.getNovelBackground(),
-                        padding: EdgeInsets.only(
-                            top: profile.showNovelStatus
-                                ? MediaQuery.of(context).padding.top + profile.novelTopPadding
-                                : profile.novelTopPadding),
-                        child: _buildContent(provider, profile),
-                      ),
-                    ),
-                    if (provider.showChapter || provider.showMenu || provider.showSetting)
-                      WillPopScope(
-                        onWillPop: () async {
-                          provider.showChapter = false;
-                          provider.showSetting = false;
-                          provider.showMenu = false;
-                          return false;
-                        },
-                        child: SizedBox(),
-                      ),
-                    if (provider.showMenu)
-                      UINovelMenu(searchItem: searchItem, profile: profile),
-                    if (provider.showChapter)
-                      UIChapterSelect(
-                        searchItem: searchItem,
-                        loadChapter: provider.loadChapter,
-                      ),
-                    if (provider.isLoading)
-                      Opacity(
-                        opacity: 0.8,
-                        child: Center(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Theme.of(context).canvasColor,
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CupertinoActivityIndicator(),
-                                SizedBox(height: 20),
-                                Text(
-                                  "加载中...",
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                onVerticalDragEnd: (DragEndDetails details) {
-                  if (details.primaryVelocity.abs() > 100) {
-                    if (provider.showSetting) {
-                      provider.showSetting = false;
-                    } else if (provider.showMenu) {
-                      provider.showMenu = false;
-                    } else {
-                      if (details.primaryVelocity > 0) {
-                        provider.tapLastPage();
-                      } else {
-                        provider.tapNextPage();
-                      }
-                    }
-                  }
-                },
-                onTapUp: (TapUpDetails details) {
-                  final size = MediaQuery.of(context).size;
-                  final _centerL = size.width * (1 / 3);
-                  final _centerR = size.width - _centerL;
-                  final _centerT = size.height * (1 / 3);
-                  final _centerB = size.height - _centerT;
-
-                  if (details.globalPosition.dx > _centerL &&
-                      details.globalPosition.dx < _centerR &&
-                      details.globalPosition.dy > _centerT &&
-                      details.globalPosition.dy < _centerB) {
-                    provider.showMenu = !provider.showMenu;
-                    provider.showSetting = false;
-                  } else {
-                    provider.showChapter = false;
-                    if (!provider.showSetting && !provider.showMenu) {
-                      if (details.globalPosition.dx < size.width * 0.5 &&
-                          details.globalPosition.dy < size.height * 0.5) {
-                        provider.tapLastPage();
-                      } else {
-                        provider.tapNextPage();
-                      }
-                    }
-                  }
-                },
-              ),
-            );
-          },
-        ),
-      ),
-    );
+    return Container();
+    // return ChangeNotifierProvider<NovelPageProvider>(
+    //   create: (BuildContext context) => NovelPageProvider(
+    //     searchItem: widget.searchItem,
+    //     keepOn: profile.novelKeepOn,
+    //     profile: profile,
+    //   ),
+    //   builder: (context, child) => Scaffold(
+    //     body: Consumer2<NovelPageProvider, Profile>(
+    //       builder:
+    //           (BuildContext context, NovelPageProvider provider, Profile profile, _) {
+    //         if (provider.paragraphs == null) {
+    //           return LandingPage();
+    //         }
+    //         updateSystemChrome(provider.showMenu, profile);
+    //         final size = MediaQuery.of(context).size;
+    //         if (provider.didUpdateReadSetting(profile, size))
+    //           provider.buildTextComposition(profile);
+    //         return Stack(
+    //           children: <Widget>[
+    //             AnnotatedRegion<SystemUiOverlayStyle>(
+    //               value: Global.novelLightOrDark(),
+    //               child: Container(
+    //                 decoration: Utils.getNovelBackground(),
+    //                 child: TCPage(provider.textComposition),
+    //               ),
+    //             ),
+    //             if (provider.showChapter || provider.showMenu || provider.showSetting)
+    //               WillPopScope(
+    //                 onWillPop: () async {
+    //                   provider.showChapter = false;
+    //                   provider.showSetting = false;
+    //                   provider.showMenu = false;
+    //                   return false;
+    //                 },
+    //                 child: SizedBox(),
+    //               ),
+    //             if (provider.showMenu)
+    //               UINovelMenu(searchItem: widget.searchItem, profile: profile),
+    //             if (provider.showChapter)
+    //               UIChapterSelect(
+    //                 searchItem: widget.searchItem,
+    //                 loadChapter: provider.loadChapter,
+    //               ),
+    //             if (provider.isLoading)
+    //               Opacity(
+    //                 opacity: 0.8,
+    //                 child: Center(
+    //                   child: Container(
+    //                     decoration: BoxDecoration(
+    //                       borderRadius: BorderRadius.circular(20),
+    //                       color: Theme.of(context).canvasColor,
+    //                     ),
+    //                     padding: EdgeInsets.symmetric(horizontal: 42, vertical: 20),
+    //                     child: Column(
+    //                       mainAxisSize: MainAxisSize.min,
+    //                       children: [
+    //                         CupertinoActivityIndicator(),
+    //                         SizedBox(height: 20),
+    //                         Text(
+    //                           "加载中...",
+    //                           style: TextStyle(fontSize: 20),
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   ),
+    //                 ),
+    //               ),
+    //           ],
+    //         );
+    //       },
+    //     ),
+    //   ),
+    // );
   }
 
   bool lastShowMenu;
@@ -202,74 +120,5 @@ class _NovelPageState extends State<NovelPage> {
     } else if (!profile.showNovelStatus) {
       SystemChrome.setEnabledSystemUIOverlays([]);
     }
-  }
-
-  Widget _buildContent(NovelPageProvider provider, Profile profile) {
-    final size = MediaQuery.of(context).size;
-    if (provider.didUpdateReadSetting(profile, size))
-      provider.buildTextComposition(profile);
-
-    Axis scrollDirection;
-    final info = (int position)=>profile.showNovelInfo
-        ? Container(
-            padding: EdgeInsets.symmetric(horizontal: profile.novelLeftPadding),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    position == 1
-                        ? "${searchItem.name} (${searchItem.origin})"
-                        : "${searchItem.durChapter}",
-                    style: TextStyle(fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-                Text(
-                  "$position/${provider.textComposition.pageCount}",
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-          )
-        : Container();
-
-    switch (profile.novelPageSwitch) {
-      case Profile.novelNone:
-      case Profile.novelFade:
-      case Profile.novelCover:
-      case Profile.novelScroll:
-        return Column(
-          children: [
-            provider.getTextCompositionPage(),
-            SizedBox(height: profile.novelTopPadding),
-            info(provider.currentPage),
-          ],
-        );
-      case Profile.novelHorizontalSlide:
-        scrollDirection = Axis.horizontal;
-        break;
-      case Profile.novelVerticalSlide:
-        scrollDirection = Axis.vertical;
-        break;
-      default:
-        return Center(child: Text("换页方式暂不支持\n请选择其他方式"));
-    }
-    return PageView.builder(
-      controller: provider.controller,
-      onPageChanged: (value) => provider.currentPage = value + 1,
-      scrollDirection: scrollDirection,
-      physics: BouncingScrollPhysics(),
-      itemCount: provider.textComposition.pageCount,
-      itemBuilder: (BuildContext context, int position) {
-        return Column(
-          children: [
-            provider.getTextCompositionPage(position),
-            SizedBox(height: profile.novelTopPadding),
-            info(position + 1),
-          ],
-        );
-      },
-    );
   }
 }

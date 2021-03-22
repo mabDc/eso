@@ -1,8 +1,413 @@
 library text_composition;
 
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-export 'page_turn.dart';
+
+import 'package:flutter/material.dart';
+
+const indentation = "　";
+
+TextPage getOnePage(
+    List<String> paragraphs, TextCompositionConfig config, double? width) {
+  width ??= ui.window.physicalSize.width / ui.window.devicePixelRatio;
+  width -= config.leftPadding + config.rightPadding;
+  final width2 = width - config.fontSize;
+  final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+  final offset = Offset(width, 1);
+  final lines = <TextLine>[];
+  final style = TextStyle(
+    fontSize: config.fontSize,
+    fontFamily: config.fontFamily,
+    color: config.fontColor,
+  );
+  var dx = config.leftPadding, dy = config.topPadding;
+  for (var p in paragraphs) {
+    p = indentation * config.indentation + p;
+    while (true) {
+      tp.text = TextSpan(text: p, style: style);
+      tp.layout(maxWidth: width);
+      final textCount = tp.getPositionForOffset(offset).offset;
+      double? spacing;
+      final text = p.substring(0, textCount);
+      if (tp.width > width2) {
+        tp.text = TextSpan(text: text, style: style);
+        tp.layout();
+        final _spacing = (width - tp.width) / textCount;
+        if (_spacing < -0.1 || _spacing > 0.1) spacing = _spacing;
+      }
+      lines.add(TextLine(text, dx, dy, spacing));
+      dy += tp.height;
+      if (p.length == textCount) {
+        dy += config.paragraphPadding;
+        break;
+      } else {
+        p = p.substring(textCount);
+      }
+    }
+  }
+  return TextPage(height: dy + config.bottomPadding, lines: lines, index: 0);
+}
+
+class TextCompositionWidget extends StatelessWidget {
+  final TextCompositionConfig config;
+  final double? width;
+  final List<String> paragraphs;
+  final bool debug;
+
+  const TextCompositionWidget({
+    Key? key,
+    this.width,
+    this.debug = false,
+    required this.config,
+    required this.paragraphs,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final page = getOnePage(paragraphs, config, width);
+    return Container(
+      height: page.height,
+      width: width,
+      child:
+          CustomPaint(painter: SimpleLinesPainter(page.lines, config, debug)),
+    );
+  }
+}
+
+class SimpleLinesPainter extends CustomPainter {
+  final List<TextLine> lines;
+  final TextCompositionConfig config;
+  final bool debug;
+  const SimpleLinesPainter(this.lines, this.config, this.debug);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (debug)
+      print("****** [TextComposition paint start] [${DateTime.now()}] ******");
+    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    lines.forEach((line) {
+      tp.text = TextSpan(
+          text: line.text,
+          style: TextStyle(
+            fontSize: config.fontSize,
+            fontFamily: config.fontFamily,
+            letterSpacing: line.letterSpacing,
+            color: config.fontColor,
+          ));
+      final offset = Offset(line.dx, line.dy);
+      if (debug) print("$offset ${line.text}");
+      tp.layout();
+      tp.paint(canvas, offset);
+    });
+    if (debug)
+      print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
+  }
+
+  @override
+  bool shouldRepaint(SimpleLinesPainter old) {
+    return true;
+  }
+}
+
+/// + 这里配置需要离线保存和加载
+/// + 其他配置实时计算
+///
+/// - [animationTap]
+/// - [animationDrag]
+/// - [animationDragEnd]
+/// - [justifyHeight]
+/// - [showInfo]
+/// - [topPadding]
+/// - [leftPadding]
+/// - [bottomPadding]
+/// - [rightPadding]
+/// - [titlePadding]
+/// - [paragraphPadding]
+/// - [columnPadding]
+/// - [columns]
+/// - [indentation]
+/// - [fontColor]
+/// - [fontSize]
+/// - [fontHeight]
+/// - [fontFamily]
+/// - [background]
+class TextCompositionConfig {
+  /// bool
+  bool animationTap;
+  bool animationDrag;
+  bool animationDragEnd;
+  bool justifyHeight;
+  bool showInfo; // info size - 100px, index/total percent - right 100px
+
+  /// padding
+  double topPadding;
+  double leftPadding;
+  double bottomPadding;
+  double rightPadding;
+  double titlePadding;
+  double paragraphPadding;
+  double columnPadding;
+
+  /// font
+  int columns; // <1 <==> auto
+  int indentation;
+  Color fontColor;
+  double fontSize;
+  double fontHeight;
+  String? fontFamily;
+
+  // string
+  String background;
+
+  TextCompositionConfig({
+    this.animationTap = true,
+    this.animationDrag = true,
+    this.animationDragEnd = true,
+    this.justifyHeight = true,
+    this.showInfo = true,
+    this.topPadding = 10,
+    this.leftPadding = 10,
+    this.bottomPadding = 10,
+    this.rightPadding = 10,
+    this.titlePadding = 30,
+    this.paragraphPadding = 10,
+    this.columnPadding = 30,
+    this.columns = 0,
+    this.indentation = 2,
+    this.fontColor = const Color(0xFF303133),
+    this.fontSize = 18,
+    this.fontHeight = 1.6,
+    this.fontFamily,
+    this.background = '#FFFFFFCC',
+  });
+
+  bool updateTextCompositionConfig({
+    bool? animationTap,
+    bool? animationDrag,
+    bool? animationDragEnd,
+    bool? justifyHeight,
+    bool? showInfo,
+    double? topPadding,
+    double? leftPadding,
+    double? bottomPadding,
+    double? rightPadding,
+    double? titlePadding,
+    double? paragraphPadding,
+    double? columnPadding,
+    int? columns,
+    int? indentation,
+    Color? fontColor,
+    double? fontSize,
+    double? fontHeight,
+    String? background,
+  }) {
+    bool? update;
+
+    if (animationTap != null && this.animationTap != animationTap) {
+      this.animationTap = animationTap;
+      update ??= true;
+    }
+    if (animationDrag != null && this.animationDrag != animationDrag) {
+      this.animationDrag = animationDrag;
+      update ??= true;
+    }
+    if (animationDragEnd != null && this.animationDragEnd != animationDragEnd) {
+      this.animationDragEnd = animationDragEnd;
+      update ??= true;
+    }
+    if (justifyHeight != null && this.justifyHeight != justifyHeight) {
+      this.justifyHeight = justifyHeight;
+      update ??= true;
+    }
+    if (showInfo != null && this.showInfo != showInfo) {
+      this.showInfo = showInfo;
+      update ??= true;
+    }
+    if (topPadding != null && this.topPadding != topPadding) {
+      this.topPadding = topPadding;
+      update ??= true;
+    }
+    if (leftPadding != null && this.leftPadding != leftPadding) {
+      this.leftPadding = leftPadding;
+      update ??= true;
+    }
+    if (bottomPadding != null && this.bottomPadding != bottomPadding) {
+      this.bottomPadding = bottomPadding;
+      update ??= true;
+    }
+    if (rightPadding != null && this.rightPadding != rightPadding) {
+      this.rightPadding = rightPadding;
+      update ??= true;
+    }
+    if (titlePadding != null && this.titlePadding != titlePadding) {
+      this.titlePadding = titlePadding;
+      update ??= true;
+    }
+    if (paragraphPadding != null && this.paragraphPadding != paragraphPadding) {
+      this.paragraphPadding = paragraphPadding;
+      update ??= true;
+    }
+    if (columnPadding != null && this.columnPadding != columnPadding) {
+      this.columnPadding = columnPadding;
+      update ??= true;
+    }
+    if (columns != null && this.columns != columns) {
+      this.columns = columns;
+      update ??= true;
+    }
+    if (indentation != null && this.indentation != indentation) {
+      this.indentation = indentation;
+      update ??= true;
+    }
+    if (fontColor != null && this.fontColor != fontColor) {
+      this.fontColor = fontColor;
+      update ??= true;
+    }
+    if (fontSize != null && this.fontSize != fontSize) {
+      this.fontSize = fontSize;
+      update ??= true;
+    }
+    if (fontHeight != null && this.fontHeight != fontHeight) {
+      this.fontHeight = fontHeight;
+      update ??= true;
+    }
+    if (fontFamily != null && this.fontFamily != fontFamily) {
+      this.fontFamily = fontFamily;
+      update ??= true;
+    }
+    if (background != null && this.background != background) {
+      this.background = background;
+      update ??= true;
+    }
+
+    return update == true;
+  }
+
+  /// Creates an instance of this class from a JSON object.
+  factory TextCompositionConfig.fromJSON(Map<String, dynamic> encoded) {
+    return TextCompositionConfig(
+      // text: encoded['text'] as String,
+      animationTap: encoded['animationTap'] ?? true,
+      animationDrag: encoded['animationDrag'] ?? true,
+      animationDragEnd: encoded['animationDragEnd'] ?? true,
+      justifyHeight: encoded['justifyHeight'] ?? true,
+      showInfo: encoded['showInfo'] ?? true,
+      topPadding: encoded['topPadding'] ?? 10,
+      leftPadding: encoded['leftPadding'] ?? 10,
+      bottomPadding: encoded['bottomPadding'] ?? 10,
+      rightPadding: encoded['rightPadding'] ?? 10,
+      titlePadding: encoded['titlePadding'] ?? 30,
+      paragraphPadding: encoded['paragraphPadding'] ?? 10,
+      columnPadding: encoded['columnPadding'] ?? 30,
+      columns: encoded['columns'] ?? 0,
+      indentation: encoded['indentation'] ?? 2,
+      fontColor: Color(encoded['fontColor'] ?? 0xFF303133),
+      fontSize: encoded['fontSize'] ?? 18,
+      fontHeight: encoded['fontHeight'] ?? 1.6,
+      fontFamily: encoded['fontFamily'],
+      background: encoded['background'] ?? '#FFFFFFCC',
+    );
+  }
+
+  /// Returns a representation of this object as a JSON object.
+  Map<String, dynamic> toJSON() {
+    return <String, dynamic>{
+      'animationTap': animationTap,
+      'animationDrag': animationDrag,
+      'animationDragEnd': animationDragEnd,
+      'justifyHeight': justifyHeight,
+      'showInfo': showInfo,
+      'topPadding': topPadding,
+      'leftPadding': leftPadding,
+      'bottomPadding': bottomPadding,
+      'rightPadding': rightPadding,
+      'titlePadding': titlePadding,
+      'paragraphPadding': paragraphPadding,
+      'columnPadding': columnPadding,
+      'columns': columns,
+      'indentation': indentation,
+      'fontColor': fontColor.value,
+      'fontSize': fontSize,
+      'fontHeight': fontHeight,
+      'fontFamily': fontFamily,
+      'background': background,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TextCompositionConfig &&
+        other.animationTap == animationTap &&
+        other.animationDrag == animationDrag &&
+        other.animationDragEnd == animationDragEnd &&
+        other.justifyHeight == justifyHeight &&
+        other.showInfo == showInfo &&
+        other.topPadding == topPadding &&
+        other.leftPadding == leftPadding &&
+        other.bottomPadding == bottomPadding &&
+        other.rightPadding == rightPadding &&
+        other.titlePadding == titlePadding &&
+        other.paragraphPadding == paragraphPadding &&
+        other.columnPadding == columnPadding &&
+        other.columns == columns &&
+        other.indentation == indentation &&
+        other.fontColor == fontColor &&
+        other.fontSize == fontSize &&
+        other.fontHeight == fontHeight &&
+        other.fontFamily == fontFamily &&
+        other.background == background;
+  }
+
+  @override
+  int get hashCode => super.hashCode;
+}
+
+class TextPage {
+  String info;
+  double index;
+  double total;
+  double chIndex;
+  double chTotal;
+  final double height;
+  final List<TextLine> lines;
+
+  TextPage({
+    required this.index,
+    required this.height,
+    required this.lines,
+    this.info = '',
+    this.total = 1,
+    this.chIndex = 0,
+    this.chTotal = 1,
+  });
+}
+
+class TextLine {
+  final String text;
+  double dx;
+  double _dy;
+  double get dy => _dy;
+  final double? letterSpacing;
+  final bool isTitle;
+  TextLine(
+    this.text,
+    this.dx,
+    double dy, [
+    this.letterSpacing = 0,
+    this.isTitle = false,
+  ]) : _dy = dy;
+
+  justifyDy(double offsetDy) {
+    _dy += offsetDy;
+  }
+}
+
+/// 样式设置与刷新
+/// 动画设置与刷新
+class TextCompositionController extends ValueNotifier<TextCompositionConfig> {
+  TextCompositionController(TextCompositionConfig textCompositionConfig)
+      : super(textCompositionConfig);
+}
 
 /// * 暂不支持图片
 /// * 文本排版
@@ -169,7 +574,7 @@ class TextComposition {
         }
       }
       if (columnNum == columnCount || lastPage) {
-        this.pages.add(TextPage(lines, dy));
+        this.pages.add(TextPage(lines: lines, height: dy, index: 0));
         lines = <TextLine>[];
         columnNum = 1;
         dx = _dx;
@@ -219,7 +624,9 @@ class TextComposition {
       newPage(false, true);
     }
     if (this.pages.length == 0) {
-      this.pages.add(TextPage([], 0));
+      this
+          .pages
+          .add(TextPage(lines: [], height: padding?.horizontal ?? 0, index: 0));
     }
   }
 
@@ -296,31 +703,5 @@ class PagePainter extends CustomPainter {
   bool shouldRepaint(PagePainter old) {
     print("shouldRepaint");
     return old.pageIndex != pageIndex;
-  }
-}
-
-class TextPage {
-  final List<TextLine> lines;
-  final double height;
-  const TextPage(this.lines, this.height);
-}
-
-class TextLine {
-  final String text;
-  double dx;
-  double _dy;
-  double get dy => _dy;
-  final double? letterSpacing;
-  final bool isTitle;
-  TextLine(
-    this.text,
-    this.dx,
-    double dy, [
-    this.letterSpacing = 0,
-    this.isTitle = false,
-  ]) : _dy = dy;
-
-  justifyDy(double offsetDy) {
-    _dy += offsetDy;
   }
 }

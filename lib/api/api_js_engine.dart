@@ -32,8 +32,8 @@ class JSEngine {
     if (_engine != null) return;
     final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
     _engine = IsolateQjs(stackSize: 1024 * 1024);
-    final setToGlobalObject = await _engine
-        .evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
+    final setToGlobalObject =
+        await _engine.evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([
       "__http__",
       IsolateFunction((dynamic url) async {
@@ -93,8 +93,17 @@ class JSEngine {
         headers
       });
     };
+    if(typeof __print === 'undefined') var __print = (s, isUrl) => undefined;
+    var print = (s, isUrl) => __print(s, !!isUrl);
     1+1;
     """);
+  }
+
+  static Future<void> setFunction(String name, IsolateFunction fun) async {
+    final setToGlobalObject =
+        await _engine.evaluate("(key, val) => { this[key] = val; }");
+    await setToGlobalObject.invoke([name, fun]);
+    setToGlobalObject.free();
   }
 
   static Future<void> setEnvironment(

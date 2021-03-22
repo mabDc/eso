@@ -244,28 +244,18 @@ class _ChapterPageState extends State<ChapterPage> {
   }
 
   Widget _buildDescription(BuildContext context, String description) {
-    const horizontalPadding = 20.0;
-    final fontSize = 12.0;
-    final paragraphPadding = 10.0;
     final w = MediaQuery.of(context).size.width;
-    final width = (w > 600 ? w / 2 : w) - 2 * horizontalPadding;
-    final fontColor = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.8);
-    final tc = TextComposition(
-      paragraphs:
-          description.split(RegExp(r"^\s*|(\s{2,}|\n)\s*")).map((s) => s.trimLeft()).toList(),
-      boxSize: Size.fromWidth(width),
-      style: TextStyle(
-          fontSize: fontSize, color: fontColor, fontFamily: Profile.staticFontFamily),
-      paragraph: paragraphPadding,
-    );
-    return Container(
-      padding: const EdgeInsets.only(
-        top: 16.0,
-        bottom: 12,
-        left: horizontalPadding,
-        right: horizontalPadding - 5,
+    return TextCompositionWidget(
+      paragraphs: description
+          .split(RegExp(r"^\s*|(\s{2,}|\n)\s*"))
+          .map((s) => s.trimLeft())
+          .toList(),
+      config: TextCompositionConfig(
+        fontSize: 12,
+        paragraphPadding: 8,
+        fontFamily: Profile.staticFontFamily,
       ),
-      child: tc.getPageWidget(pageIndex: 0),
+      width: w > 600 ? w / 2 : w,
     );
   }
 

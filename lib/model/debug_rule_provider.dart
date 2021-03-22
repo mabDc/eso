@@ -6,6 +6,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:oktoast/oktoast.dart';
 import '../api/analyze_url.dart';
 import '../api/analyzer_manager.dart';
@@ -25,6 +26,9 @@ class DebugRuleProvider with ChangeNotifier {
   DebugRuleProvider(this.rule, this.textColor) {
     disposeFlag = false;
     _controller = ScrollController();
+    JSEngine.setFunction("__print", IsolateFunction((s, isUrl) {
+      _addContent("JS", s, isUrl, true);
+    }));
   }
 
   final rows = <Row>[];
@@ -37,7 +41,7 @@ class DebugRuleProvider with ChangeNotifier {
     super.dispose();
   }
 
-  Widget _buildText(String s, [bool isUrl = false]) {
+  Widget _buildText(String s, [bool isUrl = false, bool fromJS = false]) {
     return Flexible(
       child: isUrl
           ? GestureDetector(
@@ -51,25 +55,27 @@ class DebugRuleProvider with ChangeNotifier {
                 style: TextStyle(
                   decorationStyle: TextDecorationStyle.solid,
                   decoration: TextDecoration.underline,
-                  color: Colors.blue,
+                  color: fromJS ? Colors.green : Colors.blue,
                   height: 2,
                 ),
               ),
             )
-          : SelectableText(s, style: TextStyle(height: 2)),
+          : SelectableText(s,
+              style: TextStyle(height: 2, color: fromJS ? Colors.green : null)),
     );
   }
 
-  void _addContent(String sInfo, [String s, bool isUrl = false]) {
+  void _addContent(String sInfo, [String s, bool isUrl = false, bool fromJS = false]) {
     final d = DateTime.now().difference(_startTime).inMicroseconds;
     rows.add(Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           "• [${DateFormat("mm:ss.SSS").format(DateTime.fromMicrosecondsSinceEpoch(d))}] $sInfo${s == null ? "" : ": "}",
-          style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
+          style: TextStyle(
+              color: textColor.withOpacity(0.5), height: 2),
         ),
-        _buildText(s ?? "", isUrl),
+        _buildText(s ?? "", isUrl, fromJS),
       ],
     ));
     if (sInfo == "封面") {
@@ -250,7 +256,7 @@ class DebugRuleProvider with ChangeNotifier {
         body = DecodeBody()
             .decode(searchResult.bodyBytes, searchResult.headers["content-type"]);
       }
-      await JSEngine.setEnvironment(1, rule, "", rule.host, value, "");
+      await JSEngine.setEnvironment(1, rule, "", searchUrl, value, "");
       _addContent("初始化js");
       final analyzer = AnalyzerManager(body);
       String next;

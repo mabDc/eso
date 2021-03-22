@@ -226,16 +226,17 @@ class AnalyzerManager {
     }
     if (r.analyzer is AnalyzerJS) {
       final temp = await r.analyzer.getString(rule);
-      if (temp is List) {
+      if (temp == null) {
+        return '';
+      } else if (temp is List) {
         /// 使用双半角空格分隔
         return temp
             .where((s) => null != s)
             .map((s) => '$s'.trim())
             .where((s) => s.isNotEmpty)
             .join("  ");
-      } else if (null != temp) {
-        return '$temp'.trim();
       }
+      return '$temp'.trim();
     }
     var result = "";
     if (rule.contains("&&")) {
@@ -290,6 +291,9 @@ class AnalyzerManager {
 
     for (final r in splitRuleReversed(rule).reversed) {
       r.analyzer.parse(result.isNotEmpty ? result : _content);
+      if (r.analyzer is AnalyzerJS) {
+        print("^^^^^^" + r.rule);
+      }
       result = await _getString(r);
     }
     return result;

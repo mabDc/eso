@@ -374,6 +374,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   }
 
   Widget _buildInfo(BuildContext context) {
+    var code = '''main() {
+  print("Hello, World!");
+}
+''';
     return ExpansionTile(
       title: _buildTitle("基本规则"),
       initiallyExpanded: _infoExpanded,

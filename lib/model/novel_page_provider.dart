@@ -20,12 +20,8 @@ import 'package:text_composition/text_composition.dart';
 
 class NovelPageProvider with ChangeNotifier {
   final SearchItem searchItem;
-  int _progress;
-  int get progress => _progress;
   List<String> _paragraphs;
   List<String> get paragraphs => _paragraphs;
-  PageController _controller;
-  PageController get controller => _controller;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -58,15 +54,6 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-  bool _useSelectableText;
-  bool get useSelectableText => _useSelectableText;
-  set useSelectableText(bool value) {
-    if (value != _useSelectableText) {
-      _useSelectableText = value;
-      notifyListeners();
-    }
-  }
-
   double _brightness;
   double get brightness => _brightness;
   set brightness(double value) {
@@ -84,9 +71,8 @@ class NovelPageProvider with ChangeNotifier {
     }
   }
 
-  final double height;
 
-  NovelPageProvider({this.searchItem, this.keepOn, this.height, Profile profile}) {
+  NovelPageProvider({this.searchItem, this.keepOn, Profile profile}) {
     _tts.setCompletionHandler(nextPara);
     WindowsSpeak.handleComplete = nextPara;
     _brightness = 0.5;
@@ -94,9 +80,6 @@ class NovelPageProvider with ChangeNotifier {
     _showChapter = false;
     _showMenu = false;
     _showSetting = false;
-    _useSelectableText = false;
-    _controller = PageController();
-    _progress = 0;
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
@@ -379,16 +362,6 @@ class NovelPageProvider with ChangeNotifier {
       searchItem.durContentIndex = 0x7fffffff;
     }
 
-    if (changeCurChapter) {
-      // 滚动模式
-      if (_readSetting?.pageSwitch != Profile.novelNone) {
-        _readSetting.durChapterIndex = searchItem.durChapterIndex;
-        buildTextComposition(Profile());
-        // _controller = PageController(initialPage: currentPage);
-        _controller.jumpToPage(_currentPage - 1);
-      }
-    }
-
     if (notify && this.mounted) {
       _isLoading = false;
       notifyListeners();
@@ -405,50 +378,6 @@ class NovelPageProvider with ChangeNotifier {
     await SearchItemManager.saveSearchItem();
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     await HistoryItemManager.saveHistoryItem();
-  }
-
-  int _currentPage;
-
-  /// 当前页
-  int get currentPage => _currentPage;
-  set currentPage(int value) {
-    if (value > 0 && value < textComposition.pageCount) {
-      _currentPage = value;
-      searchItem.durContentIndex =
-          (_currentPage * 10000 / textComposition.pageCount).floor();
-      notifyListeners();
-    }
-  }
-
-  void tapNextPage() {
-    if (_currentPage < textComposition.pageCount) {
-      print("tapNextPage");
-      _currentPage++;
-      searchItem.durContentIndex =
-          (_currentPage * 10000 / textComposition.pageCount).floor();
-      if (_readSetting.pageSwitch == Profile.novelNone) {
-        notifyListeners();
-      } else {
-        _controller.jumpToPage(_currentPage - 1);
-      }
-    } else {
-      loadChapter(searchItem.durChapterIndex + 1);
-    }
-  }
-
-  void tapLastPage() {
-    if (_currentPage > 1) {
-      _currentPage--;
-      searchItem.durContentIndex =
-          (_currentPage * 10000 / textComposition.pageCount).floor();
-      if (_readSetting.pageSwitch == Profile.novelNone) {
-        notifyListeners();
-      } else {
-        _controller.jumpToPage(_currentPage - 1);
-      }
-    } else {
-      loadChapter(searchItem.durChapterIndex - 1, lastPage: true);
-    }
   }
 
   Future<bool> addToFavorite() async {
@@ -469,7 +398,6 @@ class NovelPageProvider with ChangeNotifier {
     _updateCacheToken();
     _autoCacheDoing = false;
     _paragraphs?.clear();
-    _controller?.dispose();
     () async {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       await SearchItemManager.saveSearchItem();
@@ -555,9 +483,6 @@ class NovelPageProvider with ChangeNotifier {
 
   TextComposition _textComposition;
   TextComposition get textComposition => _textComposition;
-  Widget getTextCompositionPage([int page]) {
-    return _textComposition.getPageWidget(pageIndex: page ?? (_currentPage - 1));
-  }
 
   /// 文字排版部分
   void buildTextComposition(Profile profile) {
@@ -565,17 +490,16 @@ class NovelPageProvider with ChangeNotifier {
     if (_paragraphs == null || _paragraphs.isEmpty) return;
 
     MediaQueryData mediaQueryData = MediaQueryData.fromWindow(ui.window);
-    final width = mediaQueryData.size.width - profile.novelLeftPadding * 2;
-    final height = mediaQueryData.size.height -
-        profile.novelTopPadding * 2 -
-        (profile.showNovelInfo == true ? 20 : 0) -
-        (profile.showNovelStatus == true ? mediaQueryData.padding.top : 0);
 
     _textComposition = TextComposition(
-      boxSize: Size(width, height),
-      columnCount: width > 1160
+      padding: EdgeInsets.fromLTRB(profile.novelLeftPadding,
+    profile.showNovelStatus == true
+    ? profile.novelTopPadding + mediaQueryData.padding.top
+        : profile.novelTopPadding,
+    profile.novelLeftPadding, profile.showNovelInfo == true ? profile.novelTopPadding +24 : profile.novelTopPadding),
+      columnCount: mediaQueryData.size.width > 1160
           ? 3
-          : width > 580
+          : mediaQueryData.size.width > 580
               ? 2
               : 1,
       columnGap: 40,
@@ -597,13 +521,6 @@ class NovelPageProvider with ChangeNotifier {
       ),
       shouldJustifyHeight: true,
     );
-    _currentPage =
-        (searchItem.durContentIndex * _textComposition.pageCount / 10000).round();
-    if (_currentPage < 1) {
-      _currentPage = 1;
-    } else if (_currentPage > _textComposition.pageCount) {
-      _currentPage = _textComposition.pageCount;
-    }
     print("** buildTextComposition end   ${DateTime.now()}");
   }
 
@@ -624,7 +541,6 @@ class ReadSetting {
   double topPadding;
   double leftPadding;
   double paragraphPadding;
-  int pageSwitch;
   int indentation;
   int durChapterIndex;
   Size size;
@@ -636,7 +552,6 @@ class ReadSetting {
     leftPadding = profile.novelLeftPadding;
     topPadding = profile.novelTopPadding;
     paragraphPadding = profile.novelParagraphPadding;
-    pageSwitch = profile.novelPageSwitch;
     indentation = profile.novelIndentation;
     this.size = size;
     showInfo = profile.showNovelInfo;
@@ -648,7 +563,6 @@ class ReadSetting {
         (leftPadding - profile.novelLeftPadding).abs() < 0.1 &&
         (topPadding - profile.novelTopPadding).abs() < 0.1 &&
         (paragraphPadding - profile.novelParagraphPadding).abs() < 0.1 &&
-        // pageSwitch == profile.novelPageSwitch &&
         indentation == profile.novelIndentation &&
         this.durChapterIndex == durChapterIndex &&
         showInfo == profile.showNovelInfo &&

@@ -644,15 +644,6 @@ class UINovelMenu extends StatelessWidget {
               Utils.toast("错误 地址为空");
             }
             break;
-          case SELECTABLE:
-            if (provider.useSelectableText) {
-              provider.useSelectableText = false;
-            } else {
-              provider.useSelectableText = true;
-              provider.showSetting = false;
-              provider.showMenu = false;
-            }
-            break;
           case ADD_ITEM:
             (() async {
               final success = await provider.addToFavorite();
@@ -725,19 +716,6 @@ class UINovelMenu extends StatelessWidget {
             ],
           ),
           value: CLEARCACHE,
-        ),
-        PopupMenuItem(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(provider.useSelectableText ? '退出复制模式' : '进入复制模式'),
-              Icon(
-                provider.useSelectableText ? Icons.flip_to_back : Icons.flip_to_front,
-                color: primaryColor,
-              ),
-            ],
-          ),
-          value: SELECTABLE,
         ),
         PopupMenuItem(
           child: Row(
