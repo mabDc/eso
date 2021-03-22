@@ -432,7 +432,7 @@ class TextCompositionController extends ChangeNotifier {
     pages = await startX(_chapterIndex);
     notifyListeners();
     Future.delayed(Duration(seconds: 1)).then((value) async {
-      if (!lastChapter) nextPages = await startX(_chapterIndex - 1);
+      if (!lastChapter) nextPages = await startX(_chapterIndex + 1);
       if (!firstChpater) previousPages = await startX(_chapterIndex - 1);
     });
   }
@@ -589,6 +589,7 @@ class TextCompositionController extends ChangeNotifier {
         _t = _t.substring(textCount);
       }
     }
+    dy += config.titlePadding;
 
     var pageIndex = 0;
 
@@ -659,6 +660,7 @@ class TextCompositionController extends ChangeNotifier {
     final total = pages.length;
     pages.forEach((page) {
       page.percent = (page.index / total / chapterTotal + basePercent).toStringAsFixed(2) + "%";
+      page.total = total;
     });
     return pages;
   }
@@ -849,6 +851,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   void initState() {
     super.initState();
     widget.controller.addListener(() {
+      _setUp();
       setState(() {});
     });
     _setUp();
