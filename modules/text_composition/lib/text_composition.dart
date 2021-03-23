@@ -10,8 +10,7 @@ import 'package:flutter/services.dart';
 const indentation = "　";
 T cast<T>(x, T defaultValue) => x is T ? x : defaultValue; // 安全转换
 
-TextPage getOnePage(
-    List<String> paragraphs, TextCompositionConfig config, double? width) {
+TextPage getOnePage(List<String> paragraphs, TextCompositionConfig config, double? width) {
   width ??= ui.window.physicalSize.width / ui.window.devicePixelRatio;
   width -= config.leftPadding + config.rightPadding;
   final width2 = width - config.fontSize;
@@ -472,17 +471,25 @@ class TextCompositionController extends ChangeNotifier {
     final cIndex = (_percent * chapterTotal).floor();
     _chapterNextIndex = cIndex;
     _chapterPreviousIndex = cIndex;
+    final d = _percent * chapterTotal - cIndex;
     duration = Duration(milliseconds: config.animationDuration);
-    init(cIndex);
+    init(cIndex, d);
   }
 
-  init(int index) async {
-    final pages = await startX(index);
+  init(int cIndex, double d) async {
+    if (_disposed) return;
+    final pages = await startX(cIndex);
+    if (_disposed) return;
     for (var i = 0; i < pages.length; i++) {
       this.pages[currentIndex + i] = pages[i];
     }
     lastIndex = currentIndex + pages.length - 1;
     firstIndex = currentIndex;
+    final n = (d * pages.length).round() - 1;
+    if (n > 0 && n < pages.length) currentIndex += n;
+    for (var i = firstIndex; i < currentIndex; i++) {
+      _controllers[i].value = 0;
+    }
     notifyListeners();
   }
 
@@ -492,14 +499,15 @@ class TextCompositionController extends ChangeNotifier {
       _controllers.add(genAnimationController());
       pages.add(null);
     });
+    for (var i = 0; i < currentIndex; i++) {
+      _controllers[i].value = 0;
+    }
   }
 
   List<Widget> getPages() {
+    if (_disposed) return [];
     return [
-      for (var i = math.min(currentIndex + 2, lastIndex),
-              last = math.max(i - 4, firstIndex);
-          i >= last;
-          i--)
+      for (var i = math.min(currentIndex + 2, lastIndex), last = math.max(i - 4, firstIndex); i >= last; i--)
         CustomPaint(
           painter: TextCompositionEffect(
             amount: _controllers[i],
@@ -518,6 +526,7 @@ class TextCompositionController extends ChangeNotifier {
   bool get isFirstPage => currentIndex <= firstIndex;
 
   void nextPage() {
+    if (_disposed) return;
     if (_chapterNextIndex == pages[currentIndex]!.chIndex) nextChapter();
     if (_chapterPreviousIndex == pages[currentIndex]!.chIndex) previousChapter();
     if (currentIndex == lastIndex) {
@@ -534,6 +543,7 @@ class TextCompositionController extends ChangeNotifier {
   }
 
   void previousPage() {
+    if (_disposed) return;
     if (_chapterNextIndex == pages[currentIndex]!.chIndex) nextChapter();
     if (_chapterPreviousIndex == pages[currentIndex]!.chIndex) previousChapter();
     if (currentIndex == firstIndex) {
@@ -550,6 +560,7 @@ class TextCompositionController extends ChangeNotifier {
   }
 
   Future<void> goToPage(int index) async {
+    if (_disposed) return;
     if (index > currentIndex) {
       _controllers[index - 1].reverse();
     } else {
@@ -568,6 +579,7 @@ class TextCompositionController extends ChangeNotifier {
 
   bool? isForward;
   void turnPage(DragUpdateDetails details, BoxConstraints dimens) {
+    if (_disposed) return;
     final _ratio = details.delta.dx / dimens.maxWidth;
     if (isForward == null) {
       if (details.delta.dx > 0) {
@@ -584,10 +596,10 @@ class TextCompositionController extends ChangeNotifier {
   }
 
   Future<void> onDragFinish() async {
+    if (_disposed) return;
     if (isForward != null) {
       if (isForward!) {
-        if (!isLastPage &&
-            _controllers[currentIndex].value <= (cutoffNext / 100 + 0.03)) {
+        if (!isLastPage && _controllers[currentIndex].value <= (cutoffNext / 100 + 0.03)) {
           nextPage();
         } else {
           await _controllers[currentIndex].forward();
@@ -596,8 +608,7 @@ class TextCompositionController extends ChangeNotifier {
           }
         }
       } else {
-        if (!isFirstPage &&
-            _controllers[currentIndex - 1].value >= (cutoffPrevious / 100 + 0.05)) {
+        if (!isFirstPage && _controllers[currentIndex - 1].value >= (cutoffPrevious / 100 + 0.05)) {
           previousPage();
         } else {
           if (isFirstPage) {
@@ -614,8 +625,11 @@ class TextCompositionController extends ChangeNotifier {
 
   String info = "loading init";
 
+  bool _disposed = false;
   @override
   void dispose() {
+    _disposed = true;
+    onSave?.call(config, pages[currentIndex]!.percent);
     _controllers.forEach((c) => c.dispose());
     _controllers.clear();
     pages.forEach((page) => page?.lines.clear());
@@ -673,13 +687,14 @@ class TextCompositionController extends ChangeNotifier {
 
   var _previousChapterLoading = false;
   Future<void> previousChapter() async {
+    if (_disposed) return;
     if (_chapterPreviousIndex <= 0) return;
     if (_previousChapterLoading) return;
     _previousChapterLoading = true;
-    info =
-        "load chapter NO.${_chapterPreviousIndex - 1}\n\n\n${chapters[_chapterPreviousIndex - 1]}";
+    info = "load chapter NO.${_chapterPreviousIndex - 1}\n\n\n${chapters[_chapterPreviousIndex - 1]}";
     notifyListeners();
     final pages = await startX(_chapterPreviousIndex - 1);
+    if (_disposed) return;
     for (var i = 0; i < pages.length; i++) {
       this.pages[firstIndex - pages.length + i] = pages[i];
     }
@@ -694,23 +709,16 @@ class TextCompositionController extends ChangeNotifier {
 
   var _nextChapterLoading = false;
   Future<void> nextChapter([bool animation = true]) async {
+    if (_disposed) return;
     if (_chapterNextIndex >= chapters.length) return;
     if (_nextChapterLoading) return;
     _nextChapterLoading = true;
-    info =
-        "load chapter NO.${_chapterNextIndex + 1}\n\n\n${chapters[_chapterNextIndex + 1]}";
+    info = "load chapter NO.${_chapterNextIndex + 1}\n\n\n${chapters[_chapterNextIndex + 1]}";
     notifyListeners();
-    if (currentIndex == lastIndex) {
-      _controllers[currentIndex].reverse();
-      currentIndex++;
-    }
     final pages = await startX(_chapterNextIndex + 1);
+    if (_disposed) return;
     for (var i = 0; i < pages.length; i++) {
       this.pages[lastIndex + 1 + i] = pages[i];
-    }
-    if (currentIndex > lastIndex) {
-      _controllers[currentIndex - 1].value = 1;
-      _controllers[currentIndex - 1].reverse();
     }
     lastIndex += pages.length;
     _chapterNextIndex++;
@@ -720,7 +728,9 @@ class TextCompositionController extends ChangeNotifier {
 
   Future<List<TextPage>> startX(int index) async {
     final pages = <TextPage>[];
+    if (_disposed) return pages;
     final paragraphs = await loadChapter(index);
+    if (_disposed) return pages;
     final size = ui.window.physicalSize / ui.window.devicePixelRatio;
     final columns = config.columns > 0
         ? config.columns
@@ -729,16 +739,10 @@ class TextCompositionController extends ChangeNotifier {
             : size.width > 580
                 ? 2
                 : 1;
-    final _width = (size.width -
-            config.leftPadding -
-            config.rightPadding -
-            (columns - 1) * config.columnPadding) /
-        columns;
+    final _width =
+        (size.width - config.leftPadding - config.rightPadding - (columns - 1) * config.columnPadding) / columns;
     final _width2 = _width - config.fontSize;
-    final _height = size.height -
-        config.topPadding -
-        config.bottomPadding -
-        (config.showInfo ? 24 : 0);
+    final _height = size.height - config.topPadding - config.bottomPadding - (config.showInfo ? 24 : 0);
     final _height2 = _height - config.fontSize * config.fontHeight;
 
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
@@ -765,7 +769,7 @@ class TextCompositionController extends ChangeNotifier {
     );
 
     // String t = chapters[index].replaceAll(RegExp("^\s*|\n|\s\$"), "");
-    final chapter = chapters[index].isEmpty? "第$index章" : chapters[index];
+    final chapter = chapters[index].isEmpty ? "第$index章" : chapters[index];
     var _t = chapter;
     while (true) {
       tp.text = TextSpan(text: _t, style: titleStyle);
@@ -873,7 +877,7 @@ class TextCompositionController extends ChangeNotifier {
     final total = pages.length;
     pages.forEach((page) {
       page.total = total;
-      page.percent = (page.number / pages.length + index) / chapterTotal + basePercent;
+      page.percent = page.number / pages.length / chapterTotal + basePercent;
     });
     if (name != null) {
       pages[0].info = name!;
@@ -926,10 +930,7 @@ class TextCompositionEffect extends CustomPainter {
     if (image == null) {
       final pic = ui.PictureRecorder();
       paintText(Canvas(pic), size);
-      pic
-          .endRecording()
-          .toImage(size.width.round(), size.height.round())
-          .then((value) => image = value);
+      pic.endRecording().toImage(size.width.round(), size.height.round()).then((value) => image = value);
       if (pos > 0.8) paintText(canvas, size);
       return;
     } else if (pos > 0.996) {
@@ -943,8 +944,7 @@ class TextCompositionEffect extends CustomPainter {
     if (config.animation == 'curl') {
       for (double x = 0; x < size.width; x++) {
         final xf = (x / w);
-        final v =
-            (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
+        final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
         final xv = (xf * wHRatio) - movX;
         final sx = (xf * image!.width);
         final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());
@@ -974,8 +974,7 @@ class TextCompositionEffect extends CustomPainter {
     );
     for (var i = 0; i < lineCount; i++) {
       final line = page.lines[i];
-      if (line.letterSpacing != null &&
-          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+      if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
         tp.text = TextSpan(
           text: line.text,
           style: line.isTitle
@@ -1045,8 +1044,6 @@ class TextComposition extends StatefulWidget {
 }
 
 class TextCompositionState extends State<TextComposition> with TickerProviderStateMixin {
-
-
   @override
   void didUpdateWidget(TextComposition oldWidget) {
     // if (oldWidget.backgroundColor != widget.backgroundColor) {
@@ -1059,10 +1056,11 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   void dispose() {
     widget.controller.removeListener(refresh);
     widget.controller.dispose();
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
   }
 
-  refresh(){
+  refresh() {
     setState(() {});
   }
 
@@ -1075,6 +1073,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           vsync: this,
         ));
     widget.controller.addListener(refresh);
+    SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
   @override
@@ -1103,8 +1102,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
                 widget.controller.goToPage(0);
               } else if (logicalKey == LogicalKeyboardKey.end) {
                 // widget.controller.goToPage(widget.controller.lastIndex);
-              } else if (logicalKey == LogicalKeyboardKey.enter ||
-                  logicalKey == LogicalKeyboardKey.numpadEnter) {
+              } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
                 //
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
@@ -1114,8 +1112,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onHorizontalDragCancel: () => widget.controller.isForward = null,
-            onHorizontalDragUpdate: (details) =>
-                widget.controller.turnPage(details, dimens),
+            onHorizontalDragUpdate: (details) => widget.controller.turnPage(details, dimens),
             onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
             child: Stack(
               fit: StackFit.expand,

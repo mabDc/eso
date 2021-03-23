@@ -42,8 +42,7 @@ class ContentPageRoute {
               // case API.RSS:
               //   return RSSPage(searchItem: searchItem);
               case API.VIDEO:
-                if (Global.isDesktop)
-                  return VideoPageDesktop(searchItem: searchItem);
+                if (Global.isDesktop) return VideoPageDesktop(searchItem: searchItem);
                 return VideoPage(searchItem: searchItem);
               case API.AUDIO:
                 return AudioPage(searchItem: searchItem);
@@ -87,17 +86,14 @@ class ContentProvider with ChangeNotifier {
     try {
       if (searchItem.chapters == null || searchItem.chapters.isEmpty) {
         _addInfo("目录为空 重新获取目录");
-        if (SearchItemManager.isFavorite(
-            searchItem.originTag, searchItem.url)) {
+        if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
           searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
         } else {
-          searchItem.chapters =
-              await APIManager.getChapter(searchItem.originTag, searchItem.url);
+          searchItem.chapters = await APIManager.getChapter(searchItem.originTag, searchItem.url);
         }
         _addInfo("结束 得到${searchItem.chapters.length}个章节");
       }
-      _cache =
-          CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
+      _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
       _canUseCache = await _cache.requestPermission();
       if (_canUseCache != true) _addInfo("权限检查失败 本地缓存需要存储权限");
       _showInfo = false;
@@ -109,8 +105,7 @@ class ContentProvider with ChangeNotifier {
   }
 
   Future<void> retryUseCache() async {
-    _cache =
-        CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
+    _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
     _canUseCache = await _cache.requestPermission();
   }
 
@@ -118,12 +113,10 @@ class ContentProvider with ChangeNotifier {
     return loadChapter(searchItem.durChapterIndex, false);
   }
 
-  Future<List<String>> loadChapter(int chapterIndex,
-      [bool useCache = true]) async {
+  Future<List<String>> loadChapter(int chapterIndex, [bool useCache = true]) async {
     if (useCache) {
       if (canUseCache) {
-        final resp = await _cache.getData('$chapterIndex.txt',
-            hashCodeKey: false, shouldDecode: false);
+        final resp = await _cache.getData('$chapterIndex.txt', hashCodeKey: false, shouldDecode: false);
         if (resp != null && resp is String && resp.isNotEmpty) {
           changeChapter(chapterIndex);
           return resp.split("\n");
@@ -133,13 +126,11 @@ class ContentProvider with ChangeNotifier {
       }
     }
     final chapter = searchItem.chapters[chapterIndex];
-    final content =
-        await APIManager.getContent(searchItem.originTag, chapter.url);
+    final content = await APIManager.getContent(searchItem.originTag, chapter.url);
     chapter.contentUrl = API.contentUrl;
     final resp = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
     if (canUseCache && resp.isNotEmpty) {
-      await _cache.putData('$chapterIndex.txt', resp.join("\n"),
-          hashCodeKey: false, shouldEncode: false);
+      await _cache.putData('$chapterIndex.txt', resp.join("\n"), hashCodeKey: false, shouldEncode: false);
     }
     changeChapter(chapterIndex);
     return resp;
@@ -148,9 +139,9 @@ class ContentProvider with ChangeNotifier {
   void changeChapter(int index) async {
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     if (searchItem.durChapterIndex != index) {
-      searchItem.durChapterIndex = index;
-      searchItem.durChapter = searchItem.chapters[index].name;
-      searchItem.durContentIndex = 1;
+      // searchItem.durChapterIndex = index;
+      // searchItem.durChapter = searchItem.chapters[index].name;
+      // searchItem.durContentIndex = 1;
       await SearchItemManager.saveSearchItem();
     }
   }
