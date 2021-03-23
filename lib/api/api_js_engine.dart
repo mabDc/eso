@@ -9,6 +9,7 @@
 import 'dart:convert';
 
 import 'package:eso/database/rule.dart';
+import 'package:eso/utils.dart';
 import 'package:eso/utils/decode_body.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
@@ -18,8 +19,7 @@ import '../global.dart';
 import 'analyze_url.dart';
 
 class APIConst {
-  static final pagePattern =
-      RegExp(r"""(\$page)|((^|[^a-zA-Z'"_/-])page([^a-zA-Z0-9'"]|$))""");
+  static final pagePattern = RegExp(r"""(\$page)|((^|[^a-zA-Z'"_/-])page([^a-zA-Z0-9'"]|$))""");
   static final largeSpaceRegExp = RegExp(r"\n+\s*|\s{2,}");
   static final tagsSplitRegExp = RegExp(r"[　 ,/\|\&\%]+");
 }
@@ -32,8 +32,7 @@ class JSEngine {
     if (_engine != null) return;
     final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
     _engine = IsolateQjs(stackSize: 1024 * 1024);
-    final setToGlobalObject =
-        await _engine.evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
+    final setToGlobalObject = await _engine.evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([
       "__http__",
       IsolateFunction((dynamic url) async {
@@ -45,6 +44,12 @@ class JSEngine {
       "xpath",
       IsolateFunction((String html, String xpath) async {
         return XPath.source(html).query(xpath).list();
+      }),
+    ]);
+    await setToGlobalObject.invoke([
+      "toast",
+      IsolateFunction((dynamic msg) {
+        Utils.toast("$msg");
       }),
     ]);
     setToGlobalObject.free();
@@ -93,15 +98,17 @@ class JSEngine {
         headers
       });
     };
-    if(typeof __print === 'undefined') var __print = (s, isUrl) => undefined;
-    var print = (s, isUrl) => __print(s, !!isUrl);
+    var print = (s, isUrl) => {
+      try{
+        __print(s, !!isUrl);
+      }catch(e){}
+    }
     1+1;
     """);
   }
 
   static Future<void> setFunction(String name, IsolateFunction fun) async {
-    final setToGlobalObject =
-        await _engine.evaluate("(key, val) => { this[key] = val; }");
+    final setToGlobalObject = await _engine.evaluate("(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([name, fun]);
     setToGlobalObject.free();
   }

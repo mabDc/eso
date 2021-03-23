@@ -170,12 +170,12 @@ class TextCompositionConfig {
     this.showInfo = true,
     this.animation = 'curl',
     this.animationDuration = 300,
-    this.topPadding = 20,
-    this.leftPadding = 20,
-    this.bottomPadding = 20,
-    this.rightPadding = 20,
+    this.topPadding = 16,
+    this.leftPadding = 16,
+    this.bottomPadding = 16,
+    this.rightPadding = 16,
     this.titlePadding = 30,
-    this.paragraphPadding = 20,
+    this.paragraphPadding = 18,
     this.columnPadding = 30,
     this.columns = 0,
     this.indentation = 2,
@@ -310,12 +310,12 @@ class TextCompositionConfig {
       showInfo: cast(encoded['showInfo'], true),
       animation: cast(encoded['animation'], 'curl'),
       animationDuration: cast(encoded['animationDuration'], 300),
-      topPadding: cast(encoded['topPadding'], 20),
-      leftPadding: cast(encoded['leftPadding'], 20),
-      bottomPadding: cast(encoded['bottomPadding'], 20),
-      rightPadding: cast(encoded['rightPadding'], 20),
+      topPadding: cast(encoded['topPadding'], 16),
+      leftPadding: cast(encoded['leftPadding'], 16),
+      bottomPadding: cast(encoded['bottomPadding'], 16),
+      rightPadding: cast(encoded['rightPadding'], 16),
       titlePadding: cast(encoded['titlePadding'], 30),
-      paragraphPadding: cast(encoded['paragraphPadding'], 20),
+      paragraphPadding: cast(encoded['paragraphPadding'], 18),
       columnPadding: cast(encoded['columnPadding'], 30),
       columns: cast(encoded['columns'], 0),
       indentation: cast(encoded['indentation'], 2),
@@ -742,7 +742,7 @@ class TextCompositionController extends ChangeNotifier {
     final _width =
         (size.width - config.leftPadding - config.rightPadding - (columns - 1) * config.columnPadding) / columns;
     final _width2 = _width - config.fontSize;
-    final _height = size.height - config.topPadding - config.bottomPadding - (config.showInfo ? 24 : 0);
+    final _height = size.height - (config.showInfo ? 24 : 0) - config.bottomPadding;
     final _height2 = _height - config.fontSize * config.fontHeight;
 
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
@@ -825,15 +825,6 @@ class TextCompositionController extends ChangeNotifier {
       startLine = lines.length;
     }
 
-    /// 新段落
-    void newParagraph() {
-      if (dy > _height2) {
-        newPage();
-      } else {
-        dy += config.paragraphPadding;
-      }
-    }
-
     for (var p in paragraphs) {
       p = indentation * config.indentation + p;
       while (true) {
@@ -850,7 +841,11 @@ class TextCompositionController extends ChangeNotifier {
         lines.add(TextLine(text, dx, dy, spacing));
         dy += tp.height;
         if (p.length == textCount) {
-          newParagraph();
+          if (dy > _height2) {
+            newPage();
+          } else {
+            dy += config.paragraphPadding;
+          }
           break;
         } else {
           p = p.substring(textCount);
