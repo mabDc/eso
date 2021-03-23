@@ -15,8 +15,11 @@ class MyApp extends StatelessWidget {
         config: TextCompositionConfig(
           animation: 'curl',
         ),
-        loadChapter: (index) => List.generate(
-            12 + math.Random().nextInt(34), (i) => "chapter $index, " + "paragraph $i. " * math.Random().nextInt(12)),
+        loadChapter: (index) => Future.delayed(Duration(seconds: 1)).then((value) =>
+            List.generate(
+                12 + math.Random().nextInt(34),
+                (i) =>
+                    "chapter $index, " + "paragraph $i. " * math.Random().nextInt(12))),
         chapters: List.generate(1234, (i) => "chapter $i, chapter name"),
         percent: 0.0001,
         onSave: (TextCompositionConfig config, double percent) {
@@ -26,19 +29,6 @@ class MyApp extends StatelessWidget {
           print("save percent: $percent");
         },
         name: bookName,
-      ),
-      lastPage: Container(
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(bookName),
-            SizedBox(height: 10),
-            Text("loading or nothing more"),
-          ],
-        ),
       ),
     );
   }

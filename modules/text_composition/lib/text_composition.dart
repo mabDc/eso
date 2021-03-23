@@ -10,7 +10,8 @@ import 'package:flutter/services.dart';
 const indentation = "　";
 T cast<T>(x, T defaultValue) => x is T ? x : defaultValue; // 安全转换
 
-TextPage getOnePage(List<String> paragraphs, TextCompositionConfig config, double? width) {
+TextPage getOnePage(
+    List<String> paragraphs, TextCompositionConfig config, double? width) {
   width ??= ui.window.physicalSize.width / ui.window.devicePixelRatio;
   width -= config.leftPadding + config.rightPadding;
   final width2 = width - config.fontSize;
@@ -443,11 +444,16 @@ class TextCompositionController extends ChangeNotifier {
 
   int? _pageIndex;
   int? get pageIndex => _pageIndex;
-  late int _chapterIndex;
-  int get chapterIndex => _chapterIndex;
+  late int _chapterNextIndex;
+  int get chapterNextIndex => _chapterNextIndex;
+  late int _chapterPreviousIndex;
+  int get chapterPreviousIndex => _chapterPreviousIndex;
 
-  Map<int, List<TextPage>> cache;
-  List<TextPage> pages;
+  // Map<int, List<TextPage>> cache;
+  List<TextPage?> pages;
+
+  final int cutoffNext;
+  final int cutoffPrevious;
 
   TextCompositionController({
     required this.config,
@@ -458,21 +464,163 @@ class TextCompositionController extends ChangeNotifier {
     this.onToggleMenu,
     this.buildMenu,
     percent = 0.0,
+    this.cutoffPrevious = 8,
+    this.cutoffNext = 92,
   })  : this._percent = percent,
-        pages = <TextPage>[],
-        cache = {} {
-    _chapterIndex = (_percent * chapterTotal).floor();
+        pages = <TextPage?>[],
+        _controllers = [] {
+    final cIndex = (_percent * chapterTotal).floor();
+    _chapterNextIndex = cIndex;
+    _chapterPreviousIndex = cIndex;
     duration = Duration(milliseconds: config.animationDuration);
-    init();
+    init(cIndex);
   }
 
-  init() async {
-    pages = await startX(_chapterIndex);
+  init(int index) async {
+    final pages = await startX(index);
+    for (var i = 0; i < pages.length; i++) {
+      this.pages[currentIndex + i] = pages[i];
+    }
+    lastIndex = currentIndex + pages.length - 1;
+    firstIndex = currentIndex;
     notifyListeners();
-    // Future.delayed(duration).then((value) async {
-    //   if (!lastChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
-    //   if (!firstChapter) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
-    // });
+  }
+
+  final List<AnimationController> _controllers;
+  setGenAnimationControllers(AnimationController Function() genAnimationController) {
+    List.generate(2222, (index) {
+      _controllers.add(genAnimationController());
+      pages.add(null);
+    });
+  }
+
+  List<Widget> getPages() {
+    return [
+      for (var i = math.min(currentIndex + 2, lastIndex),
+              last = math.max(i - 4, firstIndex);
+          i >= last;
+          i--)
+        CustomPaint(
+          painter: TextCompositionEffect(
+            amount: _controllers[i],
+            backgroundColor: const Color(0xFFFFFFCC),
+            page: pages[i]!,
+            config: config,
+            controller: this,
+          ),
+        )
+    ];
+  }
+
+  int firstIndex = 996, lastIndex = -1, currentIndex = 996;
+
+  bool get isLastPage => currentIndex >= lastIndex;
+  bool get isFirstPage => currentIndex <= firstIndex;
+
+  void nextPage() {
+    if (_chapterNextIndex == pages[currentIndex]!.chIndex) nextChapter();
+    if (_chapterPreviousIndex == pages[currentIndex]!.chIndex) previousChapter();
+    if (currentIndex == lastIndex) {
+      nextChapter();
+      return;
+    }
+    if (config.animationTap) {
+      _controllers[currentIndex].reverse();
+    } else {
+      _controllers[currentIndex].value = 0;
+    }
+    currentIndex++;
+    notifyListeners();
+  }
+
+  void previousPage() {
+    if (_chapterNextIndex == pages[currentIndex]!.chIndex) nextChapter();
+    if (_chapterPreviousIndex == pages[currentIndex]!.chIndex) previousChapter();
+    if (currentIndex == firstIndex) {
+      previousChapter();
+      return;
+    }
+    if (config.animationTap) {
+      _controllers[currentIndex - 1].forward();
+    } else {
+      _controllers[currentIndex - 1].value = 1;
+    }
+    currentIndex--;
+    notifyListeners();
+  }
+
+  Future<void> goToPage(int index) async {
+    if (index > currentIndex) {
+      _controllers[index - 1].reverse();
+    } else {
+      _controllers[index].forward();
+    }
+    currentIndex = index;
+    notifyListeners();
+    for (var i = 0; i < _controllers.length; i++) {
+      if (i < index - 1) {
+        _controllers[i].value = 0;
+      } else if (i > index) {
+        _controllers[i].value = 1;
+      }
+    }
+  }
+
+  bool? isForward;
+  void turnPage(DragUpdateDetails details, BoxConstraints dimens) {
+    final _ratio = details.delta.dx / dimens.maxWidth;
+    if (isForward == null) {
+      if (details.delta.dx > 0) {
+        isForward = false;
+      } else {
+        isForward = true;
+      }
+    }
+    if (isForward!) {
+      _controllers[currentIndex].value += _ratio;
+    } else if (!isFirstPage) {
+      _controllers[currentIndex - 1].value += _ratio;
+    }
+  }
+
+  Future<void> onDragFinish() async {
+    if (isForward != null) {
+      if (isForward!) {
+        if (!isLastPage &&
+            _controllers[currentIndex].value <= (cutoffNext / 100 + 0.03)) {
+          nextPage();
+        } else {
+          await _controllers[currentIndex].forward();
+          if (isLastPage) {
+            nextChapter();
+          }
+        }
+      } else {
+        if (!isFirstPage &&
+            _controllers[currentIndex - 1].value >= (cutoffPrevious / 100 + 0.05)) {
+          previousPage();
+        } else {
+          if (isFirstPage) {
+            await _controllers[currentIndex].forward();
+            previousChapter();
+          } else {
+            await _controllers[currentIndex - 1].reverse();
+          }
+        }
+      }
+    }
+    isForward = null;
+  }
+
+  String info = "loading init";
+
+  @override
+  void dispose() {
+    _controllers.forEach((c) => c.dispose());
+    _controllers.clear();
+    pages.forEach((page) => page?.lines.clear());
+    pages.clear();
+    super.dispose();
   }
 
   void updateConfig({
@@ -523,31 +671,51 @@ class TextCompositionController extends ChangeNotifier {
     )) notifyListeners();
   }
 
-  bool get firstChapter => _chapterIndex <= 0;
-  bool get lastChapter => _chapterIndex >= chapterTotal;
-
+  var _previousChapterLoading = false;
   Future<void> previousChapter() async {
-    if (firstChapter) return;
-    _chapterIndex = _chapterIndex - 1;
-    if (cache[_chapterIndex] != null && cache[_chapterIndex]!.isNotEmpty) {
-      pages = cache[_chapterIndex]!;
-      notifyListeners();
+    if (_chapterPreviousIndex <= 0) return;
+    if (_previousChapterLoading) return;
+    _previousChapterLoading = true;
+    info =
+        "load chapter NO.${_chapterPreviousIndex - 1}\n\n\n${chapters[_chapterPreviousIndex - 1]}";
+    notifyListeners();
+    final pages = await startX(_chapterPreviousIndex - 1);
+    for (var i = 0; i < pages.length; i++) {
+      this.pages[firstIndex - pages.length + i] = pages[i];
     }
-    // Future.delayed(duration).then((value) async {
-    //   if (!firstChapter) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
-    // });
+    if (isFirstPage) {
+      _controllers[currentIndex - 1].forward();
+    }
+    firstIndex -= pages.length;
+    _chapterPreviousIndex--;
+    _previousChapterLoading = false;
+    notifyListeners();
   }
 
-  Future<void> nextChapter() async {
-    if (lastChapter) return;
-    _chapterIndex = _chapterIndex + 1;
-    if (cache[_chapterIndex] != null && cache[_chapterIndex]!.isNotEmpty) {
-      pages = cache[_chapterIndex]!;
-      notifyListeners();
+  var _nextChapterLoading = false;
+  Future<void> nextChapter([bool animation = true]) async {
+    if (_chapterNextIndex >= chapters.length) return;
+    if (_nextChapterLoading) return;
+    _nextChapterLoading = true;
+    info =
+        "load chapter NO.${_chapterNextIndex + 1}\n\n\n${chapters[_chapterNextIndex + 1]}";
+    notifyListeners();
+    if (currentIndex == lastIndex) {
+      _controllers[currentIndex].reverse();
+      currentIndex++;
     }
-    // Future.delayed(Duration(milliseconds: 300)).then((value) async {
-    //   if (!firstChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
-    // });
+    final pages = await startX(_chapterNextIndex + 1);
+    for (var i = 0; i < pages.length; i++) {
+      this.pages[lastIndex + 1 + i] = pages[i];
+    }
+    if (currentIndex > lastIndex) {
+      _controllers[currentIndex - 1].value = 1;
+      _controllers[currentIndex - 1].reverse();
+    }
+    lastIndex += pages.length;
+    _chapterNextIndex++;
+    _nextChapterLoading = false;
+    notifyListeners();
   }
 
   Future<List<TextPage>> startX(int index) async {
@@ -561,10 +729,16 @@ class TextCompositionController extends ChangeNotifier {
             : size.width > 580
                 ? 2
                 : 1;
-    final _width =
-        (size.width - config.leftPadding - config.rightPadding - (columns - 1) * config.columnPadding) / columns;
+    final _width = (size.width -
+            config.leftPadding -
+            config.rightPadding -
+            (columns - 1) * config.columnPadding) /
+        columns;
     final _width2 = _width - config.fontSize;
-    final _height = size.height - config.topPadding - config.bottomPadding - (config.showInfo ? 24 : 0);
+    final _height = size.height -
+        config.topPadding -
+        config.bottomPadding -
+        (config.showInfo ? 24 : 0);
     final _height2 = _height - config.fontSize * config.fontHeight;
 
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
@@ -591,8 +765,8 @@ class TextCompositionController extends ChangeNotifier {
     );
 
     // String t = chapters[index].replaceAll(RegExp("^\s*|\n|\s\$"), "");
-    final chapter = chapters[index];
-    var _t = chapter.isEmpty ? "第$index章" : chapter;
+    final chapter = chapters[index].isEmpty? "第$index章" : chapters[index];
+    var _t = chapter;
     while (true) {
       tp.text = TextSpan(text: _t, style: titleStyle);
       tp.layout(maxWidth: _width);
@@ -629,7 +803,13 @@ class TextCompositionController extends ChangeNotifier {
         }
       }
       if (columnNum == columns || lastPage) {
-        pages.add(TextPage(lines: lines, height: dy, number: pageIndex++, info: chapter));
+        pages.add(TextPage(
+          lines: lines,
+          height: dy,
+          number: pageIndex++,
+          info: chapter,
+          chIndex: index,
+        ));
         lines = <TextLine>[];
         columnNum = 1;
         dx = _dx;
@@ -680,7 +860,13 @@ class TextCompositionController extends ChangeNotifier {
       newPage(false, true);
     }
     if (pages.length == 0) {
-      pages.add(TextPage(lines: [], height: config.topPadding + config.bottomPadding, number: 1, info: chapter));
+      pages.add(TextPage(
+        lines: [],
+        height: config.topPadding + config.bottomPadding,
+        number: 1,
+        info: chapter,
+        chIndex: index,
+      ));
     }
 
     final basePercent = index / chapterTotal;
@@ -689,6 +875,9 @@ class TextCompositionController extends ChangeNotifier {
       page.total = total;
       page.percent = (page.number / pages.length + index) / chapterTotal + basePercent;
     });
+    if (name != null) {
+      pages[0].info = name!;
+    }
     return pages;
   }
 }
@@ -699,6 +888,7 @@ class TextCompositionEffect extends CustomPainter {
     required this.backgroundColor,
     required this.page,
     required this.config,
+    required this.controller,
     this.radius = 0.18,
   }) : super(repaint: amount);
 
@@ -708,6 +898,7 @@ class TextCompositionEffect extends CustomPainter {
   final double radius;
   final TextPage page;
   final TextCompositionConfig config;
+  final TextCompositionController controller;
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
@@ -735,10 +926,13 @@ class TextCompositionEffect extends CustomPainter {
     if (image == null) {
       final pic = ui.PictureRecorder();
       paintText(Canvas(pic), size);
-      pic.endRecording().toImage(size.width.round(), size.height.round()).then((value) => image = value);
-    }
-
-    if (pos > 0.996) {
+      pic
+          .endRecording()
+          .toImage(size.width.round(), size.height.round())
+          .then((value) => image = value);
+      if (pos > 0.8) paintText(canvas, size);
+      return;
+    } else if (pos > 0.996) {
       paintText(canvas, size);
       return;
     }
@@ -749,7 +943,8 @@ class TextCompositionEffect extends CustomPainter {
     if (config.animation == 'curl') {
       for (double x = 0; x < size.width; x++) {
         final xf = (x / w);
-        final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
+        final v =
+            (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
         final xv = (xf * wHRatio) - movX;
         final sx = (xf * image!.width);
         final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());
@@ -779,7 +974,8 @@ class TextCompositionEffect extends CustomPainter {
     );
     for (var i = 0; i < lineCount; i++) {
       final line = page.lines[i];
-      if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+      if (line.letterSpacing != null &&
+          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
         tp.text = TextSpan(
           text: line.text,
           style: line.isTitle
@@ -839,16 +1035,10 @@ class TextCompositionEffect extends CustomPainter {
 class TextComposition extends StatefulWidget {
   TextComposition({
     Key? key,
-    this.cutoffPrevious = 8,
-    this.cutoffNext = 92,
     required this.controller,
-    required this.lastPage,
   }) : super(key: key);
 
-  final int cutoffNext;
-  final int cutoffPrevious;
   final TextCompositionController controller;
-  final Widget lastPage;
 
   @override
   TextCompositionState createState() => TextCompositionState();
@@ -859,13 +1049,9 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   List<Widget> pages = [];
 
   List<AnimationController> _controllers = [];
-  bool? _isForward;
 
   @override
   void didUpdateWidget(TextComposition oldWidget) {
-    // if (oldWidget.duration != widget.duration) {
-    //   _setUp();
-    // }
     // if (oldWidget.backgroundColor != widget.backgroundColor) {
     //   _setUp();
     // }
@@ -882,141 +1068,18 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   @override
   void initState() {
     super.initState();
+    widget.controller.setGenAnimationControllers(() => AnimationController(
+          value: 1,
+          duration: widget.controller.duration,
+          vsync: this,
+        ));
     widget.controller.addListener(() {
-      _setUp();
       setState(() {});
     });
-    _setUp();
-  }
-
-  void _setUp() {
-    final duration = Duration(milliseconds: widget.controller.config.animationDuration);
-    if (widget.controller.pages.isEmpty) return;
-    _controllers.clear();
-    pages.clear();
-    for (var i = 0; i < widget.controller.pages.length; i++) {
-      final _controller = AnimationController(
-        value: 1,
-        duration: duration,
-        vsync: this,
-      );
-      _controllers.add(_controller);
-      var _child = CustomPaint(
-        painter: TextCompositionEffect(
-          amount: _controller,
-          backgroundColor: const Color(0xFFFFFFCC),
-          page: widget.controller.pages[i],
-          config: widget.controller.config,
-        ),
-      );
-      pages.add(_child);
-    }
-    pages = pages.reversed.toList();
-    pageNumber = 0;
-  }
-
-  bool get _isLastPage => pages.length - 1 == pageNumber;
-
-  bool get _isFirstPage => pageNumber == 0;
-
-  void _turnPage(DragUpdateDetails details, BoxConstraints dimens) {
-    final _ratio = details.delta.dx / dimens.maxWidth;
-    if (_isForward == null) {
-      if (details.delta.dx > 0) {
-        _isForward = false;
-      } else {
-        _isForward = true;
-      }
-    }
-    if (_isForward!) {
-      _controllers[pageNumber].value += _ratio;
-    } else if (!_isFirstPage) {
-      _controllers[pageNumber - 1].value += _ratio;
-    }
-  }
-
-  Future<void> _onDragFinish() async {
-    if (_isForward != null) {
-      if (_isForward!) {
-        if (!_isLastPage && _controllers[pageNumber].value <= (widget.cutoffNext / 100 + 0.03)) {
-          await nextPage();
-        } else {
-          await _controllers[pageNumber].forward();
-          if (_isLastPage) {
-            widget.controller.nextChapter();
-          }
-        }
-      } else {
-        if (!_isFirstPage && _controllers[pageNumber - 1].value >= (widget.cutoffPrevious / 100 + 0.05)) {
-          await previousPage();
-        } else {
-          if (_isFirstPage) {
-            await _controllers[pageNumber].forward();
-            widget.controller.previousChapter();
-          } else {
-            await _controllers[pageNumber - 1].reverse();
-          }
-        }
-      }
-    }
-    _isForward = null;
-  }
-
-  Future<void> nextPage() async {
-    if (_isLastPage) {
-      widget.controller.nextChapter();
-      return;
-    }
-    if (mounted) {
-      if (widget.controller.config.animationTap)
-        _controllers[pageNumber].reverse();
-      else
-        _controllers[pageNumber].value = 0;
-      setState(() {
-        pageNumber++;
-      });
-    }
-  }
-
-  Future<void> previousPage() async {
-    if (_isFirstPage) {
-      widget.controller.previousChapter();
-      return;
-    }
-    if (mounted) {
-      if (widget.controller.config.animationTap)
-        _controllers[pageNumber - 1].forward();
-      else
-        _controllers[pageNumber - 1].value = 1;
-      setState(() {
-        pageNumber--;
-      });
-    }
-  }
-
-  Future<void> goToPage(int index) async {
-    if (mounted) {
-      if (index > pageNumber) {
-        _controllers[index - 1].reverse();
-      } else {
-        _controllers[index].forward();
-      }
-      setState(() {
-        pageNumber = index;
-      });
-      for (var i = 0; i < _controllers.length; i++) {
-        if (i < index - 1) {
-          _controllers[i].value = 0;
-        } else if (i > index) {
-          _controllers[i].value = 1;
-        }
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    int i = 0;
     return Material(
       child: LayoutBuilder(
         builder: (context, dimens) => RawKeyboardListener(
@@ -1030,18 +1093,19 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
               final logicalKey = event.data.logicalKey;
               print(logicalKey);
               if (logicalKey == LogicalKeyboardKey.arrowUp) {
-                previousPage();
+                widget.controller.previousPage();
               } else if (logicalKey == LogicalKeyboardKey.arrowLeft) {
-                previousPage();
+                widget.controller.previousPage();
               } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
-                nextPage();
+                widget.controller.nextPage();
               } else if (logicalKey == LogicalKeyboardKey.arrowRight) {
-                nextPage();
+                widget.controller.nextPage();
               } else if (logicalKey == LogicalKeyboardKey.home) {
-                goToPage(0);
+                widget.controller.goToPage(0);
               } else if (logicalKey == LogicalKeyboardKey.end) {
                 // goToPage(pages.length - 1);
-              } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
+              } else if (logicalKey == LogicalKeyboardKey.enter ||
+                  logicalKey == LogicalKeyboardKey.numpadEnter) {
                 //
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
@@ -1050,36 +1114,49 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onHorizontalDragCancel: () => _isForward = null,
-            onHorizontalDragUpdate: (details) => _turnPage(details, dimens),
-            onHorizontalDragEnd: (details) => _onDragFinish(),
+            onHorizontalDragCancel: () => widget.controller.isForward = null,
+            onHorizontalDragUpdate: (details) =>
+                widget.controller.turnPage(details, dimens),
+            onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
             child: Stack(
               fit: StackFit.expand,
               children: <Widget>[
-                widget.lastPage,
+                Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(widget.controller.name ?? ""),
+                      SizedBox(height: 10),
+                      Text(widget.controller.info),
+                    ],
+                  ),
+                ),
                 // ...pages.map((p) {
                 //   i++;
                 //   final pn = pages.length - pageNumber;
                 //   final ret = Offstage(offstage: !(i >= pn - 2 && i <= pn + 1), child: p);
                 //   return ret;
                 // }).toList(),
-                ...pages,
+                ...widget.controller.getPages(),
                 Positioned.fill(
                   child: Flex(
                     direction: Axis.horizontal,
                     children: <Widget>[
                       Flexible(
-                        flex: 50 - widget.cutoffPrevious,
+                        flex: 50,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: previousPage,
+                          onTap: widget.controller.previousPage,
                         ),
                       ),
                       Flexible(
-                        flex: widget.cutoffNext - 50,
+                        flex: 50,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: nextPage,
+                          onTap: widget.controller.nextPage,
                         ),
                       ),
                     ],
