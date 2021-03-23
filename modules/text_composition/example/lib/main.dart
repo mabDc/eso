@@ -12,7 +12,9 @@ class MyApp extends StatelessWidget {
     return TextComposition(
       controller: TextCompositionController(
         // Global.prefs.containsKey(TextConfigKey) ? Global.prefs.getString(TextConfigKey) : {}
-        config: TextCompositionConfig.fromJSON({}),
+        config: TextCompositionConfig(
+          animation: 'curl',
+        ),
         loadChapter: (index) => List.generate(
             12 + math.Random().nextInt(34), (i) => "chapter $index, " + "paragraph $i. " * math.Random().nextInt(12)),
         chapters: List.generate(1234, (i) => "chapter $i, chapter name"),
