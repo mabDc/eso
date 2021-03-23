@@ -1045,10 +1045,7 @@ class TextComposition extends StatefulWidget {
 }
 
 class TextCompositionState extends State<TextComposition> with TickerProviderStateMixin {
-  int pageNumber = 0;
-  List<Widget> pages = [];
 
-  List<AnimationController> _controllers = [];
 
   @override
   void didUpdateWidget(TextComposition oldWidget) {
@@ -1060,9 +1057,13 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
 
   @override
   void dispose() {
+    widget.controller.removeListener(refresh);
     widget.controller.dispose();
-    _controllers.forEach((c) => c.dispose());
     super.dispose();
+  }
+
+  refresh(){
+    setState(() {});
   }
 
   @override
@@ -1073,9 +1074,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           duration: widget.controller.duration,
           vsync: this,
         ));
-    widget.controller.addListener(() {
-      setState(() {});
-    });
+    widget.controller.addListener(refresh);
   }
 
   @override
@@ -1103,7 +1102,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
               } else if (logicalKey == LogicalKeyboardKey.home) {
                 widget.controller.goToPage(0);
               } else if (logicalKey == LogicalKeyboardKey.end) {
-                // goToPage(pages.length - 1);
+                // widget.controller.goToPage(widget.controller.lastIndex);
               } else if (logicalKey == LogicalKeyboardKey.enter ||
                   logicalKey == LogicalKeyboardKey.numpadEnter) {
                 //
