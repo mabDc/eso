@@ -10,8 +10,7 @@ import 'package:flutter/services.dart';
 const indentation = "　";
 T cast<T>(x, T defaultValue) => x is T ? x : defaultValue; // 安全转换
 
-TextPage getOnePage(
-    List<String> paragraphs, TextCompositionConfig config, double? width) {
+TextPage getOnePage(List<String> paragraphs, TextCompositionConfig config, double? width) {
   width ??= ui.window.physicalSize.width / ui.window.devicePixelRatio;
   width -= config.leftPadding + config.rightPadding;
   final width2 = width - config.fontSize;
@@ -48,7 +47,7 @@ TextPage getOnePage(
       }
     }
   }
-  return TextPage(height: dy + config.bottomPadding, lines: lines, index: 0);
+  return TextPage(height: dy + config.bottomPadding, lines: lines, number: 1);
 }
 
 class TextCompositionWidget extends StatelessWidget {
@@ -388,7 +387,7 @@ class TextCompositionConfig {
 
 class TextPage {
   double percent;
-  int index;
+  int number;
   int total;
   int chIndex;
   String info;
@@ -397,7 +396,7 @@ class TextPage {
 
   TextPage({
     this.percent = 0.0,
-    required this.index,
+    required this.number,
     this.total = 1,
     this.chIndex = 0,
     this.info = '',
@@ -472,7 +471,7 @@ class TextCompositionController extends ChangeNotifier {
     notifyListeners();
     // Future.delayed(duration).then((value) async {
     //   if (!lastChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
-    //   if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
+    //   if (!firstChapter) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
     // });
   }
 
@@ -482,6 +481,8 @@ class TextCompositionController extends ChangeNotifier {
     bool? animationDragEnd,
     bool? justifyHeight,
     bool? showInfo,
+    String? animation,
+    int? animationDuration,
     double? topPadding,
     double? leftPadding,
     double? bottomPadding,
@@ -503,6 +504,8 @@ class TextCompositionController extends ChangeNotifier {
       animationDragEnd: animationDragEnd,
       justifyHeight: justifyHeight,
       showInfo: showInfo,
+      animation: animation,
+      animationDuration: animationDuration,
       topPadding: topPadding,
       leftPadding: leftPadding,
       bottomPadding: bottomPadding,
@@ -520,18 +523,18 @@ class TextCompositionController extends ChangeNotifier {
     )) notifyListeners();
   }
 
-  bool get firstChpater => _chapterIndex <= 0;
+  bool get firstChapter => _chapterIndex <= 0;
   bool get lastChapter => _chapterIndex >= chapterTotal;
 
   Future<void> previousChapter() async {
-    if (firstChpater) return;
+    if (firstChapter) return;
     _chapterIndex = _chapterIndex - 1;
     if (cache[_chapterIndex] != null && cache[_chapterIndex]!.isNotEmpty) {
       pages = cache[_chapterIndex]!;
       notifyListeners();
     }
     // Future.delayed(duration).then((value) async {
-    //   if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
+    //   if (!firstChapter) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
     // });
   }
 
@@ -542,9 +545,9 @@ class TextCompositionController extends ChangeNotifier {
       pages = cache[_chapterIndex]!;
       notifyListeners();
     }
-    Future.delayed(Duration(milliseconds: 300)).then((value) async {
-      if (!firstChpater) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
-    });
+    // Future.delayed(Duration(milliseconds: 300)).then((value) async {
+    //   if (!firstChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
+    // });
   }
 
   Future<List<TextPage>> startX(int index) async {
@@ -558,16 +561,10 @@ class TextCompositionController extends ChangeNotifier {
             : size.width > 580
                 ? 2
                 : 1;
-    final _width = (size.width -
-            config.leftPadding -
-            config.rightPadding -
-            (columns - 1) * config.columnPadding) /
-        columns;
+    final _width =
+        (size.width - config.leftPadding - config.rightPadding - (columns - 1) * config.columnPadding) / columns;
     final _width2 = _width - config.fontSize;
-    final _height = size.height -
-        config.topPadding -
-        config.bottomPadding -
-        (config.showInfo ? 24 : 0);
+    final _height = size.height - config.topPadding - config.bottomPadding - (config.showInfo ? 24 : 0);
     final _height2 = _height - config.fontSize * config.fontHeight;
 
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
@@ -620,7 +617,7 @@ class TextCompositionController extends ChangeNotifier {
     }
     dy += config.titlePadding;
 
-    var pageIndex = 0;
+    var pageIndex = 1;
 
     /// 下一页 判断分页 依据: `_boxHeight` `_boxHeight2`是否可以容纳下一行
     void newPage([bool shouldJustifyHeight = true, bool lastPage = false]) {
@@ -632,7 +629,7 @@ class TextCompositionController extends ChangeNotifier {
         }
       }
       if (columnNum == columns || lastPage) {
-        pages.add(TextPage(lines: lines, height: dy, index: pageIndex++, info: chapter));
+        pages.add(TextPage(lines: lines, height: dy, number: pageIndex++, info: chapter));
         lines = <TextLine>[];
         columnNum = 1;
         dx = _dx;
@@ -654,6 +651,7 @@ class TextCompositionController extends ChangeNotifier {
     }
 
     for (var p in paragraphs) {
+      p = indentation * config.indentation + p;
       while (true) {
         tp.text = TextSpan(text: p, style: style);
         tp.layout(maxWidth: _width);
@@ -682,18 +680,14 @@ class TextCompositionController extends ChangeNotifier {
       newPage(false, true);
     }
     if (pages.length == 0) {
-      pages.add(TextPage(
-          lines: [],
-          height: config.topPadding + config.bottomPadding,
-          index: 0,
-          info: chapter));
+      pages.add(TextPage(lines: [], height: config.topPadding + config.bottomPadding, number: 1, info: chapter));
     }
 
-    final basePercent = 100 / chapterTotal;
+    final basePercent = index / chapterTotal;
     final total = pages.length;
     pages.forEach((page) {
       page.total = total;
-      page.percent = (page.index / pages.length + index) * basePercent;
+      page.percent = (page.number / pages.length + index) / chapterTotal + basePercent;
     });
     return pages;
   }
@@ -741,10 +735,7 @@ class TextCompositionEffect extends CustomPainter {
     if (image == null) {
       final pic = ui.PictureRecorder();
       paintText(Canvas(pic), size);
-      pic
-          .endRecording()
-          .toImage(size.width.round(), size.height.round())
-          .then((value) => image = value);
+      pic.endRecording().toImage(size.width.round(), size.height.round()).then((value) => image = value);
     }
 
     if (pos > 0.996) {
@@ -758,8 +749,7 @@ class TextCompositionEffect extends CustomPainter {
     if (config.animation == 'curl') {
       for (double x = 0; x < size.width; x++) {
         final xf = (x / w);
-        final v =
-            (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
+        final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
         final xv = (xf * wHRatio) - movX;
         final sx = (xf * image!.width);
         final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());
@@ -789,8 +779,7 @@ class TextCompositionEffect extends CustomPainter {
     );
     for (var i = 0; i < lineCount; i++) {
       final line = page.lines[i];
-      if (line.letterSpacing != null &&
-          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+      if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
         tp.text = TextSpan(
           text: line.text,
           style: line.isTitle
@@ -828,7 +817,7 @@ class TextCompositionEffect extends CustomPainter {
     tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
 
     tp.text = TextSpan(
-      text: '${page.index + 1}/${page.total} ${page.percent}',
+      text: '${page.number}/${page.total} ${(100 * page.percent).toStringAsFixed(2)}%',
       style: style2,
     );
     tp.layout();
@@ -842,21 +831,22 @@ class TextCompositionEffect extends CustomPainter {
   bool shouldRepaint(TextCompositionEffect oldDelegate) {
     return oldDelegate.image != image ||
         oldDelegate.amount.value != amount.value ||
-        page.index != oldDelegate.page.index;
+        page.number != oldDelegate.page.number ||
+        page.chIndex != oldDelegate.page.chIndex;
   }
 }
 
 class TextComposition extends StatefulWidget {
   TextComposition({
     Key? key,
-    this.cuton = 8,
-    this.cutoff = 92,
+    this.cutoffPrevious = 8,
+    this.cutoffNext = 92,
     required this.controller,
     required this.lastPage,
   }) : super(key: key);
 
-  final int cutoff;
-  final int cuton;
+  final int cutoffNext;
+  final int cutoffPrevious;
   final TextCompositionController controller;
   final Widget lastPage;
 
@@ -940,7 +930,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
     }
     if (_isForward!) {
       _controllers[pageNumber].value += _ratio;
-    } else {
+    } else if (!_isFirstPage) {
       _controllers[pageNumber - 1].value += _ratio;
     }
   }
@@ -948,8 +938,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   Future<void> _onDragFinish() async {
     if (_isForward != null) {
       if (_isForward!) {
-        if (!_isLastPage &&
-            _controllers[pageNumber].value <= (widget.cutoff / 100 + 0.03)) {
+        if (!_isLastPage && _controllers[pageNumber].value <= (widget.cutoffNext / 100 + 0.03)) {
           await nextPage();
         } else {
           await _controllers[pageNumber].forward();
@@ -958,8 +947,7 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           }
         }
       } else {
-        if (!_isFirstPage &&
-            _controllers[pageNumber - 1].value >= (widget.cuton / 100 + 0.05)) {
+        if (!_isFirstPage && _controllers[pageNumber - 1].value >= (widget.cutoffPrevious / 100 + 0.05)) {
           await previousPage();
         } else {
           if (_isFirstPage) {
@@ -1052,9 +1040,8 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
               } else if (logicalKey == LogicalKeyboardKey.home) {
                 goToPage(0);
               } else if (logicalKey == LogicalKeyboardKey.end) {
-                goToPage(pages.length - 1);
-              } else if (logicalKey == LogicalKeyboardKey.enter ||
-                  logicalKey == LogicalKeyboardKey.numpadEnter) {
+                // goToPage(pages.length - 1);
+              } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
                 //
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
@@ -1070,25 +1057,26 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
               fit: StackFit.expand,
               children: <Widget>[
                 widget.lastPage,
-                ...pages.map((p) {
-                  i++;
-                  final pn = pages.length - pageNumber;
-                  final ret = Offstage(offstage: !(i >= pn - 2 && i <= pn + 1), child: p);
-                  return ret;
-                }).toList(),
+                // ...pages.map((p) {
+                //   i++;
+                //   final pn = pages.length - pageNumber;
+                //   final ret = Offstage(offstage: !(i >= pn - 2 && i <= pn + 1), child: p);
+                //   return ret;
+                // }).toList(),
+                ...pages,
                 Positioned.fill(
                   child: Flex(
                     direction: Axis.horizontal,
                     children: <Widget>[
                       Flexible(
-                        flex: 50 - widget.cuton,
+                        flex: 50 - widget.cutoffPrevious,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: previousPage,
                         ),
                       ),
                       Flexible(
-                        flex: widget.cutoff - 50,
+                        flex: widget.cutoffNext - 50,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: nextPage,
@@ -1106,291 +1094,284 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   }
 }
 
-/// * 暂不支持图片
-/// * 文本排版
-/// * 两端对齐
-/// * 底栏对齐
-class TextCompositionOri {
-  /// 待渲染文本段落
-  /// 已经预处理: 不重新计算空行 不重新缩进
-  final List<String> paragraphs;
-
-  /// 字体样式 字号 [size] 行高 [height] 字体 [family] 字色[Color]
-  final TextStyle style;
-
-  /// 标题
-  final String? title;
-
-  /// 标题样式
-  final TextStyle? titleStyle;
-
-  /// 标题正文间距
-  final double? titlePadding;
-
-  /// 段间距
-  final double paragraph;
-
-  /// 每一页内容
-  final List<TextPage> pages;
-
-  int get pageCount => pages.length;
-
-  /// 分栏个数
-  final int columnCount;
-
-  /// 分栏间距
-  final double columnGap;
-
-  /// 单栏宽度
-  final double columnWidth;
-
-  /// 容器大小
-  final Size boxSize;
-
-  /// 内部边距
-  final EdgeInsets? padding;
-
-  /// 是否底栏对齐
-  final bool shouldJustifyHeight;
-
-  /// 前景 页眉页脚 菜单等
-  final Widget Function(int pageIndex)? getForeground;
-
-  /// 背景 背景色或者背景图片
-  final ui.Image Function(int pageIndex)? getBackground;
-
-  /// 是否显示动画
-  bool showAnimation;
-
-  // final Pattern? linkPattern;
-  // final TextStyle? linkStyle;
-  // final String Function(String s)? linkText;
-
-  // canvas 点击事件不生效
-  // final void Function(String s)? onLinkTap;
-
-  /// * 文本排版
-  /// * 两端对齐
-  /// * 底栏对齐
-  /// * 多栏布局
-  ///
-  ///
-  /// * [text] 待渲染文本内容 已经预处理: 不重新计算空行 不重新缩进
-  /// * [paragraphs] 待渲染文本内容 已经预处理: 不重新计算空行 不重新缩进
-  /// * [paragraphs] 为空时使用[text], 否则忽略[text],
-  /// * [style] 字体样式 字号 [size] 行高 [height] 字体 [family] 字色[Color]
-  /// * [title] 标题
-  /// * [titleStyle] 标题样式
-  /// * [boxSize] 容器大小
-  /// * [paragraph] 段间距
-  /// * [shouldJustifyHeight] 是否底栏对齐
-  /// * [columnCount] 分栏个数
-  /// * [columnGap] 分栏间距
-  /// * onLinkTap canvas 点击事件不生效
-  TextCompositionOri({
-    String? text,
-    List<String>? paragraphs,
-    required this.style,
-    this.title,
-    this.titleStyle,
-    this.titlePadding,
-    Size? boxSize,
-    this.padding,
-    this.shouldJustifyHeight = true,
-    this.paragraph = 10.0,
-    this.columnCount = 1,
-    this.columnGap = 0.0,
-    this.getForeground,
-    this.getBackground,
-    this.debug = false,
-    List<TextPage>? pages,
-    this.showAnimation = true,
-    // this.linkPattern,
-    // this.linkStyle,
-    // this.linkText,
-    // this.onLinkTap,
-  })  : pages = pages ?? <TextPage>[],
-        paragraphs = paragraphs ?? text?.split("\n") ?? <String>[],
-        boxSize = boxSize ?? ui.window.physicalSize / ui.window.devicePixelRatio,
-        columnWidth = ((boxSize?.width ??
-                    ui.window.physicalSize.width / ui.window.devicePixelRatio) -
-                (padding?.horizontal ?? 0) -
-                (columnCount - 1) * columnGap) /
-            columnCount {
-    // [_width2] [_height2] 用于调整判断
-    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
-    final offset = Offset(columnWidth, 1);
-    final size = style.fontSize ?? 14;
-    final _dx = padding?.left ?? 0;
-    final _dy = padding?.top ?? 0;
-    final _width = columnWidth;
-    final _width2 = _width - size;
-    final _height = this.boxSize.height - (padding?.vertical ?? 0);
-    final _height2 = _height - size * (style.height ?? 1.0);
-
-    var lines = <TextLine>[];
-    var columnNum = 1;
-    var dx = _dx;
-    var dy = _dy;
-    var startLine = 0;
-
-    if (title != null && title!.isNotEmpty) {
-      String t = title!;
-      while (true) {
-        tp.text = TextSpan(text: title, style: titleStyle);
-        tp.layout(maxWidth: _width);
-        final textCount = tp.getPositionForOffset(offset).offset;
-        final text = t.substring(0, textCount);
-        double? spacing;
-        if (tp.width > _width2) {
-          tp.text = TextSpan(text: text, style: titleStyle);
-          tp.layout();
-          double _spacing = (_width - tp.width) / textCount;
-          if (_spacing < -0.1 || _spacing > 0.1) {
-            spacing = _spacing;
-          }
-        }
-        lines.add(TextLine(text, dx, dy, spacing, true));
-        dy += tp.height;
-        if (t.length == textCount) {
-          break;
-        } else {
-          t = t.substring(textCount);
-        }
-      }
-    }
-
-    /// 下一页 判断分页 依据: `_boxHeight` `_boxHeight2`是否可以容纳下一行
-    void newPage([bool shouldJustifyHeight = true, bool lastPage = false]) {
-      if (shouldJustifyHeight && this.shouldJustifyHeight) {
-        final len = lines.length - startLine;
-        double justify = (_height - dy) / (len - 1);
-        for (var i = 0; i < len; i++) {
-          lines[i + startLine].justifyDy(justify * i);
-        }
-      }
-      if (columnNum == columnCount || lastPage) {
-        this.pages.add(TextPage(lines: lines, height: dy, index: 0));
-        lines = <TextLine>[];
-        columnNum = 1;
-        dx = _dx;
-      } else {
-        columnNum++;
-        dx += columnWidth + columnGap;
-      }
-      dy = _dy;
-      startLine = lines.length;
-    }
-
-    /// 新段落
-    void newParagraph() {
-      if (dy > _height2) {
-        newPage();
-      } else {
-        dy += paragraph;
-      }
-    }
-
-    for (var p in this.paragraphs) {
-      while (true) {
-        tp.text = TextSpan(text: p, style: style);
-        tp.layout(maxWidth: columnWidth);
-        final textCount = tp.getPositionForOffset(offset).offset;
-        double? spacing;
-        final text = p.substring(0, textCount);
-        if (tp.width > _width2) {
-          tp.text = TextSpan(text: text, style: style);
-          tp.layout();
-          spacing = (_width - tp.width) / textCount;
-        }
-        lines.add(TextLine(text, dx, dy, spacing));
-        dy += tp.height;
-        if (p.length == textCount) {
-          newParagraph();
-          break;
-        } else {
-          p = p.substring(textCount);
-          if (dy > _height2) {
-            newPage();
-          }
-        }
-      }
-    }
-    if (lines.isNotEmpty) {
-      newPage(false, true);
-    }
-    if (this.pages.length == 0) {
-      this.pages.add(TextPage(lines: [], height: padding?.horizontal ?? 0, index: 0));
-    }
-  }
-
-  /// 调试模式 输出布局信息
-  bool debug;
-
-  Widget getPageWidget([int pageIndex = 0]) {
-    // if (pageIndex != null && !changePage(pageIndex)) return Container();
-    return Container(
-      width: boxSize.width,
-      height: boxSize.height.isInfinite ? pages[pageIndex].height : boxSize.height,
-      child: CustomPaint(
-          painter: PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)),
-    );
-  }
-
-  Future<ui.Image?> getImage(int pageIndex) async {
-    final recorder = ui.PictureRecorder();
-    final canvas = new Canvas(
-        recorder, Rect.fromPoints(Offset.zero, Offset(boxSize.width, boxSize.height)));
-    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)
-        .paint(canvas, boxSize);
-    final picture = recorder.endRecording();
-    return await picture.toImage(boxSize.width.floor(), boxSize.height.floor());
-  }
-
-  void paint(int pageIndex, Canvas canvas) {
-    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)
-        .paint(canvas, boxSize);
-  }
-}
-
-class PagePainter extends CustomPainter {
-  final TextPage page;
-  final TextStyle style;
-  final TextStyle? titleStyle;
-  final int pageIndex;
-  final bool debug;
-  const PagePainter(this.pageIndex, this.page, this.style, this.titleStyle,
-      [this.debug = false]);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (debug) print("****** [TextComposition paint start] [${DateTime.now()}] ******");
-    final lineCount = page.lines.length;
-    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
-    for (var i = 0; i < lineCount; i++) {
-      final line = page.lines[i];
-      if (line.letterSpacing != null &&
-          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
-        tp.text = TextSpan(
-          text: line.text,
-          style: line.isTitle
-              ? titleStyle?.copyWith(letterSpacing: line.letterSpacing)
-              : style.copyWith(letterSpacing: line.letterSpacing),
-        );
-      } else {
-        tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
-      }
-      final offset = Offset(line.dx, line.dy);
-      if (debug) print("$offset ${line.text}");
-      tp.layout();
-      tp.paint(canvas, offset);
-    }
-    if (debug) print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
-  }
-
-  @override
-  bool shouldRepaint(PagePainter old) {
-    print("shouldRepaint");
-    return old.pageIndex != pageIndex;
-  }
-}
+// /// * 暂不支持图片
+// /// * 文本排版
+// /// * 两端对齐
+// /// * 底栏对齐
+// class TextCompositionOri {
+//   /// 待渲染文本段落
+//   /// 已经预处理: 不重新计算空行 不重新缩进
+//   final List<String> paragraphs;
+//
+//   /// 字体样式 字号 [size] 行高 [height] 字体 [family] 字色[Color]
+//   final TextStyle style;
+//
+//   /// 标题
+//   final String? title;
+//
+//   /// 标题样式
+//   final TextStyle? titleStyle;
+//
+//   /// 标题正文间距
+//   final double? titlePadding;
+//
+//   /// 段间距
+//   final double paragraph;
+//
+//   /// 每一页内容
+//   final List<TextPage> pages;
+//
+//   int get pageCount => pages.length;
+//
+//   /// 分栏个数
+//   final int columnCount;
+//
+//   /// 分栏间距
+//   final double columnGap;
+//
+//   /// 单栏宽度
+//   final double columnWidth;
+//
+//   /// 容器大小
+//   final Size boxSize;
+//
+//   /// 内部边距
+//   final EdgeInsets? padding;
+//
+//   /// 是否底栏对齐
+//   final bool shouldJustifyHeight;
+//
+//   /// 前景 页眉页脚 菜单等
+//   final Widget Function(int pageIndex)? getForeground;
+//
+//   /// 背景 背景色或者背景图片
+//   final ui.Image Function(int pageIndex)? getBackground;
+//
+//   /// 是否显示动画
+//   bool showAnimation;
+//
+//   // final Pattern? linkPattern;
+//   // final TextStyle? linkStyle;
+//   // final String Function(String s)? linkText;
+//
+//   // canvas 点击事件不生效
+//   // final void Function(String s)? onLinkTap;
+//
+//   /// * 文本排版
+//   /// * 两端对齐
+//   /// * 底栏对齐
+//   /// * 多栏布局
+//   ///
+//   ///
+//   /// * [text] 待渲染文本内容 已经预处理: 不重新计算空行 不重新缩进
+//   /// * [paragraphs] 待渲染文本内容 已经预处理: 不重新计算空行 不重新缩进
+//   /// * [paragraphs] 为空时使用[text], 否则忽略[text],
+//   /// * [style] 字体样式 字号 [size] 行高 [height] 字体 [family] 字色[Color]
+//   /// * [title] 标题
+//   /// * [titleStyle] 标题样式
+//   /// * [boxSize] 容器大小
+//   /// * [paragraph] 段间距
+//   /// * [shouldJustifyHeight] 是否底栏对齐
+//   /// * [columnCount] 分栏个数
+//   /// * [columnGap] 分栏间距
+//   /// * onLinkTap canvas 点击事件不生效
+//   TextCompositionOri({
+//     String? text,
+//     List<String>? paragraphs,
+//     required this.style,
+//     this.title,
+//     this.titleStyle,
+//     this.titlePadding,
+//     Size? boxSize,
+//     this.padding,
+//     this.shouldJustifyHeight = true,
+//     this.paragraph = 10.0,
+//     this.columnCount = 1,
+//     this.columnGap = 0.0,
+//     this.getForeground,
+//     this.getBackground,
+//     this.debug = false,
+//     List<TextPage>? pages,
+//     this.showAnimation = true,
+//     // this.linkPattern,
+//     // this.linkStyle,
+//     // this.linkText,
+//     // this.onLinkTap,
+//   })  : pages = pages ?? <TextPage>[],
+//         paragraphs = paragraphs ?? text?.split("\n") ?? <String>[],
+//         boxSize = boxSize ?? ui.window.physicalSize / ui.window.devicePixelRatio,
+//         columnWidth = ((boxSize?.width ?? ui.window.physicalSize.width / ui.window.devicePixelRatio) -
+//                 (padding?.horizontal ?? 0) -
+//                 (columnCount - 1) * columnGap) /
+//             columnCount {
+//     // [_width2] [_height2] 用于调整判断
+//     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+//     final offset = Offset(columnWidth, 1);
+//     final size = style.fontSize ?? 14;
+//     final _dx = padding?.left ?? 0;
+//     final _dy = padding?.top ?? 0;
+//     final _width = columnWidth;
+//     final _width2 = _width - size;
+//     final _height = this.boxSize.height - (padding?.vertical ?? 0);
+//     final _height2 = _height - size * (style.height ?? 1.0);
+//
+//     var lines = <TextLine>[];
+//     var columnNum = 1;
+//     var dx = _dx;
+//     var dy = _dy;
+//     var startLine = 0;
+//
+//     if (title != null && title!.isNotEmpty) {
+//       String t = title!;
+//       while (true) {
+//         tp.text = TextSpan(text: title, style: titleStyle);
+//         tp.layout(maxWidth: _width);
+//         final textCount = tp.getPositionForOffset(offset).offset;
+//         final text = t.substring(0, textCount);
+//         double? spacing;
+//         if (tp.width > _width2) {
+//           tp.text = TextSpan(text: text, style: titleStyle);
+//           tp.layout();
+//           double _spacing = (_width - tp.width) / textCount;
+//           if (_spacing < -0.1 || _spacing > 0.1) {
+//             spacing = _spacing;
+//           }
+//         }
+//         lines.add(TextLine(text, dx, dy, spacing, true));
+//         dy += tp.height;
+//         if (t.length == textCount) {
+//           break;
+//         } else {
+//           t = t.substring(textCount);
+//         }
+//       }
+//     }
+//
+//     /// 下一页 判断分页 依据: `_boxHeight` `_boxHeight2`是否可以容纳下一行
+//     void newPage([bool shouldJustifyHeight = true, bool lastPage = false]) {
+//       if (shouldJustifyHeight && this.shouldJustifyHeight) {
+//         final len = lines.length - startLine;
+//         double justify = (_height - dy) / (len - 1);
+//         for (var i = 0; i < len; i++) {
+//           lines[i + startLine].justifyDy(justify * i);
+//         }
+//       }
+//       if (columnNum == columnCount || lastPage) {
+//         this.pages.add(TextPage(lines: lines, height: dy, number: 1));
+//         lines = <TextLine>[];
+//         columnNum = 1;
+//         dx = _dx;
+//       } else {
+//         columnNum++;
+//         dx += columnWidth + columnGap;
+//       }
+//       dy = _dy;
+//       startLine = lines.length;
+//     }
+//
+//     /// 新段落
+//     void newParagraph() {
+//       if (dy > _height2) {
+//         newPage();
+//       } else {
+//         dy += paragraph;
+//       }
+//     }
+//
+//     for (var p in this.paragraphs) {
+//       while (true) {
+//         tp.text = TextSpan(text: p, style: style);
+//         tp.layout(maxWidth: columnWidth);
+//         final textCount = tp.getPositionForOffset(offset).offset;
+//         double? spacing;
+//         final text = p.substring(0, textCount);
+//         if (tp.width > _width2) {
+//           tp.text = TextSpan(text: text, style: style);
+//           tp.layout();
+//           spacing = (_width - tp.width) / textCount;
+//         }
+//         lines.add(TextLine(text, dx, dy, spacing));
+//         dy += tp.height;
+//         if (p.length == textCount) {
+//           newParagraph();
+//           break;
+//         } else {
+//           p = p.substring(textCount);
+//           if (dy > _height2) {
+//             newPage();
+//           }
+//         }
+//       }
+//     }
+//     if (lines.isNotEmpty) {
+//       newPage(false, true);
+//     }
+//     if (this.pages.length == 0) {
+//       this.pages.add(TextPage(lines: [], height: padding?.horizontal ?? 0, number: 1));
+//     }
+//   }
+//
+//   /// 调试模式 输出布局信息
+//   bool debug;
+//
+//   Widget getPageWidget([int pageIndex = 0]) {
+//     // if (pageIndex != null && !changePage(pageIndex)) return Container();
+//     return Container(
+//       width: boxSize.width,
+//       height: boxSize.height.isInfinite ? pages[pageIndex].height : boxSize.height,
+//       child: CustomPaint(painter: PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)),
+//     );
+//   }
+//
+//   Future<ui.Image?> getImage(int pageIndex) async {
+//     final recorder = ui.PictureRecorder();
+//     final canvas = new Canvas(recorder, Rect.fromPoints(Offset.zero, Offset(boxSize.width, boxSize.height)));
+//     PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug).paint(canvas, boxSize);
+//     final picture = recorder.endRecording();
+//     return await picture.toImage(boxSize.width.floor(), boxSize.height.floor());
+//   }
+//
+//   void paint(int pageIndex, Canvas canvas) {
+//     PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug).paint(canvas, boxSize);
+//   }
+// }
+//
+// class PagePainter extends CustomPainter {
+//   final TextPage page;
+//   final TextStyle style;
+//   final TextStyle? titleStyle;
+//   final int pageIndex;
+//   final bool debug;
+//   const PagePainter(this.pageIndex, this.page, this.style, this.titleStyle, [this.debug = false]);
+//
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     if (debug) print("****** [TextComposition paint start] [${DateTime.now()}] ******");
+//     final lineCount = page.lines.length;
+//     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+//     for (var i = 0; i < lineCount; i++) {
+//       final line = page.lines[i];
+//       if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+//         tp.text = TextSpan(
+//           text: line.text,
+//           style: line.isTitle
+//               ? titleStyle?.copyWith(letterSpacing: line.letterSpacing)
+//               : style.copyWith(letterSpacing: line.letterSpacing),
+//         );
+//       } else {
+//         tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
+//       }
+//       final offset = Offset(line.dx, line.dy);
+//       if (debug) print("$offset ${line.text}");
+//       tp.layout();
+//       tp.paint(canvas, offset);
+//     }
+//     if (debug) print("****** [TextComposition paint end  ] [${DateTime.now()}] ******");
+//   }
+//
+//   @override
+//   bool shouldRepaint(PagePainter old) {
+//     print("shouldRepaint");
+//     return old.pageIndex != pageIndex;
+//   }
+// }
