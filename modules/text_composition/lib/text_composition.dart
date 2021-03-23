@@ -1,5 +1,6 @@
 library text_composition;
 
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -7,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 const indentation = "　";
+T cast<T>(x, T defaultValue) => x is T ? x : defaultValue; // 安全转换
 
-TextPage getOnePage(List<String> paragraphs, TextCompositionConfig config, double? width) {
+TextPage getOnePage(
+    List<String> paragraphs, TextCompositionConfig config, double? width) {
   width ??= ui.window.physicalSize.width / ui.window.devicePixelRatio;
   width -= config.leftPadding + config.rightPadding;
   final width2 = width - config.fontSize;
@@ -114,6 +117,8 @@ class SimpleLinesPainter extends CustomPainter {
 /// - [animationDragEnd]
 /// - [justifyHeight]
 /// - [showInfo]
+/// - [animation]
+/// - [animationDuration]
 /// - [topPadding]
 /// - [leftPadding]
 /// - [bottomPadding]
@@ -135,6 +140,8 @@ class TextCompositionConfig {
   bool animationDragEnd;
   bool justifyHeight;
   bool showInfo; // info size - 100px, index/total percent - right 100px
+  String animation;
+  int animationDuration;
 
   /// padding
   double topPadding;
@@ -162,6 +169,8 @@ class TextCompositionConfig {
     this.animationDragEnd = true,
     this.justifyHeight = true,
     this.showInfo = true,
+    this.animation = 'curl',
+    this.animationDuration = 300,
     this.topPadding = 10,
     this.leftPadding = 10,
     this.bottomPadding = 10,
@@ -184,6 +193,8 @@ class TextCompositionConfig {
     bool? animationDragEnd,
     bool? justifyHeight,
     bool? showInfo,
+    String? animation,
+    int? animationDuration,
     double? topPadding,
     double? leftPadding,
     double? bottomPadding,
@@ -219,6 +230,14 @@ class TextCompositionConfig {
     }
     if (showInfo != null && this.showInfo != showInfo) {
       this.showInfo = showInfo;
+      update ??= true;
+    }
+    if (animation != null && this.animation != animation) {
+      this.animation = animation;
+      update ??= true;
+    }
+    if (animationDuration != null && this.animationDuration != animationDuration) {
+      this.animationDuration = animationDuration;
       update ??= true;
     }
     if (topPadding != null && this.topPadding != topPadding) {
@@ -285,25 +304,27 @@ class TextCompositionConfig {
   factory TextCompositionConfig.fromJSON(Map<String, dynamic> encoded) {
     return TextCompositionConfig(
       // text: encoded['text'] as String,
-      animationTap: encoded['animationTap'] ?? true,
-      animationDrag: encoded['animationDrag'] ?? true,
-      animationDragEnd: encoded['animationDragEnd'] ?? true,
-      justifyHeight: encoded['justifyHeight'] ?? true,
-      showInfo: encoded['showInfo'] ?? true,
-      topPadding: encoded['topPadding'] ?? 10,
-      leftPadding: encoded['leftPadding'] ?? 10,
-      bottomPadding: encoded['bottomPadding'] ?? 10,
-      rightPadding: encoded['rightPadding'] ?? 10,
-      titlePadding: encoded['titlePadding'] ?? 30,
-      paragraphPadding: encoded['paragraphPadding'] ?? 10,
-      columnPadding: encoded['columnPadding'] ?? 30,
-      columns: encoded['columns'] ?? 0,
-      indentation: encoded['indentation'] ?? 2,
-      fontColor: Color(encoded['fontColor'] ?? 0xFF303133),
-      fontSize: encoded['fontSize'] ?? 18,
-      fontHeight: encoded['fontHeight'] ?? 1.6,
-      fontFamily: encoded['fontFamily'] ?? '',
-      background: encoded['background'] ?? '#FFFFFFCC',
+      animationTap: cast(encoded['animationTap'], true),
+      animationDrag: cast(encoded['animationDrag'], true),
+      animationDragEnd: cast(encoded['animationDragEnd'], true),
+      justifyHeight: cast(encoded['justifyHeight'], true),
+      showInfo: cast(encoded['showInfo'], true),
+      animation: cast(encoded['animation'], 'curl'),
+      animationDuration: cast(encoded['animationDuration'], 300),
+      topPadding: cast(encoded['topPadding'], 10),
+      leftPadding: cast(encoded['leftPadding'], 10),
+      bottomPadding: cast(encoded['bottomPadding'], 10),
+      rightPadding: cast(encoded['rightPadding'], 10),
+      titlePadding: cast(encoded['titlePadding'], 30),
+      paragraphPadding: cast(encoded['paragraphPadding'], 10),
+      columnPadding: cast(encoded['columnPadding'], 30),
+      columns: cast(encoded['columns'], 0),
+      indentation: cast(encoded['indentation'], 2),
+      fontColor: Color(cast(encoded['fontColor'], 0xFF303133)),
+      fontSize: cast(encoded['fontSize'], 18),
+      fontHeight: cast(encoded['fontHeight'], 1.6),
+      fontFamily: cast(encoded['fontFamily'], ''),
+      background: cast(encoded['background'], '#FFFFFFCC'),
     );
   }
 
@@ -315,6 +336,8 @@ class TextCompositionConfig {
       'animationDragEnd': animationDragEnd,
       'justifyHeight': justifyHeight,
       'showInfo': showInfo,
+      'animation': animation,
+      'animationDuration': animationDuration,
       'topPadding': topPadding,
       'leftPadding': leftPadding,
       'bottomPadding': bottomPadding,
@@ -341,6 +364,8 @@ class TextCompositionConfig {
         other.animationDragEnd == animationDragEnd &&
         other.justifyHeight == justifyHeight &&
         other.showInfo == showInfo &&
+        other.animation == animation &&
+        other.animationDuration == animationDuration &&
         other.topPadding == topPadding &&
         other.leftPadding == leftPadding &&
         other.bottomPadding == bottomPadding &&
@@ -362,20 +387,22 @@ class TextCompositionConfig {
 }
 
 class TextPage {
-  String info;
+  double percent;
   int index;
   int total;
-  String percent;
+  int chIndex;
+  String info;
   final double height;
   final List<TextLine> lines;
 
   TextPage({
+    this.percent = 0.0,
     required this.index,
+    this.total = 1,
+    this.chIndex = 0,
+    this.info = '',
     required this.height,
     required this.lines,
-    this.info = '',
-    this.total = 1,
-    this.percent = '0.00%',
   });
 }
 
@@ -403,8 +430,12 @@ class TextLine {
 /// 动画设置与刷新
 class TextCompositionController extends ChangeNotifier {
   final TextCompositionConfig config;
-  final Future<List<String>> Function(int chapterIndex) _loadChapter;
-
+  late final Duration duration;
+  final FutureOr<List<String>> Function(int chapterIndex) loadChapter;
+  final FutureOr Function(TextCompositionConfig config, double percent)? onSave;
+  final FutureOr Function()? onToggleMenu;
+  final Widget Function()? buildMenu;
+  final String? name;
   final List<String> chapters;
   int get chapterTotal => chapters.length;
 
@@ -419,20 +450,30 @@ class TextCompositionController extends ChangeNotifier {
   Map<int, List<TextPage>> cache;
   List<TextPage> pages;
 
-  TextCompositionController(this.config, this._loadChapter, this.chapters, this._percent, [double? width])
-      : pages = <TextPage>[],
+  TextCompositionController({
+    required this.config,
+    required this.loadChapter,
+    required this.chapters,
+    this.name,
+    this.onSave,
+    this.onToggleMenu,
+    this.buildMenu,
+    percent = 0.0,
+  })  : this._percent = percent,
+        pages = <TextPage>[],
         cache = {} {
     _chapterIndex = (_percent * chapterTotal).floor();
+    duration = Duration(milliseconds: config.animationDuration);
     init();
   }
 
   init() async {
     pages = await startX(_chapterIndex);
     notifyListeners();
-    Future.delayed(Duration(milliseconds: 300)).then((value) async {
-      if (!lastChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
-      if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
-    });
+    // Future.delayed(duration).then((value) async {
+    //   if (!lastChapter) cache[_chapterIndex + 1] = await startX(_chapterIndex + 1);
+    //   if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
+    // });
   }
 
   void updateConfig({
@@ -489,9 +530,9 @@ class TextCompositionController extends ChangeNotifier {
       pages = cache[_chapterIndex]!;
       notifyListeners();
     }
-    Future.delayed(Duration(milliseconds: 300)).then((value) async {
-      if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
-    });
+    // Future.delayed(duration).then((value) async {
+    //   if (!firstChpater) cache[_chapterIndex - 1] = await startX(_chapterIndex - 1);
+    // });
   }
 
   Future<void> nextChapter() async {
@@ -508,7 +549,7 @@ class TextCompositionController extends ChangeNotifier {
 
   Future<List<TextPage>> startX(int index) async {
     final pages = <TextPage>[];
-    final paragraphs = await _loadChapter(index);
+    final paragraphs = await loadChapter(index);
     final size = ui.window.physicalSize / ui.window.devicePixelRatio;
     final columns = config.columns > 0
         ? config.columns
@@ -517,10 +558,16 @@ class TextCompositionController extends ChangeNotifier {
             : size.width > 580
                 ? 2
                 : 1;
-    final _width =
-        (size.width - config.leftPadding - config.rightPadding - (columns - 1) * config.columnPadding) / columns;
+    final _width = (size.width -
+            config.leftPadding -
+            config.rightPadding -
+            (columns - 1) * config.columnPadding) /
+        columns;
     final _width2 = _width - config.fontSize;
-    final _height = size.height - config.topPadding - config.bottomPadding - (config.showInfo ? 24 : 0);
+    final _height = size.height -
+        config.topPadding -
+        config.bottomPadding -
+        (config.showInfo ? 24 : 0);
     final _height2 = _height - config.fontSize * config.fontHeight;
 
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
@@ -635,14 +682,18 @@ class TextCompositionController extends ChangeNotifier {
       newPage(false, true);
     }
     if (pages.length == 0) {
-      pages.add(TextPage(lines: [], height: config.topPadding + config.bottomPadding, index: 0, info: chapter));
+      pages.add(TextPage(
+          lines: [],
+          height: config.topPadding + config.bottomPadding,
+          index: 0,
+          info: chapter));
     }
 
-    final basePercent = index / chapterTotal;
+    final basePercent = 100 / chapterTotal;
     final total = pages.length;
     pages.forEach((page) {
-      page.percent = (page.index / total / chapterTotal + basePercent).toStringAsFixed(2) + "%";
       page.total = total;
+      page.percent = (page.index / pages.length + index) * basePercent;
     });
     return pages;
   }
@@ -667,6 +718,8 @@ class TextCompositionEffect extends CustomPainter {
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
     final pos = amount.value;
+    if (pos < 0.001) return;
+
     final movX = (1.0 - pos) * 0.85;
     final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
     final wHRatio = 1 - calcR;
@@ -678,104 +731,111 @@ class TextCompositionEffect extends CustomPainter {
     final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
     final pageRect = Rect.fromLTRB(0.0, 0.0, w * shadowXf, h);
     c.drawRect(pageRect, Paint()..color = backgroundColor);
-    if (pos != 0 && pos != 1) {
-      c.drawRect(
-        pageRect,
-        Paint()
-          ..color = Colors.black54
-          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
-      );
+    c.drawRect(
+      pageRect,
+      Paint()
+        ..color = Colors.black54
+        ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+    );
+
+    if (image == null) {
+      final pic = ui.PictureRecorder();
+      paintText(Canvas(pic), size);
+      pic
+          .endRecording()
+          .toImage(size.width.round(), size.height.round())
+          .then((value) => image = value);
     }
 
-    if (image == null || pos > 0.99) {
-      ui.PictureRecorder? pic;
-      ui.Canvas? c;
-      if (image == null) {
-        pic = ui.PictureRecorder();
-        c = Canvas(pic);
-      }
-      final lineCount = page.lines.length;
-      final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
-      final titleStyle = TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily,
-        color: config.fontColor,
-      );
-      final style = TextStyle(
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily,
-        color: config.fontColor,
-      );
-      for (var i = 0; i < lineCount; i++) {
-        final line = page.lines[i];
-        if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
-          tp.text = TextSpan(
-            text: line.text,
-            style: line.isTitle
-                ? TextStyle(
-                    letterSpacing: line.letterSpacing,
-                    fontWeight: FontWeight.bold,
-                    fontSize: config.fontSize,
-                    fontFamily: config.fontFamily,
-                    color: config.fontColor,
-                  )
-                : TextStyle(
-                    letterSpacing: line.letterSpacing,
-                    fontSize: config.fontSize,
-                    fontFamily: config.fontFamily,
-                    color: config.fontColor,
-                  ),
-          );
-        } else {
-          tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
-        }
-        final offset = Offset(line.dx, line.dy);
-        tp.layout();
-        tp.paint(canvas, offset);
-        if (c != null) tp.paint(c, offset);
-      }
-      final style2 = TextStyle(
-        fontSize: 10,
-        fontFamily: config.fontFamily,
-        color: config.fontColor,
-      );
-
-      tp.text = TextSpan(text: page.info, style: style2);
-      tp.layout(
-        maxWidth: size.width - config.leftPadding - config.rightPadding - 100,
-      );
-      tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
-
-      tp.text = TextSpan(
-        text: '${page.index + 1}/${page.total} ${page.percent}',
-        style: style2,
-      );
-      tp.layout();
-      tp.paint(
-        canvas,
-        Offset(size.width - config.rightPadding - tp.width, size.height - 24),
-      );
-
-      pic?.endRecording().toImage(size.width.round(), size.height.round()).then((value) => image = value);
+    if (pos > 0.996) {
+      paintText(canvas, size);
       return;
     }
 
     final hWRatio = image!.height / image!.width;
     final hWCorrection = (hWRatio - 1.0) / 2.0;
-
     final ip = Paint();
-    for (double x = 0; x < size.width; x++) {
-      final xf = (x / w);
-      final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
-      final xv = (xf * wHRatio) - movX;
-      final sx = (xf * image!.width);
-      final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());
-      final yv = ((h * calcR * movX) * hWRatio) - hWCorrection;
-      final ds = (yv * v);
-      final dr = Rect.fromLTRB(xv * w, 0.0 - ds, xv * w + 1.0, h + ds);
-      c.drawImageRect(image!, sr, dr, ip);
+    if (config.animation == 'curl') {
+      for (double x = 0; x < size.width; x++) {
+        final xf = (x / w);
+        final v =
+            (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
+        final xv = (xf * wHRatio) - movX;
+        final sx = (xf * image!.width);
+        final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());
+        final yv = ((h * calcR * movX) * hWRatio) - hWCorrection;
+        final ds = (yv * v);
+        final dr = Rect.fromLTRB(xv * w, 0.0 - ds, xv * w + 1.0, h + ds);
+        c.drawImageRect(image!, sr, dr, ip);
+      }
+    } else if (config.animation == 'cover') {
+      c.drawImage(image!, Offset(-size.width + w * shadowXf, 0), ip);
     }
+  }
+
+  void paintText(ui.Canvas canvas, ui.Size size) {
+    final lineCount = page.lines.length;
+    final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+    final titleStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: config.fontSize,
+      fontFamily: config.fontFamily,
+      color: config.fontColor,
+    );
+    final style = TextStyle(
+      fontSize: config.fontSize,
+      fontFamily: config.fontFamily,
+      color: config.fontColor,
+    );
+    for (var i = 0; i < lineCount; i++) {
+      final line = page.lines[i];
+      if (line.letterSpacing != null &&
+          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+        tp.text = TextSpan(
+          text: line.text,
+          style: line.isTitle
+              ? TextStyle(
+                  letterSpacing: line.letterSpacing,
+                  fontWeight: FontWeight.bold,
+                  fontSize: config.fontSize,
+                  fontFamily: config.fontFamily,
+                  color: config.fontColor,
+                )
+              : TextStyle(
+                  letterSpacing: line.letterSpacing,
+                  fontSize: config.fontSize,
+                  fontFamily: config.fontFamily,
+                  color: config.fontColor,
+                ),
+        );
+      } else {
+        tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
+      }
+      final offset = Offset(line.dx, line.dy);
+      tp.layout();
+      tp.paint(canvas, offset);
+    }
+    final style2 = TextStyle(
+      fontSize: 10,
+      fontFamily: config.fontFamily,
+      color: config.fontColor,
+    );
+
+    tp.text = TextSpan(text: page.info, style: style2);
+    tp.layout(
+      maxWidth: size.width - config.leftPadding - config.rightPadding - 100,
+    );
+    tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
+
+    tp.text = TextSpan(
+      text: '${page.index + 1}/${page.total} ${page.percent}',
+      style: style2,
+    );
+    tp.layout();
+    tp.paint(
+      canvas,
+      Offset(size.width - config.rightPadding - tp.width, size.height - 24),
+    );
   }
 
   @override
@@ -789,14 +849,12 @@ class TextCompositionEffect extends CustomPainter {
 class TextComposition extends StatefulWidget {
   TextComposition({
     Key? key,
-    this.duration = const Duration(milliseconds: 300),
     this.cuton = 8,
     this.cutoff = 92,
     required this.controller,
     required this.lastPage,
   }) : super(key: key);
 
-  final Duration duration;
   final int cutoff;
   final int cuton;
   final TextCompositionController controller;
@@ -842,13 +900,14 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   }
 
   void _setUp() {
+    final duration = Duration(milliseconds: widget.controller.config.animationDuration);
     if (widget.controller.pages.isEmpty) return;
     _controllers.clear();
     pages.clear();
     for (var i = 0; i < widget.controller.pages.length; i++) {
       final _controller = AnimationController(
         value: 1,
-        duration: widget.duration,
+        duration: duration,
         vsync: this,
       );
       _controllers.add(_controller);
@@ -889,7 +948,8 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
   Future<void> _onDragFinish() async {
     if (_isForward != null) {
       if (_isForward!) {
-        if (!_isLastPage && _controllers[pageNumber].value <= (widget.cutoff / 100 + 0.03)) {
+        if (!_isLastPage &&
+            _controllers[pageNumber].value <= (widget.cutoff / 100 + 0.03)) {
           await nextPage();
         } else {
           await _controllers[pageNumber].forward();
@@ -898,7 +958,8 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
           }
         }
       } else {
-        if (!_isFirstPage && _controllers[pageNumber - 1].value >= (widget.cuton / 100 + 0.05)) {
+        if (!_isFirstPage &&
+            _controllers[pageNumber - 1].value >= (widget.cuton / 100 + 0.05)) {
           await previousPage();
         } else {
           if (_isFirstPage) {
@@ -992,7 +1053,8 @@ class TextCompositionState extends State<TextComposition> with TickerProviderSta
                 goToPage(0);
               } else if (logicalKey == LogicalKeyboardKey.end) {
                 goToPage(pages.length - 1);
-              } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
+              } else if (logicalKey == LogicalKeyboardKey.enter ||
+                  logicalKey == LogicalKeyboardKey.numpadEnter) {
                 //
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
@@ -1150,7 +1212,8 @@ class TextCompositionOri {
   })  : pages = pages ?? <TextPage>[],
         paragraphs = paragraphs ?? text?.split("\n") ?? <String>[],
         boxSize = boxSize ?? ui.window.physicalSize / ui.window.devicePixelRatio,
-        columnWidth = ((boxSize?.width ?? ui.window.physicalSize.width / ui.window.devicePixelRatio) -
+        columnWidth = ((boxSize?.width ??
+                    ui.window.physicalSize.width / ui.window.devicePixelRatio) -
                 (padding?.horizontal ?? 0) -
                 (columnCount - 1) * columnGap) /
             columnCount {
@@ -1269,20 +1332,24 @@ class TextCompositionOri {
     return Container(
       width: boxSize.width,
       height: boxSize.height.isInfinite ? pages[pageIndex].height : boxSize.height,
-      child: CustomPaint(painter: PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)),
+      child: CustomPaint(
+          painter: PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)),
     );
   }
 
   Future<ui.Image?> getImage(int pageIndex) async {
     final recorder = ui.PictureRecorder();
-    final canvas = new Canvas(recorder, Rect.fromPoints(Offset.zero, Offset(boxSize.width, boxSize.height)));
-    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug).paint(canvas, boxSize);
+    final canvas = new Canvas(
+        recorder, Rect.fromPoints(Offset.zero, Offset(boxSize.width, boxSize.height)));
+    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)
+        .paint(canvas, boxSize);
     final picture = recorder.endRecording();
     return await picture.toImage(boxSize.width.floor(), boxSize.height.floor());
   }
 
   void paint(int pageIndex, Canvas canvas) {
-    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug).paint(canvas, boxSize);
+    PagePainter(pageIndex, pages[pageIndex], style, titleStyle, debug)
+        .paint(canvas, boxSize);
   }
 }
 
@@ -1292,7 +1359,8 @@ class PagePainter extends CustomPainter {
   final TextStyle? titleStyle;
   final int pageIndex;
   final bool debug;
-  const PagePainter(this.pageIndex, this.page, this.style, this.titleStyle, [this.debug = false]);
+  const PagePainter(this.pageIndex, this.page, this.style, this.titleStyle,
+      [this.debug = false]);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1301,7 +1369,8 @@ class PagePainter extends CustomPainter {
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
     for (var i = 0; i < lineCount; i++) {
       final line = page.lines[i];
-      if (line.letterSpacing != null && (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+      if (line.letterSpacing != null &&
+          (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
         tp.text = TextSpan(
           text: line.text,
           style: line.isTitle
