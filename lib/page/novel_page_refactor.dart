@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
@@ -7,8 +5,6 @@ import 'package:eso/page/content_page_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
-
-import '../global.dart';
 
 class NovelPage extends StatelessWidget {
   final SearchItem searchItem;
@@ -32,7 +28,7 @@ class NovelPage extends StatelessWidget {
           return searchItem.durChapterIndex / searchItem.chapters.length;
         }(),
         onSave: (TextCompositionConfig config, double percent) async {
-          Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
+          // Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
           searchItem.durContentIndex = (percent * NovelContentTotal).floor();
           final index = (percent * searchItem.chapters.length).floor();
           HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
