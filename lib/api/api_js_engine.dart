@@ -108,6 +108,7 @@ class JSEngine {
   }
 
   static Future<void> setFunction(String name, IsolateFunction fun) async {
+    await initEngine();
     final setToGlobalObject = await _engine.evaluate("(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([name, fun]);
     setToGlobalObject.free();

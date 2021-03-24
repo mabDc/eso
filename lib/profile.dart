@@ -692,66 +692,73 @@ class Profile with ChangeNotifier {
 
   void fromJson(Map<String, dynamic> json, [bool notIgnoreVersion = true]) {
     final defaultProfile = Profile.newProfile();
-    _desktopPlayer = json['desktopPlayer'] ?? defaultProfile.desktopPlayer;
+    _desktopPlayer = cast(json['desktopPlayer'], defaultProfile.desktopPlayer);
     if (notIgnoreVersion) {
-      _version = json['version'] ?? defaultProfile.version;
+      _version = cast(json['version'], defaultProfile.version);
     }
     _webdavRuleCheckcode =
-        json['webdavRuleCheckcode'] ?? defaultProfile.webdavRuleCheckcode;
-    _webdavRuleAccount = json['webdavRuleAccount'] ?? defaultProfile.webdavRuleAccount;
-    _enableWebdavRule = json['enableWebdavRule'] ?? defaultProfile.enableWebdavRule;
+        cast(json['webdavRuleCheckcode'], defaultProfile.webdavRuleCheckcode);
+    _webdavRuleAccount =
+        cast(json['webdavRuleAccount'], defaultProfile.webdavRuleAccount);
+    _enableWebdavRule = cast(json['enableWebdavRule'], defaultProfile.enableWebdavRule);
     _autoRuleUploadLastDay =
-        json['autoRuleUploadLastDay'] ?? defaultProfile.autoRuleUploadLastDay;
-    _webdavPassword = json['webdavPassword'] ?? defaultProfile.webdavPassword;
-    _webdavAccount = json['webdavAccount'] ?? defaultProfile.webdavAccount;
-    _autoBackupLastDay = json['autoBackupLastDay'] ?? defaultProfile.autoBackupLastDay;
-    _autoBackRate = json['autoBackRate'] ?? defaultProfile.autoBackRate;
-    _enableWebdav = json['enableWebdav'] ?? defaultProfile.enableWebdav;
-    _webdavServer = json['webdavServer'] ?? defaultProfile.webdavServer;
-    _fontFamily = json['fontFamily'] ?? defaultProfile.fontFamily;
-    _novelFontFamily = json['novelFontFamily'] ?? defaultProfile.novelFontFamily;
-    _switchLongPress = json['switchLongPress'] ?? defaultProfile.switchLongPress;
-    _showHistoryOnAbout = json['showHistoryOnAbout'] ?? defaultProfile.showHistoryOnAbout;
+        cast(json['autoRuleUploadLastDay'], defaultProfile.autoRuleUploadLastDay);
+    _webdavPassword = cast(json['webdavPassword'], defaultProfile.webdavPassword);
+    _webdavAccount = cast(json['webdavAccount'], defaultProfile.webdavAccount);
+    _autoBackupLastDay =
+        cast(json['autoBackupLastDay'], defaultProfile.autoBackupLastDay);
+    _autoBackRate = cast(json['autoBackRate'], defaultProfile.autoBackRate);
+    _enableWebdav = cast(json['enableWebdav'], defaultProfile.enableWebdav);
+    _webdavServer = cast(json['webdavServer'], defaultProfile.webdavServer);
+    _fontFamily = cast(json['fontFamily'], defaultProfile.fontFamily);
+    _novelFontFamily = cast(json['novelFontFamily'], defaultProfile.novelFontFamily);
+    _switchLongPress = cast(json['switchLongPress'], defaultProfile.switchLongPress);
+    _showHistoryOnAbout =
+        cast(json['showHistoryOnAbout'], defaultProfile.showHistoryOnAbout);
     _showHistoryOnFavorite =
-        json['showHistoryOnFavorite'] ?? defaultProfile.showHistoryOnFavorite;
+        cast(json['showHistoryOnFavorite'], defaultProfile.showHistoryOnFavorite);
     _switchFavoriteStyle =
-        json['switchFavoriteStyle'] ?? defaultProfile.switchFavoriteStyle;
-    _showMangaStatus = json['showMangaStatus'] ?? defaultProfile.showMangaStatus;
-    _showMangaInfo = json['showMangaInfo'] ?? defaultProfile.showMangaInfo;
-    _showNovelStatus = json['showNovelStatus'] ?? defaultProfile.showNovelStatus;
-    _showNovelInfo = json['showNovelInfo'] ?? defaultProfile.showNovelInfo;
-    _showNovelStatus = json['showNovelStatus'] ?? defaultProfile.showNovelStatus;
-    _searchPostion = json['searchPostion'] ?? defaultProfile.searchPostion;
-    _bottomCount = json['bottomCount'] ?? defaultProfile.bottomCount;
-    _darkMode = json['darkMode'] ?? defaultProfile.darkMode;
-    _primaryColor = json['primaryColor'] ?? defaultProfile.primaryColor;
-    _novelFontSize = json['novelFontSize'] ?? defaultProfile.novelFontSize;
-    _novelHeight = json["novelHeight"] ?? defaultProfile.novelHeight;
+        cast(json['switchFavoriteStyle'], defaultProfile.switchFavoriteStyle);
+    _showMangaStatus = cast(json['showMangaStatus'], defaultProfile.showMangaStatus);
+    _showMangaInfo = cast(json['showMangaInfo'], defaultProfile.showMangaInfo);
+    _showNovelStatus = cast(json['showNovelStatus'], defaultProfile.showNovelStatus);
+    _showNovelInfo = cast(json['showNovelInfo'], defaultProfile.showNovelInfo);
+    _showNovelStatus = cast(json['showNovelStatus'], defaultProfile.showNovelStatus);
+    _searchPostion = cast(json['searchPostion'], defaultProfile.searchPostion);
+    _bottomCount = cast(json['bottomCount'], defaultProfile.bottomCount);
+    _darkMode = cast(json['darkMode'], defaultProfile.darkMode);
+    _primaryColor = cast(json['primaryColor'], defaultProfile.primaryColor);
+    _novelFontSize = cast(json['novelFontSize'], defaultProfile.novelFontSize);
+    _novelHeight = cast(json["novelHeight"], defaultProfile.novelHeight);
     _novelBackgroundColor =
-        json["novelBackgroundColor"] ?? defaultProfile.novelBackgroundColor;
+        cast(json["novelBackgroundColor"], defaultProfile.novelBackgroundColor);
     _novelBackgroundImage =
-        json["novelBackgroundImage"] ?? defaultProfile.novelBackgroundImage;
-    _novelFontColor = json["novelFontColor"] ?? defaultProfile.novelFontColor;
-    _novelTopPadding = json["novelTopPadding"] ?? defaultProfile.novelTopPadding;
-    _novelLeftPadding = json["novelLeftPadding"] ?? defaultProfile.novelLeftPadding;
+        cast(json["novelBackgroundImage"], defaultProfile.novelBackgroundImage);
+    _novelFontColor = cast(json["novelFontColor"], defaultProfile.novelFontColor);
+    _novelTopPadding = cast(json["novelTopPadding"], defaultProfile.novelTopPadding);
+    _novelLeftPadding = cast(json["novelLeftPadding"], defaultProfile.novelLeftPadding);
     _novelParagraphPadding =
-        json["novelParagraphPadding"] ?? defaultProfile.novelParagraphPadding;
-    _novelPageSwitch = json["novelPageSwitch"] ?? defaultProfile.novelPageSwitch;
-    _novelIndentation = json["novelIndentation"] ?? defaultProfile.novelIndentation;
-    _novelKeepOn = json["novelKeepOn"] ?? defaultProfile.novelKeepOn;
-    _mangaKeepOn = json["mangaKeepOn"] ?? defaultProfile.mangaKeepOn;
-    _mangaLandscape = json["mangaLandscape"] ?? defaultProfile.mangaLandscape;
-    _mangaDirection = json['mangaDirection'] ?? defaultProfile.mangaDirection;
-    _novelSortIndex = json["novelSortIndex"] ?? defaultProfile.novelSortIndex;
-    _mangaSortIndex = json["mangaSortIndex"] ?? defaultProfile.mangaSortIndex;
-    _audioSortIndex = json["audioSortIndex"] ?? defaultProfile.audioSortIndex;
-    _videoSortIndex = json["videoSortIndex"] ?? defaultProfile.videoSortIndex;
-    _searchCount = json["searchCount"] ?? defaultProfile.searchCount;
-    _searchOption = json["searchOption"] ?? defaultProfile.searchOption;
-    _novelEnableSearch = json['novelEnableSearch'] ?? defaultProfile.novelEnableSearch;
-    _mangaEnableSearch = json['mangaEnableSearch'] ?? defaultProfile.mangaEnableSearch;
-    _audioEnableSearch = json['audioEnableSearch'] ?? defaultProfile.audioEnableSearch;
-    _videoEnableSearch = json['videoEnableSearch'] ?? defaultProfile.videoEnableSearch;
+        cast(json["novelParagraphPadding"], defaultProfile.novelParagraphPadding);
+    _novelPageSwitch = cast(json["novelPageSwitch"], defaultProfile.novelPageSwitch);
+    _novelIndentation = cast(json["novelIndentation"], defaultProfile.novelIndentation);
+    _novelKeepOn = cast(json["novelKeepOn"], defaultProfile.novelKeepOn);
+    _mangaKeepOn = cast(json["mangaKeepOn"], defaultProfile.mangaKeepOn);
+    _mangaLandscape = cast(json["mangaLandscape"], defaultProfile.mangaLandscape);
+    _mangaDirection = cast(json['mangaDirection'], defaultProfile.mangaDirection);
+    _novelSortIndex = cast(json["novelSortIndex"], defaultProfile.novelSortIndex);
+    _mangaSortIndex = cast(json["mangaSortIndex"], defaultProfile.mangaSortIndex);
+    _audioSortIndex = cast(json["audioSortIndex"], defaultProfile.audioSortIndex);
+    _videoSortIndex = cast(json["videoSortIndex"], defaultProfile.videoSortIndex);
+    _searchCount = cast(json["searchCount"], defaultProfile.searchCount);
+    _searchOption = cast(json["searchOption"], defaultProfile.searchOption);
+    _novelEnableSearch =
+        cast(json['novelEnableSearch'], defaultProfile.novelEnableSearch);
+    _mangaEnableSearch =
+        cast(json['mangaEnableSearch'], defaultProfile.mangaEnableSearch);
+    _audioEnableSearch =
+        cast(json['audioEnableSearch'], defaultProfile.audioEnableSearch);
+    _videoEnableSearch =
+        cast(json['videoEnableSearch'], defaultProfile.videoEnableSearch);
   }
 
   Map<String, dynamic> toJson() => {
@@ -809,3 +816,5 @@ class Profile with ChangeNotifier {
         'novelIndentation': _novelIndentation,
       };
 }
+
+T cast<T>(x, T defaultValue) => x is T ? x : defaultValue; // 安全转换
