@@ -14,8 +14,8 @@ class NovelPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ContentProvider>(context);
     final bookName = "${searchItem.name}(${searchItem.origin})";
-    return TextComposition(
-      controller: TextCompositionController(
+    return TextCompositionPage(
+      controller: TextComposition(
         config: TextCompositionConfig.fromJSON(
             //Global.prefs.containsKey(TextConfigKey) ? jsonDecode(Global.prefs.get(TextConfigKey)) :
             {}),

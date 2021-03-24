@@ -81,7 +81,7 @@ class TextCompositionPageState extends State<TextCompositionPage> with TickerPro
               } else if (logicalKey == LogicalKeyboardKey.end) {
                 widget.controller.goToPage(widget.controller.lastIndex);
               } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
-                //
+                // showMenu
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
               }

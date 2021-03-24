@@ -12,11 +12,12 @@ class MyApp extends StatelessWidget {
     return TextCompositionPage(
       controller: TextComposition(
         // Global.prefs.containsKey(TextConfigKey) ? Global.prefs.getString(TextConfigKey) : {}
-        config: TextCompositionConfig(
-          animation: 'curl',
-        ),
-        loadChapter: (index) => Future.delayed(Duration(seconds: 1)).then((value) => List.generate(
-            123 + math.Random().nextInt(34), (i) => "chapter $index, " + "paragraph $i. " * math.Random().nextInt(12))),
+        config: TextCompositionConfig(animation: 'curl'),
+        loadChapter: (index) => Future.delayed(Duration(seconds: 1)).then((value) =>
+            List.generate(
+                123 + math.Random().nextInt(34),
+                (i) =>
+                    "chapter $index, " + "paragraph $i. " * math.Random().nextInt(12))),
         chapters: List.generate(1234, (i) => "chapter $i, chapter name"),
         percent: 0.000001,
         onSave: (TextCompositionConfig config, double percent) {

@@ -76,9 +76,9 @@ class TextComposition extends ChangeNotifier {
   int _lastChapterIndex;
 
   int _firstIndex, _currentIndex, _lastIndex;
-  int get firstIndex => _currentIndex;
+  int get firstIndex => _firstIndex;
   int get currentIndex => _currentIndex;
-  int get lastIndex => _currentIndex;
+  int get lastIndex => _lastIndex;
   bool get _isFirstPage => _currentIndex <= _firstIndex;
   bool get _isLastPage => _currentIndex >= _lastIndex;
 
@@ -151,11 +151,9 @@ class TextComposition extends ChangeNotifier {
         ((_initPercent * chapters.length - _firstChapterIndex) * pages.length).floor();
     if (n < 2) {
       _firstIndex = _currentIndex;
-    } else if (n < pages.length - 2) {
-      _firstIndex = _currentIndex - n - 1;
-    } else {
-      _firstIndex = _currentIndex - pages.length + 1;
-    }
+    } else if (n < pages.length) {
+      _firstIndex = _currentIndex - n + 1;
+    } 
     _lastIndex = _firstIndex + pages.length - 1;
     for (var i = 0; i < pages.length; i++) {
       this.textPages[_firstIndex + i] = pages[i];
@@ -167,7 +165,7 @@ class TextComposition extends ChangeNotifier {
     for (var i = c, end = c + HALF; i < end; i++) {
       _controllers[i % TOTAL].value = 1;
     }
-    _tapWithoutNoCounter = 0;
+    _tapWithoutNoCounter = BASE;
     notifyListeners();
   }
 
@@ -196,7 +194,7 @@ class TextComposition extends ChangeNotifier {
       for (var i = c + BASE, end = c + HALF; i < end; i++) {
         _controllers[i % TOTAL].value = 1;
       }
-      _tapWithoutNoCounter = 0;
+      _tapWithoutNoCounter = BASE;
       notifyListeners();
     } else {
       _tapWithoutNoCounter++;
@@ -310,7 +308,6 @@ class TextComposition extends ChangeNotifier {
     _controllers.clear();
     textPages.forEach((key, value) => value.lines.clear());
     textPages.clear();
-    pages.clear();
     super.dispose();
   }
 
@@ -369,7 +366,7 @@ class TextComposition extends ChangeNotifier {
     final pages = await startX(_firstChapterIndex - 1);
     if (_disposed) return;
     for (var i = 0; i < pages.length; i++) {
-      this.textPages[firstIndex - pages.length + i] = pages[i];
+      this.textPages[_firstIndex - pages.length + i] = pages[i];
     }
     _firstIndex -= pages.length;
     _firstChapterIndex--;
@@ -378,7 +375,7 @@ class TextComposition extends ChangeNotifier {
 
   var _nextChapterLoading = false;
   Future<void> nextChapter([bool animation = true]) async {
-    if (_disposed || _lastChapterIndex >= chapters.length || _nextChapterLoading) return;
+    if (_disposed || _lastChapterIndex >= chapters.length - 1 || _nextChapterLoading) return;
     _nextChapterLoading = true;
     final pages = await startX(_lastChapterIndex + 1);
     if (_disposed) return;
