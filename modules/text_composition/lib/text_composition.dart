@@ -91,7 +91,7 @@ class TextComposition extends ChangeNotifier {
   bool _disposed;
   bool? isForward;
   static const BASE = 4;
-  static const QUARTER = BASE * 2;
+  static const QUARTER = BASE * 4;
   static const HALF = QUARTER * 2;
   static const TOTAL = HALF * 2;
   TextComposition({
@@ -173,7 +173,7 @@ class TextComposition extends ChangeNotifier {
 
   List<Widget> get pages {
     return [
-      for (var i = currentIndex + HALF, last = currentIndex - HALF; i >= last; i--)
+      for (var i = currentIndex + HALF, last = currentIndex - HALF; i > last; i--)
         CustomPaint(
           painter: TextCompositionEffect(
             amount: _controllers[i % TOTAL],
@@ -188,7 +188,7 @@ class TextComposition extends ChangeNotifier {
 
   _checkController(int index) {
     if (_disposed || _controllers.length != TOTAL) return;
-    if (_tapWithoutNoCounter == QUARTER) {
+    if (_tapWithoutNoCounter == HALF - BASE) {
       final c = index % TOTAL;
       for (var i = c - HALF, end = c - BASE; i < end; i++) {
         _controllers[i % TOTAL].value = 0;
@@ -214,8 +214,8 @@ class TextComposition extends ChangeNotifier {
   void previousPage() {
     _checkController(_currentIndex);
     if (_disposed || _isFirstPage) return;
-    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
-    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
+    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
+    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
     _previousAnimation();
     _currentIndex--;
   }
@@ -231,8 +231,8 @@ class TextComposition extends ChangeNotifier {
   void nextPage() {
     _checkController(_currentIndex);
     if (_disposed || _isLastPage) return;
-    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
-    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
+    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
+    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
     _nextAnimation();
     _currentIndex++;
   }

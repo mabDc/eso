@@ -101,7 +101,15 @@ class TextCompositionEffect extends CustomPainter {
         c.drawImageRect(image!, sr, dr, ip);
       }
     } else if (config.animation == 'cover') {
-      c.drawImage(image!, Offset(-size.width + w * shadowXf, 0), ip);
+      // final p = ui.window.devicePixelRatio;
+      c.drawImageRect(
+        image!,
+        Rect.fromLTRB(0, 0.0, image!.width.toDouble(), image!.height.toDouble()),
+        Rect.fromLTRB(-size.width + w * shadowXf, 0.0, w * shadowXf, size.height),
+        ip,
+      );
+    } else if (config.animation == 'curl2') {
+      c.drawImageRect(image!, pageRect, pageRect, ip);
     }
   }
 
@@ -114,11 +122,13 @@ class TextCompositionEffect extends CustomPainter {
       fontSize: config.fontSize,
       fontFamily: config.fontFamily,
       color: config.fontColor,
+      height: config.fontHeight,
     );
     final style = TextStyle(
       fontSize: config.fontSize,
       fontFamily: config.fontFamily,
       color: config.fontColor,
+      height: config.fontHeight,
     );
     for (var i = 0; i < lineCount; i++) {
       final line = page.lines[i];
@@ -133,12 +143,14 @@ class TextCompositionEffect extends CustomPainter {
                   fontSize: config.fontSize,
                   fontFamily: config.fontFamily,
                   color: config.fontColor,
+                  height: config.fontHeight,
                 )
               : TextStyle(
                   letterSpacing: line.letterSpacing,
                   fontSize: config.fontSize,
                   fontFamily: config.fontFamily,
                   color: config.fontColor,
+                  height: config.fontHeight,
                 ),
         );
       } else {
