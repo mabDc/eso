@@ -33,6 +33,7 @@ class TextCompositionConfig {
   bool animationDragEnd;
   bool justifyHeight;
   bool showInfo; // info size - 100px, index/total percent - right 100px
+  bool oneHand;
   String animation;
   int animationDuration;
 
@@ -63,6 +64,7 @@ class TextCompositionConfig {
     this.animationDragEnd = true,
     this.justifyHeight = true,
     this.showInfo = true,
+    this.oneHand = false,
     this.animation = 'curl',
     this.animationDuration = 450,
     this.topPadding = 16,
@@ -88,6 +90,7 @@ class TextCompositionConfig {
     bool? animationDragEnd,
     bool? justifyHeight,
     bool? showInfo,
+    bool? oneHand,
     String? animation,
     int? animationDuration,
     double? topPadding,
@@ -126,6 +129,10 @@ class TextCompositionConfig {
     }
     if (showInfo != null && this.showInfo != showInfo) {
       this.showInfo = showInfo;
+      update ??= true;
+    }
+    if (oneHand != null && this.oneHand != oneHand) {
+      this.oneHand = oneHand;
       update ??= true;
     }
     if (animation != null && this.animation != animation) {
@@ -209,8 +216,9 @@ class TextCompositionConfig {
       animationDragEnd: cast(encoded['animationDragEnd'], true),
       justifyHeight: cast(encoded['justifyHeight'], true),
       showInfo: cast(encoded['showInfo'], true),
+      oneHand: cast(encoded['oneHand'], false),
       animation: cast(encoded['animation'], 'curl'),
-      animationDuration: cast(encoded['animationDuration'], 300),
+      animationDuration: cast(encoded['animationDuration'], 400),
       topPadding: cast(encoded['topPadding'], 16),
       leftPadding: cast(encoded['leftPadding'], 16),
       bottomPadding: cast(encoded['bottomPadding'], 16),
@@ -237,6 +245,7 @@ class TextCompositionConfig {
       'animationDragEnd': animationDragEnd,
       'justifyHeight': justifyHeight,
       'showInfo': showInfo,
+      'oneHand': oneHand,
       'animation': animation,
       'animationDuration': animationDuration,
       'topPadding': topPadding,
@@ -266,6 +275,7 @@ class TextCompositionConfig {
         other.animationDragEnd == animationDragEnd &&
         other.justifyHeight == justifyHeight &&
         other.showInfo == showInfo &&
+        other.oneHand == oneHand &&
         other.animation == animation &&
         other.animationDuration == animationDuration &&
         other.topPadding == topPadding &&

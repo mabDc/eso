@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'text_composition_const.dart';
 import 'text_composition_config.dart';
 import 'text_composition_effect.dart';
 
@@ -13,10 +13,7 @@ export 'text_composition_config.dart';
 export 'text_composition_effect.dart';
 export 'text_composition_page.dart';
 export 'text_composition_widget.dart';
-
-const indentation = "　";
-
-T cast<T>(x, T defaultValue) => x is T ? x : defaultValue; // 安全转换
+export 'text_composition_const.dart';
 
 class TextPage {
   double percent;
@@ -58,72 +55,6 @@ class TextLine {
   }
 }
 
-void paintText(
-    ui.Canvas canvas, ui.Size size, TextPage page, TextCompositionConfig config) {
-  print("paintText ${page.chIndex} ${page.number} / ${page.total}");
-  final lineCount = page.lines.length;
-  final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
-  final titleStyle = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: config.fontSize,
-    fontFamily: config.fontFamily,
-    color: config.fontColor,
-    height: config.fontHeight,
-  );
-  final style = TextStyle(
-    fontSize: config.fontSize,
-    fontFamily: config.fontFamily,
-    color: config.fontColor,
-    height: config.fontHeight,
-  );
-  for (var i = 0; i < lineCount; i++) {
-    final line = page.lines[i];
-    if (line.letterSpacing != null &&
-        (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
-      tp.text = TextSpan(
-        text: line.text,
-        style: line.isTitle
-            ? TextStyle(
-                letterSpacing: line.letterSpacing,
-                fontWeight: FontWeight.bold,
-                fontSize: config.fontSize,
-                fontFamily: config.fontFamily,
-                color: config.fontColor,
-                height: config.fontHeight,
-              )
-            : TextStyle(
-                letterSpacing: line.letterSpacing,
-                fontSize: config.fontSize,
-                fontFamily: config.fontFamily,
-                color: config.fontColor,
-                height: config.fontHeight,
-              ),
-      );
-    } else {
-      tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
-    }
-    final offset = Offset(line.dx, line.dy);
-    tp.layout();
-    tp.paint(canvas, offset);
-  }
-
-  final styleInfo = TextStyle(
-    fontSize: 12,
-    fontFamily: config.fontFamily,
-    color: config.fontColor,
-  );
-  tp.text = TextSpan(text: page.info, style: styleInfo);
-  tp.layout(maxWidth: size.width - config.leftPadding - config.rightPadding - 60);
-  tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
-
-  tp.text = TextSpan(
-    text: '${page.number}/${page.total} ${(100 * page.percent).toStringAsFixed(2)}%',
-    style: styleInfo,
-  );
-  tp.layout();
-  tp.paint(canvas, Offset(size.width - config.rightPadding - tp.width, size.height - 24));
-}
-
 /// 样式设置与刷新
 /// 动画设置与刷新
 class TextComposition extends ChangeNotifier {
@@ -131,8 +62,7 @@ class TextComposition extends ChangeNotifier {
   final Duration duration;
   final FutureOr<List<String>> Function(int chapterIndex) loadChapter;
   final FutureOr Function(TextCompositionConfig config, double percent)? onSave;
-  final FutureOr Function()? onToggleMenu;
-  final Widget Function()? buildMenu;
+  final Widget Function()? menuBuilder;
   final String? name;
   final List<String> chapters;
   final List<AnimationController> _controllers;
@@ -156,6 +86,8 @@ class TextComposition extends ChangeNotifier {
   int _tapWithoutNoCounter;
   bool _disposed;
   bool? isForward;
+  bool _isShowMenu;
+  bool get isShowMenu => _isShowMenu;
   static const BASE = 4;
   static const QUARTER = BASE * 4;
   static const HALF = QUARTER * 2;
@@ -166,8 +98,7 @@ class TextComposition extends ChangeNotifier {
     required this.chapters,
     this.name,
     this.onSave,
-    this.onToggleMenu,
-    this.buildMenu,
+    this.menuBuilder,
     percent = 0.0,
     this.cutoffPrevious = 8,
     this.cutoffNext = 92,
@@ -182,7 +113,8 @@ class TextComposition extends ChangeNotifier {
         _lastIndex = -1,
         duration = Duration(milliseconds: config.animationDuration),
         _tapWithoutNoCounter = 0,
-        _disposed = false;
+        _disposed = false,
+        _isShowMenu = false;
   //  {
   // _pages = [
   //   Container(
@@ -205,6 +137,32 @@ class TextComposition extends ChangeNotifier {
   //   )
   // ];
   // }
+
+  toggleMenuDialog(BuildContext context) {
+    _isShowMenu = !_isShowMenu;
+    if (_isShowMenu) {
+      showDialog(
+          context: context,
+          builder: (context) => Column(
+                children: [
+                  AppBar(
+                    leading: IconButton(
+                      icon: Icon(Icons.arrow_back_ios_outlined),
+                      onPressed: () {
+                        _isShowMenu = false;
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    title: Text("阅读设置"),
+                    centerTitle: true,
+                  ),
+                  Expanded(child: menuBodyBuilder(context, config)),
+                ],
+              )).then((value) => _isShowMenu = false);
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
 
   Future<void> init(
       void Function(List<AnimationController> _controller) initControllers) async {
@@ -490,7 +448,7 @@ class TextComposition extends ChangeNotifier {
 
     final titleStyle = TextStyle(
       fontWeight: FontWeight.bold,
-      fontSize: config.fontSize,
+      fontSize: config.fontSize + 2,
       fontFamily: config.fontFamily,
       color: config.fontColor,
     );

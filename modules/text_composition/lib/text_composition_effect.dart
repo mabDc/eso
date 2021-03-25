@@ -24,7 +24,7 @@ class TextCompositionEffect extends CustomPainter {
   final TextCompositionConfig config;
   final TextComposition textComposition;
 
-  /// 原始动效
+  /// 原始动效  
   void paintCurl(ui.Canvas canvas, ui.Size size, double pos, ui.Image image,
       Color? backgroundColor) {
     final movX = (1.0 - pos) * 0.85;
@@ -80,8 +80,8 @@ class TextCompositionEffect extends CustomPainter {
       // 画正好加载最后章节
       return;
     }
-    if (index > textComposition.currentIndex + 2) return;
-    if (index < textComposition.currentIndex - 2) return;
+    if (index > textComposition.currentIndex + 3) return;
+    if (index < textComposition.currentIndex - 3) return;
 
     final pos = amount.value;
     if (pos < 0.004) return;
@@ -153,6 +153,8 @@ class TextCompositionEffect extends CustomPainter {
     }
   }
 
+  /// 下面来自 https://github.com/lwlizhe/flutter_novel/blob/master/lib/app/novel/widget/reader/content/helper/animation/animation_page_simulation_turn.dart
+  /// 可以继续修改
   bool isStartAnimation = false;
   Offset minDragDistance = Offset(10, 10);
 

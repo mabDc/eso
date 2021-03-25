@@ -64,6 +64,7 @@ class TextCompositionPageState extends State<TextCompositionPage>
           focusNode: new FocusNode(),
           autofocus: true,
           onKey: (event) {
+            if (widget.controller.isShowMenu) return;
             if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
             if (event.data is RawKeyEventDataMacOs ||
                 event.data is RawKeyEventDataLinux ||
@@ -84,7 +85,7 @@ class TextCompositionPageState extends State<TextCompositionPage>
                 widget.controller.goToPage(widget.controller.lastIndex);
               } else if (logicalKey == LogicalKeyboardKey.enter ||
                   logicalKey == LogicalKeyboardKey.numpadEnter) {
-                // showMenu
+                widget.controller.toggleMenuDialog(context);
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
               }
@@ -96,6 +97,23 @@ class TextCompositionPageState extends State<TextCompositionPage>
             onHorizontalDragUpdate: (details) =>
                 widget.controller.turnPage(details, dimens),
             onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
+            onTapUp: (details) {
+              final size = MediaQuery.of(context).size;
+              if (details.globalPosition.dx > size.width / 3 &&
+                  details.globalPosition.dx < size.width * 2 / 3 &&
+                  details.globalPosition.dy > size.height / 3 &&
+                  details.globalPosition.dy < size.height * 2 / 3) {
+                widget.controller.toggleMenuDialog(context);
+              } else if (details.globalPosition.dx < size.width / 2) {
+                if (widget.controller.config.oneHand) {
+                  widget.controller.nextPage();
+                } else {
+                  widget.controller.previousPage();
+                }
+              } else {
+                widget.controller.nextPage();
+              }
+            },
             child: Stack(
               fit: StackFit.expand,
               children: <Widget>[
@@ -116,27 +134,6 @@ class TextCompositionPageState extends State<TextCompositionPage>
                   ),
                 ),
                 ...widget.controller.pages,
-                Positioned.fill(
-                  child: Flex(
-                    direction: Axis.horizontal,
-                    children: <Widget>[
-                      Flexible(
-                        flex: 50,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: widget.controller.previousPage,
-                        ),
-                      ),
-                      Flexible(
-                        flex: 50,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: widget.controller.nextPage,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

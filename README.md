@@ -4,11 +4,11 @@
 
 支持多来源的自定义阅读器与播放器。
 
-用flutter开发，全平台支持，支持windows，安卓，ios，macos，linux，tv，6个平台。
+用 flutter 开发，全平台支持，支持 windows，安卓，ios，macos，linux，tv，6 个平台。
 
-ps: 所有内容来自互联网，app本身只是工具，不提供内容。
+ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
 
-欢迎意见或建议，喜欢不妨点个star。
+欢迎意见或建议，喜欢不妨点个 star。
 
 ### 亦搜
 
@@ -32,15 +32,15 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 安卓
   - [x] tv（大白版，感谢大白）
   - [x] ios（需要自签）
-  - [x] windows（~~需安装vc++运行库~~ 内置3个dll，不需要额外安装）
-  - [x] Linux（需libsqlite3-dev）
+  - [x] windows（~~需安装 vc++运行库~~ 内置 3 个 dll，不需要额外安装）
+  - [x] Linux（需 libsqlite3-dev）
   - [x] Macos
 - 其他
   - [x] 首次进入显示版本信息
   - [x] 备份和恢复
   - [x] 自动备份
-  - [x] webdav备份与恢复
-  - [x] webdav规则分享与获取
+  - [x] webdav 备份与恢复
+  - [x] webdav 规则分享与获取
   - [x] 界面自定义，多项设置可调整
   - [x] 主题颜色（自定义）
   - [x] 夜间模式（自动、手动）
@@ -72,6 +72,10 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 后台播放
   - [x] 按画面比例缩放(自动，充满，16：9，4：3，9：16)
 - 文字浏览
+  - [x] 仿真翻页（苹果样式）
+  - [x] 仿真翻页（安卓样式）
+  - [x] 覆盖翻页
+  - [x] 多栏排版
   - [x] 图文混排
   - [x] 宽屏多栏
   - [x] 自定义边距、行距、段距、缩进调整
@@ -81,7 +85,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   - [x] 使用缓存加速正文加载
   - [x] 章节快速拖拽
   - [x] 字体设置
-  - [x] 字体颜色、背景颜色、背景图片（jpg、png透明图片、gif动图）
+  - [x] 字体颜色、背景颜色、背景图片（jpg、png 透明图片、gif 动图）
   - [x] 键盘控制
     - 上一页：方向键左、上、上一页`pageup`
     - 下一页：方向键右、下、下一页`pagedown`
@@ -140,13 +144,15 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
       "|"
       "^", // 首规则用如下符号开头 $(jsonpath), /(xpath), :(正则)
   ```
+
 # 编译指南
 
-不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml，macos和linux编译需要dev分支，windows需要master分支。
+不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换 yaml，macos 和 linux 编译需要 dev 分支，windows 需要 master 分支。
 
 源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
 
-- 打包Android
+- 打包 Android
+
 ```bash
 flutter build apk
 flutter build apk --target-platform android-arm
@@ -157,13 +163,15 @@ flutter build apk --split-per-abi
 flutter build apk --target-platform android-arm64 --split-per-abi
 ```
 
-- 打包ios
+- 打包 ios
+
 ```bash
 flutter build ios --release
 # 再到xcode下进行打包
 ```
 
 - 启用桌面应用开关
+
 ```bash
 flutter config --enable-linux-desktop # to enable Linux.
 flutter config --enablesh-macos-desktop # to enable macOS.
@@ -192,21 +200,21 @@ flutter build macos -v
 
 大白[yangyxd](https://github.com/yangyxd)(界面)
 
-大古[DaguDuiyuan](https://github.com/DaguDuiyuan)(ios和macos平台)
+大古[DaguDuiyuan](https://github.com/DaguDuiyuan)(ios 和 macos 平台)
 
-大吉[ekibun](https://github.com/ekibun)(windows平台c++代码)
+大吉[ekibun](https://github.com/ekibun)(windows 平台 c++代码)
 
 人艰不拆(LOGO、详情页设计)
 
-以及flutter众多开源项目和插件。
+以及 flutter 众多开源项目和插件。
 
 # LICENSE
 
-仓库开源使用GPL_v3协议 [GPL_v3](LICENSE)
+仓库开源使用 GPL_v3 协议 [GPL_v3](LICENSE)
 
 # 一些图片
 
-首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制。
+首先是视频，支持 DLNA 投屏，有音量、亮度、进度调节的手势控制。
 
 ![视频](img/shipin1.jpg)
 
