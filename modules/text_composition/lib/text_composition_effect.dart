@@ -27,7 +27,7 @@ class TextCompositionEffect extends CustomPainter {
   void paint(ui.Canvas canvas, ui.Size size) {
     final textPage = textComposition.textPages[index];
     if (textPage == null) {
-      // 画加载最后章节
+      // 画正好加载最后章节
       return;
     }
     if (index > textComposition.currentIndex + 1) return;
@@ -35,18 +35,12 @@ class TextCompositionEffect extends CustomPainter {
 
     final pos = amount.value;
     if (pos < 0.004) return;
-
     if (image == null && drawing != true) {
       drawing = true;
-
       final pic = ui.PictureRecorder();
       final c = Canvas(pic);
       // c.scale(ui.window.devicePixelRatio);
-      final movX = (1.0 - pos) * 0.85;
-      final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
-      final wHRatio = 1 - calcR;
-      final shadowXf = (wHRatio - movX);
-      final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
+      final shadowSigma = Shadow.convertRadiusToSigma(8.0);
       final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
       c.drawRect(pageRect, Paint()..color = config.backgroundColor);
       c.drawRect(
@@ -56,7 +50,6 @@ class TextCompositionEffect extends CustomPainter {
           ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
       );
       paintText(c, size, textPage, config);
-
       picture = pic.endRecording();
       picture!.toImage(size.width.round(), size.height.round())
           // .toImage(ui.window.physicalSize.width.round(), ui.window.physicalSize.height.round())
@@ -77,16 +70,9 @@ class TextCompositionEffect extends CustomPainter {
       return;
     }
 
-    config.animation = 'curl2';
     final posP = pos * size.width;
     if (config.animation == 'cover') {
       canvas.translate(posP - size.width, 0);
-      canvas.drawPicture(picture!);
-    } else if (config.animation == 'curl2') {
-      canvas.transform((Matrix4.identity()
-            ..rotateX(-1)
-            ..rotateY(-1))
-          .storage);
       canvas.drawPicture(picture!);
     } else if (config.animation == 'curl') {
       final movX = (1.0 - pos) * 0.85;
@@ -115,7 +101,7 @@ class TextCompositionEffect extends CustomPainter {
       for (double x = 0; x < size.width; x++) {
         final xf = (x / w);
         final v =
-            (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.0));
+            (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
         final xv = (xf * wHRatio) - movX;
         final sx = (xf * image!.width);
         final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image!.height.toDouble());

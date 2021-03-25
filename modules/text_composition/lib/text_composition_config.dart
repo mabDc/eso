@@ -64,7 +64,7 @@ class TextCompositionConfig {
     this.justifyHeight = true,
     this.showInfo = true,
     this.animation = 'curl',
-    this.animationDuration = 300,
+    this.animationDuration = 450,
     this.topPadding = 16,
     this.leftPadding = 16,
     this.bottomPadding = 16,
