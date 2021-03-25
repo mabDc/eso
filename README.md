@@ -26,6 +26,13 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 更多功能由君发挥，待君开发。
 
+
+#效果
+
+https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-8faf-d96a7188116a.mp4
+
+
+
 # 功能列表
 
 - 平台
