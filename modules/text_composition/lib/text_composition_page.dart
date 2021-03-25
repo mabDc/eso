@@ -15,7 +15,8 @@ class TextCompositionPage extends StatefulWidget {
   TextCompositionPageState createState() => TextCompositionPageState();
 }
 
-class TextCompositionPageState extends State<TextCompositionPage> with TickerProviderStateMixin {
+class TextCompositionPageState extends State<TextCompositionPage>
+    with TickerProviderStateMixin {
   @override
   void didUpdateWidget(TextCompositionPage oldWidget) {
     if (!identical(oldWidget.controller, widget.controller)) setUp();
@@ -41,6 +42,7 @@ class TextCompositionPageState extends State<TextCompositionPage> with TickerPro
   }
 
   setUp() {
+    SystemChrome.setEnabledSystemUIOverlays([]);
     widget.controller.addListener(refresh);
     widget.controller.init((_controllers) {
       if (_controllers.length == TextComposition.TOTAL) return;
@@ -80,7 +82,8 @@ class TextCompositionPageState extends State<TextCompositionPage> with TickerPro
                 widget.controller.goToPage(widget.controller.firstIndex);
               } else if (logicalKey == LogicalKeyboardKey.end) {
                 widget.controller.goToPage(widget.controller.lastIndex);
-              } else if (logicalKey == LogicalKeyboardKey.enter || logicalKey == LogicalKeyboardKey.numpadEnter) {
+              } else if (logicalKey == LogicalKeyboardKey.enter ||
+                  logicalKey == LogicalKeyboardKey.numpadEnter) {
                 // showMenu
               } else if (logicalKey == LogicalKeyboardKey.escape) {
                 Navigator.of(context).pop();
@@ -90,7 +93,8 @@ class TextCompositionPageState extends State<TextCompositionPage> with TickerPro
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onHorizontalDragCancel: () => widget.controller.isForward = null,
-            onHorizontalDragUpdate: (details) => widget.controller.turnPage(details, dimens),
+            onHorizontalDragUpdate: (details) =>
+                widget.controller.turnPage(details, dimens),
             onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
             child: Stack(
               fit: StackFit.expand,

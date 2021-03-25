@@ -1,158 +1,13 @@
+/// 来自 https://github.com/lwlizhe/flutter_novel/blob/master/lib/app/novel/widget/reader/content/helper/animation/animation_page_simulation_turn.dart
+
 import 'dart:math' as math;
-import 'dart:ui' as ui;
+import 'dart:ui';
 import 'package:vector_math/vector_math_64.dart' as v;
+
 import 'package:flutter/material.dart';
 
-import 'text_composition.dart';
-
-class TextCompositionEffect extends CustomPainter {
-  TextCompositionEffect({
-    required this.amount,
-    required this.index,
-    required this.config,
-    required this.textComposition,
-    this.radius = 0.18,
-  }) : super(repaint: amount);
-
-  final Animation<double> amount;
-  ui.Image? image;
-  bool? toImageIng;
-  bool? toPictureIng;
-  ui.Picture? picture;
-  final double radius;
-  final int index;
-  final TextCompositionConfig config;
-  final TextComposition textComposition;
-
-  /// 原始动效
-  void paintCurl(ui.Canvas canvas, ui.Size size, double pos, ui.Image image,
-      Color? backgroundColor) {
-    final movX = (1.0 - pos) * 0.85;
-    final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
-    final wHRatio = 1 - calcR;
-    final hWRatio = image.height / image.width;
-    final hWCorrection = (hWRatio - 1.0) / 2.0;
-
-    final w = size.width.toDouble();
-    final h = size.height.toDouble();
-    final c = canvas;
-    final shadowXf = (wHRatio - movX);
-    final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
-    final pageRect = Rect.fromLTRB(0.0, 0.0, w * shadowXf, h);
-    if (backgroundColor != null) {
-      c.drawRect(pageRect, Paint()..color = backgroundColor);
-    }
-    if (pos != 0) {
-      c.drawRect(
-        pageRect,
-        Paint()
-          ..color = Colors.black54
-          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
-      );
-    }
-
-    final ip = Paint();
-    for (double x = 0; x < size.width; x++) {
-      final xf = (x / w);
-      final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
-      final xv = (xf * wHRatio) - movX;
-      final sx = (xf * image.width);
-      final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image.height.toDouble());
-      final yv = ((h * calcR * movX) * hWRatio) - hWCorrection;
-      final ds = (yv * v);
-      final dr = Rect.fromLTRB(xv * w, 0.0 - ds, xv * w + 1.0, h + ds);
-      c.drawImageRect(image, sr, dr, ip);
-    }
-  }
-
-  @override
-  bool shouldRepaint(TextCompositionEffect oldDelegate) {
-    return oldDelegate.image != image ||
-        oldDelegate.picture != picture ||
-        oldDelegate.amount.value != amount.value ||
-        index != oldDelegate.index;
-  }
-
-  @override
-  void paint(ui.Canvas canvas, ui.Size size) {
-    final textPage = textComposition.textPages[index];
-    if (textPage == null) {
-      // 画正好加载最后章节
-      return;
-    }
-    if (index > textComposition.currentIndex + 2) return;
-    if (index < textComposition.currentIndex - 2) return;
-
-    final pos = amount.value;
-    if (pos < 0.004) return;
-
-    ///初始化
-    if (picture == null) {
-      if (toPictureIng == true) return;
-      toPictureIng = true;
-      final pic = ui.PictureRecorder();
-      final c = Canvas(pic);
-      // c.scale(ui.window.devicePixelRatio);
-      final shadowSigma = Shadow.convertRadiusToSigma(8.0);
-      final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
-      c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-      c.drawRect(
-        pageRect,
-        Paint()
-          ..color = Colors.black54
-          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
-      );
-      paintText(c, size, textPage, config);
-      picture = pic.endRecording();
-      toPictureIng = false;
-      if (config.animation == 'simulation') calcCornerXY(size.width, size.height, size);
-    }
-
-    if (config.animation == 'curl' && image == null) {
-      if (toImageIng == true) return;
-      toImageIng = true;
-      picture!.toImage(size.width.round(), size.height.round())
-          // .toImage(ui.window.physicalSize.width.round(), ui.window.physicalSize.height.round())
-          .then((value) {
-        image = value;
-        toImageIng = false;
-      });
-    }
-
-    /// 这里开始画，先判断上一页 在画当前页
-    /// 如果上一页还有东西 直接裁剪或者不画 也许会节约资源？？
-    final pP = textComposition.getAnimationPostion(index - 1);
-    if (pP > 0.996) {
-      return;
-    } else if (pP > 0.004) {
-      canvas.clipRect(Rect.fromLTRB((pP - 0.2) * size.width, 0, pos * size.width, size.height));
-    }
-
-    if (pos > 0.996) {
-      canvas.drawPicture(picture!);
-    } else if (config.animation == 'simulation') {
-      final x = pos * size.width;
-      calBezierPoint(Offset(x, size.height), size);
-      onDraw(canvas, Offset(x, size.height), size, picture!);
-    } else if (config.animation == 'cover') {
-      canvas.translate(pos * size.width - size.width, 0);
-      canvas.drawPicture(picture!);
-    } else if (config.animation == 'curl') {
-      if (image == null) {
-        if (toImageIng == true) return;
-        toImageIng = true;
-        picture!.toImage(size.width.round(), size.height.round())
-            // .toImage(ui.window.physicalSize.width.round(), ui.window.physicalSize.height.round())
-            .then((value) {
-          image = value;
-          toImageIng = false;
-        });
-      } else {
-        paintCurl(canvas, size, pos, image!, config.backgroundColor);
-      }
-    }
-  }
-
+/// 仿真翻页动画 ///
+class SimulationTurnPageAnimation {
   bool isStartAnimation = false;
   Offset minDragDistance = Offset(10, 10);
 
@@ -303,14 +158,30 @@ class TextCompositionEffect extends CustomPainter {
     }
   }
 
-  void onDraw(Canvas canvas, Offset mTouch, Size currentSize, ui.Picture picture) {
-    drawTopPageCanvas(canvas, mTouch, currentSize, picture);
-    drawTopPageBackArea(canvas, mTouch, currentSize, picture);
+  void onTouchEvent(Offset mTouch, Size currentSize, bool initTapDow) {
+    if (initTapDow) calcCornerXY(mTouch.dx, mTouch.dy, currentSize);
+    calBezierPoint(mTouch, currentSize);
+  }
+
+  void onDraw(
+      Canvas canvas, Offset mTouch, Size currentSize, Picture picture, Color bgColor) {
+    if (isStartAnimation && (mTouch.dx != 0 && mTouch.dy != 0)) {
+      drawTopPageCanvas(canvas, mTouch, currentSize, picture);
+      drawBottomPageCanvas(canvas, mTouch, currentSize, picture);
+      drawTopPageBackArea(canvas, mTouch, currentSize, bgColor);
+    } else {
+      // var targetPicture=readerViewModel?.getCurrentPage()?.pagePicture;
+      // if(targetPicture!=null) {
+      //   canvas.drawPicture(targetPicture);
+      // }
+    }
+
+    isStartAnimation = false;
   }
 
   /// 画在最顶上的那页 ///
   void drawTopPageCanvas(
-      Canvas canvas, Offset mTouch, Size currentSize, ui.Picture picture) {
+      Canvas canvas, Offset mTouch, Size currentSize, Picture picture) {
     mTopPagePath.reset();
 
     mTopPagePath.moveTo(mCornerX == 0 ? currentSize.width : 0, mCornerY);
@@ -344,7 +215,6 @@ class TextCompositionEffect extends CustomPainter {
 //        Offset.zero & currentSize,
 //        Offset.zero & currentSize,
 //        Paint()..isAntiAlias = true);
-    canvas.clipRect(Rect.fromLTWH(0, 0, mTouch.dx + 10, currentSize.height));
     canvas.drawPicture(picture);
 
     drawTopPageShadow(canvas, mTouch, currentSize);
@@ -376,8 +246,69 @@ class TextCompositionEffect extends CustomPainter {
     canvas.drawShadow(shadowPath, Colors.black, 5, true);
   }
 
+  /// 画翻起来的底下那页 ///
+  void drawBottomPageCanvas(
+      Canvas canvas, Offset mTouch, Size currentSize, Picture picture) {
+    mBottomPagePath.reset();
+    mBottomPagePath.moveTo(mCornerX, mCornerY);
+    mBottomPagePath.lineTo(mBezierStart1.dx, mBezierStart1.dy);
+    mBottomPagePath.quadraticBezierTo(
+        mBezierControl1.dx, mBezierControl1.dy, mBezierEnd1.dx, mBezierEnd1.dy);
+    mBottomPagePath.lineTo(mBezierEnd2.dx, mBezierEnd2.dy);
+    mBottomPagePath.quadraticBezierTo(
+        mBezierControl2.dx, mBezierControl2.dy, mBezierStart2.dx, mBezierStart2.dy);
+    mBottomPagePath.close();
+
+    Path extraRegion = Path();
+
+    extraRegion.reset();
+    extraRegion.moveTo(mTouch.dx, mTouch.dy);
+    extraRegion.lineTo(mBezierVertex1.dx, mBezierVertex1.dy);
+    extraRegion.lineTo(mBezierVertex2.dx, mBezierVertex2.dy);
+    extraRegion.close();
+
+    mBottomPagePath =
+        Path.combine(PathOperation.difference, mBottomPagePath, extraRegion);
+
+//    /// 使用fillType来反选填充区域 ///
+//    mBottomPagePath = mTopPagePath
+//      ..addRect(Offset.zero & currentSize)
+//      ..addPath(mTopBackAreaPagePath, Offset(0, 0))
+//      ..fillType = PathFillType.evenOdd;
+
+    /// 去掉PATH圈在屏幕外的区域，减少GPU使用
+    mBottomPagePath = Path.combine(
+        PathOperation.intersect,
+        Path()
+          ..moveTo(0, 0)
+          ..lineTo(currentSize.width, 0)
+          ..lineTo(currentSize.width, currentSize.height)
+          ..lineTo(0, currentSize.height)
+          ..close(),
+        mBottomPagePath);
+
+    canvas.save();
+    canvas.clipPath(mBottomPagePath, doAntiAlias: false);
+//    canvas.drawPaint(Paint()..color = Color(0xfffff2cc));
+//    canvas.drawImageRect(
+//        isTurnToNext?readerViewModel.getNextPage().pageImage:readerViewModel.getPrePage().pageImage,
+//        Offset.zero & currentSize,
+//        Offset.zero & currentSize,
+//        Paint()
+//          ..isAntiAlias = true
+//          ..blendMode = BlendMode.srcATop);
+    // canvas.drawPicture(isTurnToNext
+    //     ? readerViewModel.getNextPage().pagePicture
+    //     : readerViewModel.getPrePage().pagePicture);
+    //
+    canvas.drawPicture(picture);
+    drawBottomPageShadow(canvas);
+
+    canvas.restore();
+  }
+
   /// 画底下那页的阴影 ///
-  void drawBottomPageShadow(Canvas canvas, ui.Picture picture) {
+  void drawBottomPageShadow(Canvas canvas) {
     double left;
     double right;
 
@@ -421,7 +352,7 @@ class TextCompositionEffect extends CustomPainter {
   /// 仿真翻页中性能损失最大的部分，注释掉drawTopPageBackArea能保证绘制会在16ms以内，但是去掉注释，部分情况甚至会到40+
   /// 盲猜是过于复杂的图层处理导致的(Flutter的图层处理性能还是不如原生啊……但是好像图层绘制性能很强大，好像甚至优于原生)
   void drawTopPageBackArea(
-      Canvas canvas, Offset mTouch, Size currentSize, ui.Picture picture) {
+      Canvas canvas, Offset mTouch, Size currentSize, Color bgcolor) {
     mBottomPagePath.reset();
     mBottomPagePath.moveTo(mCornerX, mCornerY);
     mBottomPagePath.lineTo(mBezierStart1.dx, mBezierStart1.dy);
@@ -463,7 +394,7 @@ class TextCompositionEffect extends CustomPainter {
     canvas.save();
 
     canvas.clipPath(mTopBackAreaPagePath);
-    canvas.drawPaint(Paint()..color = config.backgroundColor);
+    canvas.drawPaint(Paint()..color = bgcolor);
 
     canvas.save();
 
@@ -496,14 +427,16 @@ class TextCompositionEffect extends CustomPainter {
     /// image相对简单，就是张图片，处理了就处理了，不会留下需要保存的信息
     /// 反正是一个半透明处理的，所以对清晰度没要求，所以这里用image绘制
     /// 我个人的猜测……求精通底层的大佬解惑
-    // if (image != null)
-    //   canvas.drawImageRect(image!, Offset.zero & currentSize, Offset.zero & currentSize,
-    //       Paint()..isAntiAlias = true);
+    // canvas.drawImageRect(
+    //     readerViewModel.getCurrentPage().pageImage,
+    //     Offset.zero & currentSize,
+    //     Offset.zero & currentSize,
+    //     Paint()..isAntiAlias = true);
 //    canvas.drawImage(configManager.currentPageImage, Offset.zero, Paint()..isAntiAlias=true);
-    canvas.drawPicture(picture);
+//    canvas.drawPicture(configManager.currentPagePicture);
 //    canvas.drawPaint(Paint()..color = Color(0xCCFFFFFF));
 //    canvas.drawPaint(Paint()..color =Colors.blue);
-    canvas.drawPaint(Paint()..color = Color(config.backgroundColor.value & 0xAAFFFFFF));
+    canvas.drawPaint(Paint()..color = Color(bgcolor.value & 0xAAFFFFFF));
 //    canvas.drawPaint(Paint()..color = Color(0xAAfff2cc));
 
     canvas.restore();

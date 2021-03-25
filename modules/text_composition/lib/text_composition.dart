@@ -214,7 +214,7 @@ class TextComposition extends ChangeNotifier {
     if (_disposed) return;
     _currentIndex = TOTAL * 12345 + HALF;
     final n =
-        ((_initPercent * chapters.length - _firstChapterIndex) * pages.length).floor();
+        ((_initPercent * chapters.length - _firstChapterIndex) * pages.length).round();
     if (n < 2) {
       _firstIndex = _currentIndex;
     } else if (n < pages.length) {
@@ -237,7 +237,7 @@ class TextComposition extends ChangeNotifier {
 
   List<Widget> get pages {
     return [
-      for (var i = currentIndex + HALF, last = currentIndex - HALF; i > last; i--)
+      for (var i = _currentIndex + HALF, last = _currentIndex - HALF; i > last; i--)
         CustomPaint(
           painter: TextCompositionEffect(
             amount: _controllers[i % TOTAL],
@@ -248,6 +248,8 @@ class TextComposition extends ChangeNotifier {
         ),
     ];
   }
+
+  double getAnimationPostion(int index) => _controllers[index % TOTAL].value;
 
   _checkController(int index) {
     if (_disposed || _controllers.length != TOTAL) return;
