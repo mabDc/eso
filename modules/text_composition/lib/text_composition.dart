@@ -58,6 +58,72 @@ class TextLine {
   }
 }
 
+void paintText(
+    ui.Canvas canvas, ui.Size size, TextPage page, TextCompositionConfig config) {
+  print("paintText ${page.chIndex} ${page.number} / ${page.total}");
+  final lineCount = page.lines.length;
+  final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
+  final titleStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: config.fontSize,
+    fontFamily: config.fontFamily,
+    color: config.fontColor,
+    height: config.fontHeight,
+  );
+  final style = TextStyle(
+    fontSize: config.fontSize,
+    fontFamily: config.fontFamily,
+    color: config.fontColor,
+    height: config.fontHeight,
+  );
+  for (var i = 0; i < lineCount; i++) {
+    final line = page.lines[i];
+    if (line.letterSpacing != null &&
+        (line.letterSpacing! < -0.1 || line.letterSpacing! > 0.1)) {
+      tp.text = TextSpan(
+        text: line.text,
+        style: line.isTitle
+            ? TextStyle(
+                letterSpacing: line.letterSpacing,
+                fontWeight: FontWeight.bold,
+                fontSize: config.fontSize,
+                fontFamily: config.fontFamily,
+                color: config.fontColor,
+                height: config.fontHeight,
+              )
+            : TextStyle(
+                letterSpacing: line.letterSpacing,
+                fontSize: config.fontSize,
+                fontFamily: config.fontFamily,
+                color: config.fontColor,
+                height: config.fontHeight,
+              ),
+      );
+    } else {
+      tp.text = TextSpan(text: line.text, style: line.isTitle ? titleStyle : style);
+    }
+    final offset = Offset(line.dx, line.dy);
+    tp.layout();
+    tp.paint(canvas, offset);
+  }
+
+  final styleInfo = TextStyle(
+    fontSize: 12,
+    fontFamily: config.fontFamily,
+    color: config.fontColor,
+  );
+  tp.text = TextSpan(text: page.info, style: styleInfo);
+  tp.layout(maxWidth: size.width - config.leftPadding - config.rightPadding - 60);
+  tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
+
+  tp.text = TextSpan(
+    text: '${page.number}/${page.total} ${(100 * page.percent).toStringAsFixed(2)}%',
+    style: styleInfo,
+  );
+  tp.layout();
+  tp.paint(canvas, Offset(size.width - config.rightPadding - tp.width, size.height - 24));
+}
+
 /// 样式设置与刷新
 /// 动画设置与刷新
 class TextComposition extends ChangeNotifier {
@@ -153,7 +219,7 @@ class TextComposition extends ChangeNotifier {
       _firstIndex = _currentIndex;
     } else if (n < pages.length) {
       _firstIndex = _currentIndex - n + 1;
-    } 
+    }
     _lastIndex = _firstIndex + pages.length - 1;
     for (var i = 0; i < pages.length; i++) {
       this.textPages[_firstIndex + i] = pages[i];
@@ -175,7 +241,6 @@ class TextComposition extends ChangeNotifier {
         CustomPaint(
           painter: TextCompositionEffect(
             amount: _controllers[i % TOTAL],
-            backgroundColor: const Color(0xFFFFFFCC),
             index: i,
             config: config,
             textComposition: this,
@@ -375,7 +440,8 @@ class TextComposition extends ChangeNotifier {
 
   var _nextChapterLoading = false;
   Future<void> nextChapter([bool animation = true]) async {
-    if (_disposed || _lastChapterIndex >= chapters.length - 1 || _nextChapterLoading) return;
+    if (_disposed || _lastChapterIndex >= chapters.length - 1 || _nextChapterLoading)
+      return;
     _nextChapterLoading = true;
     final pages = await startX(_lastChapterIndex + 1);
     if (_disposed) return;

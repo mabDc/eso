@@ -54,7 +54,8 @@ class TextCompositionConfig {
   String fontFamily;
 
   // string
-  String background;
+  String background; // 图片 未实现
+  Color backgroundColor;
 
   TextCompositionConfig({
     this.animationTap = true,
@@ -78,6 +79,7 @@ class TextCompositionConfig {
     this.fontHeight = 1.6,
     this.fontFamily = '',
     this.background = '#FFFFFFCC',
+    this.backgroundColor = const Color(0xFFFFFFCC),
   });
 
   bool updateConfig({
@@ -102,6 +104,7 @@ class TextCompositionConfig {
     double? fontHeight,
     String? fontFamily,
     String? background,
+    Color? backgroundColor,
   }) {
     bool? update;
 
@@ -189,6 +192,10 @@ class TextCompositionConfig {
       this.background = background;
       update ??= true;
     }
+    if (backgroundColor != null && this.backgroundColor != backgroundColor) {
+      this.backgroundColor = backgroundColor;
+      update ??= true;
+    }
 
     return update == true;
   }
@@ -218,6 +225,7 @@ class TextCompositionConfig {
       fontHeight: cast(encoded['fontHeight'], 1.6),
       fontFamily: cast(encoded['fontFamily'], ''),
       background: cast(encoded['background'], '#FFFFFFCC'),
+      backgroundColor: Color(cast(encoded['backgroundColor'], 0xFFFFFFCC)),
     );
   }
 
@@ -245,6 +253,7 @@ class TextCompositionConfig {
       'fontHeight': fontHeight,
       'fontFamily': fontFamily,
       'background': background,
+      'backgroundColor': backgroundColor.value,
     };
   }
 
@@ -272,7 +281,8 @@ class TextCompositionConfig {
         other.fontSize == fontSize &&
         other.fontHeight == fontHeight &&
         other.fontFamily == fontFamily &&
-        other.background == background;
+        other.background == background &&
+        other.backgroundColor == backgroundColor;
   }
 
   @override
