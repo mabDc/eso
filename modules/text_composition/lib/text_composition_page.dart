@@ -42,7 +42,7 @@ class TextCompositionPageState extends State<TextCompositionPage>
   }
 
   setUp() {
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    if (!widget.controller.config.showStatus) SystemChrome.setEnabledSystemUIOverlays([]);
     widget.controller.addListener(refresh);
     widget.controller.init((_controllers) {
       if (_controllers.length == TextComposition.TOTAL) return;
@@ -99,10 +99,10 @@ class TextCompositionPageState extends State<TextCompositionPage>
             onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
             onTapUp: (details) {
               final size = MediaQuery.of(context).size;
-              if (details.globalPosition.dx > size.width / 3 &&
-                  details.globalPosition.dx < size.width * 2 / 3 &&
-                  details.globalPosition.dy > size.height / 3 &&
-                  details.globalPosition.dy < size.height * 2 / 3) {
+              if (details.globalPosition.dx > size.width * 3 / 8 &&
+                  details.globalPosition.dx < size.width * 5 / 8 &&
+                  details.globalPosition.dy > size.height * 3 / 8 &&
+                  details.globalPosition.dy < size.height * 5 / 8) {
                 widget.controller.toggleMenuDialog(context);
               } else if (details.globalPosition.dx < size.width / 2) {
                 if (widget.controller.config.oneHand) {
@@ -118,7 +118,7 @@ class TextCompositionPageState extends State<TextCompositionPage>
               fit: StackFit.expand,
               children: <Widget>[
                 Container(
-                  color: const Color(0xFFFFFFCC),
+                  color: widget.controller.config.backgroundColor,
                   width: double.infinity,
                   height: double.infinity,
                   child: Column(

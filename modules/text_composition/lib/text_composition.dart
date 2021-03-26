@@ -88,8 +88,8 @@ class TextComposition extends ChangeNotifier {
   bool? isForward;
   bool _isShowMenu;
   bool get isShowMenu => _isShowMenu;
-  static const BASE = 4;
-  static const QUARTER = BASE * 4;
+  static const BASE = 8;
+  static const QUARTER = BASE * 8;
   static const HALF = QUARTER * 2;
   static const TOTAL = HALF * 2;
   TextComposition({
@@ -105,7 +105,6 @@ class TextComposition extends ChangeNotifier {
   })  : this._initPercent = percent,
         textPages = {},
         _controllers = [],
-        // _pages = <Widget>[],
         _firstChapterIndex = (percent * chapters.length).floor(),
         _lastChapterIndex = (percent * chapters.length).floor(),
         _firstIndex = -1,
@@ -158,7 +157,10 @@ class TextComposition extends ChangeNotifier {
                   ),
                   Expanded(child: menuBodyBuilder(context, config)),
                 ],
-              )).then((value) => _isShowMenu = false);
+              )).then((value) {
+        _isShowMenu = false;
+        notifyListeners();
+      });
     } else {
       Navigator.of(context).pop();
     }
@@ -191,6 +193,8 @@ class TextComposition extends ChangeNotifier {
     }
     _tapWithoutNoCounter = BASE;
     notifyListeners();
+    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
+    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
   }
 
   List<Widget> get pages {
@@ -209,74 +213,60 @@ class TextComposition extends ChangeNotifier {
 
   double getAnimationPostion(int index) => _controllers[index % TOTAL].value;
 
-  _checkController(int index) {
+  void _checkController(int index, [bool next = false]) {
     if (_disposed || _controllers.length != TOTAL) return;
-    if (_tapWithoutNoCounter == HALF - BASE) {
-      final c = index % TOTAL;
-      for (var i = c - HALF, end = c - BASE; i < end; i++) {
-        _controllers[i % TOTAL].value = 0;
+    (next
+            ? _controllers[index % TOTAL].reverse()
+            : _controllers[(index - 1) % TOTAL].forward())
+        .then((value) {
+      if (_disposed || _controllers.length != TOTAL) return;
+      if (_firstChapterIndex == textPages[index]!.chIndex) previousChapter();
+      if (_lastChapterIndex == textPages[index]!.chIndex) nextChapter();
+      if (_tapWithoutNoCounter == HALF - BASE) {
+        final c = index % TOTAL;
+        for (var i = c - HALF, end = c - BASE; i < end; i++) {
+          _controllers[i % TOTAL].value = 0;
+        }
+        for (var i = c + BASE, end = c + HALF; i < end; i++) {
+          _controllers[i % TOTAL].value = 1;
+        }
+        _tapWithoutNoCounter = BASE;
+        notifyListeners();
+      } else {
+        _tapWithoutNoCounter++;
       }
-      for (var i = c + BASE, end = c + HALF; i < end; i++) {
-        _controllers[i % TOTAL].value = 1;
-      }
-      _tapWithoutNoCounter = BASE;
-      notifyListeners();
-    } else {
-      _tapWithoutNoCounter++;
-    }
-  }
-
-  void _previousAnimation([bool showAnimation = true]) {
-    if (showAnimation) {
-      _controllers[(_currentIndex - 1) % TOTAL].forward();
-    } else {
-      _controllers[(_currentIndex - 1) % TOTAL].value = 1;
-    }
+    });
   }
 
   void previousPage() {
-    _checkController(_currentIndex);
     if (_disposed || _isFirstPage) return;
-    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
-    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
-    _previousAnimation();
+    _checkController(_currentIndex);
     _currentIndex--;
   }
 
-  void _nextAnimation([bool showAnimation = true]) async {
-    if (showAnimation) {
-      await _controllers[_currentIndex % TOTAL].reverse();
-    } else {
-      _controllers[_currentIndex % TOTAL].value = 0;
-    }
-  }
-
   void nextPage() {
-    _checkController(_currentIndex);
     if (_disposed || _isLastPage) return;
-    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
-    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
-    _nextAnimation();
+    _checkController(_currentIndex, true);
     _currentIndex++;
   }
 
   Future<void> goToPage(int index) async {
-    // if (_disposed) return;
-    // if (index > _currentIndex) {
-    //   _controllers[index - 1].reverse();
-    // } else {
-    //   _controllers[index].forward();
-    // }
-    // _currentIndex = index;
-
-    // notifyListeners();
-    // for (var i = 0; i < _controllers.length; i++) {
-    //   if (i < index - 1) {
-    //     _controllers[i].value = 0;
-    //   } else if (i > index) {
-    //     _controllers[i].value = 1;
-    //   }
-    // }
+    if (_disposed || _controllers.length != TOTAL) return;
+    if (index > _currentIndex) {
+      _controllers[index - 1].reverse(from: 1);
+    } else {
+      _controllers[index].forward(from: 0);
+    }
+    _currentIndex = index;
+    final c = index % TOTAL;
+    for (var i = c - HALF, end = c; i < end; i++) {
+      _controllers[i % TOTAL].value = 0;
+    }
+    for (var i = c, end = c + HALF; i < end; i++) {
+      _controllers[i % TOTAL].value = 1;
+    }
+    _tapWithoutNoCounter = BASE;
+    notifyListeners();
   }
 
   void turnPage(DragUpdateDetails details, BoxConstraints dimens) {
@@ -336,54 +326,6 @@ class TextComposition extends ChangeNotifier {
     super.dispose();
   }
 
-  void updateConfig({
-    bool? animationTap,
-    bool? animationDrag,
-    bool? animationDragEnd,
-    bool? justifyHeight,
-    bool? showInfo,
-    String? animation,
-    int? animationDuration,
-    double? topPadding,
-    double? leftPadding,
-    double? bottomPadding,
-    double? rightPadding,
-    double? titlePadding,
-    double? paragraphPadding,
-    double? columnPadding,
-    int? columns,
-    int? indentation,
-    Color? fontColor,
-    double? fontSize,
-    double? fontHeight,
-    String? fontFamily,
-    String? background,
-  }) {
-    if (config.updateConfig(
-      animationTap: animationTap,
-      animationDrag: animationDrag,
-      animationDragEnd: animationDragEnd,
-      justifyHeight: justifyHeight,
-      showInfo: showInfo,
-      animation: animation,
-      animationDuration: animationDuration,
-      topPadding: topPadding,
-      leftPadding: leftPadding,
-      bottomPadding: bottomPadding,
-      rightPadding: rightPadding,
-      titlePadding: titlePadding,
-      paragraphPadding: paragraphPadding,
-      columnPadding: columnPadding,
-      columns: columns,
-      indentation: indentation,
-      fontColor: fontColor,
-      fontSize: fontSize,
-      fontHeight: fontHeight,
-      fontFamily: fontFamily,
-      background: background,
-    )) notifyListeners();
-  }
-
   var _previousChapterLoading = false;
   Future<void> previousChapter() async {
     if (_disposed || _firstChapterIndex <= 0 || _previousChapterLoading) return;
@@ -421,11 +363,9 @@ class TextComposition extends ChangeNotifier {
     final size = ui.window.physicalSize / ui.window.devicePixelRatio;
     final columns = config.columns > 0
         ? config.columns
-        : size.width > 1200
-            ? 3
-            : size.width > 580
-                ? 2
-                : 1;
+        : size.width > 580
+            ? 2
+            : 1;
     final _width = (size.width -
             config.leftPadding -
             config.rightPadding -
@@ -438,7 +378,8 @@ class TextComposition extends ChangeNotifier {
     final tp = TextPainter(textDirection: TextDirection.ltr, maxLines: 1);
     final offset = Offset(_width, 1);
     final _dx = config.leftPadding;
-    final _dy = config.topPadding;
+    final _dy = config.topPadding +
+        (config.showStatus ? ui.window.padding.top / ui.window.devicePixelRatio : 0);
 
     var lines = <TextLine>[];
     var columnNum = 1;
@@ -451,11 +392,13 @@ class TextComposition extends ChangeNotifier {
       fontSize: config.fontSize + 2,
       fontFamily: config.fontFamily,
       color: config.fontColor,
+      height: config.fontHeight,
     );
     final style = TextStyle(
       fontSize: config.fontSize,
       fontFamily: config.fontFamily,
       color: config.fontColor,
+      height: config.fontHeight,
     );
 
     // String t = chapters[index].replaceAll(RegExp("^\s*|\n|\s\$"), "");

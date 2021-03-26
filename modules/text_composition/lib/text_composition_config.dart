@@ -28,12 +28,12 @@ import 'text_composition.dart';
 /// - [background]
 class TextCompositionConfig {
   /// bool
-  bool animationTap;
-  bool animationDrag;
-  bool animationDragEnd;
+  bool showStatus;
+  bool showInfo; // info , index/total percent - right 60px
   bool justifyHeight;
-  bool showInfo; // info size - 100px, index/total percent - right 100px
   bool oneHand;
+  bool animationStatus;
+  bool animationHighImage;
   String animation;
   int animationDuration;
 
@@ -59,12 +59,12 @@ class TextCompositionConfig {
   Color backgroundColor;
 
   TextCompositionConfig({
-    this.animationTap = true,
-    this.animationDrag = true,
-    this.animationDragEnd = true,
-    this.justifyHeight = true,
+    this.showStatus = true,
     this.showInfo = true,
+    this.justifyHeight = true,
     this.oneHand = false,
+    this.animationStatus = true,
+    this.animationHighImage = false,
     this.animation = 'curl',
     this.animationDuration = 450,
     this.topPadding = 16,
@@ -85,12 +85,12 @@ class TextCompositionConfig {
   });
 
   bool updateConfig({
-    bool? animationTap,
-    bool? animationDrag,
-    bool? animationDragEnd,
-    bool? justifyHeight,
+    bool? showStatus,
     bool? showInfo,
+    bool? justifyHeight,
     bool? oneHand,
+    bool? animationStatus,
+    bool? animationHighImage,
     String? animation,
     int? animationDuration,
     double? topPadding,
@@ -111,28 +111,28 @@ class TextCompositionConfig {
   }) {
     bool? update;
 
-    if (animationTap != null && this.animationTap != animationTap) {
-      this.animationTap = animationTap;
-      update ??= true;
-    }
-    if (animationDrag != null && this.animationDrag != animationDrag) {
-      this.animationDrag = animationDrag;
-      update ??= true;
-    }
-    if (animationDragEnd != null && this.animationDragEnd != animationDragEnd) {
-      this.animationDragEnd = animationDragEnd;
-      update ??= true;
-    }
-    if (justifyHeight != null && this.justifyHeight != justifyHeight) {
-      this.justifyHeight = justifyHeight;
+    if (showStatus != null && this.showStatus != showStatus) {
+      this.showStatus = showStatus;
       update ??= true;
     }
     if (showInfo != null && this.showInfo != showInfo) {
       this.showInfo = showInfo;
       update ??= true;
     }
+    if (justifyHeight != null && this.justifyHeight != justifyHeight) {
+      this.justifyHeight = justifyHeight;
+      update ??= true;
+    }
     if (oneHand != null && this.oneHand != oneHand) {
       this.oneHand = oneHand;
+      update ??= true;
+    }
+    if (animationStatus != null && this.animationStatus != animationStatus) {
+      this.animationStatus = animationStatus;
+      update ??= true;
+    }
+    if (animationHighImage != null && this.animationHighImage != animationHighImage) {
+      this.animationHighImage = animationHighImage;
       update ??= true;
     }
     if (animation != null && this.animation != animation) {
@@ -210,13 +210,12 @@ class TextCompositionConfig {
   /// Creates an instance of this class from a JSON object.
   factory TextCompositionConfig.fromJSON(Map<String, dynamic> encoded) {
     return TextCompositionConfig(
-      // text: encoded['text'] as String,
-      animationTap: cast(encoded['animationTap'], true),
-      animationDrag: cast(encoded['animationDrag'], true),
-      animationDragEnd: cast(encoded['animationDragEnd'], true),
-      justifyHeight: cast(encoded['justifyHeight'], true),
+      showStatus: cast(encoded['showStatus'], true),
       showInfo: cast(encoded['showInfo'], true),
+      justifyHeight: cast(encoded['justifyHeight'], true),
       oneHand: cast(encoded['oneHand'], false),
+      animationStatus: cast(encoded['animationStatus'], true),
+      animationHighImage: cast(encoded['animationHighImage'], false),
       animation: cast(encoded['animation'], 'curl'),
       animationDuration: cast(encoded['animationDuration'], 400),
       topPadding: cast(encoded['topPadding'], 16),
@@ -240,12 +239,12 @@ class TextCompositionConfig {
   /// Returns a representation of this object as a JSON object.
   Map<String, dynamic> toJSON() {
     return <String, dynamic>{
-      'animationTap': animationTap,
-      'animationDrag': animationDrag,
-      'animationDragEnd': animationDragEnd,
-      'justifyHeight': justifyHeight,
+      'showStatus': showStatus,
       'showInfo': showInfo,
+      'justifyHeight': justifyHeight,
       'oneHand': oneHand,
+      'animationStatus': animationStatus,
+      'animationHighImage': animationHighImage,
       'animation': animation,
       'animationDuration': animationDuration,
       'topPadding': topPadding,
@@ -270,12 +269,12 @@ class TextCompositionConfig {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is TextCompositionConfig &&
-        other.animationTap == animationTap &&
-        other.animationDrag == animationDrag &&
-        other.animationDragEnd == animationDragEnd &&
-        other.justifyHeight == justifyHeight &&
+        other.showStatus == showStatus &&
         other.showInfo == showInfo &&
+        other.justifyHeight == justifyHeight &&
         other.oneHand == oneHand &&
+        other.animationStatus == animationStatus &&
+        other.animationHighImage == animationHighImage &&
         other.animation == animation &&
         other.animationDuration == animationDuration &&
         other.topPadding == topPadding &&

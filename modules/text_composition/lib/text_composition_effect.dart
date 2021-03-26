@@ -24,7 +24,7 @@ class TextCompositionEffect extends CustomPainter {
   final TextCompositionConfig config;
   final TextComposition textComposition;
 
-  /// 原始动效  
+  /// 原始动效
   void paintCurl(ui.Canvas canvas, ui.Size size, double pos, ui.Image image,
       Color? backgroundColor) {
     final movX = (1.0 - pos) * 0.85;
@@ -83,9 +83,6 @@ class TextCompositionEffect extends CustomPainter {
     if (index > textComposition.currentIndex + 3) return;
     if (index < textComposition.currentIndex - 3) return;
 
-    final pos = amount.value;
-    if (pos < 0.004) return;
-
     ///初始化
     if (picture == null) {
       if (toPictureIng == true) return;
@@ -93,15 +90,8 @@ class TextCompositionEffect extends CustomPainter {
       final pic = ui.PictureRecorder();
       final c = Canvas(pic);
       // c.scale(ui.window.devicePixelRatio);
-      final shadowSigma = Shadow.convertRadiusToSigma(8.0);
       final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
       c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-      c.drawRect(
-        pageRect,
-        Paint()
-          ..color = Colors.black54
-          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
-      );
       paintText(c, size, textPage, config);
       picture = pic.endRecording();
       toPictureIng = false;
@@ -110,22 +100,44 @@ class TextCompositionEffect extends CustomPainter {
 
     if (config.animation == 'curl' && image == null) {
       if (toImageIng == true) return;
-      toImageIng = true;
-      picture!.toImage(size.width.round(), size.height.round())
-          // .toImage(ui.window.physicalSize.width.round(), ui.window.physicalSize.height.round())
-          .then((value) {
-        image = value;
-        toImageIng = false;
-      });
+
+      if (config.animationHighImage) {
+        final pic = ui.PictureRecorder();
+        final c = Canvas(pic);
+        c.scale(ui.window.devicePixelRatio);
+        paintText(c, size, textPage, config);
+        pic
+            .endRecording()
+            .toImage(ui.window.physicalSize.width.round(),
+                ui.window.physicalSize.height.round())
+            .then((value) {
+          image = value;
+          toImageIng = false;
+        });
+      } else {
+        picture!.toImage(size.width.round(), size.height.round()).then((value) {
+          image = value;
+          toImageIng = false;
+        });
+      }
     }
+
+    final pos = amount.value;
+    if (pos < 0.004) return;
 
     /// 这里开始画，先判断上一页 在画当前页
     /// 如果上一页还有东西 直接裁剪或者不画 也许会节约资源？？
     final pP = textComposition.getAnimationPostion(index - 1);
     if (pP > 0.996) {
       return;
-    } else if (pP > 0.004) {
-      canvas.clipRect(Rect.fromLTRB((pP - 0.2) * size.width, 0, pos * size.width, size.height));
+    } else if (pP > 0.2) {
+      canvas.clipRect(Rect.fromLTRB(
+          (pP - 0.2) * size.width, 0, (pos + 0.1) * size.width, size.height));
+    }
+
+    if (config.showStatus && !config.animationStatus) {
+      canvas.clipRect(Rect.fromLTRB(0, ui.window.padding.top / ui.window.devicePixelRatio,
+          size.width, size.height));
     }
 
     if (pos > 0.996) {
@@ -135,18 +147,41 @@ class TextCompositionEffect extends CustomPainter {
       calBezierPoint(Offset(x, size.height), size);
       onDraw(canvas, Offset(x, size.height), size, picture!);
     } else if (config.animation == 'cover') {
-      canvas.translate(pos * size.width - size.width, 0);
+      final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - pos)));
+      final pageRect = Rect.fromLTRB(0.0, 0.0, size.width * pos, size.height.toDouble());
+      canvas.drawRect(pageRect, Paint()..color = config.backgroundColor);
+      canvas.drawRect(
+        pageRect,
+        Paint()
+          ..color = Colors.black54
+          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+      );
+      canvas.translate(2 + size.width * (pos - 1.0), 0);
       canvas.drawPicture(picture!);
     } else if (config.animation == 'curl') {
       if (image == null) {
         if (toImageIng == true) return;
         toImageIng = true;
-        picture!.toImage(size.width.round(), size.height.round())
-            // .toImage(ui.window.physicalSize.width.round(), ui.window.physicalSize.height.round())
-            .then((value) {
-          image = value;
-          toImageIng = false;
-        });
+
+        if (config.animationHighImage) {
+          final pic = ui.PictureRecorder();
+          final c = Canvas(pic);
+          c.scale(ui.window.devicePixelRatio);
+          paintText(c, size, textPage, config);
+          pic
+              .endRecording()
+              .toImage(ui.window.physicalSize.width.round(),
+                  ui.window.physicalSize.height.round())
+              .then((value) {
+            image = value;
+            toImageIng = false;
+          });
+        } else {
+          picture!.toImage(size.width.round(), size.height.round()).then((value) {
+            image = value;
+            toImageIng = false;
+          });
+        }
       } else {
         paintCurl(canvas, size, pos, image!, config.backgroundColor);
       }

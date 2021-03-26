@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'text_composition.dart';
 
 const indentation = "　";
@@ -63,7 +64,7 @@ void paintText(
     );
     tp.text = TextSpan(text: page.info, style: styleInfo);
     tp.layout(maxWidth: size.width - config.leftPadding - config.rightPadding - 60);
-    tp.paint(canvas, Offset(config.leftPadding, size.height - 24));
+    tp.paint(canvas, Offset(config.leftPadding, size.height - 20));
 
     tp.text = TextSpan(
       text: '${page.number}/${page.total} ${(100 * page.percent).toStringAsFixed(2)}%',
@@ -71,7 +72,7 @@ void paintText(
     );
     tp.layout();
     tp.paint(
-        canvas, Offset(size.width - config.rightPadding - tp.width, size.height - 24));
+        canvas, Offset(size.width - config.rightPadding - tp.width, size.height - 20));
   }
 }
 
@@ -88,7 +89,10 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
     TextEditingController controller = TextEditingController(text: s);
     return AlertDialog(
       contentPadding: const EdgeInsets.all(6.0),
-      content: TextField(controller: controller),
+      content: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+      ),
       title: Text(title),
       actions: [
         TextButton(
@@ -128,13 +132,19 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
           children: [
             ListTile(title: Text("（注意：部分效果需要重进正文页或者下一章才生效，除背景图全部都可以生效")),
             Divider(),
-            ListTile(title: Text("开关", style: style)),
+            ListTile(title: Text("开关与选择", style: style)),
             Divider(),
             SwitchListTile(
-              value: config.justifyHeight,
-              onChanged: (value) => setState(() => config.justifyHeight = value),
-              title: Text("高度调整"),
-              subtitle: Text("底部对齐 最底行对齐到相同位置"),
+              value: config.showStatus,
+              onChanged: (value) {
+                if (value) {
+                  SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+                } else {
+                  SystemChrome.setEnabledSystemUIOverlays([]);
+                }
+                setState(() => config.showStatus = value);
+              },
+              title: Text("显示状态栏"),
             ),
             SwitchListTile(
               value: config.showInfo,
@@ -143,10 +153,28 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
               subtitle: Text("章节名（书名） 页数/总页数 百分比进度"),
             ),
             SwitchListTile(
+              value: config.justifyHeight,
+              onChanged: (value) => setState(() => config.justifyHeight = value),
+              title: Text("高度调整"),
+              subtitle: Text("底部对齐 最底行对齐到相同位置"),
+            ),
+            SwitchListTile(
               value: config.oneHand,
               onChanged: (value) => setState(() => config.oneHand = value),
               title: Text("单手模式"),
               subtitle: Text("点击左侧也是向下翻页"),
+            ),
+            SwitchListTile(
+              value: config.animationStatus,
+              onChanged: (value) => setState(() => config.animationStatus = value),
+              title: Text("状态栏动画"),
+              subtitle: Text("翻页动画可以越过状态栏"),
+            ),
+            SwitchListTile(
+              value: config.animationHighImage,
+              onChanged: (value) => setState(() => config.animationHighImage = value),
+              title: Text("[仿真苹果]使用高清截图"),
+              subtitle: Text("打开后动画更好 关闭会更流畅"),
             ),
             ListTile(
               title: Row(
@@ -187,10 +215,66 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
             ),
             Divider(),
             ListTile(title: Text("文字与排版", style: style)),
+            Container(
+              decoration: BoxDecoration(border: Border.all()),
+              margin: EdgeInsets.symmetric(horizontal: 18),
+              child: Container(
+                color: config.backgroundColor,
+                padding: EdgeInsets.fromLTRB(config.leftPadding, config.topPadding,
+                    config.rightPadding, config.bottomPadding),
+                child: Text(
+                  "${indentation * config.indentation}这是一段示例文字。This is an example sentence. This is another example sentence. 这是另一段示例文字。",
+                  maxLines: null,
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(
+                    fontSize: config.fontSize,
+                    height: config.fontHeight,
+                    color: config.fontColor,
+                    fontFamily: config.fontFamily,
+                  ),
+                ),
+              ),
+            ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                for (var c in [
+                  [const Color(0xFFFFFFCC), const Color(0xFF303133)], //page_turn
+                  [const Color(0xfff1f1f1), const Color(0xff373534)], //白底
+                  [const Color(0xfff5ede2), const Color(0xff373328)], //浅黄
+                  [const Color(0xFFF5DEB3), const Color(0xff373328)], //黄
+                  [const Color(0xffe3f8e1), const Color(0xff485249)], //绿
+                  [const Color(0xff999c99), const Color(0xff353535)], //浅灰
+                  [const Color(0xff33383d), const Color(0xffc5c4c9)], //黑
+                  [const Color(0xff010203), const Color(0x3fffffff)], //纯黑
+                  /// 反过来
+                  [const Color(0xFF303133), const Color(0xFFFFFFCC)],
+                  [const Color(0xff373534), const Color(0xfff1f1f1)],
+                  [const Color(0xff373328), const Color(0xfff5ede2)],
+                  [const Color(0xff373328), const Color(0xFFF5DEB3)],
+                  [const Color(0xff485249), const Color(0xffe3f8e1)],
+                  [const Color(0xff353535), const Color(0xff999c99)],
+                  [const Color(0xffc5c4c9), const Color(0xff33383d)],
+                  [const Color(0x3fffffff), const Color(0xff010203)],
+                ])
+                  InkWell(
+                    onTap: () => setState(() {
+                      config.backgroundColor = c[0];
+                      config.fontColor = c[1];
+                    }),
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      margin: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      color: c[0],
+                      child: Text("文字", style: TextStyle(color: c[1])),
+                    ),
+                  ),
+              ],
+            ),
             Divider(),
             ListTile(
               title: Text("分栏数"),
-              subtitle: Text("${config.columns}（0为自动 宽度超过590时两栏）"),
+              subtitle: Text("${config.columns}（0为自动 宽度超过580时两栏）"),
               onTap: () => showDialog(
                 context: context,
                 builder: (context) => showTextDialog(
