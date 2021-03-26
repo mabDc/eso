@@ -114,10 +114,10 @@ class TextCompositionEffect extends CustomPainter {
       onDraw(canvas, Offset(x, size.height), size, picture);
     } else if (textComposition.animation == 'flip') {
       if (pos > 0.5) {
-        canvas.save();
-        canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
+        // canvas.save();
+        // canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
         canvas.drawPicture(picture);
-        canvas.restore();
+        // canvas.restore();
 
         canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
         () {
@@ -141,10 +141,10 @@ class TextCompositionEffect extends CustomPainter {
       } else {
         final nextPicture = textComposition.getPicture(index + 1);
         if (nextPicture == null) return;
-        canvas.save();
-        canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
+        // canvas.save();
+        // canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
         canvas.drawPicture(nextPicture);
-        canvas.restore();
+        // canvas.restore();
 
         canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
         canvas.drawPicture(picture);
