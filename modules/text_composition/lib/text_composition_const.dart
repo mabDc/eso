@@ -169,33 +169,29 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config) 
               title: Text("状态栏动画"),
               subtitle: Text("翻页动画可以越过状态栏"),
             ),
-            SwitchListTile(
-              value: config.animationHighImage,
-              onChanged: (value) => setState(() => config.animationHighImage = value),
-              title: Text("[仿真苹果]使用高清截图"),
-              subtitle: Text("打开后动画更好 关闭会更流畅"),
-            ),
+            // SwitchListTile(
+            //   value: config.animationHighImage,
+            //   onChanged: (value) => setState(() => config.animationHighImage = value),
+            //   title: Text("[仿真苹果]使用高清截图"),
+            //   subtitle: Text("打开后动画更好 关闭会更流畅"),
+            // ),
             ListTile(
-              subtitle: Text('双栏建议使用翻转'),
+              subtitle: Text('选择动画 双栏建议使用翻转'),
               title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("选择动画"),
-                  Spacer(),
                   InkWell(
                     onTap: () => setState(() => config.animation = "flip"),
                     child: Text("翻转", style: config.animation == "flip" ? style : null),
                   ),
-                  SizedBox(width: 8),
                   InkWell(
                     onTap: () => setState(() => config.animation = "cover"),
                     child: Text("覆盖", style: config.animation == "cover" ? style : null),
                   ),
-                  SizedBox(width: 8),
                   InkWell(
                     onTap: () => setState(() => config.animation = "curl"),
                     child: Text("仿真苹果", style: config.animation == "curl" ? style : null),
                   ),
-                  SizedBox(width: 8),
                   InkWell(
                     onTap: () => setState(() => config.animation = "simulation"),
                     child: Text("仿真安卓",

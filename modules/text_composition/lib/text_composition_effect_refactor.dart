@@ -9,7 +9,6 @@ class TextCompositionEffect extends CustomPainter {
   TextCompositionEffect({
     required this.amount,
     required this.index,
-    required this.config,
     required this.textComposition,
     this.radius = 0.18,
   }) : super(repaint: amount);
@@ -17,11 +16,8 @@ class TextCompositionEffect extends CustomPainter {
   final Animation<double> amount;
   ui.Image? image;
   bool? toImageIng;
-  bool? toPictureIng;
-  ui.Picture? picture;
   final double radius;
   final int index;
-  final TextCompositionConfig config;
   final TextComposition textComposition;
 
   /// 原始动效
@@ -68,180 +64,125 @@ class TextCompositionEffect extends CustomPainter {
   @override
   bool shouldRepaint(TextCompositionEffect oldDelegate) {
     return oldDelegate.image != image ||
-        oldDelegate.picture != picture ||
         oldDelegate.amount.value != amount.value ||
         index != oldDelegate.index;
   }
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
-    final textPage = textComposition.textPages[index];
-    if (textPage == null) {
+    final picture = textComposition.getPicture(index);
+    if (picture == null) {
       // 画正好加载最后章节
       return;
     }
-    if (index > textComposition.currentIndex + 3) return;
-    if (index < textComposition.currentIndex - 3) return;
 
-    ///初始化
-    if (picture == null) {
-      if (toPictureIng == true) return;
-      toPictureIng = true;
-      final pic = ui.PictureRecorder();
-      final c = Canvas(pic);
-      final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
-      c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-      paintText(c, size, textPage, config);
-      picture = pic.endRecording();
-      toPictureIng = false;
-      if (config.animation == 'simulation') calcCornerXY(size.width, size.height, size);
-    }
+    if (index > textComposition.currentIndex + 2) return;
+    if (index < textComposition.currentIndex - 2) return;
 
-    if (config.animation == 'curl' && image == null) {
+    if (textComposition.animation == 'curl' && image == null) {
       if (toImageIng == true) return;
-
-      if (config.animationHighImage) {
-        final pic = ui.PictureRecorder();
-        final c = Canvas(pic);
-        c.scale(ui.window.devicePixelRatio);
-        paintText(c, size, textPage, config);
-        pic
-            .endRecording()
-            .toImage(ui.window.physicalSize.width.round(),
-                ui.window.physicalSize.height.round())
-            .then((value) {
-          image = value;
-          toImageIng = false;
-        });
-      } else {
-        picture!.toImage(size.width.round(), size.height.round()).then((value) {
-          image = value;
-          toImageIng = false;
-        });
-      }
+      toImageIng = true;
+      picture.toImage(size.width.round(), size.height.round()).then((value) {
+        image = value;
+        toImageIng = false;
+      });
     }
-
-    final pos = amount.value;
-    if (pos < 0.004) return;
 
     /// 这里开始画，先判断上一页 在画当前页
-    /// 如果上一页还有东西 直接裁剪或者不画 也许会节约资源？？
-    final pP = textComposition.getAnimationPostion(index - 1);
-    if (pP > 0.996) {
+    /// 如果上一页还有东西 直接裁剪或者不画 也许会节约资源??
+    /// 即便出问题 有时候少一帧 大概没影响??
+    if (textComposition.getAnimationPostion(index - 1) > 0.996) {
       return;
-    } else if (pP > 0.2) {
-      // canvas.clipRect(Rect.fromLTRB((pP - 0.2) * size.width, 0, size.width, size.height));
     }
 
-    if (config.showStatus && !config.animationStatus) {
+    if (textComposition.shouldClipStatus) {
       canvas.clipRect(Rect.fromLTRB(0, ui.window.padding.top / ui.window.devicePixelRatio,
           size.width, size.height));
     }
 
-    if (pos > 0.996) {
-      canvas.drawPicture(picture!);
-    } else if (config.animation == 'simulation') {
+    final pos = amount.value;
+    if (pos > 0.998) {
+      canvas.drawPicture(picture);
+    } else if (pos < 0.002) {
+      return;
+    } else if (textComposition.animation == 'simulation') {
+      if (mIsRTandLB == null) {
+        calcCornerXY(size.width, size.height, size);
+      }
       final x = pos * size.width;
       calBezierPoint(Offset(x, size.height), size);
-      onDraw(canvas, Offset(x, size.height), size, picture!);
-    } else if (config.animation == 'flip') {
+      onDraw(canvas, Offset(x, size.height), size, picture);
+    } else if (textComposition.animation == 'flip') {
       if (pos > 0.5) {
-        canvas.drawPicture(picture!);
+        canvas.save();
+        canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
+        canvas.drawPicture(picture);
+        canvas.restore();
+
         canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
         () {
-          final nextpage = textComposition.textPages[index + 1];
-          if (nextpage == null) return;
-          final pic = ui.PictureRecorder();
-          final c = Canvas(pic);
-          final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
-          c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-          paintText(c, size, nextpage, config);
-          final picture2 = pic.endRecording();
-          canvas.drawPicture(picture2);
+          final nextPicture = textComposition.getPicture(index + 1);
+          if (nextPicture == null) return;
+          canvas.drawPicture(nextPicture);
         }();
-
         canvas.translate(size.width / 2, 0);
         canvas.transform((Matrix4.identity()
               ..setEntry(3, 2, 0.0005)
               ..rotateY(math.pi * (1 - pos))
               ..translate(-size.width / 2, 0, 0))
             .storage);
-
-        // canvas.translate(size.width / 2, 0);
-        canvas.drawPicture(picture!);
         canvas.drawRect(
           Offset.zero & size,
           Paint()
             ..color = Colors.black54
             ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
         );
+        canvas.drawPicture(picture);
       } else {
-        final nextpage = textComposition.textPages[index + 1];
-        if (nextpage == null) return;
-
-        final pic = ui.PictureRecorder();
-        final c = Canvas(pic);
-        final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
-        c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-        paintText(c, size, nextpage, config);
-        final picture2 = pic.endRecording();
-        canvas.drawPicture(picture2);
+        final nextPicture = textComposition.getPicture(index + 1);
+        if (nextPicture == null) return;
+        canvas.save();
+        canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
+        canvas.drawPicture(nextPicture);
+        canvas.restore();
 
         canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
-        canvas.drawPicture(picture!);
+        canvas.drawPicture(picture);
         canvas.translate(size.width / 2, 0);
         canvas.transform((Matrix4.identity()
               ..setEntry(3, 2, 0.0005)
               ..rotateY(-math.pi * pos)
               ..translate(-size.width / 2, 0, 0))
             .storage);
-        canvas.drawPicture(picture2);
         canvas.drawRect(
           Offset.zero & size,
           Paint()
             ..color = Colors.black54
             ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
         );
+        canvas.drawPicture(nextPicture);
       }
-    } else if (config.animation == 'cover') {
+    } else if (textComposition.animation == 'cover') {
       final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - pos)));
       final pageRect = Rect.fromLTRB(0.0, 0.0, size.width * pos, size.height.toDouble());
-      canvas.drawRect(pageRect, Paint()..color = config.backgroundColor);
       canvas.drawRect(
         pageRect,
         Paint()
           ..color = Colors.black54
           ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
       );
-      canvas.translate(2 + size.width * (pos - 1.0), 0);
-      canvas.drawPicture(picture!);
-    } else if (config.animation == 'curl') {
+      canvas.translate(size.width * (pos - 1.0), 0);
+      canvas.drawPicture(picture);
+    } else if (textComposition.animation == 'curl') {
       if (image == null) {
         if (toImageIng == true) return;
         toImageIng = true;
-
-        if (config.animationHighImage) {
-          final pic = ui.PictureRecorder();
-          final c = Canvas(pic);
-          c.scale(ui.window.devicePixelRatio);
-          paintText(c, size, textPage, config);
-          pic
-              .endRecording()
-              .toImage(ui.window.physicalSize.width.round(),
-                  ui.window.physicalSize.height.round())
-              .then((value) {
-            image = value;
-            toImageIng = false;
-          });
-        } else {
-          picture!.toImage(size.width.round(), size.height.round()).then((value) {
-            image = value;
-            toImageIng = false;
-          });
-        }
+        picture.toImage(size.width.round(), size.height.round()).then((value) {
+          image = value;
+          toImageIng = false;
+        });
       } else {
-        // canvas.translate(size.width / 2, 0);
-        paintCurl(canvas, size, pos, image!, config.backgroundColor);
+        paintCurl(canvas, size, pos, image!, textComposition.backgroundColor);
       }
     }
   }
@@ -259,7 +200,7 @@ class TextCompositionEffect extends CustomPainter {
   double mCornerX = 1; // 拖拽点对应的页脚
   double mCornerY = 1;
 
-  late bool mIsRTandLB; // 是否属于右上左下
+  bool? mIsRTandLB; // 是否属于右上左下
 
   Offset mBezierStart1 = new Offset(0, 0); // 贝塞尔曲线起始点
   Offset mBezierControl1 = new Offset(0, 0); // 贝塞尔曲线控制点
@@ -477,7 +418,7 @@ class TextCompositionEffect extends CustomPainter {
     double right;
 
     Gradient shadowGradient;
-    if (mIsRTandLB) {
+    if (mIsRTandLB == true) {
       //左下及右上
       left = 0;
       right = mTouchToCornerDis / 4;
@@ -558,7 +499,7 @@ class TextCompositionEffect extends CustomPainter {
     canvas.save();
 
     canvas.clipPath(mTopBackAreaPagePath);
-    canvas.drawPaint(Paint()..color = config.backgroundColor);
+    canvas.drawPaint(Paint()..color = textComposition.backgroundColor);
 
     canvas.save();
 
@@ -598,7 +539,8 @@ class TextCompositionEffect extends CustomPainter {
     canvas.drawPicture(picture);
 //    canvas.drawPaint(Paint()..color = Color(0xCCFFFFFF));
 //    canvas.drawPaint(Paint()..color =Colors.blue);
-    canvas.drawPaint(Paint()..color = Color(config.backgroundColor.value & 0xAAFFFFFF));
+    canvas.drawPaint(
+        Paint()..color = Color(textComposition.backgroundColor.value & 0xAAFFFFFF));
 //    canvas.drawPaint(Paint()..color = Color(0xAAfff2cc));
 
     canvas.restore();
@@ -619,7 +561,7 @@ class TextCompositionEffect extends CustomPainter {
     double left;
     double right;
     double width;
-    if (mIsRTandLB) {
+    if (mIsRTandLB == true) {
       left = (mBezierStart1.dx - 1);
       right = (mBezierStart1.dx + f3 + 1);
       width = right - left;
