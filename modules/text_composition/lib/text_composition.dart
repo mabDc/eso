@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'text_composition_const.dart';
 import 'text_composition_config.dart';
 import 'text_composition_effect.dart';
@@ -142,21 +143,14 @@ class TextComposition extends ChangeNotifier {
     if (_isShowMenu) {
       showDialog(
           context: context,
-          builder: (context) => Column(
-                children: [
-                  AppBar(
-                    leading: IconButton(
-                      icon: Icon(Icons.arrow_back_ios_outlined),
-                      onPressed: () {
-                        _isShowMenu = false;
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    title: Text("阅读设置"),
-                    centerTitle: true,
-                  ),
-                  Expanded(child: menuBodyBuilder(context, config)),
-                ],
+          builder: (context) => AlertDialog(
+                title: Text('阅读设置'),
+                titlePadding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                contentPadding: EdgeInsets.zero,
+                content: Container(
+                  width: 520,
+                  child: configSettingBuilder(context, config),
+                ),
               )).then((value) {
         _isShowMenu = false;
         notifyListeners();

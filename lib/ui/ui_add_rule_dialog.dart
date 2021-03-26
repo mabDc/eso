@@ -22,7 +22,7 @@ class UIAddRuleDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: const EdgeInsets.all(6.0),
+      contentPadding: const EdgeInsets.all(8.0),
       content: ChangeNotifierProvider<AddRuleProvider>(
           create: (context) => AddRuleProvider(refresh, () => Navigator.pop(context)),
           builder: (context, child) {

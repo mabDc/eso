@@ -76,7 +76,7 @@ void paintText(
   }
 }
 
-Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
+Widget configSettingBuilder(BuildContext context, TextCompositionConfig config) {
   final style = TextStyle(color: Theme.of(context).primaryColor);
 
   AlertDialog showTextDialog(
@@ -88,7 +88,6 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
   ]) {
     TextEditingController controller = TextEditingController(text: s);
     return AlertDialog(
-      contentPadding: const EdgeInsets.all(6.0),
       content: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
@@ -177,10 +176,16 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
               subtitle: Text("打开后动画更好 关闭会更流畅"),
             ),
             ListTile(
+              subtitle: Text('双栏建议使用翻转'),
               title: Row(
                 children: [
                   Text("选择动画"),
                   Spacer(),
+                  InkWell(
+                    onTap: () => setState(() => config.animation = "flip"),
+                    child: Text("翻转", style: config.animation == "flip" ? style : null),
+                  ),
+                  SizedBox(width: 8),
                   InkWell(
                     onTap: () => setState(() => config.animation = "cover"),
                     child: Text("覆盖", style: config.animation == "cover" ? style : null),
@@ -201,7 +206,7 @@ Widget menuBodyBuilder(BuildContext context, TextCompositionConfig config) {
             ),
             ListTile(
               title: Text("动画时间（毫秒数）"),
-              subtitle: Text(config.animationDuration.toString() + "（ms）"),
+              subtitle: Text(config.animationDuration.toString() + "(ms)"),
               onTap: () => showDialog(
                 context: context,
                 builder: (context) => showTextDialog(

@@ -28,7 +28,6 @@ class AutoBackupPage extends StatelessWidget {
       [bool isPassword = false]) {
     TextEditingController controller = TextEditingController(text: s);
     return AlertDialog(
-      contentPadding: const EdgeInsets.all(6.0),
       content: TextField(controller: controller),
       title: Text(title),
       actions: [

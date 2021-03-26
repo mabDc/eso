@@ -89,7 +89,6 @@ class TextCompositionEffect extends CustomPainter {
       toPictureIng = true;
       final pic = ui.PictureRecorder();
       final c = Canvas(pic);
-      // c.scale(ui.window.devicePixelRatio);
       final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
       c.drawRect(pageRect, Paint()..color = config.backgroundColor);
       paintText(c, size, textPage, config);
@@ -131,8 +130,7 @@ class TextCompositionEffect extends CustomPainter {
     if (pP > 0.996) {
       return;
     } else if (pP > 0.2) {
-      canvas.clipRect(Rect.fromLTRB(
-          (pP - 0.2) * size.width, 0, (pos + 0.1) * size.width, size.height));
+      // canvas.clipRect(Rect.fromLTRB((pP - 0.2) * size.width, 0, size.width, size.height));
     }
 
     if (config.showStatus && !config.animationStatus) {
@@ -146,6 +144,65 @@ class TextCompositionEffect extends CustomPainter {
       final x = pos * size.width;
       calBezierPoint(Offset(x, size.height), size);
       onDraw(canvas, Offset(x, size.height), size, picture!);
+    } else if (config.animation == 'flip') {
+      if (pos > 0.5) {
+        canvas.drawPicture(picture!);
+        canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
+        () {
+          final nextpage = textComposition.textPages[index + 1];
+          if (nextpage == null) return;
+          final pic = ui.PictureRecorder();
+          final c = Canvas(pic);
+          final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
+          c.drawRect(pageRect, Paint()..color = config.backgroundColor);
+          paintText(c, size, nextpage, config);
+          final picture2 = pic.endRecording();
+          canvas.drawPicture(picture2);
+        }();
+
+        canvas.translate(size.width / 2, 0);
+        canvas.transform((Matrix4.identity()
+              ..setEntry(3, 2, 0.0005)
+              ..rotateY(math.pi * (1 - pos))
+              ..translate(-size.width / 2, 0, 0))
+            .storage);
+
+        // canvas.translate(size.width / 2, 0);
+        canvas.drawPicture(picture!);
+        canvas.drawRect(
+          Offset.zero & size,
+          Paint()
+            ..color = Colors.black54
+            ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
+        );
+      } else {
+        final nextpage = textComposition.textPages[index + 1];
+        if (nextpage == null) return;
+
+        final pic = ui.PictureRecorder();
+        final c = Canvas(pic);
+        final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
+        c.drawRect(pageRect, Paint()..color = config.backgroundColor);
+        paintText(c, size, nextpage, config);
+        final picture2 = pic.endRecording();
+        canvas.drawPicture(picture2);
+
+        canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
+        canvas.drawPicture(picture!);
+        canvas.translate(size.width / 2, 0);
+        canvas.transform((Matrix4.identity()
+              ..setEntry(3, 2, 0.0005)
+              ..rotateY(-math.pi * pos)
+              ..translate(-size.width / 2, 0, 0))
+            .storage);
+        canvas.drawPicture(picture2);
+        canvas.drawRect(
+          Offset.zero & size,
+          Paint()
+            ..color = Colors.black54
+            ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
+        );
+      }
     } else if (config.animation == 'cover') {
       final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - pos)));
       final pageRect = Rect.fromLTRB(0.0, 0.0, size.width * pos, size.height.toDouble());
@@ -183,6 +240,7 @@ class TextCompositionEffect extends CustomPainter {
           });
         }
       } else {
+        // canvas.translate(size.width / 2, 0);
         paintCurl(canvas, size, pos, image!, config.backgroundColor);
       }
     }
