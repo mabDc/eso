@@ -176,7 +176,7 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config) 
             //   subtitle: Text("打开后动画更好 关闭会更流畅"),
             // ),
             ListTile(
-              subtitle: Text('选择动画 双栏建议使用翻转'),
+              subtitle: Text('选择动画 双栏时可以尝试翻转'),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

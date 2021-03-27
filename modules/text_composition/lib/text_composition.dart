@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:text_composition/memory_cache.dart';
 
 import 'text_composition_effect_refactor.dart';
 import 'text_composition_const.dart';
@@ -92,8 +93,18 @@ class TextComposition extends ChangeNotifier {
   bool get _isFirstPage => _currentIndex <= _firstIndex;
   bool get _isLastPage => _currentIndex >= _lastIndex;
 
-  final Map<int, TextPageRefactor> textPages;
-  ui.Picture? getPicture(int index) => textPages[index]?.picture;
+  final Map<int, TextPage> textPages;
+  final MemoryCache<int, ui.Picture> pictures;
+  ui.Picture? getPicture(int index, Size size) => pictures.getValueOrSet(index, () {
+        final textPage = textPages[index];
+        if (textPage == null) return null;
+        final pic = ui.PictureRecorder();
+        final c = Canvas(pic);
+        final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
+        c.drawRect(pageRect, Paint()..color = config.backgroundColor);
+        paintText(c, size, textPage, config);
+        return pic.endRecording();
+      });
   String get animation => config.animation;
   Color get backgroundColor => config.backgroundColor;
   bool get shouldClipStatus => config.showStatus && !config.animationStatus;
@@ -122,6 +133,7 @@ class TextComposition extends ChangeNotifier {
     this.cutoffNext = 92,
   })  : this._initPercent = percent,
         textPages = {},
+        pictures = MemoryCache(),
         _controllers = [],
         _firstChapterIndex = (percent * chapters.length).floor(),
         _lastChapterIndex = (percent * chapters.length).floor(),
@@ -331,9 +343,10 @@ class TextComposition extends ChangeNotifier {
     }
     _controllers.forEach((c) => c.dispose());
     _controllers.clear();
-    // textPages.forEach((key, value) => value.lines.clear());
-    textPages.forEach((key, value) => value.picture.dispose());
+    textPages.forEach((key, value) => value.lines.clear());
+    // textPages.forEach((key, value) => value.picture.dispose());
     textPages.clear();
+    pictures.clear();
     super.dispose();
   }
 
@@ -366,10 +379,10 @@ class TextComposition extends ChangeNotifier {
     _nextChapterLoading = false;
   }
 
-  Future<List<TextPageRefactor>> startX(int index) async {
-    if (_disposed) return <TextPageRefactor>[];
+  Future<List<TextPage>> startX(int index) async {
+    if (_disposed) return <TextPage>[];
     final paragraphs = await loadChapter(index);
-    if (_disposed) return <TextPageRefactor>[];
+    if (_disposed) return <TextPage>[];
     final pages = <TextPage>[];
     final size = ui.window.physicalSize / ui.window.devicePixelRatio;
     final columns = config.columns > 0
@@ -522,18 +535,20 @@ class TextComposition extends ChangeNotifier {
       pages[0].info = name!;
     }
 
-    return pages.map((textPage) {
-      final pic = ui.PictureRecorder();
-      final c = Canvas(pic);
-      final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
-      c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-      paintText(c, size, textPage, config);
-      final picture = pic.endRecording();
-      return TextPageRefactor(
-        chIndex: index,
-        percent: textPage.percent,
-        picture: picture,
-      );
-    }).toList();
+    return pages;
+
+    // return pages.map((textPage) {
+    //   final pic = ui.PictureRecorder();
+    //   final c = Canvas(pic);
+    //   final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
+    //   c.drawRect(pageRect, Paint()..color = config.backgroundColor);
+    //   paintText(c, size, textPage, config);
+    //   final picture = pic.endRecording();
+    //   return TextPageRefactor(
+    //     chIndex: index,
+    //     percent: textPage.percent,
+    //     picture: picture,
+    //   );
+    // }).toList();
   }
 }

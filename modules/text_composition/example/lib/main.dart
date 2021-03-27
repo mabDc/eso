@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         chapters: List.generate(1234, (i) => "chapter $i, chapter name"),
         percent: 0.000001,
         onSave: (TextCompositionConfig config, double percent) {
-          // Global.prefs.setString(TextConfigKey, config.toString());
+          // Global.prefs.setString(TextConfigKey, config);
           // searchItem.durContentIndex = (percent * NovelContentTotal).floor();
           print("save config: $config");
           print("save percent: $percent");

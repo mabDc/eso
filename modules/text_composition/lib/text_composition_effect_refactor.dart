@@ -70,14 +70,18 @@ class TextCompositionEffect extends CustomPainter {
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
-    final picture = textComposition.getPicture(index);
+    if (index > textComposition.currentIndex + 2 ||
+        index < textComposition.currentIndex - 2 ||
+        index < textComposition.firstIndex ||
+        index > textComposition.lastIndex) {
+      return;
+    }
+
+    final picture = textComposition.getPicture(index, size);
     if (picture == null) {
       // 画正好加载最后章节
       return;
     }
-
-    if (index > textComposition.currentIndex + 2) return;
-    if (index < textComposition.currentIndex - 2) return;
 
     if (textComposition.animation == 'curl' && image == null) {
       if (toImageIng == true) return;
@@ -91,7 +95,7 @@ class TextCompositionEffect extends CustomPainter {
     /// 这里开始画，先判断上一页 在画当前页
     /// 如果上一页还有东西 直接裁剪或者不画 也许会节约资源??
     /// 即便出问题 有时候少一帧 大概没影响??
-    if (textComposition.getAnimationPostion(index - 1) > 0.996) {
+    if (textComposition.getAnimationPostion(index - 1) > 0.998) {
       return;
     }
 
@@ -100,90 +104,101 @@ class TextCompositionEffect extends CustomPainter {
           size.width, size.height));
     }
 
-    final pos = amount.value;
+    final pos = amount.value; // 1 / 500 = 0.002 也就是500宽度相差1像素 忽略掉动画
     if (pos > 0.998) {
       canvas.drawPicture(picture);
     } else if (pos < 0.002) {
       return;
-    } else if (textComposition.animation == 'simulation') {
-      if (mIsRTandLB == null) {
-        calcCornerXY(size.width, size.height, size);
-      }
-      final x = pos * size.width;
-      calBezierPoint(Offset(x, size.height), size);
-      onDraw(canvas, Offset(x, size.height), size, picture);
-    } else if (textComposition.animation == 'flip') {
-      if (pos > 0.5) {
-        // canvas.save();
-        // canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
-        canvas.drawPicture(picture);
-        // canvas.restore();
+    }
 
-        canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
-        () {
-          final nextPicture = textComposition.getPicture(index + 1);
+    switch (textComposition.animation) {
+      case 'curl':
+        if (image == null) {
+          if (toImageIng == true) return;
+          toImageIng = true;
+          picture.toImage(size.width.round(), size.height.round()).then((value) {
+            image = value;
+            toImageIng = false;
+          });
+        } else {
+          paintCurl(canvas, size, pos, image!, textComposition.backgroundColor);
+        }
+        break;
+
+      case 'cover':
+        final movX = (1.0 - pos) * 0.85;
+        final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
+        final wHRatio = 1 - calcR;
+
+        final w = size.width.toDouble();
+        final h = size.height.toDouble();
+        final shadowXf = (wHRatio - movX);
+        final right = w * shadowXf;
+        final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
+        final pageRect = Rect.fromLTRB(0.0, 0.0, right, h);
+        canvas.drawRect(
+          pageRect,
+          Paint()
+            ..color = Colors.black54
+            ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+        );
+        canvas.translate(right - size.width, 0);
+        canvas.drawPicture(picture);
+        break;
+
+      case 'flip':
+        if (pos > 0.5) {
+          canvas.drawPicture(picture);
+          canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
+          () {
+            final nextPicture = textComposition.getPicture(index + 1, size);
+            if (nextPicture == null) return;
+            canvas.drawPicture(nextPicture);
+          }();
+          canvas.transform((Matrix4.identity()
+                ..setEntry(3, 2, 0.0005)
+                ..translate(size.width / 2, 0, 0)
+                ..rotateY(math.pi * (1 - pos))
+                ..translate(-size.width / 2, 0, 0))
+              .storage);
+          canvas.drawRect(
+            Offset.zero & size,
+            Paint()
+              ..color = Colors.black54
+              ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
+          );
+          canvas.drawPicture(picture);
+        } else {
+          final nextPicture = textComposition.getPicture(index + 1, size);
           if (nextPicture == null) return;
           canvas.drawPicture(nextPicture);
-        }();
-        canvas.translate(size.width / 2, 0);
-        canvas.transform((Matrix4.identity()
-              ..setEntry(3, 2, 0.0005)
-              ..rotateY(math.pi * (1 - pos))
-              ..translate(-size.width / 2, 0, 0))
-            .storage);
-        canvas.drawRect(
-          Offset.zero & size,
-          Paint()
-            ..color = Colors.black54
-            ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
-        );
-        canvas.drawPicture(picture);
-      } else {
-        final nextPicture = textComposition.getPicture(index + 1);
-        if (nextPicture == null) return;
-        // canvas.save();
-        // canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
-        canvas.drawPicture(nextPicture);
-        // canvas.restore();
+          canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
+          canvas.drawPicture(picture);
+          canvas.transform((Matrix4.identity()
+                ..setEntry(3, 2, 0.0005)
+                ..translate(size.width / 2, 0, 0)
+                ..rotateY(-math.pi * pos)
+                ..translate(-size.width / 2, 0, 0))
+              .storage);
+          canvas.drawRect(
+            Offset.zero & size,
+            Paint()
+              ..color = Colors.black54
+              ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
+          );
+          canvas.drawPicture(nextPicture);
+        }
+        break;
 
-        canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
-        canvas.drawPicture(picture);
-        canvas.translate(size.width / 2, 0);
-        canvas.transform((Matrix4.identity()
-              ..setEntry(3, 2, 0.0005)
-              ..rotateY(-math.pi * pos)
-              ..translate(-size.width / 2, 0, 0))
-            .storage);
-        canvas.drawRect(
-          Offset.zero & size,
-          Paint()
-            ..color = Colors.black54
-            ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
-        );
-        canvas.drawPicture(nextPicture);
-      }
-    } else if (textComposition.animation == 'cover') {
-      final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - pos)));
-      final pageRect = Rect.fromLTRB(0.0, 0.0, size.width * pos, size.height.toDouble());
-      canvas.drawRect(
-        pageRect,
-        Paint()
-          ..color = Colors.black54
-          ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
-      );
-      canvas.translate(size.width * (pos - 1.0), 0);
-      canvas.drawPicture(picture);
-    } else if (textComposition.animation == 'curl') {
-      if (image == null) {
-        if (toImageIng == true) return;
-        toImageIng = true;
-        picture.toImage(size.width.round(), size.height.round()).then((value) {
-          image = value;
-          toImageIng = false;
-        });
-      } else {
-        paintCurl(canvas, size, pos, image!, textComposition.backgroundColor);
-      }
+      case 'simulation':
+        if (mIsRTandLB == null) {
+          calcCornerXY(size.width, size.height, size);
+        }
+        final x = Offset(pos * size.width, size.height);
+        calBezierPoint(x, size);
+        onDraw(canvas, x, size, picture);
+        break;
+      default:
     }
   }
 
@@ -192,7 +207,6 @@ class TextCompositionEffect extends CustomPainter {
   bool isStartAnimation = false;
   Offset minDragDistance = Offset(10, 10);
 
-  Path mTopPagePath = Path();
   Path mBottomPagePath = Path();
   Path mTopBackAreaPagePath = Path();
   Path mShadowPath = Path();
@@ -224,6 +238,11 @@ class TextCompositionEffect extends CustomPainter {
   bool isTurnToNext = false;
   bool isConfirmAnimation = false;
 
+  /// NaN是个问题
+  Offset offsetNotNaN(double dx, double dy) {
+    return Offset(dx.isNaN ? 12345 : dx, dy.isNaN ? 12345 : dy);
+  }
+
   void calBezierPoint(Offset mTouch, Size currentSize) {
     mMiddleX = (mTouch.dx + mCornerX) / 2;
     mMiddleY = (mTouch.dy + mCornerY) / 2;
@@ -231,22 +250,22 @@ class TextCompositionEffect extends CustomPainter {
     mMaxLength =
         math.sqrt(math.pow(currentSize.width, 2) + math.pow(currentSize.height, 2));
 
-    mBezierControl1 = Offset(
+    mBezierControl1 = offsetNotNaN(
         mMiddleX - (mCornerY - mMiddleY) * (mCornerY - mMiddleY) / (mCornerX - mMiddleX),
         mCornerY.toDouble());
 
     double f4 = mCornerY - mMiddleY;
     if (f4 == 0) {
-      mBezierControl2 = Offset(mCornerX.toDouble(),
+      mBezierControl2 = offsetNotNaN(mCornerX.toDouble(),
           mMiddleY - (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / 0.1);
     } else {
-      mBezierControl2 = Offset(
+      mBezierControl2 = offsetNotNaN(
           mCornerX.toDouble(),
           mMiddleY -
               (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / (mCornerY - mMiddleY));
     }
 
-    mBezierStart1 = Offset(
+    mBezierStart1 = offsetNotNaN(
         mBezierControl1.dx - (mCornerX - mBezierControl1.dx) / 2, mCornerY.toDouble());
 
     // 当mBezierStart1.x < 0或者mBezierStart1.x > 480时
@@ -254,41 +273,42 @@ class TextCompositionEffect extends CustomPainter {
     if (mTouch.dx > 0 && mTouch.dx < currentSize.width) {
       if (mBezierStart1.dx < 0 || mBezierStart1.dx > currentSize.width) {
         if (mBezierStart1.dx < 0) {
-          mBezierStart1 = Offset(currentSize.width - mBezierStart1.dx, mBezierStart1.dy);
+          mBezierStart1 =
+              offsetNotNaN(currentSize.width - mBezierStart1.dx, mBezierStart1.dy);
         }
 
         double f1 = (mCornerX - mTouch.dx).abs();
         double f2 = currentSize.width * f1 / mBezierStart1.dx;
-        mTouch = Offset((mCornerX - f2).abs(), mTouch.dy);
+        mTouch = offsetNotNaN((mCornerX - f2).abs(), mTouch.dy);
 
         double f3 = (mCornerX - mTouch.dx).abs() * (mCornerY - mTouch.dy).abs() / f1;
-        mTouch = Offset((mCornerX - f2).abs(), (mCornerY - f3).abs());
+        mTouch = offsetNotNaN((mCornerX - f2).abs(), (mCornerY - f3).abs());
 
         mMiddleX = (mTouch.dx + mCornerX) / 2;
         mMiddleY = (mTouch.dy + mCornerY) / 2;
 
-        mBezierControl1 = Offset(
+        mBezierControl1 = offsetNotNaN(
             mMiddleX -
                 (mCornerY - mMiddleY) * (mCornerY - mMiddleY) / (mCornerX - mMiddleX),
             mCornerY);
 
         double f5 = mCornerY - mMiddleY;
         if (f5 == 0) {
-          mBezierControl2 = Offset(
+          mBezierControl2 = offsetNotNaN(
               mCornerX, mMiddleY - (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / 0.1);
         } else {
-          mBezierControl2 = Offset(
+          mBezierControl2 = offsetNotNaN(
               mCornerX,
               mMiddleY -
                   (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / (mCornerY - mMiddleY));
         }
 
-        mBezierStart1 = Offset(
+        mBezierStart1 = offsetNotNaN(
             mBezierControl1.dx - (mCornerX - mBezierControl1.dx) / 2, mBezierStart1.dy);
       }
     }
 
-    mBezierStart2 = Offset(
+    mBezierStart2 = offsetNotNaN(
         mCornerX.toDouble(), mBezierControl2.dy - (mCornerY - mBezierControl2.dy) / 2);
 
     mTouchToCornerDis = math
@@ -297,11 +317,11 @@ class TextCompositionEffect extends CustomPainter {
     mBezierEnd1 = getCross(mTouch, mBezierControl1, mBezierStart1, mBezierStart2);
     mBezierEnd2 = getCross(mTouch, mBezierControl2, mBezierStart1, mBezierStart2);
 
-    mBezierVertex1 = Offset(
+    mBezierVertex1 = offsetNotNaN(
         (mBezierStart1.dx + 2 * mBezierControl1.dx + mBezierEnd1.dx) / 4,
         (2 * mBezierControl1.dy + mBezierStart1.dy + mBezierEnd1.dy) / 4);
 
-    mBezierVertex2 = Offset(
+    mBezierVertex2 = offsetNotNaN(
         (mBezierStart2.dx + 2 * mBezierControl2.dx + mBezierEnd2.dx) / 4,
         (2 * mBezierControl2.dy + mBezierStart2.dy + mBezierEnd2.dy) / 4);
   }
@@ -315,7 +335,7 @@ class TextCompositionEffect extends CustomPainter {
     double k2 = (p4.dy - p3.dy) / (p4.dx - p3.dx);
     double b2 = ((p3.dx * p4.dy) - (p4.dx * p3.dy)) / (p3.dx - p4.dx);
 
-    return Offset((b2 - b1) / (k1 - k2), k1 * ((b2 - b1) / (k1 - k2)) + b1);
+    return offsetNotNaN((b2 - b1) / (k1 - k2), k1 * ((b2 - b1) / (k1 - k2)) + b1);
   }
 
   /// 计算拖拽点对应的拖拽脚 ///
@@ -347,44 +367,10 @@ class TextCompositionEffect extends CustomPainter {
   /// 画在最顶上的那页 ///
   void drawTopPageCanvas(
       Canvas canvas, Offset mTouch, Size currentSize, ui.Picture picture) {
-    mTopPagePath.reset();
-
-    mTopPagePath.moveTo(mCornerX == 0 ? currentSize.width : 0, mCornerY);
-    mTopPagePath.lineTo(mBezierStart1.dx, mBezierStart1.dy);
-    mTopPagePath.quadraticBezierTo(
-        mBezierControl1.dx, mBezierControl1.dy, mBezierEnd1.dx, mBezierEnd1.dy);
-    mTopPagePath.lineTo(mTouch.dx, mTouch.dy);
-    mTopPagePath.lineTo(mBezierEnd2.dx, mBezierEnd2.dy);
-    mTopPagePath.quadraticBezierTo(
-        mBezierControl2.dx, mBezierControl2.dy, mBezierStart2.dx, mBezierStart2.dy);
-    mTopPagePath.lineTo(mCornerX, mCornerY == 0 ? currentSize.height : 0);
-    mTopPagePath.lineTo(
-        mCornerX == 0 ? currentSize.width : 0, mCornerY == 0 ? currentSize.height : 0);
-    mTopPagePath.close();
-
-    /// 去掉PATH圈在屏幕外的区域，减少GPU使用
-    mTopPagePath = Path.combine(
-        PathOperation.intersect,
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(currentSize.width, 0)
-          ..lineTo(currentSize.width, currentSize.height)
-          ..lineTo(0, currentSize.height)
-          ..close(),
-        mTopPagePath);
-
     canvas.save();
-
-//    canvas.drawImageRect(
-//        readerViewModel.getCurrentPage().pageImage,
-//        Offset.zero & currentSize,
-//        Offset.zero & currentSize,
-//        Paint()..isAntiAlias = true);
     canvas.clipRect(Rect.fromLTWH(0, 0, mTouch.dx + 10, currentSize.height));
     canvas.drawPicture(picture);
-
     drawTopPageShadow(canvas, mTouch, currentSize);
-
     canvas.restore();
   }
 
