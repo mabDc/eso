@@ -109,96 +109,89 @@ class TextCompositionEffect extends CustomPainter {
       canvas.drawPicture(picture);
     } else if (pos < 0.002) {
       return;
-    }
+    } else {
+      switch (textComposition.animation) {
+        case 'curl':
+          if (image == null) {
+            if (toImageIng == true) return;
+            toImageIng = true;
+            picture.toImage(size.width.round(), size.height.round()).then((value) {
+              image = value;
+              toImageIng = false;
+            });
+          } else {
+            paintCurl(canvas, size, pos, image!, textComposition.backgroundColor);
+          }
+          break;
 
-    switch (textComposition.animation) {
-      case 'curl':
-        if (image == null) {
-          if (toImageIng == true) return;
-          toImageIng = true;
-          picture.toImage(size.width.round(), size.height.round()).then((value) {
-            image = value;
-            toImageIng = false;
-          });
-        } else {
-          paintCurl(canvas, size, pos, image!, textComposition.backgroundColor);
-        }
-        break;
-
-      case 'cover':
-        final movX = (1.0 - pos) * 0.85;
-        final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
-        final wHRatio = 1 - calcR;
-
-        final w = size.width.toDouble();
-        final h = size.height.toDouble();
-        final shadowXf = (wHRatio - movX);
-        final right = w * shadowXf;
-        final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
-        final pageRect = Rect.fromLTRB(0.0, 0.0, right, h);
-        canvas.drawRect(
-          pageRect,
-          Paint()
-            ..color = Colors.black54
-            ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
-        );
-        canvas.translate(right - size.width, 0);
-        canvas.drawPicture(picture);
-        break;
-
-      case 'flip':
-        if (pos > 0.5) {
+        case 'cover':
+          final right = pos * size.width;
+          final shadowSigma = Shadow.convertRadiusToSigma(16);
+          final pageRect = Rect.fromLTRB(0.0, 0.0, right, size.height);
+          canvas.drawRect(
+            pageRect,
+            Paint()
+              ..color = Colors.black54
+              ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+          );
+          canvas.translate(right - size.width, 0);
           canvas.drawPicture(picture);
-          canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
-          () {
+          break;
+
+        case 'flip':
+          if (pos > 0.5) {
+            canvas.drawPicture(picture);
+            canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
+            () {
+              final nextPicture = textComposition.getPicture(index + 1, size);
+              if (nextPicture == null) return;
+              canvas.drawPicture(nextPicture);
+            }();
+            canvas.transform((Matrix4.identity()
+                  ..setEntry(3, 2, 0.0005)
+                  ..translate(size.width / 2, 0, 0)
+                  ..rotateY(math.pi * (1 - pos))
+                  ..translate(-size.width / 2, 0, 0))
+                .storage);
+            canvas.drawRect(
+              Offset.zero & size,
+              Paint()
+                ..color = Colors.black54
+                ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
+            );
+            canvas.drawPicture(picture);
+          } else {
             final nextPicture = textComposition.getPicture(index + 1, size);
             if (nextPicture == null) return;
             canvas.drawPicture(nextPicture);
-          }();
-          canvas.transform((Matrix4.identity()
-                ..setEntry(3, 2, 0.0005)
-                ..translate(size.width / 2, 0, 0)
-                ..rotateY(math.pi * (1 - pos))
-                ..translate(-size.width / 2, 0, 0))
-              .storage);
-          canvas.drawRect(
-            Offset.zero & size,
-            Paint()
-              ..color = Colors.black54
-              ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
-          );
-          canvas.drawPicture(picture);
-        } else {
-          final nextPicture = textComposition.getPicture(index + 1, size);
-          if (nextPicture == null) return;
-          canvas.drawPicture(nextPicture);
-          canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
-          canvas.drawPicture(picture);
-          canvas.transform((Matrix4.identity()
-                ..setEntry(3, 2, 0.0005)
-                ..translate(size.width / 2, 0, 0)
-                ..rotateY(-math.pi * pos)
-                ..translate(-size.width / 2, 0, 0))
-              .storage);
-          canvas.drawRect(
-            Offset.zero & size,
-            Paint()
-              ..color = Colors.black54
-              ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
-          );
-          canvas.drawPicture(nextPicture);
-        }
-        break;
+            canvas.clipRect(Rect.fromLTRB(0, 0, size.width / 2, size.height));
+            canvas.drawPicture(picture);
+            canvas.transform((Matrix4.identity()
+                  ..setEntry(3, 2, 0.0005)
+                  ..translate(size.width / 2, 0, 0)
+                  ..rotateY(-math.pi * pos)
+                  ..translate(-size.width / 2, 0, 0))
+                .storage);
+            canvas.drawRect(
+              Offset.zero & size,
+              Paint()
+                ..color = Colors.black54
+                ..maskFilter = MaskFilter.blur(BlurStyle.outer, 20),
+            );
+            canvas.drawPicture(nextPicture);
+          }
+          break;
 
-      case 'simulation':
-        if (mIsRTandLB == null) {
-          calcCornerXY(size.width, size.height, size);
-        }
-        final x = Offset(pos * size.width, size.height);
-        calBezierPoint(x, size);
-        onDraw(canvas, x, size, picture);
-        break;
-      default:
+        case 'simulation':
+          if (mIsRTandLB == null) {
+            calcCornerXY(size.width, size.height, size);
+          }
+          final x = Offset(pos * size.width, size.height);
+          calBezierPoint(x, size);
+          onDraw(canvas, x, size, picture);
+          break;
+        default:
+      }
     }
   }
 
