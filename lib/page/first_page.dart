@@ -107,63 +107,6 @@ class FirstPage extends StatelessWidget {
             ),
           ),
           Spacer(),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 40,
-                width: 75,
-                child: FittedBox(
-                  fit: BoxFit.fill,
-                  child: Text(
-                    '２０２１',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepOrange,
-                    ),
-                  ),
-                ),
-              ),
-              Transform.rotate(
-                angle: 0.785, // pi/4
-                child: Container(
-                  margin: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                    width: 3,
-                    color: Colors.deepOrange,
-                  )),
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                      width: 3,
-                      color: Colors.deepOrange,
-                    )),
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ),
-              Container(
-                height: 40,
-                width: 75,
-                child: FittedBox(
-                  fit: BoxFit.fill,
-                  child: Text(
-                    '新春快乐',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepOrange,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Spacer(),
         ],
       ),
     );

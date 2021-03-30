@@ -60,83 +60,89 @@ class TextCompositionPageState extends State<TextCompositionPage>
   Widget build(BuildContext context) {
     return Material(
       child: LayoutBuilder(
-        builder: (context, dimens) => RawKeyboardListener(
-          focusNode: new FocusNode(),
-          autofocus: true,
-          onKey: (event) {
-            if (widget.controller.isShowMenu) return;
-            if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
-            if (event.data is RawKeyEventDataMacOs ||
-                event.data is RawKeyEventDataLinux ||
-                event.data is RawKeyEventDataWindows) {
-              final logicalKey = event.data.logicalKey;
-              print(logicalKey);
-              if (logicalKey == LogicalKeyboardKey.arrowUp) {
-                widget.controller.previousPage();
-              } else if (logicalKey == LogicalKeyboardKey.arrowLeft) {
-                widget.controller.previousPage();
-              } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
-                widget.controller.nextPage();
-              } else if (logicalKey == LogicalKeyboardKey.arrowRight) {
-                widget.controller.nextPage();
-              } else if (logicalKey == LogicalKeyboardKey.home) {
-                widget.controller.goToPage(widget.controller.firstIndex);
-              } else if (logicalKey == LogicalKeyboardKey.end) {
-                widget.controller.goToPage(widget.controller.lastIndex);
-              } else if (logicalKey == LogicalKeyboardKey.enter ||
-                  logicalKey == LogicalKeyboardKey.numpadEnter) {
-                widget.controller.toggleMenuDialog(context);
-              } else if (logicalKey == LogicalKeyboardKey.escape) {
-                Navigator.of(context).pop();
-              }
-            }
-          },
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onHorizontalDragCancel: () => widget.controller.isForward = null,
-            onHorizontalDragUpdate: (details) =>
-                widget.controller.turnPage(details, dimens),
-            onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
-            onTapUp: (details) {
-              final size = MediaQuery.of(context).size;
-              if (details.globalPosition.dx > size.width * 3 / 8 &&
-                  details.globalPosition.dx < size.width * 5 / 8 &&
-                  details.globalPosition.dy > size.height * 3 / 8 &&
-                  details.globalPosition.dy < size.height * 5 / 8) {
-                widget.controller.toggleMenuDialog(context);
-              } else if (details.globalPosition.dx < size.width / 2) {
-                if (widget.controller.config.oneHand) {
-                  widget.controller.nextPage();
-                } else {
-                  widget.controller.previousPage();
+        builder: (context, dimens) => Stack(
+          children: [
+            RawKeyboardListener(
+              focusNode: new FocusNode(),
+              autofocus: true,
+              onKey: (event) {
+                if (widget.controller.isShowMenu) return;
+                if (event.runtimeType.toString() == 'RawKeyUpEvent') return;
+                if (event.data is RawKeyEventDataMacOs ||
+                    event.data is RawKeyEventDataLinux ||
+                    event.data is RawKeyEventDataWindows) {
+                  final logicalKey = event.data.logicalKey;
+                  print(logicalKey);
+                  if (logicalKey == LogicalKeyboardKey.arrowUp) {
+                    widget.controller.previousPage();
+                  } else if (logicalKey == LogicalKeyboardKey.arrowLeft) {
+                    widget.controller.previousPage();
+                  } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
+                    widget.controller.nextPage();
+                  } else if (logicalKey == LogicalKeyboardKey.arrowRight) {
+                    widget.controller.nextPage();
+                  } else if (logicalKey == LogicalKeyboardKey.home) {
+                    widget.controller.goToPage(widget.controller.firstIndex);
+                  } else if (logicalKey == LogicalKeyboardKey.end) {
+                    widget.controller.goToPage(widget.controller.lastIndex);
+                  } else if (logicalKey == LogicalKeyboardKey.enter ||
+                      logicalKey == LogicalKeyboardKey.numpadEnter) {
+                    widget.controller.toggleMenuDialog(context);
+                  } else if (logicalKey == LogicalKeyboardKey.escape) {
+                    Navigator.of(context).pop();
+                  }
                 }
-              } else {
-                widget.controller.nextPage();
-              }
-            },
-            child: Stack(
-              fit: StackFit.expand,
-              children: <Widget>[
-                Container(
-                  color: widget.controller.config.backgroundColor,
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(widget.controller.name ?? ""),
-                      SizedBox(height: 10),
-                      Text("这是底线（最后一页）"),
-                      SizedBox(height: 10),
-                      Text("已读完"),
-                    ],
-                  ),
+              },
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragCancel: () => widget.controller.isForward = null,
+                onHorizontalDragUpdate: (details) =>
+                    widget.controller.turnPage(details, dimens),
+                onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
+                onTapUp: (details) {
+                  final size = MediaQuery.of(context).size;
+                  if (details.globalPosition.dx > size.width * 3 / 8 &&
+                      details.globalPosition.dx < size.width * 5 / 8 &&
+                      details.globalPosition.dy > size.height * 3 / 8 &&
+                      details.globalPosition.dy < size.height * 5 / 8) {
+                    widget.controller.toggleMenuDialog(context);
+                  } else if (details.globalPosition.dx < size.width / 2) {
+                    if (widget.controller.config.oneHand) {
+                      widget.controller.nextPage();
+                    } else {
+                      widget.controller.previousPage();
+                    }
+                  } else {
+                    widget.controller.nextPage();
+                  }
+                },
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    Container(
+                      color: widget.controller.config.backgroundColor,
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(widget.controller.name ?? ""),
+                          SizedBox(height: 10),
+                          Text("这是底线（最后一页）"),
+                          SizedBox(height: 10),
+                          Text("已读完"),
+                        ],
+                      ),
+                    ),
+                    ...widget.controller.pages,
+                  ],
                 ),
-                ...widget.controller.pages,
-              ],
+              ),
             ),
-          ),
+            if (widget.controller.isShowMenu && widget.controller.menuBuilder != null)
+              widget.controller.menuBuilder!(widget.controller)
+          ],
         ),
       ),
     );

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import 'ui_dash.dart';
 
-
 /// 章节列表
 class UIChapterSelect extends StatefulWidget {
   final SearchItem searchItem;
@@ -36,7 +35,6 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -64,8 +62,8 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
     _controller = ScrollController(initialScrollOffset: offset);
 
     final primaryColor = Theme.of(context).primaryColor;
-    final _divider = UIDash(height: Global.lineSize, dashWidth: 4,
-        color: Theme.of(context).dividerColor);
+    final _divider = UIDash(
+        height: Global.lineSize, dashWidth: 4, color: Theme.of(context).dividerColor);
     final _count = widget.searchItem.chapters.length;
 
     final _listView = ListView.builder(
@@ -86,25 +84,26 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
         elevation: 8,
         color: widget.color ?? Theme.of(context).canvasColor.withOpacity(0.95),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          side: widget.border ?? BorderSide.none
-        ),
+            borderRadius: BorderRadius.circular(8.0),
+            side: widget.border ?? BorderSide.none),
         child: Container(
           height: size.height * widget.heightScale,
           width: size.width * 0.85,
+          constraints: BoxConstraints(maxWidth: 600),
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Material(
             color: Colors.transparent,
             child: DefaultTextStyle(
-              style: TextStyle(color: widget.fontColor ??
-                  Theme.of(context).textTheme.bodyText1.color,
+              style: TextStyle(
+                  color: widget.fontColor ?? Theme.of(context).textTheme.bodyText1.color,
                   fontSize: 16,
-                  fontFamily: Profile.staticFontFamily
-              ),
-              child: _count > 64 ? DraggableScrollbar.semicircle(
-                controller: _controller,
-                child: _listView,
-              ) : _listView,
+                  fontFamily: Profile.staticFontFamily),
+              child: _count > 64
+                  ? DraggableScrollbar.semicircle(
+                      controller: _controller,
+                      child: _listView,
+                    )
+                  : _listView,
             ),
           ),
         ),
@@ -118,8 +117,7 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
       '${widget.searchItem.chapters[index].name}',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: _selected ? TextStyle(fontWeight: FontWeight.bold)
-          : null,
+      style: _selected ? TextStyle(fontWeight: FontWeight.bold) : null,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,19 +125,21 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
         Expanded(
           child: InkWell(
             onTap: () => widget.loadChapter(index),
-            child: _selected ? Row(
-              children: <Widget>[
-                SizedBox(width: 8),
-                Expanded(child: _txt),
-                Icon(Icons.done, color: primaryColor),
-                SizedBox(width: 8),
-              ],
-            ) : Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              alignment: Alignment.centerLeft,
-              child: _txt,
-            ),
+            child: _selected
+                ? Row(
+                    children: <Widget>[
+                      SizedBox(width: 8),
+                      Expanded(child: _txt),
+                      Icon(Icons.done, color: primaryColor),
+                      SizedBox(width: 8),
+                    ],
+                  )
+                : Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    alignment: Alignment.centerLeft,
+                    child: _txt,
+                  ),
           ),
         ),
         _divider

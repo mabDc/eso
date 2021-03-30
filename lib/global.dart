@@ -94,7 +94,6 @@ class Global with ChangeNotifier {
     appName = packageInfo.appName;
     appPackageName = packageInfo.packageName;
     print("delay global init");
-    await Future.delayed(Duration(seconds: 2));
     return true;
   }
 

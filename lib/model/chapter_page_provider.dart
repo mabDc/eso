@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/menu/menu_chapter.dart';
@@ -158,7 +160,8 @@ class ChapterPageProvider with ChangeNotifier {
         updateChapter();
         break;
       case MenuChapter.clear_cache:
-        final _fileCache = CacheUtil(cacheName: "searchItem${searchItem.id}");
+        final _fileCache =
+            CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
         await _fileCache.requestPermission();
         await _fileCache.clear();
         Utils.toast("清理成功");
@@ -177,7 +180,7 @@ class ChapterPageProvider with ChangeNotifier {
         if (r != null && r is SearchItem) {
           searchItem.changeTo(r);
           updateChapter();
-        }else{
+        } else {
           Utils.toast("未选择");
         }
         break;

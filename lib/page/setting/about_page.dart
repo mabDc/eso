@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:eso/page/history_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
@@ -7,10 +8,13 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:text_composition/text_composition_config.dart';
+import 'package:text_composition/text_composition_const.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../global.dart';
 import '../../profile.dart';
+import '../novel_page_refactor.dart';
 import 'auto_backup_page.dart';
 import 'darkmod_page.dart';
 import 'color_lens_page.dart';
@@ -51,7 +55,7 @@ class _AboutPageState extends State<AboutPage> {
         ),
         SizedBox(
           height: double.infinity,
-          width:2,
+          width: 2,
           child: Material(
             color: Colors.grey.withAlpha(123),
           ),
@@ -103,12 +107,14 @@ class AboutPage2 extends StatelessWidget {
                       ListTile(
                         title: Text('历史记录'),
                         subtitle: Text('浏览历史，界面设置可关闭'),
-                        onTap: () => invokeTap(HistoryPage2(invokeTap: invokeTap,)),
+                        onTap: () => invokeTap(HistoryPage2(
+                          invokeTap: invokeTap,
+                        )),
                       ),
                     ListTile(
                       title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
-                      onTap: () =>invokeTap(EditSourcePage()), 
+                      onTap: () => invokeTap(EditSourcePage()),
                     ),
                     ListTile(
                       title: Text('备份恢复和webdav'),
@@ -156,16 +162,21 @@ class AboutPage2 extends StatelessWidget {
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
+                    ListTile(
+                      title: Text('阅读设置'),
+                      subtitle: Text('翻页动画和文字排版'),
+                      onTap: () => invokeTap(ConfigSettingPage()),
+                    ),
                     Divider(),
                     ListTile(
                       title: Text('界面与布局'),
                       subtitle: Text('正文状态栏信息栏和按钮布局'),
-                      onTap: () =>invokeTap(UISetting()), 
+                      onTap: () => invokeTap(UISetting()),
                     ),
                     ListTile(
                       title: Text('夜间模式'),
                       subtitle: Text('切换夜间模式'),
-                      onTap: () => invokeTap(DarkModpage()),  
+                      onTap: () => invokeTap(DarkModpage()),
                     ),
                     ListTile(
                       title: Text('调色板'),
@@ -388,4 +399,33 @@ class AboutPage2 extends StatelessWidget {
             ),
         ],
       );
+}
+
+class ConfigSettingPage extends StatefulWidget {
+  const ConfigSettingPage({Key key}) : super(key: key);
+
+  @override
+  _ConfigSettingPageState createState() => _ConfigSettingPageState();
+}
+
+class _ConfigSettingPageState extends State<ConfigSettingPage> {
+  TextCompositionConfig config;
+  @override
+  void initState() {
+    config = TextCompositionConfig.fromJSON(Global.prefs.containsKey(TextConfigKey)
+        ? jsonDecode(Global.prefs.get(TextConfigKey))
+        : {});
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: configSettingBuilder(context, config));
+  }
+
+  @override
+  void dispose() {
+    Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
+    super.dispose();
+  }
 }

@@ -77,7 +77,7 @@ class TextComposition extends ChangeNotifier {
   final Duration duration;
   final FutureOr<List<String>> Function(int chapterIndex) loadChapter;
   final FutureOr Function(TextCompositionConfig config, double percent)? onSave;
-  final Widget Function()? menuBuilder;
+  final Widget Function(TextComposition textComposition)? menuBuilder;
   final String? name;
   final List<String> chapters;
   final List<AnimationController> _controllers;
@@ -169,23 +169,91 @@ class TextComposition extends ChangeNotifier {
 
   toggleMenuDialog(BuildContext context) {
     _isShowMenu = !_isShowMenu;
-    if (_isShowMenu) {
-      showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text('阅读设置'),
-                titlePadding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                contentPadding: EdgeInsets.zero,
-                content: Container(
-                  width: 520,
-                  child: configSettingBuilder(context, config),
-                ),
-              )).then((value) {
-        _isShowMenu = false;
-        notifyListeners();
-      });
+    if (menuBuilder == null) {
+      if (_isShowMenu) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('阅读设置'),
+                  titlePadding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  contentPadding: EdgeInsets.zero,
+                  content: Container(
+                    width: 520,
+                    child: configSettingBuilder(context, config),
+                  ),
+                )).then((value) {
+          _isShowMenu = false;
+          notifyListeners();
+        });
+      } else {
+        Navigator.of(context).pop();
+      }
     } else {
-      Navigator.of(context).pop();
+      notifyListeners();
+    }
+  }
+
+  gotoNextChapter() {
+    final cPage = textPages[_currentIndex];
+    if (cPage == null) return;
+    final nextIndex = cPage.total - cPage.number + _currentIndex + 1;
+    goToPage(nextIndex);
+  }
+
+  gotoPreviousChapter() {
+    final cPage = textPages[_currentIndex];
+    if (cPage == null) return;
+    final previousIndex = _currentIndex - cPage.number;
+    goToPage(previousIndex);
+  }
+
+  gotoChapter(int index) async {
+    // 如果章节在加载范围内
+    if (_disposed) return;
+    if (index <= _lastChapterIndex && index >= _firstChapterIndex) {
+      var ci = index - textPages[_currentIndex]!.chIndex;
+      if (ci > 0) {
+        int nextIndex = _currentIndex;
+        for (var i = 0; i < ci; i++) {
+          final cPage = textPages[nextIndex]!;
+          nextIndex += cPage.total - cPage.number + 1;
+        }
+        goToPage(nextIndex);
+      } else if (ci < 0) {
+        int previousIndex = _currentIndex;
+        for (var i = 0; i > ci; i--) {
+          final cPage = textPages[previousIndex]!;
+          previousIndex -= cPage.number;
+        }
+        goToPage(previousIndex);
+      }
+    } else {
+      // 不在范围
+      if (index < 0 || index > chapters.length) return;
+      if (_disposed) return;
+      final pages = await startX(index);
+      if (_disposed) return;
+      pictures.clear();
+      textPages.clear();
+      _firstChapterIndex = index;
+      _lastChapterIndex = index;
+      _currentIndex = TOTAL * 12345 + HALF;
+      _firstIndex = _currentIndex;
+      _lastIndex = _firstIndex + pages.length - 1;
+      for (var i = 0; i < pages.length; i++) {
+        this.textPages[_firstIndex + i] = pages[i];
+      }
+      final c = _currentIndex % TOTAL;
+      for (var i = c - HALF, end = c; i < end; i++) {
+        _controllers[i % TOTAL].value = 0;
+      }
+      for (var i = c, end = c + HALF; i < end; i++) {
+        _controllers[i % TOTAL].value = 1;
+      }
+      _tapWithoutNoCounter = BASE;
+      notifyListeners();
+      previousChapter();
+      nextChapter();
     }
   }
 
@@ -202,6 +270,8 @@ class TextComposition extends ChangeNotifier {
       _firstIndex = _currentIndex;
     } else if (n < pages.length) {
       _firstIndex = _currentIndex - n + 1;
+    } else {
+      _firstIndex = _currentIndex - pages.length + 1;
     }
     _lastIndex = _firstIndex + pages.length - 1;
     for (var i = 0; i < pages.length; i++) {
@@ -216,8 +286,8 @@ class TextComposition extends ChangeNotifier {
     }
     _tapWithoutNoCounter = BASE;
     notifyListeners();
-    if (_firstChapterIndex == textPages[_currentIndex]!.chIndex) previousChapter();
-    if (_lastChapterIndex == textPages[_currentIndex]!.chIndex) nextChapter();
+    previousChapter();
+    nextChapter();
   }
 
   List<Widget> get pages {
@@ -273,13 +343,10 @@ class TextComposition extends ChangeNotifier {
   }
 
   Future<void> goToPage(int index) async {
-    if (_disposed || _controllers.length != TOTAL) return;
-    if (index > _currentIndex) {
-      _controllers[index - 1].reverse(from: 1);
-    } else {
-      _controllers[index].forward(from: 0);
-    }
-    _currentIndex = index;
+    if (_disposed ||
+        _controllers.length != TOTAL ||
+        index > _lastIndex ||
+        index < _firstIndex) return;
     final c = index % TOTAL;
     for (var i = c - HALF, end = c; i < end; i++) {
       _controllers[i % TOTAL].value = 0;
@@ -288,7 +355,17 @@ class TextComposition extends ChangeNotifier {
       _controllers[i % TOTAL].value = 1;
     }
     _tapWithoutNoCounter = BASE;
+
+    if (index > _currentIndex) {
+      _controllers[(index - 1) % TOTAL].reverse(from: 1);
+    } else {
+      _controllers[index % TOTAL].forward(from: 0);
+    }
+
+    _currentIndex = index;
     notifyListeners();
+    if (_firstChapterIndex == textPages[index]!.chIndex) previousChapter();
+    if (_lastChapterIndex == textPages[index]!.chIndex) nextChapter();
   }
 
   void turnPage(DragUpdateDetails details, BoxConstraints dimens) {

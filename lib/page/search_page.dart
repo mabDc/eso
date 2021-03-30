@@ -262,35 +262,36 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(height: 4),
                     Divider(height: Global.lineSize),
                     Expanded(
-                      child: provider.searchListNone.length == 0 &&
-                              provider.rulesCount == 0
-                          ? EmptyListMsgView(text: Text("尚无可搜索源"))
-                          : searchList.isEmpty
-                              ? EmptyListMsgView(text: Text("没有数据哦！~"))
-                              : KeyboardDismissBehaviorView(
-                                  child: ListView.separated(
-                                    separatorBuilder: (context, index) =>
-                                        SizedBox(height: 8),
-                                    itemCount: searchList.length,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      return InkWell(
-                                        child: UiSearchItem(
-                                          item: searchList[index],
-                                          showType: true,
-                                        ),
-                                        onTap: () {
-                                          // Navigator.of(context).push(
-                                          // MaterialPageRoute(
-                                          //   builder: (context) => ChapterPage(
-                                          //       searchItem: searchList[index]),
-                                          // )
-                                          invokeTap(
-                                              ChapterPage(searchItem: searchList[index]));
+                      child:
+                          provider.searchListNone.length == 0 && provider.rulesCount == 0
+                              ? EmptyListMsgView(text: Text("尚无可搜索源"))
+                              : searchList.isEmpty
+                                  ? EmptyListMsgView(text: Text("没有数据哦！~"))
+                                  : KeyboardDismissBehaviorView(
+                                      child: ListView.separated(
+                                        separatorBuilder: (context, index) =>
+                                            SizedBox(height: 8),
+                                        itemCount: searchList.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          return InkWell(
+                                            child: UiSearchItem(
+                                              item: searchList[index],
+                                              showType: true,
+                                            ),
+                                            onTap: () {
+                                              // Navigator.of(context).push(
+                                              // MaterialPageRoute(
+                                              //   builder: (context) => ChapterPage(
+                                              //       searchItem: searchList[index]),
+                                              // )
+                                              invokeTap(ChapterPage(
+                                                  searchItem: searchList[index],
+                                                  key: Key(index.toString())));
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                  ),
-                                ),
+                                      ),
+                                    ),
                     ),
                   ],
                 );
