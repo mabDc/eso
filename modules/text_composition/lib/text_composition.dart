@@ -332,13 +332,12 @@ class TextComposition extends ChangeNotifier {
   }
 
   int _lastSaveTime;
-
-  static const saveDelay = const Duration(seconds: 20);
+  static const saveDelay = const Duration(seconds: 10);
   checkSave() {
     if (onSave == null) return;
     _lastSaveTime = DateTime.now().add(saveDelay).millisecondsSinceEpoch;
     Future.delayed(saveDelay).then((value) {
-      if (DateTime.now().millisecondsSinceEpoch < _lastSaveTime) return;
+      if (_disposed || DateTime.now().millisecondsSinceEpoch < _lastSaveTime) return;
       print("checkSave ${DateTime.now()}");
       onSave!(config, textPages[_currentIndex]!.percent);
     });
