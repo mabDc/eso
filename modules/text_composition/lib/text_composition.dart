@@ -134,6 +134,7 @@ class TextComposition extends ChangeNotifier {
   })  : this._initPercent = percent,
         textPages = {},
         pictures = MemoryCache(),
+        _lastSaveTime = DateTime.now().add(saveDelay).millisecondsSinceEpoch,
         _controllers = [],
         _firstChapterIndex = (percent * chapters.length).floor(),
         _lastChapterIndex = (percent * chapters.length).floor(),
@@ -330,16 +331,31 @@ class TextComposition extends ChangeNotifier {
     });
   }
 
+  int _lastSaveTime;
+
+  static const saveDelay = const Duration(seconds: 20);
+  checkSave() {
+    if (onSave == null) return;
+    _lastSaveTime = DateTime.now().add(saveDelay).millisecondsSinceEpoch;
+    Future.delayed(saveDelay).then((value) {
+      if (DateTime.now().millisecondsSinceEpoch < _lastSaveTime) return;
+      print("checkSave ${DateTime.now()}");
+      onSave!(config, textPages[_currentIndex]!.percent);
+    });
+  }
+
   void previousPage() {
     if (_disposed || _isFirstPage) return;
     _checkController(_currentIndex);
     _currentIndex--;
+    checkSave();
   }
 
   void nextPage() {
     if (_disposed || _isLastPage) return;
     _checkController(_currentIndex, true);
     _currentIndex++;
+    checkSave();
   }
 
   Future<void> goToPage(int index) async {
@@ -363,6 +379,7 @@ class TextComposition extends ChangeNotifier {
     }
 
     _currentIndex = index;
+    checkSave();
     notifyListeners();
     if (_firstChapterIndex == textPages[index]!.chIndex) previousChapter();
     if (_lastChapterIndex == textPages[index]!.chIndex) nextChapter();
