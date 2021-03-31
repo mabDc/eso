@@ -76,7 +76,8 @@ void paintText(
   }
 }
 
-Widget configSettingBuilder(BuildContext context, TextCompositionConfig config) {
+Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
+    void Function(Color color, void Function(Color color) onChange) onColor) {
   final style = TextStyle(color: Theme.of(context).primaryColor);
 
   AlertDialog showTextDialog(
@@ -304,6 +305,8 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config) 
             ListTile(
               title: Text("字色"),
               subtitle: Text(config.fontColor.value.toRadixString(16).toUpperCase()),
+              onTap: () => onColor(
+                  config.fontColor, (color) => setState(() => config.fontColor = color)),
             ),
             ListTile(
               title: Text("字号"),
@@ -336,13 +339,15 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config) 
               subtitle: Text(config.fontFamily.isEmpty ? "无" : config.fontFamily),
             ),
             ListTile(
-              title: Text("背景 图片"),
-              subtitle: Text(config.background),
-            ),
-            ListTile(
               title: Text("背景 纯色"),
               subtitle:
                   Text(config.backgroundColor.value.toRadixString(16).toUpperCase()),
+              onTap: () => onColor(config.backgroundColor,
+                  (color) => setState(() => config.backgroundColor = color)),
+            ),
+            ListTile(
+              title: Text("背景 图片"),
+              subtitle: Text(config.background),
             ),
             Divider(),
             ListTile(title: Text("边距", style: style)),

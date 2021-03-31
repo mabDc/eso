@@ -7,6 +7,7 @@ import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition_config.dart';
 import 'package:text_composition/text_composition_const.dart';
@@ -181,7 +182,26 @@ class AboutPage2 extends StatelessWidget {
                     ListTile(
                       title: Text('调色板'),
                       subtitle: Text('修改主题色'),
-                      onTap: () => invokeTap(ColorLensPage()),
+                      // onTap: () => invokeTap(ColorLensPage()),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('选择颜色'),
+                            content: SingleChildScrollView(
+                              child: ColorPicker(
+                                pickerColor: Color(profile.primaryColor),
+                                onColorChanged: (color) =>
+                                    profile.primaryColor = color.value | 0xFF000000,
+                                showLabel: true,
+                                pickerAreaHeightPercent: 0.8,
+                                enableAlpha: false,
+                                portraitOnly: true,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     ListTile(
                       title: Text('字体管理'),
@@ -420,7 +440,30 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: configSettingBuilder(context, config));
+    return Scaffold(
+      appBar: AppBar(title: Text("阅读设置")),
+      body: configSettingBuilder(
+        context,
+        config,
+        (Color color, void Function(Color color) onChange) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('选择颜色'),
+              content: SingleChildScrollView(
+                child: ColorPicker(
+                  pickerColor: color,
+                  onColorChanged: onChange,
+                  showLabel: true,
+                  pickerAreaHeightPercent: 0.8,
+                  portraitOnly: true,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override

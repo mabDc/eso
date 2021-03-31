@@ -11,6 +11,7 @@ import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
@@ -419,13 +420,30 @@ class NovelMenu extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text('阅读设置'),
-                          titlePadding:
-                              EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                           contentPadding: EdgeInsets.zero,
                           content: Container(
                             width: 520,
-                            child: configSettingBuilder(context, composition.config),
+                            child: configSettingBuilder(
+                              context,
+                              composition.config,
+                              (Color color, void Function(Color color) onChange) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('选择颜色'),
+                                    content: SingleChildScrollView(
+                                      child: ColorPicker(
+                                        pickerColor: color,
+                                        onColorChanged: onChange,
+                                        showLabel: true,
+                                        pickerAreaHeightPercent: 0.8,
+                                        portraitOnly: true,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       );

@@ -180,7 +180,13 @@ class TextComposition extends ChangeNotifier {
                   contentPadding: EdgeInsets.zero,
                   content: Container(
                     width: 520,
-                    child: configSettingBuilder(context, config),
+                    child: configSettingBuilder(
+                      context,
+                      config,
+                      (Color color, void Function(Color color) onChange) {
+                        print("选择颜色");
+                      },
+                    ),
                   ),
                 )).then((value) {
           _isShowMenu = false;
@@ -339,7 +345,7 @@ class TextComposition extends ChangeNotifier {
     Future.delayed(saveDelay).then((value) {
       if (_disposed || DateTime.now().millisecondsSinceEpoch < _lastSaveTime) return;
       print("checkSave ${DateTime.now()}");
-      onSave!(config, textPages[_currentIndex]!.percent);
+      onSave?.call(config, textPages[_currentIndex]!.percent);
     });
   }
 
@@ -432,7 +438,7 @@ class TextComposition extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     if (textPages[currentIndex] != null) {
-      onSave?.call(config, textPages[currentIndex]!.percent);
+      onSave?.call(config, textPages[_currentIndex]!.percent);
     }
     _controllers.forEach((c) => c.dispose());
     _controllers.clear();

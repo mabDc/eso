@@ -647,7 +647,7 @@ class Profile with ChangeNotifier {
       default:
         break;
     }
-    final _color = Color(_primaryColor);
+    final _color = Color(_primaryColor | 0xFF000000);
     Global.primaryColor = _color;
     staticFontFamily = fontFamily;
     final theme = ThemeData(
