@@ -18,7 +18,6 @@ import '../../profile.dart';
 import '../novel_page_refactor.dart';
 import 'auto_backup_page.dart';
 import 'darkmod_page.dart';
-import 'color_lens_page.dart';
 import 'package:about/about.dart';
 
 class AboutPage extends StatefulWidget {

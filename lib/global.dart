@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;

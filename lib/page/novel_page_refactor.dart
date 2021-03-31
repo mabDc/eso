@@ -21,6 +21,7 @@ import 'package:windows_speak/windows_speak.dart';
 
 import '../fonticons_icons.dart';
 import '../utils.dart';
+import 'novel_auto_cache_page.dart';
 
 class NovelPage extends StatelessWidget {
   final SearchItem searchItem;
@@ -183,12 +184,8 @@ class NovelMenu extends StatelessWidget {
       onSelected: (int value) async {
         switch (value) {
           case AUTO_CACHE:
-            Utils.toast("等待下个版本");
-            // Navigator.of(context).push(MaterialPageRoute(
-            //     builder: (context) => NovelAutoCachePage(
-            //           searchItem: searchItem,
-            //           provider: provider,
-            //         )));
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => NovelAutoCachePage(searchItem: searchItem)));
             break;
           case TO_CLICPBOARD:
             final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
