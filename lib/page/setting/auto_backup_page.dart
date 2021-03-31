@@ -267,16 +267,17 @@ class AutoBackupPage extends StatelessWidget {
 
   static shareRule([bool autoShare = false]) async {
     final profile = Profile();
-    if (profile.webdavRuleAccount.trim().isEmpty ||
-        profile.webdavRuleCheckcode.trim().isEmpty) {
-      Utils.toast("分享的用户名称和校验码不可为空");
-      return;
-    }
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
     final fileName = Uri.encodeComponent(
         'share.${profile.webdavRuleCheckcode}.rule.${profile.webdavRuleAccount}.$today.zip');
     if (autoShare) {
       if (today == profile.autoRuleUploadLastDay || !profile.enableWebdavRule) return;
+      if (profile.webdavRuleAccount.trim().isEmpty ||
+          profile.webdavRuleCheckcode.trim().isEmpty) {
+        profile.autoRuleUploadLastDay = today;
+        Utils.toast("分享的用户名称和校验码不可为空");
+        return;
+      }
       Utils.toast("1s后开始自动每日上传规则，可在设置中取消");
       await Future.delayed(Duration(seconds: 1));
     }

@@ -13,9 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:windows_speak/windows_speak.dart';
 
 import '../fonticons_icons.dart';
 import '../utils.dart';
@@ -62,6 +64,7 @@ class NovelPage extends StatelessWidget {
 
 const NovelContentTotal = 100000000; // 10000 * 10000 <==> 一万章节 * 一万页
 const TextConfigKey = "TextCompositionConfig";
+int speakingCheck = -1;
 
 class NovelMenu extends StatelessWidget {
   final SearchItem searchItem;
@@ -100,18 +103,68 @@ class NovelMenu extends StatelessWidget {
           ],
         ),
         SizedBox(height: 6),
-        // Wrap(
-        //   children: [
-        //     ElevatedButton(onPressed: provider.speak, child: Text('朗读')),
-        //     ElevatedButton(onPressed: provider.stop, child: Text('停止')),
-        //     ElevatedButton(onPressed: provider.prevPara, child: Text('上一段')),
-        //     ElevatedButton(onPressed: provider.nextPara, child: Text('下一段')),
-        //   ],
-        // ),
+        Wrap(
+          spacing: 10,
+          children: [
+            ElevatedButton(onPressed: speak, child: Text('朗读')),
+            ElevatedButton(onPressed: stop, child: Text('停止')),
+            ElevatedButton(onPressed: prevPage, child: Text('上一页')),
+            ElevatedButton(onPressed: nextPage, child: Text('下一页')),
+          ],
+        ),
         Spacer(),
         _buildBottomRow(context, bgColor, color),
       ],
     );
+  }
+
+  Future<dynamic> _speak(int check) async {
+    while (speakingCheck > 0 && speakingCheck == check) {
+      final s = composition.textPages[composition.currentIndex]?.lines
+          ?.map((e) => e.text)
+          ?.join();
+      if (s != null && s.isNotEmpty) {
+        if (Global.isDesktop) {
+          await WindowsSpeak.speak(s);
+        } else {
+          await FlutterTts().speak(s);
+        }
+      } else {
+        break;
+      }
+      if (speakingCheck > 0 && speakingCheck == check) {
+        composition.nextPage();
+      } else {
+        break;
+      }
+    }
+  }
+
+  speak() async {
+    await stop();
+    speakingCheck = DateTime.now().microsecondsSinceEpoch;
+    _speak(speakingCheck);
+  }
+
+  Future<dynamic> stop() async {
+    speakingCheck = -1;
+    if (Global.isDesktop) {
+      await WindowsSpeak.release();
+    } else {
+      await FlutterTts().stop();
+    }
+  }
+
+  prevPage() async {
+    await stop();
+    composition.previousPage();
+    speak();
+  }
+
+  nextPage() async {
+    await stop();
+    composition.nextPage();
+    speak();
   }
 
   Widget _buildPopupMenu(BuildContext context, Color bgColor, Color color) {
