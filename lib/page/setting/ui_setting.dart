@@ -22,44 +22,6 @@ class UISetting extends StatelessWidget {
               children: [
                 ListTile(
                   title: Text(
-                    '正文信息显示设置',
-                    style: TextStyle(color: Theme.of(context).primaryColor),
-                  ),
-                ),
-                Divider(),
-                SwitchListTile(
-                  title: Text('文字-顶部'),
-                  subtitle: Text('(状态栏) (启用为显示，禁用为隐藏)'),
-                  value: profile.showNovelStatus,
-                  onChanged: (value) => profile.showNovelStatus = value,
-                ),
-                SwitchListTile(
-                  title: Text('文字-底部'),
-                  subtitle: Text('(信息栏)'),
-                  value: profile.showNovelInfo,
-                  onChanged: (value) => profile.showNovelInfo = value,
-                  activeColor: Theme.of(context).primaryColor,
-                ),
-                SwitchListTile(
-                  title: Text('图片-顶部'),
-                  subtitle: Text('(状态栏)'),
-                  value: profile.showMangaStatus,
-                  onChanged: (value) => profile.showMangaStatus = value,
-                ),
-                SwitchListTile(
-                  title: Text('图片-底部'),
-                  subtitle: Text('(信息栏)'),
-                  value: profile.showMangaInfo,
-                  onChanged: (value) => profile.showMangaInfo = value,
-                ),
-              ],
-            ),
-          ),
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(
                     '入口和功能',
                     style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
@@ -160,8 +122,8 @@ class UISetting extends StatelessWidget {
                             IconButton(icon: Icon(Icons.search), onPressed: null),
                           if (profile.showHistoryOnFavorite)
                             IconButton(icon: Icon(Icons.history), onPressed: null),
-                            if (profile.bottomCount != 4)
-                          IconButton(icon: Icon(Icons.settings), onPressed: null),
+                          if (profile.bottomCount != 4)
+                            IconButton(icon: Icon(Icons.settings), onPressed: null),
                         ],
                       ),
                       bottomNavigationBar: BottomAppBar(
@@ -195,7 +157,9 @@ class UISetting extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            if (profile.searchPostion == Profile.searchDocker && profile.bottomCount == 4) Spacer(),
+                            if (profile.searchPostion == Profile.searchDocker &&
+                                profile.bottomCount == 4)
+                              Spacer(),
                             if (profile.bottomCount == 4)
                               Expanded(
                                 flex: 3,
@@ -204,10 +168,7 @@ class UISetting extends StatelessWidget {
                                   children: [
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Icon(Icons.history),
-                                        Text("历史")
-                                      ],
+                                      children: <Widget>[Icon(Icons.history), Text("历史")],
                                     ),
                                     Column(
                                       mainAxisSize: MainAxisSize.min,

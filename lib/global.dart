@@ -46,9 +46,7 @@ class Global with ChangeNotifier {
   static Future<void> initFont() async {
     final profile = Profile();
     final fontFamily = profile.fontFamily;
-    final novelFamily = profile.novelFontFamily;
-    Profile.staticNovelFontFamily = novelFamily;
-    if (fontFamily == null && novelFamily == null) return;
+    if (fontFamily == null) return;
     final _cacheUtil = CacheUtil(backup: true, basePath: "font");
     final dir = await _cacheUtil.cacheDir();
     try {
@@ -56,14 +54,6 @@ class Global with ChangeNotifier {
         await loadFontFromList(
           await File(dir + fontFamily).readAsBytes(),
           fontFamily: fontFamily,
-        );
-      }
-    } catch (e) {}
-    try {
-      if (novelFamily != null && novelFamily.contains('.')) {
-        await loadFontFromList(
-          await File(dir + novelFamily).readAsBytes(),
-          fontFamily: novelFamily,
         );
       }
     } catch (e) {}
@@ -276,9 +266,9 @@ class Global with ChangeNotifier {
     return 0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue;
   }
 
-  static SystemUiOverlayStyle novelLightOrDark() {
-    return lightness(Color(Profile().novelFontColor)) > 127
-        ? SystemUiOverlayStyle.light
-        : SystemUiOverlayStyle.dark;
-  }
+  // static SystemUiOverlayStyle novelLightOrDark() {
+  //   return lightness(Color(Profile().novelFontColor)) > 127
+  //       ? SystemUiOverlayStyle.light
+  //       : SystemUiOverlayStyle.dark;
+  // }
 }

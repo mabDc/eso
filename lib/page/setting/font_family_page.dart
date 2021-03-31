@@ -13,39 +13,20 @@ import '../../profile.dart';
 import '../../global.dart';
 
 class FontFamilyPage extends StatelessWidget {
-  static const setGlobal = 0;
-  static const setNovel = 1;
-  final int option;
-  final bool showAppbar;
   const FontFamilyPage({
     Key key,
-    this.option = setGlobal,
-    this.showAppbar = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: showAppbar
-          ? AppBar(
-              title: Text("字体管理"),
-              actions: [
-                Tooltip(
-                  message: '请选配置项再设置字体',
-                  child: IconButton(
-                    icon: Icon(Icons.help_outline),
-                    onPressed: () => null,
-                    tooltip: '请选配置项再设置字体',
-                  ),
-                ),
-              ],
-            )
-          : null,
+      appBar: AppBar(
+        title: Text("字体管理"),
+      ),
       body: ChangeNotifierProvider(
-        create: (context) => _FontFamilyProvider(option),
+        create: (context) => _FontFamilyProvider(),
         builder: (context, child) {
           context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
-          int option = context.select((_FontFamilyProvider provider) => provider.option);
           final profile = Provider.of<Profile>(context, listen: true);
           final fontFamilyProvider =
               Provider.of<_FontFamilyProvider>(context, listen: false);
@@ -54,51 +35,10 @@ class FontFamilyPage extends StatelessWidget {
           }
           return ListView(
             children: [
-              Row(
-                children: [
-                  SizedBox(width: 16),
-                  Text('配置'),
-                  Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 160,
-                            child: RadioListTile(
-                              value: setGlobal,
-                              groupValue: option,
-                              onChanged: (value) => fontFamilyProvider.option = value,
-                              title: Text(
-                                '全局界面',
-                                style: TextStyle(fontSize: option == setGlobal ? 16 : 14),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 160,
-                            child: RadioListTile(
-                              value: setNovel,
-                              groupValue: option,
-                              onChanged: (value) => fontFamilyProvider.option = value,
-                              title: Text(
-                                '文字正文',
-                                style: TextStyle(fontSize: option == setNovel ? 16 : 14),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              Divider(),
-              _buildFontListTile("默认", null, profile, option),
-              _buildFontListTile("Roboto", 'Roboto', profile, option),
+              _buildFontListTile("默认", null, profile),
+              _buildFontListTile("Roboto", 'Roboto', profile),
               for (final ttf in fontFamilyProvider.ttfList)
-                _buildFontListTile(ttf, ttf, profile, option),
+                _buildFontListTile(ttf, ttf, profile),
               ListTile(
                 onTap: fontFamilyProvider.pickFont,
                 title: Row(
@@ -121,7 +61,7 @@ class FontFamilyPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFontListTile(String name, String fontFamily, Profile profile, int option) {
+  Widget _buildFontListTile(String name, String fontFamily, Profile profile) {
     return ListTile(
       title: Text(
         name,
@@ -141,21 +81,10 @@ class FontFamilyPage extends StatelessWidget {
                 color: Color(profile.primaryColor),
               ),
             ),
-          if (profile.novelFontFamily == fontFamily)
-            Text(
-              '√正文 ',
-              style: TextStyle(
-                color: Color(profile.primaryColor),
-              ),
-            ),
         ],
       ),
       onTap: () {
-        if (option == setGlobal) {
-          profile.fontFamily = fontFamily;
-        } else {
-          profile.novelFontFamily = fontFamily;
-        }
+        profile.fontFamily = fontFamily;
       },
       // onLongPress: () => profile.novelFontFamily = fontFamily,
     );
@@ -169,17 +98,8 @@ class _FontFamilyProvider with ChangeNotifier {
 
   List<String> _ttfList;
   List<String> get ttfList => _ttfList;
-  int _option;
-  int get option => _option;
-  set option(int value) {
-    if (_option != value) {
-      _option = value;
-      notifyListeners();
-    }
-  }
 
-  _FontFamilyProvider(int option) {
-    _option = option;
+  _FontFamilyProvider() {
     init();
   }
 

@@ -8,38 +8,18 @@ import 'package:path/path.dart' as path;
 
 import 'profile.dart';
 
-/// 事件bus
-
 class Utils {
-  static String getUrl(String host, String url){
-    if(url == null) return host;
-    if(url.startsWith("http")) return url;
-    if(url.startsWith("//")) {
-      if(host.startsWith("https")) return "https:$url";
-      else return "http:$url";
+  static String getUrl(String host, String url) {
+    if (url == null) return host;
+    if (url.startsWith("http")) return url;
+    if (url.startsWith("//")) {
+      if (host.startsWith("https"))
+        return "https:$url";
+      else
+        return "http:$url";
     }
-    if(url.startsWith("/")) return "$host$url";
+    if (url.startsWith("/")) return "$host$url";
     return "$host/$url";
-  }
-  static BoxDecoration getNovelBackground() {
-    final profile = Profile();
-    DecorationImage image;
-    if (profile.novelBackgroundImage != null) {
-      final file = File(profile.novelBackgroundImage);
-      if (file.existsSync()) {
-        try {
-          image = DecorationImage(
-            image: FileImage(file),
-            fit: BoxFit.fill,
-            onError: (_, __) => image = null,
-          );
-        } catch (e) {}
-      }
-    }
-    return BoxDecoration(
-      color: Color(profile.novelBackgroundColor),
-      image: image,
-    );
   }
 
   /// 时间字符串显示

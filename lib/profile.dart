@@ -27,15 +27,6 @@ class Profile with ChangeNotifier {
   static const mangaDirectionLeftToRight = 1; //'leftToRight';
   static const mangaDirectionRightToLeft = 2; //'rightToLeft';
 
-  static const novelScroll = 0;
-  static const novelSlide = 1;
-  static const novelCover = 2;
-  static const novelSimulation = 3;
-  static const novelNone = 4;
-  static const novelVerticalSlide = 5;
-  static const novelHorizontalSlide = 6;
-  static const novelFade = 7;
-
   static const dartModeAuto = '跟随系统';
   static const dartModeDark = '开启';
   static const dartModeLight = '关闭';
@@ -51,30 +42,17 @@ class Profile with ChangeNotifier {
     _desktopPlayer = "";
     _version = '';
     _fontFamily = null;
-    _novelFontFamily = null;
     _switchLongPress = false;
     _showHistoryOnAbout = true;
     _showHistoryOnFavorite = true;
     _switchFavoriteStyle = false;
     _showMangaStatus = false;
     _showMangaInfo = true;
-    _showNovelStatus = true;
-    _showNovelInfo = true;
     _searchPostion = searchDocker;
     _bottomCount = 2;
     _autoRefresh = false;
     _darkMode = dartModeAuto;
     _primaryColor = 0xFF4BB0A0;
-    _novelFontSize = 18.0;
-    _novelHeight = 1.5;
-    _novelBackgroundColor = 0xFFF5DEB3;
-    _novelFontColor = Colors.black.value;
-    _novelTopPadding = 5.0;
-    _novelLeftPadding = 15.0;
-    _novelParagraphPadding = 15.0;
-    _novelPageSwitch = novelScroll;
-    _novelIndentation = 2;
-    _novelKeepOn = false;
     _mangaKeepOn = false;
     _mangaLandscape = false;
     _mangaDirection = mangaDirectionTopToBottom;
@@ -201,7 +179,6 @@ class Profile with ChangeNotifier {
 
   String _version;
   String _fontFamily;
-  String _novelFontFamily;
   bool _switchLongPress;
   bool _showHistoryOnAbout;
   bool _showHistoryOnFavorite;
@@ -211,21 +188,8 @@ class Profile with ChangeNotifier {
   int _primaryColor;
   bool _showMangaStatus;
   bool _showMangaInfo;
-  bool _showNovelStatus;
-  bool _showNovelInfo;
   int _searchPostion;
   int _bottomCount;
-  double _novelFontSize;
-  double _novelHeight;
-  double _novelTopPadding;
-  double _novelLeftPadding;
-  double _novelParagraphPadding;
-  int _novelPageSwitch;
-  int _novelIndentation;
-  int _novelBackgroundColor;
-  String _novelBackgroundImage;
-  int _novelFontColor;
-  bool _novelKeepOn;
   bool _mangaKeepOn;
   bool _mangaLandscape;
   int _mangaDirection;
@@ -242,7 +206,6 @@ class Profile with ChangeNotifier {
 
   String get version => _version;
   String get fontFamily => _fontFamily;
-  String get novelFontFamily => _novelFontFamily;
   bool get switchLongPress => _switchLongPress;
   bool get showHistoryOnAbout => _showHistoryOnAbout;
   bool get showHistoryOnFavorite => _showHistoryOnFavorite;
@@ -252,21 +215,8 @@ class Profile with ChangeNotifier {
   int get primaryColor => _primaryColor;
   bool get showMangaStatus => _showMangaStatus;
   bool get showMangaInfo => _showMangaInfo;
-  bool get showNovelStatus => _showNovelStatus;
-  bool get showNovelInfo => _showNovelInfo;
   int get searchPostion => _searchPostion;
   int get bottomCount => _bottomCount;
-  double get novelFontSize => _novelFontSize;
-  double get novelHeight => _novelHeight;
-  double get novelTopPadding => _novelTopPadding;
-  double get novelLeftPadding => _novelLeftPadding;
-  double get novelParagraphPadding => _novelParagraphPadding;
-  int get novelPageSwitch => _novelPageSwitch;
-  int get novelIndentation => _novelIndentation;
-  int get novelBackgroundColor => _novelBackgroundColor;
-  String get novelBackgroundImage => _novelBackgroundImage;
-  int get novelFontColor => _novelFontColor;
-  bool get novelKeepOn => _novelKeepOn;
   bool get mangaKeepOn => _mangaKeepOn;
   bool get mangaLandscape => _mangaLandscape;
   int get mangaDirection => _mangaDirection;
@@ -299,14 +249,6 @@ class Profile with ChangeNotifier {
     if (value != _fontFamily) {
       _fontFamily = value;
       staticFontFamily = value;
-      _saveProfile();
-    }
-  }
-
-  set novelFontFamily(String value) {
-    if (value != _novelFontFamily) {
-      _novelFontFamily = value;
-      staticNovelFontFamily = value;
       _saveProfile();
     }
   }
@@ -374,20 +316,6 @@ class Profile with ChangeNotifier {
     }
   }
 
-  set showNovelStatus(bool value) {
-    if (_showNovelStatus != value) {
-      _showNovelStatus = value;
-      _saveProfile();
-    }
-  }
-
-  set showNovelInfo(bool value) {
-    if (_showNovelInfo != value) {
-      _showNovelInfo = value;
-      _saveProfile();
-    }
-  }
-
   set searchPostion(int value) {
     if (_searchPostion != value) {
       _searchPostion = value;
@@ -398,139 +326,6 @@ class Profile with ChangeNotifier {
   set bottomCount(int value) {
     if (_bottomCount != value) {
       _bottomCount = value;
-      _saveProfile();
-    }
-  }
-
-  set novelFontSize(double value) {
-    if ((value - _novelFontSize).abs() > 0.1) {
-      if (value > 40) {
-        _novelFontSize = 40;
-      } else if (value < 10) {
-        _novelFontSize = 10;
-      } else {
-        _novelFontSize = value;
-      }
-      _saveProfile();
-    }
-  }
-
-  set novelHeight(double value) {
-    if ((value - _novelHeight).abs() > 0.05) {
-      if (value > 3) {
-        _novelHeight = 3;
-      } else if (value < 1) {
-        _novelHeight = 1;
-      } else {
-        _novelHeight = value;
-      }
-      _saveProfile();
-    }
-  }
-
-  set novelTopPadding(double value) {
-    if ((value - _novelTopPadding).abs() > 0.1) {
-      if (value > 50) {
-        _novelTopPadding = 50;
-      } else if (value < 5) {
-        _novelTopPadding = 5;
-      } else {
-        _novelTopPadding = value;
-      }
-      _saveProfile();
-    }
-  }
-
-  set novelLeftPadding(double value) {
-    if ((value - _novelLeftPadding).abs() > 0.1) {
-      if (value > 50) {
-        _novelLeftPadding = 50;
-      } else if (value < 5) {
-        _novelLeftPadding = 5;
-      } else {
-        _novelLeftPadding = value;
-      }
-      _saveProfile();
-    }
-  }
-
-  set novelParagraphPadding(double value) {
-    if ((value - _novelParagraphPadding).abs() > 0.1) {
-      if (_novelParagraphPadding > 50) {
-        _novelParagraphPadding = 50;
-      } else if (value < 0) {
-        _novelParagraphPadding = 0;
-      } else {
-        _novelParagraphPadding = value;
-      }
-      _saveProfile();
-    }
-  }
-
-  set novelPageSwitch(int value) {
-    if (value != _novelPageSwitch) {
-      _novelPageSwitch = value;
-      _saveProfile();
-    }
-  }
-
-  set novelIndentation(int value) {
-    if (value != _novelIndentation) {
-      if (value > 4) {
-        _novelIndentation = 4;
-      } else if (value < 0) {
-        _novelIndentation = 0;
-      } else {
-        _novelIndentation = value;
-      }
-      _saveProfile();
-    }
-  }
-
-  set novelBackgroundColor(int value) {
-    if (value != _novelBackgroundColor) {
-      _novelBackgroundColor = value;
-      _novelBackgroundImage = null;
-      _saveProfile();
-    }
-  }
-
-  set novelBackgroundImage(String value) {
-    if (value != _novelBackgroundImage) {
-      _novelBackgroundImage = value;
-      _saveProfile();
-    }
-  }
-
-  set novelFontColor(int value) {
-    if (value != _novelFontColor) {
-      _novelFontColor = value;
-      _saveProfile();
-    }
-  }
-
-  void setNovelColor(Color bgColor, Color fontColor) {
-    var change = false;
-    if (_novelBackgroundImage != null) {
-      _novelBackgroundImage = null;
-      change = true;
-    }
-    if (bgColor.value != _novelBackgroundColor) {
-      _novelBackgroundColor = bgColor.value;
-      change = true;
-    }
-    if (fontColor.value != novelFontColor) {
-      _novelFontColor = fontColor.value;
-      change = true;
-    }
-    if (change) {
-      _saveProfile();
-    }
-  }
-
-  set novelKeepOn(bool value) {
-    if (value != _novelKeepOn) {
-      _novelKeepOn = value;
       _saveProfile();
     }
   }
@@ -634,7 +429,6 @@ class Profile with ChangeNotifier {
   }
 
   static String staticFontFamily;
-  static String staticNovelFontFamily;
 
   ThemeData getTheme(String fontFamily, {bool isDarkMode: false}) {
     switch (darkMode) {
@@ -711,7 +505,6 @@ class Profile with ChangeNotifier {
     _enableWebdav = cast(json['enableWebdav'], defaultProfile.enableWebdav);
     _webdavServer = cast(json['webdavServer'], defaultProfile.webdavServer);
     _fontFamily = cast(json['fontFamily'], defaultProfile.fontFamily);
-    _novelFontFamily = cast(json['novelFontFamily'], defaultProfile.novelFontFamily);
     _switchLongPress = cast(json['switchLongPress'], defaultProfile.switchLongPress);
     _showHistoryOnAbout =
         cast(json['showHistoryOnAbout'], defaultProfile.showHistoryOnAbout);
@@ -721,27 +514,10 @@ class Profile with ChangeNotifier {
         cast(json['switchFavoriteStyle'], defaultProfile.switchFavoriteStyle);
     _showMangaStatus = cast(json['showMangaStatus'], defaultProfile.showMangaStatus);
     _showMangaInfo = cast(json['showMangaInfo'], defaultProfile.showMangaInfo);
-    _showNovelStatus = cast(json['showNovelStatus'], defaultProfile.showNovelStatus);
-    _showNovelInfo = cast(json['showNovelInfo'], defaultProfile.showNovelInfo);
-    _showNovelStatus = cast(json['showNovelStatus'], defaultProfile.showNovelStatus);
     _searchPostion = cast(json['searchPostion'], defaultProfile.searchPostion);
     _bottomCount = cast(json['bottomCount'], defaultProfile.bottomCount);
     _darkMode = cast(json['darkMode'], defaultProfile.darkMode);
     _primaryColor = cast(json['primaryColor'], defaultProfile.primaryColor);
-    _novelFontSize = cast(json['novelFontSize'], defaultProfile.novelFontSize);
-    _novelHeight = cast(json["novelHeight"], defaultProfile.novelHeight);
-    _novelBackgroundColor =
-        cast(json["novelBackgroundColor"], defaultProfile.novelBackgroundColor);
-    _novelBackgroundImage =
-        cast(json["novelBackgroundImage"], defaultProfile.novelBackgroundImage);
-    _novelFontColor = cast(json["novelFontColor"], defaultProfile.novelFontColor);
-    _novelTopPadding = cast(json["novelTopPadding"], defaultProfile.novelTopPadding);
-    _novelLeftPadding = cast(json["novelLeftPadding"], defaultProfile.novelLeftPadding);
-    _novelParagraphPadding =
-        cast(json["novelParagraphPadding"], defaultProfile.novelParagraphPadding);
-    _novelPageSwitch = cast(json["novelPageSwitch"], defaultProfile.novelPageSwitch);
-    _novelIndentation = cast(json["novelIndentation"], defaultProfile.novelIndentation);
-    _novelKeepOn = cast(json["novelKeepOn"], defaultProfile.novelKeepOn);
     _mangaKeepOn = cast(json["mangaKeepOn"], defaultProfile.mangaKeepOn);
     _mangaLandscape = cast(json["mangaLandscape"], defaultProfile.mangaLandscape);
     _mangaDirection = cast(json['mangaDirection'], defaultProfile.mangaDirection);
@@ -774,7 +550,6 @@ class Profile with ChangeNotifier {
         'autoBackRate': _autoBackRate,
         'webdavServer': _webdavServer,
         'fontFamily': _fontFamily,
-        'novelFontFamily': _novelFontFamily,
         'version': _version,
         'switchLongPress': _switchLongPress,
         'showHistoryOnAbout': _showHistoryOnAbout,
@@ -783,19 +558,11 @@ class Profile with ChangeNotifier {
         // 'switchDiscoverStyle': _switchDiscoverStyle,
         'showMangaStatus': _showMangaStatus,
         'showMangaInfo': _showMangaInfo,
-        'showNovelStatus': _showNovelStatus,
-        'showNovelInfo': _showNovelInfo,
         'searchPostion': _searchPostion,
         'bottomCount': _bottomCount,
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'primaryColor': _primaryColor,
-        'novelFontSize': _novelFontSize,
-        'novelHeight': _novelHeight,
-        'novelBackgroundColor': _novelBackgroundColor,
-        'novelBackgroundImage': _novelBackgroundImage,
-        'novelFontColor': _novelFontColor,
-        'novelKeepOn': _novelKeepOn,
         'mangaKeepOn': _mangaKeepOn,
         'mangaLandscape': _mangaLandscape,
         'mangaDirection': _mangaDirection,
@@ -809,11 +576,6 @@ class Profile with ChangeNotifier {
         'mangaEnableSearch': _mangaEnableSearch,
         'audioEnableSearch': _audioEnableSearch,
         'videoEnableSearch': _videoEnableSearch,
-        'novelTopPadding': _novelTopPadding,
-        'novelLeftPadding': _novelLeftPadding,
-        'novelParagraphPadding': _novelParagraphPadding,
-        'novelPageSwitch': _novelPageSwitch,
-        'novelIndentation': _novelIndentation,
       };
 }
 

@@ -267,6 +267,11 @@ class AutoBackupPage extends StatelessWidget {
 
   static shareRule([bool autoShare = false]) async {
     final profile = Profile();
+    if (profile.webdavRuleAccount.trim().isEmpty ||
+        profile.webdavRuleCheckcode.trim().isEmpty) {
+      Utils.toast("分享的用户名称和校验码不可为空");
+      return;
+    }
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
     final fileName = Uri.encodeComponent(
         'share.${profile.webdavRuleCheckcode}.rule.${profile.webdavRuleAccount}.$today.zip');
@@ -453,7 +458,7 @@ class AutoBackupPage extends StatelessWidget {
     });
   }
 
-  decodeShareRuleName(String name) {
+  String decodeShareRuleName(String name) {
     int lastPos = name.lastIndexOf(".rule.");
     return name.substring(lastPos + ".rule.".length);
   }
@@ -473,10 +478,15 @@ class AutoBackupPage extends StatelessWidget {
         context: context,
         position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx + 100, 0),
         items: fs
-            .map((f) => PopupMenuItem<String>(
-                  value: f,
-                  child: Text(decodeShareRuleName(f)),
-                ))
+            .map((f) {
+              final d = decodeShareRuleName(f);
+              if (d.startsWith(".")) return null;
+              return PopupMenuItem<String>(
+                value: f,
+                child: Text(d),
+              );
+            })
+            .where((e) => e != null)
             .toList(),
       ).then((value) async {
         if (value == null) return;

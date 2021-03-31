@@ -138,8 +138,9 @@ class NovelMenu extends StatelessWidget {
             //         )));
             break;
           case TO_CLICPBOARD:
+            final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
             final chapter = searchItem.chapters[searchItem.durChapterIndex];
-            final url = chapter.contentUrl ?? chapter.url;
+            final url = chapter.contentUrl ?? Utils.getUrl(rule.host, chapter.url);
             if (url != null) {
               Clipboard.setData(ClipboardData(text: url));
               Utils.toast("已复制地址\n" + url);

@@ -163,12 +163,12 @@ class AboutPage2 extends StatelessWidget {
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
+                    Divider(),
                     ListTile(
                       title: Text('阅读设置'),
                       subtitle: Text('翻页动画和文字排版'),
                       onTap: () => invokeTap(ConfigSettingPage()),
                     ),
-                    Divider(),
                     ListTile(
                       title: Text('界面与布局'),
                       subtitle: Text('正文状态栏信息栏和按钮布局'),
