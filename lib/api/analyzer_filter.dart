@@ -96,7 +96,7 @@ class AnalyzerFilter implements Analyzer {
         {"url": url},
       ];
     }
-    final duration = r.length > 1 ? int.parse(r[1]) : 8;
+    final duration = r.length > 1 ? int.parse(r[1]) : 10;
     await webview(
       url: url,
       duration: duration,
