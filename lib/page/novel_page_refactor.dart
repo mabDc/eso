@@ -120,6 +120,7 @@ class NovelMenu extends StatelessWidget {
   }
 
   Future<dynamic> _speak(int check) async {
+    if (!Global.isDesktop) await FlutterTts().awaitSpeakCompletion(true);
     while (speakingCheck > 0 && speakingCheck == check) {
       final s = composition.textPages[composition.currentIndex]?.lines
           ?.map((e) => e.text)

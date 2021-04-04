@@ -293,8 +293,10 @@ class TextComposition extends ChangeNotifier {
     }
     _tapWithoutNoCounter = BASE;
     notifyListeners();
-    previousChapter();
-    nextChapter();
+    Future.delayed(duration).then((value) {
+      previousChapter();
+      nextChapter();
+    });
   }
 
   List<Widget> get pages {
@@ -386,8 +388,10 @@ class TextComposition extends ChangeNotifier {
     _currentIndex = index;
     checkSave();
     notifyListeners();
-    if (_firstChapterIndex == textPages[index]!.chIndex) previousChapter();
-    if (_lastChapterIndex == textPages[index]!.chIndex) nextChapter();
+    Future.delayed(duration).then((value) {
+      if (_firstChapterIndex == textPages[index]!.chIndex) previousChapter();
+      if (_lastChapterIndex == textPages[index]!.chIndex) nextChapter();
+    });
   }
 
   void turnPage(DragUpdateDetails details, BoxConstraints dimens) {

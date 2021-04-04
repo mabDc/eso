@@ -12,6 +12,7 @@ import 'package:eso/page/video_page_desktop.dart';
 // import 'package:eso/page/rss_page.dart';
 import 'package:eso/page/video_page_refactor.dart';
 import 'package:eso/utils/cache_util.dart';
+import 'package:eso/utils/memory_cache.dart';
 // import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -70,7 +71,9 @@ class ContentProvider with ChangeNotifier {
   bool _canUseCache;
   bool get canUseCache => _canUseCache == true;
 
-  ContentProvider(this.searchItem) {
+  final MemoryCache<int, List<String>> _memoryCache;
+
+  ContentProvider(this.searchItem) : _memoryCache = MemoryCache(cacheSize: 30) {
     _info = "";
     _addInfo("获取书籍信息 (内容可复制)");
     init();
@@ -89,7 +92,8 @@ class ContentProvider with ChangeNotifier {
         if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
           searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
         } else {
-          searchItem.chapters = await APIManager.getChapter(searchItem.originTag, searchItem.url);
+          searchItem.chapters =
+              await APIManager.getChapter(searchItem.originTag, searchItem.url);
         }
         _addInfo("结束 得到${searchItem.chapters.length}个章节");
       }
@@ -113,27 +117,47 @@ class ContentProvider with ChangeNotifier {
     return loadChapter(searchItem.durChapterIndex, false);
   }
 
-  Future<List<String>> loadChapter(int chapterIndex, [bool useCache = true]) async {
-    if (useCache) {
-      if (canUseCache) {
-        final resp = await _cache.getData('$chapterIndex.txt', hashCodeKey: false, shouldDecode: false);
-        if (resp != null && resp is String && resp.isNotEmpty) {
-          changeChapter(chapterIndex);
-          return resp.split("\n");
+  Future<List<String>> loadChapter(int chapterIndex,
+      [bool useCache = true, bool loadNext = true]) {
+    final r = _memoryCache.getValueOrSet(chapterIndex, () async {
+      if (useCache) {
+        if (canUseCache) {
+          final resp = await _cache.getData('$chapterIndex.txt',
+              hashCodeKey: false, shouldDecode: false);
+          if (resp != null && resp is String && resp.isNotEmpty) {
+            changeChapter(chapterIndex);
+            return resp.split("\n");
+          }
+        } else {
+          await retryUseCache();
         }
-      } else {
-        await retryUseCache();
       }
-    }
-    final chapter = searchItem.chapters[chapterIndex];
-    final content = await APIManager.getContent(searchItem.originTag, chapter.url);
-    chapter.contentUrl = API.contentUrl;
-    final resp = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
-    if (canUseCache && resp.isNotEmpty) {
-      await _cache.putData('$chapterIndex.txt', resp.join("\n"), hashCodeKey: false, shouldEncode: false);
-    }
-    changeChapter(chapterIndex);
-    return resp;
+      final chapter = searchItem.chapters[chapterIndex];
+      final content = await APIManager.getContent(searchItem.originTag, chapter.url);
+      chapter.contentUrl = API.contentUrl;
+      final resp = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
+      if (canUseCache && resp.isNotEmpty) {
+        await _cache.putData('$chapterIndex.txt', resp.join("\n"),
+            hashCodeKey: false, shouldEncode: false);
+      }
+      changeChapter(chapterIndex);
+      return resp;
+    });
+
+    () async {
+      if (loadNext) {
+        if (chapterIndex + 2 < searchItem.chapters.length &&
+            !_memoryCache.containsKey(chapterIndex + 1)) {
+          await loadChapter(chapterIndex + 1, useCache, false);
+        }
+        if (chapterIndex + 3 < searchItem.chapters.length &&
+            !_memoryCache.containsKey(chapterIndex + 2)) {
+          await loadChapter(chapterIndex + 2, useCache, false);
+        }
+      }
+    }();
+
+    return r;
   }
 
   void changeChapter(int index) async {

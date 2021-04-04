@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:dlna/dlna.dart';
-import 'package:eso/api/api.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_item.dart';
@@ -24,6 +23,7 @@ import '../global.dart';
 import '../model/audio_service.dart';
 import '../utils.dart';
 import '../utils/dlna_util.dart';
+import 'content_page_manager.dart';
 
 class VideoPage extends StatelessWidget {
   final SearchItem searchItem;
@@ -31,12 +31,14 @@ class VideoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final contentProvider = Provider.of<ContentProvider>(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: Colors.black87,
         body: ChangeNotifierProvider<VideoPageProvider>(
-          create: (context) => VideoPageProvider(searchItem: searchItem),
+          create: (context) =>
+              VideoPageProvider(searchItem: searchItem, contentProvider: contentProvider),
           builder: (BuildContext context, child) {
             final provider = Provider.of<VideoPageProvider>(context, listen: false);
             final isLoading =
@@ -483,7 +485,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
   Duration get duration => _controller.value.duration;
   String get durationString => Utils.formatDuration(_controller.value.duration);
 
-  VideoPageProvider({@required this.searchItem}) {
+  final ContentProvider contentProvider;
+  VideoPageProvider({@required this.searchItem, @required this.contentProvider}) {
     WidgetsBinding.instance.addObserver(this);
     if (searchItem.chapters?.length == 0 &&
         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
@@ -528,9 +531,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     }();
     if (_disposed) return;
     try {
-      final chapter = searchItem.chapters[chapterIndex ?? searchItem.durChapterIndex];
-      _content = await APIManager.getContent(searchItem.originTag, chapter.url);
-      chapter.contentUrl = API.contentUrl;
+      _content =
+          await contentProvider.loadChapter(chapterIndex ?? searchItem.durChapterIndex);
       if (_content.isEmpty || _content.first.isEmpty) {
         _content = null;
         _isLoading = null;
@@ -543,6 +545,9 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       loadingText.add("播放地址 ${_content[0].split("").join("\u200B")}");
       loadingText.add("获取视频信息...");
       notifyListeners();
+      (VideoPlayerController controller) {
+        Future.delayed(Duration(microseconds: 120)).then((value) => controller.dispose());
+      }(_controller);
       _controller?.dispose();
       if (_disposed) return;
       _controller = VideoPlayerController.network(_content[0]);
