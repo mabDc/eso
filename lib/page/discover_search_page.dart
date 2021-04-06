@@ -121,7 +121,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               ));
             }
           }
-
           return Scaffold(
             appBar: pageController.showSearchField
                 ? AppBar(
@@ -452,34 +451,72 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   Widget buildDiscoverResultList(
       List<SearchItem> items, DiscoverPageController pageController, ListDataItem item,
       {Widget Function(SearchItem searchItem) builderItem}) {
-    return RefreshIndicator(
-      child: ListView.builder(
-        controller: item.controller,
-        itemCount: items.length + 1,
-        itemBuilder: (BuildContext context, int index) {
-          if (index == items.length) {
-            if (item.length == 0 && item.pair == null && !item.isLoading)
-              return Container();
-            if (item.more) return LoadMoreView(msg: "正在加载...");
-            return Container();
-          }
-          SearchItem searchItem = items[index];
-          if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-            searchItem = SearchItemManager.searchItem
-                .firstWhere((item) => item.url == searchItem.url);
-          }
-          return InkWell(
-            child: builderItem != null
-                ? builderItem(searchItem)
-                : UiSearchItem(item: searchItem),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (context) => ChapterPage(searchItem: searchItem)),
+    return Stack(
+      children: [
+        RefreshIndicator(
+          child: ListView.builder(
+            controller: item.controller,
+            itemCount: items.length + 1,
+            itemBuilder: (BuildContext context, int index) {
+              if (index == items.length) {
+                if (item.length == 0 && item.pair == null && !item.isLoading)
+                  return Container();
+                if (item.more) return LoadMoreView(msg: "正在加载...");
+                return Container();
+              }
+              SearchItem searchItem = items[index];
+              if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+                searchItem = SearchItemManager.searchItem
+                    .firstWhere((item) => item.url == searchItem.url);
+              }
+              return InkWell(
+                child: builderItem != null
+                    ? builderItem(searchItem)
+                    : UiSearchItem(item: searchItem),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => ChapterPage(searchItem: searchItem)),
+                ),
+              );
+            },
+          ),
+          onRefresh: () async => await onRefresh(pageController, item),
+        ),
+        Positioned(
+          right: 8,
+          bottom: 10,
+          child: Container(
+            width: 42,
+            height: 26,
+            color: Theme.of(context).primaryColor.withOpacity(0.8),
+            child: TextField(
+              autofocus: false,
+              controller: TextEditingController(text: "${item.page}"),
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.end,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                suffixText: "页",
+                suffixStyle: TextStyle(color: Colors.white),
+                contentPadding: const EdgeInsets.only(bottom: 16, right: 2),
+              ),
+              onSubmitted: (value) {
+                final page = int.tryParse(value.trim());
+                if (page != null && page > 0) {
+                  if (pageController.showSearchField) {
+                    pageController.search(page, true);
+                  } else {
+                    item.page = page;
+                    pageController.fetchData(item, goto: true);
+                  }
+                } else {
+                  Utils.toast("请输入大于0的数字");
+                }
+              },
             ),
-          );
-        },
-      ),
-      onRefresh: () async => await onRefresh(pageController, item),
+          ),
+        ),
+      ],
     );
   }
 
@@ -489,47 +526,85 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       double childAspectRatio,
       int crossAxisCount}) {
     final _size = MediaQuery.of(context).size;
-    return RefreshIndicator(
-      child: GridView.builder(
-        controller: item.controller,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: (_size.width < _size.height
-              ? (crossAxisCount ?? 3)
-              : ((crossAxisCount ?? 3) * (_size.width / _size.height)).toInt()),
-          childAspectRatio: childAspectRatio ?? 0.65,
-          mainAxisSpacing: 0,
-          crossAxisSpacing: 0,
-        ),
-        padding: const EdgeInsets.all(6.0),
-        itemCount: items.length + 1,
-        itemBuilder: (BuildContext context, int index) {
-          if (index == items.length) {
-            if (item.length == 0 && item.pair == null && !item.isLoading)
-              return Container();
-            if (item.more)
-              return LoadMoreView(msg: '加载中...', axis: Axis.vertical, timeout: 20000);
-            return Container();
-          }
-          SearchItem searchItem = items[index];
-          if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-            searchItem = SearchItemManager.searchItem.firstWhere((item) =>
-                item.originTag == searchItem.originTag && item.url == searchItem.url);
-          }
-          return InkWell(
-            child: builderItem == null
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                    child: UIDiscoverItem(searchItem: searchItem),
-                  )
-                : builderItem(searchItem),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (context) => ChapterPage(searchItem: searchItem)),
+    return Stack(
+      children: [
+        RefreshIndicator(
+          child: GridView.builder(
+            controller: item.controller,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: (_size.width < _size.height
+                  ? (crossAxisCount ?? 3)
+                  : ((crossAxisCount ?? 3) * (_size.width / _size.height)).toInt()),
+              childAspectRatio: childAspectRatio ?? 0.65,
+              mainAxisSpacing: 0,
+              crossAxisSpacing: 0,
             ),
-          );
-        },
-      ),
-      onRefresh: () async => await onRefresh(pageController, item),
+            padding: const EdgeInsets.all(6.0),
+            itemCount: items.length + 1,
+            itemBuilder: (BuildContext context, int index) {
+              if (index == items.length) {
+                if (item.length == 0 && item.pair == null && !item.isLoading)
+                  return Container();
+                if (item.more)
+                  return LoadMoreView(msg: '加载中...', axis: Axis.vertical, timeout: 20000);
+                return Container();
+              }
+              SearchItem searchItem = items[index];
+              if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+                searchItem = SearchItemManager.searchItem.firstWhere((item) =>
+                    item.originTag == searchItem.originTag && item.url == searchItem.url);
+              }
+              return InkWell(
+                child: builderItem == null
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                        child: UIDiscoverItem(searchItem: searchItem),
+                      )
+                    : builderItem(searchItem),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => ChapterPage(searchItem: searchItem)),
+                ),
+              );
+            },
+          ),
+          onRefresh: () async => await onRefresh(pageController, item),
+        ),
+        Positioned(
+          right: 8,
+          bottom: 10,
+          child: Container(
+            width: 42,
+            height: 26,
+            color: Theme.of(context).primaryColor.withOpacity(0.8),
+            child: TextField(
+              autofocus: false,
+              controller: TextEditingController(text: "${item.page}"),
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.end,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                suffixText: "页",
+                suffixStyle: TextStyle(color: Colors.white),
+                contentPadding: const EdgeInsets.only(bottom: 16, right: 2),
+              ),
+              onSubmitted: (value) {
+                final page = int.tryParse(value.trim());
+                if (page != null && page > 0) {
+                  if (pageController.showSearchField) {
+                    pageController.search(page, true);
+                  } else {
+                    item.page = page;
+                    pageController.fetchData(item, goto: true);
+                  }
+                } else {
+                  Utils.toast("请输入大于0的数字");
+                }
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 

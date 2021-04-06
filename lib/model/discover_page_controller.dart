@@ -106,10 +106,11 @@ class DiscoverPageController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchData(ListDataItem item, {needShowLoading = false}) async {
+  Future<void> fetchData(ListDataItem item,
+      {bool goto = false, bool needShowLoading = false}) async {
     if (item == null || item.isLoading || discoverMap.isEmpty) return;
     item.isLoading = true;
-    if (needShowLoading) {
+    if (needShowLoading || goto) {
       notifyListeners();
     }
     List<SearchItem> newItems;
@@ -126,7 +127,7 @@ class DiscoverPageController with ChangeNotifier {
       notifyListeners();
       return;
     }
-    if (item.page == 1) {
+    if (goto || item.page == 1) {
       item.items?.clear();
       item.items = newItems;
     } else {
@@ -135,7 +136,6 @@ class DiscoverPageController with ChangeNotifier {
     item.isLoading = false;
     item.more = newItems.length > 0;
     notifyListeners();
-    return;
   }
 
   // Future<void> refresh() async {
@@ -143,11 +143,11 @@ class DiscoverPageController with ChangeNotifier {
   //   return fetchData();
   // }
 
-  search() async {
+  search([int page = 1, bool goto = false]) async {
     _showSearchResult = true;
     var item = searchItem;
-    item.page = 1;
-    return await fetchData(item);
+    item.page = page;
+    return await fetchData(item, goto: goto);
   }
 
   void _discover(ListDataItem item) {

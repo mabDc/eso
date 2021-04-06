@@ -83,8 +83,7 @@ class TextCompositionEffect extends CustomPainter {
       return;
     }
 
-    if (textComposition.animation == 'curl' && image == null) {
-      if (toImageIng == true) return;
+    if (textComposition.animation == 'curl' && image == null && toImageIng != true) {
       toImageIng = true;
       picture.toImage(size.width.round(), size.height.round()).then((value) {
         image = value;

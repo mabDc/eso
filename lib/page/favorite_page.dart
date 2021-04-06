@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
 import '../fonticons_icons.dart';
+import '../global.dart';
 import 'history_page.dart';
 import 'search_page.dart';
-
 
 class FavoritePage extends StatefulWidget {
   @override
@@ -46,7 +46,7 @@ class _FavoritePageState extends State<FavoritePage> {
         ),
         SizedBox(
           height: double.infinity,
-          width:2,
+          width: 2,
           child: Material(
             color: Colors.grey.withAlpha(123),
           ),
@@ -71,10 +71,12 @@ class FavoritePage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = Profile();
-    if (profile.version != profile.lastestVersion) {
-      Future.delayed(
-          Duration(milliseconds: 10), () => AboutPage2.showAbout(context, true));
-    } else {
+    if (Global.needShowAbout) {
+      Global.needShowAbout = false;
+      if (profile.version != profile.lastestVersion) {
+        Future.delayed(
+            Duration(milliseconds: 10), () => AboutPage2.showAbout(context, true));
+      }
       AutoBackupPage.backup(true);
       AutoBackupPage.shareRule(true);
     }
@@ -125,7 +127,9 @@ class FavoritePage2 extends StatelessWidget {
           ],
         ),
         body: TabBarView(
-          children: tabs.map((tab) => FavoriteListPage(type: tab[1], invokeTap:invokeTap)).toList(),
+          children: tabs
+              .map((tab) => FavoriteListPage(type: tab[1], invokeTap: invokeTap))
+              .toList(),
         ),
       ),
     );
