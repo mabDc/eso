@@ -1,6 +1,4 @@
-|Gitter Chatroom|
-
-.. |Gitter Chatroom| :target: https://gitter.im/mabDc/eso
+在线聊天室 Gitter Chatroom https://gitter.im/mabDc/eso
 
 If you like my work, please Star this project.
 
