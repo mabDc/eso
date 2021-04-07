@@ -1,12 +1,12 @@
 ### 在线聊天室 
 
+[![Join the chat at https://gitter.im/mabDc/eso](https://badges.gitter.im/mabDc/eso.svg)](https://gitter.im/mabDc/eso?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Gitter Chatroom https://gitter.im/mabDc/eso
 
 If you like my work, please Star this project.
 
 # 特点
-
-[![Join the chat at https://gitter.im/mabDc/eso](https://badges.gitter.im/mabDc/eso.svg)](https://gitter.im/mabDc/eso?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 开源的多站点跨平台阅读器来啦！
 
