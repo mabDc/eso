@@ -6,8 +6,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:text_composition/memory_cache.dart';
 
+import 'memory_cache.dart';
 import 'text_composition_effect_refactor.dart';
 import 'text_composition_const.dart';
 import 'text_composition_config.dart';

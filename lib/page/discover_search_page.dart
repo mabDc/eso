@@ -482,40 +482,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           ),
           onRefresh: () async => await onRefresh(pageController, item),
         ),
-        Positioned(
-          right: 8,
-          bottom: 10,
-          child: Container(
-            width: 42,
-            height: 26,
-            color: Theme.of(context).primaryColor.withOpacity(0.8),
-            child: TextField(
-              autofocus: false,
-              controller: TextEditingController(text: "${item.page}"),
-              style: TextStyle(color: Colors.white),
-              textAlign: TextAlign.end,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                suffixText: "页",
-                suffixStyle: TextStyle(color: Colors.white),
-                contentPadding: const EdgeInsets.only(bottom: 16, right: 2),
-              ),
-              onSubmitted: (value) {
-                final page = int.tryParse(value.trim());
-                if (page != null && page > 0) {
-                  if (pageController.showSearchField) {
-                    pageController.search(page, true);
-                  } else {
-                    item.page = page;
-                    pageController.fetchData(item, goto: true);
-                  }
-                } else {
-                  Utils.toast("请输入大于0的数字");
-                }
-              },
-            ),
-          ),
-        ),
+        buildPage(pageController, item),
       ],
     );
   }
@@ -570,23 +537,28 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           ),
           onRefresh: () async => await onRefresh(pageController, item),
         ),
-        Positioned(
-          right: 8,
-          bottom: 10,
-          child: Container(
-            width: 42,
-            height: 26,
-            color: Theme.of(context).primaryColor.withOpacity(0.8),
+        buildPage(pageController, item),
+      ],
+    );
+  }
+
+  Widget buildPage(DiscoverPageController pageController, ListDataItem item) =>
+      Positioned(
+        right: 0,
+        bottom: 0,
+        child: Container(
+          width: 50, 
+          child: Card(
             child: TextField(
               autofocus: false,
               controller: TextEditingController(text: "${item.page}"),
-              style: TextStyle(color: Colors.white),
               textAlign: TextAlign.end,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 suffixText: "页",
-                suffixStyle: TextStyle(color: Colors.white),
-                contentPadding: const EdgeInsets.only(bottom: 16, right: 2),
+                contentPadding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+                focusedBorder: InputBorder.none,
+                isCollapsed: true,
               ),
               onSubmitted: (value) {
                 final page = int.tryParse(value.trim());
@@ -604,11 +576,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
             ),
           ),
         ),
-      ],
-    );
-  }
+      );
 
-  onRefresh(DiscoverPageController pageController, ListDataItem item) async {
+  Future<void> onRefresh(DiscoverPageController pageController, ListDataItem item) async {
     if (item.isLoading) return;
     if (pageController.showSearchField)
       await pageController.search();
