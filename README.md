@@ -29,13 +29,13 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 # 效果
 
+视频 https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-8faf-d96a7188116a.mp4
+
 <img src="https://user-images.githubusercontent.com/19526331/113877556-66a30300-97eb-11eb-8b01-825d5eb11662.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877580-6c004d80-97eb-11eb-9561-c93be18a15b2.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113876862-ba611c80-97ea-11eb-99db-169f7380514d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113876870-bd5c0d00-97ea-11eb-959e-c5cde58bec7d.jpg" width="200"> 
 
 <img src="https://user-images.githubusercontent.com/19526331/113878095-e0d38780-97eb-11eb-801a-1b3c08a13f7d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877800-a0740980-97eb-11eb-9ffe-ec83276e7f61.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877807-a23dcd00-97eb-11eb-99f5-973431a412b9.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877823-a4a02700-97eb-11eb-8c64-3a8f354a1d76.jpg" width="200"> 
 
-https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-8faf-d96a7188116a.mp4
-
-# 另一些图片
+### 另一些图片
 
 首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制。
 
