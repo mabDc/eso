@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/menu/menu.dart';
@@ -17,6 +18,7 @@ import '../../api/api.dart';
 import '../../fonticons_icons.dart';
 import '../discover_page.dart';
 import 'login_rule_page.dart';
+import 'editor/highlight_code_editor.dart';
 
 class EditRulePage extends StatefulWidget {
   final Rule rule;
@@ -54,15 +56,32 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     }
   }
 
+  GlobalKey<HighLightCodeEditorState> codeKey = GlobalKey();
+  String s = "";
+  bool isNotCollapsed = false;
+  String code = "";
+  FocusNode codeFocusNode;
+
   @override
   void initState() {
     _controller = ScrollController();
+    codeFocusNode = FocusNode()
+      ..addListener(() {
+        currentController = codeKey.currentState?.codeTextController;
+        currentOnChanged = onchangeCode;
+      });
     super.initState();
+  }
+
+  onchangeCode(String s) {
+    code = s;
+    codeKey.currentState?.codeTextController?.text = s;
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    codeFocusNode.dispose();
     super.dispose();
   }
 
@@ -71,6 +90,10 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   final inputList = [
     {
       'encoding': '"encoding":"gbk"',
+      'async': r'''
+(async() => {
+    
+})();''',
       'get-gbk': r'''{
     "url": "/modules/article/search.php?searchkey=$keyword&searchtype=articlename&page=$page",
     "encoding": "gbk"
@@ -106,18 +129,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         "Content-Type": "application/json"
     }
 }''',
-      'post-json-by-js': r'''@js:
-({
-    "url": "/modules/article/search.php",
-    "method": "POST",
-    "body": JSON.stringify({
-        "searchkey": keyword,
-        "searchtype": "articlename"
-    }),
-    "headers":{
-        "Content-Type": "application/json"
-    }
-})''',
       'post-headers': r'''{
     "url": "/modules/article/search.php",
     "method": "POST",
@@ -181,6 +192,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _searchExpanded = rule.enableSearch;
     }
 
+    final w = MediaQuery.of(context).size.width;
     final child = Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -225,18 +237,101 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         direction: Axis.vertical,
         children: <Widget>[
           Expanded(
-              child: DraggableScrollbar.semicircle(
-            controller: _controller,
-            child: ListView(
-              controller: _controller,
-              children: [
-                _buildInfo(context),
-                _buildDiscover(context),
-                _buildSearch(context),
-                _buildChapter(context),
-                _buildContent(context),
-              ],
-            ),
+              child: Stack(
+            children: [
+              DraggableScrollbar.semicircle(
+                controller: _controller,
+                child: ListView(
+                  controller: _controller,
+                  children: [
+                    _buildInfo(context),
+                    _buildDiscover(context),
+                    _buildSearch(context),
+                    _buildChapter(context),
+                    _buildContent(context),
+                  ],
+                ),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: isNotCollapsed ? w - 30 : null,
+                  child: Card(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            code = codeKey.currentState?.code ?? code;
+                            setState(() => isNotCollapsed = !isNotCollapsed);
+                          },
+                          child: Text("JS运行测试" + (isNotCollapsed ? " 点击折叠" : "")),
+                        ),
+                        if (isNotCollapsed)
+                          Container(
+                            height: 160,
+                            child: HighLightCodeEditor(
+                              codeKey,
+                              code,
+                              focusNode: codeFocusNode,
+                            ),
+                          ),
+                        if (isNotCollapsed)
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () async {
+                                  await Clipboard.setData(ClipboardData(
+                                      text: codeKey.currentState?.code ?? code));
+                                  Utils.toast("已复制代码");
+                                },
+                                child: Text("复制代码"),
+                              ),
+                              TextButton(
+                                onPressed: () => codeKey.currentState?.format(),
+                                child: Text("格式化"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  try {
+                                    await JSEngine.setEnvironment(
+                                        1, rule, "", rule.host, "", "");
+                                    final x = await JSEngine.evaluate(
+                                        codeKey.currentState?.code ?? code);
+                                    setState(() {
+                                      s = "$x";
+                                    });
+                                  } catch (e, st) {
+                                    setState(() {
+                                      s = "$e\n$st";
+                                    });
+                                  }
+                                },
+                                child: Text("运行"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await Clipboard.setData(ClipboardData(text: s));
+                                  Utils.toast("已复制结果");
+                                },
+                                child: Text("复制结果"),
+                              ),
+                            ],
+                          ),
+                        if (isNotCollapsed)
+                          Container(
+                            height: 100,
+                            child: SingleChildScrollView(child: SelectableText(s)),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           )),
           Offstage(
             offstage: false, //_isHideFastInput,

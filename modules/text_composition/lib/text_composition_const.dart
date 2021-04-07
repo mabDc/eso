@@ -26,6 +26,7 @@ void paintText(
     color: config.fontColor,
     height: config.fontHeight,
   );
+  final _lineHeight = config.fontSize * config.fontHeight;
   for (var i = 0; i < lineCount; i++) {
     final line = page.lines[i];
     if (line.letterSpacing != null &&
@@ -55,6 +56,12 @@ void paintText(
     final offset = Offset(line.dx, line.dy);
     tp.layout();
     tp.paint(canvas, offset);
+    if (config.underLine) {
+      canvas.drawLine(
+          Offset(line.dx, line.dy + _lineHeight),
+          Offset(line.dx + page.column, line.dy + _lineHeight),
+          Paint()..color = Colors.grey);
+    }
   }
   if (config.showInfo) {
     final styleInfo = TextStyle(
@@ -163,6 +170,12 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
               onChanged: (value) => setState(() => config.oneHand = value),
               title: Text("单手模式"),
               subtitle: Text("点击左侧也是向下翻页"),
+            ),
+            SwitchListTile(
+              value: config.underLine,
+              onChanged: (value) => setState(() => config.underLine = value),
+              title: Text("文字底部横线"),
+              subtitle: Text("增加书籍仿真沉浸感"),
             ),
             SwitchListTile(
               value: config.animationStatus,

@@ -81,6 +81,7 @@ flutter:
     - README.md
     - LICENSE
     - lib/assets/
+    - assets/JsDecoder.js
   fonts:
     - family: fonticons
       fonts:

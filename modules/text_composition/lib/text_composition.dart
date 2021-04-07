@@ -25,6 +25,7 @@ class TextPage {
   int chIndex;
   String info;
   final double height;
+  final double column;
   final List<TextLine> lines;
 
   TextPage({
@@ -32,6 +33,7 @@ class TextPage {
     this.total = 1,
     this.chIndex = 0,
     this.info = '',
+    required this.column,
     required this.number,
     required this.height,
     required this.lines,
@@ -573,6 +575,7 @@ class TextComposition extends ChangeNotifier {
           number: pageIndex++,
           info: chapter,
           chIndex: index,
+          column: _width,
         ));
         lines = <TextLine>[];
         columnNum = 1;
@@ -625,6 +628,7 @@ class TextComposition extends ChangeNotifier {
         number: 1,
         info: chapter,
         chIndex: index,
+        column: _width,
       ));
     }
 

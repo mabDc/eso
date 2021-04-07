@@ -5,33 +5,13 @@ import 'text_composition.dart';
 /// + 这里配置需要离线保存和加载
 /// + 其他配置实时计算
 ///
-/// - [animationTap]
-/// - [animationDrag]
-/// - [animationDragEnd]
-/// - [justifyHeight]
-/// - [showInfo]
-/// - [animation]
-/// - [animationDuration]
-/// - [topPadding]
-/// - [leftPadding]
-/// - [bottomPadding]
-/// - [rightPadding]
-/// - [titlePadding]
-/// - [paragraphPadding]
-/// - [columnPadding]
-/// - [columns]
-/// - [indentation]
-/// - [fontColor]
-/// - [fontSize]
-/// - [fontHeight]
-/// - [fontFamily]
-/// - [background]
 class TextCompositionConfig {
   /// bool
   bool showStatus;
   bool showInfo; // info , index/total percent - right 60px
   bool justifyHeight;
   bool oneHand;
+  bool underLine;
   bool animationStatus;
   bool animationHighImage;
   String animation;
@@ -63,6 +43,7 @@ class TextCompositionConfig {
     this.showInfo = true,
     this.justifyHeight = true,
     this.oneHand = false,
+    this.underLine = true,
     this.animationStatus = true,
     this.animationHighImage = false,
     this.animation = 'curl',
@@ -89,6 +70,7 @@ class TextCompositionConfig {
     bool? showInfo,
     bool? justifyHeight,
     bool? oneHand,
+    bool? underLine,
     bool? animationStatus,
     bool? animationHighImage,
     String? animation,
@@ -125,6 +107,10 @@ class TextCompositionConfig {
     }
     if (oneHand != null && this.oneHand != oneHand) {
       this.oneHand = oneHand;
+      update ??= true;
+    }
+    if (underLine != null && this.underLine != underLine) {
+      this.underLine = underLine;
       update ??= true;
     }
     if (animationStatus != null && this.animationStatus != animationStatus) {
@@ -214,6 +200,7 @@ class TextCompositionConfig {
       showInfo: cast(encoded['showInfo'], true),
       justifyHeight: cast(encoded['justifyHeight'], true),
       oneHand: cast(encoded['oneHand'], false),
+      underLine: cast(encoded['underLine'], true),
       animationStatus: cast(encoded['animationStatus'], true),
       animationHighImage: cast(encoded['animationHighImage'], false),
       animation: cast(encoded['animation'], 'curl'),
@@ -243,6 +230,7 @@ class TextCompositionConfig {
       'showInfo': showInfo,
       'justifyHeight': justifyHeight,
       'oneHand': oneHand,
+      'underLine': underLine,
       'animationStatus': animationStatus,
       'animationHighImage': animationHighImage,
       'animation': animation,
@@ -273,6 +261,7 @@ class TextCompositionConfig {
         other.showInfo == showInfo &&
         other.justifyHeight == justifyHeight &&
         other.oneHand == oneHand &&
+        other.underLine == underLine &&
         other.animationStatus == animationStatus &&
         other.animationHighImage == animationHighImage &&
         other.animation == animation &&
