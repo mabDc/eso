@@ -4,11 +4,11 @@
 
 支持多来源的自定义阅读器与播放器。
 
-用 flutter 开发，全平台支持，支持 windows，安卓，ios，macos，linux，tv，6 个平台。
+用flutter开发，全平台支持，支持windows，安卓，ios，macos，linux，tv，6个平台。
 
-ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
+ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
-欢迎意见或建议，喜欢不妨点个 star。
+欢迎意见或建议，喜欢不妨点个star。
 
 ### 亦搜
 
@@ -26,21 +26,44 @@ ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
 
 更多功能由君发挥，待君开发。
 
+
+# 效果
+
+<img src="https://user-images.githubusercontent.com/19526331/113877556-66a30300-97eb-11eb-8b01-825d5eb11662.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877580-6c004d80-97eb-11eb-9561-c93be18a15b2.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113876862-ba611c80-97ea-11eb-99db-169f7380514d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113876870-bd5c0d00-97ea-11eb-959e-c5cde58bec7d.jpg" width="200"> 
+
+<img src="https://user-images.githubusercontent.com/19526331/113878095-e0d38780-97eb-11eb-801a-1b3c08a13f7d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877800-a0740980-97eb-11eb-9ffe-ec83276e7f61.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877807-a23dcd00-97eb-11eb-99f5-973431a412b9.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877823-a4a02700-97eb-11eb-8c64-3a8f354a1d76.jpg" width="200"> 
+
+https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-8faf-d96a7188116a.mp4
+
+# 另一些图片
+
+首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制。
+
+<img src="img/shipin1.jpg" width="200"> <img src="img/shipin3.jpg" width="200"> <img src="img/shipin2.jpg" width="200"> <img src="img/shipin4.jpg" width="200">
+
+还有图片、壁纸、阅读等功能：
+
+<img src="img/xinmanhua1.jpg" width="200"> <img src="img/xinmanhua3.jpg" width="200"> <img src="img/xinmanhua2.jpg" width="200">
+
+<img src="img/bizhi1.jpg" width="200"> <img src="img/beiyou1.jpg" width="200"> <img src="img/zhihuribao1.jpg" width="200"> <img src="img/zhihuribao2.jpg" width="200">
+
+---
+
 # 功能列表
 
 - 平台
   - [x] 安卓
   - [x] tv（大白版，感谢大白）
   - [x] ios（需要自签）
-  - [x] windows（~~需安装 vc++运行库~~ 内置 3 个 dll，不需要额外安装）
-  - [x] Linux（需 libsqlite3-dev）
+  - [x] windows（~~需安装vc++运行库~~ 内置3个dll，不需要额外安装）
+  - [x] Linux（需libsqlite3-dev）
   - [x] Macos
 - 其他
   - [x] 首次进入显示版本信息
   - [x] 备份和恢复
   - [x] 自动备份
-  - [x] webdav 备份与恢复
-  - [x] webdav 规则分享与获取
+  - [x] webdav备份与恢复
+  - [x] webdav规则分享与获取
   - [x] 界面自定义，多项设置可调整
   - [x] 主题颜色（自定义）
   - [x] 夜间模式（自动、手动）
@@ -71,13 +94,9 @@ ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
   - [ ] 直播优化
   - [x] 后台播放
   - [x] 按画面比例缩放(自动，充满，16：9，4：3，9：16)
+  - [x] 倍速播放
 - 文字浏览
-  - [x] 仿真翻页（苹果样式）
-  - [x] 仿真翻页（安卓样式）
-  - [x] 覆盖翻页
-  - [x] 多栏排版
   - [x] 图文混排
-  - [x] 宽屏多栏
   - [x] 自定义边距、行距、段距、缩进调整
   - [x] 亮度调整
   - [x] 屏幕常亮开关
@@ -85,7 +104,7 @@ ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
   - [x] 使用缓存加速正文加载
   - [x] 章节快速拖拽
   - [x] 字体设置
-  - [x] 字体颜色、背景颜色、背景图片（jpg、png 透明图片、gif 动图）
+  - [x] 字体颜色、背景颜色、背景图片（jpg、png透明图片、gif动图）
   - [x] 键盘控制
     - 上一页：方向键左、上、上一页`pageup`
     - 下一页：方向键右、下、下一页`pagedown`
@@ -93,6 +112,8 @@ ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
     - 上一章：方括号右`]`、小键盘加号`+`、删除键`delete`或`del`
     - 菜单：回车`enter`
   - [x] tts
+  - [x] 翻页动画：翻转、覆盖、仿真
+  - [x] 所有边距可设置
   - [ ] 音量翻页
 - 图片查看
   - [x] 方向可选上到下、左到右、右到左
@@ -144,15 +165,13 @@ ps: 所有内容来自互联网，app 本身只是工具，不提供内容。
       "|"
       "^", // 首规则用如下符号开头 $(jsonpath), /(xpath), :(正则)
   ```
-
 # 编译指南
 
-不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换 yaml，macos 和 linux 编译需要 dev 分支，windows 需要 master 分支。
+不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml，macos和linux编译需要dev分支，windows需要master分支。
 
 源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
 
-- 打包 Android
-
+- 打包Android
 ```bash
 flutter build apk
 flutter build apk --target-platform android-arm
@@ -163,15 +182,13 @@ flutter build apk --split-per-abi
 flutter build apk --target-platform android-arm64 --split-per-abi
 ```
 
-- 打包 ios
-
+- 打包ios
 ```bash
 flutter build ios --release
 # 再到xcode下进行打包
 ```
 
 - 启用桌面应用开关
-
 ```bash
 flutter config --enable-linux-desktop # to enable Linux.
 flutter config --enablesh-macos-desktop # to enable macOS.
@@ -200,42 +217,16 @@ flutter build macos -v
 
 大白[yangyxd](https://github.com/yangyxd)(界面)
 
-大古[DaguDuiyuan](https://github.com/DaguDuiyuan)(ios 和 macos 平台)
+大古[DaguDuiyuan](https://github.com/DaguDuiyuan)(ios和macos平台)
 
-大吉[ekibun](https://github.com/ekibun)(windows 平台 c++代码)
+大吉[ekibun](https://github.com/ekibun)(windows平台c++代码)
 
 人艰不拆(LOGO、详情页设计)
 
-以及 flutter 众多开源项目和插件。
+以及flutter众多开源项目和插件。
 
 # LICENSE
 
-仓库开源使用 GPL_v3 协议 [GPL_v3](LICENSE)
+使用GPL_v3协议 [GPL_v3](LICENSE)
 
-# 一些图片
 
-首先是视频，支持 DLNA 投屏，有音量、亮度、进度调节的手势控制。
-
-![视频](img/shipin1.jpg)
-
-![视频](img/shipin3.jpg)
-
-![视频](img/shipin2.jpg)
-
-![视频](img/shipin4.jpg)
-
-还有图片、壁纸、阅读等功能：
-
-![新漫画](img/xinmanhua1.jpg)
-
-![新漫画](img/xinmanhua3.jpg)
-
-![新漫画](img/xinmanhua2.jpg)
-
-![壁纸](img/bizhi1.jpg)
-
-![北邮](img/beiyou1.jpg)
-
-![知乎日报](img/zhihuribao1.jpg)
-
-![知乎日报](img/zhihuribao2.jpg)
