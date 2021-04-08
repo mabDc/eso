@@ -11,6 +11,8 @@ class APIFromRUle implements API {
   int _ruleContentType;
   int _engineId;
 
+  static clearNextUrl() {}
+
   @override
   String get origin => _origin;
 

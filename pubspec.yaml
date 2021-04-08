@@ -1,6 +1,6 @@
 name: eso
 description: 亦搜，亦看，亦闻
-
+publish_to: none
 version: 1.20.14+12014
 
 environment:
@@ -21,10 +21,7 @@ dependencies:
     path: modules/webview_flutter
   xpath_parse:
     path: modules/xpath
-  file_chooser:
-    git:
-      url: https://github.com/google/flutter-desktop-embedding
-      path: plugins/file_chooser
+  file_chooser: ^0.1.6
   about: ^1.2.0
   archive: ^2.0.13
   battery: ^1.0.7
@@ -45,7 +42,7 @@ dependencies:
   html: ^0.14.0+4
   http: ^0.12.2
   image_gallery_saver: ^1.6.1
-  intl: ^0.16.1
+  intl: ^0.17.0
   json_path: ^0.2.0
   matrix_gesture_detector: ^0.1.0
   oktoast: ^2.3.2

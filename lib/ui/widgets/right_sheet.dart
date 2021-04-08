@@ -17,7 +17,7 @@ Future<T> showModalRightSheet<T>({
       _ModalRightSheetRoute<T>(
         builder: builder,
         clickEmptyPop: clickEmptyPop,
-        theme: Theme.of(context, shadowThemeOnly: true),
+        theme: Theme.of(context),
         barrierLabel:
             MaterialLocalizations.of(context).modalBarrierDismissLabel,
       ));

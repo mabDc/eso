@@ -140,4 +140,8 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
 
   @override
   List<String> get timerPickerSecondLabels => throw UnimplementedError();
+
+  @override
+  // TODO: implement searchTextFieldPlaceholderLabel
+  String get searchTextFieldPlaceholderLabel => throw UnimplementedError();
 }
