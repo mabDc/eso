@@ -6,7 +6,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 
 import '../global.dart';
 import '../utils.dart';
@@ -92,7 +92,8 @@ class NovelCacheService {
           hashCodeKey: false, shouldEncode: false);
       final filePath = await cache.cacheDir() + name;
       Utils.toast("成功导出到 $filePath");
-      if (isShare) await FlutterShare.shareFile(title: name, filePath: filePath);
+      // if (isShare) await FlutterShare.shareFile(title: name, filePath: filePath);
+      if (isShare) await Share.shareFiles(<String>[filePath], text: name);
     } catch (e) {
       Utils.toast("失败 $e");
     }
@@ -114,7 +115,7 @@ class NovelCacheService {
         .map((d) => Utils.getFileName(d.path))
         .toSet();
     notifyListeners();
-    await _fileCache.requestPermission();
+    await CacheUtil.requestPermission();
     for (var index = 0; index < chapters.length; index++) {
       if (!_startTable.containsKey(id)) return;
       if (_startTable[id].contains(index.toString())) continue;

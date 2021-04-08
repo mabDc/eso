@@ -255,7 +255,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   /// 保存图像
   saveImage(CachedNetworkImageProvider provider) async {
     // 检查并请求权限
-    if (await CacheUtil().requestPermission() != true) {
+    if (await CacheUtil.requestPermission() != true) {
       Utils.toast("授权失败");
       return;
     }

@@ -4,10 +4,12 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/profile.dart';
-import 'package:file_chooser/file_chooser.dart';
+import 'package:eso/utils/cache_util.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -94,7 +96,7 @@ class VideoPageDesktop extends StatelessWidget {
                               subtitle: Text(Utils.empty(profile.desktopPlayer)
                                   ? "未选择播放器"
                                   : profile.desktopPlayer),
-                              onTap: provider.setPlayer,
+                              onTap: () => provider.setPlayer(context),
                             ),
                           ),
                           Container(
@@ -246,25 +248,37 @@ class VPDProvider extends ChangeNotifier {
     launch(controllerWeb.text.replaceFirst("=%s", "=" + _url));
   }
 
-  void setPlayer() async {
-    final f = await showOpenPanel(
-      confirmButtonText: '选择本地播放器',
-      allowedFileTypes: <FileTypeFilterGroup>[
-        FileTypeFilterGroup(
-          label: '可执行文件',
-          fileExtensions: <String>['exe'],
-        ),
-        FileTypeFilterGroup(
-          label: '其他',
-          fileExtensions: <String>[],
-        ),
-      ],
+  void setPlayer(BuildContext context) async {
+    // final f = await showOpenPanel(
+    //   confirmButtonText: '选择本地播放器',
+    //   allowedFileTypes: <FileTypeFilterGroup>[
+    //     FileTypeFilterGroup(
+    //       label: '可执行文件',
+    //       fileExtensions: <String>['exe'],
+    //     ),
+    //     FileTypeFilterGroup(
+    //       label: '其他',
+    //       fileExtensions: <String>[],
+    //     ),
+    //   ],
+    // );
+    // if (f.canceled) {
+    //   Utils.toast('未选取字体文件');
+    //   return;
+    // }
+    // profile.desktopPlayer = f.paths.first;
+    profile.desktopPlayer = await FilesystemPicker.open(
+      title: '选择本地播放器',
+      rootName: profile.desktopPlayer ?? 'C:\\',
+      context: context,
+      rootDirectory: Directory(Utils.dirname(profile.desktopPlayer ?? "C:\\")),
+      fsType: FilesystemType.file,
+      folderIconColor: Colors.teal,
+      allowedExtensions: ['.exe'],
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+      requestPermission: CacheUtil.requestPermission,
     );
-    if (f.canceled) {
-      Utils.toast('未选取字体文件');
-      return;
-    }
-    profile.desktopPlayer = f.paths.first;
+    if (profile.desktopPlayer == null) Utils.toast('未选取文件');
   }
 
   final controller = TextEditingController(text: "解析日志\n");

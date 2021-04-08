@@ -7,7 +7,7 @@ import 'package:eso/page/search_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
@@ -162,7 +162,7 @@ class ChapterPageProvider with ChangeNotifier {
       case MenuChapter.clear_cache:
         final _fileCache =
             CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
-        await _fileCache.requestPermission();
+        await CacheUtil.requestPermission();
         await _fileCache.clear();
         Utils.toast("清理成功");
         break;
@@ -210,11 +210,12 @@ class ChapterPageProvider with ChangeNotifier {
         }
         break;
       case MenuChapter.share:
-        await FlutterShare.share(
-          title: '亦搜 eso',
-          text: '${searchItem.name}\n${searchItem.description}\n${searchItem.chapterUrl}',
-          chooserTitle: '选择分享的应用',
-        );
+        // await FlutterShare.share(
+        //   title: '亦搜 eso',
+        //   text: '${searchItem.name}\n${searchItem.description}\n${searchItem.chapterUrl}',
+        //   chooserTitle: '选择分享的应用',
+        // );
+        Share.share('${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description}\n${searchItem.chapterUrl}');
         break;
       default:
     }

@@ -12,7 +12,7 @@ import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
@@ -91,13 +91,15 @@ class NovelMenu extends StatelessWidget {
             IconButton(
               icon: Icon(FIcons.share_2),
               onPressed: () async {
-                await FlutterShare.share(
-                  title: '亦搜 eso',
-                  text:
-                      '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
-                  //linkUrl: '${searchItem.url}',
-                  chooserTitle: '选择分享的应用',
-                );
+                Share.share(
+                    "${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.chapterUrl}");
+                // await FlutterShare.share(
+                //   title: '亦搜 eso',
+                //   text:
+                //       '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+                //   //linkUrl: '${searchItem.url}',
+                //   chooserTitle: '选择分享的应用',
+                // );
               },
             ),
             _buildPopupMenu(context, bgColor, color),
@@ -229,7 +231,7 @@ class NovelMenu extends StatelessWidget {
                 searchItem.durChapterIndex;
             final _fileCache =
                 CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
-            await _fileCache.requestPermission();
+            await CacheUtil.requestPermission();
             await File(await _fileCache.cacheDir() + '$cIndex.txt').delete();
             Utils.toast("已删除当前章节缓存");
             // 加载当前章节
@@ -238,7 +240,7 @@ class NovelMenu extends StatelessWidget {
           case CLEARCACHE:
             final _fileCache =
                 CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
-            await _fileCache.requestPermission();
+            await CacheUtil.requestPermission();
             await _fileCache.clear();
             Utils.toast("清理成功");
             break;

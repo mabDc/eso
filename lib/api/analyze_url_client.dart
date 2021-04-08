@@ -12,8 +12,8 @@ Client get nosslClient {
   return IOClient(ioClient);
 }
 
-Future<Response> get(dynamic url, {Map<String, String> headers}) {
-  return nosslClient.get(url, headers: headers);
+Future<Response> get(String url, {Map<String, String> headers}) {
+  return nosslClient.get(Uri.parse(url), headers: headers);
 }
 
 Future<Response> put(dynamic url, {Map<String, String> headers, dynamic body}) {
@@ -36,7 +36,7 @@ Future<Response> post(dynamic url,
     } else if (location.startsWith("/")) {
       location = "${response.request.url.scheme}://${response.request.url.host}$location";
     }
-    return nosslClient.get(location, headers: headers);
+    return nosslClient.get(Uri.parse(location), headers: headers);
   }
   return response;
 }

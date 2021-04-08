@@ -546,9 +546,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       Positioned(
         right: 0,
         bottom: 0,
-        child: Container(
-          width: 50, 
-          child: Card(
+        child: Card(
+          child: IntrinsicWidth(
             child: TextField(
               autofocus: false,
               controller: TextEditingController(text: "${item.page}"),
@@ -556,7 +555,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 suffixText: "页",
-                contentPadding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+                contentPadding: EdgeInsets.all(6),
                 focusedBorder: InputBorder.none,
                 isCollapsed: true,
               ),

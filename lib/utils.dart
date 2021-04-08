@@ -74,6 +74,10 @@ class Utils {
     return path.basenameWithoutExtension(file);
   }
 
+  static String dirname(final String file){
+    return path.dirname(file);
+  }
+
   /// 提取文件名（包扩展名）
   static String getFileNameAndExt(final String file) {
     return path.basename(file);

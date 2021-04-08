@@ -6,10 +6,7 @@ import 'package:json_path/json_path.dart';
 
 class AnalyzerJSonPath implements Analyzer {
   final _jsonRulePattern = RegExp(r"\{(\$\.[^\}]+)\}");
-  // json object
   dynamic _ctx;
-  // [?(@.price)]
-  final filterAttrPattern = RegExp(r"\[\?\(@\.(\w+)\)\]");
 
   @override
   AnalyzerJSonPath parse(content) {
@@ -27,17 +24,7 @@ class AnalyzerJSonPath implements Analyzer {
 
   @override
   dynamic getElements(String rule) {
-    final m = filterAttrPattern.firstMatch(rule);
-    var list = [];
-    if (m != null) {
-      // 允许一次
-      final attr = m[1];
-      list = JsonPath(rule.replaceFirst(m.group(0), "[?$attr]"), filter: {
-        attr: (e) => e is Map && e[attr] != null,
-      }).read(_ctx).map((e) => e.value).toList();
-    } else {
-      list = JsonPath(rule).read(_ctx).map((e) => e.value).toList();
-    }
+    final list = JsonPath(rule).readValues(_ctx).toList();
     if (list == null || list.isEmpty) return <String>[];
     if (list.length == 1) {
       return list[0];
@@ -54,17 +41,7 @@ class AnalyzerJSonPath implements Analyzer {
         onNonMatch: (nonMatch) => nonMatch,
       );
     }
-    // return JPath.compile(rule).search(_ctx);
-
-    final m = filterAttrPattern.firstMatch(rule);
-    if (m != null) {
-      // 允许一次
-      final attr = m[1];
-      return JsonPath(rule.replaceFirst(m.group(0), "[?$attr]"), filter: {
-        attr: (e) => e is Map && e[attr] != null,
-      }).read(_ctx).map((e) => e.value).join("  ");
-    }
-    return JsonPath(rule).read(_ctx).map((e) => e.value).join("  ");
+    return JsonPath(rule).readValues(_ctx).join("  ");
   }
 
   @override

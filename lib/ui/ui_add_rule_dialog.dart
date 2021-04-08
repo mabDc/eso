@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
+import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/rule_comparess.dart';
-import 'package:file_chooser/file_chooser.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -43,7 +44,7 @@ class UIAddRuleDialog extends StatelessWidget {
                       // ),
                       OutlinedButton(
                         child: Text(provider.fileName),
-                        onPressed: provider.selectFile,
+                        onPressed: () => provider.selectFile(context),
                       ),
                       Text(
                         '${provider.currentFileIndex}/${provider.totalFileIndex}',
@@ -197,41 +198,57 @@ class AddRuleProvider extends ChangeNotifier {
     }
   }
 
-  void selectFile() async {
-    String fileContent;
-    if (Global.isDesktop) {
-      final f = await showOpenPanel(
-        confirmButtonText: '选择规则文件',
-        allowedFileTypes: <FileTypeFilterGroup>[
-          FileTypeFilterGroup(
-            label: 'json或txt文本',
-            fileExtensions: <String>['json', 'txt', 'bin'],
-          ),
-          FileTypeFilterGroup(
-            label: '其他',
-            fileExtensions: <String>[],
-          ),
-        ],
-      );
-      if (f.canceled) {
-        Utils.toast('未选取文件');
-        return;
-      }
-      final rules = f.paths.first;
-      _fileName = Utils.getFileNameAndExt(rules);
-      fileContent = File(rules).readAsStringSync();
-    } else {
-      FilePickerResult rulesPick =
-          await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
-      if (rulesPick == null) {
-        Utils.toast('未选取文件');
-        return;
-      }
-      final rules = rulesPick.files.single;
-      _fileName = Utils.getFileNameAndExt(rules.path);
-      fileContent = utf8.decode(rules.bytes);
+  void selectFile(BuildContext context) async {
+    // String fileContent;
+    // if (Global.isDesktop) {
+    //   final f = await showOpenPanel(
+    //     confirmButtonText: '选择规则文件',
+    //     allowedFileTypes: <FileTypeFilterGroup>[
+    //       FileTypeFilterGroup(
+    //         label: 'json或txt文本',
+    //         fileExtensions: <String>['json', 'txt', 'bin'],
+    //       ),
+    //       FileTypeFilterGroup(
+    //         label: '其他',
+    //         fileExtensions: <String>[],
+    //       ),
+    //     ],
+    //   );
+    //   if (f.canceled) {
+    //     Utils.toast('未选取文件');
+    //     return;
+    //   }
+    //   final rules = f.paths.first;
+    //   _fileName = Utils.getFileNameAndExt(rules);
+    //   fileContent = File(rules).readAsStringSync();
+    // } else {
+    //   FilePickerResult rulesPick =
+    //       await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
+    //   if (rulesPick == null) {
+    //     Utils.toast('未选取文件');
+    //     return;
+    //   }
+    //   final rules = rulesPick.files.single;
+    //   _fileName = Utils.getFileNameAndExt(rules.path);
+    //   fileContent = utf8.decode(rules.bytes);
+    // }
+    final d = await CacheUtil.getCacheBasePath(true);
+    String f = await FilesystemPicker.open(
+      title: '选择规则文件',
+      rootName: d,
+      context: context,
+      rootDirectory: Directory(d),
+      fsType: FilesystemType.file,
+      folderIconColor: Colors.teal,
+      allowedExtensions: ['.json', '.txt', '.bin', ''],
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+      requestPermission: CacheUtil.requestPermission,
+    );
+    if (f == null) {
+      Utils.toast('未选取文件');
+      return;
     }
-    fileContent = fileContent.trim();
+    var fileContent = File(f).readAsStringSync().trim();
     if (fileContent.startsWith(esoStart)) {
       fileContent = RuleCompress.decompassString(fileContent);
     }
@@ -292,7 +309,12 @@ class AddRuleProvider extends ChangeNotifier {
         insertOrUpdateRule('', _fileContent);
       } else if (importType == ImportType.http) {
         () async {
-          final res = await http.get("${ruleController.text.trim()}", headers: {
+          final uri = Uri.tryParse("${ruleController.text.trim()}");
+          if (uri == null) {
+            Utils.toast("地址格式不对");
+            return;
+          }
+          final res = await http.get(uri, headers: {
             'User-Agent':
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
           });

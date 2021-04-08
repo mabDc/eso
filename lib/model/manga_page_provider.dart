@@ -7,7 +7,7 @@ import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/profile.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:screen/screen.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -207,13 +207,15 @@ class MangaPageProvider with ChangeNotifier {
   }
 
   void share() async {
-    await FlutterShare.share(
-      title: '亦搜 eso',
-      text:
-          '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
-      //linkUrl: '${searchItem.url}',
-      chooserTitle: '选择分享的应用',
-    );
+    // await FlutterShare.share(
+    //   title: '亦搜 eso',
+    //   text:
+    //       '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+    //   //linkUrl: '${searchItem.url}',
+    //   chooserTitle: '选择分享的应用',
+    // );
+    Share.share(
+        '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.chapterUrl}');
   }
 
   bool _hideLoading = false;

@@ -7,7 +7,7 @@ import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../lyric/lyric.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 
 class AudioPageController with ChangeNotifier {
   AudioService _audioService;
@@ -55,12 +55,13 @@ class AudioPageController with ChangeNotifier {
   }
 
   void share() async {
-    await FlutterShare.share(
-      title: '亦搜 eso',
-      text: '${_audioService.durChapter}\n${_audioService.url}',
-      //linkUrl: '${content?.first ?? ''}',
-      chooserTitle: '选择分享的应用',
-    );
+    Share.share("${_audioService.durChapter}\n${_audioService.url}");
+    // await FlutterShare.share(
+    //   title: '亦搜 eso',
+    //   text: '${_audioService.durChapter}\n${_audioService.url}',
+    //   //linkUrl: '${content?.first ?? ''}',
+    //   chooserTitle: '选择分享的应用',
+    // );
   }
 
   /// all -> all secends

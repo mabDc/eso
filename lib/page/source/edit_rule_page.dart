@@ -12,7 +12,7 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../api/api.dart';
 import '../../fonticons_icons.dart';
@@ -202,12 +202,13 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             icon: Icon(FIcons.share_2),
             tooltip: "分享",
             onPressed: () {
-              FlutterShare.share(
-                title: '亦搜 eso',
-                text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
-                //linkUrl: '${searchItem.url}',
-                chooserTitle: '选择分享的应用',
-              );
+              Share.share(RuleCompress.compass(rule));
+              // FlutterShare.share(
+              //   title: '亦搜 eso',
+              //   text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
+              //   //linkUrl: '${searchItem.url}',
+              //   chooserTitle: '选择分享的应用',
+              // );
             },
           ),
           IconButton(
@@ -866,12 +867,13 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
             Utils.toast("已保存到剪贴板");
             break;
           case MenuEditRule.share_origin:
-            FlutterShare.share(
-              title: '亦搜 eso',
-              text: jsonEncode(rule.toJson()),
-              //linkUrl: '${searchItem.url}',
-              chooserTitle: '选择分享的应用',
-            );
+            Share.share(jsonEncode(rule.toJson()));
+            // FlutterShare.share(
+            //   title: '亦搜 eso',
+            //   text: jsonEncode(rule.toJson()),
+            //   //linkUrl: '${searchItem.url}',
+            //   chooserTitle: '选择分享的应用',
+            // );
             break;
           case MenuEditRule.preview:
             // Navigator.of(context).push(

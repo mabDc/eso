@@ -254,6 +254,7 @@ class _ChapterPageState extends State<ChapterPage> {
         fontSize: 12,
         paragraphPadding: 8,
         fontFamily: Profile.staticFontFamily,
+        fontColor: Theme.of(context).textTheme.headline6.color,
       ),
       width: w > 600 ? w / 2 : w,
     );

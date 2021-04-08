@@ -18,7 +18,7 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import '../fonticons_icons.dart';
@@ -309,12 +309,13 @@ class _DiscoverPageState extends State<DiscoverPage> {
               Utils.toast("已复制 ${rule.name}");
               break;
             case MenuDiscoverSource.share:
-              FlutterShare.share(
-                title: '亦搜 eso',
-                text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
-                //linkUrl: '${searchItem.url}',
-                chooserTitle: '选择分享的应用',
-              );
+              Share.share(RuleCompress.compass(rule));
+              // FlutterShare.share(
+              //   title: '亦搜 eso',
+              //   text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
+              //   //linkUrl: '${searchItem.url}',
+              //   chooserTitle: '选择分享的应用',
+              // );
               break;
             case MenuDiscoverSource.top:
               provider.handleSelect([rule], MenuEditSource.top);

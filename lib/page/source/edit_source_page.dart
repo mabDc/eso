@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../fonticons_icons.dart';
 import '../../global.dart';
@@ -32,7 +31,6 @@ class EditSourcePage extends StatefulWidget {
 }
 
 class _EditSourcePageState extends State<EditSourcePage> {
-  final SlidableController slidableController = SlidableController();
   TextEditingController _searchEdit = TextEditingController();
   String group;
   @override

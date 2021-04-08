@@ -186,8 +186,8 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
             // SwitchListTile(
             //   value: config.animationHighImage,
             //   onChanged: (value) => setState(() => config.animationHighImage = value),
-            //   title: Text("[仿真苹果]使用高清截图"),
-            //   subtitle: Text("打开后动画更好 关闭会更流畅"),
+            //   title: Text("[仿真苹果] 高清模式"),
+            //   subtitle: Text("打开后不使用截图 关闭会更流畅"),
             // ),
             ListTile(
               subtitle: Text('选择动画 双栏时可以尝试翻转'),

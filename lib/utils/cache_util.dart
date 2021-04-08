@@ -27,7 +27,7 @@ class CacheUtil {
   String _cacheDir;
 
   /// 请求权限
-  Future<bool> requestPermission() async {
+  static Future<bool> requestPermission() async {
     // 检查并请求权限
     if (Global.isDesktop) return true;
     if (await Permission.storage.status != PermissionStatus.granted) {

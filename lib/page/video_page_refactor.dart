@@ -16,7 +16,6 @@ import 'package:screen/screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
-import '../api/api_manager.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
 import '../global.dart';

@@ -9,10 +9,9 @@ import 'package:eso/model/history_manager.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
-import 'package:file_chooser/file_chooser.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webdav/webdav.dart';
 import 'package:intl/intl.dart' as intl;
@@ -102,7 +101,7 @@ class AutoBackupPage extends StatelessWidget {
                     subtitle: Text('选择文件恢复'),
                   ),
                   onTapUp: (TapUpDetails details) =>
-                      restoreLocal(context, details.globalPosition, false),
+                      restoreLocal(context, false, '选择文件恢复'),
                 ),
                 GestureDetector(
                   child: ListTile(
@@ -110,7 +109,7 @@ class AutoBackupPage extends StatelessWidget {
                     subtitle: Text('选择文件恢复'),
                   ),
                   onTapUp: (TapUpDetails details) =>
-                      restoreLocal(context, details.globalPosition, true),
+                      restoreLocal(context, true, '选择文件恢复规则'),
                 ),
               ],
             ),
@@ -288,12 +287,9 @@ class AutoBackupPage extends StatelessWidget {
       final bytes = ZipEncoder().encode(archive);
 
       try {
-        Client client = Client(myWebdavServer, myWebdavAccount, myWebdavPassword, "");
-        final ds = (await client.ls()).map((e) => e.name).toList();
-        if (!ds.contains("ESO")) {
-          await client.mkdir("ESO");
-        }
-        await client.upload(bytes, "ESO/$fileName");
+        Client client =
+            Client(myWebdavServer, myWebdavAccount, myWebdavPassword, path: "ESO");
+        await client.upload(bytes, "$fileName");
         profile.autoRuleUploadLastDay = today;
         Utils.toast("上传分享规则（共${rules.length}条）至webdav成功");
       } catch (e, st) {
@@ -312,8 +308,10 @@ class AutoBackupPage extends StatelessWidget {
       return;
     }
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final dir = join(await CacheUtil(backup: true).cacheDir(), "$today.zip");
-    FlutterShare.shareFile(title: "$today.zip", filePath: dir, text: "$today.zip");
+    final dir = join(await CacheUtil(backup: true).cacheDir(),
+        "$today.${Platform.operatingSystem}.zip");
+    // FlutterShare.shareFile(title: "$today.zip", filePath: dir, text: "$today.zip");
+    Share.shareFiles(<String>[dir], text: "$today.zip");
   }
 
   /// type: 0->s, 1->getString, 2-> getStringList
@@ -359,12 +357,10 @@ class AutoBackupPage extends StatelessWidget {
       if (profile.enableWebdav) {
         try {
           Client client = Client(
-              profile.webdavServer, profile.webdavAccount, profile.webdavPassword, "");
-          final ds = (await client.ls()).map((e) => e.name).toList();
-          if (!ds.contains("ESO")) {
-            await client.mkdir("ESO");
-          }
-          client.upload(bytes, "ESO/$fileName");
+              profile.webdavServer, profile.webdavAccount, profile.webdavPassword,
+              path: "ESO");
+          await client.mkdir("");
+          await client.upload(bytes, "$fileName");
           Utils.toast("备份至webdav成功");
         } catch (e, st) {
           print("备份至webdav错误 e:$e, st: $st");
@@ -416,47 +412,29 @@ class AutoBackupPage extends StatelessWidget {
     });
   }
 
-  void restoreLocal(BuildContext context, Offset pos, bool isOnlyRule,
-      [String dir]) async {
-    if (dir == null) {
-      dir = await CacheUtil(backup: true).cacheDir();
-    }
-    final d = Directory(dir);
-    if (!d.existsSync()) {
-      d.createSync(recursive: true);
-    }
-    final fs = <String>["选择文件夹 $dir"]..addAll(d.listSync().map((e) => basename(e.path)));
-    showMenu(
+  void restoreLocal(BuildContext context, bool isOnlyRule, String title) async {
+    final dir = await CacheUtil(backup: true).cacheDir();
+    String path = await FilesystemPicker.open(
+      title: title,
       context: context,
-      position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx + 100, 0),
-      items: fs
-          .map((f) => PopupMenuItem<String>(
-                value: f,
-                child: Text(f),
-              ))
-          .toList(),
-    ).then((value) async {
-      if (value == null) return;
-      if (value.startsWith("选择文件夹")) {
-        String path;
-        if (Global.isDesktop) {
-          final r = await showOpenPanel(canSelectDirectories: true);
-          if (!r.canceled) {
-            path = r.paths.first;
-          }
-        } else {
-          final r = await FilePicker.platform.getDirectoryPath();
-          path = r;
-        }
-        if (path == null) {
-          Utils.toast("未选择文件夹");
-        } else {
-          restoreLocal(context, pos, isOnlyRule, path);
-        }
-      } else {
-        restore(File(join(dir, value)).readAsBytesSync(), isOnlyRule);
-      }
-    });
+      rootDirectory: Directory(dir),
+      rootName: dir,
+      fsType: FilesystemType.file,
+      folderIconColor: Colors.teal,
+      allowedExtensions: ['.zip', '.txt', '.json'],
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+      requestPermission: CacheUtil.requestPermission,
+    );
+    if (path == null) {
+      Utils.toast("未选择文件");
+    } else if (path.endsWith(".txt") || path.endsWith(".json")) {
+      final rules = jsonDecode(File(path).readAsStringSync());
+      final ruleList = rules is List ? rules : [rules];
+      Rule.restore(ruleList, false);
+      Utils.toast("规则导入${rules.length}条");
+    } else {
+      restore(File(path).readAsBytesSync(), false);
+    }
   }
 
   String decodeShareRuleName(String name) {
@@ -466,33 +444,25 @@ class AutoBackupPage extends StatelessWidget {
 
   void restoreShareRule(BuildContext context, Offset pos, bool download) async {
     try {
-      Client client = Client(myWebdavServer, myWebdavAccount, myWebdavPassword, "");
-      final ds = (await client.ls()).map((e) => e.name).toList();
-      if (!ds.contains("ESO")) {
-        await client.mkdir("ESO");
+      var client = Client(myWebdavServer, myWebdavAccount, myWebdavPassword, path: "ESO");
+      final files = await client.ls();
+      final fs = <String>[];
+      for (var file in files) {
+        final name = Utils.getFileNameAndExt(file.path);
+        if (name.startsWith("share.") && name.indexOf(".rule..") == -1) fs.add(name);
       }
-      final fs = (await client.ls(path: "ESO"))
-          .where((e) => e.name.startsWith("share."))
-          .map((n) => n.name)
-          .toList();
       showMenu(
         context: context,
         position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx + 100, 0),
-        items: fs
-            .map((f) {
-              final d = decodeShareRuleName(f);
-              if (d.startsWith(".")) return null;
-              return PopupMenuItem<String>(
-                value: f,
-                child: Text(d),
-              );
-            })
-            .where((e) => e != null)
-            .toList(),
+        items: fs.map((f) {
+          return PopupMenuItem<String>(
+            value: f,
+            child: Text(decodeShareRuleName(f)),
+          );
+        }).toList(),
       ).then((value) async {
         if (value == null) return;
-        final req =
-            await client.httpClient.getUrl(Uri.parse(client.getUrl("ESO/$value")));
+        final req = await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
         final res = await req.close();
         final r = await res.toList();
         final bytes =
@@ -517,16 +487,11 @@ class AutoBackupPage extends StatelessWidget {
   void restoreFromWebDav(BuildContext context, Offset pos, bool isOnlyRule) async {
     final profile = Profile();
     try {
-      Client client =
-          Client(profile.webdavServer, profile.webdavAccount, profile.webdavPassword, "");
-      final ds = (await client.ls()).map((e) => e.name).toList();
-      if (!ds.contains("ESO")) {
-        await client.mkdir("ESO");
-      }
-      final fs = (await client.ls(path: "ESO"))
-          .map((e) => e.name)
-          .where((n) => n != "ESO")
-          .toList();
+      Client client = Client(
+          profile.webdavServer, profile.webdavAccount, profile.webdavPassword,
+          path: "ESO");
+
+      final fs = (await client.ls()).map((e) => Utils.getFileNameAndExt(e.path)).toList();
       showMenu(
         context: context,
         position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx + 100, 0),
@@ -538,8 +503,7 @@ class AutoBackupPage extends StatelessWidget {
             .toList(),
       ).then((value) async {
         if (value == null) return;
-        final req =
-            await client.httpClient.getUrl(Uri.parse(client.getUrl("ESO/$value")));
+        final req = await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
         final res = await req.close();
         final r = await res.toList();
         restore(r.reduce((value, element) => <int>[]..addAll(value)..addAll(element)),

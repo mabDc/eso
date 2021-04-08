@@ -52,12 +52,20 @@ class TextCompositionEffect extends CustomPainter {
       final xf = (x / w);
       final v = (calcR * (math.sin(math.pi / 0.5 * (xf - (1.0 - pos)))) + (calcR * 1.1));
       final xv = (xf * wHRatio) - movX;
+      if (xv < 0) continue;
       final sx = (xf * image.width);
       final sr = Rect.fromLTRB(sx, 0.0, sx + 1.0, image.height.toDouble());
       final yv = ((h * calcR * movX) * hWRatio) - hWCorrection;
       final ds = (yv * v);
       final dr = Rect.fromLTRB(xv * w, 0.0 - ds, xv * w + 1.0, h + ds);
       c.drawImageRect(image, sr, dr, ip);
+      // canvas.save();
+      // canvas.clipRect(dr);
+      // canvas.transform((Matrix4.diagonal3Values(1, 1 + 2 * ds / h, 1)
+      //       ..translate(xv * w - sx, -ds, 0))
+      //     .storage);
+      // canvas.drawPicture(picture);
+      // canvas.restore();
     }
   }
 

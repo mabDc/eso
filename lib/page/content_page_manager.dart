@@ -98,7 +98,7 @@ class ContentProvider with ChangeNotifier {
         _addInfo("结束 得到${searchItem.chapters.length}个章节");
       }
       _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
-      _canUseCache = await _cache.requestPermission();
+      _canUseCache = await CacheUtil.requestPermission();
       if (_canUseCache != true) _addInfo("权限检查失败 本地缓存需要存储权限");
       _showInfo = false;
       notifyListeners();
@@ -110,7 +110,7 @@ class ContentProvider with ChangeNotifier {
 
   Future<void> retryUseCache() async {
     _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
-    _canUseCache = await _cache.requestPermission();
+    _canUseCache = await CacheUtil.requestPermission();
   }
 
   Future<List<String>> refresh() {

@@ -1,7 +1,7 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
-import 'package:xpath_parse/token_kind.dart';
-import 'package:xpath_parse/xpath_parser.dart';
+import 'token_kind.dart';
+import 'xpath_parser.dart';
 
 class XPath {
   final rootElement;
