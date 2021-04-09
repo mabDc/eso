@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
-import 'package:eso/api/api_from_rule.dart';
+import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
 import 'package:eso/model/edit_source_provider.dart';
@@ -16,8 +16,8 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 
 import '../../fonticons_icons.dart';
 import '../../global.dart';
@@ -124,19 +124,15 @@ class _EditSourcePageState extends State<EditSourcePage> {
           titleSpacing: 0.0,
           title: SearchEdit(
             controller: _searchEdit,
-            hintText:
-                "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
-            onSubmitted:
-                Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
-            onChanged: Provider.of<EditSourceProvider>(context, listen: false)
-                .getRuleListByNameDebounce,
+            hintText: "搜索名称和分组(共${context.select((EditSourceProvider provider) => provider.rules)?.length ?? 0}条)",
+            onSubmitted: Provider.of<EditSourceProvider>(context, listen: false).getRuleListByName,
+            onChanged: Provider.of<EditSourceProvider>(context, listen: false).getRuleListByNameDebounce,
           ),
           actions: [
             IconButton(
               icon: Icon(FIcons.check_square),
               tooltip: "全选(勾选后启用搜索)",
-              onPressed: Provider.of<EditSourceProvider>(context, listen: false)
-                  .toggleCheckAllRule,
+              onPressed: Provider.of<EditSourceProvider>(context, listen: false).toggleCheckAllRule,
             ),
             _buildpopupMenu(
               context,
@@ -154,8 +150,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     InkWell(
                       child: Text(
                         " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
-                        style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).primaryColor),
+                        style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor),
                       ),
                       onTap: () {
                         if (RuleDao.sortOrder == RuleDao.desc) {
@@ -163,8 +158,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                         } else {
                           RuleDao.sortOrder = RuleDao.desc;
                         }
-                        Provider.of<EditSourceProvider>(context, listen: false)
-                            .refreshData();
+                        Provider.of<EditSourceProvider>(context, listen: false).refreshData();
                       },
                     )
                   else
@@ -175,8 +169,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       ),
                       onTap: () {
                         RuleDao.sortName = sort.value;
-                        Provider.of<EditSourceProvider>(context, listen: false)
-                            .refreshData();
+                        Provider.of<EditSourceProvider>(context, listen: false).refreshData();
                       },
                     )
               ],
@@ -257,9 +250,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     fontFamily: Profile.staticFontFamily,
-                    color: Global.lightness(___leadColor) > 180
-                        ? _theme.primaryColorDark
-                        : Colors.white)),
+                    color: Global.lightness(___leadColor) > 180 ? _theme.primaryColorDark : Colors.white)),
           ),
           dense: true,
           title: Text('${rule.name}', style: TextStyle(fontSize: 16)),
@@ -278,8 +269,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               IconButton(
                   icon: Icon(FIcons.edit),
                   onPressed: () => Navigator.of(context)
-                      .push(MaterialPageRoute(
-                          builder: (context) => EditRulePage(rule: rule)))
+                      .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
                       .whenComplete(() => refreshData(provider))),
               StatefulBuilder(
                 builder: (context, state) {
@@ -299,7 +289,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
 
           onLongPress: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => FutureBuilder<List<DiscoverMap>>(
-              future: APIFromRUle(rule).discoverMap(),
+              future: APIManager.discoverMap(rule.id), //APIFromRUle(rule).discoverMap(),
               initialData: null,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasError) {
@@ -333,9 +323,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
         IconSlideAction(
           caption: '删除',
           color: Colors.red,
-          iconWidget: Padding(
-              child: Icon(FIcons.trash, size: 20, color: Colors.white),
-              padding: EdgeInsets.only(bottom: 4)),
+          iconWidget:
+              Padding(child: Icon(FIcons.trash, size: 20, color: Colors.white), padding: EdgeInsets.only(bottom: 4)),
           onTap: () {
             showDialog(
                 context: context,
@@ -370,8 +359,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
     );
   }
 
-  Future<bool> _addFromClipBoard(
-      BuildContext context, EditSourceProvider provider, bool showEditPage) async {
+  Future<bool> _addFromClipBoard(BuildContext context, EditSourceProvider provider, bool showEditPage) async {
     final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
       if (text.startsWith('http')) {
@@ -380,9 +368,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
         Utils.toast("导入完成，一共$count条", duration: Duration(seconds: 1));
         return true;
       }
-      final rule = text.startsWith(RuleCompress.tag)
-          ? RuleCompress.decompass(text)
-          : Rule.fromJson(jsonDecode(text));
+      final rule = text.startsWith(RuleCompress.tag) ? RuleCompress.decompass(text) : Rule.fromJson(jsonDecode(text));
       if (provider.rules.any((r) => r.id == rule.id)) {
         await Global.ruleDao.insertOrUpdateRule(rule);
         provider.rules.removeWhere((r) => r.id == rule.id);
@@ -407,8 +393,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
     }
   }
 
-  Widget _buildpopupMenu(
-      BuildContext context, bool isLoadingUrl, EditSourceProvider provider) {
+  Widget _buildpopupMenu(BuildContext context, bool isLoadingUrl, EditSourceProvider provider) {
     final primaryColor = Theme.of(context).primaryColor;
     const list = [
       {'title': '新建空白规则', 'icon': FIcons.code, 'type': ADD_RULE},

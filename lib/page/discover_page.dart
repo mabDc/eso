@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
-import 'package:eso/api/api_from_rule.dart';
+import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/page/discover_search_page.dart';
-import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
+import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/langding_page.dart';
+import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/ui/edit/search_edit.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
@@ -57,8 +57,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             titleSpacing: NavigationToolbar.kMiddleSpacing,
             title: SearchEdit(
               controller: _searchEdit,
-              hintText:
-                  "搜索发现站点(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
+              hintText: "搜索发现站点(共${Provider.of<EditSourceProvider>(context).rules?.length ?? 0}条)",
               onSubmitted: (value) => __provider.getRuleListByName(value),
               onChanged: (value) => __provider.getRuleListByNameDebounce(value),
             ),
@@ -128,8 +127,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  Widget _buildFilterItemView(
-      BuildContext context, EditSourceProvider provider, int contextType) {
+  Widget _buildFilterItemView(BuildContext context, EditSourceProvider provider, int contextType) {
     bool selected = provider.ruleContentType == contextType;
     return GestureDetector(
       onTap: () {
@@ -146,18 +144,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
             borderRadius: BorderRadius.all(Radius.circular(15.0)),
             side: BorderSide(
                 width: Global.borderSize,
-                color: selected
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).dividerColor)),
+                color: selected ? Theme.of(context).primaryColor : Theme.of(context).dividerColor)),
         child: Padding(
           padding: EdgeInsets.fromLTRB(8, 3, 8, 3),
           child: Text(
             contextType < 0 ? '全部' : API.getRuleContentTypeName(contextType),
             style: TextStyle(
               fontSize: 11,
-              color: selected
-                  ? Theme.of(context).cardColor
-                  : Theme.of(context).textTheme.bodyText1.color,
+              color: selected ? Theme.of(context).cardColor : Theme.of(context).textTheme.bodyText1.color,
             ),
           ),
         ),
@@ -165,8 +159,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  Future<bool> _addFromClipBoard(
-      BuildContext context, EditSourceProvider provider, bool showEditPage) async {
+  Future<bool> _addFromClipBoard(BuildContext context, EditSourceProvider provider, bool showEditPage) async {
     final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     try {
       if (text.startsWith('http')) {
@@ -175,9 +168,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         Utils.toast("导入完成，一共$count条", duration: Duration(seconds: 1));
         return true;
       }
-      final rule = text.startsWith(RuleCompress.tag)
-          ? RuleCompress.decompass(text)
-          : Rule.fromJson(jsonDecode(text));
+      final rule = text.startsWith(RuleCompress.tag) ? RuleCompress.decompass(text) : Rule.fromJson(jsonDecode(text));
       if (provider.rules.any((r) => r.id == rule.id)) {
         await Global.ruleDao.insertOrUpdateRule(rule);
         provider.rules.removeWhere((r) => r.id == rule.id);
@@ -238,7 +229,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     Widget _child = ListTile(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => FutureBuilder<List<DiscoverMap>>(
-                future: APIFromRUle(rule).discoverMap(),
+                future: APIManager.discoverMap(rule.id), //APIFromRUle(rule).discoverMap(),
                 initialData: null,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasError) {
@@ -313,10 +304,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   Widget _buildEmptyHintView(EditSourceProvider provider) {
     final _shape = RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side:
-            BorderSide(color: Theme.of(context).dividerColor, width: Global.borderSize));
-    final _txtStyle =
-        TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
+        side: BorderSide(color: Theme.of(context).dividerColor, width: Global.borderSize));
+    final _txtStyle = TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
     return EmptyListMsgView(
         text: Column(
       children: [
@@ -375,8 +364,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         EditSourcePage.showURLDialog(context, provider.isLoadingUrl, provider, false);
         break;
       case FROM_EDIT_SOURCE:
-        Utils.startPageWait(context, EditSourcePage())
-            .whenComplete(() => refreshData(provider));
+        Utils.startPageWait(context, EditSourcePage()).whenComplete(() => refreshData(provider));
         break;
       default:
     }

@@ -1,17 +1,21 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+
+import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/src/factory_mixin.dart' as impl;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
+import 'database/rule.dart';
 import 'database/rule_dao.dart';
-import 'package:package_info/package_info.dart';
 import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
@@ -72,19 +76,18 @@ class Global with ChangeNotifier {
     if (isDesktop) {
       sqflite.databaseFactory = databaseFactoryFfi;
       final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
-      factory.setDatabasesPath(
-          await CacheUtil(backup: true, basePath: "database").cacheDir());
+      factory.setDatabasesPath(await CacheUtil(backup: true, basePath: "database").cacheDir());
     }
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
     HistoryItemManager.initHistoryItem();
     final _migrations = [migration4to5, migration5to6, migration6to7];
 
-    final _database = await $FloorAppDatabase
-        .databaseBuilder('eso_database.db')
-        .addMigrations(_migrations)
-        .build();
+    final _database = await $FloorAppDatabase.databaseBuilder('eso_database.db').addMigrations(_migrations).build();
     _ruleDao = _database.ruleDao;
+    await _ruleDao.insertOrUpdateRules(APIManager.apiMap.values
+        .map((api) => Rule.fromApi(api.originTag, api.origin, api.host, api.ruleContentType))
+        .toList());
     await initFont();
     try {
       final packageInfo = await PackageInfo.fromPlatform();
@@ -262,11 +265,9 @@ class Global with ChangeNotifier {
   static Color colorLight(Color value, double offset) {
     int v = (offset * 255).round();
     if (v > 0) {
-      return Color.fromARGB(value.alpha, min(255, value.red + v),
-          min(255, value.green + v), min(255, value.blue + v));
+      return Color.fromARGB(value.alpha, min(255, value.red + v), min(255, value.green + v), min(255, value.blue + v));
     } else {
-      return Color.fromARGB(value.alpha, max(0, value.red + v), max(0, value.green + v),
-          max(0, value.blue + v));
+      return Color.fromARGB(value.alpha, max(0, value.red + v), max(0, value.green + v), max(0, value.blue + v));
     }
   }
 

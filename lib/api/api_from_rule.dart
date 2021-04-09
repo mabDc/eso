@@ -10,11 +10,15 @@ class APIFromRUle implements API {
   String _originTag;
   int _ruleContentType;
   int _engineId;
+  String _host;
 
   static clearNextUrl() {}
 
   @override
   String get origin => _origin;
+
+  @override
+  String get host => _host;
 
   @override
   String get originTag => _originTag;
@@ -27,11 +31,11 @@ class APIFromRUle implements API {
     _origin = rule.name;
     _originTag = rule.id;
     _ruleContentType = rule.contentType;
+    _host = rule.host;
   }
 
   @override
-  Future<List<SearchItem>> discover(
-      Map<String, DiscoverPair> params, int page, int pageSize) async {
+  Future<List<SearchItem>> discover(Map<String, DiscoverPair> params, int page, int pageSize) async {
     return null;
   }
 
@@ -52,11 +56,6 @@ class APIFromRUle implements API {
 
   @override
   Future<List<DiscoverMap>> discoverMap() async {
-    return <DiscoverMap>[
-      for (var i = 0; i < 10; i++)
-        DiscoverMap("tab$i", <DiscoverPair>[
-          for (var j = 0; j < 3; j++) DiscoverPair("class$j", ""),
-        ])
-    ];
+    return null;
   }
 }

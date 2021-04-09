@@ -1,6 +1,6 @@
 import 'package:eso/api/api.dart';
-import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
+import 'package:uuid/uuid.dart';
 
 import '../global.dart';
 
@@ -152,6 +152,8 @@ class Rule {
     contentItems = '';
   }
 
+  Rule.fromApi(this.id, this.name, this.host, this.contentType);
+
   Rule(
     this.id,
     this.createTime,
@@ -288,11 +290,8 @@ class Rule {
     final defaultRule = rule ?? Rule.newRule();
     for (final key in json.keys) {
       var s = '${json[key]}';
-      if (s.startsWith("\$") ||
-          s.startsWith("http") ||
-          s.startsWith(":") ||
-          s.startsWith("@") ||
-          s.startsWith("/")) continue;
+      if (s.startsWith("\$") || s.startsWith("http") || s.startsWith(":") || s.startsWith("@") || s.startsWith("/"))
+        continue;
       final flag = s.startsWith("-");
       if (flag) {
         s = s.substring(1);
@@ -337,26 +336,14 @@ class Rule {
     discoverUrl = json['ruleFindUrl'] ?? defaultRule.discoverUrl;
     discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
-    discoverList =
-        json["ruleFindList"] ?? json['ruleSearchList'] ?? defaultRule.discoverList;
-    discoverTags =
-        json['ruleFindKind'] ?? json['ruleSearchKind'] ?? defaultRule.discoverTags;
-    discoverName =
-        json['ruleFindName'] ?? json['ruleSearchName'] ?? defaultRule.discoverName;
-    discoverCover = json['ruleFindCoverUrl'] ??
-        json['ruleSearchCoverUrl'] ??
-        defaultRule.discoverCover;
-    discoverAuthor =
-        json['ruleFindAuthor'] ?? json['ruleSearchAuthor'] ?? defaultRule.discoverAuthor;
-    discoverChapter = json['ruleFindLastChapter'] ??
-        json['ruleSearchLastChapter'] ??
-        defaultRule.discoverChapter;
-    discoverDescription = json['ruleFindIntroduce'] ??
-        json['ruleSearchIntroduce'] ??
-        defaultRule.discoverDescription;
-    discoverResult = json['ruleFindNoteUrl'] ??
-        json['ruleSearchNoteUrl'] ??
-        defaultRule.discoverResult;
+    discoverList = json["ruleFindList"] ?? json['ruleSearchList'] ?? defaultRule.discoverList;
+    discoverTags = json['ruleFindKind'] ?? json['ruleSearchKind'] ?? defaultRule.discoverTags;
+    discoverName = json['ruleFindName'] ?? json['ruleSearchName'] ?? defaultRule.discoverName;
+    discoverCover = json['ruleFindCoverUrl'] ?? json['ruleSearchCoverUrl'] ?? defaultRule.discoverCover;
+    discoverAuthor = json['ruleFindAuthor'] ?? json['ruleSearchAuthor'] ?? defaultRule.discoverAuthor;
+    discoverChapter = json['ruleFindLastChapter'] ?? json['ruleSearchLastChapter'] ?? defaultRule.discoverChapter;
+    discoverDescription = json['ruleFindIntroduce'] ?? json['ruleSearchIntroduce'] ?? defaultRule.discoverDescription;
+    discoverResult = json['ruleFindNoteUrl'] ?? json['ruleSearchNoteUrl'] ?? defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
     searchUrl = json['ruleSearchUrl'] ?? defaultRule.searchUrl;
     searchNextUrl = json['searchNextUrl'] ?? defaultRule.searchNextUrl;

@@ -50,8 +50,9 @@ abstract class API {
 
   int get ruleContentType;
 
-  Future<List<SearchItem>> discover(
-      Map<String, DiscoverPair> params, int page, int pageSize);
+  String get host;
+
+  Future<List<SearchItem>> discover(Map<String, DiscoverPair> params, int page, int pageSize);
 
   Future<List<SearchItem>> search(String query, int page, int pageSize);
 
@@ -61,6 +62,8 @@ abstract class API {
 
   Future<List<DiscoverMap>> discoverMap();
 }
+
+T cast<T>(dynamic v, T d) => v is T ? v : d;
 
 class BaseAPI implements API {
   String _origin;
@@ -79,8 +82,9 @@ class BaseAPI implements API {
 
   int get ruleContentType => _ruleContentType;
 
-  Future<List<SearchItem>> discover(
-      Map<String, DiscoverPair> params, int page, int pageSize) {
+  String get host => "";
+
+  Future<List<SearchItem>> discover(Map<String, DiscoverPair> params, int page, int pageSize) {
     return null;
   }
 
