@@ -29,5 +29,7 @@ final migration6to7 = Migration(6, 7, (database) async {
 });
 
 final migration7to8 = Migration(7, 8, (database) async {
-  await database.execute('ALTER TABLE Rule ADD COLUMN enableUpload INT');
+  try {
+    await database.execute('ALTER TABLE Rule ADD COLUMN enableUpload INT');
+  } catch (e) {}
 });
