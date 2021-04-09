@@ -177,7 +177,7 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
   ```
 # 编译指南
 
-源码仅减去规则解析部分，完全不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
+可以自行添加数据源 请参考`/api/json_placeholder.dart`和`/api/json_placeholder_photo.dart`
 
 - 打包Android
 ```bash
