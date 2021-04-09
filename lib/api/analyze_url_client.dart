@@ -16,14 +16,14 @@ Future<Response> get(String url, {Map<String, String> headers}) {
   return nosslClient.get(Uri.parse(url), headers: headers);
 }
 
-Future<Response> put(dynamic url, {Map<String, String> headers, dynamic body}) {
-  return nosslClient.put(url, headers: headers, body: body);
+Future<Response> put(String url, {Map<String, String> headers, dynamic body}) {
+  return nosslClient.put(Uri.parse(url), headers: headers, body: body);
 }
 
-Future<Response> post(dynamic url,
+Future<Response> post(String url,
     {Map<String, String> headers, dynamic body, Encoding encoding}) async {
   final response =
-      await nosslClient.post(url, headers: headers, body: body, encoding: encoding);
+      await nosslClient.post(Uri.parse(url), headers: headers, body: body, encoding: encoding);
 
   /// https://github.com/dart-lang/http/issues/157#issuecomment-401227248
   /// https://github.com/dart-lang/http/issues/157#issuecomment-417639249

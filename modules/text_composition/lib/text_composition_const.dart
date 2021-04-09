@@ -261,7 +261,7 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
                   [const Color(0xffe3f8e1), const Color(0xff485249)], //绿
                   [const Color(0xff999c99), const Color(0xff353535)], //浅灰
                   [const Color(0xff33383d), const Color(0xffc5c4c9)], //黑
-                  [const Color(0xff010203), const Color(0x3fffffff)], //纯黑
+                  [const Color(0xff010203), const Color(0xffffffff)], //纯黑
                   /// 反过来
                   [const Color(0xFF303133), const Color(0xFFFFFFCC)],
                   [const Color(0xff373534), const Color(0xfff1f1f1)],
@@ -270,7 +270,7 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
                   [const Color(0xff485249), const Color(0xffe3f8e1)],
                   [const Color(0xff353535), const Color(0xff999c99)],
                   [const Color(0xffc5c4c9), const Color(0xff33383d)],
-                  [const Color(0x3fffffff), const Color(0xff010203)],
+                  [const Color(0xffffffff), const Color(0xff010203)],
                 ])
                   InkWell(
                     onTap: () => setState(() {

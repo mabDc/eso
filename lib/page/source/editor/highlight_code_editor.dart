@@ -62,7 +62,7 @@ class HighLightCodeEditorState extends State<HighLightCodeEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
+    final w = 3 * MediaQuery.of(context).size.width;
     return Container(
       color: theme["root"]?.backgroundColor,
       padding: widget.padding,

@@ -61,6 +61,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   bool isNotCollapsed = false;
   String code = "";
   FocusNode codeFocusNode;
+  Widget editView;
 
   @override
   void initState() {
@@ -86,14 +87,21 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
   }
 
   /// 快速输入符号List
-// ignore: non_constant_identifier_names
   final inputList = [
     {
       'encoding': '"encoding":"gbk"',
       'async': r'''
 (async() => {
     
+    return '';
 })();''',
+      'http': r'''var html = await http('');''',
+      'xpath': r'''var x = await xpath(html, '//*[@class="xx"]');''',
+      'xpath_class': '//*[@class="xx"]',
+      'xpath_id': '//*[@id="xx"]',
+      'match': "result.match(/xx/)[0];",
+      'stringify': "JSON.stringify({});",
+      'parse': "JSON.parse(xx);",
       'get-gbk': r'''{
     "url": "/modules/article/search.php?searchkey=$keyword&searchtype=articlename&page=$page",
     "encoding": "gbk"
@@ -139,11 +147,6 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40"
     }
 }''',
-      'xpath_class': '//*[@class="xx"]',
-      'xpath_id': '//*[@id="xx"]',
-      'match': "result.match(/xx/)[0];",
-      'stringify': "JSON.stringify({});",
-      'parse': "JSON.parse(xx);",
       'Macintosh-UA':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
       'Android-UA':
@@ -183,6 +186,22 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     }
   ];
 
+  rebuildEditView() {
+    editView = DraggableScrollbar.semicircle(
+      controller: _controller,
+      child: ListView(
+        controller: _controller,
+        children: [
+          _buildInfo(context),
+          _buildDiscover(context),
+          _buildSearch(context),
+          _buildChapter(context),
+          _buildContent(context),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     primaryColor = Theme.of(context).primaryColor;
@@ -192,7 +211,12 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       _searchExpanded = rule.enableSearch;
     }
 
-    final w = MediaQuery.of(context).size.width;
+    if (editView == null) {
+      rebuildEditView();
+    }
+
+    final size = MediaQuery.of(context).size;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
     final child = Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -234,120 +258,121 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           _buildpopupMenu(context),
         ],
       ),
-      body: Flex(
-        direction: Axis.vertical,
+      body: Column(
         children: <Widget>[
           Expanded(
-              child: Stack(
-            children: [
-              DraggableScrollbar.semicircle(
-                controller: _controller,
-                child: ListView(
-                  controller: _controller,
-                  children: [
-                    _buildInfo(context),
-                    _buildDiscover(context),
-                    _buildSearch(context),
-                    _buildChapter(context),
-                    _buildContent(context),
-                  ],
-                ),
-              ),
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  width: isNotCollapsed ? w - 30 : null,
-                  child: Card(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            code = codeKey.currentState?.code ?? code;
-                            setState(() => isNotCollapsed = !isNotCollapsed);
-                          },
-                          child: Text("JS运行测试" + (isNotCollapsed ? " 点击折叠" : "")),
-                        ),
-                        if (isNotCollapsed)
-                          Container(
-                            height: 160,
-                            child: HighLightCodeEditor(
-                              codeKey,
-                              code,
-                              focusNode: codeFocusNode,
+            child: Stack(
+              children: [
+                editView,
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: isNotCollapsed ? size.width - 10 : null,
+                    constraints: isNotCollapsed
+                        ? BoxConstraints(maxHeight: size.height - 150 - bottom)
+                        : null,
+                    child: Card(
+                      child: isNotCollapsed
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: HighLightCodeEditor(
+                                    codeKey,
+                                    code,
+                                    focusNode: codeFocusNode,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: SingleChildScrollView(child: SelectableText(s)),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    InkWell(
+                                      onTap: () async {
+                                        await Clipboard.setData(ClipboardData(text: s));
+                                        Utils.toast("已复制结果");
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("复制结果"),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () async {
+                                        await Clipboard.setData(ClipboardData(
+                                            text: codeKey.currentState?.code ?? code));
+                                        Utils.toast("已复制代码");
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("复制代码"),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () => codeKey.currentState?.format(),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("格式化"),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () async {
+                                        try {
+                                          await JSEngine.setEnvironment(
+                                              1, rule, "", rule.host, "", "");
+                                          final x = await JSEngine.evaluate(
+                                              codeKey.currentState?.code ?? code);
+                                          setState(() {
+                                            s = "$x";
+                                          });
+                                        } catch (e, st) {
+                                          setState(() {
+                                            s = "$e\n$st";
+                                          });
+                                        }
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("运行"),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        code = codeKey.currentState?.code ?? code;
+                                        setState(() => isNotCollapsed = !isNotCollapsed);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text("折叠"),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : InkWell(
+                              onTap: () {
+                                code = codeKey.currentState?.code ?? code;
+                                setState(() => isNotCollapsed = !isNotCollapsed);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                child: Text("JS测试"),
+                              ),
                             ),
-                          ),
-                        if (isNotCollapsed)
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () async {
-                                  await Clipboard.setData(ClipboardData(
-                                      text: codeKey.currentState?.code ?? code));
-                                  Utils.toast("已复制代码");
-                                },
-                                child: Text("复制代码"),
-                              ),
-                              TextButton(
-                                onPressed: () => codeKey.currentState?.format(),
-                                child: Text("格式化"),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  try {
-                                    await JSEngine.setEnvironment(
-                                        1, rule, "", rule.host, "", "");
-                                    final x = await JSEngine.evaluate(
-                                        codeKey.currentState?.code ?? code);
-                                    setState(() {
-                                      s = "$x";
-                                    });
-                                  } catch (e, st) {
-                                    setState(() {
-                                      s = "$e\n$st";
-                                    });
-                                  }
-                                },
-                                child: Text("运行"),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  await Clipboard.setData(ClipboardData(text: s));
-                                  Utils.toast("已复制结果");
-                                },
-                                child: Text("复制结果"),
-                              ),
-                            ],
-                          ),
-                        if (isNotCollapsed)
-                          Container(
-                            height: 100,
-                            child: SingleChildScrollView(child: SelectableText(s)),
-                          ),
-                      ],
                     ),
                   ),
                 ),
-              ),
-            ],
-          )),
-          Offstage(
-            offstage: false, //_isHideFastInput,
-            child: Container(
-              decoration: BoxDecoration(
-                  border: Border(
-                      top: BorderSide(
-                          color: Theme.of(context).dividerColor,
-                          width: Global.lineSize))),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: inputList.map((list) => _buildInputHelp(list)).toList(),
-              ),
+              ],
             ),
-          )
+          ),
+          ...inputList.map((list) => _buildInputHelp(list)).toList()
         ],
       ),
     );
@@ -487,9 +512,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                 isDense: true,
                 value: rule.contentType,
                 onChanged: (value) {
-                  setState(() {
-                    rule.contentType = value;
-                  });
+                  rule.contentType = value;
+                  rebuildEditView();
+                  setState(() {});
                 },
                 items: List.generate(
                   5,
@@ -506,9 +531,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           title: Text('允许上传分享'),
           value: rule.enableUpload,
           onChanged: (value) {
-            setState(() {
-              rule.enableUpload = value;
-            });
+            rule.enableUpload = value;
+            rebuildEditView();
+            setState(() {});
           },
         ),
         _buildEditText(
@@ -574,9 +599,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           title: Text('启用'),
           value: rule.enableDiscover,
           onChanged: (value) {
-            setState(() {
-              rule.enableDiscover = value;
-            });
+            rule.enableDiscover = value;
+            rebuildEditView();
+            setState(() {});
           },
         ),
         _buildEditText(
@@ -643,9 +668,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           title: Text('启用'),
           value: rule.enableSearch,
           onChanged: (value) {
-            setState(() {
-              rule.enableSearch = value;
-            });
+            rule.enableSearch = value;
+            rebuildEditView();
+            setState(() {});
           },
         ),
         _buildEditText(
@@ -712,9 +737,9 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           title: Text('启用多线路'),
           value: rule.enableMultiRoads,
           onChanged: (value) {
-            setState(() {
-              rule.enableMultiRoads = value;
-            });
+            rule.enableMultiRoads = value;
+            rebuildEditView();
+            setState(() {});
           },
         ),
         _buildEditText(
@@ -777,15 +802,15 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
       initiallyExpanded: _contentExpanded,
       onExpansionChanged: (value) => _contentExpanded = value,
       children: [
-        SwitchListTile(
-          title: Text('启用CryptoJS'),
-          value: rule.useCryptoJS,
-          onChanged: (value) {
-            setState(() {
-              rule.useCryptoJS = value;
-            });
-          },
-        ),
+        // SwitchListTile(
+        //   title: Text('启用CryptoJS'),
+        //   value: rule.useCryptoJS,
+        //   onChanged: (value) {
+        //     setState(() {
+        //       rule.useCryptoJS = value;
+        //     });
+        //   },
+        // ),
         _buildEditText(
           rule.contentUrl,
           '地址(contentUrl)',
@@ -826,13 +851,13 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
     final text = (await Clipboard.getData(Clipboard.kTextPlain)).text;
     isLoading = false;
     try {
-      setState(() {
-        rule = isYICIYUAN
-            ? Rule.fromYiCiYuan(jsonDecode(text), rule)
-            : text.startsWith(RuleCompress.tag)
-                ? RuleCompress.decompass(text, rule)
-                : Rule.fromJson(jsonDecode(text), rule);
-      });
+      rule = isYICIYUAN
+          ? Rule.fromYiCiYuan(jsonDecode(text), rule)
+          : text.startsWith(RuleCompress.tag)
+              ? RuleCompress.decompass(text, rule)
+              : Rule.fromJson(jsonDecode(text), rule);
+      rebuildEditView();
+      setState(() {});
       Utils.toast("已从剪贴板导入");
       return true;
     } catch (e) {
