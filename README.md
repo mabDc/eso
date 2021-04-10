@@ -43,6 +43,10 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 <img src="https://user-images.githubusercontent.com/19526331/113878095-e0d38780-97eb-11eb-801a-1b3c08a13f7d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877800-a0740980-97eb-11eb-9ffe-ec83276e7f61.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877807-a23dcd00-97eb-11eb-99f5-973431a412b9.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877823-a4a02700-97eb-11eb-8c64-3a8f354a1d76.jpg" width="200"> 
 
+<img src="https://user-images.githubusercontent.com/19526331/114257783-c3bdd500-99f4-11eb-9167-5c42c846f147.jpg" width="400"> <img src="https://user-images.githubusercontent.com/19526331/114257762-af79d800-99f4-11eb-9a47-6095cdd6e42f.jpg" width="400">
+
+<img src="https://user-images.githubusercontent.com/19526331/114257767-b56fb900-99f4-11eb-8948-6d5aa4c51e3b.jpg" width="400"> <img src="https://user-images.githubusercontent.com/19526331/114257769-b86aa980-99f4-11eb-9f37-54a3a0bd95d6.jpg" width="400">
+
 ### 另一些图片
 
 首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制。
