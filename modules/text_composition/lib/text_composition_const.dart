@@ -190,13 +190,18 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
             //   subtitle: Text("打开后不使用截图 关闭会更流畅"),
             // ),
             ListTile(
-              subtitle: Text('选择动画 双栏时可以尝试翻转'),
+              subtitle: Text('选择动画 试试双栏和双面卷轴配合使用吧'),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // InkWell(
+                  //   onTap: () => setState(() => config.animation = "flip"),
+                  //   child: Text("翻转", style: config.animation == "flip" ? style : null),
+                  // ),
                   InkWell(
-                    onTap: () => setState(() => config.animation = "flip"),
-                    child: Text("翻转", style: config.animation == "flip" ? style : null),
+                    onTap: () => setState(() => config.animation = "simulation2"),
+                    child: Text("双面卷轴",
+                        style: config.animation == "simulation2" ? style : null),
                   ),
                   InkWell(
                     onTap: () => setState(() => config.animation = "cover"),
@@ -204,11 +209,11 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
                   ),
                   InkWell(
                     onTap: () => setState(() => config.animation = "curl"),
-                    child: Text("仿真苹果", style: config.animation == "curl" ? style : null),
+                    child: Text("仿真", style: config.animation == "curl" ? style : null),
                   ),
                   InkWell(
                     onTap: () => setState(() => config.animation = "simulation"),
-                    child: Text("仿真安卓",
+                    child: Text("卷轴",
                         style: config.animation == "simulation" ? style : null),
                   ),
                 ],

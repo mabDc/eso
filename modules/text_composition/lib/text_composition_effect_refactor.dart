@@ -113,6 +113,23 @@ class TextCompositionEffect extends CustomPainter {
     final pos = amount.value; // 1 / 500 = 0.002 也就是500宽度相差1像素 忽略掉动画
     if (pos > 0.998) {
       canvas.drawPicture(picture);
+      if (textComposition.animation == "simulation2") {
+        // 中间阴影
+        final half = size.width / 2;
+        final shadowGradientM = LinearGradient(colors: [
+          Colors.transparent,
+          Color(0x33000000),
+          Color(0xAA000000),
+          Color(0x33000000),
+          Colors.transparent
+        ]);
+        final shadowRectM = Rect.fromLTRB(half - 10, 0, half + 10, size.height);
+        final shadowPaintM = Paint()
+          ..isAntiAlias = true
+          ..style = PaintingStyle.fill //填充
+          ..shader = shadowGradientM.createShader(shadowRectM);
+        canvas.drawRect(shadowRectM, shadowPaintM);
+      }
     } else if (pos < 0.002) {
       return;
     } else {
@@ -217,6 +234,59 @@ class TextCompositionEffect extends CustomPainter {
               LinearGradient(colors: [Color(0xAA000000), Colors.transparent]);
           final shadowRect =
               Rect.fromLTRB(right, 0, right + math.min((w - right) * 0.5, 30), h);
+          final shadowPaint = Paint()
+            ..isAntiAlias = true
+            ..style = PaintingStyle.fill //填充
+            ..shader = shadowGradient.createShader(shadowRect);
+          canvas.drawRect(shadowRect, shadowPaint);
+          break;
+
+        case 'simulation2':
+          final w = size.width;
+          final h = size.height;
+          final left = pos * w;
+          final ws = (w - left) / 2;
+          final right = left + ws;
+          canvas.save();
+          canvas.clipRect(Rect.fromLTRB(0, 0, left, h));
+          canvas.drawPicture(picture);
+          if (pos > 0.4) {
+            // 中间阴影
+            final half = size.width / 2;
+            final shadowGradientM = LinearGradient(colors: [
+              Colors.transparent,
+              Color(0x33000000),
+              Color(0xAA000000),
+              Color(0x33000000),
+              Colors.transparent
+            ]);
+            final shadowRectM = Rect.fromLTRB(half - 10, 0, half + 10, h);
+            final shadowPaintM = Paint()
+              ..isAntiAlias = true
+              ..style = PaintingStyle.fill //填充
+              ..shader = shadowGradientM.createShader(shadowRectM);
+            canvas.drawRect(shadowRectM, shadowPaintM);
+          }
+          // 左侧阴影
+          final shadow = Path()
+            ..moveTo(left - 3, 0)
+            ..lineTo(left + 2, 0)
+            ..lineTo(left + 2, h)
+            ..lineTo(left - 3, h)
+            ..close();
+          canvas.drawShadow(shadow, Colors.black, 5, true);
+          canvas.restore();
+          // 背面 也就是 下一页
+          final nextPicture = textComposition.getPicture(index + 1, size);
+          if (nextPicture == null) return;
+          canvas.clipRect(Rect.fromLTRB(left, 0, right, h));
+          canvas.translate(left, 0);
+          canvas.drawPicture(nextPicture);
+          // 背面阴影
+          final Gradient shadowGradient =
+              LinearGradient(colors: [Colors.transparent, Color(0xAA000000)]);
+          final shadowRect =
+              Rect.fromLTRB(ws - math.min((w - right) * 0.5, 15), 0, ws, h);
           var shadowPaint = Paint()
             ..isAntiAlias = true
             ..style = PaintingStyle.fill //填充
