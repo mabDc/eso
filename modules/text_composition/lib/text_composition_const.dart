@@ -183,12 +183,12 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
               title: Text("状态栏动画"),
               subtitle: Text("翻页动画可以越过状态栏"),
             ),
-            // SwitchListTile(
-            //   value: config.animationHighImage,
-            //   onChanged: (value) => setState(() => config.animationHighImage = value),
-            //   title: Text("[仿真苹果] 高清模式"),
-            //   subtitle: Text("打开后不使用截图 关闭会更流畅"),
-            // ),
+            SwitchListTile(
+              value: config.animationHighImage,
+              onChanged: (value) => setState(() => config.animationHighImage = value),
+              title: Text("[仿真苹果] 高清模式"),
+              subtitle: Text("打开后截图质量更高 关闭会更流畅"),
+            ),
             ListTile(
               subtitle: Text('选择动画 试试双栏和双面卷轴配合使用吧'),
               title: Row(
@@ -199,9 +199,14 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
                   //   child: Text("翻转", style: config.animation == "flip" ? style : null),
                   // ),
                   InkWell(
-                    onTap: () => setState(() => config.animation = "simulation2"),
-                    child: Text("双面卷轴",
-                        style: config.animation == "simulation2" ? style : null),
+                    onTap: () => setState(() => config.animation = "simulation2L"),
+                    child: Text("双面左",
+                        style: config.animation == "simulation2L" ? style : null),
+                  ),
+                  InkWell(
+                    onTap: () => setState(() => config.animation = "simulation2R"),
+                    child: Text("双面右",
+                        style: config.animation == "simulation2R" ? style : null),
                   ),
                   InkWell(
                     onTap: () => setState(() => config.animation = "cover"),

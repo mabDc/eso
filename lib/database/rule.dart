@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/api/api.dart';
 import 'package:eso/database/rule_dao.dart';
+import 'package:text_composition/text_composition.dart';
 import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
 
@@ -235,8 +236,71 @@ class Rule {
     return true;
   }
 
+  Map<String, dynamic> jsonZYPlayer(key, name, api) => {
+        "id": cast(key, Uuid().v4()),
+        "createTime": DateTime.now().microsecondsSinceEpoch,
+        "modifiedTime": DateTime.now().microsecondsSinceEpoch,
+        "enableUpload": true,
+        "author": "ZY-Player",
+        "postScript": "https://github.com/cuiocean/ZY-Player",
+        "name": cast(name, "麻花"),
+        "host": cast(api, ""),
+        "group": "ZY-Player",
+        "contentType": 2,
+        "sort": 0,
+        "useCryptoJS": false,
+        "loadJs": "",
+        "userAgent": "",
+        "enableDiscover": true,
+        "discoverUrl": "?ac=videolist&pg=\$page",
+        "discoverNextUrl": "",
+        "discoverItems": "",
+        "discoverList": "//video",
+        "discoverTags": "//type/text()",
+        "discoverName": "//name##.*\\[|\\].*",
+        "discoverCover": "//pic/text()",
+        "discoverAuthor": "演员:{{//actor##.*\\[|\\].*}},导演:{{//director##.*\\[|\\].*}}",
+        "discoverChapter": "//last/text()",
+        "discoverDescription": "//des##.*\\[|\\].*",
+        "discoverResult": "//id/text()",
+        "enableSearch": true,
+        "searchUrl": "?wd=\$keyword",
+        "searchNextUrl": "",
+        "searchItems": "",
+        "searchList": "//video",
+        "searchTags": "//type/text()",
+        "searchName": "//name##.*\\[|\\].*",
+        "searchCover": "//pic/text()",
+        "searchAuthor": "演员:{{//actor##.*\\[|\\].*}},导演:{{//director##.*\\[|\\].*}}",
+        "searchChapter": "//last/text()",
+        "searchDescription": "//des##.*\\[|\\].*",
+        "searchResult": "//id/text()",
+        "enableMultiRoads": false,
+        "chapterRoads": "",
+        "chapterRoadName": "",
+        "chapterUrl": "http://www.mhapi123.com/inc/ldg_api.php?ac=videolist&ids=\$result",
+        "chapterNextUrl": "",
+        "chapterItems": "",
+        "chapterList": "//dd@js:result.replace(/.*\\[|\\].*/g,\"\").split(\"#\")",
+        "chapterName": "@js:result.split(\"\$\")[0]",
+        "chapterCover": "",
+        "chapterLock": "",
+        "chapterTime": "",
+        "chapterResult": "@js:result.split(\"\$\")[1]",
+        "contentUrl": "null",
+        "contentNextUrl": "",
+        "contentItems": "@js:lastResult",
+        "loginUrl": "",
+        "cookies": "",
+        "viewStyle": 0
+      };
+
   Rule.fromJson(Map<String, dynamic> json, [Rule rule]) {
     final defaultRule = rule ?? Rule.newRule();
+    if (json["api"] != null && json["name"] != null) {
+      json = jsonZYPlayer(json["key"], json["name"], json["api"]);
+    }
+
     id = json['id'] ?? defaultRule.id;
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;

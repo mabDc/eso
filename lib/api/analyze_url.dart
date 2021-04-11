@@ -75,16 +75,7 @@ class AnalyzeUrl {
 
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
-      var u = "${r['url']}".trim();
-      if (u.startsWith("//")) {
-        if (rule.host.startsWith("https")) {
-          u = "https:" + u;
-        } else {
-          u = "http:" + u;
-        }
-      } else if (u.startsWith("/")) {
-        u = rule.host + u;
-      }
+      var u = urlFix("${r['url']}", rule.host);
       if (r['encoding'] != null) {
         String _urlEncode(String s) {
           if (s.length % 2 == 1) {
@@ -110,7 +101,7 @@ class AnalyzeUrl {
       if (method == null || method == 'get') {
         return http.get(u, headers: headers);
       }
-      if(method == "put"){
+      if (method == "put") {
         return http.put(u, headers: headers, body: body);
       }
       if (method == 'post') {
@@ -127,22 +118,27 @@ class AnalyzeUrl {
       }
       throw ('error parser url rule');
     } else {
-      var u = "$url".trim();
-      if (u.startsWith("//")) {
-        if (rule.host.startsWith("https")) {
-          u = "https:" + u;
-        } else {
-          u = "http:" + u;
-        }
-      } else if (u.startsWith("/")) {
-        u = rule.host + u;
-      }
-      return http.get(u, headers: {
+      return http.get(urlFix("$url", rule.host), headers: {
         'user-agent': rule.userAgent.trim().isNotEmpty
             ? rule.userAgent
             : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
         "cookie": rule.cookies,
       });
     }
+  }
+
+  static String urlFix(String url, String host) {
+    url = "$url".trim();
+    host = host.trim();
+    if (url.startsWith("//")) {
+      if (host.startsWith("https")) {
+        return "https:" + url;
+      } else {
+        return "http:" + url;
+      }
+    } else if (!url.startsWith("http") && !url.startsWith("ftp")) {
+      return host + url;
+    }
+    return url;
   }
 }

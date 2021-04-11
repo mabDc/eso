@@ -58,6 +58,7 @@ class TextCompositionPageState extends State<TextCompositionPage>
 
   @override
   Widget build(BuildContext context) {
+    final colorStyle = TextStyle(color: widget.controller.config.fontColor);
     return Material(
       child: LayoutBuilder(
         builder: (context, dimens) => RawKeyboardListener(
@@ -130,9 +131,9 @@ class TextCompositionPageState extends State<TextCompositionPage>
                     children: [
                       Text(widget.controller.name ?? ""),
                       SizedBox(height: 10),
-                      Text("这是底线（最后一页）"),
+                      Text("这是底线（最后一页）", style: colorStyle),
                       SizedBox(height: 10),
-                      Text("已读完"),
+                      Text("已读完", style: colorStyle),
                     ],
                   ),
                 ),

@@ -31,62 +31,63 @@ class MyApp extends StatelessWidget {
           print("save percent: $percent");
         },
         name: bookName,
-        menuBuilder: (textComposition) {
-          return Container(
-            child: Column(
-              children: [
-                AppBar(
-                  title: Text(bookName),
-                  actions: [
-                    TextButton(
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          content: Container(
-                            width: 520,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text("书名：$bookName"),
-                                SizedBox(height: 20),
-                                Text("或者跳转详情页之类"),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        "书籍信息",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    TextButton(
-                      child: Text(
-                        "点我配置",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          contentPadding: EdgeInsets.zero,
-                          content: Container(
-                            width: 520,
-                            child: configSettingBuilder(
-                                context, config, (color, oncolor) {}),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                  ],
-                ),
-                Spacer(),
-                //底栏
-              ],
-            ),
-          );
-        },
+        // 也可以自定义菜单顶栏底栏
+        // menuBuilder: (textComposition) {
+        //   return Container(
+        //     child: Column(
+        //       children: [
+        //         AppBar(
+        //           title: Text(bookName),
+        //           actions: [
+        //             TextButton(
+        //               onPressed: () => showDialog(
+        //                 context: context,
+        //                 builder: (context) => AlertDialog(
+        //                   content: Container(
+        //                     width: 520,
+        //                     child: Column(
+        //                       mainAxisSize: MainAxisSize.min,
+        //                       children: [
+        //                         Text("书名：$bookName"),
+        //                         SizedBox(height: 20),
+        //                         Text("或者跳转详情页之类"),
+        //                       ],
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ),
+        //               child: Text(
+        //                 "书籍信息",
+        //                 style: TextStyle(color: Colors.white),
+        //               ),
+        //             ),
+        //             SizedBox(width: 20),
+        //             TextButton(
+        //               child: Text(
+        //                 "点我配置",
+        //                 style: TextStyle(color: Colors.white),
+        //               ),
+        //               onPressed: () => showDialog(
+        //                 context: context,
+        //                 builder: (context) => AlertDialog(
+        //                   contentPadding: EdgeInsets.zero,
+        //                   content: Container(
+        //                     width: 520,
+        //                     child: configSettingBuilder(
+        //                         context, config, (color, oncolor) {}),
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //             SizedBox(width: 20),
+        //           ],
+        //         ),
+        //         Spacer(),
+        //         //下面放底栏
+        //       ],
+        //     ),
+        //   );
+        // },
       ),
     );
   }

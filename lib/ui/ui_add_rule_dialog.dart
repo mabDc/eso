@@ -266,6 +266,7 @@ class AddRuleProvider extends ChangeNotifier {
         _importType = ImportType.file;
         ruleController.text = JsonEncoder.withIndent("  ").convert(_fileContent.first);
       }
+      _fileName = Utils.getFileNameAndExt(f);
       _totalFileIndex = _fileContent.length;
     } catch (e) {
       Utils.toast("文件格式不对");

@@ -41,6 +41,10 @@ dependencies:
   equatable: ^2.0.0
   fast_gbk: ^0.1.2+1
   filesystem_picker: ^2.0.0-nullsafety.0
+  # filesystem_picker:
+  #   git:
+  #     url: https://github.com/kuchienkz/filesystem_picker
+  #     path: package
   floor: ^1.0.1
   flutter_colorpicker: ^0.4.0
   flutter_highlight: ^0.6.0
