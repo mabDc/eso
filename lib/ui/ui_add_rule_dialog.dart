@@ -64,7 +64,7 @@ class UIAddRuleDialog extends StatelessWidget {
                   minLines: 1,
                   maxLines: 10,
                   decoration: InputDecoration(
-                    hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件",
+                    hintText: "填入规则(eso://)或网址(http[s]://)或预览规则文件或json",
                   ),
                 ),
                 Container(height: 6),
