@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -83,8 +84,56 @@ void paintText(
   }
 }
 
-Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
-    void Function(Color color, void Function(Color color) onChange) onColor) {
+Decoration getDecoration(String background, Color backgroundColor) {
+  DecorationImage? image;
+  if (background.isEmpty || background == 'null') {
+    // backgroundColor = Color(int.parse(background.substring(1), radix: 16));
+  } else if (background.startsWith("assets")) {
+    try {
+      image = DecorationImage(
+        image: AssetImage(background),
+        fit: BoxFit.fill,
+        onError: (_, __) {
+          print(_);
+          print(__);
+          image = null;
+        },
+      );
+    } catch (e) {}
+  } else {
+    final file = File(background);
+    if (file.existsSync()) {
+      try {
+        image = DecorationImage(
+          image: FileImage(file),
+          fit: BoxFit.fill,
+          onError: (_, __) => image = null,
+        );
+      } catch (e) {}
+    }
+  }
+  return BoxDecoration(
+    color: backgroundColor,
+    image: image,
+  );
+}
+
+class _StyleItem {
+  final Color bg;
+  final Color text;
+  final String img;
+  const _StyleItem(this.bg, this.text, this.img);
+}
+
+Widget configSettingBuilder(
+  BuildContext context,
+  TextCompositionConfig config,
+  void Function(Color color, void Function(Color color) onChange) onColor,
+  void Function(String background, void Function(String background) onChange)
+      onBackground,
+  void Function(String fontFamily, void Function(String fontFamily) onChange)
+      onFontFamily,
+) {
   final style = TextStyle(color: Theme.of(context).primaryColor);
 
   AlertDialog showTextDialog(
@@ -132,12 +181,40 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
     );
   }
 
+  final colors = [
+    const _StyleItem(Color(0xFFFFFFCC), Color(0xFF303133), ''), //page_turn
+    const _StyleItem(Color(0xfff1f1f1), Color(0xff373534), ''), //白底
+    const _StyleItem(Color(0xfff5ede2), Color(0xff373328), ''), //浅黄
+    const _StyleItem(Color(0xFFF5DEB3), Color(0xff373328), ''), //黄
+    const _StyleItem(Color(0xffe3f8e1), Color(0xff485249), ''), //绿
+    const _StyleItem(Color(0xff999c99), Color(0xff353535), ''), //浅灰
+    const _StyleItem(Color(0xff33383d), Color(0xffc5c4c9), ''), //黑
+    const _StyleItem(Color(0xff010203), Color(0xFfffffff), ''), //纯黑
+    ///
+    const _StyleItem(Color(0xFF303133), Color(0xFFFFFFCC), ''), //page_turn
+    const _StyleItem(Color(0xff373534), Color(0xfff1f1f1), ''), //白底
+    const _StyleItem(Color(0xff373328), Color(0xfff5ede2), ''), //浅黄
+    const _StyleItem(Color(0xff373328), Color(0xFFF5DEB3), ''), //黄
+    const _StyleItem(Color(0xff485249), Color(0xffe3f8e1), ''), //绿
+    const _StyleItem(Color(0xff353535), Color(0xff999c99), ''), //浅灰
+    const _StyleItem(Color(0xffc5c4c9), Color(0xff33383d), ''), //黑
+    const _StyleItem(Color(0xFfffffff), Color(0xff010203), ''), //纯黑
+    ///
+    const _StyleItem(Color(0xffffffff), Color(0xff101010), "assets/bg/001.jpg"),
+    const _StyleItem(Color(0xffffffff), Color(0xff101010), "assets/bg/002.jpg"),
+    const _StyleItem(Color(0xffffffff), Color(0xff000000), "assets/bg/003.png"),
+    const _StyleItem(Color(0xffffffff), Color(0xff102030), "assets/bg/004.jpg"),
+    const _StyleItem(Color(0xff101010), Color(0xffc5c4c9), "assets/bg/005.jpg"),
+    const _StyleItem(Color(0xfffefefe), Color(0xff353535), "assets/bg/006.jpg"),
+    const _StyleItem(Color(0xff101010), Color(0xffc5c4c9), "assets/bg/007.jpg"),
+    const _StyleItem(Color(0xfffefefe), Color(0xff010203), "assets/bg/008.png"),
+  ];
   return Material(
     child: StatefulBuilder(
       builder: (context, setState) {
         return ListView(
           children: [
-            ListTile(title: Text("（注意：部分效果需要重进正文页或者下一章才生效，除背景图全部都可以生效")),
+            ListTile(title: Text("（注意：部分效果需要重进正文页或者下一章才生效或者过几页才生效")),
             Divider(),
             ListTile(title: Text("开关与选择", style: style)),
             Divider(),
@@ -244,7 +321,7 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
               decoration: BoxDecoration(border: Border.all()),
               margin: EdgeInsets.symmetric(horizontal: 18),
               child: Container(
-                color: config.backgroundColor,
+                decoration: getDecoration(config.background, config.backgroundColor),
                 padding: EdgeInsets.fromLTRB(config.leftPadding, config.topPadding,
                     config.rightPadding, config.bottomPadding),
                 child: Text(
@@ -263,35 +340,18 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
             Wrap(
               alignment: WrapAlignment.center,
               children: [
-                for (var c in [
-                  [const Color(0xFFFFFFCC), const Color(0xFF303133)], //page_turn
-                  [const Color(0xfff1f1f1), const Color(0xff373534)], //白底
-                  [const Color(0xfff5ede2), const Color(0xff373328)], //浅黄
-                  [const Color(0xFFF5DEB3), const Color(0xff373328)], //黄
-                  [const Color(0xffe3f8e1), const Color(0xff485249)], //绿
-                  [const Color(0xff999c99), const Color(0xff353535)], //浅灰
-                  [const Color(0xff33383d), const Color(0xffc5c4c9)], //黑
-                  [const Color(0xff010203), const Color(0xffffffff)], //纯黑
-                  /// 反过来
-                  [const Color(0xFF303133), const Color(0xFFFFFFCC)],
-                  [const Color(0xff373534), const Color(0xfff1f1f1)],
-                  [const Color(0xff373328), const Color(0xfff5ede2)],
-                  [const Color(0xff373328), const Color(0xFFF5DEB3)],
-                  [const Color(0xff485249), const Color(0xffe3f8e1)],
-                  [const Color(0xff353535), const Color(0xff999c99)],
-                  [const Color(0xffc5c4c9), const Color(0xff33383d)],
-                  [const Color(0xffffffff), const Color(0xff010203)],
-                ])
+                for (var c in colors)
                   InkWell(
                     onTap: () => setState(() {
-                      config.backgroundColor = c[0];
-                      config.fontColor = c[1];
+                      config.backgroundColor = c.bg;
+                      config.background = c.img;
+                      config.fontColor = c.text;
                     }),
                     child: Container(
+                      decoration: getDecoration(c.img, c.bg),
                       padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      color: c[0],
-                      child: Text("文字", style: TextStyle(color: c[1])),
+                      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: Text("文字", style: TextStyle(color: c.text)),
                     ),
                   ),
               ],
@@ -360,17 +420,25 @@ Widget configSettingBuilder(BuildContext context, TextCompositionConfig config,
             ListTile(
               title: Text("字体"),
               subtitle: Text(config.fontFamily.isEmpty ? "无" : config.fontFamily),
+              onTap: () => onFontFamily(
+                  config.fontFamily, (font) => setState(() => config.fontFamily = font)),
             ),
             ListTile(
               title: Text("背景 纯色"),
               subtitle:
                   Text(config.backgroundColor.value.toRadixString(16).toUpperCase()),
-              onTap: () => onColor(config.backgroundColor,
-                  (color) => setState(() => config.backgroundColor = color)),
+              onTap: () => onColor(
+                  config.backgroundColor,
+                  (color) => setState(() {
+                        config.backgroundColor = color;
+                        config.background = '';
+                      })),
             ),
             ListTile(
               title: Text("背景 图片"),
               subtitle: Text(config.background),
+              onTap: () => onBackground(config.background,
+                  (background) => setState(() => config.background = background)),
             ),
             Divider(),
             ListTile(title: Text("边距", style: style)),

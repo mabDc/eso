@@ -11,7 +11,6 @@ import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:share/share.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +21,7 @@ import 'package:windows_speak/windows_speak.dart';
 import '../fonticons_icons.dart';
 import '../utils.dart';
 import 'novel_auto_cache_page.dart';
+import 'setting/about_page.dart';
 
 class NovelPage extends StatelessWidget {
   final SearchItem searchItem;
@@ -477,27 +477,7 @@ class NovelMenu extends StatelessWidget {
                           contentPadding: EdgeInsets.zero,
                           content: Container(
                             width: 520,
-                            child: configSettingBuilder(
-                              context,
-                              composition.config,
-                              (Color color, void Function(Color color) onChange) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('选择颜色'),
-                                    content: SingleChildScrollView(
-                                      child: ColorPicker(
-                                        pickerColor: color,
-                                        onColorChanged: onChange,
-                                        showLabel: true,
-                                        pickerAreaHeightPercent: 0.8,
-                                        portraitOnly: true,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                            child: myConfigSettingBuilder(context, composition.config),
                           ),
                         ),
                       );

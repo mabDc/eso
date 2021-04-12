@@ -21,7 +21,7 @@ class TextCompositionEffect extends CustomPainter {
 
   /// 原始动效
   void paintCurl(ui.Canvas canvas, ui.Size size, double pos, ui.Image image,
-      Color? backgroundColor) {
+      ui.Color? backgroundColor, ui.Image? backImage) {
     final movX = (1.0 - pos) * 0.85;
     final calcR = (movX < 0.20) ? radius * movX * 5 : radius;
     final wHRatio = 1 - calcR;
@@ -34,7 +34,9 @@ class TextCompositionEffect extends CustomPainter {
     final shadowXf = (wHRatio - movX);
     final shadowSigma = Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
     final pageRect = Rect.fromLTRB(0.0, 0.0, w * shadowXf, h);
-    if (backgroundColor != null) {
+    if (backImage != null) {
+      c.drawImageRect(backImage, pageRect, pageRect, Paint());
+    } else if (backgroundColor != null) {
       c.drawRect(pageRect, Paint()..color = backgroundColor);
     }
     if (pos != 0) {
@@ -124,7 +126,8 @@ class TextCompositionEffect extends CustomPainter {
             toImageIng = true;
             toImage(picture, size);
           } else {
-            paintCurl(canvas, size, pos, image!, textComposition.backgroundColor);
+            paintCurl(canvas, size, pos, image!, textComposition.backgroundColor,
+                textComposition.backImage);
           }
           break;
 
@@ -208,8 +211,7 @@ class TextCompositionEffect extends CustomPainter {
           canvas.transform(
               (Matrix4.rotationY(-math.pi)..translate(-2 * right, 0, 0)).storage);
           canvas.drawPicture(picture);
-          canvas.drawPaint(
-              Paint()..color = Color(textComposition.backgroundColor.value & 0x88FFFFFF));
+          canvas.drawPaint(Paint()..color = Color(0x22FFFFFF));
           // 背面阴影
           Gradient shadowGradient =
               LinearGradient(colors: [Color(0xAA000000), Colors.transparent]);

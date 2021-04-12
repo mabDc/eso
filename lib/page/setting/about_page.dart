@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 import 'package:eso/page/history_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/setting/ui_setting.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
@@ -441,27 +443,7 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("阅读设置")),
-      body: configSettingBuilder(
-        context,
-        config,
-        (Color color, void Function(Color color) onChange) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('选择颜色'),
-              content: SingleChildScrollView(
-                child: ColorPicker(
-                  pickerColor: color,
-                  onColorChanged: onChange,
-                  showLabel: true,
-                  pickerAreaHeightPercent: 0.8,
-                  portraitOnly: true,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+      body: myConfigSettingBuilder(context, config),
     );
   }
 
@@ -470,4 +452,81 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
     Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
     super.dispose();
   }
+}
+
+Widget myConfigSettingBuilder(BuildContext context, TextCompositionConfig config) {
+  return configSettingBuilder(
+    context,
+    config,
+    (Color color, void Function(Color color) onChange) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('选择颜色'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: color,
+              onColorChanged: onChange,
+              showLabel: true,
+              pickerAreaHeightPercent: 0.8,
+              portraitOnly: true,
+            ),
+          ),
+        ),
+      );
+    },
+    (String s, void Function(String s) onChange) async {
+      print("选择背景");
+      final _cacheUtil = CacheUtil(backup: true, basePath: "background");
+      final dir = await _cacheUtil.cacheDir();
+      String path = await FilesystemPicker.open(
+        title: '选择背景',
+        context: context,
+        rootDirectory: Directory(dir),
+        rootName: dir,
+        fsType: FilesystemType.file,
+        folderIconColor: Colors.teal,
+        allowedExtensions: ['.jpg', '.png', '.webp'],
+        fileTileSelectMode: FileTileSelectMode.wholeTile,
+        requestPermission: CacheUtil.requestPermission,
+      );
+      if (path == null) {
+        Utils.toast("未选择文件");
+        // onChange('');
+      } else {
+        final file = File(path);
+        final name = Utils.getFileNameAndExt(path);
+        await _cacheUtil.putFile(name, file);
+        Utils.toast('图片 $name 已保存到 $dir');
+        onChange(dir + name);
+      }
+    },
+    (String s, void Function(String s) onChange) async {
+      print("选择字体");
+      final _cacheUtil = CacheUtil(backup: true, basePath: "font");
+      final dir = await _cacheUtil.cacheDir();
+      String ttf = await FilesystemPicker.open(
+        title: '选择字体',
+        context: context,
+        rootName: dir,
+        rootDirectory: Directory(dir),
+        fsType: FilesystemType.file,
+        folderIconColor: Colors.teal,
+        allowedExtensions: ['.ttf', '.ttc', '.otf'],
+        fileTileSelectMode: FileTileSelectMode.wholeTile,
+        requestPermission: CacheUtil.requestPermission,
+      );
+      if (ttf == null) {
+        Utils.toast('未选取字体文件');
+        // onChange('');
+        return;
+      }
+      final file = File(ttf);
+      final name = Utils.getFileNameAndExt(ttf);
+      await _cacheUtil.putFile(name, file);
+      await loadFontFromList(file.readAsBytesSync(), fontFamily: name);
+      Utils.toast('字体 $name 已保存到 $dir');
+      onChange(name);
+    },
+  );
 }

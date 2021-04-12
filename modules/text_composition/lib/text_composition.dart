@@ -1,11 +1,13 @@
 library text_composition;
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'memory_cache.dart';
 import 'text_composition_effect_refactor.dart';
@@ -97,6 +99,32 @@ class TextComposition extends ChangeNotifier {
 
   final Map<int, TextPage> textPages;
   final MemoryCache<int, ui.Picture> pictures;
+  ui.Image? _backImage;
+  ui.Image? get backImage => _backImage;
+
+  Future<void> _getBackImage() async {
+    try {
+      final background = config.background;
+      final size = ui.window.physicalSize / ui.window.devicePixelRatio;
+      if (background.isEmpty || background == 'null') {
+        _backImage = null;
+        return;
+      } else if (background.startsWith("asset")) {
+        final data = await rootBundle.load(background);
+        ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+            targetWidth: size.width.round(), targetHeight: size.height.round());
+        ui.FrameInfo fi = await codec.getNextFrame();
+        _backImage = fi.image;
+      } else {
+        final data = await File(background).readAsBytes();
+        ui.Codec codec = await ui.instantiateImageCodec(data,
+            targetWidth: size.width.round(), targetHeight: size.height.round());
+        ui.FrameInfo fi = await codec.getNextFrame();
+        _backImage = fi.image;
+      }
+    } catch (e) {}
+  }
+
   ui.Picture? getPicture(int index, Size size) => pictures.getValueOrSet(index, () {
         final textPage = textPages[index];
         if (textPage == null) return null;
@@ -104,6 +132,7 @@ class TextComposition extends ChangeNotifier {
         final c = Canvas(pic);
         final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
         c.drawRect(pageRect, Paint()..color = config.backgroundColor);
+        if (_backImage != null) c.drawImage(_backImage!, Offset.zero, Paint());
         paintText(c, size, textPage, config);
         return pic.endRecording();
       });
@@ -188,18 +217,26 @@ class TextComposition extends ChangeNotifier {
                       (Color color, void Function(Color color) onChange) {
                         print("选择颜色");
                       },
+                      (String s, void Function(String s) onChange) {
+                        print("选择背景");
+                      },
+                      (String s, void Function(String s) onChange) {
+                        print("选择字体");
+                      },
                     ),
                   ),
                 )).then((value) {
           _isShowMenu = false;
           notifyListeners();
+          _getBackImage();
         });
       } else {
         Navigator.of(context).pop();
       }
-    } else {
-      notifyListeners();
+    } else if (!_isShowMenu) {
+      _getBackImage();
     }
+    notifyListeners();
   }
 
   gotoNextChapter() {
@@ -269,6 +306,7 @@ class TextComposition extends ChangeNotifier {
   Future<void> init(
       void Function(List<AnimationController> _controller) initControllers) async {
     initControllers(_controllers);
+    await _getBackImage();
     if (_disposed) return;
     final pages = await startX(_firstChapterIndex);
     if (_disposed) return;

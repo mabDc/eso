@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
@@ -9,9 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/src/factory_mixin.dart' as impl;
+import 'package:text_composition/text_composition.dart';
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
 import 'database/rule_dao.dart';
+import 'page/novel_page_refactor.dart';
 import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
@@ -50,6 +53,15 @@ class Global with ChangeNotifier {
     final _cacheUtil = CacheUtil(backup: true, basePath: "font");
     final dir = await _cacheUtil.cacheDir();
     try {
+      if (fontFamily != null && fontFamily.contains('.')) {
+        await loadFontFromList(
+          await File(dir + fontFamily).readAsBytes(),
+          fontFamily: fontFamily,
+        );
+      }
+    } catch (e) {}
+    try {
+      final fontFamily = TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey))).fontFamily;
       if (fontFamily != null && fontFamily.contains('.')) {
         await loadFontFromList(
           await File(dir + fontFamily).readAsBytes(),

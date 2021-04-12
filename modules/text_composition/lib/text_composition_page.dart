@@ -122,7 +122,11 @@ class TextCompositionPageState extends State<TextCompositionPage>
               fit: StackFit.expand,
               children: <Widget>[
                 Container(
-                  color: widget.controller.config.backgroundColor,
+                  decoration: getDecoration(
+                    widget.controller.config.background,
+                    widget.controller.config.backgroundColor,
+                  ),
+                  // color: widget.controller.config.backgroundColor,
                   width: double.infinity,
                   height: double.infinity,
                   child: Column(

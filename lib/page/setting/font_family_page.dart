@@ -149,7 +149,7 @@ class _FontFamilyProvider with ChangeNotifier {
       return;
     }
     final file = File(ttf);
-    final name = Utils.getFileName(ttf);
+    final name = Utils.getFileNameAndExt(ttf);
     await _cacheUtil.putFile(name, file);
     await loadFontFromList(file.readAsBytesSync(), fontFamily: name);
     _ttfList.add(name);
