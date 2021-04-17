@@ -44,7 +44,9 @@ class NovelPage extends StatelessWidget {
         return searchItem.durChapterIndex / searchItem.chapters.length;
       }(),
       onSave: (TextCompositionConfig config, double percent) async {
-        percent -= 0.0000001;
+        if (percent > 0.0000001) {
+          percent -= 0.0000001;
+        }
         Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
         searchItem.durContentIndex = (percent * NovelContentTotal).floor();
         final index = (percent * searchItem.chapters.length).floor();
