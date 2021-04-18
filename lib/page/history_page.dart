@@ -9,8 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
-import 'chapter_page.dart';
-
+import 'chapter_page_refactor.dart';
 
 class HistoryPage extends StatefulWidget {
   @override
@@ -47,7 +46,7 @@ class _HistoryPageState extends State<HistoryPage> {
         ),
         SizedBox(
           height: double.infinity,
-          width:2,
+          width: 2,
           child: Material(
             color: Colors.grey.withAlpha(123),
           ),
@@ -60,7 +59,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
 class HistoryPage2 extends StatelessWidget {
   final void Function(Widget) invokeTap;
-  const HistoryPage2({Key key,this.invokeTap}) : super(key: key);
+  const HistoryPage2({Key key, this.invokeTap}) : super(key: key);
   void alert(BuildContext context, Widget title, Widget content, VoidCallback handle) =>
       showDialog(
         context: context,
@@ -199,7 +198,7 @@ class HistoryPage2 extends StatelessWidget {
           provider.checkOne(item.id);
           return;
         }
-       invokeTap(ChapterPage(searchItem: item, key: Key(item.id.toString())));
+        invokeTap(ChapterPage(searchItem: item, key: Key(item.id.toString())));
       },
       child: Container(
         height: 90,

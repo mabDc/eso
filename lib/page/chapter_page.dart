@@ -59,7 +59,6 @@ class _ChapterPageState extends State<ChapterPage> {
                 controller: _controller,
                 slivers: <Widget>[
                   _comicDetail(context),
-                  _buildChapter(context),
                 ],
               ),
               controller: _controller,
@@ -237,27 +236,39 @@ class _ChapterPageState extends State<ChapterPage> {
                 )
               : Container(),
           _buildDescription(context, searchItem.description),
-          _sortWidget(context)
+          _sortWidget(context),
+          Container(
+            height: MediaQuery.of(context).size.height,
+            color: Colors.amber,
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text("$index"),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildDescription(BuildContext context, String description) {
-    final w = MediaQuery.of(context).size.width;
-    return TextCompositionWidget(
-      paragraphs: description
-          .split(RegExp(r"^\s*|(\s{2,}|\n)\s*"))
-          .map((s) => s.trimLeft())
-          .toList(),
-      config: TextCompositionConfig(
-        fontSize: 12,
-        paragraphPadding: 8,
-        fontFamily: Profile.staticFontFamily,
-        fontColor: Theme.of(context).textTheme.headline6.color,
-      ),
-      width: w > 600 ? w / 2 : w,
-    );
+    return Container(child: LayoutBuilder(builder: (context, constrains) {
+      return TextCompositionWidget(
+        paragraphs: description
+            .split(RegExp(r"^\s*|(\s{2,}|\n)\s*"))
+            .map((s) => s.trimLeft())
+            .toList(),
+        config: TextCompositionConfig(
+          fontSize: 12,
+          paragraphPadding: 8,
+          fontFamily: Profile.staticFontFamily,
+          fontColor: Theme.of(context).textTheme.headline6.color,
+        ),
+        width: constrains.maxWidth,
+      );
+    }));
   }
 
   //排序

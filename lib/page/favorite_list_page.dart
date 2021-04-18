@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import '../global.dart';
-import 'chapter_page.dart';
+import 'chapter_page_refactor.dart';
 
 /// 收藏夹列表页
 class FavoriteListPage extends StatelessWidget {
@@ -140,7 +140,10 @@ class FavoriteListPage extends StatelessWidget {
             final searchItem = searchItems[index];
             final longPress = _size.width > 600 ||
                 Provider.of<Profile>(context, listen: true).switchLongPress;
-            VoidCallback openChapter = () =>  invokeTap(ChapterPage(searchItem: searchItem, key: Key(searchItem.id.toString()),));
+            VoidCallback openChapter = () => invokeTap(ChapterPage(
+                  searchItem: searchItem,
+                  key: Key(searchItem.id.toString()),
+                ));
             VoidCallback openContent = () => Navigator.of(context)
                 .push(ContentPageRoute().route(searchItem))
                 .whenComplete(() => provider.updateList());

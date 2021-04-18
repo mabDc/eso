@@ -31,38 +31,41 @@ class NovelPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ContentProvider>(context);
     final bookName = "${searchItem.name}(${searchItem.origin})";
-    final controller = TextComposition(
-      config: TextCompositionConfig.fromJSON(Global.prefs.containsKey(TextConfigKey)
-          ? jsonDecode(Global.prefs.get(TextConfigKey))
-          : {}),
-      loadChapter: provider.loadChapter,
-      chapters: searchItem.chapters.map((e) => e.name).toList(),
-      percent: () {
-        final p = searchItem.durContentIndex / NovelContentTotal;
-        final ch = (p * searchItem.chapters.length).floor();
-        if (ch == searchItem.durChapterIndex) return p;
-        return searchItem.durChapterIndex / searchItem.chapters.length;
-      }(),
-      onSave: (TextCompositionConfig config, double percent) async {
-        if (percent > 0.0000001) {
-          percent -= 0.0000001;
-        }
-        Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
-        searchItem.durContentIndex = (percent * NovelContentTotal).floor();
-        final index = (percent * searchItem.chapters.length).floor();
-        HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-        if (searchItem.durChapterIndex != index) {
-          searchItem.durChapterIndex = index;
-          searchItem.durChapter = searchItem.chapters[index].name;
-          // searchItem.durContentIndex = 1;
-          await SearchItemManager.saveSearchItem();
-        }
-      },
-      name: bookName,
-      menuBuilder: (TextComposition composition) =>
-          NovelMenu(searchItem: searchItem, composition: composition),
-    );
-    return TextCompositionPage(controller: controller);
+
+    return Container(child: LayoutBuilder(builder: (context, constrains) {
+      final controller = TextComposition(
+        config: TextCompositionConfig.fromJSON(Global.prefs.containsKey(TextConfigKey)
+            ? jsonDecode(Global.prefs.get(TextConfigKey))
+            : {}),
+        loadChapter: provider.loadChapter,
+        chapters: searchItem.chapters.map((e) => e.name).toList(),
+        percent: () {
+          final p = searchItem.durContentIndex / NovelContentTotal;
+          final ch = (p * searchItem.chapters.length).floor();
+          if (ch == searchItem.durChapterIndex) return p;
+          return searchItem.durChapterIndex / searchItem.chapters.length;
+        }(),
+        onSave: (TextCompositionConfig config, double percent) async {
+          if (percent > 0.0000001) {
+            percent -= 0.0000001;
+          }
+          Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
+          searchItem.durContentIndex = (percent * NovelContentTotal).floor();
+          final index = (percent * searchItem.chapters.length).floor();
+          HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+          if (searchItem.durChapterIndex != index) {
+            searchItem.durChapterIndex = index;
+            searchItem.durChapter = searchItem.chapters[index].name;
+            // searchItem.durContentIndex = 1;
+            await SearchItemManager.saveSearchItem();
+          }
+        },
+        name: bookName,
+        menuBuilder: (TextComposition composition) =>
+            NovelMenu(searchItem: searchItem, composition: composition),
+      );
+      return TextCompositionPage(controller: controller);
+    }));
   }
 }
 
