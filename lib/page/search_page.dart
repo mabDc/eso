@@ -15,7 +15,7 @@ import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'chapter_page_refactor.dart';
+import 'chapter_page.dart';
 
 class SearchPage extends StatefulWidget {
   SearchPage({Key key}) : super(key: key);

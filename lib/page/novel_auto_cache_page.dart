@@ -10,6 +10,7 @@ import 'package:share/share.dart';
 
 import '../global.dart';
 import '../utils.dart';
+import 'package:path_provider/path_provider.dart' as path;
 
 class NovelCacheService {
   NovelCacheService._privateConstructor()
@@ -84,13 +85,16 @@ class NovelCacheService {
           export.add("未缓存或内容为空");
         }
       }
-      final cache = CacheUtil(backup: true, basePath: "txt");
+      final cache = CacheUtil(basePath: "txt");
       final name = "${searchItem.name}_${searchItem.author}" +
           "searchItem${searchItem.id}".hashCode.toString() +
           ".txt";
       await cache.putData(name, export.join("\n"),
           hashCodeKey: false, shouldEncode: false);
       final filePath = await cache.cacheDir() + name;
+      // final download = await path.getApplicationDocumentsDirectory();
+      // final filePath = Utils.join(download.path, "eso", name);
+      // await File(filePath).writeAsString(export.join("\n"));
       Utils.toast("成功导出到 $filePath");
       // if (isShare) await FlutterShare.shareFile(title: name, filePath: filePath);
       if (isShare) await Share.shareFiles(<String>[filePath], text: name);

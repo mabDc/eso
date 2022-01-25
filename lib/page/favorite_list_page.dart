@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import '../global.dart';
-import 'chapter_page_refactor.dart';
+import 'chapter_page.dart';
 
 /// 收藏夹列表页
 class FavoriteListPage extends StatelessWidget {

@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
-import 'chapter_page_refactor.dart';
+import 'chapter_page.dart';
 
 class HistoryPage extends StatefulWidget {
   @override

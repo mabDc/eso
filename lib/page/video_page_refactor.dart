@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -549,7 +550,13 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       }(_controller);
       _controller?.dispose();
       if (_disposed) return;
-      _controller = VideoPlayerController.network(_content[0]);
+      if (_content[0].contains("@headers")) {
+        final u = _content[0].split("@headers");
+        final h = (jsonDecode(u[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+        _controller = VideoPlayerController.network(u[0], httpHeaders: h);
+      } else {
+        _controller = VideoPlayerController.network(_content[0]);
+      }
       if (_aspectRatio == VideoAspectRatio.uninit) {
         _aspectRatio = VideoAspectRatio.auto;
       }

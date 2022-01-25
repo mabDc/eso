@@ -22,7 +22,7 @@ import 'package:provider/provider.dart';
 import 'package:eso/ui/round_indicator.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
-import 'chapter_page_refactor.dart';
+import 'chapter_page.dart';
 import 'langding_page.dart';
 
 class DiscoverSearchPage extends StatefulWidget {

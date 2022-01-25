@@ -59,6 +59,7 @@ class _ChapterPageState extends State<ChapterPage> {
                 controller: _controller,
                 slivers: <Widget>[
                   _comicDetail(context),
+                  _buildChapter(context),
                 ],
               ),
               controller: _controller,
@@ -237,17 +238,6 @@ class _ChapterPageState extends State<ChapterPage> {
               : Container(),
           _buildDescription(context, searchItem.description),
           _sortWidget(context),
-          Container(
-            height: MediaQuery.of(context).size.height,
-            color: Colors.amber,
-            child: ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text("$index"),
-                );
-              },
-            ),
-          ),
         ],
       ),
     );
@@ -338,6 +328,10 @@ class _ChapterPageState extends State<ChapterPage> {
           chapter.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 6),
       );

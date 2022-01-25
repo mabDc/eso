@@ -9,47 +9,29 @@ environment:
   sdk: ">=2.7.0 <3.2.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  text_composition:
-    path: modules/text_composition
-  audioplayers: ^0.18.3
-  # audioplayers:
-  #   path: modules/audioplayers
-  flutter_qjs: ^0.3.6
-  # flutter_js:
-  #   path: modules/flutter_js
-  flutter_webview:
-    path: modules/flutter_webview
-  webview_flutter:
-    path: modules/webview_flutter
-  windows_speak:
-    path: modules/windows_speak
-  xpath_parse:
-    path: modules/xpath
   about: ^2.0.0
   archive: ^3.1.2
+  audioplayers: ^0.18.3
   battery: ^2.0.1
   cached_network_image: ^3.0.0
   device_info: ^2.0.0
-  # dlna: ^0.0.5
   dlna:
     path: modules/DLNA-Dart
   encrypt: ^5.0.0
   equatable: ^2.0.0
   fast_gbk: ^0.1.2+1
-  filesystem_picker: ^2.0.0-nullsafety.0
-  # filesystem_picker:
-  #   git:
-  #     url: https://github.com/kuchienkz/filesystem_picker
-  #     path: package
+  filesystem_picker: ^2.0.0
   floor: ^1.0.1
+  flutter:
+    sdk: flutter
   flutter_colorpicker: ^0.4.0
   flutter_highlight: ^0.6.0
-  share: ^2.0.1
+  flutter_localizations:
+    sdk: flutter
+  flutter_qjs: ^0.3.6
   flutter_tts: ^3.0.0
+  flutter_webview:
+    path: modules/flutter_webview
   html: ^0.15.0
   http: ^0.13.1
   image_gallery_saver: ^1.6.8
@@ -60,25 +42,33 @@ dependencies:
   outline_material_icons: ^0.1.1
   package_info_plus: ^1.0.0
   path_provider: ^2.0.1
-  permission_handler: ^6.1.1
+  permission_handler: ^7.0.0
   photo_view: ^0.11.1
   provider: ^5.0.0
   screen: ^0.0.5
   scrollable_positioned_list: ^0.1.10
+  share: ^2.0.1
   shared_preferences: ^2.0.5
   sqflite_common_ffi: ^2.0.0
+  text_composition:
+    path: modules/text_composition
   url_launcher: ^6.0.3
   uuid: ^3.0.4
   video_player: ^2.1.1
-  # webdav: ^1.0.8-dev
   webdav:
     git: https://github.com/timestee/dart-webdav
+  webview_flutter:
+    path: modules/webview_flutter
+  windows_speak:
+    path: modules/windows_speak
+  xpath_parse:
+    path: modules/xpath
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   build_runner: ^1.11.5
   floor_generator: ^1.0.1
+  flutter_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

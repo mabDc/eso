@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class Utils {
+  static const join = path.join;
   static String getUrl(String host, String url) {
     if (url == null) return host;
     if (url.startsWith("http")) return url;

@@ -1,3 +1,10 @@
+### 2022.1.25
+
+- 尝试修复权限问题 还需要修改
+- 增加视频支持headers，和图片写法一致: `url@headersjson`
+- 更新部分插件版本
+- js支持`css`方法：`var r = await css(html, selector)`
+
 ### 1.21.15
 
 - 图片背景和字体选择

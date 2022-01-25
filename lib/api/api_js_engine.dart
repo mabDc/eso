@@ -8,6 +8,7 @@
  */
 import 'dart:convert';
 
+import 'package:eso/api/analyzer_html.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/decode_body.dart';
@@ -19,7 +20,8 @@ import '../global.dart';
 import 'analyze_url.dart';
 
 class APIConst {
-  static final pagePattern = RegExp(r"""(\$page)|((^|[^a-zA-Z'"_/-])page([^a-zA-Z0-9'"]|$))""");
+  static final pagePattern =
+      RegExp(r"""(\$page)|((^|[^a-zA-Z'"_/-])page([^a-zA-Z0-9'"]|$))""");
   static final largeSpaceRegExp = RegExp(r"\n+\s*|\s{2,}");
   static final tagsSplitRegExp = RegExp(r"[　 ,/\|\&\%]+");
 }
@@ -32,7 +34,8 @@ class JSEngine {
     if (_engine != null) return;
     final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
     _engine = IsolateQjs(stackSize: 1024 * 1024);
-    final setToGlobalObject = await _engine.evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
+    final setToGlobalObject =
+        await _engine.evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([
       "__http__",
       IsolateFunction((dynamic url) async {
@@ -44,6 +47,13 @@ class JSEngine {
       "xpath",
       IsolateFunction((String html, String xpath) async {
         return XPath.source(html).query(xpath).list();
+      }),
+    ]);
+    await setToGlobalObject.invoke([
+      "css",
+      IsolateFunction((String html, String css) async {
+        final analyzer = AnalyzerHtml().parse(html);
+        return analyzer.getString(css);
       }),
     ]);
     await setToGlobalObject.invoke([
@@ -109,7 +119,8 @@ class JSEngine {
 
   static Future<void> setFunction(String name, IsolateFunction fun) async {
     await initEngine();
-    final setToGlobalObject = await _engine.evaluate("(key, val) => { this[key] = val; }");
+    final setToGlobalObject =
+        await _engine.evaluate("(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([name, fun]);
     setToGlobalObject.free();
   }

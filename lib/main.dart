@@ -10,6 +10,7 @@ import 'global.dart';
 import 'profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
+import 'utils/cache_util.dart';
 
 void main() {
   runApp(MyApp());
@@ -58,6 +59,10 @@ class MyApp extends StatelessWidget {
             home: FirstPage(),
           );
         }
+        (() async {
+          final a = await CacheUtil.requestPermission();
+          print(a);
+        })();
         return MultiProvider(
           providers: [
             ChangeNotifierProvider<Profile>.value(
