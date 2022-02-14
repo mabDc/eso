@@ -328,7 +328,7 @@ class _ChapterPageState extends State<ChapterPage> {
           chapter.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
+          style: TextStyle( 
             color: Theme.of(context).primaryColor,
             fontWeight: FontWeight.bold,
           ),

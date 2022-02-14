@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
@@ -38,8 +37,7 @@ class ColorLensPage extends StatelessWidget {
                 SlidePicker(
                   pickerColor: currentColor,
                   onColorChanged: changeColor,
-                  paletteType: PaletteType.rgb,
-                  showLabel: false,
+                  colorModel: ColorModel.rgb,
                   showIndicator: false,
                   enableAlpha: false,
                   indicatorBorderRadius: const BorderRadius.vertical(
@@ -49,8 +47,7 @@ class ColorLensPage extends StatelessWidget {
                 SlidePicker(
                   pickerColor: currentColor,
                   onColorChanged: changeColor,
-                  paletteType: PaletteType.hsl,
-                  showLabel: false,
+                  colorModel: ColorModel.hsl,
                   showIndicator: false,
                   enableAlpha: false,
                   indicatorBorderRadius: const BorderRadius.vertical(
@@ -60,8 +57,7 @@ class ColorLensPage extends StatelessWidget {
                 SlidePicker(
                   pickerColor: currentColor,
                   onColorChanged: changeColor,
-                  paletteType: PaletteType.hsv,
-                  showLabel: false,
+                  colorModel: ColorModel.hsv,
                   showIndicator: false,
                   enableAlpha: false,
                   indicatorBorderRadius: const BorderRadius.vertical(

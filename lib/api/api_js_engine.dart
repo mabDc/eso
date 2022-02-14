@@ -9,12 +9,14 @@
 import 'dart:convert';
 
 import 'package:eso/api/analyzer_html.dart';
+import 'package:eso/api/analyzer_xpath.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/decode_body.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
-import 'package:xpath_parse/xpath_selector.dart';
+// import 'package:xpath_parse/xpath_selector.dart';
+import 'package:xpath_selector/xpath_selector.dart';
 
 import '../global.dart';
 import 'analyze_url.dart';
@@ -46,14 +48,13 @@ class JSEngine {
     await setToGlobalObject.invoke([
       "xpath",
       IsolateFunction((String html, String xpath) async {
-        return XPath.source(html).query(xpath).list();
+        return AnalyzerXPath().parse(html).getString(xpath);
       }),
     ]);
     await setToGlobalObject.invoke([
       "css",
       IsolateFunction((String html, String css) async {
-        final analyzer = AnalyzerHtml().parse(html);
-        return analyzer.getString(css);
+        return AnalyzerHtml().parse(html).getString(css);
       }),
     ]);
     await setToGlobalObject.invoke([

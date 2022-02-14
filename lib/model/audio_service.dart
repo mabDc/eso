@@ -57,7 +57,7 @@ class AudioService {
       _player.onAudioPositionChanged.listen((Duration p) {
         _positionDuration = p;
       });
-      _player.onPlayerStateChanged.listen((AudioPlayerState s) {
+      _player.onPlayerStateChanged.listen((PlayerState s) {
         _playerState = s;
       });
       _player.onPlayerCompletion.listen((event) {
@@ -89,17 +89,17 @@ class AudioService {
   /// 是否正在播放
   bool get __isPlaying =>
       _playerState != null &&
-      _playerState != AudioPlayerState.STOPPED &&
-      _playerState != AudioPlayerState.COMPLETED &&
-      _playerState != AudioPlayerState.PAUSED;
+      _playerState != PlayerState.STOPPED &&
+      _playerState != PlayerState.COMPLETED &&
+      _playerState != PlayerState.PAUSED;
 
   Future<int> play() async {
     switch (_playerState) {
-      case AudioPlayerState.COMPLETED:
-      case AudioPlayerState.STOPPED:
+      case PlayerState.COMPLETED:
+      case PlayerState.STOPPED:
         return replay();
         break;
-      // case AudioPlayerState.PAUSED:
+      // case PlayerState.PAUSED:
       //   return _player.resume();
       default:
         return _player.resume();
@@ -107,7 +107,7 @@ class AudioService {
   }
 
   Future<int> playOrPause() async {
-    if (_playerState == AudioPlayerState.PLAYING) {
+    if (_playerState == PlayerState.PLAYING) {
       return _player.pause();
     } else {
       return play();
@@ -118,7 +118,7 @@ class AudioService {
     if (_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)) {
       if (allFavorite != true) {
         playChapter(0);
-      } 
+      }
     } else {
       playChapter(_searchItem.durChapterIndex + 1);
     }
@@ -258,8 +258,8 @@ class AudioService {
   Duration _positionDuration;
   Duration get positionDuration => _positionDuration;
 
-  AudioPlayerState _playerState;
-  AudioPlayerState get playerState => _playerState;
+  PlayerState _playerState;
+  PlayerState get playerState => _playerState;
 
   /// 当前播放的节目
   ChapterItem get curChapter =>

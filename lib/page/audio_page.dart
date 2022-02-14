@@ -50,7 +50,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
       });
     searchItem = widget.searchItem;
     super.initState();
-
   }
 
   @override
@@ -431,7 +430,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
         ),
         IconButton(
           icon: Icon(
-            provider.state == AudioPlayerState.PLAYING
+            provider.state == PlayerState.PLAYING
                 ? Icons.pause_circle_outline
                 : Icons.play_circle_outline,
             color: Colors.white,

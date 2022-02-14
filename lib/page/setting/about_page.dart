@@ -5,6 +5,7 @@ import 'package:eso/page/history_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/setting/ui_setting.dart';
 import 'package:eso/page/source/edit_source_page.dart';
+import 'package:eso/qing/const.dart' as qing;
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -17,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../global.dart';
 import '../../profile.dart';
+import '../../qing/main.dart';
 import '../novel_page_refactor.dart';
 import 'auto_backup_page.dart';
 import 'darkmod_page.dart';
@@ -117,6 +119,15 @@ class AboutPage2 extends StatelessWidget {
                       title: Text('规则管理'),
                       subtitle: Text('添加、删除、修改您的数据源'),
                       onTap: () => invokeTap(EditSourcePage()),
+                    ),
+                    ListTile(
+                      title: Text('QING'),
+                      subtitle: Text('请求测试与解析辅助工具'),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RequestAndParserTestTool(),
+                          )),
                     ),
                     ListTile(
                       title: Text('备份恢复和webdav'),
@@ -232,6 +243,17 @@ class AboutPage2 extends StatelessWidget {
                       title: Text('亦搜②群'),
                       subtitle: Text('1148443231'),
                       onTap: () => joinGroup('1148443231'),
+                    ),
+                    ListTile(
+                      title: Text(qing.joinPindao),
+                      subtitle: Image.memory(
+                        base64Decode(qing.esoPindao.base64.split(',')[1]),
+                        fit: BoxFit.contain,
+                        height: 150,
+                        width: 150,
+                        alignment: Alignment.topLeft,
+                      ),
+                      onTap: () => launch(qing.esoPindao.url),
                     ),
                     ListTile(
                       title: Text('规则获取'),

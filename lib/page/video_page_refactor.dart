@@ -8,12 +8,11 @@ import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_item.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/utils/flutter_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:screen/screen.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
@@ -565,7 +564,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       await _controller.initialize();
       _controller.seekTo(Duration(milliseconds: searchItem.durContentIndex));
       _controller.play();
-      Screen.keepOn(true);
+      DeviceDisplayBrightness.keepOn(enabled: true);
       _controller.addListener(_listener);
       _controllerTime = DateTime.now();
       _isLoading = false;
@@ -619,14 +618,13 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       await HistoryItemManager.saveHistoryItem();
     }();
     if (Platform.isIOS || Platform.isAndroid) {
-      Screen.keepOn(false);
-      if (Platform.isAndroid) {
-        Screen.setBrightness(-1);
-      }
+      DeviceDisplayBrightness.resetBrightness();
+      DeviceDisplayBrightness.keepOn(enabled: false);
     }
     loadingText.clear();
     resetRotation();
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
@@ -703,7 +701,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
   }
 
   void _pause() async {
-    await Screen.keepOn(false);
+    DeviceDisplayBrightness.keepOn(enabled: false);
     await controller.pause();
     setHintText("已暂停");
   }
@@ -727,7 +725,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void _play() async {
     setHintText("播放");
-    await Screen.keepOn(true);
+    DeviceDisplayBrightness.keepOn(enabled: true);
     await controller.play();
   }
 
@@ -777,13 +775,13 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void displayController() {
     _showController = true;
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     _controllerTime = DateTime.now();
   }
 
   void hideController() {
     _showController = false;
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
   VideoAspectRatio _aspectRatio;
@@ -918,7 +916,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     double number = (_dragStartPosition - details.globalPosition.dy) / 200;
     if (details.globalPosition.dx < (_screenAxis == Axis.horizontal ? 400 : 200)) {
       IconData icon = OMIcons.brightnessLow;
-      var brightness = await Screen.brightness;
+      var brightness = await DeviceDisplayBrightness.getBrightness();
       if (brightness > 1) {
         brightness = 0.5;
       }
@@ -936,7 +934,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         icon = Icons.brightness_high;
       }
       setHintTextWithIcon(brightness, icon);
-      await Screen.setBrightness(brightness);
+      await DeviceDisplayBrightness.setBrightness(brightness);
     } else {
       IconData icon = OMIcons.volumeMute;
       var vol = _controller.value.volume + number;

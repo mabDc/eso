@@ -9,7 +9,7 @@ import 'package:eso/profile.dart';
 import 'package:flutter/services.dart';
 import 'package:share/share.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:screen/screen.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../database/search_item.dart';
 import 'package:flutter/material.dart';
@@ -59,13 +59,12 @@ class MangaPageProvider with ChangeNotifier {
     }
   }
 
-  double _sysBrightness;
   double _brightness;
   double get brightness => _brightness;
   set brightness(double value) {
     if ((value - _brightness).abs() > 0.005) {
       _brightness = value;
-      Screen.setBrightness(brightness);
+      DeviceDisplayBrightness.setBrightness(brightness);
     }
   }
 
@@ -73,7 +72,7 @@ class MangaPageProvider with ChangeNotifier {
   void setKeepOn(bool value) {
     if (value != keepOn) {
       keepOn = value;
-      Screen.keepOn(keepOn);
+      // ScreenBrightness().keepOn(keepOn);
     }
   }
 
@@ -137,14 +136,11 @@ class MangaPageProvider with ChangeNotifier {
 
   void _initContent() async {
     if (Platform.isAndroid || Platform.isIOS) {
-      _brightness = await Screen.brightness;
+      _brightness = await DeviceDisplayBrightness.getBrightness();
       if (_brightness > 1) {
         _brightness = 0.5;
       }
-      _sysBrightness = _brightness;
-      if (keepOn) {
-        Screen.keepOn(keepOn);
-      }
+      DeviceDisplayBrightness.keepOn(enabled: keepOn);
     }
     if (landscape) {
       SystemChrome.setPreferredOrientations([
@@ -300,12 +296,8 @@ class MangaPageProvider with ChangeNotifier {
   @override
   void dispose() {
     if (Platform.isAndroid || Platform.isIOS) {
-      if (Platform.isAndroid) {
-        Screen.setBrightness(-1.0);
-      } else {
-        Screen.setBrightness(_sysBrightness);
-      }
-      Screen.keepOn(false);
+      DeviceDisplayBrightness.resetBrightness();
+      DeviceDisplayBrightness.keepOn(enabled: false);
     }
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,

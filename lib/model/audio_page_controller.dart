@@ -12,14 +12,14 @@ import 'package:share/share.dart';
 class AudioPageController with ChangeNotifier {
   AudioService _audioService;
   Timer _timer;
-  bool get isPlay => _audioService?.playerState == AudioPlayerState.PLAYING;
+  bool get isPlay => _audioService?.playerState == PlayerState.PLAYING;
   Duration get positionDuration => _audioService.positionDuration;
   int get seconds => _audioService.duration.inSeconds;
   int get postionSeconds => _audioService.positionDuration.inSeconds;
   String get durationText => _getTimeString(seconds);
   String get positionDurationText => _getTimeString(postionSeconds);
   int get repeatMode => _audioService.repeatMode;
-  AudioPlayerState get state => _audioService.playerState;
+  PlayerState get state => _audioService.playerState;
 
   bool _showChapter;
   bool get showChapter => _showChapter;
