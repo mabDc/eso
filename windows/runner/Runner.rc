@@ -90,10 +90,10 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.mabdc" "\0"
-            VALUE "FileDescription", "A new Flutter project." "\0"
+            VALUE "FileDescription", "eso" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "eso" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2020 com.mabdc. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2022 com.mabdc. All rights reserved." "\0"
             VALUE "OriginalFilename", "eso.exe" "\0"
             VALUE "ProductName", "eso" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

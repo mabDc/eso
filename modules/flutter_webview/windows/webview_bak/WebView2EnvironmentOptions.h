@@ -9,7 +9,7 @@
 #include <wrl/implements.h>
 
 #include "webview2.h"
-#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"96.0.1054.31"
+#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"86.0.579.0"
 
 #define COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(p)     \
  public:                                                      \
@@ -45,7 +45,7 @@
   }                                                         \
                                                             \
  protected:                                                 \
-  BOOL m_##p = FALSE;
+  BOOL m_##p;
 
 // This is a base COM class that implements ICoreWebView2EnvironmentOptions.
 template <typename allocate_fn_t,
@@ -113,8 +113,6 @@ class CoreWebView2EnvironmentOptionsBase
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(AdditionalBrowserArguments)
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(Language)
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(TargetCompatibleBrowserVersion)
-  COREWEBVIEW2ENVIRONMENTOPTIONS_BOOL_PROPERTY(
-      AllowSingleSignOnUsingOSPrimaryAccount)
 };
 
 template <typename allocate_fn_t,

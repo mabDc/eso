@@ -15,18 +15,20 @@
 
 namespace webview
 {
-#undef interface
 #include "webview/WebView2.h"
 #include "webview/WebView2EnvironmentOptions.h"
+#undef interface
 
   auto TAG = "FlutterWebviewException";
 
-  LPWSTR to_lpwstr(const std::string s)
+  std::wstring to_lpwstr(const std::string s)
   {
     int n = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
-    wchar_t *ws = new wchar_t[n];
+    wchar_t* ws = new wchar_t[n];
     MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, ws, n);
-    return ws;
+    auto wstr = std::wstring(ws, n);
+    delete ws;
+    return wstr;
   }
 
   std::string from_lpwstr(wchar_t *wchar)
@@ -179,7 +181,7 @@ namespace webview
     {
       if (webviewWindow)
       {
-        return SUCCEEDED(webviewWindow->Navigate(to_lpwstr(url)));
+        return SUCCEEDED(webviewWindow->Navigate(to_lpwstr(url).c_str()));
       }
       return false;
     }
@@ -189,7 +191,7 @@ namespace webview
       if (webviewWindow)
       {
         return SUCCEEDED(webviewWindow->ExecuteScript(
-            to_lpwstr(script),
+            to_lpwstr(script).c_str(),
             Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
                 [jsResult](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
                   if (resultObjectAsJson)
@@ -208,7 +210,7 @@ namespace webview
       if (webviewWindow)
       {
         return SUCCEEDED(webviewWindow->CallDevToolsProtocolMethod(
-            to_lpwstr(methodName), to_lpwstr(parametersAsJson),
+            to_lpwstr(methodName).c_str(), to_lpwstr(parametersAsJson).c_str(),
             Microsoft::WRL::Callback<ICoreWebView2CallDevToolsProtocolMethodCompletedHandler>(
                 [callResult](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
                   if (resultObjectAsJson)

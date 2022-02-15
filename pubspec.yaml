@@ -63,6 +63,7 @@ dependencies:
     path: modules/webview_flutter
   windows_speak:
     path: modules/windows_speak
+  http_multi_server: ^3.2.0
 
 dev_dependencies:
   build_runner: ^1.11.5
@@ -73,6 +74,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - player.html
     - CHANGELOG.md
     - README.md
     - LICENSE

@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_windows/webview_windows.dart';
 
 import '../global.dart';
 import '../utils.dart';
@@ -24,6 +25,7 @@ class VideoPageDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final profile = Profile();
     final primaryColor = Theme.of(context).primaryColor;
+    final webcontroller = WebviewController();
     return Scaffold(
       appBar: AppBar(
         title:
@@ -40,12 +42,32 @@ class VideoPageDesktop extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.fullscreen),
+      ),
       body: ChangeNotifierProvider<VPDProvider>(
-        create: (context) => VPDProvider(searchItem: searchItem, profile: profile),
+        create: (context) => VPDProvider(
+            searchItem: searchItem, profile: profile, webcontroller: webcontroller),
         builder: (BuildContext context, child) {
           final provider = Provider.of<VPDProvider>(context, listen: true);
           return ListView(
             children: [
+              !webcontroller.value.isInitialized
+                  ? const Text(
+                      'Not Initialized',
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    )
+                  : Container(
+                      height: 1000,
+                      child: Webview(
+                        webcontroller,
+                        height: 1000,
+                      ),
+                    ),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -169,10 +191,12 @@ class VideoPageDesktop extends StatelessWidget {
 class VPDProvider extends ChangeNotifier {
   final SearchItem searchItem;
   final Profile profile;
+  final WebviewController webcontroller;
 
   VPDProvider({
     @required this.searchItem,
     @required this.profile,
+    @required this.webcontroller,
   }) {
     parse(true);
   }
@@ -181,6 +205,15 @@ class VPDProvider extends ChangeNotifier {
   Process _process;
   bool _isLoading;
   bool get isLoading => _isLoading == true;
+
+  bool _fullscreen;
+  bool get fullscreen => _fullscreen == true;
+  set fullscreen(bool full) {
+    if (full != _fullscreen) {
+      _fullscreen = full;
+      notifyListeners();
+    }
+  }
 
   final _format = DateFormat("HH:mm:ss");
 
@@ -209,12 +242,15 @@ class VPDProvider extends ChangeNotifier {
         log("错误 内容为空！");
       } else {
         _url = content.first;
-        if (autoPlay == true) {
-          log("播放地址 $_url\n自动开始本地播放");
-          play();
-        } else {
-          log("播放地址 $_url");
-        }
+        log("播放地址 $_url\n自动开始本地播放");
+        if (!webcontroller.value.isInitialized) await webcontroller.initialize();
+        await webcontroller.loadUrl("http://localhost:51532/player.html?$url");
+        // if (autoPlay == true) {
+        //   log("播放地址 $_url\n自动开始本地播放");
+        //   play();
+        // } else {
+        //   log("播放地址 $_url");
+        // }
       }
     } catch (e, st) {
       log("失败\n$e\n$st");

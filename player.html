@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body{
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <h1></h1> -->
+    <div id="dplayer"></div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/hls.js/1.1.5-0.canary.8240/hls.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/dplayer/1.26.0/DPlayer.min.js"></script>
+    <script>
+      try {
+        var url = window.location.href.split("player.html?").pop();
+        const dp = new DPlayer({
+        autoplay: false,
+        theme: "#FADFA3",
+        loop: true,
+        lang: "zh-cn",
+        hotkey: true,
+        preload: "auto",
+        // logo: "logo.png",
+        volume: 0.7,
+        mutex: true,
+        container: document.getElementById("dplayer"),
+        video: {
+          url: decodeURIComponent(url),
+          pic: "https://i.loli.net/2019/06/06/5cf8c5d9c57b510947.png",
+          thumbnails: "https://i.loli.net/2019/06/06/5cf8c5d9c57b510947.png",
+          type: "auto",
+        },
+        screenshot: true,
+        subtitle: {
+          url: "dplayer.vtt",
+          type: "webvtt",
+          fontSize: "25px",
+          bottom: "10%",
+          color: "#b7daff",
+        },
+        danmaku: {
+          id: "9E2E3368B56CDBB4",
+          api: "https://api.prprpr.me/dplayer/",
+          token: "tokendemo",
+          maximum: 1000,
+          addition: ["https://api.prprpr.me/dplayer/v3/bilibili?aid=4157142"],
+          user: "DIYgod",
+          bottom: "15%",
+          unlimited: true,
+        },
+        contextmenu: [
+          {
+            text: "custom1",
+            link: "https://github.com/DIYgod/DPlayer",
+          },
+          {
+            text: "custom2",
+            click: (player) => {
+              console.log(player);
+            },
+          },
+        ],
+        highlight: [
+          {
+            text: "marker for 20s",
+            time: 20,
+          },
+          {
+            text: "marker for 2mins",
+            time: 120,
+          },
+        ],
+      });
+      } catch (error) {
+          document.querySelector("h1").innerText = `${error}`
+      }
+    </script>
+  </body>
+</html>
