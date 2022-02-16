@@ -1,3 +1,10 @@
+### 2022.2.16
+- PC端视频播放器
+- 如果没反应请尝试滑动到页面底部下载微软的运行时
+   - 用于嗅探和视频播放(任意安装一个都可以，win11已经内置不需要安装)
+   - edge https://www.microsoftedgeinsider.com/zh-cn/
+   - webview2 https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/
+- 下版本增加剧集 预解析 缓存
 ### 2022.2.14
 
 - 质量更新

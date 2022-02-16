@@ -6,6 +6,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
@@ -17,56 +18,110 @@ import '../global.dart';
 import '../utils.dart';
 import 'source/edit_rule_page.dart';
 
-class VideoPageDesktop extends StatelessWidget {
+class VideoPageDesktop extends StatefulWidget {
   final SearchItem searchItem;
   const VideoPageDesktop({this.searchItem, Key key}) : super(key: key);
 
   @override
+  State<VideoPageDesktop> createState() => _VideoPageDesktopState();
+}
+
+class _VideoPageDesktopState extends State<VideoPageDesktop> {
+  WebviewController webviewController;
+  Profile profile;
+  Color primaryColor;
+
+  @override
+  void initState() {
+    profile = Profile();
+    if (webviewController == null) webviewController = WebviewController();
+    // (() async {
+    //   try {
+    //     if (!webviewController.value.isInitialized) {
+    //       await webviewController.initialize();
+    //       if (mounted) setState(() {});
+    //     }
+    //   } catch (e) {}
+    // })();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    webviewController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final profile = Profile();
-    final primaryColor = Theme.of(context).primaryColor;
-    final webcontroller = WebviewController();
-    return Scaffold(
-      appBar: AppBar(
-        title:
-            Text("${searchItem.name} - ${searchItem.durChapter} - ${searchItem.origin}"),
-        actions: [
-          IconButton(
-            icon: Icon(OMIcons.settingsEthernet),
-            tooltip: "编辑规则",
-            onPressed: () async {
-              final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
-            },
+    primaryColor = Theme.of(context).primaryColor;
+    return ChangeNotifierProvider<VPDProvider>(
+      create: (context) => VPDProvider(
+          searchItem: widget.searchItem,
+          profile: profile,
+          webcontroller: webviewController),
+      builder: (BuildContext context, child) {
+        final searchItem = widget.searchItem;
+        final provider = Provider.of<VPDProvider>(context, listen: true);
+        if (provider.fullscreen)
+          return Scaffold(
+            floatingActionButton: FloatingActionButton.small(
+              onPressed: () {
+                provider.fullscreen = false;
+              },
+              child: Icon(
+                Icons.fullscreen_exit_outlined,
+                color: Colors.black,
+              ),
+            ),
+            body: !webviewController.value.isInitialized
+                ? const Text(
+                    '\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n下版本增加剧集 预解析 缓存',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  )
+                : Center(child: Webview(webviewController)),
+          );
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+                "${searchItem.name} - ${searchItem.durChapter} - ${searchItem.origin}"),
+            actions: [
+              IconButton(
+                icon: Icon(OMIcons.settingsEthernet),
+                tooltip: "编辑规则",
+                onPressed: () async {
+                  final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.fullscreen),
-      ),
-      body: ChangeNotifierProvider<VPDProvider>(
-        create: (context) => VPDProvider(
-            searchItem: searchItem, profile: profile, webcontroller: webcontroller),
-        builder: (BuildContext context, child) {
-          final provider = Provider.of<VPDProvider>(context, listen: true);
-          return ListView(
+          floatingActionButton: FloatingActionButton.small(
+            onPressed: () {
+              provider.fullscreen = true;
+            },
+            child: Icon(
+              Icons.fullscreen_exit_outlined,
+              color: Colors.black,
+            ),
+          ),
+          body: ListView(
             children: [
-              !webcontroller.value.isInitialized
+              !webviewController.value.isInitialized
                   ? const Text(
-                      'Not Initialized',
+                      '\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n下版本增加剧集 预解析 缓存',
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.w900,
                       ),
                     )
                   : Container(
-                      height: 1000,
-                      child: Webview(
-                        webcontroller,
-                        height: 1000,
-                      ),
+                      height: 500,
+                      child: Center(child: Webview(webviewController)),
                     ),
               Card(
                 child: Padding(
@@ -129,23 +184,6 @@ class VideoPageDesktop extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: provider.controllerWeb,
-                              maxLines: 1,
-                            ),
-                          ),
-                          Container(
-                            height: 60,
-                            child: TextButton(
-                              onPressed: provider.playWeb,
-                              child: Text("网页播放"),
-                            ),
-                          ),
-                        ],
-                      ),
                       ListTile(
                         title: Text('网页打开链接'),
                         subtitle: Text(provider.url ?? "请先解析"),
@@ -160,7 +198,7 @@ class VideoPageDesktop extends StatelessWidget {
                   children: <Widget>[
                     ListTile(
                       title: Text(
-                        '嗅探(任意安装一个, 二选一)',
+                        'webview2用于嗅探和视频播放(任意安装一个都可以)',
                         style: TextStyle(color: primaryColor),
                       ),
                     ),
@@ -181,9 +219,9 @@ class VideoPageDesktop extends StatelessWidget {
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -244,7 +282,11 @@ class VPDProvider extends ChangeNotifier {
         _url = content.first;
         log("播放地址 $_url\n自动开始本地播放");
         if (!webcontroller.value.isInitialized) await webcontroller.initialize();
-        await webcontroller.loadUrl("http://localhost:51532/player.html?$url");
+        final dir = kDebugMode
+            ? Utils.join(Directory.current.path, "player.html")
+            : Utils.join(Directory.current.path, "data", "flutter_assets", "player.html");
+        await webcontroller.loadUrl("$dir#$_url");
+        _fullscreen = true;
         // if (autoPlay == true) {
         //   log("播放地址 $_url\n自动开始本地播放");
         //   play();
@@ -273,14 +315,6 @@ class VPDProvider extends ChangeNotifier {
       profile.desktopPlayer,
       <String>[_url],
     );
-  }
-
-  playWeb() async {
-    if (_url == null || _url.isEmpty) {
-      log("请先解析");
-      return;
-    }
-    launch(controllerWeb.text.replaceFirst("=%s", "=" + _url));
   }
 
   void setPlayer(BuildContext context) async {
@@ -317,11 +351,10 @@ class VPDProvider extends ChangeNotifier {
   }
 
   final controller = TextEditingController(text: "解析日志\n");
-  final controllerWeb = TextEditingController(text: "http://www.m3u8player.top/?play=%s");
+
   @override
   void dispose() {
     controller.dispose();
-    controllerWeb.dispose();
     super.dispose();
   }
 }

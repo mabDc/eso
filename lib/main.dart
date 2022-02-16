@@ -11,9 +11,6 @@ import 'profile.dart';
 import 'model/history_manager.dart';
 import 'page/home_page.dart';
 import 'utils/cache_util.dart';
-import 'package:http_multi_server/http_multi_server.dart';
-import 'package:shelf/shelf.dart' as shelf;
-import 'package:shelf/shelf_io.dart' as shelf_io;
 
 void main() async {
   runApp(MyApp());
@@ -21,16 +18,16 @@ void main() async {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
-  if (Platform.isWindows) {
-    final server = await HttpMultiServer.loopback(51532);
-    final html = await rootBundle.loadString("player.html", cache: false);
-    shelf_io.serveRequests(server, (request) {
-      return shelf.Response.ok(
-        html,
-        headers: {"content-type": "text/html;charset=utf-8"},
-      );
-    });
-  }
+  // if (Platform.isWindows) {
+  //   final server = await HttpMultiServer.loopback(51532);
+  //   final html = await rootBundle.loadString("player.html", cache: false);
+  //   shelf_io.serveRequests(server, (request) {
+  //     return shelf.Response.ok(
+  //       html,
+  //       headers: {"content-type": "text/html;charset=utf-8"},
+  //     );
+  //   });
+  // }
 }
 
 class ErrorApp extends StatelessWidget {
