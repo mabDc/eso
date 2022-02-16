@@ -5,6 +5,8 @@
    - edge https://www.microsoftedgeinsider.com/zh-cn/
    - webview2 https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/
 - 下版本增加剧集 预解析 缓存
+- fix bug 中文路径
+- 优化视频按钮
 ### 2022.2.14
 
 - 质量更新

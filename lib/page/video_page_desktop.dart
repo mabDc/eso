@@ -65,24 +65,42 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
         final provider = Provider.of<VPDProvider>(context, listen: true);
         if (provider.fullscreen)
           return Scaffold(
-            floatingActionButton: FloatingActionButton.small(
-              onPressed: () {
-                provider.fullscreen = false;
-              },
-              child: Icon(
-                Icons.fullscreen_exit_outlined,
-                color: Colors.black,
-              ),
-            ),
-            body: !webviewController.value.isInitialized
-                ? const Text(
-                    '\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n下版本增加剧集 预解析 缓存',
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.w900,
+            // floatingActionButton: FloatingActionButton.small(
+            //   onPressed: () {
+            //     provider.fullscreen = false;
+            //   },
+            //   child: Icon(
+            //     Icons.fullscreen_exit_outlined,
+            //     color: Colors.black,
+            //   ),
+            // ),
+            body: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                !webviewController.value.isInitialized
+                    ? Center(
+                        child: const Text(
+                          '\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n下版本增加剧集 预解析 缓存',
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      )
+                    : Center(child: Webview(webviewController)),
+                InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 26, bottom: 5, top: 5),
+                    child: Icon(
+                      Icons.fullscreen_exit_outlined,
+                      color: Colors.grey.withOpacity(0.1),
+                      size: 30,
                     ),
-                  )
-                : Center(child: Webview(webviewController)),
+                  ),
+                  onTap: () => provider.fullscreen = false,
+                ),
+              ],
+            ),
           );
         return Scaffold(
           appBar: AppBar(
@@ -100,12 +118,12 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
               ),
             ],
           ),
-          floatingActionButton: FloatingActionButton.small(
+          floatingActionButton: FloatingActionButton(
             onPressed: () {
               provider.fullscreen = true;
             },
             child: Icon(
-              Icons.fullscreen_exit_outlined,
+              Icons.fullscreen_outlined,
               color: Colors.black,
             ),
           ),
@@ -282,10 +300,11 @@ class VPDProvider extends ChangeNotifier {
         _url = content.first;
         log("播放地址 $_url\n自动开始本地播放");
         if (!webcontroller.value.isInitialized) await webcontroller.initialize();
-        final dir = kDebugMode
+        var dir = kDebugMode
             ? Utils.join(Directory.current.path, "player.html")
             : Utils.join(Directory.current.path, "data", "flutter_assets", "player.html");
-        await webcontroller.loadUrl("$dir#$_url");
+        dir = Uri.encodeFull(dir).replaceAll("%5C", "\\");
+        await webcontroller.loadUrl("file:///$dir#$_url");
         _fullscreen = true;
         // if (autoPlay == true) {
         //   log("播放地址 $_url\n自动开始本地播放");
