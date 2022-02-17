@@ -467,7 +467,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               SearchItem searchItem = items[index];
               if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
                 searchItem = SearchItemManager.searchItem
-                    .firstWhere((item) => item.url == searchItem.url);
+                    .firstWhere((item) => item.url == searchItem.url && item.originTag == searchItem.originTag);
               }
               return InkWell(
                 child: builderItem != null

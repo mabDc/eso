@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'global.dart';
 
@@ -463,7 +464,7 @@ class Profile with ChangeNotifier {
       appBarTheme: AppBarTheme(
         color: theme.canvasColor,
         elevation: Global.elevation,
-        brightness: theme.brightness,
+        foregroundColor: isDarkMode ? Color(0xffb4bcc4) : Color(0xff424242),
         iconTheme: IconThemeData(
           color: theme.textTheme.bodyText1.color.withOpacity(0.7),
           size: 19,

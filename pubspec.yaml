@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.21.15+12115
+version: 1.22.1+12201
 homepage: https://github.com/mabdc/eso
 author: mabdc
 
@@ -64,6 +64,7 @@ dependencies:
   windows_speak:
     path: modules/windows_speak
   http_multi_server: ^3.2.0
+  window_manager: ^0.1.5
 
 dev_dependencies:
   build_runner: ^1.11.5

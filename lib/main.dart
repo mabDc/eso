@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'global.dart';
 import 'profile.dart';
 import 'model/history_manager.dart';
@@ -18,6 +19,8 @@ void main() async {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
+  // 必须加上这一行。
+  await windowManager.ensureInitialized();
   // if (Platform.isWindows) {
   //   final server = await HttpMultiServer.loopback(51532);
   //   final html = await rootBundle.loadString("player.html", cache: false);

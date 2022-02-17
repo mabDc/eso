@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_webview
   url_launcher_windows
   webview_windows
+  window_manager
   windows_speak
 )
 
