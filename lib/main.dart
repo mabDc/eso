@@ -13,6 +13,18 @@ import 'model/history_manager.dart';
 import 'page/home_page.dart';
 import 'utils/cache_util.dart';
 
+import 'package:flutter/gestures.dart';
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        // etc.
+      };
+}
+
 void main() async {
   runApp(MyApp());
   if (Platform.isAndroid) {
@@ -41,6 +53,7 @@ class ErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scrollBehavior: MyCustomScrollBehavior(),
       home: Scaffold(
         body: ListView(
           children: [
@@ -68,6 +81,7 @@ class MyApp extends StatelessWidget {
         }
         if (!snapshot.hasData) {
           return MaterialApp(
+            scrollBehavior: MyCustomScrollBehavior(),
             title: Global.appName,
             home: FirstPage(),
           );
@@ -97,6 +111,7 @@ class MyApp extends StatelessWidget {
                   radius: 20.0,
                   textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
                   child: MaterialApp(
+                    scrollBehavior: MyCustomScrollBehavior(),
                     theme: profile.getTheme(profile.fontFamily, isDarkMode: false),
                     darkTheme: profile.getTheme(profile.fontFamily, isDarkMode: true),
                     title: Global.appName,
