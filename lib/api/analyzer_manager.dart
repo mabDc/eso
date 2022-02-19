@@ -4,6 +4,7 @@ import 'package:eso/api/analyzer_js.dart';
 import 'package:eso/api/analyzer_jsonpath.dart';
 import 'package:eso/api/analyzer_regexp.dart';
 import 'package:eso/api/analyzer_xpath.dart';
+import 'package:eso/api/anaylyzer_webview.dart';
 import 'analyzer_filter.dart';
 import 'analyzer_match.dart';
 import 'analyzer_replace.dart';
@@ -11,6 +12,10 @@ import 'analyzer_replace.dart';
 class AnalyzerManager {
   final ruleTypePattern = RegExp(
       r"@js:" // @js: code
+      "|"
+      "@web:" // @web:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]
+      "|"
+      "@webview:" // @webview:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]
       "|"
       "@css:" // @css:a, @css:a@href, @css:a@text
       "|"
@@ -378,6 +383,12 @@ class AnalyzerManager {
           } else if (r.startsWith(RegExp(r"@replace:", caseSensitive: false))) {
             r = r.substring(9);
             analyzer = AnalyzerReplace();
+          } else if (r.startsWith(RegExp(r"@webview:", caseSensitive: false))) {
+            r = r.substring(9);
+            analyzer = AnalyzerWebview();
+          } else if (r.startsWith(RegExp(r"@web:", caseSensitive: false))) {
+            r = r.substring(5);
+            analyzer = AnalyzerWebview();
           }
           break;
         case ":":

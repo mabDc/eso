@@ -126,6 +126,8 @@ class JSEngine {
     setToGlobalObject.free();
   }
 
+  static String thisBaseUrl;
+
   static Future<void> setEnvironment(
     int page,
     Rule rule,
@@ -136,6 +138,7 @@ class JSEngine {
   ) async {
     await initEngine();
     _rule = rule;
+    thisBaseUrl = baseUrl;
     await _engine.evaluate("""
 page = ${jsonEncode(page)};
 host = ${jsonEncode(rule.host)};

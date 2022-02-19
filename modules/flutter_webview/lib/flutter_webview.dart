@@ -58,6 +58,12 @@ class FlutterWebview {
     var arguments = {"webview": _webview, "url": url, "script": script ?? ""};
     return _FlutterWebview.instance._channel.invokeMethod("navigate", arguments);
   }
+
+  Future<dynamic> evaluate(String script) async {
+    await _ensureEngine();
+    var arguments = {"webview": _webview, "script": script};
+    return _FlutterWebview.instance._channel.invokeMethod("evaluate", arguments);
+  }
 }
 
 class _FlutterWebview {

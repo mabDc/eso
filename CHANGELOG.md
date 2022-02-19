@@ -1,3 +1,21 @@
+### 2022.2.19
+- 增加webview规则
+- `@web:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]`
+- `@webview:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]`
+- 示例：
+   ``` 
+      @web:
+      var x = document.querySelectorAll(".mh_comicpic img");
+      var y = x[0].src.split("0001");
+      var a = [];
+      for(var i = 1; i <= x.length; i++)
+         a.push(y[0] + ("0000" + i).slice(-4) + y[1])
+   
+      a[0] += "@headers" + JSON.stringify({"referrer": "https://www.cocomanga.com/"})
+      a
+   ```
+ - 版本号修改至`1.22.2+12202`
+
 ### 2022.2.17
 - fix 主题`appbar`前景色
 - pc播放器改进

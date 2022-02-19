@@ -35,10 +35,10 @@ namespace webview
   {
     std::string szDst;
     wchar_t *wText = wchar;
-    DWORD dwNum = WideCharToMultiByte(CP_OEMCP, NULL, wText, -1, NULL, 0, NULL, FALSE);
+    DWORD dwNum = WideCharToMultiByte(CP_UTF8, NULL, wText, -1, NULL, 0, NULL, FALSE);
     char *psText;
     psText = new char[dwNum];
-    WideCharToMultiByte(CP_OEMCP, NULL, wText, -1, psText, dwNum, NULL, FALSE);
+    WideCharToMultiByte(CP_UTF8, NULL, wText, -1, psText, dwNum, NULL, FALSE);
     szDst = psText;
     delete[] psText;
     return szDst;
