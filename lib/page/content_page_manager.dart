@@ -114,18 +114,17 @@ class ContentProvider with ChangeNotifier {
   }
 
   Future<List<String>> refresh() {
-    return loadChapter(searchItem.durChapterIndex, false);
+    return loadChapter(searchItem.durChapterIndex, false, false);
   }
 
   Future<List<String>> loadChapter(int chapterIndex,
-      [bool useCache = true, bool loadNext = true]) {
+      [bool useCache = true, bool loadNext = true, bool shouldChangeIndex = true]) {
     final r = _memoryCache.getValueOrSet(chapterIndex, () async {
       if (useCache) {
         if (canUseCache) {
           final resp = await _cache.getData('$chapterIndex.txt',
               hashCodeKey: false, shouldDecode: false);
           if (resp != null && resp is String && resp.isNotEmpty) {
-            changeChapter(chapterIndex);
             return resp.split("\n");
           }
         } else {
@@ -140,19 +139,20 @@ class ContentProvider with ChangeNotifier {
         await _cache.putData('$chapterIndex.txt', resp.join("\n"),
             hashCodeKey: false, shouldEncode: false);
       }
-      changeChapter(chapterIndex);
       return resp;
     });
+
+    if (shouldChangeIndex) changeChapter(chapterIndex);
 
     () async {
       if (loadNext) {
         if (chapterIndex + 2 < searchItem.chapters.length &&
             !_memoryCache.containsKey(chapterIndex + 1)) {
-          await loadChapter(chapterIndex + 1, useCache, false);
+          await loadChapter(chapterIndex + 1, useCache, false, false);
         }
         if (chapterIndex + 3 < searchItem.chapters.length &&
             !_memoryCache.containsKey(chapterIndex + 2)) {
-          await loadChapter(chapterIndex + 2, useCache, false);
+          await loadChapter(chapterIndex + 2, useCache, false, false);
         }
       }
     }();
@@ -163,9 +163,10 @@ class ContentProvider with ChangeNotifier {
   void changeChapter(int index) async {
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     if (searchItem.durChapterIndex != index) {
-      // searchItem.durChapterIndex = index;
-      // searchItem.durChapter = searchItem.chapters[index].name;
-      // searchItem.durContentIndex = 1;
+      searchItem.durChapterIndex = index;
+      searchItem.durChapter = searchItem.chapters[index].name;
+      searchItem.durContentIndex = 1;
+      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       await SearchItemManager.saveSearchItem();
     }
   }

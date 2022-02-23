@@ -69,12 +69,13 @@ class _UISystemInfoState extends State<UISystemInfo> {
                     SizedBox(width: 2),
                     Flexible(
                       child: Text(
-                        '${widget.mangaInfo}',
+                        '${widget.mangaInfo} ',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
                     ),
-                    Text('${widget.mangeCurrent}/${widget.mangaCount}'),
+                    // Text(' ${widget.mangeCurrent}/'),
+                    Text('${widget.mangaCount}'),
                     SizedBox(width: 8),
                     Text('${provider.now}'),
                     SizedBox(width: 6),

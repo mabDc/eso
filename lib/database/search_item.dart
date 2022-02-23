@@ -86,7 +86,7 @@ class SearchItem {
       originTag = api.originTag;
       ruleContentType = api.ruleContentType;
     }
-    id = DateTime.now().millisecondsSinceEpoch;
+    id = DateTime.now().microsecondsSinceEpoch;
     chapterListStyle = ChapterPageProvider.BigList;
     durChapter = "";
     durChapterIndex = 0;

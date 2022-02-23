@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import '../global.dart';
+import '../page/photo_view_page.dart';
 import 'ui_fade_in_image.dart';
 
 class UIImageItem extends StatelessWidget {
@@ -16,8 +15,8 @@ class UIImageItem extends StatelessWidget {
   const UIImageItem({
     this.cover,
     this.radius = 3.0,
-    this.initWidth,
-    this.initHeight,
+    this.initWidth = 400,
+    this.initHeight = 400,
     this.fit,
     this.hero,
     Key key,
@@ -29,28 +28,16 @@ class UIImageItem extends StatelessWidget {
       return Image.asset(
         Global.waitingPath,
         fit: fit,
+        height: initWidth,
+        width: initHeight,
       );
     }
-    String _cover = cover;
-    Map<String, String> headers = Map<String, String>();
-    final ss = _cover.split('@headers');
-    if (ss.length > 1) {
-      _cover = ss[0];
-      headers = (jsonDecode(ss[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
-    }
-    if (radius == null || radius <= 0.0)
-      return UIFadeInImage(
-        url: _cover,
-        header: headers,
-        fit: fit,
-        placeHolderWidth: initWidth,
-        placeHolderHeight: initHeight,
-      );
     final _child = ClipRRect(
-      borderRadius: BorderRadius.circular(3.0),
+      borderRadius: radius == null || radius <= 0.0
+          ? BorderRadius.zero
+          : BorderRadius.circular(radius),
       child: UIFadeInImage(
-        url: _cover,
-        header: headers,
+        item: PhotoItem.parse(cover),
         fit: fit,
         placeHolderWidth: initWidth,
         placeHolderHeight: initHeight,

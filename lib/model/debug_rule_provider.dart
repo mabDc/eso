@@ -26,9 +26,14 @@ class DebugRuleProvider with ChangeNotifier {
   DebugRuleProvider(this.rule, this.textColor) {
     disposeFlag = false;
     _controller = ScrollController();
-    JSEngine.setFunction("__print", IsolateFunction((s, isUrl) {
+    initPrint();
+  }
+
+  void initPrint() async {
+    await JSEngine.setFunction("__print", IsolateFunction((s, isUrl) {
       _addContent("JS", s, isUrl, true);
     }));
+    JSEngine.evaluate("var print = function(...args) {__print(args[0], !!args[1]);};");
   }
 
   final rows = <Row>[];
@@ -72,8 +77,7 @@ class DebugRuleProvider with ChangeNotifier {
       children: [
         Text(
           "• [${DateFormat("mm:ss.SSS").format(DateTime.fromMicrosecondsSinceEpoch(d))}] $sInfo${s == null ? "" : ": "}",
-          style: TextStyle(
-              color: textColor.withOpacity(0.5), height: 2),
+          style: TextStyle(color: textColor.withOpacity(0.5), height: 2),
         ),
         _buildText(s ?? "", isUrl, fromJS),
       ],

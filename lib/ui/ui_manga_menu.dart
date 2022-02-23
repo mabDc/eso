@@ -1,5 +1,4 @@
 import 'package:eso/database/search_item.dart';
-import 'package:eso/model/manga_page_provider.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
@@ -10,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
+import '../page/manga_page.dart';
 
 class UIMangaMenu extends StatelessWidget {
   final SearchItem searchItem;

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,7 +21,16 @@ class PhotoItem {
 
   final Map<String, String> headers;
 
-  const PhotoItem(this.url, {this.headers});
+  const PhotoItem(this.url, this.headers);
+
+  static PhotoItem parse(String urlWithHeaders) {
+    if (urlWithHeaders == null) return null;
+    final index = urlWithHeaders.indexOf("@headers");
+    if (index == -1) return PhotoItem(urlWithHeaders, null);
+    final headers = (jsonDecode(urlWithHeaders.substring(index + 8)) as Map)
+        .map((k, v) => MapEntry('$k', '$v'));
+    return PhotoItem(urlWithHeaders.substring(0, index), headers);
+  }
 }
 
 /// 图像预览页面
@@ -77,10 +87,12 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                   scrollPhysics: const BouncingScrollPhysics(),
                   builder: (BuildContext context, int index) {
                     var item = widget.items[index];
+                    final startIndex = item.url.indexOf(";base64,");
                     return PhotoViewGalleryPageOptions(
                       //imageProvider: NetworkImage(item.url),
-                      imageProvider:
-                          CachedNetworkImageProvider(item.url, headers: item.headers),
+                      imageProvider: startIndex == -1
+                          ? CachedNetworkImageProvider(item.url, headers: item.headers)
+                          : MemoryImage(base64Decode(item.url.substring(startIndex + 8))),
                       heroAttributes: widget.heroTag != null && widget.index == index
                           ? PhotoViewHeroAttributes(tag: widget.heroTag)
                           : null,
@@ -213,8 +225,7 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                                 style: TextStyle(color: Colors.black87, fontSize: 16)),
                             isLast: false, onTap: () {
                           Navigator.of(context).pop();
-                          saveImage(
-                              CachedNetworkImageProvider(widget.items[currentIndex].url));
+                          saveImage(widget.items[currentIndex]);
                         }),
                         buildPopButton(
                             context,
@@ -253,28 +264,45 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   }
 
   /// 保存图像
-  saveImage(CachedNetworkImageProvider provider) async {
+  saveImage(PhotoItem item) async {
     // 检查并请求权限
     if (await CacheUtil.requestPermission() != true) {
       Utils.toast("授权失败");
       return;
     }
-
-    // 获取文件或图片
-    DefaultCacheManager mgr = provider.cacheManager ?? DefaultCacheManager();
-    String url = provider.url;
-    Map<String, String> headers = provider.headers;
-    File file = await mgr.getSingleFile(url, headers: headers);
-
-    final result = Platform.isWindows || Platform.isLinux
-        ? await CacheUtil(basePath: "download")
-            .putFile(Utils.getFileNameAndExt(file.path), file)
-        : await ImageGallerySaver.saveImage(file.readAsBytesSync());
+    final startIndex = item.url.indexOf(";base64,");
+    var result = null;
+    if (startIndex == -1) {
+      // 获取文件或图片
+      final provider = CachedNetworkImageProvider(item.url, headers: item.headers);
+      DefaultCacheManager mgr = provider.cacheManager ?? DefaultCacheManager();
+      String url = provider.url;
+      Map<String, String> headers = provider.headers;
+      File file = await mgr.getSingleFile(url, headers: headers);
+      result = Platform.isWindows || Platform.isLinux
+          ? await CacheUtil(basePath: "download")
+              .putFile(Utils.getFileNameAndExt(file.path), file)
+          : await ImageGallerySaver.saveImage(file.readAsBytesSync());
+    } else {
+      if (Platform.isWindows || Platform.isLinux) {
+        final cache = await CacheUtil(basePath: "download");
+        final dir = await cache.cacheDir();
+        final name = DateTime.now().millisecondsSinceEpoch.toString() + ".jpg";
+        final file = await new File('$dir/name').create();
+        file.writeAsBytesSync(base64Decode(item.url.substring(startIndex + 8)));
+        result = await CacheUtil(basePath: "download").putFile(name, file);
+      } else {
+        result = await ImageGallerySaver.saveImage(
+            base64Decode(item.url.substring(startIndex + 8)));
+      }
+    }
     if (result is bool && result == true) {
       Utils.toast("保存成功");
     } else if (result is String && null != result && result.isNotEmpty) {
       String str = Uri.decodeComponent(result);
       Utils.toast("成功保存到\n$str");
+    } else if (result is Map && result.isNotEmpty && result["filePath"] != null) {
+      Utils.toast("成功保存到\n${result["filePath"]}");
     } else {
       Utils.toast("保存失败");
     }

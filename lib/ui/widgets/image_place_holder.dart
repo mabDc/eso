@@ -7,7 +7,7 @@ class ImagePlaceHolder extends StatelessWidget {
   final double height;
   final double width;
   final bool error;
-  const ImagePlaceHolder({Key key, this.height, this.width, this.error = false})
+  const ImagePlaceHolder({Key key, this.height = 400, this.width = 400, this.error = false})
       : super(key: key);
 
   @override

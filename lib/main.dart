@@ -32,6 +32,7 @@ void main() async {
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
   // 必须加上这一行。
+  if(Platform.isWindows)
   await windowManager.ensureInitialized();
   // if (Platform.isWindows) {
   //   final server = await HttpMultiServer.loopback(51532);

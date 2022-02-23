@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:eso/api/api_js_engine.dart';
 import 'package:flutter/foundation.dart';
@@ -25,7 +24,7 @@ class AnalyzerWebview implements Analyzer {
     return this;
   }
 
-  // 格式形如 @web:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]
+  // 格式形如 @web:[(baseUrl|result)@@][script]
   Future _eval(String rule) async {
     Completer c = Completer();
     rule = rule.trimLeft();
@@ -33,9 +32,9 @@ class AnalyzerWebview implements Analyzer {
 
     if (rule.startsWith("result@@")) {
       url = _content;
-      rule.substring(8);
+      rule = rule.substring(8);
     } else if (rule.startsWith("baseUrl@@")) {
-      rule.substring(9);
+      rule = rule.substring(9);
     }
     if (url == null || url.isEmpty) {
       url = JSEngine.rule.host;
@@ -45,35 +44,36 @@ class AnalyzerWebview implements Analyzer {
     } else if (url.startsWith("/")) {
       url = JSEngine.rule.host + url;
     }
-    final script = rule.split(RegExp("\n\s*@@\s*\n"));
-    if (Platform.isWindows || Platform.isAndroid) {
-      var webview = FlutterWebview();
-      await webview.setMethodHandler((String method, dynamic args) async {
-        if (kDebugMode) {
-          print(method);
-        }
-        if (method == "onNavigationCompleted" && !c.isCompleted) {
-          try {
-            final s = await webview.evaluate(script[0].trim().isEmpty
-                ? "document.documentElement.outerHTML"
-                : script[0]);
-            c.complete(jsonDecode("$s"));
-          } catch (e) {
-            c.completeError(e);
-          }
-        }
-      });
-      await webview.navigate(url, script: script.length == 2 ? script[1] : "");
-      Future.delayed(Duration(seconds: 10)).then((value) {
-        if (!c.isCompleted) c.completeError("Webview Call timeout 10 seconds.");
-      });
-      try {
-        return await c.future;
-      } finally {
-        await webview.destroy();
+    var webview = FlutterWebview();
+    await webview.setMethodHandler((String method, dynamic args) async {
+      if (kDebugMode) {
+        print(method);
       }
-    } else {
-      throw "webview不支持";
+      if (method == "onNavigationCompleted") {
+        for (var i = 0; i < 10; i++) {
+          if (c.isCompleted) return;
+          try {
+            final s = await webview.evaluate(
+                rule.trim().isEmpty ? "document.documentElement.outerHTML" : rule);
+            final r = jsonDecode("$s");
+            if (r != null && r != "") {
+              c.complete(r);
+              return;
+            }
+          } catch (e) {}
+          await Future.delayed(Duration(milliseconds: 500));
+        }
+      }
+    });
+    await webview.navigate(url);
+    Future.delayed(Duration(seconds: 15)).then((value) {
+      if (c.isCompleted) return;
+      c.completeError("执行webview规则超过10秒 加载超时");
+    });
+    try {
+      return await c.future;
+    } finally {
+      await webview.destroy();
     }
   }
 

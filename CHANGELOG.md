@@ -1,3 +1,20 @@
+
+### 2022.2.19
+- 多项更新
+- add 图片类型也使用统一的缓存器
+- add 图片`@headers`统一解析和管理
+- add @webview: js部分将会重复执行 当返回`null`或者`空字符串`时将重复执行
+- fix @webview: 实装baseUrl@@和result@@
+- fix `searchItem`中`id`重复问题 使用新的生成方法 解决cache重复问题
+- fix 等待图默认宽高改到400
+- fix 保存图片
+- fix 调试时可以使用print(...args)打印结果，如`print("test js result")` `print("/1.html", true)`
+- remove 图片类正文中去掉position列表
+- 版本号修改至`1.22.3+12203`
+ 
+### 2022.2.19
+- 额外编译关闭avx2的版本 尝试兼容老旧cpu （文件名带noavx2）
+
 ### 2022.2.19
 - 增加webview规则
 - `@web:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]`
