@@ -130,6 +130,7 @@ class _MangaPageState extends State<MangaPage> {
     }
     provider.shouldUpdateManga = false;
     pageMangaContent = ListView.builder(
+      key: Key("pageMangaContent" + provider.searchItem.durChapterIndex.toString()),
       padding: EdgeInsets.all(0),
       physics: BouncingScrollPhysics(),
       scrollDirection: direction,
@@ -365,14 +366,15 @@ class MangaPageProvider with ChangeNotifier {
     bool loadNext = true,
     bool shouldChangeIndex = true,
   ]) async {
+    if (chapterIndex == null) {
+      chapterIndex = searchItem.durChapterIndex;
+    }
+
     if (isLoading || chapterIndex < 0 || chapterIndex >= searchItem.chapters.length)
       return;
 
     _isLoading = true;
     notifyListeners();
-    if (chapterIndex == null) {
-      chapterIndex = searchItem.durChapterIndex;
-    }
     final c = await contentProvider.loadChapter(
         chapterIndex, useCache, loadNext, shouldChangeIndex);
     Map<String, String> headers = null;

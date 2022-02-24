@@ -18,74 +18,81 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/hls.js/1.1.5-0.canary.8240/hls.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/dplayer/1.26.0/DPlayer.min.js"></script>
     <script>
-      try {
-        var url = window.location.href.split("player.html#").pop()||window.location.href.split("player.html"+encodeURIComponent("#")).pop();
-        var dp = new DPlayer({
-          autoplay: true,
-          theme: "#FADFA3",
-          loop: true,
-          lang: "zh-cn",
-          hotkey: true,
-          preload: "auto",
-          // logo: "logo.png",
-          volume: 0.7,
-          mutex: true,
-          container: document.getElementById("dplayer"),
-          video: {
-            url: decodeURIComponent(url),
-            // pic: "https://i.loli.net/2019/06/06/5cf8c5d9c57b510947.png",
-            // thumbnails: "https://i.loli.net/2019/06/06/5cf8c5d9c57b510947.png",
-            type: "auto",
-          },
-          screenshot: true,
-          // subtitle: {
-          //   url: "dplayer.vtt",
-          //   type: "webvtt",
-          //   fontSize: "25px",
-          //   bottom: "10%",
-          //   color: "#b7daff",
-          // },
-          // danmaku: {
-          //   id: "9E2E3368B56CDBB4",
-          //   api: "https://api.prprpr.me/dplayer/",
-          //   token: "tokendemo",
-          //   maximum: 1000,
-          //   addition: ["https://api.prprpr.me/dplayer/v3/bilibili?aid=4157142"],
-          //   user: "DIYgod",
-          //   bottom: "15%",
-          //   unlimited: true,
-          // },
-          // contextmenu: [
-          //   {
-          //     text: "custom1",
-          //     link: "https://github.com/DIYgod/DPlayer",
-          //   },
-          //   {
-          //     text: "custom2",
-          //     click: (player) => {
-          //       console.log(player);
-          //     },
-          //   },
-          // ],
-          highlight: [
-            {
-              text: "marker for 20s",
-              time: 20,
+      function loadVideo(){
+        try {
+          var url = window.location.hash.substring(1);
+          var dp = new DPlayer({
+            autoplay: true,
+            theme: "#FADFA3",
+            loop: true,
+            lang: "zh-cn",
+            hotkey: true,
+            preload: "auto",
+            // logo: "logo.png",
+            volume: 0.7,
+            mutex: true,
+            container: document.getElementById("dplayer"),
+            video: {
+              url: decodeURIComponent(url),
+              // pic: "https://i.loli.net/2019/06/06/5cf8c5d9c57b510947.png",
+              // thumbnails: "https://i.loli.net/2019/06/06/5cf8c5d9c57b510947.png",
+              type: "auto",
             },
-            {
-              text: "marker for 2mins",
-              time: 120,
-            },
-          ],
-        });
-        dp.on("fullscreen_cancel", function () {
+            screenshot: true,
+            // subtitle: {
+            //   url: "dplayer.vtt",
+            //   type: "webvtt",
+            //   fontSize: "25px",
+            //   bottom: "10%",
+            //   color: "#b7daff",
+            // },
+            // danmaku: {
+            //   id: "9E2E3368B56CDBB4",
+            //   api: "https://api.prprpr.me/dplayer/",
+            //   token: "tokendemo",
+            //   maximum: 1000,
+            //   addition: ["https://api.prprpr.me/dplayer/v3/bilibili?aid=4157142"],
+            //   user: "DIYgod",
+            //   bottom: "15%",
+            //   unlimited: true,
+            // },
+            // contextmenu: [
+            //   {
+            //     text: "custom1",
+            //     link: "https://github.com/DIYgod/DPlayer",
+            //   },
+            //   {
+            //     text: "custom2",
+            //     click: (player) => {
+            //       console.log(player);
+            //     },
+            //   },
+            // ],
+            highlight: [
+              {
+                text: "marker for 20s",
+                time: 20,
+              },
+              {
+                text: "marker for 2mins",
+                time: 120,
+              },
+            ],
+          });
+          dp.on("fullscreen_cancel", function () {
+            dp.fullScreen.request("web");
+          });
           dp.fullScreen.request("web");
-        });
+        } catch (error) {
+          alert(`${error}`);
+        }
         dp.fullScreen.request("web");
-      } catch (error) {
-        alert(`${error}`);
       }
-      dp.fullScreen.request("web");
+      loadVideo();
+      window.onhashchange = function () {
+        console.log("URL发生变化了");
+        loadVideo();
+      };
     </script>
   </body>
 </html>

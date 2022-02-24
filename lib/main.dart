@@ -1,10 +1,15 @@
 import 'dart:io';
+import 'package:eso/database/hive/chapter_item_adapter.dart';
+import 'package:eso/database/hive/search_item_adapter.dart';
+import 'package:eso/database/search_item.dart';
 import 'package:eso/utils/local_cupertion_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'global.dart';
@@ -26,14 +31,22 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 }
 
 void main() async {
-  runApp(MyApp());
   if (Platform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
+  runApp(MyApp());
+  var appDir = await getApplicationDocumentsDirectory();
+  print("appDir" + appDir.path);
+  // await Hive.initFlutter("eso");
+  // Hive.registerAdapter(ChapterItemAdapter());
+  // Hive.registerAdapter(SearchItemAdapter());
+  // await Hive.openBox<SearchItem>(Global.searchItemKey);
   // 必须加上这一行。
-  if(Platform.isWindows)
-  await windowManager.ensureInitialized();
+  if (Platform.isWindows) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await windowManager.ensureInitialized();
+  }
   // if (Platform.isWindows) {
   //   final server = await HttpMultiServer.loopback(51532);
   //   final html = await rootBundle.loadString("player.html", cache: false);

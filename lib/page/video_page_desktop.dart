@@ -18,6 +18,7 @@ import 'package:window_manager/window_manager.dart';
 import '../global.dart';
 import '../ui/ui_dash.dart';
 import '../utils.dart';
+import 'content_page_manager.dart';
 import 'source/edit_rule_page.dart';
 
 class VideoPageDesktop extends StatefulWidget {
@@ -58,11 +59,13 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
   Widget build(BuildContext context) {
     primaryColor = Theme.of(context).primaryColor;
     final _divider = UIDash(height: Global.lineSize, dashWidth: 4, color: Colors.black);
+    final contentProvider = Provider.of<ContentProvider>(context);
     return ChangeNotifierProvider<VPDProvider>(
       create: (context) => VPDProvider(
           searchItem: widget.searchItem,
           profile: profile,
-          webcontroller: webviewController),
+          webcontroller: webviewController,
+          contentProvider: contentProvider),
       builder: (BuildContext context, child) {
         final searchItem = widget.searchItem;
         final provider = Provider.of<VPDProvider>(context, listen: true);
@@ -107,7 +110,7 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
                     ? !webviewController.value.isInitialized
                         ? Center(
                             child: const Text(
-                              '\n\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n下版本增加剧集 预解析 缓存\n\n',
+                              '\n\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n已增加剧集 预解析 缓存\n\n',
                               style: TextStyle(fontSize: 30.0),
                             ),
                           )
@@ -116,7 +119,7 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
                         children: [
                           !webviewController.value.isInitialized
                               ? const Text(
-                                  '\n\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n下版本增加剧集 预解析 缓存\n\n',
+                                  '\n\n正在初始化播放器。。。\n\n如果没反应请尝试滑动到页面底部下载微软的运行时\n\n已增加剧集 预解析 缓存\n\n',
                                   style: TextStyle(fontSize: 30.0),
                                 )
                               : Container(
@@ -161,17 +164,6 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
                                     title: Text('查看目录原网页'),
                                     subtitle: Text(searchItem.chapterUrl ?? "无"),
                                     onTap: () => launch(searchItem.chapterUrl ?? ""),
-                                  ),
-                                  ListTile(
-                                    title: Text('查看正文原网页'),
-                                    subtitle: Text(searchItem
-                                            .chapters[searchItem.durChapterIndex]
-                                            .contentUrl ??
-                                        "请先解析"),
-                                    onTap: () => launch(searchItem
-                                            .chapters[searchItem.durChapterIndex]
-                                            .contentUrl ??
-                                        ""),
                                   ),
                                   Row(
                                     children: [
@@ -318,11 +310,13 @@ class VPDProvider extends ChangeNotifier {
   final SearchItem searchItem;
   final Profile profile;
   final WebviewController webcontroller;
+  final ContentProvider contentProvider;
 
   VPDProvider({
     @required this.searchItem,
     @required this.profile,
     @required this.webcontroller,
+    @required this.contentProvider,
   }) {
     playChapter(searchItem.durChapterIndex, false);
   }
@@ -408,8 +402,9 @@ class VPDProvider extends ChangeNotifier {
         "\n    chapter.url = ${chapter.url}");
     notifyListeners();
     try {
-      final content = await APIManager.getContent(searchItem.originTag, chapter.url);
-      searchItem.chapters[searchItem.durChapterIndex].contentUrl = API.contentUrl;
+      // final content = await APIManager.getContent(searchItem.originTag, chapter.url);
+      final content = await contentProvider.loadChapter(index);
+      // searchItem.chapters[searchItem.durChapterIndex].contentUrl = API.contentUrl;
       if (content.isEmpty || content.first.isEmpty) {
         _url = null;
         log("错误 内容为空！");

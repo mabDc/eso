@@ -148,10 +148,12 @@ class ContentProvider with ChangeNotifier {
       if (loadNext) {
         if (chapterIndex + 2 < searchItem.chapters.length &&
             !_memoryCache.containsKey(chapterIndex + 1)) {
+          await Future.delayed(Duration(milliseconds: 100));
           await loadChapter(chapterIndex + 1, useCache, false, false);
         }
         if (chapterIndex + 3 < searchItem.chapters.length &&
             !_memoryCache.containsKey(chapterIndex + 2)) {
+          await Future.delayed(Duration(milliseconds: 100));
           await loadChapter(chapterIndex + 2, useCache, false, false);
         }
       }
@@ -161,13 +163,22 @@ class ContentProvider with ChangeNotifier {
   }
 
   void changeChapter(int index) async {
-    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     if (searchItem.durChapterIndex != index) {
       searchItem.durChapterIndex = index;
       searchItem.durChapter = searchItem.chapters[index].name;
       searchItem.durContentIndex = 1;
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      // print("SearchItemManager.saveSearchItem()" +
+      //     DateTime.now().millisecondsSinceEpoch.toString());
       await SearchItemManager.saveSearchItem();
+      // final box = Hive.box<SearchItem>(Global.searchItemKey);
+      // box.clear();
+      // box.putAll(Map<String, SearchItem>.fromIterable(SearchItemManager.searchItem,
+      //     key: (item) => item.id, value: (item) => item));
+      // box.put(searchItem.id.toString(), searchItem);
+      // print("SearchItemManager.saveSearchItem()" +
+      //     DateTime.now().millisecondsSinceEpoch.toString());
     }
+    await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
   }
 }

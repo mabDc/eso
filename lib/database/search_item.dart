@@ -137,6 +137,33 @@ class SearchItem {
         "lastReadTime": lastReadTime,
       };
 
+  SearchItem.fromAdapter(
+    this.searchUrl,
+    this.chapterUrl,
+    this.id,
+    this.origin,
+    this.originTag,
+    this.cover,
+    this.name,
+    this.author,
+    this.chapter,
+    this.description,
+    this.url,
+    this.ruleContentType,
+    this.chapterListStyle,
+    this.durChapter,
+    this.durChapterIndex,
+    this.durContentIndex,
+    this.chaptersCount,
+    this.reverseChapter,
+    this.tags,
+    //增加时间
+    this.createTime,
+    this.updateTime,
+    this.lastReadTime,
+    this.chapters,
+  );
+
   SearchItem.fromJson(Map<String, dynamic> json) {
     searchUrl = json["searchUrl"];
     chapterUrl = json["chapterUrl"];

@@ -50,7 +50,7 @@ dependencies:
   device_display_brightness: ^0.0.6
   scrollable_positioned_list: ^0.1.10
   share: ^2.0.1
-  shared_preferences: ^2.0.5
+  shared_preferences: ^2.0.13
   sqflite_common_ffi: ^2.0.0
   text_composition:
     path: modules/text_composition
@@ -65,6 +65,7 @@ dependencies:
     path: modules/windows_speak
   http_multi_server: ^3.2.0
   window_manager: ^0.1.5
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   build_runner: ^1.11.5
