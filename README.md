@@ -6,6 +6,8 @@ Gitter Chatroom https://gitter.im/mabDc/eso
 
 If you like my work, please Star this project.
 
+## （亦搜为个人创作，社区驱动，从未有任何官网和公众号，更新渠道为github和频道和群。
+
 # 特点
 
 开源的多站点跨平台阅读器来啦！
