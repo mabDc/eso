@@ -23,7 +23,9 @@ dependencies:
   filesystem_picker: ^2.0.0
   floor: ^1.0.1
   webview_windows: ^0.1.6
-  xpath_selector: ^2.2.4
+  # xpath_selector: ^2.2.4
+  xpath_selector:
+    path: modules/xpath_selector
   flutter:
     sdk: flutter
   flutter_colorpicker: ^1.0.3

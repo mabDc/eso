@@ -36,8 +36,10 @@ class JSEngine {
     if (_engine != null) return;
     final cryptoJS = await rootBundle.loadString(Global.cryptoJSFile);
     _engine = IsolateQjs(stackSize: 1024 * 1024);
-    final setToGlobalObject =
-        await _engine.evaluate(cryptoJS + ";1+1;" + "(key, val) => { this[key] = val; }");
+    final setToGlobalObject = await _engine.evaluate(";window = globalThis;" +
+        cryptoJS +
+        ";1+1;" +
+        "(key, val) => { this[key] = val; }");
     await setToGlobalObject.invoke([
       "__http__",
       IsolateFunction((dynamic url) async {

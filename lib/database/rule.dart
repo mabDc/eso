@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
 
 import '../global.dart';
+import '../utils/rule_comparess.dart';
 
 @entity
 class Rule {
@@ -296,7 +297,23 @@ class Rule {
         "viewStyle": 0
       };
 
-  Rule.fromJson(Map<String, dynamic> json, [Rule rule]) {
+  // Rule.fromJson(Map<String, dynamic> json, [Rule rule]) {
+  Rule.fromJson(dynamic jsonD, [Rule rule]) {
+    Map<String, dynamic> json;
+    if (jsonD is Map) {
+      json = jsonD;
+    } else if (jsonD is String) {
+      if (jsonD.startsWith("eso")) {
+        json = jsonDecode(RuleCompress.decompassString(jsonD));
+      } else if (jsonD.startsWith("{")) {
+        json = jsonDecode(jsonD);
+      }
+    }
+    if (json == null || json.isEmpty) {
+      name = "";
+      host = "";
+      return;
+    }
     final defaultRule = rule ?? Rule.newRule();
     if (json["api"] != null && json["name"] != null) {
       json = jsonZYPlayer(json["key"], json["name"], json["api"]);

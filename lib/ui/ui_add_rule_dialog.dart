@@ -338,10 +338,13 @@ class AddRuleProvider extends ChangeNotifier {
           Utils.toast("成功 1 条规则");
         }
       } else if (json is List) {
-        final ids = await Global.ruleDao
-            .insertOrUpdateRules(json.map((rule) => Rule.fromJson(rule)).toList());
+        final okrules = json
+            .map((rule) => Rule.fromJson(rule))
+            .where((rule) => rule.name.isNotEmpty && rule.host.isNotEmpty)
+            .toList();
+        final ids = await Global.ruleDao.insertOrUpdateRules(okrules);
         if (ids.length > 0) {
-          Utils.toast("成功 ${ids.length} 条规则");
+          Utils.toast("成功 ${okrules.length} 条规则");
         } else {
           Utils.toast("失败，未导入规则！");
         }

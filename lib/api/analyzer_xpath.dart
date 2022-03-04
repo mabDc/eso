@@ -25,13 +25,23 @@ class AnalyzerXPath implements Analyzer {
     return _xpath.query(rule).nodes.map((e) => e.node as Element).toList();
   }
 
-  @override
-  List<String> getString(String rule) {
+  List<String> getR(String rule) {
+    rule = rule.trimRight();
+    if (rule.endsWith("node()")) {
+      return _xpath.query(rule).nodes.map((e) => (e.node as Element).outerHtml).toList();
+    } else if (rule.endsWith("/html()")) {
+      return _xpath
+          .query(rule.substring(0, rule.length - 7))
+          .nodes
+          .map((e) => (e.node as Element).outerHtml)
+          .toList();
+    }
     return _xpath.query(rule).attrs;
   }
 
   @override
-  List<String> getStringList(String rule) {
-    return _xpath.query(rule).attrs;
-  }
+  List<String> getString(String rule) => getR(rule);
+
+  @override
+  List<String> getStringList(String rule) => getR(rule);
 }

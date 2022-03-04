@@ -70,17 +70,25 @@ class AutoBackupPage extends StatelessWidget {
               children: [
                 ListTile(title: Text('自动备份')),
                 Divider(),
-                RadioListTile<int>(
-                  title: Text('从不'),
-                  value: Profile.autoBackupNone,
-                  groupValue: profile.autoBackRate,
-                  onChanged: (int value) => profile.autoBackRate = value,
-                ),
-                RadioListTile<int>(
-                  title: Text('每日'),
-                  value: Profile.autoBackupDay,
-                  groupValue: profile.autoBackRate,
-                  onChanged: (int value) => profile.autoBackRate = value,
+                StatefulBuilder(
+                  builder: (context, setState) => Column(
+                    children: [
+                      RadioListTile<int>(
+                        title: Text('从不'),
+                        value: Profile.autoBackupNone,
+                        groupValue: profile.autoBackRate,
+                        onChanged: (int value) =>
+                            setState(() => profile.autoBackRate = value),
+                      ),
+                      RadioListTile<int>(
+                        title: Text('每日'),
+                        value: Profile.autoBackupDay,
+                        groupValue: profile.autoBackRate,
+                        onChanged: (int value) =>
+                            setState(() => profile.autoBackRate = value),
+                      ),
+                    ],
+                  ),
                 ),
                 Divider(),
                 ListTile(
@@ -117,11 +125,14 @@ class AutoBackupPage extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                SwitchListTile(
-                  title: Text('启用规则分享'),
-                  subtitle: Text('每日自动分享，不会自动覆盖删除，建议关闭'),
-                  onChanged: (value) => profile.enableWebdavRule = value,
-                  value: profile.enableWebdavRule,
+                StatefulBuilder(
+                  builder: (context, setState) => SwitchListTile(
+                    title: Text('启用规则分享'),
+                    subtitle: Text('每日自动分享，不会自动覆盖删除，建议关闭'),
+                    onChanged: (value) =>
+                        setState(() => profile.enableWebdavRule = value),
+                    value: profile.enableWebdavRule,
+                  ),
                 ),
                 ListTile(
                   title: Text('分享的用户名称'),
@@ -181,11 +192,13 @@ class AutoBackupPage extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                SwitchListTile(
-                  title: Text('启用webdav自动同步'),
-                  subtitle: Text('备份或自动备份后自动上传至webdav'),
-                  onChanged: (value) => profile.enableWebdav = value,
-                  value: profile.enableWebdav,
+                StatefulBuilder(
+                  builder: (context, setState) => SwitchListTile(
+                    title: Text('启用webdav自动同步'),
+                    subtitle: Text('备份或自动备份后自动上传至webdav'),
+                    onChanged: (value) => setState(() => profile.enableWebdav = value),
+                    value: profile.enableWebdav,
+                  ),
                 ),
                 ListTile(
                   title: Text('坚果云webdav帮助'),
@@ -465,8 +478,9 @@ class AutoBackupPage extends StatelessWidget {
         final req = await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
         final res = await req.close();
         final r = await res.toList();
-        final bytes =
-            r.reduce((value, element) => <int>[]..addAll(value)..addAll(element));
+        final bytes = r.reduce((value, element) => <int>[]
+          ..addAll(value)
+          ..addAll(element));
         if (download) {
           final dir =
               join(await CacheUtil(backup: true).cacheDir(), decodeShareRuleName(value));
@@ -506,7 +520,10 @@ class AutoBackupPage extends StatelessWidget {
         final req = await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
         final res = await req.close();
         final r = await res.toList();
-        restore(r.reduce((value, element) => <int>[]..addAll(value)..addAll(element)),
+        restore(
+            r.reduce((value, element) => <int>[]
+              ..addAll(value)
+              ..addAll(element)),
             isOnlyRule);
       });
     } catch (e, st) {

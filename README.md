@@ -1,3 +1,11 @@
+### 在线聊天室 
+
+[![Join the chat at https://gitter.im/mabDc/eso](https://badges.gitter.im/mabDc/eso.svg)](https://gitter.im/mabDc/eso?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+Gitter Chatroom https://gitter.im/mabDc/eso
+
+If you like my work, please Star this project.
+
 # 特点
 
 开源的多站点跨平台阅读器来啦！
@@ -29,13 +37,17 @@ ps: 所有内容来自互联网，app本身只是工具，不提供内容。
 
 # 效果
 
+视频 https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-8faf-d96a7188116a.mp4
+
 <img src="https://user-images.githubusercontent.com/19526331/113877556-66a30300-97eb-11eb-8b01-825d5eb11662.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877580-6c004d80-97eb-11eb-9561-c93be18a15b2.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113876862-ba611c80-97ea-11eb-99db-169f7380514d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113876870-bd5c0d00-97ea-11eb-959e-c5cde58bec7d.jpg" width="200"> 
 
 <img src="https://user-images.githubusercontent.com/19526331/113878095-e0d38780-97eb-11eb-801a-1b3c08a13f7d.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877800-a0740980-97eb-11eb-9ffe-ec83276e7f61.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877807-a23dcd00-97eb-11eb-99f5-973431a412b9.jpg" width="200"> <img src="https://user-images.githubusercontent.com/19526331/113877823-a4a02700-97eb-11eb-8c64-3a8f354a1d76.jpg" width="200"> 
 
-https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-8faf-d96a7188116a.mp4
+<img src="https://user-images.githubusercontent.com/19526331/114257783-c3bdd500-99f4-11eb-9167-5c42c846f147.jpg" width="400"> <img src="https://user-images.githubusercontent.com/19526331/114257762-af79d800-99f4-11eb-9a47-6095cdd6e42f.jpg" width="400">
 
-# 另一些图片
+<img src="https://user-images.githubusercontent.com/19526331/114257767-b56fb900-99f4-11eb-8948-6d5aa4c51e3b.jpg" width="400"> <img src="https://user-images.githubusercontent.com/19526331/114257769-b86aa980-99f4-11eb-9f37-54a3a0bd95d6.jpg" width="400">
+
+### 另一些图片
 
 首先是视频，支持DLNA投屏，有音量、亮度、进度调节的手势控制。
 
@@ -169,9 +181,7 @@ https://user-images.githubusercontent.com/19526331/112481313-d8258f00-8db1-11eb-
   ```
 # 编译指南
 
-不同平台有些插件不兼容，准备了多个依赖文件列表，必要时可替换yaml，macos和linux编译需要dev分支，windows需要master分支。
-
-源码去除规则解析部分，但不影响编译和运行，效果相同，仅仅固定了数据内容，可通过`api/api_manager.dart`修改.
+可以自行添加数据源 请参考`/api/json_placeholder.dart`和`/api/json_placeholder_photo.dart`
 
 - 打包Android
 ```bash
