@@ -5,7 +5,9 @@ import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils/cache_util.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share/share.dart';
 
 import '../global.dart';
@@ -20,6 +22,8 @@ class NovelCacheService {
   factory NovelCacheService() {
     return _instance;
   }
+
+  String exportDir;
 
   final List<Function()> _listeners;
   addListener(Function() listener) {
@@ -91,7 +95,9 @@ class NovelCacheService {
           ".txt";
       await cache.putData(name, export.join("\n"),
           hashCodeKey: false, shouldEncode: false);
-      final filePath = await cache.cacheDir() + name;
+
+      final filePath =
+          exportDir == null ? await cache.cacheDir() + name : Utils.join(exportDir, name);
       // final download = await path.getApplicationDocumentsDirectory();
       // final filePath = Utils.join(download.path, "eso", name);
       // await File(filePath).writeAsString(export.join("\n"));
@@ -162,14 +168,28 @@ class NovelAutoCachePage extends StatefulWidget {
 class _NovelAutoCachePageState extends State<NovelAutoCachePage> {
   TextEditingController exportChapterName;
   ScrollController scrollController;
-
+  Set<String> cacheIndex = new Set<String>();
+  String exportDir = "未选择，使用默认路径";
+  Box<String> novel_cache_export_dir_box;
   @override
   void initState() {
+    init();
+    super.initState();
+  }
+
+  void init() async {
     exportChapterName = TextEditingController(text: "\$name");
     scrollController = ScrollController();
     NovelCacheService().addListener(refresh);
     NovelCacheService().start(widget.searchItem);
-    super.initState();
+    novel_cache_export_dir_box = await Hive.openBox<String>('novel_cache_export_dir');
+    exportDir = novel_cache_export_dir_box.get(0);
+    if (exportDir == null) {
+      final cache = CacheUtil(basePath: "txt");
+      exportDir = await cache.cacheDir();
+    } else {
+      NovelCacheService().exportDir = exportDir;
+    }
   }
 
   void refresh() => setState(() {});
@@ -187,7 +207,8 @@ class _NovelAutoCachePageState extends State<NovelAutoCachePage> {
     final searchItem = widget.searchItem;
     final chapters = searchItem.chapters;
     final service = NovelCacheService();
-    final cacheIndex = service.getCachedIndex(searchItem.id);
+    final cacheIndexA = service.getCachedIndex(searchItem.id);
+    if (cacheIndexA.isNotEmpty) cacheIndex = cacheIndexA;
     const cacheText = const Text("已缓存", style: TextStyle(color: Colors.green));
     const noCacheText = const Text("未缓存", style: TextStyle(color: Colors.grey));
     final isCaching = service.isCaching(searchItem.id);
@@ -230,9 +251,51 @@ class _NovelAutoCachePageState extends State<NovelAutoCachePage> {
             controller: scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             cacheExtent: 30,
-            itemCount: searchItem.chaptersCount + 1,
+            itemCount: searchItem.chaptersCount + 2,
             itemBuilder: (BuildContext context, int i) {
               if (i == 0) {
+                return ListTile(
+                  title: Text("导出路径"),
+                  subtitle: Text(exportDir),
+                  onTap: () async {
+                    Directory rootDirectory;
+                    switch (Platform.operatingSystem) {
+                      case 'android':
+                        print(Platform.operatingSystemVersion);
+                        rootDirectory = await path.getExternalStorageDirectory();
+                        rootDirectory = rootDirectory.parent.parent.parent.parent;
+                        break;
+                      case 'ios':
+                        rootDirectory = await path.getApplicationDocumentsDirectory();
+                        break;
+                      case 'windows':
+                        rootDirectory = await path.getApplicationDocumentsDirectory();
+                        break;
+                      case 'macos':
+                        rootDirectory = await path.getApplicationDocumentsDirectory();
+                        break;
+                      default:
+                        rootDirectory = await path.getApplicationDocumentsDirectory();
+                    }
+                    final p = await FilesystemPicker.open(
+                      context: context,
+                      rootDirectory:
+                          Directory(rootDirectory.path + Platform.pathSeparator),
+                      fileTileSelectMode: FileTileSelectMode.checkButton,
+                      fsType: FilesystemType.folder,
+                      requestPermission: CacheUtil.requestPermission,
+                      rootName: rootDirectory.path,
+                    );
+                    if (p != null) {
+                      exportDir = p;
+                      novel_cache_export_dir_box.put(0, p);
+                      NovelCacheService().exportDir = p;
+                      refresh();
+                    }
+                  },
+                );
+              }
+              if (i == 1) {
                 return TextField(
                   maxLines: 10,
                   minLines: 1,
@@ -244,7 +307,7 @@ class _NovelAutoCachePageState extends State<NovelAutoCachePage> {
                   autofocus: false,
                 );
               }
-              final index = i - 1;
+              final index = i - 2;
               return Container(
                 height: 30,
                 child: Row(
