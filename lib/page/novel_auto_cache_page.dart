@@ -8,7 +8,7 @@ import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../global.dart';
 import '../utils.dart';
@@ -100,7 +100,7 @@ class NovelCacheService {
           exportDir == null ? await cache.cacheDir() + name : Utils.join(exportDir, name);
       // final download = await path.getApplicationDocumentsDirectory();
       // final filePath = Utils.join(download.path, "eso", name);
-      // await File(filePath).writeAsString(export.join("\n"));
+      await File(filePath).writeAsString(export.join("\n"));
       Utils.toast("成功导出到 $filePath");
       // if (isShare) await FlutterShare.shareFile(title: name, filePath: filePath);
       if (isShare) await Share.shareFiles(<String>[filePath], text: name);

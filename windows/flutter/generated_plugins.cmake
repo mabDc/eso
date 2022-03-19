@@ -3,12 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  battery_plus_windows
   flutter_qjs
   flutter_webview
   url_launcher_windows
   webview_windows
   window_manager
-  windows_speak
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

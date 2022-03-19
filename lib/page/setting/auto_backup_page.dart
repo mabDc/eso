@@ -11,7 +11,7 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webdav/webdav.dart';
 import 'package:intl/intl.dart' as intl;

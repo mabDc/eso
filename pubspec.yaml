@@ -12,7 +12,7 @@ dependencies:
   about: ^2.0.0
   archive: ^3.1.2
   audioplayers: ^0.20.1
-  battery: ^2.0.1
+  battery_plus: ^2.1.3
   cached_network_image: ^3.0.0
   device_info: ^2.0.0
   dlna:
@@ -51,7 +51,7 @@ dependencies:
   provider: ^5.0.0
   device_display_brightness: ^0.0.6
   scrollable_positioned_list: ^0.1.10
-  share: ^2.0.1
+  share_plus: ^3.1.0
   shared_preferences: ^2.0.13
   sqflite_common_ffi: ^2.0.0
   text_composition:
@@ -59,12 +59,19 @@ dependencies:
   url_launcher: ^6.0.3
   uuid: ^3.0.4
   video_player: ^2.1.1
+  video_player_macos:
+    git:
+      url: https://github.com/cbenhagen/plugins.git
+      path: packages/video_player/video_player_macos
+      ref: video_player_macos_new
+  # video_player_windows:
+  #   git:
+  #     url: https://github.com/anirudhb/flutter_packages.git
+  #     path: video_player_windows
   webdav:
     git: https://github.com/timestee/dart-webdav
   webview_flutter:
     path: modules/webview_flutter
-  windows_speak:
-    path: modules/windows_speak
   http_multi_server: ^3.2.0
   window_manager: ^0.1.5
   hive_flutter: ^1.1.0

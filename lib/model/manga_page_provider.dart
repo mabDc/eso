@@ -7,7 +7,7 @@
 // import 'package:eso/database/search_item_manager.dart';
 // import 'package:eso/profile.dart';
 // import 'package:flutter/services.dart';
-// import 'package:share/share.dart';
+// import 'package:share_plus/share_plus.dart';
 // import 'package:intl/intl.dart' as intl;
 // import 'package:device_display_brightness/device_display_brightness.dart';
 // import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';

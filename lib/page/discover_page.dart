@@ -18,7 +18,7 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import '../fonticons_icons.dart';

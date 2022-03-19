@@ -7,7 +7,7 @@ import 'package:eso/page/search_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_manager.dart';
 import '../database/search_item.dart';
@@ -215,7 +215,8 @@ class ChapterPageProvider with ChangeNotifier {
         //   text: '${searchItem.name}\n${searchItem.description}\n${searchItem.chapterUrl}',
         //   chooserTitle: '选择分享的应用',
         // );
-        Share.share('${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description}\n${searchItem.chapterUrl}');
+        Share.share(
+            '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description}\n${searchItem.chapterUrl}');
         break;
       default:
     }

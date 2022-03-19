@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -9,17 +10,18 @@ import 'package:eso/page/content_page_manager.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/flutter_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:windows_speak/windows_speak.dart';
 
 import '../fonticons_icons.dart';
 import '../utils.dart';
+import '../windows_speak.dart';
 import 'novel_auto_cache_page.dart';
 import 'setting/about_page.dart';
 
@@ -76,7 +78,7 @@ int speakingCheck = -1;
 class NovelMenu extends StatelessWidget {
   final SearchItem searchItem;
   final TextComposition composition;
-  const NovelMenu({Key key, this.composition, this.searchItem}) : super(key: key);
+  NovelMenu({Key key, this.composition, this.searchItem}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +137,8 @@ class NovelMenu extends StatelessWidget {
           ?.join();
       if (s != null && s.isNotEmpty) {
         if (Global.isDesktop) {
-          await WindowsSpeak.speak(s);
+          await Sapi.createInstance().speakIsolate(s);
+          // await WindowsSpeak.speak(s);
         } else {
           await FlutterTts().speak(s);
         }
@@ -158,10 +161,10 @@ class NovelMenu extends StatelessWidget {
 
   Future<dynamic> stop() async {
     speakingCheck = -1;
-    if (Global.isDesktop) {
-      await WindowsSpeak.release();
-    } else {
+    if (Platform.isAndroid || Platform.isIOS) {
       await FlutterTts().stop();
+    } else if (Platform.isWindows) {
+      Sapi.createInstance().stop();
     }
   }
 
@@ -449,6 +452,26 @@ class NovelMenu extends StatelessWidget {
                   InkWell(
                     child: Column(
                       children: [
+                        Icon(Icons.text_format, color: color, size: 28),
+                        Text("调节", style: TextStyle(color: color))
+                      ],
+                    ),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          contentPadding: EdgeInsets.zero,
+                          content: Container(
+                            width: 520,
+                            child: myConfigSettingBuilder(context, composition.config),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  InkWell(
+                    child: Column(
+                      children: [
                         Icon(Icons.format_list_bulleted, color: color, size: 28),
                         Text("目录", style: TextStyle(color: color))
                       ],
@@ -473,7 +496,7 @@ class NovelMenu extends StatelessWidget {
                     child: Column(
                       children: [
                         Icon(Icons.text_format, color: color, size: 28),
-                        Text("调节", style: TextStyle(color: color))
+                        Text("系统", style: TextStyle(color: color))
                       ],
                     ),
                     onTap: () {
