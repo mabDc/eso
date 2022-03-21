@@ -261,54 +261,96 @@ class _ChapterPageState extends State<ChapterPage> {
     }));
   }
 
-  //排序
+  // 排序
   Widget _sortWidget(BuildContext context) {
-    // final theme = Theme.of(context);
-    return Consumer<ChapterPageProvider>(
-      builder: (context, provider, child) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-        child: Row(
+    return Consumer<ChapterPageProvider>(builder: (context, provider, child) {
+      void Function(int index) onTap = (int index) {
+        provider.changeChapter(index);
+        Navigator.of(context)
+            .push(ContentPageRoute().route(searchItem))
+            .whenComplete(provider.adjustScroll);
+      };
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              '全部 ${searchItem.chapters?.length ?? 0} (阅至 ${searchItem.durChapterIndex + 1}) ',
-              style: TextStyle(fontSize: 16),
+            Card(
+              child: TextButton(
+                  onPressed: () {
+                    if (searchItem.chapters.isNotEmpty)
+                      onTap(searchItem.chapters.length - 1);
+                  },
+                  child: Text(
+                    "更至（${searchItem.chapters.length}）${searchItem.chapters.isNotEmpty ? searchItem.chapters.last.name : "无"}",
+                    style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
+                  )),
             ),
-            if (searchItem.chapters != null && searchItem.chapters.isNotEmpty)
-              () {
-                try {
-                  final chapter = searchItem.chapters[searchItem.durChapterIndex];
-                  return Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context)
-                          .push(ContentPageRoute().route(searchItem))
-                          .whenComplete(provider.adjustScroll),
-                      child: Text(
-                        "${chapter.name}",
-                        textAlign: TextAlign.start,
-                        style: TextStyle(color: Theme.of(context).primaryColor),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      style: ButtonStyle(alignment: Alignment.centerLeft),
-                    ),
-                  );
-                } catch (e) {
-                  return Container();
-                }
-              }(),
+            Card(
+              child: TextButton(
+                  onPressed: () {
+                    onTap(searchItem.durChapterIndex);
+                  },
+                  child: Text(
+                    "阅至（${searchItem.durChapterIndex}）${searchItem.durChapter}",
+                    style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
+                  )),
+            ),
+            Divider(),
           ],
         ),
-      ),
-    );
+      );
+    });
+    // final theme = Theme.of(context);
+    // return Consumer<ChapterPageProvider>(
+    //   builder: (context, provider, child) => Padding(
+    //     padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+    //     child: Row(
+    //       children: [
+    //         Text(
+    //           '全部 ${searchItem.chapters?.length ?? 0} (阅至 ${searchItem.durChapterIndex + 1}) ',
+    //           style: TextStyle(fontSize: 16),
+    //         ),
+    //         if (searchItem.chapters != null && searchItem.chapters.isNotEmpty)
+    //           () {
+    //             try {
+    //               final chapter = searchItem.chapters[searchItem.durChapterIndex];
+    //               return Expanded(
+    //                 child: OutlinedButton(
+    //                   onPressed: () => Navigator.of(context)
+    //                       .push(ContentPageRoute().route(searchItem))
+    //                       .whenComplete(provider.adjustScroll),
+    //                   child: Text(
+    //                     "${chapter.name}",
+    //                     textAlign: TextAlign.start,
+    //                     style: TextStyle(color: Theme.of(context).primaryColor),
+    //                     overflow: TextOverflow.ellipsis,
+    //                     maxLines: 1,
+    //                   ),
+    //                   style: ButtonStyle(alignment: Alignment.centerLeft),
+    //                 ),
+    //               );
+    //             } catch (e) {
+    //               return Container();
+    //             }
+    //           }(),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 
   List<ChapterRoad> parseChapers(List<ChapterItem> chapters) {
+    currentRoad = 0;
     final roads = <ChapterRoad>[];
     if (chapters.isEmpty || !chapters.first.name.startsWith('@线路')) return roads;
     var roadName = chapters.first.name.substring(3);
     var startIndex = 1;
     for (var i = 1, len = chapters.length; i < len; i++) {
       if (chapters[i].name.startsWith('@线路')) {
+        if (searchItem.durChapterIndex >= startIndex && searchItem.durChapterIndex < i) {
+          currentRoad = roads.length;
+        }
         // 上一个线路
         roads.add(ChapterRoad(roadName, startIndex, i - startIndex));
         roadName = chapters[i].name.substring(3);
@@ -328,7 +370,7 @@ class _ChapterPageState extends State<ChapterPage> {
           chapter.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle( 
+          style: TextStyle(
             color: Theme.of(context).primaryColor,
             fontWeight: FontWeight.bold,
           ),
@@ -373,6 +415,8 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
+  var currentRoad = 0;
+
   Widget _buildChapter(BuildContext context) {
     return Consumer<ChapterPageProvider>(
       builder: (context, provider, child) {
@@ -403,7 +447,6 @@ class _ChapterPageState extends State<ChapterPage> {
           );
         }
 
-        var currentRoad = 0;
         return StatefulBuilder(
           builder: (BuildContext context, setState) => SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -411,57 +454,37 @@ class _ChapterPageState extends State<ChapterPage> {
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
                   if (index == 0) {
-                    return Row(
+                    return Wrap(
+                      spacing: 10,
+                      alignment: WrapAlignment.spaceBetween,
                       children: [
-                        Container(
-                          height: 40,
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text('线路(${roads.length}):'),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 40,
-                            alignment: Alignment.centerLeft,
-                            child: ListView.separated(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              separatorBuilder: (context, index) => Container(
-                                  alignment: Alignment.center, child: Text('|')),
-                              scrollDirection: Axis.horizontal,
-                              itemCount: roads.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return InkWell(
-                                  onTap: () {
-                                    currentRoad = index;
-                                    setState(() => null);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 12),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      '${roads[index].name}(${roads[index].length})',
-                                      style: TextStyle(
-                                        color: index == currentRoad
-                                            ? Theme.of(context).primaryColor
-                                            : Theme.of(context).textTheme.bodyText1.color,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
+                        for (var i = 0; i < roads.length; i++)
+                          TextButton(
+                            onPressed: () {
+                              currentRoad = i;
+                              setState(() => null);
+                            },
+                            child: Container(
+                              child: Text(
+                                '${roads[i].name}(${roads[i].length})'.padRight(10),
+                                maxLines: 2,
+                                overflow: TextOverflow.clip,
+                                style: TextStyle(
+                                  color: i == currentRoad
+                                      ? Theme.of(context).primaryColor
+                                      : Theme.of(context).textTheme.bodyText1.color,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          )
                       ],
                     );
                   }
-                  if (index == 1) {
-                    return Divider();
-                  }
+
                   return buildChapterButton(
-                      roads[currentRoad].startIndex + index - 2, onTap);
+                      roads[currentRoad].startIndex + index - 1, onTap);
                 },
-                childCount: roads[currentRoad].length + 2,
+                childCount: roads[currentRoad].length + 1,
               ),
             ),
           ),

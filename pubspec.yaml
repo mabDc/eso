@@ -33,7 +33,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_qjs: ^0.3.6
-  flutter_tts: ^3.0.0
+  text_to_speech: ^0.2.3
   flutter_webview:
     path: modules/flutter_webview
   html: ^0.15.0
@@ -59,11 +59,11 @@ dependencies:
   url_launcher: ^6.0.3
   uuid: ^3.0.4
   video_player: ^2.1.1
-  video_player_macos:
-    git:
-      url: https://github.com/cbenhagen/plugins.git
-      path: packages/video_player/video_player_macos
-      ref: video_player_macos_new
+  # video_player_macos:
+  #   git:
+  #     url: https://github.com/cbenhagen/plugins.git
+  #     path: packages/video_player/video_player_macos
+  #     ref: video_player_macos_new
   # video_player_windows:
   #   git:
   #     url: https://github.com/anirudhb/flutter_packages.git
@@ -75,6 +75,9 @@ dependencies:
   http_multi_server: ^3.2.0
   window_manager: ^0.1.5
   hive_flutter: ^1.1.0
+  explorer: ^2.1.0
+  epubx: ^3.0.0
+  win32: ^2.4.2
 
 dev_dependencies:
   build_runner: ^1.11.5

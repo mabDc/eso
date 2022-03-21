@@ -1,33 +1,67 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:ffi/ffi.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/content_page_manager.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+// import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
+import 'package:text_to_speech/text_to_speech.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:win32/win32.dart';
 
 import '../fonticons_icons.dart';
 import '../utils.dart';
-import '../windows_speak.dart';
 import 'novel_auto_cache_page.dart';
 import 'setting/about_page.dart';
 
-class NovelPage extends StatelessWidget {
+class NovelPage extends StatefulWidget {
   final SearchItem searchItem;
   const NovelPage({Key key, this.searchItem}) : super(key: key);
+
+  @override
+  State<NovelPage> createState() => _NovelPageState();
+}
+
+class _NovelPageState extends State<NovelPage> {
+  SearchItem searchItem;
+
+  @override
+  void initState() {
+    super.initState();
+    initBrightness();
+    searchItem = widget.searchItem;
+  }
+
+  @override
+  void dispose() {
+    DeviceDisplayBrightness.keepOn(enabled: false);
+    DeviceDisplayBrightness.resetBrightness();
+    super.dispose();
+  }
+
+  initBrightness() async {
+    final hiveESOBoolConfig = await Hive.openBox<bool>(HiveBool.boxKey);
+    final novelKeepOn = hiveESOBoolConfig.get(HiveBool.novelKeepOn,
+        defaultValue: HiveBool.novelKeepOnDefault);
+    if (novelKeepOn == true) DeviceDisplayBrightness.keepOn(enabled: novelKeepOn);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +109,84 @@ const NovelContentTotal = 100000000; // 10000 * 10000 <==> 一万章节 * 一万
 const TextConfigKey = "TextCompositionConfig";
 int speakingCheck = -1;
 
+class SpeakService {
+  static SpeakService _;
+  static SpeakService get instance => SpeakService.createInstance();
+  factory SpeakService.createInstance() => _ ??= SpeakService.__();
+  SpeakService.__() {
+    _rate = 0;
+    if (!Platform.isWindows) tts = TextToSpeech();
+  }
+
+  TextToSpeech tts;
+  SpVoice spVoice;
+  int _rate;
+  int get rate => _rate;
+
+  static int speakStatic(List l) {
+    final int address = l[0];
+    final String s = l[1];
+    final ptr = Pointer<COMObject>.fromAddress(address);
+    final spVoice = SpVoice(ptr);
+    final pwcs = s.toNativeUtf16();
+    try {
+      return spVoice.Speak(
+          pwcs, SPEAKFLAGS.SPF_PURGEBEFORESPEAK | SPEAKFLAGS.SPF_IS_NOT_XML, nullptr);
+    } finally {
+      free(pwcs);
+    }
+  }
+
+  Future<bool> speak(String text) async {
+    if (!Platform.isWindows) return tts.speak(text);
+    freeSpVoice();
+    spVoice = SpVoice.createInstance();
+    spVoice.SetRate(rate);
+    return 0 == await compute(speakStatic, [spVoice.ptr.address, text]);
+  }
+
+  Future<bool> stop() async {
+    if (!Platform.isWindows) return tts.stop();
+    return 0 == spVoice?.Pause();
+  }
+
+  FutureOr<bool> addRate() {
+    if (rate < 8) {
+      _rate++;
+      if (!Platform.isWindows) return tts.setRate(1 + rate / 10);
+      return 0 == spVoice?.SetRate(rate);
+    }
+    return false;
+  }
+
+  FutureOr<bool> minusRate() {
+    if (rate > -5) {
+      _rate--;
+      if (!Platform.isWindows) return tts.setRate(1 + rate / 10);
+      return 0 == spVoice?.SetRate(rate);
+    }
+    return false;
+  }
+
+  FutureOr<bool> resetRate() {
+    if (rate != 0) {
+      _rate = 0;
+      if (!Platform.isWindows) return tts.setRate(1 + rate / 10);
+      return 0 == spVoice?.SetRate(rate);
+    }
+    return false;
+  }
+
+  freeSpVoice() {
+    if (spVoice != null) {
+      spVoice.Pause();
+      free(spVoice.ptr);
+      CoUninitialize();
+      spVoice = null;
+    }
+  }
+}
+
 class NovelMenu extends StatelessWidget {
   final SearchItem searchItem;
   final TextComposition composition;
@@ -87,61 +199,85 @@ class NovelMenu extends StatelessWidget {
     final color = Theme.of(context).textTheme.bodyText1.color;
     return Column(
       children: <Widget>[
-        AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: Text(searchItem.name),
-          brightness: brightness,
-          titleSpacing: 0,
-          actions: [
-            IconButton(
-              icon: Icon(FIcons.share_2),
-              onPressed: () async {
-                Share.share(
-                    "${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.chapterUrl}");
-                // await FlutterShare.share(
-                //   title: '亦搜 eso',
-                //   text:
-                //       '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
-                //   //linkUrl: '${searchItem.url}',
-                //   chooserTitle: '选择分享的应用',
-                // );
-              },
-            ),
-            _buildPopupMenu(context, bgColor, color),
-          ],
+        // AppBar(
+        //   leading: IconButton(
+        //     icon: Icon(Icons.arrow_back),
+        //     onPressed: () => Navigator.of(context).pop(),
+        //   ),
+        //   title: Text(searchItem.name),
+        //   brightness: brightness,
+        //   titleSpacing: 0,
+        //   actions: [
+        //     IconButton(
+        //       icon: Icon(FIcons.share_2),
+        //       onPressed: () async {
+        //         Share.share(
+        //             "${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.chapterUrl}");
+        //         // await FlutterShare.share(
+        //         //   title: '亦搜 eso',
+        //         //   text:
+        //         //       '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
+        //         //   //linkUrl: '${searchItem.url}',
+        //         //   chooserTitle: '选择分享的应用',
+        //         // );
+        //       },
+        //     ),
+        //     _buildPopupMenu(context, bgColor, color),
+        //   ],
+        // ),
+        Spacer(),
+        StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return Wrap(
+              spacing: 10,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    SpeakService.instance.addRate();
+                    setState(() {});
+                  },
+                  child: Text('加快'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    SpeakService.instance.resetRate();
+                    setState(() {});
+                  },
+                  child: Text('恢复'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    SpeakService.instance.minusRate();
+                    setState(() {});
+                  },
+                  child: Text('减慢'),
+                ),
+                ElevatedButton(onPressed: speak, child: Text('朗读')),
+                ElevatedButton(onPressed: stop, child: Text('停止')),
+                ElevatedButton(onPressed: prevPage, child: Text('上页')),
+                ElevatedButton(onPressed: nextPage, child: Text('下页')),
+              ],
+            );
+          },
         ),
-        SizedBox(height: 6),
         Wrap(
           spacing: 10,
-          children: [
-            ElevatedButton(onPressed: speak, child: Text('朗读')),
-            ElevatedButton(onPressed: stop, child: Text('停止')),
-            ElevatedButton(onPressed: prevPage, child: Text('上一页')),
-            ElevatedButton(onPressed: nextPage, child: Text('下一页')),
-          ],
+          children: [],
         ),
-        Spacer(),
+        SizedBox(height: 60),
         _buildBottomRow(context, bgColor, color),
       ],
     );
   }
 
   Future<dynamic> _speak(int check) async {
-    if (!Global.isDesktop) await FlutterTts().awaitSpeakCompletion(true);
+    // if (!Global.isDesktop) await FlutterTts().awaitSpeakCompletion(true);
     while (speakingCheck > 0 && speakingCheck == check) {
       final s = composition.textPages[composition.currentIndex]?.lines
           ?.map((e) => e.text)
           ?.join();
       if (s != null && s.isNotEmpty) {
-        if (Global.isDesktop) {
-          await Sapi.createInstance().speakIsolate(s);
-          // await WindowsSpeak.speak(s);
-        } else {
-          await FlutterTts().speak(s);
-        }
+        await SpeakService.instance.speak(s);
       } else {
         break;
       }
@@ -161,11 +297,7 @@ class NovelMenu extends StatelessWidget {
 
   Future<dynamic> stop() async {
     speakingCheck = -1;
-    if (Platform.isAndroid || Platform.isIOS) {
-      await FlutterTts().stop();
-    } else if (Platform.isWindows) {
-      Sapi.createInstance().stop();
-    }
+    SpeakService.instance.stop();
   }
 
   prevPage() async {
@@ -440,39 +572,28 @@ class NovelMenu extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // InkWell(
+                  //   child: Column(
+                  //     children: [
+                  //       Icon(Icons.arrow_back, color: color, size: 28),
+                  //       Text("上一章", style: TextStyle(color: color))
+                  //     ],
+                  //   ),
+                  //   onTap: () => composition.gotoPreviousChapter(),
+                  // ),
                   InkWell(
                     child: Column(
                       children: [
-                        Icon(Icons.arrow_back, color: color, size: 28),
-                        Text("上一章", style: TextStyle(color: color))
+                        Icon(Icons.arrow_back, color: color, size: 22),
+                        Text("退出", style: TextStyle(color: color))
                       ],
                     ),
-                    onTap: () => composition.gotoPreviousChapter(),
+                    onTap: () => Navigator.of(context).pop(),
                   ),
                   InkWell(
                     child: Column(
                       children: [
-                        Icon(Icons.text_format, color: color, size: 28),
-                        Text("调节", style: TextStyle(color: color))
-                      ],
-                    ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          contentPadding: EdgeInsets.zero,
-                          content: Container(
-                            width: 520,
-                            child: myConfigSettingBuilder(context, composition.config),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  InkWell(
-                    child: Column(
-                      children: [
-                        Icon(Icons.format_list_bulleted, color: color, size: 28),
+                        Icon(Icons.format_list_bulleted, color: color, size: 22),
                         Text("目录", style: TextStyle(color: color))
                       ],
                     ),
@@ -495,8 +616,8 @@ class NovelMenu extends StatelessWidget {
                   InkWell(
                     child: Column(
                       children: [
-                        Icon(Icons.text_format, color: color, size: 28),
-                        Text("系统", style: TextStyle(color: color))
+                        Icon(Icons.text_format, color: color, size: 22),
+                        Text("调节", style: TextStyle(color: color))
                       ],
                     ),
                     onTap: () {
@@ -512,15 +633,36 @@ class NovelMenu extends StatelessWidget {
                       );
                     },
                   ),
+                  // InkWell(
+                  //   child: Column(
+                  //     children: [
+                  //       Icon(Icons.arrow_forward, color: color, size: 28),
+                  //       Text("下一章", style: TextStyle(color: color))
+                  //     ],
+                  //   ),
+                  //   onTap: () => composition.gotoNextChapter(),
+                  // ),
                   InkWell(
                     child: Column(
                       children: [
-                        Icon(Icons.arrow_forward, color: color, size: 28),
-                        Text("下一章", style: TextStyle(color: color))
+                        Icon(Icons.brightness_medium_outlined, color: color, size: 22),
+                        Text("亮度", style: TextStyle(color: color))
                       ],
                     ),
-                    onTap: () => composition.gotoNextChapter(),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          contentPadding: EdgeInsets.zero,
+                          content: Container(
+                            width: 520,
+                            child: const BrightnessSettings(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
+                  _buildPopupMenu(context, bgColor, color),
                 ],
               ),
             ),
@@ -529,4 +671,115 @@ class NovelMenu extends StatelessWidget {
       ),
     );
   }
+}
+
+class BrightnessSettings extends StatefulWidget {
+  const BrightnessSettings({Key key}) : super(key: key);
+
+  @override
+  State<BrightnessSettings> createState() => _BrightnessSettingsState();
+}
+
+class _BrightnessSettingsState extends State<BrightnessSettings> {
+  double brightness;
+  bool keepOn = false;
+  Box<bool> hiveESOBoolConfig;
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  init() async {
+    hiveESOBoolConfig = await Hive.openBox<bool>(HiveBool.boxKey);
+    keepOn = hiveESOBoolConfig.get(HiveBool.novelKeepOn,
+        defaultValue: HiveBool.novelKeepOnDefault);
+    try {
+      brightness = await DeviceDisplayBrightness.getBrightness();
+    } catch (e) {}
+    if (brightness == null || brightness <= 0 || brightness > 1) brightness = 0.5;
+    // await DeviceDisplayBrightness.keepOn(enabled: keepOn);
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = Theme.of(context).canvasColor.withOpacity(0.96);
+    final color = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.96);
+    return Container(
+      width: 520,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SwitchListTile(
+            title: Text("保持常亮"),
+            value: keepOn,
+            onChanged: (value) async {
+              if (value != keepOn) {
+                setState(() {
+                  keepOn = value;
+                });
+                await hiveESOBoolConfig.put(HiveBool.novelKeepOn, keepOn);
+                await DeviceDisplayBrightness.keepOn(enabled: keepOn);
+              }
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Expanded(
+              child: FlutterSlider(
+                values: [brightness * 100],
+                max: 100,
+                min: 1,
+                onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+                  brightness = lowerValue / 100;
+                  DeviceDisplayBrightness.setBrightness(brightness);
+                },
+                // disabled: provider.isLoading,
+                handlerWidth: 6,
+                handlerHeight: 14,
+                handler: FlutterSliderHandler(
+                  decoration: BoxDecoration(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3),
+                      color: bgColor,
+                      border: Border.all(color: color.withOpacity(0.65), width: 1),
+                    ),
+                  ),
+                ),
+                trackBar: FlutterSliderTrackBar(
+                  inactiveTrackBar: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: color.withOpacity(0.5),
+                  ),
+                  activeTrackBar: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                tooltip: FlutterSliderTooltip(
+                  disableAnimation: true,
+                  custom: (value) => Container(
+                    padding: EdgeInsets.all(8),
+                    color: bgColor,
+                    child: Text((value as double).toStringAsFixed(0)),
+                  ),
+                  positionOffset:
+                      FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class HiveBool {
+  static const boxKey = "HiveESOBoolConfig";
+  static const novelKeepOn = "novelKeepOn";
+  static const novelKeepOnDefault = false;
 }

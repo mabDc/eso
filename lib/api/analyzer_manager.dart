@@ -296,9 +296,6 @@ class AnalyzerManager {
 
     for (final r in splitRuleReversed(rule).reversed) {
       r.analyzer.parse(result.isNotEmpty ? result : _content);
-      if (r.analyzer is AnalyzerJS) {
-        print("^^^^^^" + r.rule);
-      }
       result = await _getString(r);
     }
     return result;

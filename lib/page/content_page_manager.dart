@@ -171,7 +171,7 @@ class ContentProvider with ChangeNotifier {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       // print("SearchItemManager.saveSearchItem()" +
       //     DateTime.now().millisecondsSinceEpoch.toString());
-      await SearchItemManager.saveSearchItem();
+      // await SearchItemManager.saveSearchItem();
       // final box = Hive.box<SearchItem>(Global.searchItemKey);
       // box.clear();
       // box.putAll(Map<String, SearchItem>.fromIterable(SearchItemManager.searchItem,
@@ -180,6 +180,6 @@ class ContentProvider with ChangeNotifier {
       // print("SearchItemManager.saveSearchItem()" +
       //     DateTime.now().millisecondsSinceEpoch.toString());
     }
-    await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    // await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
   }
 }
