@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:eso/page/add_local_item_page.dart';
 import 'package:eso/page/history_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
 import 'package:eso/page/setting/ui_setting.dart';
@@ -107,6 +108,15 @@ class AboutPage2 extends StatelessWidget {
                       ),
                     ),
                     Divider(),
+                    ListTile(
+                      title: Text('本地导入'),
+                      subtitle: Text('导入txt或者epub'),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddLocalItemPage(),
+                          )),
+                    ),
                     if (profile.showHistoryOnAbout)
                       ListTile(
                         title: Text('历史记录'),

@@ -8,6 +8,7 @@ import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
+import 'add_local_item_page.dart';
 import 'history_page.dart';
 import 'search_page.dart';
 
@@ -108,9 +109,14 @@ class FavoritePage2 extends StatelessWidget {
                 .toList(),
           ),
           actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.add_to_photos_outlined),
+                tooltip: "导入本地txt或epub",
+                onPressed: () => Utils.startPageWait(context, AddLocalItemPage())),
             if (profile.searchPostion == Profile.searchAction)
               IconButton(
                   icon: Icon(Icons.search),
+                  tooltip: "搜索",
                   onPressed: () => Utils.startPageWait(context, SearchPage())),
             if (profile.showHistoryOnFavorite)
               IconButton(

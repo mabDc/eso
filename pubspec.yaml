@@ -78,6 +78,7 @@ dependencies:
   explorer: ^2.1.0
   epubx: ^3.0.0
   win32: ^2.4.2
+  file_picker: ^4.5.1
 
 dev_dependencies:
   build_runner: ^1.11.5

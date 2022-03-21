@@ -270,6 +270,9 @@ class _ChapterPageState extends State<ChapterPage> {
             .push(ContentPageRoute().route(searchItem))
             .whenComplete(provider.adjustScroll);
       };
+      if (searchItem.chapters == null || searchItem.chapters.isEmpty) {
+        return Container();
+      }
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Column(
