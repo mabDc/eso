@@ -22,7 +22,7 @@ import 'package:share_plus/share_plus.dart';
 // import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition.dart';
-import 'package:text_to_speech/text_to_speech.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:win32/win32.dart';
 
@@ -115,13 +115,22 @@ class SpeakService {
   factory SpeakService.createInstance() => _ ??= SpeakService.__();
   SpeakService.__() {
     _rate = 0;
-    if (!Platform.isWindows) tts = TextToSpeech();
+    if (!Platform.isWindows) {
+      tts = FlutterTts();
+      tts.awaitSpeakCompletion(true);
+    }
+    () async {
+      range = await tts.getSpeechRateValidRange;
+      print(range);
+    }();
   }
 
-  TextToSpeech tts;
+  FlutterTts tts;
   SpVoice spVoice;
   int _rate;
   int get rate => _rate;
+  SpeechRateValidRange range =
+      SpeechRateValidRange(0, 0.5, 1, TextToSpeechPlatform.android);
 
   static int speakStatic(List l) {
     final int address = l[0];
@@ -150,28 +159,30 @@ class SpeakService {
     return 0 == spVoice?.Pause();
   }
 
-  FutureOr<bool> addRate() {
-    if (rate < 8) {
+  FutureOr<dynamic> addRate() {
+    if (rate < 5) {
       _rate++;
-      if (!Platform.isWindows) return tts.setRate(1 + rate / 10);
+      if (!Platform.isWindows)
+        return tts.setSpeechRate(range.min + (range.max - range.min) * (_rate + 5) / 10);
       return 0 == spVoice?.SetRate(rate);
     }
     return false;
   }
 
-  FutureOr<bool> minusRate() {
+  FutureOr<dynamic> minusRate() {
     if (rate > -5) {
       _rate--;
-      if (!Platform.isWindows) return tts.setRate(1 + rate / 10);
+      if (!Platform.isWindows)
+        return tts.setSpeechRate(range.min + (range.max - range.min) * (_rate + 5) / 10);
       return 0 == spVoice?.SetRate(rate);
     }
     return false;
   }
 
-  FutureOr<bool> resetRate() {
+  FutureOr<dynamic> resetRate() {
     if (rate != 0) {
       _rate = 0;
-      if (!Platform.isWindows) return tts.setRate(1 + rate / 10);
+      if (!Platform.isWindows) return tts.setSpeechRate(range.normal);
       return 0 == spVoice?.SetRate(rate);
     }
     return false;

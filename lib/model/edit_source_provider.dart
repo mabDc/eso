@@ -193,10 +193,10 @@ class EditSourceProvider with ChangeNotifier {
     print("读取数据库 %$name%");
     switch (this.type) {
       case 1:
-        _rules = await Global.ruleDao.getRuleByName('%$name%', '%$name%');
+        _rules = await Global.ruleDao.getRuleByName('%$name%');
         break;
       case 2:
-        _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%', '%$name%');
+        _rules = await Global.ruleDao.getDiscoverRuleByName('%$name%');
         break;
     }
     _setRuleContentType(_ruleContentType);

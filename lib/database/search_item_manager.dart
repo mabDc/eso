@@ -51,6 +51,7 @@ class SearchItemManager {
   }
 
   static Future<bool> addSearchItem(SearchItem searchItem) async {
+    _searchItem.removeWhere((element) => element.id == searchItem.id);
     _searchItem.add(searchItem);
     return await saveSearchItem() &&
         await saveChapter(searchItem.id, searchItem.chapters);

@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.22.3+12203
+version: 1.22.4+12204
 homepage: https://github.com/mabdc/eso
 author: mabdc
 
@@ -33,7 +33,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_qjs: ^0.3.6
-  text_to_speech: ^0.2.3
+  # text_to_speech: ^0.2.3
+  flutter_tts: ^3.3.3
   flutter_webview:
     path: modules/flutter_webview
   html: ^0.15.0
@@ -51,7 +52,7 @@ dependencies:
   provider: ^5.0.0
   device_display_brightness: ^0.0.6
   scrollable_positioned_list: ^0.1.10
-  share_plus: ^3.1.0
+  share_plus: ^4.0.2
   shared_preferences: ^2.0.13
   sqflite_common_ffi: ^2.0.0
   text_composition:
@@ -69,13 +70,14 @@ dependencies:
   #     url: https://github.com/anirudhb/flutter_packages.git
   #     path: video_player_windows
   webdav:
-    git: https://github.com/timestee/dart-webdav
+    # git: https://github.com/timestee/dart-webdav
+    path: modules/dart-webdav
   webview_flutter:
     path: modules/webview_flutter
   http_multi_server: ^3.2.0
   window_manager: ^0.1.5
   hive_flutter: ^1.1.0
-  explorer: ^2.1.0
+  # explorer: ^2.1.0
   epubx: ^3.0.0
   win32: ^2.4.2
   file_picker: ^4.5.1

@@ -92,6 +92,9 @@ class SearchItem {
     durChapterIndex = 0;
     durContentIndex = 1;
     chapters = null;
+    createTime ??= DateTime.now().microsecondsSinceEpoch;
+    updateTime ??= DateTime.now().microsecondsSinceEpoch;
+    lastReadTime ??= DateTime.now().microsecondsSinceEpoch;
   }
 
 //  void copyFrom(SearchItem other){
@@ -211,10 +214,9 @@ class SearchItem {
   }
 
   localAddInfo(SearchItem searchItem) {
-    if (author.isEmpty && searchItem.author.isNotEmpty) author = searchItem.author;
-    if (cover.isEmpty && searchItem.cover.isNotEmpty) cover = searchItem.cover;
-    if (tags.isEmpty && searchItem.tags.isNotEmpty) tags = searchItem.tags;
-    if (description.isEmpty && searchItem.description.isNotEmpty)
-      description = searchItem.description;
+    if (searchItem.author.isNotEmpty) author = searchItem.author;
+    if (searchItem.cover.isNotEmpty) cover = searchItem.cover;
+    if (searchItem.tags.isNotEmpty) tags = searchItem.tags;
+    if (searchItem.description.isNotEmpty) description = searchItem.description;
   }
 }

@@ -1,0 +1,18 @@
+name: webdav
+version: 1.0.9
+
+author: timestee
+
+description: easy webdav for dart,support basic auth,directories\files listing,upload\downliad.
+homepage: https://github.com/timestee/dart-webdav
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  retry: ^3.1.0
+  xml: ^5.0.2
+
+dev_dependencies:
+  pedantic: ^1.11.0
+  test: '>=1.0.0 <2.0.0'

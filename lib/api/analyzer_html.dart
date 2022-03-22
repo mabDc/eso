@@ -30,6 +30,54 @@ class AnalyzerHtml implements Analyzer {
     return this;
   }
 
+  static String getHtmlString(String outerHtml) {
+    /// 内部处理文字规则，图文混排
+    /// 去掉script和style节点;img标签单独成段，块级元素换行 其他标签直接移除
+    /// 块级元素 https://developer.mozilla.org/zh-CN/docs/Web/HTML/Block-level_elements
+    /// <article> <dd> <div> <dl> <h1>, <h2>, <h3>, <h4>, <h5>, <h6> <hr> <p> <br>
+    /// 网页编码转文本
+    /*
+         *北方酱保佑代码能用**********************************
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣤⠤⢤⣤⣄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⠤⠖⠚⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠈⠉⠑⠲⠤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⠖⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠲⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⢶⣒⡒⠒⠒⠋⠉⠁⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⣠⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠲⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠛⢛⡖⠀⠀⠀⠀⠀⠀⣆⡤⠚⢩⠏⠀⣠⠞⠁⠹⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⡀⠀⠀⠀⠈⠳⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⣠⠞⠙⠋⠀⠀⢸⠖⠚⠁⠀⠀⠀⠈⠳⣄⡞⠳⡄⠀⠀⠀⠀⠀⢿⣍⠛⠲⣄⡀⠀⠹⡄⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⠏⠀⠀⠀⣠⡾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡄⠀⠀⠀⠀⠘⣧⠀⠀⠀⣙⣶⡀⢳⠀⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⡞⢡⠇⠀⠀⠀⢐⡟⠁⠀⠀⠀⠀⠀⣀⣠⠴⠀⠀⠀⠀⠤⣄⠀⠀⠀⠀⠀⢹⡀⣆⠀⠀⠀⢿⡀⣠⣾⣿⣿⠁⠈⣇⠀⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠳⡿⢸⡆⠀⠀⡏⠀⠀⠀⠀⠀⠙⠉⠁⠀⠀⠀⠀⠀⠀⠀⠈⠙⠓⠲⠀⠀⠀⠓⢾⠀⠀⠀⢸⣿⣿⣿⡟⠁⠀⠀⢸⡄⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⢸⠃⠀⢸⠀⠀⠀⣀⣤⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⡀⠀⠀⢸⠀⠀⠀⠈⣿⠟⠋⠀⠀⠀⠀⠀⢧⠀⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠀⠀⣸⠀⢀⡞⡭⣤⡤⣌⠻⣆⠀⠀⠀⠀⠀⠀⠀⢠⠟⢩⣬⣭⣙⠳⣄⣽⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠘⡆⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⠀⠀⢹⠀⡜⣼⣿⣿⣿⡿⡆⠙⠀⠀⠀⠀⠀⠀⠀⠋⣼⣾⣿⣿⣿⣧⠈⣿⠀⠀⠀⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀⢷⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡇⠀⠀⢸⠀⠃⣿⣿⣿⣯⣷⡇⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⢻⣿⣺⠄⣿⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⢸⠀⠀⢻⡿⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⠀⣿⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⠀⠀⡼⠉⠀⠀⠀⠙⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⠿⠽⠞⠁⠀⡟⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀
+        ⠀⠀⠀⠀⢀⡤⠤⣄⣠⡇⠀⡀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⢀⣀⠠⣸⡇⠀⠀⠀⠀
+        ⠀⠀⠀⠀⢸⣄⠀⠀⠈⠑⢻⣷⡞⣆⡀⢀⣠⣶⢖⣄⠀⠀⢀⣀⣤⣤⠀⠀⢀⣀⣤⡦⣄⠀⠀⠀⠀⢀⡇⠀⠀⠀⠀⢸⠀⣠⣶⡔⠋⠁⠀⠀⣠⣇⠀⠀⠀⠀
+        ⠀⡠⠚⠉⠉⠉⠁⠀⠀⠀⢸⣿⣿⣴⣿⣿⣿⣿⣯⣮⣷⣮⣿⣿⣿⣿⣷⣶⣿⣿⣿⣿⣧⣷⢦⢔⢋⣹⠀⠀⠀⠀⠀⣿⣐⣿⣿⡷⠀⠀⠀⠈⠉⠉⠑⠢⡀⠀
+        ⠀⣇⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⡟⢿⣛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣆⣀⡀⠀⠀⠀⠀⠀⢸⠀
+        ⠀⠈⠑⠒⠒⠒⠚⣿⡿⣿⠟⠋⠃⠀⠻⣿⣟⡿⣿⣿⣿⣿⣿⣿⣿⣟⣿⢟⡟⣿⣿⣿⠿⢿⠋⣸⣻⠃⠀⠀⠀⠀⢸⡿⠛⠁⠛⠛⠿⢿⣿⠉⠛⠒⠛⢻⡁⠀
+        ⠀⠀⠀⠀⠀⠀⠀⢸⡇⠙⣆⠀⠀⠀⠀⢸⡟⠉⠁⠀⠈⠛⠛⠉⠀⠀⠈⠑⠊⠊⠁⠀⠀⠀⠙⢡⠃⠀⠀⠀⠀⠀⡾⠀⠀⠀⠀⠀⣠⠃⠀⠁⠀⠀⠀⠈⢷⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠘⡇⠀⠘⣆⠀⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⣀⡀⠀⠀⠀⠀⠀⠀⠀⢀⡏⠀⠀⠀⠀⠀⣼⡇⠀⠀⠀⠀⡰⠃⠀⠀⠀⠀⠀⠀⠀⢸⡆
+        ⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠘⣆⠀⠀⡾⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⢸⠃⠀⠀⠀⠀⡴⠁⡇⠀⠀⢀⡼⠁⠀⠀⠀⠀⠀⠀⠀⠀⣸⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠓⠦⡄⠀⠀⡼⠁⠀⠀⠀⠀⠀⠀⠛⠻⠻⠛⠁⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⢀⡼⠁⠀⢹⡀⠀⠚⠀⠀⠀⠀⠀⠀⠀⠀⣀⡴⠃⠀
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠀⢀⡠⠊⠀⠀⠀⠀⠳⠀⠀⠀⠀⠀⠀⠀⠀⠐⠊⠁⠀⠀⠀
+         */
+    final imgReg = RegExp(r"<img[^>]*>");
+    final html = outerHtml
+        .replaceAllMapped(imgReg, (match) => "\n" + match.group(0) + "\n")
+        .replaceAll(RegExp(r"</?(?:div|p|br|hr|h\d|article|dd|dl)[^>]*>"), "\n");
+    //  .replaceAll(RegExp(r"^\s*|</?(?!img)\w+[^>]*>"), "");
+    return html.splitMapJoin(
+      imgReg,
+      onMatch: (match) => match.group(0) + "\n",
+      onNonMatch: (noMatch) => noMatch.trim().isEmpty
+          ? ""
+          : parser.parse("$noMatch").documentElement.text + "\n",
+    );
+  }
+
   String _getResult(Element e, String lastRule) {
     switch (lastRule) {
       case 'text':
@@ -82,18 +130,7 @@ class AnalyzerHtml implements Analyzer {
         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠀⢀⡠⠊⠀⠀⠀⠀⠳⠀⠀⠀⠀⠀⠀⠀⠀⠐⠊⠁⠀⠀⠀
          */
         e.querySelectorAll("script,style").forEach((element) => element.remove());
-        final imgReg = RegExp(r"<img[^>]*>");
-        final html = e.outerHtml
-            .replaceAllMapped(imgReg, (match) => "\n" + match.group(0) + "\n")
-            .replaceAll(RegExp(r"</?(?:div|p|br|hr|h\d|article|dd|dl)[^>]*>"), "\n");
-        //  .replaceAll(RegExp(r"^\s*|</?(?!img)\w+[^>]*>"), "");
-        return html.splitMapJoin(
-          imgReg,
-          onMatch: (match) => match.group(0) + "\n",
-          onNonMatch: (noMatch) => noMatch.trim().isEmpty
-              ? ""
-              : parser.parse("$noMatch").documentElement.text + "\n",
-        );
+        return getHtmlString(e.outerHtml);
       default:
         final r = e.attributes[lastRule];
         return null == r ? '' : r.trim();

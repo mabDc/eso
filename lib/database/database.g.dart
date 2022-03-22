@@ -330,18 +330,18 @@ class _$RuleDao extends RuleDao {
   }
 
   @override
-  Future<List<Rule>> getRuleByName(String name, String group) async {
+  Future<List<Rule>> getRuleByName(String name) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM rule WHERE name like ? or `group` like ? ORDER BY ${RuleDao.order}',
-        arguments: <dynamic>[name, group],
+        'SELECT * FROM rule WHERE name like ? or `group` like ? or author like ? or host like ? ORDER BY ${RuleDao.order}',
+        arguments: <dynamic>[name, name, name, name],
         mapper: _ruleMapper);
   }
 
   @override
-  Future<List<Rule>> getDiscoverRuleByName(String name, String group) async {
+  Future<List<Rule>> getDiscoverRuleByName(String name) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM rule WHERE enableDiscover = 1 and (name like ? or `group` like ?) ORDER BY ${RuleDao.order}',
-        arguments: <dynamic>[name, group],
+        'SELECT * FROM rule WHERE enableDiscover = 1 and (name like ? or `group` like ? or author like ? or host like ?) ORDER BY ${RuleDao.order}',
+        arguments: <dynamic>[name, name, name, name],
         mapper: _ruleMapper);
   }
 
