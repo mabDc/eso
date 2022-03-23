@@ -1,46 +1,44 @@
 PODS:
   - audioplayers (0.0.1):
     - FlutterMacOS
-  - connectivity (0.0.1)
   - connectivity_macos (0.0.1):
     - FlutterMacOS
     - Reachability
-  - flutter_js (0.0.1):
+  - flutter_qjs (0.0.1):
+    - FlutterMacOS
+  - flutter_tts (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
-  - package_info (0.0.1):
+  - package_info_plus_macos (0.0.1):
     - FlutterMacOS
-  - path_provider (0.0.1)
   - path_provider_macos (0.0.1):
     - FlutterMacOS
   - Reachability (3.2)
-  - shared_preferences (0.0.1)
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
-  - sqflite (0.0.1):
+  - sqflite (0.0.2):
     - FlutterMacOS
-    - FMDB (~> 2.7.2)
-  - url_launcher (0.0.1)
+    - FMDB (>= 2.7.5)
   - url_launcher_macos (0.0.1):
+    - FlutterMacOS
+  - window_manager (0.1.4):
     - FlutterMacOS
 
 DEPENDENCIES:
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
-  - connectivity (from `Flutter/ephemeral/.symlinks/plugins/connectivity/macos`)
   - connectivity_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos`)
-  - flutter_js (from `Flutter/ephemeral/.symlinks/plugins/flutter_js/macos`)
-  - FlutterMacOS (from `Flutter/ephemeral/.symlinks/flutter/darwin-x64-release`)
-  - package_info (from `Flutter/ephemeral/.symlinks/plugins/package_info/macos`)
-  - path_provider (from `Flutter/ephemeral/.symlinks/plugins/path_provider/macos`)
+  - flutter_qjs (from `Flutter/ephemeral/.symlinks/plugins/flutter_qjs/macos`)
+  - flutter_tts (from `Flutter/ephemeral/.symlinks/plugins/flutter_tts/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
-  - shared_preferences (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
-  - url_launcher (from `Flutter/ephemeral/.symlinks/plugins/url_launcher/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
+  - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
 SPEC REPOS:
   trunk:
@@ -50,48 +48,42 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   audioplayers:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
-  connectivity:
-    :path: Flutter/ephemeral/.symlinks/plugins/connectivity/macos
   connectivity_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos
-  flutter_js:
-    :path: Flutter/ephemeral/.symlinks/plugins/flutter_js/macos
+  flutter_qjs:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_qjs/macos
+  flutter_tts:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_tts/macos
   FlutterMacOS:
-    :path: Flutter/ephemeral/.symlinks/flutter/darwin-x64-release
-  package_info:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info/macos
-  path_provider:
-    :path: Flutter/ephemeral/.symlinks/plugins/path_provider/macos
+    :path: Flutter/ephemeral
+  package_info_plus_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
-  shared_preferences:
-    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences/macos
   shared_preferences_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   sqflite:
     :path: Flutter/ephemeral/.symlinks/plugins/sqflite/macos
-  url_launcher:
-    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
+  window_manager:
+    :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
-  audioplayers: 882556ed7be47c58b26f1098177c7e814d8a1f2a
-  connectivity: 5da134a8c10a7b6f334a17217fe4d0cfc4fb1c64
-  connectivity_macos: 9f30e9d0e67a0bc08a0c563ee82310b51ca6e818
-  flutter_js: e1b18fdea16f937c1995c167876d6a1734020297
-  FlutterMacOS: 15bea8a44d2fa024068daa0140371c020b4b6ff9
+  audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
+  connectivity_macos: 5dae6ee11d320fac7c05f0d08bd08fc32b5514d9
+  flutter_qjs: 1a3a4a23a9bb18d0583b5ee44d09ed9383a36e9f
+  flutter_tts: 64651204e5d276ffea5a910f942d5e9785a96085
+  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  package_info: 6eba2fd8d3371dda2d85c8db6fe97488f24b74b2
-  path_provider: e0848572d1d38b9a7dd099e79cf83f5b7e2cde9f
-  path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b
+  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
+  path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
-  shared_preferences: 9fec34d1bd906196a4da48fcf6c3ad521cc00b8d
-  shared_preferences_macos: 480ce071d0666e37cef23fe6c702293a3d21799e
-  sqflite: 6c1f07e1d4399d619ea619fea9171251dd24d058
-  url_launcher: af78307ef9bafff91273b34f1c6c0c86a0004fd7
-  url_launcher_macos: 45af3d61de06997666568a7149c1be98b41c95d4
+  shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
+  sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
+  url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
+  window_manager: 02776e5a599084cd4576e27a42dd5ec6f49132cf
 
-PODFILE CHECKSUM: d8ba9b3e9e93c62c74a660b46c6fcb09f03991a7
+PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.11.2
