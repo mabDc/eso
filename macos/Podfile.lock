@@ -1,6 +1,8 @@
 PODS:
   - audioplayers (0.0.1):
     - FlutterMacOS
+  - battery_plus_macos (0.0.1):
+    - FlutterMacOS
   - connectivity_macos (0.0.1):
     - FlutterMacOS
     - Reachability
@@ -17,6 +19,8 @@ PODS:
   - path_provider_macos (0.0.1):
     - FlutterMacOS
   - Reachability (3.2)
+  - share_plus_macos (0.0.1):
+    - FlutterMacOS
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
   - sqflite (0.0.2):
@@ -29,12 +33,14 @@ PODS:
 
 DEPENDENCIES:
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
+  - battery_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/battery_plus_macos/macos`)
   - connectivity_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos`)
   - flutter_qjs (from `Flutter/ephemeral/.symlinks/plugins/flutter_qjs/macos`)
   - flutter_tts (from `Flutter/ephemeral/.symlinks/plugins/flutter_tts/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
+  - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
@@ -48,6 +54,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   audioplayers:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
+  battery_plus_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/battery_plus_macos/macos
   connectivity_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos
   flutter_qjs:
@@ -60,6 +68,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
+  share_plus_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos
   shared_preferences_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   sqflite:
@@ -71,6 +81,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
+  battery_plus_macos: 6011b4f68b8845e0a7dda4787b90f455fb67c2d1
   connectivity_macos: 5dae6ee11d320fac7c05f0d08bd08fc32b5514d9
   flutter_qjs: 1a3a4a23a9bb18d0583b5ee44d09ed9383a36e9f
   flutter_tts: 64651204e5d276ffea5a910f942d5e9785a96085
@@ -79,6 +90,7 @@ SPEC CHECKSUMS:
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3

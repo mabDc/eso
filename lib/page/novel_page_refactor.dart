@@ -146,7 +146,7 @@ class SpeakService {
     }
   }
 
-  Future<bool> speak(String text) async {
+  speak(String text) async {
     if (!Platform.isWindows) return tts.speak(text);
     freeSpVoice();
     spVoice = SpVoice.createInstance();
@@ -154,12 +154,12 @@ class SpeakService {
     return 0 == await compute(speakStatic, [spVoice.ptr.address, text]);
   }
 
-  Future<bool> stop() async {
+  stop() async {
     if (!Platform.isWindows) return tts.stop();
     return 0 == spVoice?.Pause();
   }
 
-  FutureOr<dynamic> addRate() {
+  addRate() {
     if (rate < 5) {
       _rate++;
       if (!Platform.isWindows)
@@ -169,7 +169,7 @@ class SpeakService {
     return false;
   }
 
-  FutureOr<dynamic> minusRate() {
+  minusRate() {
     if (rate > -5) {
       _rate--;
       if (!Platform.isWindows)
@@ -179,7 +179,7 @@ class SpeakService {
     return false;
   }
 
-  FutureOr<dynamic> resetRate() {
+  resetRate() {
     if (rate != 0) {
       _rate = 0;
       if (!Platform.isWindows) return tts.setSpeechRate(range.normal);
@@ -306,7 +306,7 @@ class NovelMenu extends StatelessWidget {
     _speak(speakingCheck);
   }
 
-  Future<dynamic> stop() async {
+  stop() async {
     speakingCheck = -1;
     SpeakService.instance.stop();
   }
