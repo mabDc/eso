@@ -47,6 +47,7 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
   void dispose() {
     textEditingController?.dispose();
     textEditingControllerReg?.dispose();
+    contents.clear();
     super.dispose();
   }
 
@@ -80,7 +81,7 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
     var start = 0;
     var name = "";
     var i = 0;
-    content = content.trim();
+    // content = content.trim();
     for (var r in RegExp(textEditingControllerReg.text).allMatches(content)) {
       if (start == 0 && r.start > 0) {
         chapters.add(ChapterItem(name: "无名", url: "${i++}.txt"));
@@ -218,12 +219,7 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
               children: [
                 Text("正则："),
                 Expanded(
-                  child: TextField(
-                    controller: textEditingControllerReg,
-                    onChanged: (value) {
-                      searchItem.name = value;
-                    },
-                  ),
+                  child: TextField(controller: textEditingControllerReg),
                 ),
               ],
             ),

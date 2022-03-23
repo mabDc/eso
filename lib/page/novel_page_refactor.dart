@@ -205,7 +205,7 @@ class NovelMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
+    // final brightness = Theme.of(context).brightness;
     final bgColor = Theme.of(context).canvasColor.withOpacity(0.97);
     final color = Theme.of(context).textTheme.bodyText1.color;
     return Column(
@@ -742,7 +742,7 @@ class _BrightnessSettingsState extends State<BrightnessSettings> {
               child: FlutterSlider(
                 values: [brightness * 100],
                 max: 100,
-                min: 1,
+                min: 0,
                 onDragCompleted: (handlerIndex, lowerValue, upperValue) {
                   brightness = lowerValue / 100;
                   DeviceDisplayBrightness.setBrightness(brightness);
