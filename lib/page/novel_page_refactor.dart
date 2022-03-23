@@ -692,7 +692,7 @@ class BrightnessSettings extends StatefulWidget {
 }
 
 class _BrightnessSettingsState extends State<BrightnessSettings> {
-  double brightness;
+  double brightness = 0.5;
   bool keepOn = false;
   Box<bool> hiveESOBoolConfig;
 
