@@ -738,48 +738,46 @@ class _BrightnessSettingsState extends State<BrightnessSettings> {
           ),
           Padding(
             padding: const EdgeInsets.all(8),
-            child: Expanded(
-              child: FlutterSlider(
-                values: [brightness * 100],
-                max: 100,
-                min: 0,
-                onDragCompleted: (handlerIndex, lowerValue, upperValue) {
-                  brightness = lowerValue / 100;
-                  DeviceDisplayBrightness.setBrightness(brightness);
-                },
-                // disabled: provider.isLoading,
-                handlerWidth: 6,
-                handlerHeight: 14,
-                handler: FlutterSliderHandler(
-                  decoration: BoxDecoration(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      color: bgColor,
-                      border: Border.all(color: color.withOpacity(0.65), width: 1),
-                    ),
-                  ),
-                ),
-                trackBar: FlutterSliderTrackBar(
-                  inactiveTrackBar: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: color.withOpacity(0.5),
-                  ),
-                  activeTrackBar: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                tooltip: FlutterSliderTooltip(
-                  disableAnimation: true,
-                  custom: (value) => Container(
-                    padding: EdgeInsets.all(8),
+            child: FlutterSlider(
+              values: [brightness * 100],
+              max: 100,
+              min: 0,
+              onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+                brightness = lowerValue / 100;
+                DeviceDisplayBrightness.setBrightness(brightness);
+              },
+              // disabled: provider.isLoading,
+              handlerWidth: 6,
+              handlerHeight: 14,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
                     color: bgColor,
-                    child: Text((value as double).toStringAsFixed(0)),
+                    border: Border.all(color: color.withOpacity(0.65), width: 1),
                   ),
-                  positionOffset:
-                      FlutterSliderTooltipPositionOffset(left: -20, right: -20),
                 ),
+              ),
+              trackBar: FlutterSliderTrackBar(
+                inactiveTrackBar: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: color.withOpacity(0.5),
+                ),
+                activeTrackBar: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              tooltip: FlutterSliderTooltip(
+                disableAnimation: true,
+                custom: (value) => Container(
+                  padding: EdgeInsets.all(8),
+                  color: bgColor,
+                  child: Text((value as double).toStringAsFixed(0)),
+                ),
+                positionOffset:
+                    FlutterSliderTooltipPositionOffset(left: -20, right: -20),
               ),
             ),
           )
