@@ -17,7 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
 // import 'package:xpath_parse/xpath_selector.dart';
 import 'package:xpath_selector/xpath_selector.dart';
-
+import 'package:http/http.dart' as http;
 import '../global.dart';
 import 'analyze_url.dart';
 
@@ -48,6 +48,32 @@ class JSEngine {
       }),
     ]);
     await setToGlobalObject.invoke([
+      "__http_byte__",
+      IsolateFunction((dynamic url) async {
+        final res = await AnalyzeUrl.parser(url, _rule);
+        return {"bytes": res.bodyBytes.toList(), "headers": res.headers};
+      }),
+    ]);
+    await setToGlobalObject.invoke([
+      "require",
+      IsolateFunction((dynamic url) async {
+        if (url == null) return null;
+        final module = url.toString();
+        if (module.startsWith("http")) {
+          final res = await http.get(Uri.parse(module));
+          return await _engine.evaluate(res.body + ";0;");
+        } else {
+          try {
+            final js = await rootBundle.loadString(
+                "lib/assets/" + module.replaceFirst(new RegExp(r".js$"), "") + ".js");
+            return await _engine.evaluate(js + ";0;");
+          } catch (e) {
+            return null;
+          }
+        }
+      }),
+    ]);
+    await setToGlobalObject.invoke([
       "xpath",
       IsolateFunction((String html, String xpath) async {
         return AnalyzerXPath().parse(html).getString(xpath);
@@ -68,6 +94,7 @@ class JSEngine {
     setToGlobalObject.free();
     await _engine.evaluate("""
     var http = (url) => __http__(url);
+    var httpByte = (url) => __http_byte__(url);
     http.get = (url) => http(url);
     http.post = (url, body, headers) => {
       headers = headers ?? {};
