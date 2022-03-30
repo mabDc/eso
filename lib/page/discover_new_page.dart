@@ -168,15 +168,15 @@ class _DiscoverNewPageState extends State<DiscoverNewPage> {
 
   Widget _buildBanner() {
     if (_discoverRule == null) return SliverToBoxAdapter(child: Text("加载分类中。。。"));
-    final nomal = TextStyle(color: Theme.of(context).textTheme.bodyText1.color,fontSize: 14);
-    final primary = TextStyle(color: Theme.of(context).primaryColor,fontSize: 14);
+    final nomal = TextStyle(color: Theme.of(context).textTheme.bodyText1.color);
+    final primary = TextStyle(color: Theme.of(context).primaryColor);
 
     return SliverFixedExtentList(
-      itemExtent: 32,
+      itemExtent: 35,
       delegate: SliverChildListDelegate([
         for (var rule in _discoverRule.rules)
           SizedBox(
-            height: 32,
+            height: 35,
             child: Row(
               children: [
                 Text(" " + rule.name),
@@ -192,11 +192,9 @@ class _DiscoverNewPageState extends State<DiscoverNewPage> {
                           rule.value = option.value;
                           parseRule();
                         },
-                        child: Center(
-                          child: Text(
-                            option.option,
-                            style: rule.value == option.value ? primary : nomal,
-                          ),
+                        child: Text(
+                          option.option,
+                          style: rule.value == option.value ? primary : nomal,
                         ),
                       );
                     },
@@ -216,7 +214,7 @@ class _DiscoverNewPageState extends State<DiscoverNewPage> {
       pinned: true, //是否固定在顶部
       floating: true,
       delegate: _SliverAppBarDelegate(
-        minHeight: 32, //收起的高度
+        minHeight: 35, //收起的高度
         maxHeight: 40, //展开的最大高度
         child: ListView(
           scrollDirection: Axis.horizontal,
@@ -224,7 +222,6 @@ class _DiscoverNewPageState extends State<DiscoverNewPage> {
             for (var rule
                 in _discoverRule.rules.where((element) => element.option.isNotEmpty))
               Card(
-                elevation: 10,
                 child: Center(
                   child: Text(
                     " ${rule.name} : ${rule.option} ",
