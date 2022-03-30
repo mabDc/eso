@@ -57,7 +57,7 @@ class APIFromRUle implements API {
     final url = params.values.first.value;
     if (page == 1) {
       discoverRule = url;
-    } else if (hasNextUrlRule) {
+    } else if (hasNextUrlRule && page > 1) {
       final next = _nextUrl[url];
       if (next != null && next.isNotEmpty) {
         discoverRule = next;

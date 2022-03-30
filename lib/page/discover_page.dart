@@ -7,6 +7,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_discover_source.dart';
 import 'package:eso/menu/menu_edit_source.dart';
+import 'package:eso/page/discover_new_page.dart';
 import 'package:eso/page/discover_search_page.dart';
 import 'package:eso/page/source/edit_source_page.dart';
 import 'package:eso/model/edit_source_provider.dart';
@@ -32,6 +33,9 @@ class DiscoverFuture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (rule.discoverUrl.startsWith("测试新发现")) {
+      return DiscoverNewPage(rule: rule);
+    }
     return FutureBuilder<List<DiscoverMap>>(
       future: APIFromRUle(rule).discoverMap(),
       initialData: null,
