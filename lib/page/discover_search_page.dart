@@ -552,7 +552,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               autofocus: false,
               controller: TextEditingController(text: "${item.page}"),
               textAlign: TextAlign.end,
-              keyboardType: TextInputType.number,
+              keyboardType: Platform.isIOS
+                  ? TextInputType.numberWithOptions(signed: true, decimal: true)
+                  : TextInputType.number,
               decoration: const InputDecoration(
                 suffixText: "页",
                 contentPadding: EdgeInsets.all(6),
