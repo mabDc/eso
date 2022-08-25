@@ -35,6 +35,14 @@ class AnalyzerXPath implements Analyzer {
           .nodes
           .map((e) => (e.node as Element).outerHtml)
           .toList();
+    } else if (rule.endsWith("/only()")) {
+      return _xpath
+          .query(rule.substring(0, rule.length - 7))
+          .nodes
+          .map((e) => (e.node as Element)
+              .innerHtml
+              .replaceAll(RegExp("<([a-zA-Z0-9]+)[\\s\\S]+?/(\\1)?>"), ""))
+          .toList();
     }
     return _xpath.query(rule).attrs;
   }
