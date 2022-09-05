@@ -28,6 +28,7 @@ import '../../profile.dart';
 import '../../qing/main.dart';
 import '../novel_page_refactor.dart';
 import 'auto_backup_page.dart';
+import 'ba_setting.dart';
 import 'darkmod_page.dart';
 import 'package:about/about.dart';
 
@@ -97,19 +98,16 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildAppSetting(BuildContext context, Profile profile) {
     return CupertinoListSection.insetGrouped(
-      backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.1),
+      decoration: BoxDecoration(color: Colors.transparent),
+      backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
       header: Text(
         "应用",
-        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            fontSize: 13,
-            color: CupertinoDynamicColor.resolve(
-                Profile().kHeaderFooterColor, context)),
+        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontSize: 13),
       ),
       children: [
         CupertinoListTile(
           title: const Text('本地导入TEXT&EPUB'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           leading: Icon(
             CupertinoIcons.folder_open,
             color: Colors.blue,
@@ -122,8 +120,7 @@ class AboutPage extends StatelessWidget {
           ),
         ),
         CupertinoListTile(
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           title: const Text('历史记录'),
           trailing: const CupertinoListTileChevron(),
           leading: Icon(
@@ -138,8 +135,7 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('规则管理'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           trailing: const CupertinoListTileChevron(),
           leading: Icon(
             CupertinoIcons.hammer,
@@ -153,8 +149,7 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('QING'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           trailing: const CupertinoListTileChevron(),
           leading: Icon(
             CupertinoIcons.briefcase,
@@ -168,8 +163,7 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('快速分类'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           trailing: const CupertinoListTileChevron(),
           leading: Icon(
             CupertinoIcons.cube,
@@ -183,8 +177,7 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: Text('Webdav备份&恢复'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           trailing: const CupertinoListTileChevron(),
           leading: Icon(
             CupertinoIcons.tray,
@@ -198,8 +191,7 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('清理缓存'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           trailing: const CupertinoListTileChevron(),
           leading: Icon(
             CupertinoIcons.gobackward,
@@ -245,19 +237,16 @@ class AboutPage extends StatelessWidget {
     ];
 
     return CupertinoListSection.insetGrouped(
-      backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.1),
+      decoration: BoxDecoration(color: Colors.transparent),
+      backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
       header: Text(
         "界面",
-        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            fontSize: 13,
-            color: CupertinoDynamicColor.resolve(
-                Profile().kHeaderFooterColor, context)),
+        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontSize: 13),
       ),
       children: [
         CupertinoListTile(
           title: const Text('阅读设置'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           leading: Icon(
             CupertinoIcons.book,
             color: Colors.blue,
@@ -266,6 +255,20 @@ class AboutPage extends StatelessWidget {
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<ConfigSettingPage>(
               builder: (BuildContext context) => ConfigSettingPage(),
+            ),
+          ),
+        ),
+        CupertinoListTile(
+          title: const Text('背景设置'),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          leading: Icon(
+            CupertinoIcons.bolt_horizontal_circle,
+            color: Colors.blue,
+          ),
+          trailing: const CupertinoListTileChevron(),
+          onTap: () => Navigator.of(context).push(
+            CupertinoPageRoute<ConfigSettingPage>(
+              builder: (BuildContext context) => BaSetting(),
             ),
           ),
         ),
@@ -286,8 +289,7 @@ class AboutPage extends StatelessWidget {
         // ),
         CupertinoListTile(
           title: const Text('夜间模式'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           additionalInfo: Text(profile.darkMode),
           leading: Icon(
             CupertinoIcons.moon_stars,
@@ -312,9 +314,7 @@ class AboutPage extends StatelessWidget {
                   child: Text(
                     darklist[index],
                     style: TextStyle(
-                      color: profile.darkMode == darklist[index]
-                          ? Colors.red
-                          : null,
+                      color: profile.darkMode == darklist[index] ? Colors.red : null,
                       // fontWeight: FontWeight.bold,
                       // fontSize: 13,
                     ),
@@ -331,15 +331,13 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('字体管理'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          additionalInfo:
-              (profile.fontFamily == null || profile.fontFamily.isEmpty)
-                  ? Text("默认字体")
-                  : Text(
-                      profile.fontFamily,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          additionalInfo: (profile.fontFamily == null || profile.fontFamily.isEmpty)
+              ? Text("默认字体")
+              : Text(
+                  profile.fontFamily,
+                  overflow: TextOverflow.ellipsis,
+                ),
           leading: Icon(
             CupertinoIcons.pencil_outline,
             color: Colors.blue,
@@ -353,8 +351,7 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('颜色主题'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           leading: Icon(
             CupertinoIcons.color_filter,
             color: Colors.blue,
@@ -372,19 +369,16 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildAbout(BuildContext context, Profile profile) {
     return CupertinoListSection.insetGrouped(
-      backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.1),
+      decoration: BoxDecoration(color: Colors.transparent),
+      backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
       header: Text(
         "关于",
-        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-            fontSize: 13,
-            color: CupertinoDynamicColor.resolve(
-                Profile().kHeaderFooterColor, context)),
+        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontSize: 13),
       ),
       children: [
         CupertinoListTile(
           title: const Text('关于亦搜'),
-          backgroundColor:
-              Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           leading: Icon(
             CupertinoIcons.book,
             color: Colors.blue,
@@ -419,8 +413,7 @@ class AboutPage extends StatelessWidget {
                                   CupertinoListTile(
                                     title: Text(qing.joinPindao),
                                     subtitle: Image.memory(
-                                      base64Decode(
-                                          qing.esoPindao.base64.split(',')[1]),
+                                      base64Decode(qing.esoPindao.base64.split(',')[1]),
                                       fit: BoxFit.contain,
                                       height: 150,
                                       width: 150,
@@ -430,10 +423,10 @@ class AboutPage extends StatelessWidget {
                                   ),
                                   CupertinoListTile(
                                     title: Text('规则获取'),
-                                    subtitle: Text(
-                                        'https://github.com/mabDc/eso_source/'),
-                                    onTap: () => launch(
-                                        'https://github.com/mabDc/eso_source/'),
+                                    subtitle:
+                                        Text('https://github.com/mabDc/eso_source/'),
+                                    onTap: () =>
+                                        launch('https://github.com/mabDc/eso_source/'),
                                   ),
                                   CupertinoListTile(
                                     title: Text('规则说明'),
@@ -466,29 +459,22 @@ class AboutPage extends StatelessWidget {
                                   CupertinoListTile(
                                     title: Text('mabdc'),
                                     subtitle: Text('https://github.com/mabDc'),
-                                    onTap: () =>
-                                        launch('https://github.com/mabDc'),
+                                    onTap: () => launch('https://github.com/mabDc'),
                                   ),
                                   CupertinoListTile(
                                     title: Text('DaguDuiyuan'),
-                                    subtitle:
-                                        Text('https://github.com/DaguDuiyuan'),
-                                    onTap: () => launch(
-                                        'https://github.com/DaguDuiyuan'),
+                                    subtitle: Text('https://github.com/DaguDuiyuan'),
+                                    onTap: () => launch('https://github.com/DaguDuiyuan'),
                                   ),
                                   CupertinoListTile(
                                     title: Text('yangyxd'),
-                                    subtitle:
-                                        Text('https://github.com/yangyxd'),
-                                    onTap: () =>
-                                        launch('https://github.com/yangyxd'),
+                                    subtitle: Text('https://github.com/yangyxd'),
+                                    onTap: () => launch('https://github.com/yangyxd'),
                                   ),
                                   CupertinoListTile(
                                     title: Text('xiaohucode'),
-                                    subtitle:
-                                        Text('https://github.com/xiaohucode'),
-                                    onTap: () =>
-                                        launch('https://github.com/xiaohucode'),
+                                    subtitle: Text('https://github.com/xiaohucode'),
+                                    onTap: () => launch('https://github.com/xiaohucode'),
                                   ),
                                 ],
                               ),
@@ -513,10 +499,8 @@ class AboutPage extends StatelessWidget {
                                   ),
                                   CupertinoListTile(
                                     title: Text('开源地址'),
-                                    subtitle:
-                                        Text('https://github.com/mabDc/eso'),
-                                    onTap: () =>
-                                        launch('https://github.com/mabDc/eso'),
+                                    subtitle: Text('https://github.com/mabDc/eso'),
+                                    onTap: () => launch('https://github.com/mabDc/eso'),
                                   ),
                                   CupertinoListTile(
                                     title: Text('问题反馈'),
@@ -526,8 +510,8 @@ class AboutPage extends StatelessWidget {
                                         'https://github.com/xiaohucode/eso_source/issues'),
                                   ),
                                   CupertinoListTile(
-                                    title: Text(
-                                        '${Global.appName} - ${Global.appVersion}'),
+                                    title:
+                                        Text('${Global.appName} - ${Global.appVersion}'),
                                     subtitle: Text(
                                         'https://github.com/xiaohucode/eso_source/releases'),
                                     onTap: () => launch(
@@ -548,24 +532,21 @@ class AboutPage extends StatelessWidget {
                                       width: double.infinity,
                                       child: Center(
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: <Widget>[
                                             Text(
                                               'ESO',
                                               style: TextStyle(
                                                 fontSize: 100,
                                                 fontStyle: FontStyle.italic,
-                                                color:
-                                                    Theme.of(context).cardColor,
+                                                color: Theme.of(context).cardColor,
                                               ),
                                             ),
                                             Text(
                                               '亦搜，亦看，亦闻',
                                               style: TextStyle(
                                                 fontSize: 20,
-                                                color:
-                                                    Theme.of(context).cardColor,
+                                                color: Theme.of(context).cardColor,
                                               ),
                                             ),
                                           ],
@@ -592,9 +573,12 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return Container(
+      decoration: aboutBoxDecoration,
       child: CupertinoPageScaffold(
+        backgroundColor: Colors.transparent,
         navigationBar: CupertinoNavigationBar(
+          backgroundColor: Colors.transparent,
           middle: Text('设置'),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
@@ -611,9 +595,11 @@ class AboutPage extends StatelessWidget {
                 slivers: [
                   SliverList(
                     delegate: SliverChildListDelegate([
-                      SizedBox(height: 5),
+                      SizedBox(height: 15),
                       _buildAppSetting(context, profile),
+                      SizedBox(height: 15),
                       _buildReaderSetting(context, profile),
+                      SizedBox(height: 15),
                       _buildAbout(context, profile),
                       SizedBox(height: 60),
                     ]),
@@ -1013,10 +999,9 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
   TextCompositionConfig config;
   @override
   void initState() {
-    config = TextCompositionConfig.fromJSON(
-        Global.prefs.containsKey(TextConfigKey)
-            ? jsonDecode(Global.prefs.get(TextConfigKey))
-            : {});
+    config = TextCompositionConfig.fromJSON(Global.prefs.containsKey(TextConfigKey)
+        ? jsonDecode(Global.prefs.get(TextConfigKey))
+        : {});
     super.initState();
   }
 
@@ -1035,8 +1020,7 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
   }
 }
 
-Widget myConfigSettingBuilder(
-    BuildContext context, TextCompositionConfig config) {
+Widget myConfigSettingBuilder(BuildContext context, TextCompositionConfig config) {
   return configSettingBuilder(
     context,
     config,
@@ -1109,8 +1093,8 @@ Widget myConfigSettingBuilder(
       print("选择字体");
       final _cacheUtil = CacheUtil(backup: true, basePath: "font");
       final dir = await _cacheUtil.cacheDir();
-      FilePickerResult result = await FilePicker.platform.pickFiles(
-          withData: false, type: FileType.any, dialogTitle: "选择字体文件导入亦搜");
+      FilePickerResult result = await FilePicker.platform
+          .pickFiles(withData: false, type: FileType.any, dialogTitle: "选择字体文件导入亦搜");
       if (result == null) {
         Utils.toast("未选择文件");
         if (_platformFile == null) {
