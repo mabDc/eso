@@ -1,3 +1,167 @@
+### 2022.08.24
+- 重写HTTP适配器尝试支持HTTP2;最大重定向次数为5次,也可设置[forbidRedirect]禁用重定向
+- 可手动设置HTTP请求缓存时间,默认不缓存每次都请求
+- 优化调试规则
+- 收藏支持选择布局
+
+### 2022.08.18
+- 修复bug
+- 收藏页添加收藏分组管理,可以管理自定义分组
+- 调试规则可使用单独测试响应了,测试 发现/搜索>章节>正文
+
+### 2022.08.17
+- 修复规则管理在分组状态下不刷新状态的问题
+
+### 2022.08.16
+- update 更新主页布局UI
+- update 规则支持分组筛选
+- update 颜色主题配置更新
+- update 编写规则布局更改,部分规则与说明下个版本补全
+
+
+### 2022.08.06
+- fix 解决Windows版无法使用Webview获取Cookies
+- fix 把登陆按钮放在了发现页
+- fix 修复视频在章节详情选择其他线路会导致线路判断出错
+- fix 修复编辑规则无法预览新发现的规则源
+- fix 修改导入规则不判断host是否为空只判断规则名字
+- update 调整部分UI
+- update 重写漫画正文布局
+- update 漫画规则添加了一个图片解密规则.具体规则请参考漫蛙源：必须是js规则且返回数据格式: return JSON.stringify({bytes:Array.from(f)})
+- update 添加了快速分类工具,可以快速处理生成MoreKeys数据,[requestFilters]已支持简易格式。默认为简易格式,也可开启JSON格式
+
+### 2022.7.16
+- 1.22.10+12210
+- fix 修正播放视频错误跳到下一集时解析错误
+- fix 修正JS测试组件会隐藏第一行
+- fix 禁止调试规则界面的tab组件横向滑动
+- update 编辑规则菜单添加[副本]选项,已原有规则源为蓝本新建一个规则源
+- update 更新视频播放详情页布局
+- update 更新[json][txt][epub]类型文件可使用eso打开导入
+
+### 2022.7.12
+- 1.22.9+1229
+- fix 修复发现筛选器bug
+- update 添加esoTools函数
+### esoTools函数
+esoTools函数:
+esoTools.encode(type, body) //编码数据 type可以是'base64' 'gbk' 'utf8' 'md5'
+
+esoTools.decode(type, body) //解码数据 type可以是'base64' 'gbk' 'utf8'
+
+esoTools.AES_Encode (string, inkey, opt) //返回字典{'base16':x,'base64':x,'bytes':x}
+
+esoTools.AES_Decode (string, inkey, opt) //string需提供base64格式数据 返回解密文本数据
+
+esoTools.AES_EncodeCBC (string, inkey, iniv) // 返回值同AES_Encode,默认为PKCS7模式
+
+esoTools.AES_DecodeCBC (string, inkey, iniv) // 同AES_Decode,默认为PKCS7模式
+
+esoTools.AES_EncodeECB (string, inkey) //ECB模式加密返回值同AES_Encode
+
+esoTools.AES_DecodeECB (string, inkey) //ECB模式解密
+
+esoTools.RSA_encrypt (string, key) //RSA公钥加密
+
+esoTools.RSA_decrypt (string, key) //RSA私钥解密
+
+esoTools.RSA_encryptWithPrivate (string, key) //RSA私钥加密
+
+esoTools.RSA_decryptWithPublic (string, key) //RSA公钥解密
+
+esoTools.AES例:
+```
+// enum AESMode {
+//     cbc,
+//     cfb64,
+//     ctr,
+//     ecb,
+//     ofb64Gctr,
+//     ofb64,
+//     sic,
+// };
+let encodeStr = esoTools.AES_Encode("你好", "x;j/6olSp})&{ZJD", {
+    mode: AESMode.cbc,
+    padding: 'PKCS7',
+    iv: "znbV%$JN5olCpt<c"
+});
+print(encodeStr);
+print(encodeStr.base64);
+print(encodeStr.base16);
+print(encodeStr.bytes);
+let res = esoTools.AES_Decode(encodeStr.base64, "x;j/6olSp})&{ZJD", {
+    mode: AESMode.cbc,
+    padding: 'PKCS7',
+    iv: "znbV%$JN5olCpt<c"
+});
+print(res);
+```
+### params规则
+在设置moreKeys(更多键)后有效
+
+params.pageIndex    等价于page 当前页码
+
+params.tabIndex     分组索引
+
+params.filters      筛选器
+
+### moreKeys(更多键)
+用于一些筛选配置,必须提供JSON数据 格式为:object{isWrap<bool>,list[object{title,requestFilters[object{key, item[object{title,value}]}]}]}
+```
+object{
+    isWrap,                         // bool型 筛选器是否为瀑布流布局,默认为true,false为横向滑动布局
+    list[                           // list数组 多类型分组数组
+        object{                     // 分组{n}
+            title,                  // 分组标题名
+            requestFilters[         // 筛选器数组,
+                object{             // 筛选器{n}
+                    key,            // key标识 用于在js里读取value  如此处key为'rank' js获取应为params.filters.rank
+                    items[          // 项目数组 
+                        object{     // 项目{n}
+                            title,  // 筛选标签名字
+                            value   // 数值
+                        }
+                    ] 
+                }
+            ]
+        }
+    ]
+}
+```
+
+
+
+### 2022.7.3
+- 1.22.8+1228
+- update 升级视频播放插件,重置桌面版视频控制器
+- update 重置音频播放UI控制,音频源资源支持加请求头@headers
+
+### 2022.6.26
+- 共存版 1.22.7+12207
+- fix http重定向在某些情况下进行了无效处理
+- fix 解决发现置顶不会刷新
+- update 新发现,添加了MoreKeys字段!
+- update 改变视频播放页UI,添加了长按倍速播放.
+
+- 例：
+   ``` 
+   let res = await httpByte({
+      "url":"https://www.xxx.com",
+      "requestEncode":"gbk",     //请求参数,请求体需要进行gbk编码
+      "responseEncode":"utf-8",  //请求返回数据编码格式
+      "forbidredirect":true,     // bool型 是否禁用重定向 
+      });
+
+   res.bytes            is 原始响应数据 Uint8List
+   res.body             is 响应数据
+   res.statusCode       is 响应代码
+   res.headers          is 响应头
+
+   toast("this toast"); // 弹出提示
+   print("this printString") //调试模式下 打印字符串
+   require(url) // 引用js模块,执行后加载至全局;可以是网络url,可以是内置文件名 [cheerio.js] [cheerio.min.js] [CryptoJS.min.js] [md5.min.js] [unzip.min.js]
+   ```
+
 ### 2022.3.23
 - fix 优化一些问题
 ### 2022.3.22

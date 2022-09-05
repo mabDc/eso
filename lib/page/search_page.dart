@@ -12,6 +12,7 @@ import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:eso/ui/widgets/keyboard_dismiss_behavior_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -56,9 +57,10 @@ class _SearchPageState extends State<SearchPage> {
               titleSpacing: 0,
               title: SearchTextField(
                 autofocus: true,
-                focusNode: Provider.of<SearchProvider>(context, listen: false).focusNode,
-                controller:
-                    Provider.of<SearchProvider>(context, listen: false).searchController,
+                focusNode: Provider.of<SearchProvider>(context, listen: false)
+                    .focusNode,
+                controller: Provider.of<SearchProvider>(context, listen: false)
+                    .searchController,
                 hintText: "请输入关键词",
                 prefix: Container(
                   width: 48,
@@ -69,13 +71,17 @@ class _SearchPageState extends State<SearchPage> {
                     style: TextStyle(
                         fontSize: 13,
                         fontFamily: Profile.staticFontFamily,
-                        color:
-                            Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5)),
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodyText1
+                            .color
+                            .withOpacity(0.5)),
                     isExpanded: true,
                     isDense: true,
                     underline: SizedBox(),
-                    onChanged: (v) => Provider.of<SearchProvider>(context, listen: false)
-                        .sourceType = v,
+                    onChanged: (v) =>
+                        Provider.of<SearchProvider>(context, listen: false)
+                            .sourceType = v,
                     items: <DropdownMenuItem<int>>[
                       DropdownMenuItem<int>(child: Text('全部'), value: -1),
                       DropdownMenuItem<int>(
@@ -91,10 +97,12 @@ class _SearchPageState extends State<SearchPage> {
                           child: Text(API.getRuleContentTypeName(API.VIDEO)),
                           value: API.VIDEO),
                     ],
-                    value: Provider.of<SearchProvider>(context, listen: true).sourceType,
+                    value: Provider.of<SearchProvider>(context, listen: true)
+                        .sourceType,
                   ),
                 ),
-                onSubmitted: Provider.of<SearchProvider>(context, listen: false).search,
+                onSubmitted:
+                    Provider.of<SearchProvider>(context, listen: false).search,
               ),
               actions: [
                 SizedBox(width: 20),
@@ -113,65 +121,141 @@ class _SearchPageState extends State<SearchPage> {
                     : (provider.successCount + provider.failureCount) /
                         provider.rulesCount;
                 if (provider.showHistory && provider.history.length > 0) {
-                  return ListView.separated(
-                    separatorBuilder: (context, index) => Container(
-                      height: 0.6,
-                      color: Colors.grey,
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 18),
-                    itemCount: provider.history.length + 1,
-                    cacheExtent: 30,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == provider.history.length) {
-                        return Container(
-                          height: 30,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.close_outlined, size: 18),
-                                onPressed: provider.closeHistory,
-                                tooltip: "关闭",
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.clear_all, size: 18),
-                                onPressed: provider.clearHistory,
-                                tooltip: "清空",
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      final keyword = provider.history[index];
-                      return Container(
-                        height: 30,
-                        child: Row(
+                  int _length = provider.history.length;
+
+                  List<String> _list = provider.history.reversed
+                      .toList()
+                      .sublist(0, _length > 30 ? 30 : _length);
+
+                  print("_list:${_list.length}\n_list:${_list}");
+
+                  // print("${provider.history.sublist(0, 30)}");
+
+                  return Padding(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.history, size: 18),
-                            SizedBox(width: 18),
-                            Expanded(child: Text(keyword)),
-                            IconButton(
-                              icon: Icon(Icons.arrow_upward, size: 18),
-                              onPressed: () => provider.upHistory(keyword),
-                              tooltip: "输入",
+                            Text(
+                              "搜索历史",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            IconButton(
-                              icon: Icon(Icons.search, size: 18),
-                              onPressed: () => provider.search(keyword),
-                              tooltip: "搜索",
+                            TextButton(
+                              child: Text("清空"),
+                              onPressed: () {
+                                provider.clearHistory();
+                              },
                             ),
                           ],
                         ),
-                      );
-                    },
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _list
+                              .map(
+                                (e) => InkWell(
+                                  onTap: () => provider.search(e),
+                                  child: Container(
+                                    // height: 30,
+
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 15),
+                                    decoration: BoxDecoration(
+                                      color: CupertinoColors.systemGrey
+                                          .withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      e,
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+
+                                    // child: InkWell(
+                                    //   onTap: () => provider.search(e),
+                                    //   child: Chip(
+                                    //     label: Text(
+                                    //       e,
+                                    //       style: TextStyle(fontSize: 13),
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        )
+                      ],
+                    ),
                   );
+
+                  // return ListView.separated(
+                  //   separatorBuilder: (context, index) => Container(
+                  //     height: 0.6,
+                  //     color: Colors.grey,
+                  //   ),
+                  //   padding: EdgeInsets.symmetric(horizontal: 18),
+                  //   itemCount: provider.history.length + 1,
+                  //   cacheExtent: 30,
+                  //   itemBuilder: (BuildContext context, int index) {
+                  //     if (index == provider.history.length) {
+                  //       return Container(
+                  //         height: 30,
+                  //         child: Row(
+                  //           mainAxisAlignment: MainAxisAlignment.end,
+                  //           children: [
+                  //             IconButton(
+                  //               icon: Icon(Icons.close_outlined, size: 18),
+                  //               onPressed: provider.closeHistory,
+                  //               tooltip: "关闭",
+                  //             ),
+                  //             IconButton(
+                  //               icon: Icon(Icons.clear_all, size: 18),
+                  //               onPressed: provider.clearHistory,
+                  //               tooltip: "清空",
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       );
+                  //     }
+                  //     final keyword = provider.history[index];
+                  //     return Container(
+                  //       height: 30,
+                  //       child: Row(
+                  //         children: [
+                  //           Icon(Icons.history, size: 18),
+                  //           SizedBox(width: 18),
+                  //           Expanded(child: Text(keyword)),
+                  //           IconButton(
+                  //             icon: Icon(Icons.arrow_upward, size: 18),
+                  //             onPressed: () => provider.upHistory(keyword),
+                  //             tooltip: "输入",
+                  //           ),
+                  //           IconButton(
+                  //             icon: Icon(Icons.search, size: 18),
+                  //             onPressed: () => provider.search(keyword),
+                  //             tooltip: "搜索",
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     );
+                  //   },
+                  // );
                 }
                 return Column(
                   children: [
-                    SizedBox(height: 6),
+                    SizedBox(height: 3),
                     FittedBox(
                       child: Container(
-                        height: 32,
+                        height: 35,
                         alignment: Alignment.center,
                         child: Row(
                           children: [
@@ -179,8 +263,10 @@ class _SearchPageState extends State<SearchPage> {
                               onPressed: null,
                               child: Text("结果过滤"),
                             ),
-                            _buildFilterOpt(provider, profile, '无', SearchOption.None),
-                            _buildFilterOpt(provider, profile, '普通', SearchOption.Normal),
+                            _buildFilterOpt(
+                                provider, profile, '无', SearchOption.None),
+                            _buildFilterOpt(
+                                provider, profile, '普通', SearchOption.Normal),
                             _buildFilterOpt(
                                 provider, profile, '精确', SearchOption.Accurate),
                             TextButton(
@@ -189,7 +275,20 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                             Center(
                               child: DropdownButton<int>(
-                                items: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+                                items: [
+                                  10,
+                                  20,
+                                  30,
+                                  40,
+                                  50,
+                                  60,
+                                  70,
+                                  80,
+                                  90,
+                                  100,
+                                  110,
+                                  120
+                                ]
                                     .map((count) => DropdownMenuItem<int>(
                                           child: Text('$count'),
                                           value: count,
@@ -198,9 +297,11 @@ class _SearchPageState extends State<SearchPage> {
                                 isDense: true,
                                 underline: Container(),
                                 value: context.select(
-                                    (SearchProvider provider) => provider.threadCount),
+                                    (SearchProvider provider) =>
+                                        provider.threadCount),
                                 onChanged: (value) {
-                                  Provider.of<SearchProvider>(context, listen: false)
+                                  Provider.of<SearchProvider>(context,
+                                          listen: false)
                                       .threadCount = value;
                                   profile.searchCount = value;
                                 },
@@ -252,7 +353,10 @@ class _SearchPageState extends State<SearchPage> {
                               ],
                               style: TextStyle(
                                   fontFamily: Profile.staticFontFamily,
-                                  color: Theme.of(context).textTheme.bodyText1.color,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .color,
                                   height: 1.55),
                             ),
                           ),
@@ -262,36 +366,37 @@ class _SearchPageState extends State<SearchPage> {
                     SizedBox(height: 4),
                     Divider(height: Global.lineSize),
                     Expanded(
-                      child:
-                          provider.searchListNone.length == 0 && provider.rulesCount == 0
-                              ? EmptyListMsgView(text: Text("尚无可搜索源"))
-                              : searchList.isEmpty
-                                  ? EmptyListMsgView(text: Text("没有数据哦！~"))
-                                  : KeyboardDismissBehaviorView(
-                                      child: ListView.separated(
-                                        separatorBuilder: (context, index) =>
-                                            SizedBox(height: 8),
-                                        itemCount: searchList.length,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          return InkWell(
-                                            child: UiSearchItem(
-                                              item: searchList[index],
-                                              showType: true,
-                                            ),
-                                            onTap: () {
-                                              // Navigator.of(context).push(
-                                              // MaterialPageRoute(
-                                              //   builder: (context) => ChapterPage(
-                                              //       searchItem: searchList[index]),
-                                              // )
-                                              invokeTap(ChapterPage(
-                                                  searchItem: searchList[index],
-                                                  key: Key(index.toString())));
-                                            },
-                                          );
+                      child: provider.searchListNone.length == 0 &&
+                              provider.rulesCount == 0
+                          ? EmptyListMsgView(text: Text("尚无可搜索源"))
+                          : searchList.isEmpty
+                              ? EmptyListMsgView(text: Text("没有数据哦！~"))
+                              : KeyboardDismissBehaviorView(
+                                  child: ListView.separated(
+                                    separatorBuilder: (context, index) =>
+                                        SizedBox(height: 8),
+                                    itemCount: searchList.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return InkWell(
+                                        child: UiSearchItem(
+                                          item: searchList[index],
+                                          showType: true,
+                                        ),
+                                        onTap: () {
+                                          // Navigator.of(context).push(
+                                          // MaterialPageRoute(
+                                          //   builder: (context) => ChapterPage(
+                                          //       searchItem: searchList[index]),
+                                          // )
+                                          invokeTap(ChapterPage(
+                                              searchItem: searchList[index],
+                                              key: Key(index.toString())));
                                         },
-                                      ),
-                                    ),
+                                      );
+                                    },
+                                  ),
+                                ),
                     ),
                   ],
                 );
@@ -322,8 +427,8 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  _buildFilterOpt(
-      SearchProvider provider, Profile profile, String text, SearchOption searchOption) {
+  _buildFilterOpt(SearchProvider provider, Profile profile, String text,
+      SearchOption searchOption) {
     final _selected = provider.searchOption == searchOption;
     return ButtonTheme(
       height: 25,
@@ -334,11 +439,13 @@ class _SearchPageState extends State<SearchPage> {
           profile.searchOption = searchOption.index;
         },
         style: ButtonStyle(
-          shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+          shape:
+              MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: _selected
                 ? BorderSide(
-                    color: Theme.of(context).primaryColor, width: Global.borderSize)
+                    color: Theme.of(context).primaryColor,
+                    width: Global.borderSize)
                 : BorderSide.none,
           )),
         ),
@@ -374,7 +481,8 @@ class SimpleChangeRule extends StatelessWidget {
               final count = searchList.length;
               final progress = provider.rulesCount == 0.0
                   ? 0.0
-                  : (provider.successCount + provider.failureCount) / provider.rulesCount;
+                  : (provider.successCount + provider.failureCount) /
+                      provider.rulesCount;
               return Column(
                 children: [
                   SizedBox(
@@ -400,7 +508,9 @@ class SimpleChangeRule extends StatelessWidget {
                             text: '${provider.failureCount} (失败)',
                             style: TextStyle(color: Colors.red),
                           ),
-                          TextSpan(text: ' | ${provider.rulesCount} (总数) | 结果数: $count'),
+                          TextSpan(
+                              text:
+                                  ' | ${provider.rulesCount} (总数) | 结果数: $count'),
                         ],
                         style: TextStyle(
                             fontFamily: Profile.staticFontFamily,
@@ -415,7 +525,8 @@ class SimpleChangeRule extends StatelessWidget {
                         : searchList.isEmpty
                             ? EmptyListMsgView(text: Text("没有数据哦！~"))
                             : ListView.separated(
-                                separatorBuilder: (context, index) => SizedBox(height: 8),
+                                separatorBuilder: (context, index) =>
+                                    SizedBox(height: 8),
                                 itemCount: searchList.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return InkWell(
@@ -423,8 +534,8 @@ class SimpleChangeRule extends StatelessWidget {
                                       item: searchList[index],
                                       showType: true,
                                     ),
-                                    onTap: () =>
-                                        Navigator.of(context).pop(searchList[index]),
+                                    onTap: () => Navigator.of(context)
+                                        .pop(searchList[index]),
                                   );
                                 },
                               ),
@@ -502,7 +613,8 @@ class SearchProvider with ChangeNotifier {
     _rules = <Rule>[];
     _searchId = 0;
     _showHistory = true;
-    _searchController = TextEditingController()..addListener(_handleSearchChange);
+    _searchController = TextEditingController()
+      ..addListener(_handleSearchChange);
     _historyManager = HistoryManager();
     _history = List.from(_historyManager.searchHistory);
     _focusNode = FocusNode()..addListener(_handleFocusChange);
@@ -512,8 +624,9 @@ class SearchProvider with ChangeNotifier {
 
   void _handleSearchChange() {
     final text = _searchController.text.trim();
-    _history =
-        _historyManager.searchHistory.where((element) => element.contains(text)).toList();
+    _history = _historyManager.searchHistory
+        .where((element) => element.contains(text))
+        .toList();
     notifyListeners();
   }
 
@@ -545,6 +658,7 @@ class SearchProvider with ChangeNotifier {
 
   void clearHistory() {
     _historyManager.clearHistory();
+    _history = List.from(_historyManager.searchHistory);
     notifyListeners();
   }
 
@@ -623,8 +737,9 @@ class SearchProvider with ChangeNotifier {
 
   void init(int ruleContentType, String searchKey) async {
     await RuleDao.gaixieguizheng();
-    final rules =
-        (await Global.ruleDao.findAllRules()).where((e) => e.enableSearch).toList();
+    final rules = (await Global.ruleDao.findAllRules())
+        .where((e) => e.enableSearch)
+        .toList();
 
     _novelRules = rules.where((r) => r.contentType == API.NOVEL).toList();
     _mangaRules = rules.where((r) => r.contentType == API.MANGA).toList();
@@ -647,7 +762,10 @@ class SearchProvider with ChangeNotifier {
   void search(String keyword) async {
     focusNode.unfocus();
     _searchController.text = keyword;
+    // if (_historyManager.searchHistory.length > 30) {
+    // }
     _historyManager.newSearch(keyword);
+
     _searchId++;
     await Future.delayed(Duration(milliseconds: 300));
     searchListNone.clear();

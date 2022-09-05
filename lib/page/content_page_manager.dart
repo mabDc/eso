@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:eso/api/api.dart';
@@ -8,7 +9,9 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/manga_page.dart';
-import 'package:eso/page/video_page_desktop.dart';
+// import 'package:eso/page/video_page_desktop.dart';
+import 'package:eso/page/video_page_desktop_bak.dart';
+// import 'package:eso/page/video_page_desktop.dart';
 // import 'package:eso/page/rss_page.dart';
 import 'package:eso/page/video_page_refactor.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -16,6 +19,7 @@ import 'package:eso/utils/memory_cache.dart';
 // import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import 'novel_page_refactor.dart';
@@ -43,10 +47,12 @@ class ContentPageRoute {
               // case API.RSS:
               //   return RSSPage(searchItem: searchItem);
               case API.VIDEO:
-                if (Global.isDesktop) return VideoPageDesktop(searchItem: searchItem);
+                if (Global.isDesktop)
+                  return VideoPageDesktop(searchItem: searchItem);
                 return VideoPage(searchItem: searchItem);
               case API.AUDIO:
-                if (Platform.isWindows) return VideoPageDesktop(searchItem: searchItem);
+                // if (Platform.isWindows)
+                //   return VideoPageDesktop(searchItem: searchItem);
                 return AudioPage(searchItem: searchItem);
               default:
                 throw ('${searchItem.ruleContentType} not support !');
@@ -90,7 +96,8 @@ class ContentProvider with ChangeNotifier {
     try {
       if (searchItem.chapters == null || searchItem.chapters.isEmpty) {
         _addInfo("目录为空 重新获取目录");
-        if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+        if (SearchItemManager.isFavorite(
+            searchItem.originTag, searchItem.url)) {
           searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
         } else {
           searchItem.chapters =
@@ -98,7 +105,8 @@ class ContentProvider with ChangeNotifier {
         }
         _addInfo("结束 得到${searchItem.chapters.length}个章节");
       }
-      _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
+      _cache =
+          CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
       _canUseCache = await CacheUtil.requestPermission();
       if (_canUseCache != true) _addInfo("权限检查失败 本地缓存需要存储权限");
       _showInfo = false;
@@ -110,7 +118,8 @@ class ContentProvider with ChangeNotifier {
   }
 
   Future<void> retryUseCache() async {
-    _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
+    _cache =
+        CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
     _canUseCache = await CacheUtil.requestPermission();
   }
 
@@ -119,12 +128,19 @@ class ContentProvider with ChangeNotifier {
   }
 
   Future<List<String>> loadChapter(int chapterIndex,
-      [bool useCache = true, bool loadNext = true, bool shouldChangeIndex = true]) {
+      [bool useCache = true,
+      bool loadNext = true,
+      bool shouldChangeIndex = true]) {
     final r = _memoryCache.getValueOrSet(chapterIndex, () async {
       if (useCache) {
         if (canUseCache) {
           final resp = await _cache.getData('$chapterIndex.txt',
               hashCodeKey: false, shouldDecode: false);
+
+          //print("res:${res}");
+          //final parseData = jsonDecode(res);
+          //Logger().d("parseData:${parseData}");
+
           if (resp != null && resp is String && resp.isNotEmpty) {
             return resp.split("\n");
           }
@@ -133,13 +149,17 @@ class ContentProvider with ChangeNotifier {
         }
       }
       final chapter = searchItem.chapters[chapterIndex];
-      final content = await APIManager.getContent(searchItem.originTag, chapter.url);
+      final content =
+          await APIManager.getContent(searchItem.originTag, chapter.url);
       chapter.contentUrl = API.contentUrl;
+      print("content:${content}");
+
       final resp = content.join("\n").split(RegExp(r"\n\s*|\s{2,}"));
       if (canUseCache && resp.isNotEmpty) {
         await _cache.putData('$chapterIndex.txt', resp.join("\n"),
             hashCodeKey: false, shouldEncode: false);
       }
+
       return resp;
     });
 

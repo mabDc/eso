@@ -5,6 +5,7 @@ import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/page/search_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -110,6 +111,7 @@ class ChapterPageProvider with ChangeNotifier {
       searchItem.chaptersCount = searchItem.chapters?.length ?? 0;
       searchItem.chapter = searchItem.chapters?.last?.name;
     }
+    searchItem.group = Profile().currentGroup;
     _isLoading = false;
     notifyListeners();
   }
@@ -160,8 +162,8 @@ class ChapterPageProvider with ChangeNotifier {
         updateChapter();
         break;
       case MenuChapter.clear_cache:
-        final _fileCache =
-            CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
+        final _fileCache = CacheUtil(
+            basePath: "cache${Platform.pathSeparator}${searchItem.id}");
         await CacheUtil.requestPermission();
         await _fileCache.clear();
         Utils.toast("清理成功");
@@ -171,8 +173,8 @@ class ChapterPageProvider with ChangeNotifier {
         break;
       case MenuChapter.edit_rule:
         final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)));
         break;
       case MenuChapter.change:
         final r = await Navigator.of(context).push(MaterialPageRoute(
@@ -202,7 +204,8 @@ class ChapterPageProvider with ChangeNotifier {
         break;
       case MenuChapter.open_chapter_url:
         final rule = await Global.ruleDao.findRuleById(searchItem.originTag);
-        final url = searchItem.chapterUrl ?? Utils.getUrl(rule.host, searchItem.url);
+        final url =
+            searchItem.chapterUrl ?? Utils.getUrl(rule.host, searchItem.url);
         if (url != null) {
           launch(url);
         } else {

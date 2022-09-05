@@ -5,6 +5,7 @@ import 'package:eso/database/rule_dao.dart';
 import 'package:text_composition/text_composition.dart';
 import 'package:uuid/uuid.dart';
 import 'package:floor/floor.dart';
+import 'package:win32/win32.dart';
 
 import '../global.dart';
 import '../utils/rule_comparess.dart';
@@ -32,6 +33,11 @@ class Rule {
   String loadJs = '';
   String userAgent = '';
 
+  // 图标URL
+  String icon = '';
+  // 规则简介
+  String desc = '';
+
   //登录规则
   String loginUrl = "";
   String cookies = "";
@@ -39,6 +45,7 @@ class Rule {
   // 发现规则
   bool enableDiscover = true;
   String discoverUrl = '';
+  String discoverMoreKeys = '';
   String discoverNextUrl = '';
   String discoverItems = '';
 
@@ -85,6 +92,7 @@ class Rule {
   String contentUrl = '';
   String contentNextUrl = '';
   String contentItems = '';
+  String contentDecrypt = '';
 
   get ruleTypeName => API.getRuleContentTypeName(contentType);
 
@@ -92,7 +100,7 @@ class Rule {
     id = Uuid().v4();
     createTime = DateTime.now().microsecondsSinceEpoch;
     modifiedTime = DateTime.now().microsecondsSinceEpoch;
-    enableUpload = true;
+    enableUpload = false;
     author = '';
     name = '';
     host = '';
@@ -105,12 +113,15 @@ class Rule {
     useCryptoJS = false;
     loadJs = '';
     userAgent = '';
+    icon = '';
+    desc = '';
     //登录规则
     loginUrl = "";
     cookies = "";
     // 发现规则
     enableDiscover = true;
     discoverUrl = '';
+    discoverMoreKeys = '';
     discoverNextUrl = '';
     discoverItems = '';
 
@@ -157,6 +168,132 @@ class Rule {
     contentUrl = '';
     contentNextUrl = '';
     contentItems = '';
+    contentDecrypt = '';
+    // 收藏分组
+  }
+
+  Rule copyWith(
+      {String id,
+      int createTime,
+      int modifiedTime,
+      bool enableUpload,
+      String author,
+      String name,
+      String host,
+      String group,
+      String postScript,
+      int contentType,
+      int sort,
+      int viewStyle,
+      bool useCryptoJS,
+      String loadJs,
+      String userAgent,
+      String icon,
+      String desc,
+      String loginUrl,
+      String cookies,
+      bool enableDiscover,
+      String discoverUrl,
+      String discoverMoreKeys,
+      String discoverNextUrl,
+      String discoverItems,
+      String discoverList,
+      String discoverTags,
+      String discoverName,
+      String discoverCover,
+      String discoverAuthor,
+      String discoverChapter,
+      String discoverDescription,
+      String discoverResult,
+      bool enableSearch,
+      String searchUrl,
+      String searchNextUrl,
+      String searchItems,
+      String searchList,
+      String searchTags,
+      String searchName,
+      String searchCover,
+      String searchAuthor,
+      String searchChapter,
+      String searchDescription,
+      String searchResult,
+      bool enableMultiRoads,
+      String chapterUrl,
+      String chapterNextUrl,
+      String chapterRoads,
+      String chapterRoadName,
+      String chapterItems,
+      String chapterList,
+      String chapterName,
+      String chapterCover,
+      String chapterLock,
+      String chapterTime,
+      String chapterResult,
+      String contentUrl,
+      String contentNextUrl,
+      String contentItems,
+      String contentDecrypt}) {
+    return Rule(
+        id ?? this.id,
+        createTime ?? this.createTime,
+        modifiedTime ?? this.modifiedTime,
+        enableUpload ?? this.enableUpload,
+        author ?? this.author,
+        name ?? this.name,
+        host ?? this.host,
+        group ?? this.group,
+        postScript ?? this.postScript,
+        contentType ?? this.contentType,
+        sort ?? this.sort,
+        viewStyle ?? this.viewStyle,
+        useCryptoJS ?? this.useCryptoJS,
+        loadJs ?? this.loadJs,
+        userAgent ?? this.userAgent,
+        icon ?? this.icon,
+        desc ?? this.desc,
+        loginUrl ?? this.loginUrl,
+        cookies ?? this.cookies,
+        enableDiscover ?? this.enableDiscover,
+        discoverUrl ?? this.discoverUrl,
+        discoverMoreKeys ?? this.discoverMoreKeys,
+        discoverNextUrl ?? this.discoverNextUrl,
+        discoverItems ?? this.discoverItems,
+        discoverList ?? this.discoverList,
+        discoverTags ?? this.discoverTags,
+        discoverName ?? this.discoverName,
+        discoverCover ?? this.discoverCover,
+        discoverAuthor ?? this.discoverAuthor,
+        discoverChapter ?? this.discoverChapter,
+        discoverDescription ?? this.discoverDescription,
+        discoverResult ?? this.discoverResult,
+        enableSearch ?? this.enableSearch,
+        searchUrl ?? this.searchUrl,
+        searchNextUrl ?? this.searchNextUrl,
+        searchItems ?? this.searchItems,
+        searchList ?? this.searchList,
+        searchTags ?? this.searchTags,
+        searchName ?? this.searchName,
+        searchCover ?? this.searchCover,
+        searchAuthor ?? this.searchAuthor,
+        searchChapter ?? this.searchChapter,
+        searchDescription ?? this.searchDescription,
+        searchResult ?? this.searchResult,
+        enableMultiRoads ?? this.enableMultiRoads,
+        chapterUrl ?? this.chapterUrl,
+        chapterNextUrl ?? this.chapterNextUrl,
+        chapterRoads ?? this.chapterRoads,
+        chapterRoadName ?? this.chapterRoadName,
+        chapterItems ?? this.chapterItems,
+        chapterList ?? this.chapterList,
+        chapterName ?? this.chapterName,
+        chapterCover ?? this.chapterCover,
+        chapterLock ?? this.chapterLock,
+        chapterTime ?? this.chapterTime,
+        chapterResult ?? this.chapterResult,
+        contentUrl ?? this.contentUrl,
+        contentNextUrl ?? this.contentNextUrl,
+        contentItems ?? this.contentItems,
+        contentDecrypt ?? this.contentDecrypt);
   }
 
   Rule(
@@ -175,10 +312,13 @@ class Rule {
     this.useCryptoJS,
     this.loadJs,
     this.userAgent,
+    this.icon,
+    this.desc,
     this.loginUrl,
     this.cookies,
     this.enableDiscover,
     this.discoverUrl,
+    this.discoverMoreKeys,
     this.discoverNextUrl,
     this.discoverItems,
     this.discoverList,
@@ -216,6 +356,7 @@ class Rule {
     this.contentUrl,
     this.contentNextUrl,
     this.contentItems,
+    this.contentDecrypt,
   );
 
   static Future<String> backupRules([List<Rule> rules]) async {
@@ -223,7 +364,7 @@ class Rule {
     if (rules == null) {
       rules = await Global.ruleDao.findAllRules();
     }
-    return jsonEncode(rules.map((e) => e.toJson()).toList());
+    return jsonEncode(rules.map((e) => e.toJson(true)).toList());
   }
 
   static Future<bool> restore(List<dynamic> rules, bool reset) async {
@@ -261,7 +402,8 @@ class Rule {
         "discoverTags": "//type/text()",
         "discoverName": "//name##.*\\[|\\].*",
         "discoverCover": "//pic/text()",
-        "discoverAuthor": "演员:{{//actor##.*\\[|\\].*}},导演:{{//director##.*\\[|\\].*}}",
+        "discoverAuthor":
+            "演员:{{//actor##.*\\[|\\].*}},导演:{{//director##.*\\[|\\].*}}",
         "discoverChapter": "//last/text()",
         "discoverDescription": "//des##.*\\[|\\].*",
         "discoverResult": "//id/text()",
@@ -273,7 +415,8 @@ class Rule {
         "searchTags": "//type/text()",
         "searchName": "//name##.*\\[|\\].*",
         "searchCover": "//pic/text()",
-        "searchAuthor": "演员:{{//actor##.*\\[|\\].*}},导演:{{//director##.*\\[|\\].*}}",
+        "searchAuthor":
+            "演员:{{//actor##.*\\[|\\].*}},导演:{{//director##.*\\[|\\].*}}",
         "searchChapter": "//last/text()",
         "searchDescription": "//des##.*\\[|\\].*",
         "searchResult": "//id/text()",
@@ -332,10 +475,13 @@ class Rule {
     sort = json['sort'] ?? defaultRule.sort;
     viewStyle = json['viewStyle'] ?? 0;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
+    icon = json['icon'] ?? defaultRule.icon;
+    desc = json['desc'] ?? defaultRule.desc;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['userAgent'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
     discoverUrl = json['discoverUrl'] ?? defaultRule.discoverUrl;
+    discoverMoreKeys = json['discoverMoreKeys'] ?? defaultRule.discoverMoreKeys;
     discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
     discoverList = json['discoverList'] ?? defaultRule.discoverList;
@@ -344,7 +490,8 @@ class Rule {
     discoverCover = json['discoverCover'] ?? defaultRule.discoverCover;
     discoverAuthor = json['discoverAuthor'] ?? defaultRule.discoverAuthor;
     discoverChapter = json['discoverChapter'] ?? defaultRule.discoverChapter;
-    discoverDescription = json['discoverDescription'] ?? defaultRule.discoverDescription;
+    discoverDescription =
+        json['discoverDescription'] ?? defaultRule.discoverDescription;
     discoverResult = json['discoverResult'] ?? defaultRule.discoverResult;
     enableSearch = json['enableSearch'] ?? defaultRule.enableSearch;
     searchUrl = json['searchUrl'] ?? defaultRule.searchUrl;
@@ -356,7 +503,8 @@ class Rule {
     searchCover = json['searchCover'] ?? defaultRule.searchCover;
     searchAuthor = json['searchAuthor'] ?? defaultRule.searchAuthor;
     searchChapter = json['searchChapter'] ?? defaultRule.searchChapter;
-    searchDescription = json['searchDescription'] ?? defaultRule.searchDescription;
+    searchDescription =
+        json['searchDescription'] ?? defaultRule.searchDescription;
     searchResult = json['searchResult'] ?? defaultRule.searchResult;
     enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
@@ -373,6 +521,7 @@ class Rule {
     contentUrl = json['contentUrl'] ?? defaultRule.contentUrl;
     contentNextUrl = json['contentNextUrl'] ?? defaultRule.contentNextUrl;
     contentItems = json['contentItems'] ?? defaultRule.contentItems;
+    contentDecrypt = json['contentDecrypt'] ?? defaultRule.contentDecrypt;
     loginUrl = json['loginUrl'] ?? defaultRule.loginUrl;
     cookies = json['cookies'] ?? defaultRule.cookies;
   }
@@ -431,17 +580,21 @@ class Rule {
     discoverUrl = json['ruleFindUrl'] ?? defaultRule.discoverUrl;
     discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
-    discoverList =
-        json["ruleFindList"] ?? json['ruleSearchList'] ?? defaultRule.discoverList;
-    discoverTags =
-        json['ruleFindKind'] ?? json['ruleSearchKind'] ?? defaultRule.discoverTags;
-    discoverName =
-        json['ruleFindName'] ?? json['ruleSearchName'] ?? defaultRule.discoverName;
+    discoverList = json["ruleFindList"] ??
+        json['ruleSearchList'] ??
+        defaultRule.discoverList;
+    discoverTags = json['ruleFindKind'] ??
+        json['ruleSearchKind'] ??
+        defaultRule.discoverTags;
+    discoverName = json['ruleFindName'] ??
+        json['ruleSearchName'] ??
+        defaultRule.discoverName;
     discoverCover = json['ruleFindCoverUrl'] ??
         json['ruleSearchCoverUrl'] ??
         defaultRule.discoverCover;
-    discoverAuthor =
-        json['ruleFindAuthor'] ?? json['ruleSearchAuthor'] ?? defaultRule.discoverAuthor;
+    discoverAuthor = json['ruleFindAuthor'] ??
+        json['ruleSearchAuthor'] ??
+        defaultRule.discoverAuthor;
     discoverChapter = json['ruleFindLastChapter'] ??
         json['ruleSearchLastChapter'] ??
         defaultRule.discoverChapter;
@@ -461,7 +614,8 @@ class Rule {
     searchCover = json['ruleSearchCoverUrl'] ?? defaultRule.searchCover;
     searchAuthor = json['ruleSearchAuthor'] ?? defaultRule.searchAuthor;
     searchChapter = json['ruleSearchLastChapter'] ?? defaultRule.searchChapter;
-    searchDescription = json['ruleSearchIntroduce'] ?? defaultRule.searchDescription;
+    searchDescription =
+        json['ruleSearchIntroduce'] ?? defaultRule.searchDescription;
     searchResult = json['ruleSearchNoteUrl'] ?? defaultRule.searchResult;
     enableMultiRoads = json['enableMultiRoads'] ?? defaultRule.enableMultiRoads;
     chapterRoads = json['chapterRoads'] ?? defaultRule.chapterRoads;
@@ -496,9 +650,12 @@ class Rule {
         'sort': sort,
         'useCryptoJS': useCryptoJS,
         'loadJs': loadJs,
+        'icon': icon,
+        'desc': desc,
         'userAgent': userAgent,
         'enableDiscover': enableDiscover,
         'discoverUrl': discoverUrl,
+        'discoverMoreKeys': discoverMoreKeys,
         'discoverNextUrl': discoverNextUrl,
         'discoverItems': discoverItems,
         'discoverList': discoverList,
@@ -536,6 +693,7 @@ class Rule {
         'contentUrl': contentUrl,
         'contentNextUrl': contentNextUrl,
         'contentItems': contentItems,
+        'contentDecrypt': contentDecrypt,
         'loginUrl': loginUrl,
         'cookies': withCookies == true ? cookies : "",
         'viewStyle': viewStyle ?? 0,

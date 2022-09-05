@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:eso/api/analyzer_manager.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/model/moreKeys.dart';
 import 'package:eso/utils.dart';
+import 'package:flutter/services.dart';
 import '../global.dart';
 import 'analyze_url.dart';
 import 'package:eso/utils/decode_body.dart';
-
+import 'package:logger/logger.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import 'api.dart';
@@ -46,6 +50,12 @@ class APIFromRUle implements API {
     _originTag = rule.id;
     _ruleContentType = rule.contentType;
   }
+  bool isEmptyResponse(Response<List<int>> resp) {
+    return resp == null ||
+        resp.data == null ||
+        (resp.data?.isEmpty ?? true) ||
+        resp.requestOptions == null;
+  }
 
   @override
   Future<List<SearchItem>> discover(
@@ -64,7 +74,12 @@ class APIFromRUle implements API {
       }
     } else if (url.contains(APIConst.pagePattern)) {
       discoverRule = url;
+    } else if (rule.discoverMoreKeys.startsWith("{")) {
+      discoverRule = url;
     }
+
+    print("discoverRule:${discoverRule}");
+
     if (discoverRule == null) {
       return <SearchItem>[];
     }
@@ -77,11 +92,14 @@ class APIFromRUle implements API {
         page: page,
         pageSize: pageSize,
       );
-      if (res.contentLength == 0) {
+      if (isEmptyResponse(res)) {
         return <SearchItem>[];
       }
-      discoverUrl = res.request.url.toString();
-      body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+      discoverUrl = res.requestOptions.uri.toString();
+
+      // Logger().d("bodyBytes:${utf8.decode(res.bodyBytes)}");
+
+      body = DecodeBody().decode(res.data, res.headers["content-type"]?.first);
     }
     await JSEngine.setEnvironment(page, rule, "", discoverUrl, "", "");
     final bodyAnalyzer = AnalyzerManager(body);
@@ -97,7 +115,8 @@ class APIFromRUle implements API {
       final tag = await analyzer.getString(rule.discoverTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
-        tags = tag.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
+        tags = tag.split(APIConst.tagsSplitRegExp)
+          ..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
         searchUrl: discoverUrl,
@@ -111,6 +130,7 @@ class APIFromRUle implements API {
         url: await analyzer.getString(rule.discoverResult),
         api: this,
         tags: tags,
+        group: null,
       ));
     }
     return result;
@@ -118,7 +138,8 @@ class APIFromRUle implements API {
 
   @override
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
-    final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
+    final hasNextUrlRule =
+        rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
     String searchRule;
     final url = rule.searchUrl;
     if (page == 1) {
@@ -145,11 +166,11 @@ class APIFromRUle implements API {
         pageSize: pageSize,
         keyword: query,
       );
-      if (res.contentLength == 0) {
+      if (isEmptyResponse(res)) {
         return <SearchItem>[];
       }
-      searchUrl = res.request.url.toString();
-      body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+      searchUrl = res.requestOptions.uri.toString();
+      body = DecodeBody().decode(res.data, res.headers["content-type"]?.first);
     }
     await JSEngine.setEnvironment(page, rule, "", searchUrl, query, "");
     final bodyAnalyzer = AnalyzerManager(body);
@@ -165,21 +186,22 @@ class APIFromRUle implements API {
       final tag = await analyzer.getString(rule.searchTags);
       List<String> tags = <String>[];
       if (tag != null && tag.trim().isNotEmpty) {
-        tags = tag.split(APIConst.tagsSplitRegExp)..removeWhere((tag) => tag.isEmpty);
+        tags = tag.split(APIConst.tagsSplitRegExp)
+          ..removeWhere((tag) => tag.isEmpty);
       }
       result.add(SearchItem(
-        searchUrl: searchUrl,
-        cover: await analyzer.getString(rule.searchCover),
-        name: (await analyzer.getString(rule.searchName))
-            .trim()
-            .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace),
-        author: await analyzer.getString(rule.searchAuthor),
-        chapter: await analyzer.getString(rule.searchChapter),
-        description: await analyzer.getString(rule.searchDescription),
-        url: await analyzer.getString(rule.searchResult),
-        api: this,
-        tags: tags,
-      ));
+          searchUrl: searchUrl,
+          cover: await analyzer.getString(rule.searchCover),
+          name: (await analyzer.getString(rule.searchName))
+              .trim()
+              .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace),
+          author: await analyzer.getString(rule.searchAuthor),
+          chapter: await analyzer.getString(rule.searchChapter),
+          description: await analyzer.getString(rule.searchDescription),
+          url: await analyzer.getString(rule.searchResult),
+          api: this,
+          tags: tags,
+          group: null));
     }
     return result;
   }
@@ -189,7 +211,8 @@ class APIFromRUle implements API {
     API.chapterUrl = null;
     final result = <ChapterItem>[];
     final reversed = rule.chapterList.startsWith("-");
-    final hasNextUrlRule = rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
+    final hasNextUrlRule =
+        rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
     final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty
         ? rule.chapterUrl
         : lastResult;
@@ -219,15 +242,17 @@ class APIFromRUle implements API {
             result: lastResult,
             page: page,
           );
-          if (res.contentLength == 0) {
+          if (isEmptyResponse(res)) {
             break;
           }
-          chapterUrl = res.request.url.toString();
-          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+          chapterUrl = res.requestOptions.uri.toString();
+          body =
+              DecodeBody().decode(res.data, res.headers["content-type"]?.first);
         }
         API.chapterUrl = chapterUrl;
         if (page == 1) {
-          await JSEngine.setEnvironment(page, rule, "", chapterUrl, "", lastResult);
+          await JSEngine.setEnvironment(
+              page, rule, "", chapterUrl, "", lastResult);
         } else {
           await JSEngine.evaluate(
               "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};");
@@ -249,8 +274,8 @@ class APIFromRUle implements API {
             result.add(ChapterItem(
               name: "@线路" + await roadAnalyzer.getString(rule.chapterRoadName),
             ));
-            final list = await roadAnalyzer
-                .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+            final list = await roadAnalyzer.getElements(
+                reversed ? rule.chapterList.substring(1) : rule.chapterList);
             if (list.isEmpty) {
               break;
             }
@@ -280,8 +305,8 @@ class APIFromRUle implements API {
             }
           }
         } else {
-          final list = await bodyAnalyzer
-              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+          final list = await bodyAnalyzer.getElements(
+              reversed ? rule.chapterList.substring(1) : rule.chapterList);
           if (list.isEmpty) {
             break;
           }
@@ -318,10 +343,21 @@ class APIFromRUle implements API {
   }
 
   @override
+  Future<dynamic> parseContent(final Uint8List lastResult) async {
+    final _parseContent = rule.contentDecrypt;
+    if (_parseContent == null || _parseContent.isEmpty) {
+      return lastResult;
+    }
+    final bodyAnalyzer = AnalyzerManager(lastResult);
+    return bodyAnalyzer.getString(_parseContent);
+  }
+
+  @override
   Future<List<String>> content(final String lastResult) async {
     API.contentUrl = null;
     final result = <String>[];
-    final hasNextUrlRule = rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
+    final hasNextUrlRule =
+        rule.contentNextUrl != null && rule.contentNextUrl.isNotEmpty;
     final url = rule.contentUrl != null && rule.contentUrl.isNotEmpty
         ? rule.contentUrl
         : lastResult;
@@ -351,15 +387,17 @@ class APIFromRUle implements API {
             result: lastResult,
             page: page,
           );
-          if (res.contentLength == 0) {
+          if (isEmptyResponse(res)) {
             break;
           }
-          contentUrl = res.request.url.toString();
-          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+          contentUrl = res.requestOptions.uri.toString();
+          body =
+              DecodeBody().decode(res.data, res.headers["content-type"]?.first);
         }
         API.contentUrl = contentUrl;
         if (page == 1) {
-          await JSEngine.setEnvironment(page, rule, "", contentUrl, "", lastResult);
+          await JSEngine.setEnvironment(
+              page, rule, "", contentUrl, "", lastResult);
         } else {
           await JSEngine.evaluate(
               "baseUrl = ${jsonEncode(contentUrl)}; page = ${jsonEncode(page)};");
@@ -402,6 +440,17 @@ class APIFromRUle implements API {
   @override
   Future<List<DiscoverMap>> discoverMap() async {
     final map = <DiscoverMap>[];
+    if (rule.discoverMoreKeys.trim().startsWith("{") &&
+        rule.discoverMoreKeys.trim().endsWith("}")) {
+      ItemMoreKeys moreKeys =
+          ItemMoreKeys.fromJson(jsonDecode(rule.discoverMoreKeys));
+      await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
+      for (var itemMk in moreKeys.list) {
+        map.add(DiscoverMap(itemMk.title, itemMk.requestFilters));
+      }
+      return map;
+    }
+
     final table = Map<String, int>();
     dynamic discoverUrl = rule.discoverUrl.trimLeft();
     try {

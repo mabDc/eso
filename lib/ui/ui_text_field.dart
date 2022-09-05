@@ -42,15 +42,15 @@ class SearchTextField extends StatelessWidget {
         filled: true,
         fillColor: Theme.of(context).primaryColorDark.withOpacity(0.06),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide(color: Colors.transparent),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide(color: Colors.transparent),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide(color: Colors.transparent),
         ),
         hintText: hintText,
@@ -65,7 +65,11 @@ class SearchTextField extends StatelessWidget {
               padding: const EdgeInsets.only(left: 12, right: 6),
               child: Icon(
                 FIcons.search,
-                color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.2),
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    .color
+                    .withOpacity(0.2),
               ),
             ),
         prefixIconConstraints: BoxConstraints(),
@@ -76,7 +80,8 @@ class SearchTextField extends StatelessWidget {
             child: Container(
               width: 16.0,
               height: 16.0,
-              child: Icon(Icons.clear, color: Theme.of(context).dividerColor, size: 14.0),
+              child: Icon(Icons.clear,
+                  color: Theme.of(context).dividerColor, size: 14.0),
             ),
             onTap: () {
               controller.text = '';

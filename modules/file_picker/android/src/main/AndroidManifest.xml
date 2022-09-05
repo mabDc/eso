@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.mr.flutter.plugin.filepicker">
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <queries>
+     <intent>
+        <action android:name="android.intent.action.GET_CONTENT" />
+        <data android:mimeType="*/*"/>
+    </intent>
+    </queries>
+</manifest>

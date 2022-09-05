@@ -1,277 +1,392 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'package:eso/api/api_manager.dart';
-import 'package:eso/database/chapter_item.dart';
-import 'package:eso/database/history_item_manager.dart';
-import 'package:eso/database/search_item.dart';
-import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/utils.dart';
-import '../lyric/lyric.dart';
+// import 'dart:async';
+// import 'dart:convert';
+// import 'dart:io';
 
-class AudioService {
-  static const int REPEAT_FAVORITE = 3;
-  static const int REPEAT_ALL = 2;
-  static const int REPEAT_ONE = 1;
-  static const int REPEAT_NONE = 0;
+// import 'package:audioplayers/audioplayers.dart';
+// import 'package:eso/api/analyze_url.dart';
+// import 'package:eso/api/api_manager.dart';
+// import 'package:eso/database/chapter_item.dart';
+// import 'package:eso/database/history_item_manager.dart';
+// import 'package:eso/database/search_item.dart';
+// import 'package:eso/database/search_item_manager.dart';
+// import 'package:eso/utils.dart';
+// import 'package:http/http.dart' as http;
 
-  static AudioService __internal;
+// // import '../lyric/lyric.dart';
+// import 'package:flutter_lyric/lyrics_reader.dart';
 
-  static AudioService getAudioService() {
-    if (__internal == null) __internal = AudioService._internal();
-    return __internal;
-  }
+// class AudioService {
+//   static const int REPEAT_FAVORITE = 3;
+//   static const int REPEAT_ALL = 2;
+//   static const int REPEAT_ONE = 1;
+//   static const int REPEAT_NONE = 0;
+//   static Timer _timer;
 
-  factory AudioService() => getAudioService();
+//   static AudioService __internal;
 
-  static bool get isPlaying => __internal != null && __internal.__isPlaying;
+//   static AudioService getAudioService() {
+//     if (__internal == null) __internal = AudioService._internal();
+//     return __internal;
+//   }
 
-  static Future<void> stop() async {
-    if (!isPlaying) return;
-    await __internal._player.stop();
-  }
+//   factory AudioService() => getAudioService();
 
-  static String getRepeatName(int value) {
-    switch (value) {
-      case REPEAT_FAVORITE:
-        return "跨源循环";
-      case REPEAT_ALL:
-        return "列表循环";
-      case REPEAT_ONE:
-        return "单曲循环";
-      case REPEAT_NONE:
-        return "不循环";
-    }
-    return null;
-  }
+//   static bool get isPlaying => __internal != null && __internal.__isPlaying;
 
-  AudioService._internal() {
-    if (_player == null) {
-      _lyrics = <Lyric>[];
-      _durChapterIndex = -1;
-      _player = AudioPlayer();
-      _repeatMode = REPEAT_ALL;
-      _duration = Duration.zero;
-      _positionDuration = Duration.zero;
-      _player.onDurationChanged.listen((Duration d) {
-        _duration = d;
-      });
-      _player.onAudioPositionChanged.listen((Duration p) {
-        _positionDuration = p;
-      });
-      _player.onPlayerStateChanged.listen((PlayerState s) {
-        _playerState = s;
-      });
-      _player.onPlayerCompletion.listen((event) {
-        switch (_repeatMode) {
-          case REPEAT_FAVORITE:
-            playNext(true);
-            break;
-          case REPEAT_ALL:
-            playNext();
-            break;
-          case REPEAT_ONE:
-            replay();
-            break;
-        }
-      });
-    }
-  }
+//   static Future<void> stop() async {
+//     if (!isPlaying) return;
+//     await __internal._player.stop();
+//   }
 
-  String get durChapter => _searchItem.durChapter;
+//   static String getRepeatName(int value) {
+//     switch (value) {
+//       case REPEAT_FAVORITE:
+//         return "跨源循环";
+//       case REPEAT_ALL:
+//         return "列表循环";
+//       case REPEAT_ONE:
+//         return "单曲循环";
+//       case REPEAT_NONE:
+//         return "不循环";
+//     }
+//     return null;
+//   }
 
-  Future<int> seek(Duration duration) => _player.seek(duration);
+//   AudioService._internal() {
+//     if (_player == null) {
+//       _timer = Timer.periodic(Duration(milliseconds: 1000), (_) {
+//         if (_duration_stopPlay != Duration.zero &&
+//             lastduration_stopPlay != null) {
+//           int sy = lastduration_stopPlay
+//               .compareTo(DateTime.now().subtract(_duration_stopPlay));
+//           if (sy != 1) {
+//             _duration_stopPlay = Duration.zero;
+//             lastduration_stopPlay = null;
+//             _player.pause();
+//           }
 
-  Future<int> replay() async {
-    await _player.pause();
-    await _player.seek(Duration.zero);
-    return _player.resume();
-  }
+//           print("compare:${sy}");
+//         }
 
-  /// 是否正在播放
-  bool get __isPlaying =>
-      _playerState != null &&
-      _playerState != PlayerState.STOPPED &&
-      _playerState != PlayerState.COMPLETED &&
-      _playerState != PlayerState.PAUSED;
+//         // if (timeProc != null) {
+//         //   if (timeProc(duration_stopPlay)) {
+//         //     _player.stop();
+//         //   }
+//         // }
+//       });
 
-  Future<int> play() async {
-    switch (_playerState) {
-      case PlayerState.COMPLETED:
-      case PlayerState.STOPPED:
-        return replay();
-        break;
-      // case PlayerState.PAUSED:
-      //   return _player.resume();
-      default:
-        return _player.resume();
-    }
-  }
+//       _lyricModel = LyricsModelBuilder.create();
 
-  Future<int> playOrPause() async {
-    if (_playerState == PlayerState.PLAYING) {
-      return _player.pause();
-    } else {
-      return play();
-    }
-  }
+//       _durChapterIndex = -1;
+//       _player = AudioPlayer();
 
-  void playNext([bool allFavorite = false]) {
-    if (_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)) {
-      if (allFavorite != true) {
-        playChapter(0);
-      }
-    } else {
-      playChapter(_searchItem.durChapterIndex + 1);
-    }
-  }
+//       _repeatMode = REPEAT_ALL;
+//       _duration = Duration.zero;
+//       _positionDuration = Duration.zero;
+//       _player.onDurationChanged.listen((Duration d) {
+//         _duration = d;
+//       });
+//       _player.onPositionChanged.listen((Duration p) {
+//         _positionDuration = p;
+//       });
 
-  void playPrev() => playChapter(_searchItem.durChapterIndex == 0
-      ? _searchItem.chapters.length - 1
-      : _searchItem.durChapterIndex - 1);
+//       _player.onPlayerStateChanged.listen((PlayerState s) {
+//         _playerState = s;
+//       });
+//       _player.onPlayerComplete.listen((event) {
+//         switch (_repeatMode) {
+//           case REPEAT_FAVORITE:
+//             playNext(true);
+//             break;
+//           case REPEAT_ALL:
+//             playNext();
+//             break;
+//           case REPEAT_ONE:
+//             replay();
+//             break;
+//         }
+//       });
+//     }
+//   }
 
-  List<Lyric> _lyrics;
-  List<Lyric> get lyrics => _lyrics;
-  final durationReg = RegExp(r'\[(\d{1,2}):(\d{1,2})(\.\d{1,3})?\]');
-  Future<void> playChapter(int chapterIndex,
-      {SearchItem searchItem, bool tryNext = false}) async {
-    if (searchItem == null) {
-      if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length) return;
-      if (_url != null && _searchItem.durChapterIndex == chapterIndex) {
-        replay();
-        return;
-      }
-    } else if (_searchItem != searchItem) {
-      _searchItem = searchItem;
-    } else if (_durChapterIndex == chapterIndex) {
-      play();
-      return;
-    }
-    try {
-      _player.pause();
-      await _player.seek(Duration.zero);
-    } catch (e) {}
-    _player.stop();
-    _durChapterIndex = chapterIndex;
-    if (_searchItem.chapters == null || _searchItem.chapters.isEmpty) return;
-    final content = await APIManager.getContent(
-        _searchItem.originTag, _searchItem.chapters[chapterIndex].url);
-    if (content == null || content.length == 0) return;
-    _url = content[0];
-    _lyrics.clear();
-    for (final c in content.skip(1)) {
-      if (c.startsWith('@cover')) {
-        _searchItem.chapters[chapterIndex].cover = c.substring(6);
-      }
-      if (c.startsWith('@lrc')) {
-        // 一行一行解析
-        // start继承最后一个，否则鬼畜
-        Duration start = Duration.zero;
-        _lyrics = c.substring(4).trim().split('\n').map((l) {
-          final m = durationReg.allMatches(l).toList();
-          Duration end;
-          int startIndex = 0;
-          int endIndex = l.length;
-          if (m.length > 0) {
-            final startM = m.first;
-            startIndex = startM.end;
-            start = Duration(
-              minutes: int.parse(startM.group(1)),
-              seconds: int.parse(startM.group(2)),
-              milliseconds: int.parse(startM.group(3)?.substring(1) ?? '0'),
-            );
-          }
-          if (m.length > 1) {
-            final endM = m.last;
-            endIndex = endM.start;
-            end = Duration(
-              minutes: int.parse(endM.group(1)),
-              seconds: int.parse(endM.group(2)),
-              milliseconds: int.parse(endM.group(3) ?? '0'),
-            );
-          }
-          return Lyric(
-            l.substring(startIndex, endIndex),
-            startTime: start,
-            endTime: end,
-          );
-        }).toList();
-        for (var i = 0; i < _lyrics.length - 1; i++) {
-          if (_lyrics[i].endTime == null) {
-            _lyrics[i].endTime = _lyrics[i + 1].startTime;
-          }
-        }
-        if (_lyrics.last.startTime.inSeconds == 0) {
-          _lyrics.last.endTime = _lyrics.last.startTime;
-        } else {
-          _lyrics.last.endTime = _lyrics.last.startTime + Duration(seconds: 10);
-        }
-      }
-    }
-    if (_lyrics == null || _lyrics.isEmpty) {
-      _lyrics = <Lyric>[
-        Lyric(
-          '没有歌词 >_<',
-          startTime: Duration.zero,
-          endTime: Duration.zero,
-        ),
-      ];
-    }
-    _searchItem.durChapterIndex = chapterIndex;
-    _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
-    _searchItem.durContentIndex = 1;
-    _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
-    await SearchItemManager.saveSearchItem();
-    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-    await HistoryItemManager.saveHistoryItem();
-    print(_url);
-    try {
-      await _player.play(_url);
-    } catch (e) {
-      print(e);
-      if (tryNext == true) {
-        await Utils.sleep(3000);
-        if (!AudioService.isPlaying) playNext();
-      }
-    }
-  }
+//   String get durChapter => _searchItem.durChapter;
 
-  void switchRepeatMode() {
-    int temp = _repeatMode + 1;
-    if (temp > 3) {
-      _repeatMode = 0;
-    } else {
-      _repeatMode = temp;
-    }
-  }
+//   Future<void> seek(Duration duration) => _player.seek(duration);
 
-  AudioPlayer _player;
-  SearchItem _searchItem;
-  SearchItem get searchItem => _searchItem;
-  int _durChapterIndex;
-  String _url;
-  String get url => _url;
+//   Future<void> replay() async {
+//     await _player.pause();
+//     await _player.seek(Duration.zero);
+//     return _player.resume();
+//   }
 
-  int _repeatMode;
-  int get repeatMode => _repeatMode;
+//   /// 是否正在播放
+//   bool get __isPlaying =>
+//       _playerState != null &&
+//       _playerState != PlayerState.stopped &&
+//       _playerState != PlayerState.completed &&
+//       _playerState != PlayerState.paused;
 
-  Duration _duration;
-  Duration get duration => _duration;
-  Duration _positionDuration;
-  Duration get positionDuration => _positionDuration;
+//   Future<void> play() async {
+//     switch (_playerState) {
+//       case PlayerState.completed:
+//       case PlayerState.stopped:
+//         return replay();
+//         break;
+//       // case PlayerState.PAUSED:
+//       //   return _player.resume();
+//       default:
+//         return _player.resume();
+//     }
+//   }
 
-  PlayerState _playerState;
-  PlayerState get playerState => _playerState;
+//   Future<void> playOrPause() async {
+//     if (_playerState == PlayerState.playing) {
+//       return _player.pause();
+//     } else {
+//       return play();
+//     }
+//   }
 
-  /// 当前播放的节目
-  ChapterItem get curChapter =>
-      _durChapterIndex < 0 || _durChapterIndex >= (_searchItem?.chapters?.length ?? 0)
-          ? null
-          : _searchItem.chapters[_durChapterIndex];
+//   void setSpeed(double speed) async {
+//     if (_playerState == PlayerState.playing ||
+//         _playerState == PlayerState.paused) {
+//       try {
+//         await _player.setPlaybackRate(speed);
+//         _playspeed = speed;
+//       } catch (e) {}
+//     }
+//   }
 
-  void dispose() {
-    try {
-      _player?.stop();
-      _player?.resume();
-      _player?.dispose();
-    } catch (_) {}
-  }
-}
+//   void replay10s() async {
+//     if (_playerState == PlayerState.playing ||
+//         _playerState == PlayerState.paused) {
+//       _player.seek(Duration(seconds: _positionDuration.inSeconds - 10));
+//     }
+//   }
+
+//   void forward10s() async {
+//     if (_playerState == PlayerState.playing ||
+//         _playerState == PlayerState.paused) {
+//       _player.seek(Duration(seconds: _positionDuration.inSeconds + 10));
+//     }
+//   }
+
+//   void playNext([bool allFavorite = false]) {
+//     if (_searchItem.durChapterIndex == (_searchItem.chapters.length - 1)) {
+//       if (allFavorite != true) {
+//         playChapter(0);
+//       }
+//     } else {
+//       playChapter(_searchItem.durChapterIndex + 1);
+//     }
+//   }
+
+//   void playPrev() => playChapter(_searchItem.durChapterIndex == 0
+//       ? _searchItem.chapters.length - 1
+//       : _searchItem.durChapterIndex - 1);
+
+//   // List<Lyric> _lyrics;
+//   // List<Lyric> get lyrics => _lyrics;
+//   // final durationReg = RegExp(r'\[(\d{1,2}):(\d{1,2})(\.\d{1,3})?\]');
+
+//   Future<void> playChapter(int chapterIndex,
+//       {SearchItem searchItem, bool tryNext = false}) async {
+//     print("playChapter");
+
+//     if (searchItem == null) {
+//       if (chapterIndex < 0 || chapterIndex >= _searchItem.chapters.length)
+//         return;
+//       if (_url != null && _searchItem.durChapterIndex == chapterIndex) {
+//         replay();
+//         return;
+//       }
+//     } else if (_searchItem == null ||
+//         (_searchItem.chapterUrl != searchItem.chapterUrl)) {
+//       print("_searchItem != searchItem");
+//       _searchItem = searchItem;
+//     } else if (_durChapterIndex == chapterIndex) {
+//       print(
+//           "if _durChapterIndex:${_durChapterIndex} == chapterIndex:${chapterIndex}");
+//       play();
+//       return;
+//     }
+
+//     try {
+//       print("_player.pause();");
+//       _player.pause();
+//       await _player.seek(Duration.zero);
+//     } catch (e) {}
+//     _player.stop();
+//     _durChapterIndex = chapterIndex;
+//     print(
+//         "_durChapterIndex:${_durChapterIndex} == chapterIndex:${chapterIndex}");
+
+//     if (_searchItem.chapters == null || _searchItem.chapters.isEmpty) return;
+//     final content = await APIManager.getContent(
+//         _searchItem.originTag, _searchItem.chapters[chapterIndex].url);
+//     if (content == null || content.length == 0) return;
+//     _url = content[0];
+
+//     // _lyrics.clear();
+
+//     print("content:${content}");
+
+//     for (final c in content.skip(1)) {
+//       if (c.startsWith('@cover')) {
+//         _searchItem.chapters[chapterIndex].cover = c.substring(6);
+//       }
+//       if (c.startsWith('@lrc')) {
+//         _lyricModel.reset();
+//         _lyricModel = _lyricModel.bindLyricToMain(c.substring(4));
+
+//         // 一行一行解析
+//         // start继承最后一个，否则鬼畜
+//         // Duration start = Duration.zero;
+//         // _lyrics = c.substring(4).trim().split('\n').map((l) {
+//         //   final m = durationReg.allMatches(l).toList();
+//         //   Duration end;
+//         //   int startIndex = 0;
+//         //   int endIndex = l.length;
+//         //   if (m.length > 0) {
+//         //     final startM = m.first;
+//         //     startIndex = startM.end;
+//         //     start = Duration(
+//         //       minutes: int.parse(startM.group(1)),
+//         //       seconds: int.parse(startM.group(2)),
+//         //       milliseconds: int.parse(startM.group(3)?.substring(1) ?? '0'),
+//         //     );
+//         //   }
+//         //   if (m.length > 1) {
+//         //     final endM = m.last;
+//         //     endIndex = endM.start;
+//         //     end = Duration(
+//         //       minutes: int.parse(endM.group(1)),
+//         //       seconds: int.parse(endM.group(2)),
+//         //       milliseconds: int.parse(endM.group(3) ?? '0'),
+//         //     );
+//         //   }
+//         //   return Lyric(
+//         //     l.substring(startIndex, endIndex),
+//         //     startTime: start,
+//         //     endTime: end,
+//         //   );
+//         // }).toList();
+//         // for (var i = 0; i < _lyrics.length - 1; i++) {
+//         //   if (_lyrics[i].endTime == null) {
+//         //     _lyrics[i].endTime = _lyrics[i + 1].startTime;
+//         //   }
+//         // }
+//         // if (_lyrics.last.startTime.inSeconds == 0) {
+//         //   _lyrics.last.endTime = _lyrics.last.startTime;
+//         // } else {
+//         //   _lyrics.last.endTime = _lyrics.last.startTime + Duration(seconds: 10);
+//         // }
+
+//       }
+//     }
+//     if (_searchItem.chapters[chapterIndex].cover.isEmpty) {
+//       _searchItem.chapters[chapterIndex].cover = _searchItem.cover;
+//     }
+//     print("cover:${_searchItem.chapters[chapterIndex].cover}");
+//     // if (_lyrics == null || _lyrics.isEmpty) {
+//     //   _lyrics = <Lyric>[
+//     //     Lyric(
+//     //       '没有歌词 >_<',
+//     //       startTime: Duration.zero,
+//     //       endTime: Duration.zero,
+//     //     ),
+//     //   ];
+//     // }
+//     _searchItem.durChapterIndex = chapterIndex;
+//     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
+//     _searchItem.durContentIndex = 1;
+//     _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
+//     await SearchItemManager.saveSearchItem();
+//     HistoryItemManager.insertOrUpdateHistoryItem(searchItem ?? _searchItem);
+//     await HistoryItemManager.saveHistoryItem();
+//     try {
+//       // File tempFile =null;
+
+//       // await _player.setSource(tempFile.name)
+
+//       if (_url.contains("@headers")) {
+//         final u = _url.split("@headers");
+//         final h = (jsonDecode(u[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+//         print("url:${u[0]},headers:${h}");
+//         http.Response res = await http.get(Uri.parse(u[0]), headers: h);
+//         await _player.play(BytesSource(res.bodyBytes));
+//         // await _player
+//         //     .setAudioSource(AudioSource.uri(Uri.parse(u[0]), headers: h));
+//       } else {
+//         await _player.play(UrlSource(url));
+//         // await _player.setAudioSource(AudioSource.uri(Uri.parse(_url)));
+//       }
+
+//       await _player.setPlaybackRate(_playspeed);
+//     } catch (e) {
+//       print(e);
+//       if (tryNext == true) {
+//         await Utils.sleep(3000);
+//         if (!AudioService.isPlaying) playNext();
+//       }
+//     }
+//   }
+
+//   void switchRepeatMode() {
+//     int temp = _repeatMode + 1;
+//     if (temp > 3) {
+//       _repeatMode = 0;
+//     } else {
+//       _repeatMode = temp;
+//     }
+//   }
+
+//   void setTimingstopPlay(Duration dur) {
+//     _duration_stopPlay = dur;
+//     lastduration_stopPlay = DateTime.now();
+//     print(
+//         "_duration_stopPlay:${_duration_stopPlay},lastduration_stopPlay:${lastduration_stopPlay}");
+//   }
+
+//   AudioPlayer _player;
+//   DateTime lastduration_stopPlay;
+//   Duration _duration_stopPlay = Duration.zero;
+//   Duration get duration_stopPlay => _duration_stopPlay;
+
+//   SearchItem _searchItem;
+//   SearchItem get searchItem => _searchItem;
+//   int _durChapterIndex;
+//   String _url;
+//   String get url => _url;
+//   double _playspeed = 1.0;
+//   double get playspeed => _playspeed;
+
+//   int _repeatMode;
+//   int get repeatMode => _repeatMode;
+//   LyricsModelBuilder _lyricModel;
+//   LyricsModelBuilder get lyricModel => _lyricModel;
+
+//   Duration _duration;
+//   Duration get duration => _duration;
+//   Duration _positionDuration;
+//   Duration get positionDuration => _positionDuration;
+
+//   PlayerState _playerState;
+//   PlayerState get playerState => _playerState;
+
+//   /// 当前播放的节目
+//   ChapterItem get curChapter => _durChapterIndex < 0 ||
+//           _durChapterIndex >= (_searchItem?.chapters?.length ?? 0)
+//       ? null
+//       : _searchItem.chapters[_durChapterIndex];
+
+//   void dispose() {
+//     try {
+//       _lyricModel?.reset();
+//       _timer.cancel();
+//       _player?.stop();
+//       _player?.resume();
+//       _player?.dispose();
+//     } catch (_) {}
+//   }
+// }

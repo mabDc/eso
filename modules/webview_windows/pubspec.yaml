@@ -1,0 +1,23 @@
+name: webview_windows
+description: A WebView2-powered webview implementation for the Windows platform.
+version: 0.2.0
+repository: https://github.com/jnschulze/flutter-webview-windows
+homepage: https://jns.io
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.8.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      windows:
+        pluginClass: WebviewWindowsPlugin

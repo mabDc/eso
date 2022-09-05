@@ -23,6 +23,9 @@ class SystemInfoProvider with ChangeNotifier {
   }
 
   Future<bool> _init() async {
+    if (Platform.isWindows) {
+      return false;
+    }
     _timer = Timer.periodic(Duration(milliseconds: 300), (_) async {
       _now = _format.format(DateTime.now());
       _level = await Battery().batteryLevel;

@@ -29,33 +29,36 @@ class SearchItemAdapter extends TypeAdapter<SearchItem> {
         createTime = reader.readInt(),
         updateTime = reader.readInt(),
         lastReadTime = reader.readInt(),
+        group = reader.readString(),
         count = reader.readInt(),
-        chapters = List.generate(count, (_) => ChapterItemAdapter().read(reader));
+        chapters =
+            List.generate(count, (_) => ChapterItemAdapter().read(reader));
+
     return SearchItem.fromAdapter(
-      searchUrl,
-      chapterUrl,
-      id,
-      origin,
-      originTag,
-      cover,
-      name,
-      author,
-      chapter,
-      description,
-      url,
-      ruleContentType,
-      chapterListStyle,
-      durChapter,
-      durChapterIndex,
-      durContentIndex,
-      chaptersCount,
-      reverseChapter,
-      tags,
-      createTime,
-      updateTime,
-      lastReadTime,
-      chapters,
-    );
+        searchUrl,
+        chapterUrl,
+        id,
+        origin,
+        originTag,
+        cover,
+        name,
+        author,
+        chapter,
+        description,
+        url,
+        ruleContentType,
+        chapterListStyle,
+        durChapter,
+        durChapterIndex,
+        durContentIndex,
+        chaptersCount,
+        reverseChapter,
+        tags,
+        createTime,
+        updateTime,
+        lastReadTime,
+        group,
+        chapters);
   }
 
   @override
@@ -85,6 +88,7 @@ class SearchItemAdapter extends TypeAdapter<SearchItem> {
     writer.writeInt(item.createTime);
     writer.writeInt(item.updateTime);
     writer.writeInt(item.lastReadTime);
+    writer.writeString(item.group);
 
     writer.writeInt(item.chapters.length);
     for (var chapter in item.chapters) {

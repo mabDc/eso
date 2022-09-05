@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
@@ -62,6 +65,8 @@ abstract class API {
 
   Future<List<String>> content(String url);
 
+  Future<dynamic> parseContent(Uint8List lastResult);
+
   Future<List<DiscoverMap>> discoverMap();
 }
 
@@ -95,6 +100,10 @@ class BaseAPI implements API {
     return null;
   }
 
+  Future<dynamic> parseContent(Uint8List lastResult) {
+    return null;
+  }
+
   Future<List<String>> content(String url) {
     return null;
   }
@@ -106,8 +115,9 @@ class BaseAPI implements API {
 
 class DiscoverMap {
   final String name;
-  final List<DiscoverPair> pairs;
-  const DiscoverMap(this.name, this.pairs);
+  final List<dynamic> pairs;
+  final String rule;
+  const DiscoverMap(this.name, this.pairs, {this.rule});
 }
 
 class DiscoverPair extends Equatable {

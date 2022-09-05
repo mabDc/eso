@@ -14,6 +14,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../utils.dart';
 
+typedef fnDecrypt = Future<void> Function(String url);
+
 /// 图像预览页中的图像列表项
 class PhotoItem {
   /// 文件URL或文件Path
@@ -21,15 +23,21 @@ class PhotoItem {
 
   final Map<String, String> headers;
 
-  const PhotoItem(this.url, this.headers);
+  final OnDecrypt onDecrypt;
+
+  const PhotoItem(this.url, this.headers, this.onDecrypt);
 
   static PhotoItem parse(String urlWithHeaders) {
     if (urlWithHeaders == null) return null;
     final index = urlWithHeaders.indexOf("@headers");
-    if (index == -1) return PhotoItem(urlWithHeaders, null);
+    if (index == -1) return PhotoItem(urlWithHeaders, null, null);
     final headers = (jsonDecode(urlWithHeaders.substring(index + 8)) as Map)
         .map((k, v) => MapEntry('$k', '$v'));
-    return PhotoItem(urlWithHeaders.substring(0, index), headers);
+    print("urlWithHeaders:${urlWithHeaders}");
+    print("url:${urlWithHeaders.substring(0, index)}");
+    print("headers:${headers}");
+
+    return PhotoItem(urlWithHeaders.substring(0, index), headers, null);
   }
 }
 
@@ -70,8 +78,9 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
   @override
   void initState() {
     super.initState();
-    currentIndex =
-        widget.index >= 0 && widget.index < widget.items.length ? widget.index : 0;
+    currentIndex = widget.index >= 0 && widget.index < widget.items.length
+        ? widget.index
+        : 0;
     controller = PageController(initialPage: currentIndex);
   }
 
@@ -88,14 +97,18 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                   builder: (BuildContext context, int index) {
                     var item = widget.items[index];
                     final startIndex = item.url.indexOf(";base64,");
+
                     return PhotoViewGalleryPageOptions(
                       //imageProvider: NetworkImage(item.url),
                       imageProvider: startIndex == -1
-                          ? CachedNetworkImageProvider(item.url, headers: item.headers)
-                          : MemoryImage(base64Decode(item.url.substring(startIndex + 8))),
-                      heroAttributes: widget.heroTag != null && widget.index == index
-                          ? PhotoViewHeroAttributes(tag: widget.heroTag)
-                          : null,
+                          ? CachedNetworkImageProvider(item.url,
+                              headers: item.headers)
+                          : MemoryImage(
+                              base64Decode(item.url.substring(startIndex + 8))),
+                      heroAttributes:
+                          widget.heroTag != null && widget.index == index
+                              ? PhotoViewHeroAttributes(tag: widget.heroTag)
+                              : null,
                     );
                   },
                   itemCount: count,
@@ -106,7 +119,8 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                           height: 50,
                           child: CircularProgressIndicator(
                               strokeWidth: 1.0,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white30))),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white30))),
                     );
                   },
                   backgroundDecoration: null,
@@ -190,7 +204,9 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                               radius: 3.5,
                               backgroundColor: currentIndex == i
                                   ? Theme.of(context).primaryColor
-                                  : Theme.of(context).primaryColor.withAlpha(100),
+                                  : Theme.of(context)
+                                      .primaryColor
+                                      .withAlpha(100),
                             ),
                           ),
                         ).toList(),
@@ -222,7 +238,8 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                         buildPopButton(
                             context,
                             Text("保存图像",
-                                style: TextStyle(color: Colors.black87, fontSize: 16)),
+                                style: TextStyle(
+                                    color: Colors.black87, fontSize: 16)),
                             isLast: false, onTap: () {
                           Navigator.of(context).pop();
                           saveImage(widget.items[currentIndex]);
@@ -230,18 +247,20 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                         buildPopButton(
                             context,
                             Text("复制图像地址",
-                                style: TextStyle(color: Colors.black87, fontSize: 16)),
+                                style: TextStyle(
+                                    color: Colors.black87, fontSize: 16)),
                             isLast: false,
                             isFirst: false, onTap: () async {
-                          await Clipboard.setData(
-                              ClipboardData(text: widget.items[currentIndex].url));
+                          await Clipboard.setData(ClipboardData(
+                              text: widget.items[currentIndex].url));
                           Utils.toast("已复制图片地址");
                           Navigator.of(context).pop();
                         }),
                         buildPopButton(
                             context,
                             Text("在浏览器中打开",
-                                style: TextStyle(color: Colors.black87, fontSize: 16)),
+                                style: TextStyle(
+                                    color: Colors.black87, fontSize: 16)),
                             isFirst: false, onTap: () async {
                           launch(widget.items[currentIndex].url);
                           Navigator.of(context).pop();
@@ -249,7 +268,8 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
                         buildPopButton(
                             context,
                             Text("取消",
-                                style: TextStyle(color: Theme.of(context).errorColor)),
+                                style: TextStyle(
+                                    color: Theme.of(context).errorColor)),
                             onTap: () {
                           Navigator.of(context).pop();
                         })
@@ -274,7 +294,8 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
     var result = null;
     if (startIndex == -1) {
       // 获取文件或图片
-      final provider = CachedNetworkImageProvider(item.url, headers: item.headers);
+      final provider =
+          CachedNetworkImageProvider(item.url, headers: item.headers);
       DefaultCacheManager mgr = provider.cacheManager ?? DefaultCacheManager();
       String url = provider.url;
       Map<String, String> headers = provider.headers;
@@ -301,7 +322,9 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
     } else if (result is String && null != result && result.isNotEmpty) {
       String str = Uri.decodeComponent(result);
       Utils.toast("成功保存到\n$str");
-    } else if (result is Map && result.isNotEmpty && result["filePath"] != null) {
+    } else if (result is Map &&
+        result.isNotEmpty &&
+        result["filePath"] != null) {
       Utils.toast("成功保存到\n${result["filePath"]}");
     } else {
       Utils.toast("保存失败");
@@ -342,8 +365,10 @@ class _PhotoViewPageState extends State<PhotoViewPage> {
         child: text,
         onPressed: onTap,
         style: ButtonStyle(
-            shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
-                borderRadius: borderRadius ?? BorderRadius.zero, side: borderSide))),
+            shape: MaterialStateProperty.all<OutlinedBorder>(
+                RoundedRectangleBorder(
+                    borderRadius: borderRadius ?? BorderRadius.zero,
+                    side: borderSide))),
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,

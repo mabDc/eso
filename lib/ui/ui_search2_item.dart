@@ -62,8 +62,11 @@ class _UiSearchItem extends StatelessWidget {
     final _origin = origin?.trim();
     final _txtColor =
         Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7);
-    final _textStyle = TextStyle(color: _txtColor,
-        fontFamily: Profile.staticFontFamily, height: 1.0, fontSize: 13);
+    final _textStyle = TextStyle(
+        color: _txtColor,
+        fontFamily: Profile.staticFontFamily,
+        height: 1.0,
+        fontSize: 13);
     final _chapterText = Utils.empty(_chapter)
         ? null
         : Text(_chapter, maxLines: 1, style: _textStyle);
@@ -122,10 +125,14 @@ class _UiSearchItem extends StatelessWidget {
       ]),
       SizedBox(
         width: double.infinity,
-        height: 185,
+        // height: 200,
         child: Padding(
           padding: const EdgeInsets.only(left: 8, right: 8, top: 6),
-          child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
+          child: UIImageItem(
+              initHeight: 200,
+              cover: cover,
+              fit: BoxFit.contain,
+              hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
         ),
       ),
     ];
@@ -170,7 +177,9 @@ class _UiSearchItem extends StatelessWidget {
       child: DefaultTextStyle(
         style: TextStyle(
             fontFamily: Profile.staticFontFamily,
-            fontSize: 12, color: Theme.of(context).hintColor, height: 1.5),
+            fontSize: 12,
+            color: Theme.of(context).hintColor,
+            height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -9,7 +9,7 @@
 #include <wrl/implements.h>
 
 #include "webview2.h"
-#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"96.0.1054.31"
+#define CORE_WEBVIEW_TARGET_PRODUCT_VERSION L"100.0.1185.39"
 
 #define COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(p)     \
  public:                                                      \
@@ -55,7 +55,8 @@ template <typename allocate_fn_t,
 class CoreWebView2EnvironmentOptionsBase
     : public Microsoft::WRL::Implements<
           Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>,
-          ICoreWebView2EnvironmentOptions> {
+          ICoreWebView2EnvironmentOptions,
+          ICoreWebView2EnvironmentOptions2> {
  public:
   CoreWebView2EnvironmentOptionsBase() {
     // Initialize the target compatible browser version value to the version of
@@ -110,11 +111,15 @@ class CoreWebView2EnvironmentOptionsBase
     LPWSTR m_string = nullptr;
   };
 
+  // ICoreWebView2EnvironmentOptions
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(AdditionalBrowserArguments)
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(Language)
   COREWEBVIEW2ENVIRONMENTOPTIONS_STRING_PROPERTY(TargetCompatibleBrowserVersion)
   COREWEBVIEW2ENVIRONMENTOPTIONS_BOOL_PROPERTY(
       AllowSingleSignOnUsingOSPrimaryAccount)
+
+  // ICoreWebView2EnvironmentOptions2
+  COREWEBVIEW2ENVIRONMENTOPTIONS_BOOL_PROPERTY(ExclusiveUserDataFolderAccess)
 };
 
 template <typename allocate_fn_t,

@@ -27,19 +27,20 @@ class UIFavoriteItem extends StatelessWidget {
       direction: Axis.vertical,
       children: <Widget>[
         Expanded(
-          child: Container(
-            width: double.infinity,
-            child: UIImageItem(cover: searchItem.cover),
-            decoration: BoxDecoration(
-              boxShadow: [BoxShadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black12)]
-            ),
+            child: Container(
+          width: double.infinity,
+          child: UIImageItem(cover: searchItem.cover),
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(
+                offset: Offset(0, 1), blurRadius: 2, color: Colors.black12)
+          ]),
         )),
         SizedBox(height: 6),
         Container(
           alignment: Alignment.bottomLeft,
           child: Text(
             '${searchItem.name}'.trim(),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),

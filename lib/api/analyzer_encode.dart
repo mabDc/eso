@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:fast_gbk/fast_gbk.dart';
 import 'package:html/dom.dart';
 
@@ -39,7 +40,7 @@ class AnalyzerEncode implements Analyzer {
       var _data = utf8.encode(_content);
       return String.fromCharCodes(_data);
     } else if (rule.startsWith("gbk")) {
-      var _data = gbk.encoder.convert(rule);
+      var _data = gbk.encoder.convert(_content);
       return String.fromCharCodes(_data);
     }
     return _content;

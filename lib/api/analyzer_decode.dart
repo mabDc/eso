@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:encrypt/encrypt.dart';
 import 'package:fast_gbk/fast_gbk.dart';
 import 'package:html/dom.dart';
 

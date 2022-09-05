@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
@@ -8,13 +9,15 @@ import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/menu/menu_item.dart';
 import 'package:eso/model/edit_source_provider.dart';
+import 'package:eso/page/discover_new_search_page.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/ui_add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/utils.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' hide MenuItem;
+import 'package:flutter/material.dart' hide MenuItem;
 import 'package:flutter/rendering.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
@@ -32,130 +35,209 @@ class EditSourcePage extends StatefulWidget {
 
 class _EditSourcePageState extends State<EditSourcePage> {
   TextEditingController _searchEdit = TextEditingController();
+  TextEditingController _groupEdit = TextEditingController();
+  FocusNode focusNode;
+
   String group;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  @override
+  void initState() {
+    super.initState();
+    focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    focusNode?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<EditSourceProvider>(
-      create: (context) => EditSourceProvider(),
-      builder: (context, child) {
-        final provider = Provider.of<EditSourceProvider>(context, listen: true);
-        return Scaffold(
-          appBar: AppBar(
-            titleSpacing: 0.0,
-            title: SearchTextField(
-              controller: _searchEdit,
-              hintText:
-                  "搜索名称和分组(共${Provider.of<EditSourceProvider>(context, listen: false)?.rules?.length ?? 0}条)",
-              onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
-                  .getRuleListByName,
-              onChanged: Provider.of<EditSourceProvider>(context, listen: false)
-                  .getRuleListByNameDebounce,
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.add),
-                tooltip: '添加规则',
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) =>
-                      UIAddRuleDialog(refresh: () => refreshData(provider)),
+    return Consumer<EditSourceProvider>(
+      // return ChangeNotifierProvider<EditSourceProvider>(
+      // create: (context) => EditSourceProvider(),
+      builder: (context, provider, child) {
+        // final provider = Provider.of<EditSourceProvider>(context, listen: true);
+        return Material(
+          child: Scaffold(
+            endDrawer: buildEndDrawer(context, provider, isAll: true),
+            key: _scaffoldKey,
+            appBar: AppBar(
+              leading: IconButton(
+                  color: CupertinoTheme.of(context).primaryColor,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: Icon(
+                    CupertinoIcons.back,
+                    size: 30,
+                  )),
+              titleSpacing: 0.0,
+              title: SearchTextField(
+                controller: _searchEdit,
+                focusNode: focusNode,
+                hintText:
+                    "搜索名称和分组(共${Provider.of<EditSourceProvider>(context, listen: false)?.rules?.length ?? 0}条)",
+                onSubmitted:
+                    Provider.of<EditSourceProvider>(context, listen: false)
+                        .getRuleListByName,
+                onChanged:
+                    Provider.of<EditSourceProvider>(context, listen: false)
+                        .getRuleListByNameDebounce,
+              ),
+              actions: focusNode.hasFocus
+                  ? [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text("取消"),
+                        onPressed: () => focusNode.unfocus(),
+                      )
+                    ]
+                  : [
+                      // IconButton(
+                      //   icon: Icon(Icons.add),
+                      //   tooltip: '添加规则',
+                      //   onPressed: () => showDialog(
+                      //     context: context,
+                      //     builder: (context) =>
+                      //         UIAddRuleDialog(refresh: () => refreshData(provider)),
+                      //   ),
+                      // ),
+                      // IconButton(
+                      //   icon: Icon(OMIcons.settingsEthernet),
+                      //   tooltip: '新建空白规则',
+                      //   onPressed: () => Navigator.of(context)
+                      //       .push(
+                      //           MaterialPageRoute(builder: (context) => EditRulePage()))
+                      //       .whenComplete(() => refreshData(provider)),
+                      // ),
+                      IconButton(
+                        icon: Icon(CupertinoIcons.slider_horizontal_3),
+                        color: CupertinoTheme.of(context).primaryColor,
+                        tooltip: '分组筛选',
+                        onPressed: () {
+                          _scaffoldKey.currentState.openEndDrawer();
+                        },
+                      ),
+                      Menu<MenuEditSource>(
+                        tooltip: "编辑选中规则",
+                        items: editSourceMenus,
+                        color: CupertinoTheme.of(context).primaryColor,
+                        onSelect: (value) {
+                          if (value == null) return;
+                          final rules = provider.rules
+                              .where((element) =>
+                                  provider.checkSelectMap[element.id] == true)
+                              .toList();
+                          if (value != MenuEditSource.all &&
+                              value != MenuEditSource.revert &&
+                              value != MenuEditSource.add &&
+                              value != MenuEditSource.import &&
+                              rules.isEmpty) {
+                            Utils.toast("请先选择规则");
+                            return;
+                          }
+                          if (value == MenuEditSource.delete) {
+                            alert(
+                              Text("警告(不可恢复)"),
+                              Text("删除选中${rules.length}条规则"),
+                              () => provider.handleSelect(rules, value),
+                            );
+                          } else if (value == MenuEditSource.add_group ||
+                              value == MenuEditSource.delete_group) {
+                            group = value == MenuEditSource.delete_group
+                                ? rules.map((e) => e.group).toSet().join(',')
+                                : "";
+
+                            _groupEdit.text = group;
+
+                            alert(
+                              value == MenuEditSource.add_group
+                                  ? Text('添加分组')
+                                  : Text('移除分组'),
+                              TextField(
+                                  controller: _groupEdit,
+                                  onChanged: (value) => group = value),
+                              () => provider.handleSelect(rules, value, group),
+                            );
+                          } else if (value == MenuEditSource.add) {
+                            Navigator.of(context)
+                                .push(MaterialPageRoute(
+                                    builder: (context) => EditRulePage(
+                                        rule: null, provider: provider)))
+                                .whenComplete(() => refreshData(provider));
+                          } else if (value == MenuEditSource.import) {
+                            showDialog(
+                                context: context,
+                                builder: (context) => UIAddRuleDialog(
+                                    refresh: () => refreshData(provider)));
+                          } else {
+                            provider.handleSelect(rules, value);
+                          }
+                        },
+                      ),
+                    ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(22),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    for (var sort in RuleDao.sortMap.entries)
+                      if (sort.value == RuleDao.sortName)
+                        InkWell(
+                          child: Text(
+                            " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).primaryColor),
+                          ),
+                          onTap: () {
+                            if (RuleDao.sortOrder == RuleDao.desc) {
+                              RuleDao.sortOrder = RuleDao.asc;
+                            } else {
+                              RuleDao.sortOrder = RuleDao.desc;
+                            }
+                            Provider.of<EditSourceProvider>(context,
+                                    listen: false)
+                                .refreshData();
+                          },
+                        )
+                      else
+                        InkWell(
+                          child: Text(
+                            " ${sort.key} ",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          onTap: () {
+                            RuleDao.sortName = sort.value;
+                            Provider.of<EditSourceProvider>(context,
+                                    listen: false)
+                                .refreshData();
+                          },
+                        )
+                  ],
                 ),
               ),
-              IconButton(
-                icon: Icon(OMIcons.settingsEthernet),
-                tooltip: '新建空白规则',
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                    .whenComplete(() => refreshData(provider)),
-              ),
-              Menu<MenuEditSource>(
-                tooltip: "编辑选中规则",
-                items: editSourceMenus,
-                onSelect: (value) {
-                  if (value == null) return;
-                  final rules = provider.rules
-                      .where((element) => provider.checkSelectMap[element.id] == true)
-                      .toList();
-                  if (value != MenuEditSource.all &&
-                      value != MenuEditSource.revert &&
-                      rules.isEmpty) {
-                    Utils.toast("请先选择规则");
-                    return;
-                  }
-                  if (value == MenuEditSource.delete) {
-                    alert(
-                      Text("警告(不可恢复)"),
-                      Text("删除选中${rules.length}条规则"),
-                      () => provider.handleSelect(rules, value),
-                    );
-                  } else if (value == MenuEditSource.add_group ||
-                      value == MenuEditSource.delete_group) {
-                    group = "";
-                    alert(
-                      value == MenuEditSource.add_group ? Text('添加分组') : Text('移除分组'),
-                      TextField(onChanged: (value) => group = value),
-                      () => provider.handleSelect(rules, value, group),
-                    );
-                  } else {
-                    provider.handleSelect(rules, value);
-                  }
-                },
-              ),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(22),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  for (var sort in RuleDao.sortMap.entries)
-                    if (sort.value == RuleDao.sortName)
-                      InkWell(
-                        child: Text(
-                          " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
-                          style: TextStyle(
-                              fontSize: 14, color: Theme.of(context).primaryColor),
-                        ),
-                        onTap: () {
-                          if (RuleDao.sortOrder == RuleDao.desc) {
-                            RuleDao.sortOrder = RuleDao.asc;
-                          } else {
-                            RuleDao.sortOrder = RuleDao.desc;
-                          }
-                          Provider.of<EditSourceProvider>(context, listen: false)
-                              .refreshData();
-                        },
-                      )
-                    else
-                      InkWell(
-                        child: Text(
-                          " ${sort.key} ",
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        onTap: () {
-                          RuleDao.sortName = sort.value;
-                          Provider.of<EditSourceProvider>(context, listen: false)
-                              .refreshData();
-                        },
-                      )
-                ],
-              ),
             ),
-          ),
-          body: Consumer<EditSourceProvider>(
-            builder: (context, provider, child) {
-              if (provider.isLoading) {
-                return LandingPage();
-              }
-              return ListView.separated(
-                separatorBuilder: (BuildContext context, int index) => Divider(),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 9),
-                itemCount: provider.rules.length,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildItem(context, provider, provider.rules[index]);
-                },
-              );
-            },
+            body: Consumer<EditSourceProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return LandingPage();
+                }
+                return ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) =>
+                      Divider(),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 9),
+                  itemCount: provider.rules?.length ?? 0,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildItem(context, provider, provider.rules[index]);
+                  },
+                );
+              },
+            ),
           ),
         );
       },
@@ -205,18 +287,31 @@ class _EditSourcePageState extends State<EditSourcePage> {
               if (!snapshot.hasData) {
                 return LandingPage();
               }
-              return DiscoverSearchPage(
-                rule: rule,
-                originTag: rule.id,
-                origin: rule.name,
-                discoverMap: snapshot.data,
-              );
+
+              String moreKeys = rule.discoverMoreKeys.trim();
+              bool isNewDiscover =
+                  moreKeys.startsWith("{") && moreKeys.endsWith("}");
+
+              return isNewDiscover
+                  ? DiscoverNewSearchPage(
+                      rule: rule,
+                      originTag: rule.id,
+                      origin: rule.name,
+                      discoverMap: snapshot.data,
+                    )
+                  : DiscoverSearchPage(
+                      rule: rule,
+                      originTag: rule.id,
+                      origin: rule.name,
+                      discoverMap: snapshot.data,
+                    );
             },
           ),
         ),
       );
 
-  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
+  Widget _buildItem(
+      BuildContext context, EditSourceProvider provider, Rule rule) {
     final _theme = Theme.of(context);
     final _leadColor = () {
       switch (rule.contentType) {
@@ -280,13 +375,16 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     Icon(
                       rule.enableSearch ? FIcons.check_square : FIcons.square,
                       size: 10,
-                      color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                      color:
+                          rule.enableSearch ? _theme.primaryColor : Colors.grey,
                     ),
                     Text(
                       "搜索",
                       style: TextStyle(
                         fontSize: 12,
-                        color: rule.enableSearch ? _theme.primaryColor : Colors.grey,
+                        color: rule.enableSearch
+                            ? _theme.primaryColor
+                            : Colors.grey,
                         // decoration: TextDecoration.underline,
                       ),
                     ),
@@ -294,13 +392,17 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     Icon(
                       rule.enableDiscover ? FIcons.check_circle : FIcons.circle,
                       size: 10,
-                      color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                      color: rule.enableDiscover
+                          ? _theme.primaryColor
+                          : Colors.grey,
                     ),
                     Text(
                       "发现",
                       style: TextStyle(
                         fontSize: 12,
-                        color: rule.enableDiscover ? _theme.primaryColor : Colors.grey,
+                        color: rule.enableDiscover
+                            ? _theme.primaryColor
+                            : Colors.grey,
                         // decoration: TextDecoration.underline,
                       ),
                     ),
@@ -311,7 +413,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 12),
                       ),
-                    if (rule.host != null && rule.host.isNotEmpty) SizedBox(width: 4),
+                    if (rule.host != null && rule.host.isNotEmpty)
+                      SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         '${cleanHost.firstMatch(rule.host)?.group(1) ?? ""}',
@@ -331,9 +434,11 @@ class _EditSourcePageState extends State<EditSourcePage> {
           ),
           IconButton(
               tooltip: "编辑",
-              icon: Icon(OMIcons.settingsEthernet),
+              icon: Icon(CupertinoIcons.chevron_left_slash_chevron_right),
               onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
+                  .push(MaterialPageRoute(
+                      builder: (context) =>
+                          EditRulePage(rule: rule, provider: provider)))
                   .whenComplete(() => refreshData(provider))),
           Menu<MenuEditSource>(
             tooltip: "选项",
@@ -371,6 +476,12 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 color: Global.primaryColor,
               ),
               MenuItem(
+                text: '副本',
+                icon: Icons.copy_outlined,
+                value: MenuEditSource.fuben,
+                color: Global.primaryColor,
+              ),
+              MenuItem(
                 text: '预览',
                 icon: OMIcons.category,
                 value: MenuEditSource.preview,
@@ -387,8 +498,33 @@ class _EditSourcePageState extends State<EditSourcePage> {
               if (value == MenuEditSource.delete_this) {
                 alert(
                   Text("警告(不可恢复)"),
-                  Text("删除选中${rule.name}条规则"),
+                  Text("删除选中[${rule.name}]"),
                   () => provider.handleSelect([rule], value),
+                );
+              } else if (value == MenuEditSource.fuben) {
+                showCupertinoDialog(
+                  context: context,
+                  builder: (context) {
+                    return CupertinoAlertDialog(
+                      title: Text('创建配置'),
+                      content: Text("以配置 \"${rule.name}\"为蓝本，创建新的配置?"),
+                      actions: [
+                        CupertinoDialogAction(
+                          child: Text('取消'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        CupertinoDialogAction(
+                          child: Text('创建'),
+                          onPressed: () {
+                            provider.handleSelect([rule], MenuEditSource.fuben);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 );
               } else if (value == MenuEditSource.preview) {
                 preview(rule);

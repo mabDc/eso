@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:eso/api/api_js_engine.dart';
+import 'package:eso/global.dart';
 import 'package:flutter_webview/flutter_webview.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'analyzer.dart';
@@ -18,8 +19,7 @@ Future<dynamic> webviewIOS({
   Map<String, String> headers;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
     crossPlatform: InAppWebViewOptions(
-      userAgent:
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Edg/100.0.1185.29',
+      userAgent: Global.userAgent,
       useOnLoadResource: true,
       clearCache: true,
       useShouldOverrideUrlLoading: true,
@@ -36,14 +36,10 @@ Future<dynamic> webviewIOS({
     Map args = {
       "headers": [
         {"Accept": "*/*"},
-        {
-          "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.42 Safari/537.36 Edg/86.0.622.19"
-        },
+        {"User-Agent": Global.userAgent},
       ],
       "url": url
     };
-
     if (callback(args) == true && !c.isCompleted) {
       c.complete(args);
     }
@@ -116,8 +112,10 @@ Future<dynamic> webview({
     return;
   });
   if (ua != null && ua.isNotEmpty) await webview.setUserAgent(ua);
-  if (cookies != null && cookies.isNotEmpty)
-    await webview.setCookies(url, cookies);
+  if (!Platform.isWindows) {
+    if (cookies != null && cookies.isNotEmpty)
+      await webview.setCookies(url, cookies);
+  }
   await webview.navigate(url);
   Future.delayed(Duration(seconds: duration * 5)).then((value) {
     if (!c.isCompleted)
@@ -189,14 +187,14 @@ class AnalyzerFilter implements Analyzer {
       ];
     }
     final duration = r.length > 1 ? int.parse(r[1]) : 10;
-    //print("嗅探正则:${r[0]}");
+    print("嗅探正则:${r[0]}");
 
     if (Platform.isIOS) {
       await webviewIOS(
         url: url,
         duration: duration,
         callback: (args) {
-          print("args.url:${args}");
+          print("args.url:${args['url']}");
           if ((args["url"] as String).contains(RegExp(r[0]))) {
             result.add(covertHeaders(args));
             return true;
@@ -205,7 +203,7 @@ class AnalyzerFilter implements Analyzer {
         },
         ua: JSEngine.rule.userAgent.trim().isNotEmpty
             ? JSEngine.rule.userAgent
-            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.42 Safari/537.36 Edg/86.0.622.19',
+            : Global.userAgent,
         cookies: JSEngine.rule.cookies,
       );
     } else if (Platform.isAndroid || Platform.isWindows) {
@@ -213,17 +211,34 @@ class AnalyzerFilter implements Analyzer {
         url: url,
         duration: duration,
         callback: (args) {
-          //print("args.url:${args["url"]}");
+          print("args.url:${args["url"]}");
           if ((args["url"] as String).contains(RegExp(r[0]))) {
-            print("args:${args}");
-            result.add(covertHeaders(args));
+            print("匹配成功 .args:${args}");
+            if (Platform.isWindows) {
+              Map requestMap = {
+                "headers": [
+                  {"Accept": "*/*"},
+                  {"User-Agent": Global.userAgent},
+                  {"Connection": "keep-alive"},
+                  {"Accept-Encoding": "gzip, deflate"},
+                  {
+                    "Accept-Language":
+                        "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"
+                  },
+                ],
+                "url": (args["url"] as String)
+              };
+              result.add(covertHeaders(requestMap));
+            } else {
+              result.add(covertHeaders(args));
+            }
             return true;
           }
           return false;
         },
         ua: JSEngine.rule.userAgent.trim().isNotEmpty
             ? JSEngine.rule.userAgent
-            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.42 Safari/537.36 Edg/86.0.622.19',
+            : Global.userAgent,
         cookies: JSEngine.rule.cookies,
       );
     }

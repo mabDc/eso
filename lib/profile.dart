@@ -3,6 +3,8 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
+import 'package:pull_down_button/pull_down_button.dart';
 
 import 'global.dart';
 
@@ -41,6 +43,7 @@ class Profile with ChangeNotifier {
 
   Profile.newProfile() {
     _desktopPlayer = "";
+    _desktopPlayerParseUrl = "https://jx.parwix.com:4433/player/?url=";
     _version = '';
     _fontFamily = null;
     _switchLongPress = false;
@@ -53,10 +56,19 @@ class Profile with ChangeNotifier {
     _bottomCount = 2;
     _autoRefresh = false;
     _darkMode = dartModeAuto;
-    _primaryColor = 0xFF4BB0A0;
+    _primaryColor = CupertinoColors.systemBlue.value;
+    _scaffoldBackgroundColor = CupertinoColors.systemGroupedBackground.value;
+    _barBackgroundColor = CupertinoDynamicColor.withBrightness(
+      // color: Colors.white,
+      color: Color(0xF0F9F9F9),
+      darkColor: Color(0xF01D1D1D),
+    ).value;
+    _primaryTextColor = CupertinoColors.black.value;
+
     _mangaKeepOn = false;
     _mangaLandscape = false;
     _mangaDirection = mangaDirectionTopToBottom;
+    _mangaQuality = 1;
     _novelSortIndex = SortType.CREATE.index;
     _mangaSortIndex = SortType.CREATE.index;
     _audioSortIndex = SortType.CREATE.index;
@@ -77,6 +89,63 @@ class Profile with ChangeNotifier {
     _webdavRuleAccount = "";
     _webdavRuleCheckcode = "";
     _autoRuleUploadLastDay = "";
+    _ruleGroupFilter = "";
+    _favoriteGroup = '';
+    _currentGroup = '';
+    _listMode = 0;
+    _listAspectRatio = 1.0;
+  }
+
+  double _listAspectRatio = 1.0;
+  double get listAspectRatio => _listAspectRatio;
+  set listAspectRatio(double value) {
+    if (value != _listAspectRatio) {
+      if (value == null || value <= 0.0) {
+        return;
+      }
+      if (value > 2.0) {
+        value = 1.0;
+      }
+      _listAspectRatio = value;
+      _saveProfile();
+    }
+  }
+
+  int _listMode = 0;
+  int get listMode => _listMode;
+  set listMode(int value) {
+    if (value != _listMode) {
+      _listMode = value;
+      _saveProfile();
+    }
+  }
+
+  String _currentGroup = '';
+  String get currentGroup => _currentGroup;
+
+  set currentGroup(String value) {
+    if (value != _currentGroup) {
+      _currentGroup = value;
+      _saveProfile();
+    }
+  }
+
+  String _favoriteGroup = '';
+  String get favoriteGroup => _favoriteGroup;
+  set favoriteGroup(String value) {
+    if (value != _favoriteGroup) {
+      _favoriteGroup = value;
+      _saveProfile();
+    }
+  }
+
+  String _ruleGroupFilter;
+  String get ruleGroupFilter => _ruleGroupFilter;
+  set ruleGroupFilter(String value) {
+    if (value != _ruleGroupFilter) {
+      _ruleGroupFilter = value;
+      _saveProfile();
+    }
   }
 
   String _desktopPlayer;
@@ -84,6 +153,16 @@ class Profile with ChangeNotifier {
   set desktopPlayer(String value) {
     if (value != _desktopPlayer) {
       _desktopPlayer = value;
+      _saveProfile();
+    }
+  }
+
+  String _desktopPlayerParseUrl;
+  String get desktopPlayerParseUrl => _desktopPlayerParseUrl;
+
+  set desktopPlayerParseUrl(String value) {
+    if (value != _desktopPlayerParseUrl) {
+      _desktopPlayerParseUrl = value;
       _saveProfile();
     }
   }
@@ -193,6 +272,7 @@ class Profile with ChangeNotifier {
   int _bottomCount;
   bool _mangaKeepOn;
   bool _mangaLandscape;
+  int _mangaQuality;
   int _mangaDirection;
   int _novelSortIndex;
   int _mangaSortIndex;
@@ -220,6 +300,8 @@ class Profile with ChangeNotifier {
   int get bottomCount => _bottomCount;
   bool get mangaKeepOn => _mangaKeepOn;
   bool get mangaLandscape => _mangaLandscape;
+  int get mangaQuality => _mangaQuality;
+
   int get mangaDirection => _mangaDirection;
   int get novelSortIndex => _novelSortIndex;
   int get mangaSortIndex => _mangaSortIndex;
@@ -313,7 +395,7 @@ class Profile with ChangeNotifier {
   set showMangaInfo(bool value) {
     if (_showMangaInfo != value) {
       _showMangaInfo = value;
-      _saveProfile();
+      _saveProfile(false);
     }
   }
 
@@ -345,10 +427,17 @@ class Profile with ChangeNotifier {
     }
   }
 
+  set mangaQuality(int value) {
+    if (value != _mangaQuality) {
+      _mangaQuality = value;
+      _saveProfile(false);
+    }
+  }
+
   set mangaDirection(int value) {
     if (value != _mangaDirection) {
       _mangaDirection = value;
-      _saveProfile();
+      _saveProfile(false);
     }
   }
 
@@ -431,6 +520,44 @@ class Profile with ChangeNotifier {
 
   static String staticFontFamily;
 
+  int _scaffoldBackgroundColor;
+  int get scaffoldBackgroundColor => _scaffoldBackgroundColor;
+  set scaffoldBackgroundColor(int value) {
+    if (_scaffoldBackgroundColor != value) {
+      _scaffoldBackgroundColor = value;
+      _saveProfile();
+    }
+  }
+
+  int _barBackgroundColor;
+  int get barBackgroundColor => _barBackgroundColor;
+  set barBackgroundColor(int value) {
+    if (_barBackgroundColor != value) {
+      _barBackgroundColor = value;
+      _saveProfile();
+    }
+  }
+
+  int _primaryTextColor;
+  int get primaryTextColor => _primaryTextColor;
+  set primaryTextColor(int value) {
+    if (_primaryTextColor != value) {
+      _primaryTextColor = value;
+      _saveProfile();
+    }
+  }
+
+  Color kHeaderFooterColor = CupertinoDynamicColor(
+    color: Color.fromRGBO(108, 108, 108, 1.0),
+    darkColor: Color.fromRGBO(142, 142, 146, 1.0),
+    highContrastColor: Color.fromRGBO(74, 74, 77, 1.0),
+    darkHighContrastColor: Color.fromRGBO(176, 176, 183, 1.0),
+    elevatedColor: Color.fromRGBO(108, 108, 108, 1.0),
+    darkElevatedColor: Color.fromRGBO(142, 142, 146, 1.0),
+    highContrastElevatedColor: Color.fromRGBO(108, 108, 108, 1.0),
+    darkHighContrastElevatedColor: Color.fromRGBO(142, 142, 146, 1.0),
+  );
+
   ThemeData getTheme(String fontFamily, {bool isDarkMode: false}) {
     switch (darkMode) {
       case "开启":
@@ -442,24 +569,101 @@ class Profile with ChangeNotifier {
       default:
         break;
     }
+
     final _color = Color(_primaryColor | 0xFF000000);
+    final fontColor = _primaryTextColor == null
+        ? CupertinoColors.label
+        : CupertinoDynamicColor.withBrightness(
+            color: Color(_primaryTextColor),
+            darkColor: CupertinoColors.label.darkColor);
+
     Global.primaryColor = _color;
     staticFontFamily = fontFamily;
-    final theme = ThemeData(
+    final _txtStyle =
+        TextStyle(fontFamily: _fontFamily).copyWith(color: fontColor);
+
+    var theme = ThemeData(
+      // extensions: [
+      //   PullDownButtonTheme(
+      //     // iconSize: 24,
+      //     checkmarkSize: 18,
+      //   )
+      // ],
+      platform: TargetPlatform.iOS,
       fontFamily: staticFontFamily,
       primaryColor: _color,
       primaryColorDark: Global.colorLight(_color, -0.25),
       primaryColorLight: Global.colorLight(_color, 0.25),
       toggleableActiveColor: _color,
       dividerColor: isDarkMode ? Colors.white10 : Colors.black12,
-      bottomAppBarColor: isDarkMode ? Color(0xff424242) : Color(0xffb4bcc4),
+      bottomAppBarColor: isDarkMode ? Color(0xF01D1D1D) : Color(0xF0F9F9F9),
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
+      cupertinoOverrideTheme: CupertinoThemeData(
+        brightness: isDarkMode ? Brightness.dark : Brightness.light,
+        primaryColor: _color,
+        primaryContrastingColor: _color,
+        scaffoldBackgroundColor: isDarkMode
+            ? CupertinoColors.systemGroupedBackground
+            : Color(_scaffoldBackgroundColor ??
+                CupertinoColors.systemGroupedBackground.value),
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(
+            inherit: false,
+            fontFamily: _fontFamily,
+            fontSize: 17.0,
+            letterSpacing: -0.41,
+            color: fontColor,
+            decoration: TextDecoration.none,
+          ),
+          navTitleTextStyle: TextStyle(
+            inherit: false,
+            fontFamily: _fontFamily,
+            fontSize: 17.0,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.41,
+            color: CupertinoColors.label,
+          ),
+          tabLabelTextStyle: TextStyle(
+            inherit: false,
+            fontFamily: _fontFamily,
+            fontSize: 10.0,
+            fontWeight: FontWeight.w500,
+            letterSpacing: -0.24,
+            color: CupertinoColors.inactiveGray,
+          ),
+        ),
+        barBackgroundColor: isDarkMode
+            ? Color(0xF01D1D1D)
+            : Color(
+                _barBackgroundColor ??
+                    CupertinoDynamicColor.withBrightness(
+                      // color: Colors.white,
+                      color: Color(0xF0F9F9F9),
+                      darkColor: Color(0xF01D1D1D),
+                    ).value,
+              ),
+      ),
     );
-    final _txtStyle = TextStyle(fontFamily: _fontFamily);
+
+    if (fontColor != null) {
+      theme = theme.copyWith(
+        textTheme: theme.textTheme.apply(
+            bodyColor: isDarkMode ? Colors.white : fontColor,
+            displayColor: fontColor.withOpacity(fontColor.opacity * 0.75)),
+      );
+    }
+
     return theme.copyWith(
       tabBarTheme: TabBarTheme(
         labelStyle: _txtStyle,
         unselectedLabelStyle: _txtStyle,
+      ),
+      listTileTheme: ListTileThemeData(
+        textColor: isDarkMode
+            ? CupertinoColors.secondaryLabel.darkColor
+            : CupertinoColors.secondaryLabel.color,
+
+        // iconColor:
       ),
       appBarTheme: AppBarTheme(
         color: theme.canvasColor,
@@ -487,7 +691,10 @@ class Profile with ChangeNotifier {
 
   void fromJson(Map<String, dynamic> json, [bool notIgnoreVersion = true]) {
     final defaultProfile = Profile.newProfile();
+
     _desktopPlayer = cast(json['desktopPlayer'], defaultProfile.desktopPlayer);
+    _desktopPlayerParseUrl = cast(
+        json['desktopPlayerParseUrl'], defaultProfile.desktopPlayerParseUrl);
     if (notIgnoreVersion) {
       _version = cast(json['version'], defaultProfile.version);
     }
@@ -495,10 +702,12 @@ class Profile with ChangeNotifier {
         cast(json['webdavRuleCheckcode'], defaultProfile.webdavRuleCheckcode);
     _webdavRuleAccount =
         cast(json['webdavRuleAccount'], defaultProfile.webdavRuleAccount);
-    _enableWebdavRule = cast(json['enableWebdavRule'], defaultProfile.enableWebdavRule);
-    _autoRuleUploadLastDay =
-        cast(json['autoRuleUploadLastDay'], defaultProfile.autoRuleUploadLastDay);
-    _webdavPassword = cast(json['webdavPassword'], defaultProfile.webdavPassword);
+    _enableWebdavRule =
+        cast(json['enableWebdavRule'], defaultProfile.enableWebdavRule);
+    _autoRuleUploadLastDay = cast(
+        json['autoRuleUploadLastDay'], defaultProfile.autoRuleUploadLastDay);
+    _webdavPassword =
+        cast(json['webdavPassword'], defaultProfile.webdavPassword);
     _webdavAccount = cast(json['webdavAccount'], defaultProfile.webdavAccount);
     _autoBackupLastDay =
         cast(json['autoBackupLastDay'], defaultProfile.autoBackupLastDay);
@@ -506,26 +715,43 @@ class Profile with ChangeNotifier {
     _enableWebdav = cast(json['enableWebdav'], defaultProfile.enableWebdav);
     _webdavServer = cast(json['webdavServer'], defaultProfile.webdavServer);
     _fontFamily = cast(json['fontFamily'], defaultProfile.fontFamily);
-    _switchLongPress = cast(json['switchLongPress'], defaultProfile.switchLongPress);
+    _switchLongPress =
+        cast(json['switchLongPress'], defaultProfile.switchLongPress);
     _showHistoryOnAbout =
         cast(json['showHistoryOnAbout'], defaultProfile.showHistoryOnAbout);
-    _showHistoryOnFavorite =
-        cast(json['showHistoryOnFavorite'], defaultProfile.showHistoryOnFavorite);
+    _showHistoryOnFavorite = cast(
+        json['showHistoryOnFavorite'], defaultProfile.showHistoryOnFavorite);
     _switchFavoriteStyle =
         cast(json['switchFavoriteStyle'], defaultProfile.switchFavoriteStyle);
-    _showMangaStatus = cast(json['showMangaStatus'], defaultProfile.showMangaStatus);
+    _showMangaStatus =
+        cast(json['showMangaStatus'], defaultProfile.showMangaStatus);
     _showMangaInfo = cast(json['showMangaInfo'], defaultProfile.showMangaInfo);
     _searchPostion = cast(json['searchPostion'], defaultProfile.searchPostion);
     _bottomCount = cast(json['bottomCount'], defaultProfile.bottomCount);
     _darkMode = cast(json['darkMode'], defaultProfile.darkMode);
     _primaryColor = cast(json['primaryColor'], defaultProfile.primaryColor);
+    _scaffoldBackgroundColor = cast(json['scaffoldBackgroundColor'],
+        defaultProfile.scaffoldBackgroundColor);
+    _barBackgroundColor =
+        cast(json['barBackgroundColor'], defaultProfile.barBackgroundColor);
+    _primaryTextColor =
+        cast(json['primaryTextColor'], defaultProfile.primaryTextColor);
+
     _mangaKeepOn = cast(json["mangaKeepOn"], defaultProfile.mangaKeepOn);
-    _mangaLandscape = cast(json["mangaLandscape"], defaultProfile.mangaLandscape);
-    _mangaDirection = cast(json['mangaDirection'], defaultProfile.mangaDirection);
-    _novelSortIndex = cast(json["novelSortIndex"], defaultProfile.novelSortIndex);
-    _mangaSortIndex = cast(json["mangaSortIndex"], defaultProfile.mangaSortIndex);
-    _audioSortIndex = cast(json["audioSortIndex"], defaultProfile.audioSortIndex);
-    _videoSortIndex = cast(json["videoSortIndex"], defaultProfile.videoSortIndex);
+    _mangaLandscape =
+        cast(json["mangaLandscape"], defaultProfile.mangaLandscape);
+    _mangaQuality = cast(json["mangaQuality"], defaultProfile.mangaQuality);
+
+    _mangaDirection =
+        cast(json['mangaDirection'], defaultProfile.mangaDirection);
+    _novelSortIndex =
+        cast(json["novelSortIndex"], defaultProfile.novelSortIndex);
+    _mangaSortIndex =
+        cast(json["mangaSortIndex"], defaultProfile.mangaSortIndex);
+    _audioSortIndex =
+        cast(json["audioSortIndex"], defaultProfile.audioSortIndex);
+    _videoSortIndex =
+        cast(json["videoSortIndex"], defaultProfile.videoSortIndex);
     _searchCount = cast(json["searchCount"], defaultProfile.searchCount);
     _searchOption = cast(json["searchOption"], defaultProfile.searchOption);
     _novelEnableSearch =
@@ -536,10 +762,16 @@ class Profile with ChangeNotifier {
         cast(json['audioEnableSearch'], defaultProfile.audioEnableSearch);
     _videoEnableSearch =
         cast(json['videoEnableSearch'], defaultProfile.videoEnableSearch);
+
+    _ruleGroupFilter =
+        cast(json['ruleGroupFilter'], defaultProfile.ruleGroupFilter);
+    _favoriteGroup = cast(json['favoriteGroup'], defaultProfile.favoriteGroup);
+    _currentGroup = cast(json['currentGroup'], defaultProfile.currentGroup);
   }
 
   Map<String, dynamic> toJson() => {
         'desktopPlayer': _desktopPlayer,
+        'desktopPlayerParseUrl': _desktopPlayerParseUrl,
         'webdavRuleAccount': _webdavRuleAccount,
         'webdavRuleCheckcode': _webdavRuleCheckcode,
         'enableWebdavRule': _enableWebdavRule,
@@ -564,8 +796,12 @@ class Profile with ChangeNotifier {
         'autoRefresh': _autoRefresh,
         'darkMode': _darkMode,
         'primaryColor': _primaryColor,
+        'primaryTextColor': _primaryTextColor,
+        'barBackgroundColor': _barBackgroundColor,
+        'scaffoldBackgroundColor': _scaffoldBackgroundColor,
         'mangaKeepOn': _mangaKeepOn,
         'mangaLandscape': _mangaLandscape,
+        'mangaQuality': _mangaQuality,
         'mangaDirection': _mangaDirection,
         'novelSortIndex': _novelSortIndex,
         'mangaSortIndex': _mangaSortIndex,
@@ -577,6 +813,9 @@ class Profile with ChangeNotifier {
         'mangaEnableSearch': _mangaEnableSearch,
         'audioEnableSearch': _audioEnableSearch,
         'videoEnableSearch': _videoEnableSearch,
+        'ruleGroupFilter': _ruleGroupFilter,
+        'favoriteGroup': _favoriteGroup,
+        'currentGroup': _currentGroup,
       };
 }
 

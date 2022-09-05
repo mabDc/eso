@@ -1,10 +1,15 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
+import 'package:eso/global.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_chapter.dart';
+import 'package:eso/page/audio_view.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/page/photo_view_page.dart';
+import 'package:eso/ui/round_indicator.dart';
+import 'package:eso/ui/widgets/size_bar.dart';
 import 'package:text_composition/text_composition.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
@@ -35,6 +40,7 @@ class _ChapterPageState extends State<ChapterPage> {
   StateSetter state;
   final SearchItem searchItem;
   ScrollController _controller;
+  List<ChapterRoad> roads;
 
   @override
   void initState() {
@@ -48,7 +54,8 @@ class _ChapterPageState extends State<ChapterPage> {
     _controller = ScrollController();
 
     return ChangeNotifierProvider<ChapterPageProvider>(
-      create: (context) => ChapterPageProvider(searchItem: searchItem, size: size),
+      create: (context) =>
+          ChapterPageProvider(searchItem: searchItem, size: size),
       builder: (context, child) => Scaffold(
           body: Stack(
         children: [
@@ -84,7 +91,28 @@ class _ChapterPageState extends State<ChapterPage> {
                 height: topHeight,
               );
             },
-          )
+          ),
+          AudioView(context: context),
+          // StatefulBuilder(
+          //   builder: (context, state) {
+          //     double x = 0.0;
+          //     double y = 0.0;
+          //     return Positioned(
+          //         bottom: 20,
+          //         right: 10,
+          //         child: GestureDetector(
+          //           onPanStart: (details) {
+          //             // _tmpOffset = details.globalPosition;
+          //             // _tmpX = _offsetX;
+          //             // _tmpY = _offsetY;
+          //           },
+          //           onPanUpdate: (details) {
+          //             print("details:${details.delta}");
+          //           },
+          //           child: AudioView(context: context),
+          //         ));
+          //   },
+          // ),
         ],
       )),
     );
@@ -99,8 +127,6 @@ class _ChapterPageState extends State<ChapterPage> {
     return AppBar(
       elevation: 0.0,
       backgroundColor: Theme.of(context).primaryColor.withOpacity(opacity),
-      textTheme: _textTheme.copyWith(
-          headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       iconTheme: _iconTheme.copyWith(color: Colors.white70),
       actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
       title: Text(
@@ -108,12 +134,12 @@ class _ChapterPageState extends State<ChapterPage> {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      brightness: Brightness.dark,
       actions: <Widget>[
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(
           builder: (context, provider, child) => IconButton(
-            icon: SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)
+            icon: SearchItemManager.isFavorite(
+                    searchItem.originTag, searchItem.url)
                 ? Icon(Icons.favorite)
                 : Icon(Icons.favorite_border),
             iconSize: 21,
@@ -125,6 +151,15 @@ class _ChapterPageState extends State<ChapterPage> {
           onSelect: (value) => provider.onSelect(value, context),
         ),
       ],
+      systemOverlayStyle: SystemUiOverlayStyle.light,
+      toolbarTextStyle: _textTheme
+          .copyWith(
+              headline6: _textTheme.headline6.copyWith(color: Colors.white70))
+          .bodyText2,
+      titleTextStyle: _textTheme
+          .copyWith(
+              headline6: _textTheme.headline6.copyWith(color: Colors.white70))
+          .headline6,
     );
   }
 
@@ -141,6 +176,16 @@ class _ChapterPageState extends State<ChapterPage> {
     final _hero = Utils.empty(searchItem.cover)
         ? null
         : '${searchItem.name}.${searchItem.cover}.${searchItem.id}';
+    Widget Function(Widget child, String text) onLongPress =
+        (Widget _child, String _text) {
+      return InkWell(
+        onLongPress: () {
+          Clipboard.setData(ClipboardData(text: _text))
+              .then((__) => Utils.toast("已复制"));
+        },
+        child: _child,
+      );
+    };
 
     return SliverList(
       delegate: SliverChildListDelegate(
@@ -161,13 +206,14 @@ class _ChapterPageState extends State<ChapterPage> {
                         Expanded(
                           child: Container(
                             child: GestureDetector(
-                              child: UIImageItem(cover: searchItem.cover, hero: _hero),
+                              child: UIImageItem(
+                                  cover: searchItem.cover, hero: _hero),
                               onTap: () {
                                 Utils.startPageWait(
                                     context,
-                                    PhotoViewPage(
-                                        items: [PhotoItem.parse(searchItem.cover)],
-                                        heroTag: _hero));
+                                    PhotoViewPage(items: [
+                                      PhotoItem.parse(searchItem.cover)
+                                    ], heroTag: _hero));
                               },
                             ),
                             decoration: BoxDecoration(boxShadow: [
@@ -176,24 +222,33 @@ class _ChapterPageState extends State<ChapterPage> {
                           ),
                         ),
                         SizedBox(height: 12),
-                        Text(
-                          searchItem.name,
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: Profile.staticFontFamily,
-                            fontSize: 18,
-                            shadows: [Shadow(blurRadius: 2, color: Colors.grey)],
-                          ),
-                        ),
+                        onLongPress(
+                            Text(
+                              searchItem.name,
+                              style: TextStyle(
+                                color:
+                                    Theme.of(context).textTheme.bodyText1.color,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: Profile.staticFontFamily,
+                                fontSize: 18,
+                                shadows: [
+                                  Shadow(blurRadius: 2, color: Colors.grey)
+                                ],
+                              ),
+                            ),
+                            searchItem.name),
                         SizedBox(height: 4),
-                        Text(
-                          searchItem.author,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: Profile.staticFontFamily,
-                            color: Theme.of(context).textTheme.bodyText1.color,
+                        onLongPress(
+                          Text(
+                            searchItem.author,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: Profile.staticFontFamily,
+                              color:
+                                  Theme.of(context).textTheme.bodyText1.color,
+                            ),
                           ),
+                          searchItem.author,
                         ),
                       ],
                     ),
@@ -216,19 +271,23 @@ class _ChapterPageState extends State<ChapterPage> {
                           (tag) => Container(
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-                              child: Text(
+                              child: onLongPress(
+                                Text(
+                                  tag,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontFamily: Profile.staticFontFamily,
+                                      fontSize: 10,
+                                      color: Colors.white,
+                                      height: 1.0),
+                                ),
                                 tag,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontFamily: Profile.staticFontFamily,
-                                    fontSize: 10,
-                                    color: Colors.white,
-                                    height: 1.0),
                               ),
                             ),
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15.0)),
                             ),
                           ),
                         )
@@ -270,9 +329,12 @@ class _ChapterPageState extends State<ChapterPage> {
             .push(ContentPageRoute().route(searchItem))
             .whenComplete(provider.adjustScroll);
       };
-      if (searchItem.chapters == null || searchItem.chapters.isEmpty) {
+      if (searchItem.chapters == null ||
+          searchItem.chapters.isEmpty ||
+          roads == null) {
         return Container();
       }
+
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Column(
@@ -285,8 +347,9 @@ class _ChapterPageState extends State<ChapterPage> {
                       onTap(searchItem.chapters.length - 1);
                   },
                   child: Text(
-                    "更至（${searchItem.chapters.length}）${searchItem.chapters.isNotEmpty ? searchItem.chapters.last.name : "无"}",
-                    style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
+                    "更至（${roads.isEmpty ? searchItem.chapters.length : roads.first.length}）${searchItem.chapters.isNotEmpty ? searchItem.chapters[roads.isEmpty ? 0 : roads.first.length].name : "无"}",
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyText1.color),
                   )),
             ),
             Card(
@@ -296,7 +359,8 @@ class _ChapterPageState extends State<ChapterPage> {
                   },
                   child: Text(
                     "阅至（${searchItem.durChapterIndex}）${searchItem.durChapter}",
-                    style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color),
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyText1.color),
                   )),
             ),
             Divider(),
@@ -346,12 +410,14 @@ class _ChapterPageState extends State<ChapterPage> {
   List<ChapterRoad> parseChapers(List<ChapterItem> chapters) {
     currentRoad = 0;
     final roads = <ChapterRoad>[];
-    if (chapters.isEmpty || !chapters.first.name.startsWith('@线路')) return roads;
+    if (chapters.isEmpty || !chapters.first.name.startsWith('@线路'))
+      return roads;
     var roadName = chapters.first.name.substring(3);
     var startIndex = 1;
     for (var i = 1, len = chapters.length; i < len; i++) {
       if (chapters[i].name.startsWith('@线路')) {
-        if (searchItem.durChapterIndex >= startIndex && searchItem.durChapterIndex < i) {
+        if (searchItem.durChapterIndex >= startIndex &&
+            searchItem.durChapterIndex < i) {
           currentRoad = roads.length;
         }
         // 上一个线路
@@ -434,8 +500,80 @@ class _ChapterPageState extends State<ChapterPage> {
               .push(ContentPageRoute().route(searchItem))
               .whenComplete(provider.adjustScroll);
         };
+        roads = parseChapers(searchItem.chapters);
 
-        final roads = parseChapers(searchItem.chapters);
+        // if (searchItem.ruleContentType != API.VIDEO) {
+        //   bool darkMode = Utils.isDarkMode(context);
+        //   final nomalText = TextStyle(
+        //       color: darkMode
+        //           ? Theme.of(context).textTheme.bodyText1.color
+        //           : Colors.black);
+        //   final primaryText = TextStyle(
+        //     color: darkMode ? Theme.of(context).primaryColor : Colors.red,
+        //     fontWeight: FontWeight.w800,
+        //   );
+        //   Widget playRoad(item) => Padding(
+        //         padding: EdgeInsets.only(left: 10),
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           children: [
+        //             Text(
+        //               item.name,
+        //               style: TextStyle(
+        //                   //color: Colors.orange[900],
+        //                   fontWeight: FontWeight.bold),
+        //             ),
+        //             Wrap(
+        //               runAlignment: WrapAlignment.spaceAround,
+        //               spacing: 5.0,
+        //               children: [
+        //                 for (var i = 0; i < item.length; i++)
+        //                   OutlinedButton(
+        //                     style: ButtonStyle(
+        //                         backgroundColor: MaterialStateProperty.all(
+        //                             darkMode
+        //                                 ? Theme.of(context).bottomAppBarColor
+        //                                 : Color.fromARGB(26, 194, 194, 194))),
+        //                     onPressed: () => onTap(item.startIndex + i),
+        //                     child: Text(
+        //                         searchItem.chapters[item.startIndex + i].name,
+        //                         style: searchItem.durChapterIndex ==
+        //                                 item.startIndex + i
+        //                             ? primaryText
+        //                             : nomalText),
+        //                   )
+        //                 //item.length
+        //               ],
+        //             )
+        //           ],
+        //         ),
+        //       );
+        //   //TabBarView(children: children)
+        //   List<Widget> buildRoads = roads.isEmpty
+        //       ? [playRoad(ChapterRoad("默认线路", 0, searchItem.chapters.length))]
+        //       : roads.map((e) => playRoad(e)).toList();
+        //   Widget playList = SizedBox(
+        //     // width: double.infinity,
+        //     // height: double.infinity,
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: buildRoads,
+        //     ),
+        //   );
+        //   return StatefulBuilder(
+        //     builder: (BuildContext context, setState) => SliverPadding(
+        //       padding: EdgeInsets.symmetric(horizontal: 1),
+        //       sliver: SliverList(
+        //         delegate: SliverChildBuilderDelegate(
+        //           (context, index) {
+        //             return playList;
+        //           },
+        //           childCount: 1,
+        //         ),
+        //       ),
+        //     ),
+        //   );
+        // }
         if (roads.isEmpty) {
           return SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -469,13 +607,17 @@ class _ChapterPageState extends State<ChapterPage> {
                             },
                             child: Container(
                               child: Text(
-                                '${roads[i].name}(${roads[i].length})'.padRight(10),
+                                '${roads[i].name}(${roads[i].length})'
+                                    .padRight(10),
                                 maxLines: 2,
                                 overflow: TextOverflow.clip,
                                 style: TextStyle(
                                   color: i == currentRoad
                                       ? Theme.of(context).primaryColor
-                                      : Theme.of(context).textTheme.bodyText1.color,
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodyText1
+                                          .color,
                                 ),
                               ),
                             ),
@@ -511,7 +653,8 @@ class ArcBannerImage extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: height,
-            child: UIImageItem(cover: imageUrl, radius: null, fit: BoxFit.cover),
+            child:
+                UIImageItem(cover: imageUrl, radius: null, fit: BoxFit.cover),
           ),
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
@@ -537,13 +680,13 @@ class ArcClipper extends CustomClipper<Path> {
 
     var firstControlPoint = Offset(size.width / 4, size.height);
     var firstPoint = Offset(size.width / 2, size.height);
-    path.quadraticBezierTo(
-        firstControlPoint.dx, firstControlPoint.dy, firstPoint.dx, firstPoint.dy);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
+        firstPoint.dx, firstPoint.dy);
 
     var secondControlPoint = Offset(size.width - (size.width / 4), size.height);
     var secondPoint = Offset(size.width, size.height - widget.arcH);
-    path.quadraticBezierTo(
-        secondControlPoint.dx, secondControlPoint.dy, secondPoint.dx, secondPoint.dy);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
+        secondPoint.dx, secondPoint.dy);
 
     path.lineTo(size.width, 0.0);
     path.close();

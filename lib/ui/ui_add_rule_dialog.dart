@@ -5,6 +5,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/rule_comparess.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,9 +25,11 @@ class UIAddRuleDialog extends StatelessWidget {
     return AlertDialog(
       contentPadding: const EdgeInsets.all(8.0),
       content: ChangeNotifierProvider<AddRuleProvider>(
-          create: (context) => AddRuleProvider(refresh, () => Navigator.pop(context)),
+          create: (context) =>
+              AddRuleProvider(refresh, () => Navigator.pop(context)),
           builder: (context, child) {
-            final provider = Provider.of<AddRuleProvider>(context, listen: true);
+            final provider =
+                Provider.of<AddRuleProvider>(context, listen: true);
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -145,10 +148,14 @@ class AddRuleProvider extends ChangeNotifier {
       importType = ImportType.http;
     } else if (s.startsWith(esoStart)) {
       try {
+        print("s:${s}");
+
         final ds = RuleCompress.decompassString(s);
+        print("${ds}");
         ruleController.text = prettyJson(ds);
         importType = ImportType.eso;
       } catch (e) {
+        print("错误信息:${e}");
         Utils.toast("eso://内容格式不对");
       }
     } else if (s.startsWith(jsonStart)) {
@@ -182,7 +189,8 @@ class AddRuleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String prettyJson(String s) => JsonEncoder.withIndent("  ").convert(jsonDecode(s));
+  String prettyJson(String s) =>
+      JsonEncoder.withIndent("  ").convert(jsonDecode(s));
 
   void stringify() {
     final s = ruleController.text.trim();
@@ -232,22 +240,33 @@ class AddRuleProvider extends ChangeNotifier {
     //   fileContent = utf8.decode(rules.bytes);
     // }
     final d = await CacheUtil.getCacheBasePath(true);
-    String f = await FilesystemPicker.open(
-      title: '选择规则文件',
-      rootName: d,
-      context: context,
-      rootDirectory: Directory(d),
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-      allowedExtensions: ['.json', '.txt', '.bin', ''],
-      fileTileSelectMode: FileTileSelectMode.wholeTile,
-      requestPermission: CacheUtil.requestPermission,
-    );
-    if (f == null) {
-      Utils.toast('未选取文件');
+
+    // String f = await FilesystemPicker.open(
+    //   title: '选择规则文件',
+    //   rootName: d,
+    //   context: context,
+    //   rootDirectory: Directory(d),
+    //   fsType: FilesystemType.file,
+    //   folderIconColor: Colors.teal,
+    //   allowedExtensions: ['.json', '.txt', '.bin', ''],
+    //   fileTileSelectMode: FileTileSelectMode.wholeTile,
+    //   requestPermission: CacheUtil.requestPermission,
+    // );
+    // if (f == null) {
+    //   Utils.toast('未选取文件');
+    //   return;
+    // }
+
+    FilePickerResult result = await FilePicker.platform
+        .pickFiles(withData: false, dialogTitle: "选择txt或者epub导入亦搜");
+    if (result == null) {
+      Utils.toast("未选择文件");
       return;
     }
-    var fileContent = File(f).readAsStringSync().trim();
+    final platformFile = result.files.first;
+    print("platformFile.path:${platformFile.path}");
+
+    var fileContent = File(platformFile.path).readAsStringSync().trim();
     if (fileContent.startsWith(esoStart)) {
       fileContent = RuleCompress.decompassString(fileContent);
     }
@@ -264,9 +283,10 @@ class AddRuleProvider extends ChangeNotifier {
       } else {
         _currentFileIndex = 1;
         _importType = ImportType.file;
-        ruleController.text = JsonEncoder.withIndent("  ").convert(_fileContent.first);
+        ruleController.text =
+            JsonEncoder.withIndent("  ").convert(_fileContent.first);
       }
-      _fileName = Utils.getFileNameAndExt(f);
+      _fileName = platformFile.name;
       _totalFileIndex = _fileContent.length;
     } catch (e) {
       Utils.toast("文件格式不对");
@@ -280,8 +300,8 @@ class AddRuleProvider extends ChangeNotifier {
     if (_currentFileIndex < 1) {
       _currentFileIndex = _totalFileIndex;
     }
-    ruleController.text =
-        JsonEncoder.withIndent("  ").convert(_fileContent[_currentFileIndex - 1]);
+    ruleController.text = JsonEncoder.withIndent("  ")
+        .convert(_fileContent[_currentFileIndex - 1]);
     notifyListeners();
   }
 
@@ -291,8 +311,8 @@ class AddRuleProvider extends ChangeNotifier {
     if (_currentFileIndex >= _totalFileIndex) {
       _currentFileIndex = 1;
     }
-    ruleController.text =
-        JsonEncoder.withIndent("  ").convert(_fileContent[_currentFileIndex - 1]);
+    ruleController.text = JsonEncoder.withIndent("  ")
+        .convert(_fileContent[_currentFileIndex - 1]);
     notifyListeners();
   }
 

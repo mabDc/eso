@@ -36,6 +36,7 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
           url: call.arguments['url'],
           isForMainFrame: call.arguments['isForMainFrame'],
         );
+        
       case 'onPageFinished':
         _platformCallbacksHandler.onPageFinished(call.arguments['url']);
         return null;

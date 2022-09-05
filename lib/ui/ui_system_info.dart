@@ -44,6 +44,7 @@ class _UISystemInfoState extends State<UISystemInfo> {
       child: Consumer<SystemInfoProvider>(
           builder: (BuildContext context, SystemInfoProvider provider, _) {
         __provider = provider;
+        print("widget.mangeCurrent:${widget.mangeCurrent}");
         return SafeArea(
           child: Material(
             color: Colors.black.withOpacity(0.5),
@@ -75,11 +76,15 @@ class _UISystemInfoState extends State<UISystemInfo> {
                       ),
                     ),
                     // Text(' ${widget.mangeCurrent}/'),
-                    Text('${widget.mangaCount}'),
+
+                    Text('${widget.mangeCurrent}/${widget.mangaCount}'),
                     SizedBox(width: 8),
                     Text('${provider.now}'),
                     SizedBox(width: 6),
-                    BatteryView(electricQuantity: provider.level, height: 11, width: 20),
+                    BatteryView(
+                        electricQuantity: provider.level,
+                        height: 11,
+                        width: 20),
                   ],
                 ),
               ),

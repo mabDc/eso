@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:eso/api/api_from_rule.dart';
+import 'package:flutter/foundation.dart';
 import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import '../global.dart';
@@ -28,7 +31,8 @@ class APIManager {
     return <SearchItem>[];
   }
 
-  static Future<List<ChapterItem>> getChapter(String originTag, String url) async {
+  static Future<List<ChapterItem>> getChapter(
+      String originTag, String url) async {
     if (originTag != null) {
       final api = await chooseAPI(originTag);
       if (api != null) return api.chapter(url);
@@ -42,5 +46,14 @@ class APIManager {
       if (api != null) return api.content(url);
     }
     return <String>[];
+  }
+
+  static Future<dynamic> parseContent(
+      String originTag, Uint8List content) async {
+    if (originTag != null) {
+      final api = await chooseAPI(originTag);
+      if (api != null) return api.parseContent(content);
+    }
+    return '';
   }
 }

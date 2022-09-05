@@ -5,6 +5,7 @@ class DecodeBody {
   final charsetPattern = RegExp("charset", caseSensitive: false);
   final charsetValuePattern =
       RegExp(r"""charset\s*\=[\s"']*([^"';\s]+)""", caseSensitive: false);
+
   String decode(Uint8List bodyBytes, String contentType) {
     if (bodyBytes == null || bodyBytes.isEmpty) return '';
     if (contentType != null) {
@@ -58,12 +59,11 @@ class DecodeBody {
     } else {
       temp += utf8.decode(leftBytes, allowMalformed: true);
       if (temp.contains(charsetPattern)) {
-        charset = charsetValuePattern
-            .firstMatch(temp)
-            .group(1)
-            .toLowerCase();
+        charset = charsetValuePattern.firstMatch(temp).group(1).toLowerCase();
       }
-      if (charset == null || charset.contains("utf8") || charset.contains("utf-8")) {
+      if (charset == null ||
+          charset.contains("utf8") ||
+          charset.contains("utf-8")) {
         return temp;
       }
     }

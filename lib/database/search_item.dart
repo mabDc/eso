@@ -1,6 +1,7 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/model/chapter_page_provider.dart';
+import 'package:eso/profile.dart';
 import 'package:flutter/cupertino.dart';
 
 class SearchItem {
@@ -60,6 +61,9 @@ class SearchItem {
   /// 最后阅读时间
   int lastReadTime;
 
+  /// 收藏分组
+  String group;
+
   SearchItem({
     this.searchUrl,
     this.chapterUrl,
@@ -73,8 +77,14 @@ class SearchItem {
     this.chaptersCount,
     this.reverseChapter,
     this.chapters,
+    @required this.group,
     @required this.tags,
   }) {
+    assert(group == null, 'group == null');
+
+    if (group == null) {
+      group = Profile().currentGroup;
+    }
     if (chaptersCount == null) {
       chaptersCount = 0;
     }
@@ -138,6 +148,7 @@ class SearchItem {
         "createTime": createTime,
         "updateTime": updateTime,
         "lastReadTime": lastReadTime,
+        "group": group,
       };
 
   SearchItem.fromAdapter(
@@ -164,6 +175,7 @@ class SearchItem {
     this.createTime,
     this.updateTime,
     this.lastReadTime,
+    this.group,
     this.chapters,
   );
 
@@ -189,7 +201,9 @@ class SearchItem {
     //增加时间
     createTime = json['createTime'] ?? DateTime.now().microsecondsSinceEpoch;
     updateTime = json['updateTime'] ?? DateTime.now().microsecondsSinceEpoch;
-    lastReadTime = json['lastReadTime'] ?? DateTime.now().microsecondsSinceEpoch;
+    lastReadTime =
+        json['lastReadTime'] ?? DateTime.now().microsecondsSinceEpoch;
+    group = json['group'];
 
     tags = json["tags"]?.split(", ") ?? <String>[];
     chapters = <ChapterItem>[];
@@ -211,6 +225,7 @@ class SearchItem {
     durChapter = "";
     durChapterIndex = 0;
     durContentIndex = 1;
+    group = '';
   }
 
   localAddInfo(SearchItem searchItem) {
@@ -218,5 +233,6 @@ class SearchItem {
     if (searchItem.cover.isNotEmpty) cover = searchItem.cover;
     if (searchItem.tags.isNotEmpty) tags = searchItem.tags;
     if (searchItem.description.isNotEmpty) description = searchItem.description;
+    if (searchItem.group.isNotEmpty) description = searchItem.group;
   }
 }

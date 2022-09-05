@@ -20,18 +20,20 @@ class DebugRulePage extends StatelessWidget {
       builder: (context, child) => Scaffold(
         appBar: AppBar(
           title: SearchTextField(
-            controller:
-                Provider.of<DebugRuleProvider>(context, listen: false).searchController,
+            controller: Provider.of<DebugRuleProvider>(context, listen: false)
+                .searchController,
             hintText: '请输入关键词开始搜索',
-            autofocus: true,
-            onSubmitted: Provider.of<DebugRuleProvider>(context, listen: false).search,
+            // autofocus: true,
+            onSubmitted:
+                Provider.of<DebugRuleProvider>(context, listen: false).search,
           ),
           actions: [
             IconButton(
               icon: Icon(FIcons
                   .compass), // Text("发现测试",style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color)),
               tooltip: "发现测试",
-              onPressed: Provider.of<DebugRuleProvider>(context, listen: false).discover,
+              onPressed: Provider.of<DebugRuleProvider>(context, listen: false)
+                  .discover,
             ),
           ],
         ),
@@ -41,7 +43,8 @@ class DebugRulePage extends StatelessWidget {
               return Center(
                 child: Icon(FIcons.cpu,
                     size: 128,
-                    color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                    color:
+                        Theme.of(context).primaryColorDark.withOpacity(0.08)),
               );
             }
             return KeyboardDismissBehaviorView(

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' hide MenuItem;
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 import '../fonticons_icons.dart';
@@ -8,6 +9,8 @@ enum MenuDiscoverSource {
   edit,
   delete,
   top,
+  down,
+  fuben,
   copy,
   share,
 }
@@ -23,6 +26,12 @@ List<MenuItem<MenuDiscoverSource>> discoverSourceMenus = [
     text: '置顶',
     icon: OMIcons.arrowUpward,
     value: MenuDiscoverSource.top,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuDiscoverSource>(
+    text: '副本',
+    icon: Icons.copy_outlined,
+    value: MenuDiscoverSource.fuben,
     color: Global.primaryColor,
   ),
   MenuItem<MenuDiscoverSource>(

@@ -2,12 +2,46 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class Utils {
   static const join = path.join;
+
+  static bool get isDesktop =>
+      Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+
+  static void setHorizontal() {
+    try {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
+      ]);
+    } catch (_) {}
+  }
+
+  static void setVertical() {
+    try {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } catch (_) {}
+  }
+
+  static void resetRotation() {
+    try {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } catch (_) {}
+  }
+
   static String getUrl(String host, String url) {
     if (url == null) return host;
     if (url.startsWith("http")) return url;
@@ -21,6 +55,10 @@ class Utils {
     return "$host/$url";
   }
 
+  static bool isDarkMode(BuildContext context) {
+    return Theme.of(context).colorScheme.brightness == Brightness.dark;
+  }
+
   /// 时间字符串显示
   static String formatDuration(Duration d) {
     if (d == null) return "--:--";
@@ -32,9 +70,30 @@ class Utils {
     }
   }
 
+  /// 时间字符串显示
+  static String formatTimestamp(int d) {
+    if (d == null) return "--:--";
+    if (d < 0) d = -d;
+    final h = d ~/ 3600000;
+    d = d % 3600000;
+    final m = d ~/ 60000;
+    final s = (d % 60000) ~/ 1000;
+    if (h > 0) {
+      return "${_twoNum(h)}:${_twoNum(m)}:${_twoNum(s)}";
+    }
+    return "${_twoNum(m)}:${_twoNum(s)}";
+  }
+
+  static String _twoNum(int v) {
+    return v >= 10 ? "$v" : "0$v";
+  }
+
   static bool empty(String value) {
     return value == null || value.isEmpty;
   }
+
+  /// 当前时间戳（毫秒）
+  static int get currentTimestamp => DateTime.now().millisecondsSinceEpoch;
 
   /// 延时指定毫秒
   static sleep(int milliseconds) async {
@@ -48,13 +107,16 @@ class Utils {
       bool dismissOtherToast}) {
     if (msg == null) return;
     showToast('$msg',
-        position: position, duration: duration, dismissOtherToast: dismissOtherToast);
+        position: position,
+        duration: duration,
+        dismissOtherToast: dismissOtherToast);
   }
 
   /// 清除输入焦点
   static unFocus(BuildContext context) {
     var f = FocusScope.of(context);
-    if (f != null && f.hasFocus) f.unfocus(disposition: UnfocusDisposition.scope);
+    if (f != null && f.hasFocus)
+      f.unfocus(disposition: UnfocusDisposition.scope);
   }
 
   /// 开始一个页面，并等待结束
@@ -75,7 +137,7 @@ class Utils {
     return path.basenameWithoutExtension(file);
   }
 
-  static String dirname(final String file){
+  static String dirname(final String file) {
     return path.dirname(file);
   }
 
@@ -120,7 +182,9 @@ class _StrBuilder {
     bool _b = value == null || value.isEmpty;
     this.value = _a || _b
         ? (_a ? value : this.value)
-        : (this.value + (divider == null ? (this.divider ?? ' ') : divider) + value);
+        : (this.value +
+            (divider == null ? (this.divider ?? ' ') : divider) +
+            value);
     return this;
   }
 

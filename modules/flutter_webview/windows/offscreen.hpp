@@ -1,5 +1,5 @@
 /*
- * @Description: 
+ * @Description:
  * @Author: ekibun
  * @Date: 2020-08-23 17:38:03
  * @LastEditors: ekibun
@@ -24,7 +24,7 @@ namespace webview
   std::wstring to_lpwstr(const std::string s)
   {
     int n = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
-    wchar_t* ws = new wchar_t[n];
+    wchar_t *ws = new wchar_t[n];
     MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, ws, n);
     auto wstr = std::wstring(ws, n);
     delete ws;
@@ -48,10 +48,16 @@ namespace webview
       : public ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler,
         public ICoreWebView2CreateCoreWebView2ControllerCompletedHandler,
         public ICoreWebView2NavigationCompletedEventHandler,
-        public ICoreWebView2WebResourceRequestedEventHandler
+        public ICoreWebView2WebResourceRequestedEventHandler,
+        public ICoreWebView2WebMessageReceivedEventHandler,
+        public ICoreWebView2FrameCreatedEventHandler,
+        public ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler,
+        public ICoreWebView2FrameWebMessageReceivedEventHandler
   {
     ICoreWebView2Controller *webviewController = nullptr;
     ICoreWebView2 *webviewWindow = nullptr;
+    ICoreWebView2CookieManager *webviewcookie = nullptr;
+
     HWND hwnd;
     std::shared_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel;
     flutter::MethodResult<flutter::EncodableValue> *result;
@@ -75,7 +81,7 @@ namespace webview
         : hwnd(hwnd), channel(channel), result(result)
     {
       auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
-      options->put_AdditionalBrowserArguments(L"--mute-audio"); // --headless
+      // options->put_AdditionalBrowserArguments(L"--mute-audio"); // --headless
       if (FAILED(CreateCoreWebView2EnvironmentWithOptions(nullptr, nullptr, options.Get(), this)))
       {
         result->Error(TAG, "Failed at CreateCoreWebView2Environment");
@@ -107,6 +113,19 @@ namespace webview
       webviewWindow->AddRef();
       webviewWindow->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
       webviewWindow->add_WebResourceRequested(this, &token);
+      webviewWindow->add_WebMessageReceived(this, &token);
+      reinterpret_cast<ICoreWebView2_9 *>(webviewWindow)->add_FrameCreated(this, &token);
+      webviewWindow->AddScriptToExecuteOnDocumentCreated(
+          LR"+*(
+        let oldopen=self.XMLHttpRequest.prototype.open;
+        self.XMLHttpRequest.prototype.open=function (method, url, async){
+            chrome.webview.postMessage(url);
+            console.log("hook:"+url);
+            return oldopen.apply(this,arguments);
+        }
+      )+*",
+          this);
+
       webviewWindow->add_NavigationCompleted(this, &token);
       result->Success((int64_t)this);
       delete result;
@@ -114,32 +133,64 @@ namespace webview
 
       return S_OK;
     }
-    HRESULT STDMETHODCALLTYPE Invoke(
-        ICoreWebView2 *sender,
-        ICoreWebView2NavigationCompletedEventArgs *args)
+    // AddScriptToExecuteOnDocumentCreated
+    HRESULT STDMETHODCALLTYPE Invoke(HRESULT error, PCWSTR id)
     {
-      BOOL success = FALSE;
-      args->get_IsSuccess(&success);
-      if (!success)
-      {
-        COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus;
-        args->get_WebErrorStatus(&webErrorStatus);
-        invokeChannelMethod("onNavigationCompleted", (int64_t)webErrorStatus);
-      }
-      else
-      {
-        invokeChannelMethod("onNavigationCompleted", flutter::EncodableValue());
-      }
+      OutputDebugStringA("AddScriptToExecuteOnDocumentCreated ");
       return S_OK;
     }
 
+    // add_FrameCreated
+    HRESULT STDMETHODCALLTYPE Invoke(
+        ICoreWebView2 *sender,
+        ICoreWebView2FrameCreatedEventArgs *args)
+    {
+      OutputDebugStringA("add_FrameCreated");
+      EventRegistrationToken token;
+      ICoreWebView2Frame *webviewFrame;
+      args->get_Frame(&webviewFrame);
+      reinterpret_cast<ICoreWebView2Frame2 *>(webviewFrame)->add_WebMessageReceived(this, &token);
+      return S_OK;
+    }
+    // add_WebMessageReceived by Frame
+    HRESULT STDMETHODCALLTYPE Invoke(
+        ICoreWebView2Frame *sender,
+        ICoreWebView2WebMessageReceivedEventArgs *args)
+    {
+      LPWSTR wmessage;
+      if (args->TryGetWebMessageAsString(&wmessage) == S_OK)
+      {
+        std::string message = from_lpwstr(wmessage);
+        std::map<flutter::EncodableValue, flutter::EncodableValue> frequest;
+        frequest[std::string("url")] = message.c_str();
+        invokeChannelMethod("onRequest", frequest);
+        OutputDebugStringA(message.c_str());
+      }
+      return S_OK;
+    }
+    // add_WebMessageReceived
+    HRESULT STDMETHODCALLTYPE Invoke(
+        ICoreWebView2 *sender,
+        ICoreWebView2WebMessageReceivedEventArgs *args)
+    {
+      LPWSTR wmessage;
+      if (args->TryGetWebMessageAsString(&wmessage) == S_OK)
+      {
+        std::string message = from_lpwstr(wmessage);
+        std::map<flutter::EncodableValue, flutter::EncodableValue> frequest;
+        frequest[std::string("url")] = message.c_str();
+        invokeChannelMethod("onRequest", frequest);
+        OutputDebugStringA(message.c_str());
+      }
+      return S_OK;
+    }
+   // add_WebResourceRequested
     HRESULT STDMETHODCALLTYPE
     Invoke(ICoreWebView2 *sender,
            ICoreWebView2WebResourceRequestedEventArgs *args)
     {
       ICoreWebView2WebResourceRequest *request;
       args->get_Request(&request);
-
       std::map<flutter::EncodableValue, flutter::EncodableValue> frequest;
       LPWSTR str;
       request->get_Uri(&str);
@@ -171,10 +222,27 @@ namespace webview
         }
       }
       frequest[std::string("headers")] = fheaders;
-
       invokeChannelMethod("onRequest", frequest);
-
       return E_INVALIDARG;
+    }
+
+    HRESULT STDMETHODCALLTYPE Invoke(
+        ICoreWebView2 *sender,
+        ICoreWebView2NavigationCompletedEventArgs *args)
+    {
+      BOOL success = FALSE;
+      args->get_IsSuccess(&success);
+      if (!success)
+      {
+        COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus;
+        args->get_WebErrorStatus(&webErrorStatus);
+        invokeChannelMethod("onNavigationCompleted", (int64_t)webErrorStatus);
+      }
+      else
+      {
+        invokeChannelMethod("onNavigationCompleted", flutter::EncodableValue());
+      }
+      return S_OK;
     }
 
     bool navigate(std::string url)
@@ -193,7 +261,8 @@ namespace webview
         return SUCCEEDED(webviewWindow->ExecuteScript(
             to_lpwstr(script).c_str(),
             Microsoft::WRL::Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-                [jsResult](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
+                [jsResult](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT
+                {
                   if (resultObjectAsJson)
                     jsResult->Success(from_lpwstr((wchar_t *)resultObjectAsJson));
                   else
@@ -212,7 +281,8 @@ namespace webview
         return SUCCEEDED(webviewWindow->CallDevToolsProtocolMethod(
             to_lpwstr(methodName).c_str(), to_lpwstr(parametersAsJson).c_str(),
             Microsoft::WRL::Callback<ICoreWebView2CallDevToolsProtocolMethodCompletedHandler>(
-                [callResult](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
+                [callResult](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT
+                {
                   if (resultObjectAsJson)
                     callResult->Success(from_lpwstr((wchar_t *)resultObjectAsJson));
                   else

@@ -1,7 +1,13 @@
+import 'dart:io';
+
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
+import 'package:eso/global.dart';
+import 'package:eso/model/history_manager.dart';
+import 'package:eso/page/source/login_rule_page.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
 class DiscoverPageController with ChangeNotifier {
@@ -16,6 +22,7 @@ class DiscoverPageController with ChangeNotifier {
   Map<String, DiscoverPair> _discoverParams;
   Map<String, DiscoverPair> get discoverParams => _discoverParams;
 
+  bool get showSearchResult => _showSearchResult;
   String get title => _title;
   String _title;
 
@@ -24,6 +31,11 @@ class DiscoverPageController with ChangeNotifier {
 
   bool get showFilter => _showFilter;
   bool _showFilter;
+
+  HistoryManager _historyManager;
+
+  List<String> _history;
+  List<String> get history => _history;
 
   TextEditingController get queryController => _queryController;
   TextEditingController _queryController;
@@ -48,6 +60,8 @@ class DiscoverPageController with ChangeNotifier {
     _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
+    _historyManager = HistoryManager();
+    _history = List.from(_historyManager.searchHistory);
     APIFromRUle.clearNextUrl();
     initItems();
     fetchData(_items.first);
@@ -62,7 +76,8 @@ class DiscoverPageController with ChangeNotifier {
       item.controller = ScrollController();
       item.controller.addListener(() {
         if (item.more &&
-            item.controller.position.pixels == item.controller.position.maxScrollExtent) {
+            item.controller.position.pixels ==
+                item.controller.position.maxScrollExtent) {
           loadMore(item);
         }
       });
@@ -116,7 +131,8 @@ class DiscoverPageController with ChangeNotifier {
     List<SearchItem> newItems;
     try {
       if (_showSearchResult) {
-        newItems = await APIManager.search(originTag, _queryController.text, item.page);
+        newItems = await APIManager.search(
+            originTag, _queryController.text, item.page);
       } else {
         newItems = await APIManager.discover(
             originTag, {discoverMap.first.name: item.pair}, item.page);
@@ -142,12 +158,17 @@ class DiscoverPageController with ChangeNotifier {
   //   _page = 1;
   //   return fetchData();
   // }
+  void clearHistory() {
+    _historyManager.clearHistory();
+    _history = List.from(_historyManager.searchHistory);
+    notifyListeners();
+  }
 
   search([int page = 1, bool goto = false]) async {
     _showSearchResult = true;
     var item = searchItem;
     item.page = page;
-    return await fetchData(item, goto: goto);
+    return await fetchData(item, goto: goto, needShowLoading: true);
   }
 
   void _discover(ListDataItem item) {
@@ -160,6 +181,26 @@ class DiscoverPageController with ChangeNotifier {
   void loadMore(ListDataItem item) {
     item.page++;
     fetchData(item);
+  }
+
+  void login(BuildContext context) async {
+    final rule = await Global.ruleDao.findRuleById(originTag);
+
+    if (rule.loginUrl.isEmpty && !rule.loginUrl.startsWith("http")) {
+      Utils.toast("未配置登陆url");
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Platform.isWindows
+            ? LoginRulePageWithWindows(rule: rule)
+            : LoginRulePage(rule: rule),
+      ),
+    ).whenComplete(() async {
+      print("rule");
+      await Global.ruleDao.insertOrUpdateRule(rule);
+    });
   }
 
   void toggleSearching() {

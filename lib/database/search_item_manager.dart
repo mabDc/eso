@@ -1,20 +1,22 @@
 import 'dart:convert';
 
 import 'package:eso/api/api_manager.dart';
+import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'chapter_item.dart';
 import 'search_item.dart';
 import '../global.dart';
 
 class SearchItemManager {
-  static List<SearchItem> _searchItem;
-  static List<SearchItem> get searchItem => _searchItem;
+  static Set<SearchItem> _searchItem;
+  static Set<SearchItem> get searchItem => _searchItem;
   static String get key => Global.searchItemKey;
 
   static String genChapterKey(int id) => "chapter$id";
 
   /// 根据类型和排序规则取出收藏
-  static List<SearchItem> getSearchItemByType(int contentType, SortType sortType) {
+  static List<SearchItem> getSearchItemByType(
+      int contentType, SortType sortType) {
     final searchItem = <SearchItem>[];
     _searchItem.forEach((element) {
       if (element.ruleContentType == contentType) searchItem.add(element);
@@ -35,7 +37,10 @@ class SearchItemManager {
   }
 
   static bool isFavorite(String originTag, String url) {
-    return _searchItem.any((item) => item.originTag == originTag && item.url == url);
+    return _searchItem.any((item) =>
+        item.originTag == originTag &&
+        item.url == url &&
+        item.group.split(',').contains(Profile().currentGroup));
   }
 
   static Future<bool> toggleFavorite(SearchItem searchItem) {
@@ -46,6 +51,8 @@ class SearchItemManager {
       searchItem.createTime = DateTime.now().microsecondsSinceEpoch;
       searchItem.updateTime = DateTime.now().microsecondsSinceEpoch;
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
+      searchItem.group = Profile().currentGroup;
+
       return addSearchItem(searchItem);
     }
   }
@@ -65,10 +72,9 @@ class SearchItemManager {
   }
 
   static void initSearchItem() {
-    _searchItem = <SearchItem>[];
-    Global.prefs
-        .getStringList(key)
-        ?.forEach((item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
+    _searchItem = Set<SearchItem>();
+    Global.prefs.getStringList(key)?.forEach(
+        (item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
   }
 
   static Future<bool> removeSearchItem(int id) async {
@@ -87,16 +93,17 @@ class SearchItemManager {
   }
 
   static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return await Global.prefs.setStringList(
-        genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
+    return await Global.prefs.setStringList(genChapterKey(id),
+        chapters.map((item) => jsonEncode(item.toJson())).toList());
   }
 
   static String backupItems() {
     if (_searchItem == null || _searchItem.isEmpty) initSearchItem();
     return json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
-      json["chapters"] =
-          getChapter(item.id).map((chapter) => jsonEncode(chapter.toJson())).toList();
+      json["chapters"] = getChapter(item.id)
+          .map((chapter) => jsonEncode(chapter.toJson()))
+          .toList();
       return json;
     }).toList());
   }
@@ -120,16 +127,19 @@ class SearchItemManager {
   static Future<void> refreshAll() async {
     // 先用单并发，加延时5s判定
     for (var item in _searchItem) {
-      var current = item.name;
-      await Future.any([
-        refreshItem(item),
-        (SearchItem temp) async {
-          await Future.delayed(Duration(seconds: 5), () {
-            if (current == temp.name) Utils.toast("${temp.name} 章节更新超时");
-          });
-        }(item),
-      ]);
-      current = null;
+      if (item.group.split(',').contains(Profile().currentGroup)) {
+        print("刷新章节:${item.name},group:${item.group}");
+        var current = item.name;
+        await Future.any([
+          refreshItem(item),
+          (SearchItem temp) async {
+            await Future.delayed(Duration(seconds: 5), () {
+              if (current == temp.name) Utils.toast("${temp.name} 章节更新超时");
+            });
+          }(item),
+        ]);
+        current = null;
+      }
     }
     return;
   }

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fast_gbk/fast_gbk.dart';
-import 'package:http/http.dart';
 
 import '../utils/decode_body.dart';
 import 'const.dart';
@@ -38,7 +38,8 @@ class Request extends StatelessWidget {
             enabled: false,
           ),
           TextField(
-            decoration: const InputDecoration(labelText: "请求体（body or payload）"),
+            decoration:
+                const InputDecoration(labelText: "请求体（body or payload）"),
             controller: data.body,
           ),
           TextField(
@@ -46,7 +47,8 @@ class Request extends StatelessWidget {
             controller: data.cookies,
           ),
           TextField(
-            decoration: const InputDecoration(labelText: "编码（charset or encode）"),
+            decoration:
+                const InputDecoration(labelText: "编码（charset or encode）"),
             controller: data.encode,
           ),
           Wrap(
@@ -78,13 +80,14 @@ class Request extends StatelessWidget {
 
                     final encoding = data.encode.text.contains("gb")
                         ? gbk
-                        : Encoding.getByName(data.encode.text) ?? const Utf8Codec();
+                        : Encoding.getByName(data.encode.text) ??
+                            const Utf8Codec();
                     u = u.replaceAllMapped(
                         RegExp(r"[^\x00-\x7F]+"),
                         (match) => encoding
                             .encode(match.group(0))
-                            .map((code) =>
-                                _urlEncode(code.toRadixString(16).toUpperCase()))
+                            .map((code) => _urlEncode(
+                                code.toRadixString(16).toUpperCase()))
                             .join());
                   }
                   Response res;
@@ -92,7 +95,8 @@ class Request extends StatelessWidget {
                     res = await http.get(u, headers: headers);
                   }
                   if (method == "put") {
-                    res = await http.put(u, headers: headers, body: data.body.text);
+                    res = await http.put(u,
+                        headers: headers, body: data.body.text);
                   }
                   if (method == 'post') {
                     res = await http.post(
@@ -102,8 +106,8 @@ class Request extends StatelessWidget {
                     );
                   }
                   res ??= await http.get(u, headers: headers);
-                  data.html.text =
-                      DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+                  data.html.text = DecodeBody()
+                      .decode(res.data, res.headers["content-type"].first);
                 },
                 child: const Text("请求"),
               ),

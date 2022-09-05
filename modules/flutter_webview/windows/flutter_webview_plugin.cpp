@@ -1,5 +1,5 @@
 /*
- * @Description: 
+ * @Description:
  * @Author: ekibun
  * @Date: 2020-08-20 23:25:54
  * @LastEditors: ekibun
@@ -42,7 +42,7 @@ namespace
     auto map = new flutter::EncodableMap();
     (*map)[std::string("webview")] = webview;
     (*map)[std::string("args")] = args;
-    
+
     channel->InvokeMethod(
         name,
         std::make_unique<flutter::EncodableValue>(map),
@@ -75,7 +75,8 @@ namespace
     auto plugin = std::make_unique<FlutterWebviewPlugin>();
 
     channel->SetMethodCallHandler(
-        [plugin_pointer = plugin.get()](const auto &call, auto result) {
+        [plugin_pointer = plugin.get()](const auto &call, auto result)
+        {
           plugin_pointer->HandleMethodCall(call, std::move(result));
         });
 
@@ -113,7 +114,8 @@ namespace
       flutter::EncodableMap args = *std::get_if<flutter::EncodableMap>(method_call.arguments());
       webview::Offscreen *wv = (webview::Offscreen *)std::get<int64_t>(ValueOrNull(args, "webview"));
       std::string script = std::get<std::string>(ValueOrNull(args, "script"));
-      if(!(wv && wv->evaluate(script, result.release()))){
+      if (!(wv && wv->evaluate(script, result.release())))
+      {
         result->Error(webview::TAG, "Error at evaluate");
       }
     }
@@ -122,7 +124,8 @@ namespace
       flutter::EncodableMap args = *std::get_if<flutter::EncodableMap>(method_call.arguments());
       webview::Offscreen *wv = (webview::Offscreen *)std::get<int64_t>(ValueOrNull(args, "webview"));
       std::string ua = std::get<std::string>(ValueOrNull(args, "ua"));
-      if(!(wv && wv->callDevToolsProtocolMethod("Network.setUserAgentOverride", "{\"userAgent\":\"" + ua + "\"}", result.release()))){
+      if (!(wv && wv->callDevToolsProtocolMethod("Network.setUserAgentOverride", "{\"userAgent\":\"" + ua + "\"}", result.release())))
+      {
         result->Error(webview::TAG, "Error at evaluate");
       }
     }

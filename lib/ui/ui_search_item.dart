@@ -60,7 +60,7 @@ class _UiSearchItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _txtStyle = TextStyle(
-        color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
+        color: Theme.of(context).textTheme.bodyLarge.color.withOpacity(0.7),
         fontFamily: Profile.staticFontFamily,
         fontSize: 13);
     return Container(
@@ -69,7 +69,9 @@ class _UiSearchItem extends StatelessWidget {
       child: DefaultTextStyle(
         style: TextStyle(
             fontFamily: Profile.staticFontFamily,
-            fontSize: 13, color: Theme.of(context).hintColor, height: 1.5),
+            fontSize: 13,
+            color: Theme.of(context).hintColor,
+            height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -79,7 +81,9 @@ class _UiSearchItem extends StatelessWidget {
             SizedBox(
               width: 80,
               height: 104,
-              child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
+              child: UIImageItem(
+                  cover: cover,
+                  hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
             ),
             SizedBox(width: 12),
             Expanded(
@@ -156,20 +160,23 @@ class _UiSearchItem extends StatelessWidget {
     final _author = author?.trim();
     final _origin = origin?.trim();
     final _authorView = Utils.empty(_author)
-        ? null : IconText(
+        ? null
+        : IconText(
             '$_author',
             icon: Icon(FIcons.user),
             maxLines: 1,
             padding: _padding,
             style: style,
           );
-    final _originView = Utils.empty(_origin) ? null : IconText(
-      '$_origin',
-      icon: Icon(FIcons.compass),
-      maxLines: 1,
-      padding: _padding,
-      style: style,
-    );
+    final _originView = Utils.empty(_origin)
+        ? null
+        : IconText(
+            '$_origin',
+            icon: Icon(FIcons.compass),
+            maxLines: 1,
+            padding: _padding,
+            style: style,
+          );
 
     if (_authorView == null && _originView == null) return SizedBox();
     if (_authorView == null || _originView == null)

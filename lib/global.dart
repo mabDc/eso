@@ -11,6 +11,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/src/factory_mixin.dart' as impl;
 import 'package:text_composition/text_composition.dart';
+import 'package:win32/win32.dart';
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
 import 'database/rule_dao.dart';
@@ -19,10 +20,12 @@ import 'utils/cache_util.dart';
 
 class Global with ChangeNotifier {
   static String appName = '亦搜';
-  static String appVersion = '1.20.4';
-  static String appBuildNumber = '12004';
-  static String appPackageName = "com.mabdc.eso";
+  static String appVersion = '1.22.15';
+  static String appBuildNumber = '12215';
+  static String appPackageName = "com.zyd.eso";
   static bool needShowAbout = true;
+  static String userAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Edg/100.0.1185.29';
 
   static const waitingPath = "lib/assets/waiting.png";
   static const logoPath = "lib/assets/eso_logo.png";
@@ -31,6 +34,8 @@ class Global with ChangeNotifier {
   static const cheerioFile = "lib/assets/cheerio.min.js";
   static const md5File = "lib/assets/md5.min.js";
   static const cryptoJSFile = "lib/assets/CryptoJS.min.js";
+  static const JSEncryptFile = "lib/assets/JSencrypt.min.js";
+
   static const profileKey = "profile";
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
@@ -45,6 +50,7 @@ class Global with ChangeNotifier {
 
   static RuleDao _ruleDao;
   static RuleDao get ruleDao => _ruleDao;
+  static String httpCache;
 
   static Future<void> initFont() async {
     final profile = Profile();
@@ -61,7 +67,9 @@ class Global with ChangeNotifier {
       }
     } catch (e) {}
     try {
-      final fontFamily = TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey))).fontFamily;
+      final fontFamily = TextCompositionConfig.fromJSON(
+              jsonDecode(_prefs.getString(TextConfigKey)))
+          .fontFamily;
       if (fontFamily != null && fontFamily.contains('.')) {
         await loadFontFromList(
           await File(dir + fontFamily).readAsBytes(),
@@ -75,17 +83,31 @@ class Global with ChangeNotifier {
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     if (isDesktop) {
       sqflite.databaseFactory = databaseFactoryFfi;
-      final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
-      factory.setDatabasesPath(
+      final factory =
+          sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
+
+      factory.setDatabasesPathOrNull(
           await CacheUtil(backup: true, basePath: "database").cacheDir());
     }
+    httpCache = await CacheUtil(backup: true, basePath: "httpCache").cacheDir();
+
+    print("httpCache:${httpCache}");
+
     _prefs = await SharedPreferences.getInstance();
     SearchItemManager.initSearchItem();
     HistoryItemManager.initHistoryItem();
-    final _migrations = [migration4to5, migration5to6, migration6to7, migration7to8];
+    final _migrations = [
+      migration4to5,
+      migration5to6,
+      migration6to7,
+      migration7to8,
+      migration8to9,
+      migration9to10,
+      migration10to11,
+    ];
 
     final _database = await $FloorAppDatabase
-        .databaseBuilder('eso_database.db')
+        .databaseBuilder('eso_yd_database.db')
         .addMigrations(_migrations)
         .build();
     _ruleDao = _database.ruleDao;
@@ -268,8 +290,8 @@ class Global with ChangeNotifier {
       return Color.fromARGB(value.alpha, min(255, value.red + v),
           min(255, value.green + v), min(255, value.blue + v));
     } else {
-      return Color.fromARGB(value.alpha, max(0, value.red + v), max(0, value.green + v),
-          max(0, value.blue + v));
+      return Color.fromARGB(value.alpha, max(0, value.red + v),
+          max(0, value.green + v), max(0, value.blue + v));
     }
   }
 

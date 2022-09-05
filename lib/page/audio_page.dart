@@ -1,9 +1,19 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
-
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eso/model/audio_page_controller.dart';
+import 'package:eso/model/audio_service%20copy.dart';
+import 'package:eso/model/audio_service_handler.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_lyric/lyrics_reader.dart';
+// import 'package:audioplayers/audioplayers.dart';
+// import 'package:just_audio/just_audio.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/audio_page_controller.dart';
+import 'package:eso/model/audio_page_controller_bak.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/profile.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
@@ -11,9 +21,12 @@ import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
-import '../lyric/lyric.dart';
-import '../lyric/lyric_widget.dart';
-import '../lyric/lyric_controller.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
+import 'package:rxdart/rxdart.dart';
+// import '../lyric/lyric.dart';
+// import '../lyric/lyric_widget.dart';
+// import '../lyric/lyric_controller.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
@@ -36,34 +49,34 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   Widget _audioPage;
   AudioPageController __provider;
   SearchItem searchItem;
-  LyricController _lyricController;
+  // LyricController _lyricController;
   bool _showSelect = false;
+  final lyricUI = UINetease();
   @override
   void initState() {
-    _lyricController = LyricController(vsync: this)
-      ..addListener(() {
-        if (_showSelect != _lyricController.isDragging) {
-          setState(() {
-            _showSelect = _lyricController.isDragging;
-          });
-        }
-      });
-    searchItem = widget.searchItem;
     super.initState();
+    // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    //   statusBarColor: Colors.transparent,
+    // ));
+
+    MyAudioService.audioHandler.disposePage = false;
+    searchItem = widget.searchItem;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_audioPage == null) {
-      _audioPage = _buildPage();
-    }
-    return _audioPage;
+    // if (_audioPage == null) {
+    //   _audioPage = _buildPage();
+    // }
+
+    return _buildPage();
   }
 
   @override
   void dispose() {
     __provider?.dispose();
-    _lyricController?.dispose();
+    MyAudioService.audioHandler.disposePage = true;
+    // _lyricController?.dispose();
     super.dispose();
   }
 
@@ -73,7 +86,10 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
       child: Consumer<AudioPageController>(
         builder: (BuildContext context, AudioPageController provider, _) {
           __provider = provider;
-          final chapter = searchItem.chapters[searchItem.durChapterIndex];
+
+          final chapter =
+              searchItem.chapters[provider.searchItem.durChapterIndex];
+
           return Scaffold(
             body: GestureDetector(
               child: Container(
@@ -82,95 +98,135 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                 child: Stack(
                   children: <Widget>[
                     Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      child: Image.network(
-                        Utils.empty(chapter.cover) ? defaultImage : chapter.cover,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                        height: double.infinity,
+                        width: double.infinity,
+                        child: Utils.empty(chapter.cover)
+                            ? Image.asset(
+                                defaultImage,
+                                fit: BoxFit.fill,
+                              )
+                            : CachedNetworkImage(
+                                imageUrl: chapter.cover.contains("@headers")
+                                    ? chapter.cover.split("@headers")[0]
+                                    : chapter.cover,
+                                httpHeaders: chapter.cover.contains("@headers")
+                                    ? (jsonDecode(chapter.cover
+                                            .split("@headers")[1]) as Map)
+                                        .map((k, v) => MapEntry('$k', '$v'))
+                                    : null,
+                                fit: BoxFit.cover,
+                                errorWidget: (context, object, stack) {
+                                  return Image.asset(
+                                    defaultImage,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              )),
                     BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                      child: Container(color: Colors.black.withAlpha(30)),
+                      child: SizedBox(),
+                      filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
                     ),
                     SafeArea(
                       child: Column(
                         children: <Widget>[
                           _buildAppBar(provider, chapter.name, chapter.time),
                           if (provider.showLyric)
-                            if (provider.lyrics == null ||
+                            if (provider.lyricModel == null ||
                                 provider.positionDuration == null)
                               Expanded(
                                 child: InkWell(
                                   onTap: provider.toggleLyric,
-                                  child: LyricWidget(
-                                    size: Size(double.infinity, double.infinity),
-                                    controller: _lyricController,
-                                    lyricStyle: TextStyle(color: Colors.white),
-                                    lyrics: <Lyric>[
-                                      Lyric(
-                                        '加载中...',
-                                        startTime: Duration.zero,
-                                        endTime: Duration.zero,
+                                  child: LyricsReader(
+                                    model: provider.lyricModel.getModel(),
+                                    size:
+                                        Size(double.infinity, double.infinity),
+                                    lyricUi: lyricUI,
+                                    playing: provider.isPlay,
+                                    emptyBuilder: () => Center(
+                                      child: Text(
+                                        "No lyrics",
+                                        style: lyricUI.getOtherMainTextStyle(),
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               )
                             else
                               () {
-                                _lyricController.progress = provider.positionDuration;
                                 return Expanded(
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
                                       Center(
-                                        child: LyricWidget(
-                                          size: Size(double.infinity, double.infinity),
-                                          controller: _lyricController,
-                                          lyrics: provider.lyrics,
-                                          lyricStyle: TextStyle(
-                                              color: Colors.white, fontSize: 16),
-                                          currLyricStyle:
-                                              TextStyle(color: Colors.red, fontSize: 18),
-                                        ),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.bottomCenter,
-                                        child: IconButton(
-                                            icon: Icon(
-                                              Icons.close_outlined,
-                                              color: Colors.white,
-                                              size: 30,
-                                            ),
-                                            tooltip: '关闭歌词',
-                                            onPressed: provider.toggleLyric),
-                                      ),
-                                      Offstage(
-                                        offstage: !_showSelect,
-                                        child: GestureDetector(
+                                        child: LyricsReader(
+                                          // padding: EdgeInsets.symmetric(
+                                          //     horizontal: 40.0),
                                           onTap: () {
-                                            //点击选择器后移动歌词到滑动位置;
-                                            _lyricController.draggingComplete();
-                                            provider.seekSeconds(_lyricController
-                                                .draggingProgress.inSeconds);
+                                            provider.toggleLyric();
                                           },
-                                          child: Row(
-                                            children: <Widget>[
-                                              Icon(
-                                                Icons.play_circle_outline,
-                                                color: Colors.green,
-                                                size: 30,
-                                              ),
-                                              Expanded(
-                                                child: Divider(
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ],
+                                          model: provider.lyricModel.getModel(),
+                                          position: provider
+                                              .positionDuration.inMilliseconds,
+                                          size: Size(
+                                              double.infinity, double.infinity),
+                                          lyricUi: lyricUI,
+                                          playing: provider.isPlay,
+                                          emptyBuilder: () => Center(
+                                            child: Text(
+                                              "No lyrics",
+                                              style: lyricUI
+                                                  .getOtherMainTextStyle(),
+                                            ),
                                           ),
+                                          selectLineBuilder:
+                                              (progress, confirm) {
+                                            return Row(
+                                              children: [
+                                                IconButton(
+                                                    onPressed: () {
+                                                      // print(
+                                                      //     "progress:${progress}");
+                                                      confirm.call();
+
+                                                      provider.audioHandler
+                                                          .seek(Duration(
+                                                              milliseconds:
+                                                                  progress));
+                                                    },
+                                                    icon: Icon(Icons.play_arrow,
+                                                        color: Colors.green)),
+                                                Expanded(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.green),
+                                                    height: 1,
+                                                    width: double.infinity,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  Duration(
+                                                          milliseconds:
+                                                              progress)
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      color: Colors.green),
+                                                )
+                                              ],
+                                            );
+                                          },
                                         ),
                                       ),
+                                      // Container(
+                                      //   alignment: Alignment.bottomCenter,
+                                      //   child: IconButton(
+                                      //       icon: Icon(
+                                      //         Icons.close_outlined,
+                                      //         color: Colors.white,
+                                      //         size: 30,
+                                      //       ),
+                                      //       tooltip: '关闭歌词',
+                                      //       onPressed: provider.toggleLyric),
+                                      // ),
                                     ],
                                   ),
                                 );
@@ -181,30 +237,46 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                                 message: '点击切换显示歌词',
                                 child: Center(
                                     child: SizedBox(
-                                  width: 300,
+                                  width: 400,
                                   height: 300,
-                                  child: AnimationRotateView(
-                                    child: InkWell(
-                                      onTap: provider.toggleLyric,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Utils.empty(chapter.cover)
-                                              ? Colors.black26
-                                              : null,
-                                          image: Utils.empty(chapter.cover)
-                                              ? null
-                                              : DecorationImage(
-                                                  image:
-                                                      NetworkImage(chapter.cover ?? ''),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                        ),
-                                        child: Utils.empty(chapter.cover)
-                                            ? Icon(Icons.audiotrack,
-                                                color: Colors.white30, size: 200)
+                                  child: InkWell(
+                                    onTap: provider.toggleLyric,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        // shape: BoxShape.rectangle,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10)),
+                                        color: Utils.empty(chapter.cover)
+                                            ? Colors.black26
                                             : null,
+                                        image: Utils.empty(chapter.cover)
+                                            ? null
+                                            : DecorationImage(
+                                                image: NetworkImage(
+                                                  chapter.cover
+                                                          .contains("@headers")
+                                                      ? chapter.cover
+                                                          .split("@headers")[0]
+                                                      : chapter.cover,
+                                                  headers: chapter.cover
+                                                          .contains("@headers")
+                                                      ? (jsonDecode(chapter
+                                                                  .cover
+                                                                  .split(
+                                                                      "@headers")[
+                                                              1]) as Map)
+                                                          .map((k, v) =>
+                                                              MapEntry(
+                                                                  '$k', '$v'))
+                                                      : null,
+                                                ),
+                                                fit: BoxFit.cover,
+                                              ),
                                       ),
+                                      child: Utils.empty(chapter.cover)
+                                          ? Icon(Icons.audiotrack,
+                                              color: Colors.white30, size: 200)
+                                          : null,
                                     ),
                                   ),
                                 )),
@@ -213,7 +285,9 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                           SizedBox(height: 50),
                           _buildProgressBar(provider),
                           SizedBox(height: 10),
-                          _buildBottomController(provider),
+                          _buildBottomPlayController(provider),
+                          SizedBox(height: 25),
+                          _buildBottomOtherController(provider),
                           SizedBox(height: 25),
                         ],
                       ),
@@ -234,8 +308,10 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(chapter.name, style: TextStyle(fontSize: 15)),
-                                  Text(Utils.link(searchItem.origin, searchItem.name,
+                                  Text(chapter.name,
+                                      style: TextStyle(fontSize: 15)),
+                                  Text(Utils.link(
+                                          searchItem.origin, searchItem.name,
                                           divider: ' | ')
                                       .link(searchItem.chapter)
                                       .value),
@@ -251,7 +327,8 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                             color: Colors.black38,
                             fontColor: Colors.white70,
                             border: BorderSide(
-                                color: Colors.white10, width: Global.borderSize),
+                                color: Colors.white10,
+                                width: Global.borderSize),
                             heightScale: 0.5,
                             loadChapter: provider.loadChapter)
                         : Container(),
@@ -268,22 +345,20 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAppBar(AudioPageController provider, String name, String author) {
+  Widget _buildAppBar(
+      AudioPageController provider, String name, String author) {
     final _iconTheme = Theme.of(context).primaryIconTheme;
-    final _textTheme = Theme.of(context).primaryTextTheme;
+
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0.0,
-      brightness: Brightness.dark,
       iconTheme: _iconTheme.copyWith(color: Colors.white70),
-      textTheme: _textTheme.copyWith(
-          headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
       actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
       actions: [
         StatefulBuilder(
           builder: (context, _state) {
-            bool isFav =
-                SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
+            bool isFav = SearchItemManager.isFavorite(
+                searchItem.originTag, searchItem.url);
             return IconButton(
               icon: isFav ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
               iconSize: 21,
@@ -335,119 +410,269 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                 ),
               ],
             ),
+      systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.white),
     );
   }
+
+  Stream<PositionData> get _positionDataStream =>
+      Rx.combineLatest3<Duration, Duration, Duration, PositionData>(
+          MyAudioService.audioHandler.positionStream,
+          MyAudioService.audioHandler.bufferedPositionStream,
+          MyAudioService.audioHandler.durationStream,
+          (position, bufferedPosition, duration) => PositionData(
+              position, bufferedPosition, duration ?? Duration.zero));
 
   Widget _buildProgressBar(AudioPageController provider) {
     return Row(
       children: <Widget>[
-        Container(
-          alignment: Alignment.centerRight,
-          child:
-              Text(provider.positionDurationText, style: TextStyle(color: Colors.white)),
-          width: 52,
-        ),
+        // Container(
+        //   alignment: Alignment.centerRight,
+        //   child: Text(provider.positionDurationText,
+        //       style: TextStyle(color: Colors.white)),
+        //   width: 52,
+        // ),
         Expanded(
-          child: FlutterSlider(
-            values: [provider.postionSeconds.toDouble()],
-            max: provider.seconds.toDouble(),
-            min: 0,
-            onDragging: (handlerIndex, lowerValue, upperValue) =>
-                provider.seekSeconds((lowerValue as double).toInt()),
-            handlerHeight: 12,
-            handlerWidth: 12,
-            handler: FlutterSliderHandler(
-              child: Container(
-                width: 12,
-                height: 12,
-                alignment: Alignment.center,
-                child: Icon(Icons.audiotrack, color: Colors.red, size: 8),
-              ),
-            ),
-            trackBar: FlutterSliderTrackBar(
-              inactiveTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white54,
-              ),
-              activeTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Colors.white70,
-              ),
-            ),
-            tooltip: FlutterSliderTooltip(
-              disableAnimation: true,
-              custom: (value) => Container(
-                color: Colors.black12,
-                padding: EdgeInsets.all(4),
-                child: Text(
-                  Utils.formatDuration(Duration(seconds: (value as double).toInt())),
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              positionOffset:
-                  FlutterSliderTooltipPositionOffset(left: -10, right: -10, top: -10),
-            ),
+          child: StreamBuilder<PositionData>(
+            stream: _positionDataStream,
+            builder: (context, snapshot) {
+              final positionData = snapshot.data;
+              return SeekBar(
+                duration: positionData?.duration ?? Duration.zero,
+                position: positionData?.position ?? Duration.zero,
+                bufferedPosition:
+                    positionData?.bufferedPosition ?? Duration.zero,
+                onChangeEnd: (duration) {
+                  MyAudioService.audioHandler.seek(duration);
+                },
+                //onChanged: provider.seek,
+              );
+            },
           ),
+
+          // child: FlutterSlider(
+          //   values: [provider.postionSeconds.toDouble()],
+          //   max: provider.seconds.toDouble(),
+          //   min: 0,
+          //   onDragging: (handlerIndex, lowerValue, upperValue) =>
+          //       provider.seekSeconds((lowerValue as double).toInt()),
+          //   handlerHeight: 12,
+          //   handlerWidth: 12,
+          //   handler: FlutterSliderHandler(
+          //     child: Container(
+          //       width: 12,
+          //       height: 12,
+          //       alignment: Alignment.center,
+          //       child: Icon(Icons.audiotrack, color: Colors.red, size: 8),
+          //     ),
+          //   ),
+          //   trackBar: FlutterSliderTrackBar(
+          //     inactiveTrackBar: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(20),
+          //       color: Colors.white54,
+          //     ),
+          //     activeTrackBar: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(4),
+          //       color: Colors.white70,
+          //     ),
+          //   ),
+          //   tooltip: FlutterSliderTooltip(
+          //     disableAnimation: true,
+          //     custom: (value) => Container(
+          //       color: Colors.black12,
+          //       padding: EdgeInsets.all(4),
+          //       child: Text(
+          //         Utils.formatDuration(
+          //             Duration(seconds: (value as double).toInt())),
+          //         style: TextStyle(color: Colors.white),
+          //       ),
+          //     ),
+          //     positionOffset: FlutterSliderTooltipPositionOffset(
+          //         left: -10, right: -10, top: -10),
+          //   ),
+          // ),
         ),
-        Container(
-          alignment: Alignment.centerLeft,
-          child: Text(provider.durationText, style: TextStyle(color: Colors.white)),
-          width: 52,
-        ),
+        // Container(
+        //   alignment: Alignment.centerLeft,
+        //   child: Text(provider.durationText,
+        //       style: TextStyle(color: Colors.white)),
+        //   width: 52,
+        // ),
       ],
     );
   }
 
-  Widget _buildBottomController(AudioPageController provider) {
+  Widget _buildBottomOtherController(AudioPageController provider) {
     final _repeatMode = provider.repeatMode;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         IconButton(
           icon: Icon(
-            _repeatMode == AudioService.REPEAT_FAVORITE
+            _repeatMode == meidaRepeatMode.REPEAT_FAVORITE
                 ? Icons.restore
-                : _repeatMode == AudioService.REPEAT_ALL
+                : _repeatMode == meidaRepeatMode.REPEAT_ALL
                     ? Icons.repeat
-                    : _repeatMode == AudioService.REPEAT_ONE
+                    : _repeatMode == meidaRepeatMode.REPEAT_ONE
                         ? Icons.repeat_one
                         : Icons.label_outline,
             color: Colors.white,
           ),
           iconSize: 26,
-          tooltip: AudioService.getRepeatName(_repeatMode),
+          tooltip: getRepeatName(_repeatMode),
           padding: EdgeInsets.zero,
-          onPressed: provider.switchRepeatMode,
+          onPressed: MyAudioService.audioHandler.switchRepeatMode,
         ),
         IconButton(
           icon: Icon(
-            Icons.skip_previous,
+            OMIcons.accessAlarms,
             color: Colors.white,
-            size: 26,
           ),
-          onPressed: provider.playPrev,
-          tooltip: '上一曲',
+          iconSize: 26,
+          tooltip: "定时",
+          onPressed: () {
+            List<String> timeString = [
+              "不开启",
+              "10分钟后",
+              "20分钟后",
+              "30分钟后",
+              "60分钟后",
+              "90分钟后",
+            ];
+            List<Duration> timeDuration = [
+              Duration.zero,
+              Duration(minutes: 10),
+              Duration(minutes: 20),
+              Duration(minutes: 30),
+              Duration(minutes: 40),
+              Duration(minutes: 50),
+            ];
+
+            // final primaryColor = Theme.of(context).bottomAppBarColor;
+
+            showCupertinoModalPopup(
+              context: context,
+              builder: (_) => CupertinoActionSheet(
+                actions: List.generate(
+                  timeString.length,
+                  (index) {
+                    final quality = timeString[index];
+                    return CupertinoActionSheetAction(
+                      child: Text(
+                        "${quality}",
+                        style: TextStyle(
+                            color: MyAudioService.audioHandler.timer_stopPlay ==
+                                    timeDuration[index]
+                                ? Colors.red
+                                : null,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13),
+                      ),
+                      onPressed: () {
+                        MyAudioService.audioHandler
+                            .setTimerStop(timeDuration[index]);
+
+                        Navigator.pop(_);
+                        //provider.changeSpeed(quality);
+                      },
+                    );
+                  },
+                ),
+                cancelButton: CupertinoActionSheetAction(
+                  onPressed: () => Navigator.pop(_),
+                  child: Text("返回"),
+                  isDestructiveAction: true,
+                ),
+              ),
+            );
+
+            //Timer.periodic(Duration(milliseconds: 1000), (timer) {});
+          },
         ),
+
         IconButton(
           icon: Icon(
-            provider.state == PlayerState.PLAYING
-                ? Icons.pause_circle_outline
-                : Icons.play_circle_outline,
+            Icons.speed_outlined,
             color: Colors.white,
-            size: 42,
           ),
-          onPressed: provider.playOrPause,
-          tooltip: provider.isPlay ? '暂停' : '播放',
+          iconSize: 26,
+          tooltip: "倍速播放",
+          onPressed: () {
+            List<double> _speed = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+
+            showCupertinoModalPopup(
+              context: context,
+              builder: (_) => CupertinoActionSheet(
+                title: Text(
+                  "播放速度",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                actions: List.generate(
+                  _speed.length,
+                  (index) {
+                    final speed = _speed[index];
+                    return CupertinoActionSheetAction(
+                      child: Text(
+                        "${speed}",
+                        style: TextStyle(
+                            color: MyAudioService.audioHandler.speed ==
+                                    _speed[index]
+                                ? Colors.red
+                                : null,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13),
+                      ),
+                      onPressed: () {
+                        MyAudioService.audioHandler.setSpeed(speed);
+
+                        Navigator.pop(_);
+                        //provider.changeSpeed(quality);
+                      },
+                    );
+                  },
+                ),
+                cancelButton: CupertinoActionSheetAction(
+                  onPressed: () => Navigator.pop(_),
+                  child: Text("返回"),
+                  isDestructiveAction: true,
+                ),
+              ),
+            );
+          },
         ),
-        IconButton(
-          icon: Icon(
-            Icons.skip_next,
-            color: Colors.white,
-            size: 26,
-          ),
-          onPressed: provider.playNext,
-          tooltip: '下一曲',
-        ),
+
+        // PopupMenuButton(
+        //   icon: Icon(
+        //     Icons.speed_outlined,
+        //     color: Colors.white,
+        //   ),
+        //   iconSize: 26,
+        //   tooltip: "倍速播放",
+        //   onSelected: (double speed) {
+        //     provider.setSpeed(speed);
+        //   },
+        //   itemBuilder: (BuildContext context) {
+        //     return <PopupMenuItem<double>>[
+        //       for (final double speed in [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0])
+        //         PopupMenuItem<double>(
+        //           value: speed,
+        //           child: Text(
+        //             '${speed}',
+        //             style: TextStyle(
+        //                 color: provider.playSpeed == speed
+        //                     ? Colors.blueAccent
+        //                     : Colors.black,
+        //                 fontWeight: FontWeight.bold),
+        //           ),
+        //         )
+        //     ];
+        //   },
+        // ),
+
         IconButton(
           icon: Icon(
             Icons.menu,
@@ -461,23 +686,75 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildBottomPlayController(AudioPageController provider) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      // mainAxisSize: MainAxisSize.min,
+      // crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(
+            OMIcons.replay10,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: MyAudioService.audioHandler.replay10s,
+          tooltip: '退后10s',
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.fast_rewind_sharp,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: MyAudioService.audioHandler.playPrev,
+          tooltip: '上一曲',
+        ),
+        SizedBox(
+          height: 80,
+          width: 80,
+          child: IconButton(
+            icon: Icon(
+              (provider.state != null ? provider.isPlay : false)
+                  ? OMIcons.pauseCircleFilled
+                  : OMIcons.playCircleFilled,
+              color: Colors.white,
+              size: 80,
+            ),
+            onPressed: MyAudioService.audioHandler.playOrPause,
+            tooltip: provider.isPlay ?? false ? '暂停' : '播放',
+          ),
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.fast_forward_sharp,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: MyAudioService.audioHandler.playNext,
+          tooltip: '下一曲',
+        ),
+        IconButton(
+          icon: Icon(
+            OMIcons.forward10,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: MyAudioService.audioHandler.forward10s,
+          tooltip: '前进10s',
+        ),
+      ],
+    );
+  }
+
   final String defaultImage = _defaultBackgroundImage[
       Random().nextInt(_defaultBackgroundImage.length * 3) %
           _defaultBackgroundImage.length];
 
   static const List<String> _defaultBackgroundImage = <String>[
-    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1862395032,4159614935&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=320821615,459299112&fm=26&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3709840964,4011199584&fm=26&gp=0.jpg',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=159400530,2390750984&fm=26&gp=0.jpg',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2942281081,4061453531&fm=26&gp=0.jpg',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3708202986,3174435156&fm=11&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2516210555,70809240&fm=26&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3096080338,1387947480&fm=11&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=884602971,918446192&fm=11&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2623678637,572331041&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2585876590,437169879&fm=11&gp=0.jpg',
-    'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1086362054,1110846781&fm=11&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2900641615,456703263&fm=26&gp=0.jpg',
+    'lib/assets/audioCover/cover1.jpeg',
+    'lib/assets/audioCover/cover2.jpeg',
+    'lib/assets/audioCover/cover3.jpeg',
+    'lib/assets/audioCover/cover4.jpeg',
   ];
 }

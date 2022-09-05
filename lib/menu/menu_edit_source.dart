@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' hide MenuItem;
+import 'package:flutter/material.dart' hide MenuItem;
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 import '../fonticons_icons.dart';
@@ -9,6 +10,11 @@ enum MenuEditSource {
   all,
   revert,
   top,
+  down,
+  fuben,
+  save,
+  add,
+  import,
   enable_search,
   disable_search,
   enable_discover,
@@ -23,6 +29,18 @@ enum MenuEditSource {
 }
 
 List<MenuItem<MenuEditSource>> editSourceMenus = [
+  MenuItem<MenuEditSource>(
+    text: '新建规则',
+    icon: Icons.add,
+    value: MenuEditSource.add,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuEditSource>(
+    text: '导入规则',
+    icon: CupertinoIcons.folder_open,
+    value: MenuEditSource.import,
+    color: Global.primaryColor,
+  ),
   MenuItem<MenuEditSource>(
     text: '全选',
     icon: OMIcons.adjust,
@@ -39,6 +57,12 @@ List<MenuItem<MenuEditSource>> editSourceMenus = [
     text: '置顶所选',
     icon: OMIcons.arrowUpward,
     value: MenuEditSource.top,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuEditSource>(
+    text: '取消置顶',
+    icon: OMIcons.arrowDownward,
+    value: MenuEditSource.down,
     color: Global.primaryColor,
   ),
   MenuItem<MenuEditSource>(

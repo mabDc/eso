@@ -1,320 +1,449 @@
-// import 'dart:async';
-// import 'dart:convert';
-// import 'dart:io';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
-// import 'package:eso/api/api_manager.dart';
-// import 'package:eso/database/history_item_manager.dart';
-// import 'package:eso/database/search_item_manager.dart';
-// import 'package:eso/profile.dart';
-// import 'package:flutter/services.dart';
-// import 'package:share_plus/share_plus.dart';
-// import 'package:intl/intl.dart' as intl;
-// import 'package:device_display_brightness/device_display_brightness.dart';
-// import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-// import '../database/search_item.dart';
-// import 'package:flutter/material.dart';
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:eso/api/api_manager.dart';
+import 'package:eso/database/search_item.dart';
+import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/page/content_page_manager.dart';
+import 'package:eso/page/photo_view_page.dart';
+import 'package:eso/profile.dart';
+import 'package:eso/utils.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:screen_brightness/screen_brightness.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:wakelock/wakelock.dart';
+import 'package:win32/win32.dart';
 
-// class MangaPageProvider with ChangeNotifier {
-//   final _format = intl.DateFormat('HH:mm:ss');
-//   Timer _timer;
-//   final SearchItem searchItem;
-//   List<String> _content;
-//   List<String> get content => _content;
-//   bool _isLoading;
-//   bool get isLoading => _isLoading;
-//   Map<String, String> _headers;
-//   Map<String, String> get headers => _headers;
-//   String _bottomTime;
-//   String get bottomTime => _bottomTime;
-//   bool _showChapter;
-//   bool get showChapter => _showChapter;
+class MangaList {
+  final List<PhotoItem> photoItem;
+  final String name;
+  final int length;
 
-//   ItemScrollController _mangaScroller;
-//   ItemScrollController get mangaScroller => _mangaScroller;
-//   ItemPositionsListener _mangaPositionsListener;
-//   ItemPositionsListener get mangaPositionsListener => _mangaPositionsListener;
+  MangaList(
+      {List<PhotoItem> this.photoItem, String this.name, int this.length});
+}
 
-//   set showChapter(bool value) {
-//     if (_showChapter != value) {
-//       _showChapter = value;
-//       notifyListeners();
-//     }
-//   }
+class ListScrollData {
+  int firstIndex;
+  int lastIndex;
+  double leadingScrollOffset;
+  double trailingScrollOffset;
+  int index;
+  int length;
+  bool isBottom;
+  ListScrollData(
+      {this.firstIndex,
+      this.lastIndex,
+      this.leadingScrollOffset,
+      this.trailingScrollOffset,
+      this.isBottom = false,
+      this.index = -1,
+      this.length = -1});
+}
 
-//   bool _showMenu;
-//   bool get showMenu => _showMenu;
-//   set showMenu(bool value) {
-//     if (_showMenu != value) {
-//       _showMenu = value;
-//       notifyListeners();
-//     }
-//   }
+class MangaPageProvider with ChangeNotifier, WidgetsBindingObserver {
+  final SearchItem searchItem;
 
-//   bool _showSetting;
-//   bool get showSetting => _showSetting;
-//   set showSetting(bool value) {
-//     if (_showSetting != value) {
-//       _showSetting = value;
-//       notifyListeners();
-//     }
-//   }
+  StreamController<ListScrollData> _streamController =
+      StreamController.broadcast();
 
-//   double _brightness;
-//   double get brightness => _brightness;
-//   set brightness(double value) {
-//     if ((value - _brightness).abs() > 0.005) {
-//       _brightness = value;
-//       DeviceDisplayBrightness.setBrightness(brightness);
-//     }
-//   }
+  StreamController<ListScrollData> get streamController => _streamController;
 
-//   bool keepOn;
-//   void setKeepOn(bool value) {
-//     if (value != keepOn) {
-//       keepOn = value;
-//       // ScreenBrightness().keepOn(keepOn);
-//     }
-//   }
+  ScrollController _controller = ScrollController();
+  ScrollController get controller => _controller;
 
-//   bool landscape;
-//   void setLandscape(bool value) {
-//     if (value != landscape) {
-//       landscape = value;
-//       if (landscape) {
-//         SystemChrome.setPreferredOrientations([
-//           DeviceOrientation.landscapeRight,
-//           DeviceOrientation.landscapeLeft,
-//         ]);
-//       } else {
-//         SystemChrome.setPreferredOrientations([
-//           DeviceOrientation.portraitUp,
-//           DeviceOrientation.portraitDown,
-//         ]);
-//       }
-//     }
-//   }
+  int _firstChapterIndex;
+  int get firstChapterIndex => _firstChapterIndex;
+  EasyRefreshController _easycontroller;
+  EasyRefreshController get easycontroller => _easycontroller;
+  // Map<int, List<PhotoItem>> _loadsContent = Map<int, List<PhotoItem>>();
+  // Map<int, List<PhotoItem>> get loadsContent => _loadsContent;
 
-//   int direction;
-//   void setDirection(int value) {
-//     if (value != direction) {
-//       direction = value;
-//       notifyListeners();
-//     }
-//   }
+  List<MangaList> _contentList = [];
+  List<MangaList> get contentList => _contentList;
 
-//   void syncContentIndex() {
-//     final index = _mangaPositionsListener.itemPositions.value.first.index;
-//     if (index == 0) {
-//     } else if (searchItem.durContentIndex != index) {
-//       searchItem.durContentIndex = index;
-//       notifyListeners();
-//     }
-//   }
+  List<MangaList> _contentPrevList = [];
+  List<MangaList> get contentPrevList => _contentPrevList;
+  int _loadCount = 0;
+  int get loadCount => _loadCount;
 
-//   MangaPageProvider({
-//     this.searchItem,
-//     this.keepOn = false,
-//     this.landscape = false,
-//     this.direction = Profile.mangaDirectionTopToBottom,
-//   }) {
-//     _mangaScroller = ItemScrollController();
-//     _mangaPositionsListener = ItemPositionsListener.create();
-//     _mangaPositionsListener.itemPositions.addListener(syncContentIndex);
-//     _brightness = 0.5;
-//     _bottomTime = _format.format(DateTime.now());
-//     _isLoading = false;
-//     _showChapter = false;
-//     _showMenu = false;
-//     _showSetting = false;
-//     _headers = Map<String, String>();
-//     if (searchItem.chapters?.length == 0 &&
-//         SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-//       searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-//     }
-//     _initContent();
-//   }
+  int _currentIndex = 0;
+  int get currentIndex => _currentIndex;
+  set currentIndex(int value) {
+    if (value != _currentIndex) {
+      _currentIndex = value;
+      notifyListeners();
+    }
+  }
 
-//   void _initContent() async {
-//     if (Platform.isAndroid || Platform.isIOS) {
-//       _brightness = await DeviceDisplayBrightness.getBrightness();
-//       if (_brightness > 1) {
-//         _brightness = 0.5;
-//       }
-//       DeviceDisplayBrightness.keepOn(enabled: keepOn);
-//     }
-//     if (landscape) {
-//       SystemChrome.setPreferredOrientations([
-//         DeviceOrientation.landscapeRight,
-//         DeviceOrientation.landscapeLeft,
-//       ]);
-//     } else {
-//       SystemChrome.setPreferredOrientations([
-//         DeviceOrientation.portraitUp,
-//         DeviceOrientation.portraitDown,
-//       ]);
-//     }
-//     await freshContentWithCache();
-//     notifyListeners();
-//   }
+  double _maxScrollExtent = 0.0;
+  double get maxScrollExtent => _maxScrollExtent;
 
-//   void _setHeaders() {
-//     if (_content.length == 0) return;
-//     final first = _content[0].split('@headers');
-//     if (first.length == 1) return;
-//     _headers = (jsonDecode(first[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
-//     for (var i = 0; i < _content.length; i++) {
-//       _content[i] = _content[i].split('@headers')[0];
-//     }
-//   }
+  // List<PhotoItem> get content => _content;
 
-//   Map<int, List<String>> _cache;
-//   Future<bool> freshContentWithCache() async {
-//     final index = searchItem.durChapterIndex;
+  // List<PhotoItem> _content;
+  // List<PhotoItem> get content => _content;
 
-//     /// 检查当前章节
-//     if (_cache == null) {
-//       _cache = {
-//         index: await APIManager.getContent(
-//           searchItem.originTag,
-//           searchItem.chapters[index].url,
-//         ),
-//       };
-//     } else if (_cache[index] == null) {
-//       _cache[index] = await APIManager.getContent(
-//         searchItem.originTag,
-//         searchItem.chapters[index].url,
-//       );
-//     }
-//     _content = _cache[index];
-//     _setHeaders();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+        Wakelock.toggle(enable: false);
+        break;
+      case AppLifecycleState.resumed:
+        Wakelock.toggle(enable: true);
+        break;
+      default:
+    }
 
-//     /// 缓存下一个章节
-//     if (index < searchItem.chapters.length - 1 && _cache[index + 1] == null) {
-//       Future.delayed(Duration(milliseconds: 100), () async {
-//         if (_cache[index + 1] == null) {
-//           _cache[index + 1] = await APIManager.getContent(
-//             searchItem.originTag,
-//             searchItem.chapters[index + 1].url,
-//           );
-//         }
-//       });
-//     }
-//     return true;
-//   }
+    super.didChangeAppLifecycleState(state);
+  }
 
-//   void share() async {
-//     // await FlutterShare.share(
-//     //   title: '亦搜 eso',
-//     //   text:
-//     //       '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.url}',
-//     //   //linkUrl: '${searchItem.url}',
-//     //   chooserTitle: '选择分享的应用',
-//     // );
-//     Share.share(
-//         '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.chapterUrl}');
-//   }
+  bool _isfistLoad = true;
+  bool get isfistLoad => _isfistLoad;
+  set isfistLoad(bool value) {
+    if (value != _isfistLoad) {
+      _isfistLoad = value;
+    }
+  }
 
-//   bool _hideLoading = false;
-//   Future<void> loadChapterHideLoading(bool lastChapter) async {
-//     _showChapter = false;
-//     if (isLoading || _hideLoading) return;
-//     final loadIndex =
-//         lastChapter ? searchItem.durChapterIndex - 1 : searchItem.durChapterIndex + 1;
-//     if (loadIndex < 0 || loadIndex >= searchItem.chapters.length) return;
-//     _hideLoading = true;
-//     searchItem.durChapterIndex = loadIndex;
-//     await freshContentWithCache();
-//     searchItem.durChapter = searchItem.chapters[loadIndex].name;
-//     searchItem.durContentIndex = 1;
-//     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-//     await SearchItemManager.saveSearchItem();
-//     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-//     await HistoryItemManager.saveHistoryItem();
-//     _hideLoading = false;
-//     // if (searchItem.ruleContentType != API.RSS) {
-//     //   _controller.jumpTo(1);
-//     // }
-//     mangaScroller.jumpTo(index: 1);
-//     notifyListeners();
-//   }
+  bool _isNextLoad = false;
+  bool get isNextLoad => _isNextLoad;
+  set isNextLoad(bool value) {
+    if (value != _isNextLoad) {
+      _isNextLoad = value;
+    }
+  }
 
-//   Future<void> loadChapter(int chapterIndex) async {
-//     _showChapter = false;
-//     if (isLoading ||
-//         chapterIndex == searchItem.durChapterIndex ||
-//         chapterIndex < 0 ||
-//         chapterIndex >= searchItem.chapters.length) return;
-//     _isLoading = true;
-//     searchItem.durChapterIndex = chapterIndex;
-//     notifyListeners();
-//     await freshContentWithCache();
-//     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
-//     searchItem.durContentIndex = 1;
-//     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-//     await SearchItemManager.saveSearchItem();
-//     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-//     await HistoryItemManager.saveHistoryItem();
-//     _isLoading = false;
-//     // if (searchItem.ruleContentType != API.RSS) {
-//     //   _controller.jumpTo(1);
-//     // }
-//     notifyListeners();
-//   }
+  bool _isLoading;
+  bool get isLoading => _isLoading;
+  bool _showLoading;
+  bool get showLoading => _showLoading;
 
-//   bool get isFavorite =>
-//       SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
+  Map<String, String> _headers;
+  Map<String, String> get headers => _headers;
 
-//   Future<bool> addToFavorite() async {
-//     if (isFavorite) return null;
-//     return await SearchItemManager.addSearchItem(searchItem);
-//   }
+  final ContentProvider contentProvider;
 
-//   Future<bool> removeFormFavorite() async {
-//     if (!isFavorite) return true;
-//     return await SearchItemManager.removeSearchItem(searchItem.id);
-//   }
+  bool _showMenu;
+  bool get showMenu => _showMenu;
+  set showMenu(bool value) {
+    if (_showMenu != value) {
+      _showMenu = value;
+      notifyListeners();
+    }
+  }
 
-//   void refreshCurrent() async {
-//     if (isLoading) return;
-//     _isLoading = true;
-//     _showChapter = false;
-//     notifyListeners();
-//     _content = await APIManager.getContent(
-//         searchItem.originTag, searchItem.chapters[searchItem.durChapterIndex].url);
-//     searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-//     _isLoading = false;
-//     notifyListeners();
-//   }
+  bool _showSetting;
+  bool get showSetting => _showSetting;
+  set showSetting(bool value) {
+    if (_showSetting != value) {
+      _showSetting = value;
+      notifyListeners();
+    }
+  }
 
-//   void clearCurrent() async {
-//     _cache?.clear();
-//     // if (isLoading) return;
-//     // _isLoading = true;
-//     // _isLoading = false;
-//   }
+  double _brightness;
+  double get brightness => _brightness;
+  set brightness(double value) {
+    print("set brightness:${value}");
+    if ((value - _brightness).abs() > 0.005) {
+      _brightness = value;
+      ScreenBrightness().setScreenBrightness(brightness);
+    }
+  }
 
-//   @override
-//   void dispose() {
-//     if (Platform.isAndroid || Platform.isIOS) {
-//       DeviceDisplayBrightness.resetBrightness();
-//       DeviceDisplayBrightness.keepOn(enabled: false);
-//     }
-//     SystemChrome.setPreferredOrientations([
-//       DeviceOrientation.landscapeRight,
-//       DeviceOrientation.landscapeLeft,
-//       DeviceOrientation.portraitUp,
-//       DeviceOrientation.portraitDown,
-//     ]);
-//     _timer?.cancel();
-//     content.clear();
-//     // _controller.dispose();
-//     () async {
-//       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-//       _cache.clear();
-//       await SearchItemManager.saveSearchItem();
-//       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-//       await HistoryItemManager.saveHistoryItem();
-//     }();
-//     super.dispose();
-//   }
-// }
+  bool showMangaInfo;
+  void setshowMangaInfo(bool value) {
+    if (value != showMangaInfo) {
+      showMangaInfo = value;
+      Profile().showMangaInfo = value;
+
+      // ScreenBrightness().keepOn(keepOn);
+    }
+  }
+
+  FilterQuality _quality;
+  FilterQuality get quality => _quality;
+
+  void setQuality(FilterQuality quality) {
+    if (_quality != quality) {
+      _quality = quality;
+
+      Profile().mangaQuality = _quality.index;
+      notifyListeners();
+    }
+  }
+
+  bool landscape;
+  void setLandscape(bool value) {
+    if (value != landscape) {
+      landscape = value;
+      if (landscape) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeRight,
+          DeviceOrientation.landscapeLeft,
+        ]);
+      } else {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+      }
+      Profile().mangaLandscape = landscape;
+    }
+  }
+
+  int direction;
+  void setDirection(int value) {
+    if (value != direction) {
+      direction = value;
+      Profile().mangaDirection = direction;
+      notifyListeners();
+    }
+  }
+
+  MangaPageProvider({
+    this.searchItem,
+    this.showMangaInfo = false,
+    this.landscape = false,
+    this.direction = Profile.mangaDirectionTopToBottom,
+    this.contentProvider,
+  }) {
+    _brightness = 0.5;
+    _isLoading = false;
+    _showLoading = true;
+    _showMenu = false;
+    _showSetting = false;
+    _headers = Map<String, String>();
+    if (searchItem.chapters?.length == 0 &&
+        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    }
+    _easycontroller = EasyRefreshController(
+        controlFinishLoad: true, controlFinishRefresh: true);
+
+    _initContent();
+    loadChapter(chapterIndex: null, isNext: true, isShowLoading: true);
+  }
+
+  void _initContent() async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      _brightness = await ScreenBrightness().current;
+      if (_brightness > 1) {
+        _brightness = 0.5;
+      }
+      Wakelock.toggle(enable: true);
+    }
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+
+    _quality = FilterQuality.values.elementAt(Profile().mangaQuality);
+
+    if (landscape) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+  }
+
+  void share() {
+    Share.share(
+        '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description.trim()}\n\n${searchItem.chapterUrl}');
+  }
+
+  int _refreshFav = 0;
+  int get refreshFav => _refreshFav;
+
+  void toggleFavorite() async {
+    print("_isLoading:${_isLoading}");
+    if (_isLoading) return;
+    await SearchItemManager.toggleFavorite(searchItem);
+    _refreshFav++;
+    notifyListeners();
+  }
+
+  Future<Uint8List> _onDecrypt(Uint8List body) async {
+    dynamic result = await APIManager.parseContent(searchItem.originTag, body);
+
+    if (result is Uint8List) {
+      return result;
+    }
+    result = jsonDecode(result);
+    if (result is Map) {
+      final bytes = result['bytes'].cast<int>();
+      return Uint8List.fromList(bytes);
+    }
+    Utils.toast("解密返回数据不是OBJ");
+    return body;
+  }
+
+  Future<void> loadChapter({
+    int chapterIndex,
+    bool useCache = true,
+    bool loadNext = true,
+    bool shouldChangeIndex = true,
+    bool isNext = false,
+    bool restList = false,
+    bool isShowLoading = false,
+  }) async {
+    if (chapterIndex == null) {
+      chapterIndex = searchItem.durChapterIndex;
+    }
+    print("chapterIndex:${chapterIndex}");
+
+    if (isLoading ||
+        chapterIndex < 0 ||
+        chapterIndex >= searchItem.chapters.length) return;
+
+    _isLoading = true;
+    if (isShowLoading) {
+      _showLoading = true;
+    }
+    if (restList) {
+      print("重置列表");
+      _contentList.clear();
+      _contentPrevList.clear();
+      controller?.jumpTo(1);
+      _loadCount = 0;
+      _firstChapterIndex = null;
+      _streamController.add(ListScrollData(isBottom: true));
+    }
+
+    if (direction != Profile.mangaDirectionTopToBottom) {
+      _contentPrevList.clear();
+      _firstChapterIndex = null;
+      _contentList.clear();
+    }
+
+    notifyListeners();
+    final c = await contentProvider.loadChapter(
+        chapterIndex, useCache, loadNext, shouldChangeIndex);
+    Map<String, String> headers = null;
+
+    final list = List.generate(c.length, (i) {
+      final index = c[i].indexOf("@headers");
+      if (index == -1) return PhotoItem(c[i], headers, _onDecrypt);
+      headers = (jsonDecode(c[i].substring(index + 8)) as Map)
+          .map((k, v) => MapEntry('$k', '$v'));
+      return PhotoItem(c[i].substring(0, index), headers, _onDecrypt);
+    });
+
+    if (isNext || direction != Profile.mangaDirectionTopToBottom) {
+      print("添加下一章");
+
+      _contentList.add(MangaList(
+          photoItem: list, name: searchItem.durChapter, length: list.length));
+    } else {
+      print("添加上一章");
+
+      _contentPrevList.add(MangaList(
+          photoItem: list, name: searchItem.durChapter, length: list.length));
+    }
+
+    if (direction != Profile.mangaDirectionTopToBottom) {
+      _streamController.add(
+        ListScrollData(
+          firstIndex: 0,
+          lastIndex: 0,
+          isBottom: true,
+          index: 1,
+          length: list.length,
+        ),
+      );
+    }
+    if (_firstChapterIndex == null) {
+      _firstChapterIndex = searchItem.durChapterIndex;
+    }
+    print(
+        "_contentPrevList:${_contentPrevList.length},_contentList:${_contentList.length}");
+
+    _loadCount++;
+    _chapterName = searchItem.durChapter;
+
+    headers = null;
+    _isLoading = false;
+
+    if (isShowLoading) {
+      _showLoading = false;
+    }
+
+    notifyListeners();
+  }
+
+  String _chapterName = "";
+  String get chapterName => _chapterName;
+
+  void updateChapter(String name, int index) {
+    searchItem.durChapter = name;
+    searchItem.durChapterIndex = index;
+    _chapterName = name;
+    notifyListeners();
+  }
+
+  bool get isFavorite =>
+      SearchItemManager.isFavorite(searchItem.originTag, searchItem.url);
+
+  Future<bool> addToFavorite() async {
+    if (isFavorite) return null;
+    return await SearchItemManager.addSearchItem(searchItem);
+  }
+
+  Future<bool> removeFormFavorite() async {
+    if (!isFavorite) return true;
+    return await SearchItemManager.removeSearchItem(searchItem.id);
+  }
+
+  void loadNextChapter(bool isNext) {
+    // print("next:${next}");
+    final index = searchItem.durChapterIndex;
+    if (isNext && index < (searchItem.chaptersCount - 1)) {
+      loadChapter(chapterIndex: index + 1, isNext: isNext);
+    } else if (index > 0) {
+      loadChapter(chapterIndex: index - 1, isNext: isNext);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      ScreenBrightness().resetScreenBrightness();
+      Wakelock.toggle(enable: false);
+
+      //DeviceDisplayBrightness.resetBrightness();
+      //DeviceDisplayBrightness.keepOn(enabled: false);
+    }
+    _contentList?.forEach((element) {
+      element?.photoItem?.clear();
+    });
+    _contentList?.clear();
+
+    _contentPrevList?.forEach((element) {
+      element?.photoItem?.clear();
+    });
+    _contentPrevList?.clear();
+
+    _controller?.dispose();
+    _easycontroller?.dispose();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+
+    super.dispose();
+  }
+}

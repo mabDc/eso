@@ -7,7 +7,7 @@ import 'rule_dao.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 8, entities: [Rule])
+@Database(version: 11, entities: [Rule])
 abstract class AppDatabase extends FloorDatabase {
   RuleDao get ruleDao;
 }
@@ -32,4 +32,31 @@ final migration7to8 = Migration(7, 8, (database) async {
   try {
     await database.execute('ALTER TABLE Rule ADD COLUMN enableUpload INT');
   } catch (e) {}
+});
+final migration8to9 = Migration(8, 9, (database) async {
+  try {
+    print("8to9");
+    await database.execute('ALTER TABLE Rule ADD COLUMN contentDecrypt TEXT');
+  } catch (e) {
+    print("e:${e}");
+  }
+});
+final migration9to10 = Migration(9, 10, (database) async {
+  // try {
+  //   print("8to9");
+  //   await database.execute('ALTER TABLE Rule ADD COLUMN icon TEXT');
+  //   await database.execute('ALTER TABLE Rule ADD COLUMN desc TEXT');
+  // } catch (e) {
+  //   print("e:${e}");
+  // }
+});
+
+final migration10to11 = Migration(10, 11, (database) async {
+  try {
+    print("8to9");
+    await database.execute('ALTER TABLE Rule ADD COLUMN icon TEXT');
+    await database.execute('ALTER TABLE Rule ADD COLUMN desc TEXT');
+  } catch (e) {
+    print("e:${e}");
+  }
 });

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
+// import 'package:cupertino_lists/cupertino_lists.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
@@ -10,6 +11,7 @@ import 'package:eso/profile.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,26 +24,22 @@ import '../../global.dart';
 class AutoBackupPage extends StatelessWidget {
   const AutoBackupPage({Key key}) : super(key: key);
 
-  AlertDialog showTextDialog(
-      BuildContext context, String title, String s, void Function(String s) press,
+  CupertinoAlertDialog showCupertinoTextDialog(BuildContext context,
+      String title, String s, void Function(String s) press,
       [bool isPassword = false]) {
     TextEditingController controller = TextEditingController(text: s);
-    return AlertDialog(
-      content: TextField(controller: controller),
+    return CupertinoAlertDialog(
       title: Text(title),
+      content: CupertinoTextField(controller: controller),
       actions: [
-        TextButton(
-          child: Text(
-            "取消",
-            style: TextStyle(color: Theme.of(context).hintColor),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
+        CupertinoDialogAction(
+          child: Text('取消'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        TextButton(
-          child: Text(
-            "确定",
-            style: TextStyle(color: Colors.red),
-          ),
+        CupertinoDialogAction(
+          child: Text('确定'),
           onPressed: () {
             if (isPassword && controller.text.length < 6) {
               Utils.toast("输入需大于六位");
@@ -59,216 +57,255 @@ class AutoBackupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = Profile();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('备份恢复与webdav'),
-      ),
-      body: ListView(
-        children: [
-          Card(
-            child: Column(
-              children: [
-                ListTile(title: Text('自动备份')),
-                Divider(),
-                StatefulBuilder(
-                  builder: (context, setState) => Column(
-                    children: [
-                      RadioListTile<int>(
-                        title: Text('从不'),
-                        value: Profile.autoBackupNone,
-                        groupValue: profile.autoBackRate,
-                        onChanged: (int value) =>
-                            setState(() => profile.autoBackRate = value),
+    return Material(
+      child: CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text("备份恢复与webdav"),
+        ),
+        child: ListView(
+          children: [
+            Card(
+              child: CupertinoListSection.insetGrouped(
+                header: Text("自动备份&恢复",
+                    style: CupertinoTheme.of(context)
+                        .textTheme
+                        .textStyle
+                        .copyWith(
+                            fontSize: 13,
+                            color: CupertinoDynamicColor.resolve(
+                                Profile().kHeaderFooterColor, context))),
+                children: [
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      final onChanged = (int value) =>
+                          setState(() => profile.autoBackRate = value);
+
+                      return Column(
+                        children: [
+                          CupertinoListTile(
+                            onTap: () {
+                              onChanged(Profile.autoBackupNone);
+                            },
+                            title: Text('从不'),
+                            leading: Radio(
+                                value: Profile.autoBackupNone,
+                                groupValue: profile.autoBackRate,
+                                onChanged: onChanged),
+                          ),
+                          CupertinoListTile(
+                            onTap: () {
+                              onChanged(Profile.autoBackupDay);
+                            },
+                            title: Text('每日'),
+                            leading: Radio(
+                                value: Profile.autoBackupDay,
+                                groupValue: profile.autoBackRate,
+                                onChanged: onChanged),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  CupertinoListTile(
+                    title: Text('备份'),
+                    subtitle: Text(profile.autoBackupLastDay.isEmpty
+                        ? "上次备份：从未备份"
+                        : '上次备份：${profile.autoBackupLastDay}.${Platform.operatingSystem}.zip'),
+                    onTap: backup,
+                  ),
+                  CupertinoListTile(
+                    title: Text('分享'),
+                    subtitle: Text('发送最近备份文件至其他app'),
+                    onTap: share,
+                  ),
+                  GestureDetector(
+                    child: CupertinoListTile(
+                      title: Text('恢复'),
+                      subtitle: Text('选择文件恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreLocal(context, false, '选择文件恢复'),
+                  ),
+                  GestureDetector(
+                    child: CupertinoListTile(
+                      title: Text('仅恢复规则'),
+                      subtitle: Text('选择文件恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreLocal(context, true, '选择文件恢复规则'),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              child: CupertinoListSection.insetGrouped(
+                header: Text("分享至公共webdav",
+                    style: CupertinoTheme.of(context)
+                        .textTheme
+                        .textStyle
+                        .copyWith(
+                            fontSize: 13,
+                            color: CupertinoDynamicColor.resolve(
+                                Profile().kHeaderFooterColor, context))),
+                children: [
+                  StatefulBuilder(
+                    builder: (context, setState) => CupertinoListTile(
+                      title: Text('启用规则分享'),
+                      subtitle: Text('每日自动分享，不会自动覆盖删除，建议关闭'),
+                      trailing: CupertinoSwitch(
+                          value: profile.enableWebdavRule,
+                          onChanged: (value) =>
+                              setState(() => profile.enableWebdavRule = value)),
+                    ),
+                  ),
+                  CupertinoListTile(
+                    title: Text('分享的用户名称'),
+                    subtitle: Text(profile.webdavRuleAccount.isEmpty
+                        ? '输入用户名称'
+                        : profile.webdavRuleAccount),
+                    onTap: () => showCupertinoDialog(
+                      context: context,
+                      builder: (context) => showCupertinoTextDialog(
+                        context,
+                        '输入用户名称',
+                        profile.webdavRuleAccount,
+                        (s) => profile.webdavRuleAccount = s,
                       ),
-                      RadioListTile<int>(
-                        title: Text('每日'),
-                        value: Profile.autoBackupDay,
-                        groupValue: profile.autoBackRate,
-                        onChanged: (int value) =>
-                            setState(() => profile.autoBackRate = value),
+                    ),
+                  ),
+                  CupertinoListTile(
+                    title: Text('分享的用户校验码'),
+                    subtitle: Text(profile.webdavRuleCheckcode.isEmpty
+                        ? '防止覆盖同名用户, 至少六位'
+                        : '*' * profile.webdavRuleCheckcode.length),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showCupertinoTextDialog(
+                        context,
+                        '用户校验码',
+                        profile.webdavRuleCheckcode,
+                        (s) => profile.webdavRuleCheckcode = s,
+                        true,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('备份'),
-                  subtitle: Text(profile.autoBackupLastDay.isEmpty
-                      ? "上次备份：从未备份"
-                      : '上次备份：${profile.autoBackupLastDay}.${Platform.operatingSystem}.zip'),
-                  onTap: backup,
-                ),
-                ListTile(
-                  title: Text('分享'),
-                  subtitle: Text('发送最近备份文件至其他app'),
-                  onTap: share,
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('恢复'),
-                    subtitle: Text('选择文件恢复'),
+                  CupertinoListTile(
+                    title: Text('分享至云上'),
+                    subtitle: Text(profile.autoRuleUploadLastDay.isEmpty
+                        ? "上次分享：从未分享"
+                        : '上次分享：${profile.webdavRuleAccount}.${profile.autoRuleUploadLastDay}.zip'),
+                    onTap: shareRule,
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreLocal(context, false, '选择文件恢复'),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('仅恢复规则'),
-                    subtitle: Text('选择文件恢复'),
+                  GestureDetector(
+                    child: CupertinoListTile(
+                      title: Text('导入分享的规则'),
+                    ),
+                    onTapUp: (TapUpDetails details) => restoreShareRule(
+                        context, details.globalPosition, false),
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreLocal(context, true, '选择文件恢复规则'),
-                ),
-              ],
+                  GestureDetector(
+                    child: CupertinoListTile(
+                      title: Text('下载分享的规则'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreShareRule(context, details.globalPosition, true),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Card(
-            child: Column(
-              children: [
-                StatefulBuilder(
-                  builder: (context, setState) => SwitchListTile(
-                    title: Text('启用规则分享'),
-                    subtitle: Text('每日自动分享，不会自动覆盖删除，建议关闭'),
-                    onChanged: (value) =>
-                        setState(() => profile.enableWebdavRule = value),
-                    value: profile.enableWebdavRule,
-                  ),
-                ),
-                ListTile(
-                  title: Text('分享的用户名称'),
-                  subtitle: Text(profile.webdavRuleAccount.isEmpty
-                      ? '输入用户名称'
-                      : profile.webdavRuleAccount),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '账号',
-                      profile.webdavRuleAccount,
-                      (s) => profile.webdavRuleAccount = s,
+            Card(
+              child: CupertinoListSection.insetGrouped(
+                header: Text("我的webdav",
+                    style: CupertinoTheme.of(context)
+                        .textTheme
+                        .textStyle
+                        .copyWith(
+                            fontSize: 13,
+                            color: CupertinoDynamicColor.resolve(
+                                Profile().kHeaderFooterColor, context))),
+                children: [
+                  StatefulBuilder(
+                    builder: (context, setState) => CupertinoListTile(
+                      title: Text('启用webdav自动同步'),
+                      subtitle: Text('备份或自动备份后自动上传至webdav'),
+                      trailing: CupertinoSwitch(
+                          value: profile.enableWebdav,
+                          onChanged: (value) =>
+                              setState(() => profile.enableWebdav = value)),
                     ),
                   ),
-                ),
-                ListTile(
-                  title: Text('分享的用户校验码'),
-                  subtitle: Text(profile.webdavRuleCheckcode.isEmpty
-                      ? '防止覆盖同名用户, 至少六位'
-                      : '*' * profile.webdavRuleCheckcode.length),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '密码',
-                      profile.webdavRuleCheckcode,
-                      (s) => profile.webdavRuleCheckcode = s,
-                      true,
+                  CupertinoListTile(
+                    title: Text('坚果云webdav帮助'),
+                    subtitle: Text("https://help.jianguoyun.com/?p=2064"),
+                    onTap: () => launch('https://help.jianguoyun.com/?p=2064'),
+                  ),
+                  CupertinoListTile(
+                    title: Text('服务器地址'),
+                    subtitle: Text(profile.webdavServer.isEmpty
+                        ? '输入您的服务器地址'
+                        : profile.webdavServer),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showCupertinoTextDialog(
+                        context,
+                        '服务器地址',
+                        profile.webdavServer,
+                        (s) => profile.webdavServer =
+                            s.isEmpty ? "https://dav.jianguoyun.com/dav/" : s,
+                      ),
                     ),
                   ),
-                ),
-                ListTile(
-                  title: Text('分享至云上'),
-                  subtitle: Text(profile.autoRuleUploadLastDay.isEmpty
-                      ? "上次分享：从未分享"
-                      : '上次分享：${profile.webdavRuleAccount}.${profile.autoRuleUploadLastDay}.zip'),
-                  onTap: shareRule,
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('导入分享的规则'),
+                  CupertinoListTile(
+                    title: Text('账号'),
+                    subtitle: Text(profile.webdavAccount.isEmpty
+                        ? '输入您的账号'
+                        : profile.webdavAccount),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showCupertinoTextDialog(
+                        context,
+                        '账号',
+                        profile.webdavAccount,
+                        (s) => profile.webdavAccount = s,
+                      ),
+                    ),
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreShareRule(context, details.globalPosition, false),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('下载分享的规则'),
+                  CupertinoListTile(
+                    title: Text('密码'),
+                    subtitle: Text(profile.webdavPassword.isEmpty
+                        ? '输入您的授权密码'
+                        : '*' * profile.webdavPassword.length),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showCupertinoTextDialog(
+                        context,
+                        '密码',
+                        profile.webdavPassword,
+                        (s) => profile.webdavPassword = s,
+                      ),
+                    ),
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreShareRule(context, details.globalPosition, true),
-                ),
-              ],
+                  GestureDetector(
+                    child: CupertinoListTile(
+                      title: Text('恢复'),
+                      subtitle: Text('从webdav恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) => restoreFromWebDav(
+                        context, details.globalPosition, false),
+                  ),
+                  GestureDetector(
+                    child: CupertinoListTile(
+                      title: Text('仅恢复规则'),
+                      subtitle: Text('从webdav恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) => restoreFromWebDav(
+                        context, details.globalPosition, true),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Card(
-            child: Column(
-              children: [
-                StatefulBuilder(
-                  builder: (context, setState) => SwitchListTile(
-                    title: Text('启用webdav自动同步'),
-                    subtitle: Text('备份或自动备份后自动上传至webdav'),
-                    onChanged: (value) => setState(() => profile.enableWebdav = value),
-                    value: profile.enableWebdav,
-                  ),
-                ),
-                ListTile(
-                  title: Text('坚果云webdav帮助'),
-                  subtitle: Text("https://help.jianguoyun.com/?p=2064"),
-                  onTap: () => launch('https://help.jianguoyun.com/?p=2064'),
-                ),
-                ListTile(
-                  title: Text('服务器地址'),
-                  subtitle: Text(
-                      profile.webdavServer.isEmpty ? '输入您的服务器地址' : profile.webdavServer),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '服务器地址',
-                      profile.webdavServer,
-                      (s) => profile.webdavServer =
-                          s.isEmpty ? "https://dav.jianguoyun.com/dav/" : s,
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: Text('账号'),
-                  subtitle: Text(
-                      profile.webdavAccount.isEmpty ? '输入您的账号' : profile.webdavAccount),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '账号',
-                      profile.webdavAccount,
-                      (s) => profile.webdavAccount = s,
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: Text('密码'),
-                  subtitle: Text(profile.webdavPassword.isEmpty
-                      ? '输入您的授权密码'
-                      : '*' * profile.webdavPassword.length),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '密码',
-                      profile.webdavPassword,
-                      (s) => profile.webdavPassword = s,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('恢复'),
-                    subtitle: Text('从webdav恢复'),
-                  ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreFromWebDav(context, details.globalPosition, false),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('仅恢复规则'),
-                    subtitle: Text('从webdav恢复'),
-                  ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreFromWebDav(context, details.globalPosition, true),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -283,7 +320,8 @@ class AutoBackupPage extends StatelessWidget {
     final fileName = Uri.encodeComponent(
         'share.${profile.webdavRuleCheckcode}.rule.${profile.webdavRuleAccount}.$today.zip');
     if (autoShare) {
-      if (today == profile.autoRuleUploadLastDay || !profile.enableWebdavRule) return;
+      if (today == profile.autoRuleUploadLastDay || !profile.enableWebdavRule)
+        return;
       if (profile.webdavRuleAccount.trim().isEmpty ||
           profile.webdavRuleCheckcode.trim().isEmpty) {
         profile.autoRuleUploadLastDay = today;
@@ -294,20 +332,23 @@ class AutoBackupPage extends StatelessWidget {
       await Future.delayed(Duration(seconds: 1));
     }
     try {
-      final rules = await Rule.backupRules(await Global.ruleDao.findUploadRules());
+      final rules =
+          await Rule.backupRules(await Global.ruleDao.findUploadRules());
       final archive = Archive();
       archive.addFile(getArchiveFile("rules", rules, 0));
       final bytes = ZipEncoder().encode(archive);
 
       try {
-        Client client =
-            Client(myWebdavServer, myWebdavAccount, myWebdavPassword, path: "ESO");
+        Client client = Client(
+            myWebdavServer, myWebdavAccount, myWebdavPassword,
+            path: "ESO");
         await client.upload(bytes, "$fileName");
         profile.autoRuleUploadLastDay = today;
         Utils.toast("上传分享规则（共${rules.length}条）至webdav成功");
       } catch (e, st) {
         print("上传分享规则至webdav错误 e:$e, st: $st");
-        Utils.toast("上传分享规则至webdav错误 e:$e\n请检查账户密码或网络", duration: Duration(seconds: 3));
+        Utils.toast("上传分享规则至webdav错误 e:$e\n请检查账户密码或网络",
+            duration: Duration(seconds: 3));
       }
     } catch (e) {
       print("上传规则失败 $e");
@@ -365,19 +406,21 @@ class AutoBackupPage extends StatelessWidget {
       File(dir)
         ..create(recursive: true)
         ..writeAsBytes(bytes);
+
       Utils.toast("$dir 文件写入成功");
       profile.autoBackupLastDay = today;
       if (profile.enableWebdav) {
         try {
-          Client client = Client(
-              profile.webdavServer, profile.webdavAccount, profile.webdavPassword,
+          Client client = Client(profile.webdavServer, profile.webdavAccount,
+              profile.webdavPassword,
               path: "ESO");
           await client.mkdir("");
           await client.upload(bytes, "$fileName");
           Utils.toast("备份至webdav成功");
         } catch (e, st) {
           print("备份至webdav错误 e:$e, st: $st");
-          Utils.toast("备份至webdav错误 e:$e\n请检查账户密码或网络", duration: Duration(seconds: 3));
+          Utils.toast("备份至webdav错误 e:$e\n请检查账户密码或网络",
+              duration: Duration(seconds: 3));
         }
       }
     } catch (e) {
@@ -408,12 +451,16 @@ class AutoBackupPage extends StatelessWidget {
         }
       } else if (file.name == "${Global.searchItemKey}.json") {
         final searchItem = utf8.decode(file.content);
-        if (searchItem != null && searchItem is String && searchItem.isNotEmpty) {
+        if (searchItem != null &&
+            searchItem is String &&
+            searchItem.isNotEmpty) {
           SearchItemManager.restore(searchItem);
         }
       } else if (file.name == "${Global.historyItemKey}.json") {
         final historyItem = utf8.decode(file.content);
-        if (historyItem != null && historyItem is String && historyItem.isNotEmpty) {
+        if (historyItem != null &&
+            historyItem is String &&
+            historyItem.isNotEmpty) {
           HistoryItemManager.restore(historyItem);
         }
       } else if (file.name == "${Global.searchHistoryKey}.json") {
@@ -427,6 +474,7 @@ class AutoBackupPage extends StatelessWidget {
 
   void restoreLocal(BuildContext context, bool isOnlyRule, String title) async {
     final dir = await CacheUtil(backup: true).cacheDir();
+
     String path = await FilesystemPicker.open(
       title: title,
       context: context,
@@ -438,6 +486,7 @@ class AutoBackupPage extends StatelessWidget {
       fileTileSelectMode: FileTileSelectMode.wholeTile,
       requestPermission: CacheUtil.requestPermission,
     );
+
     if (path == null) {
       Utils.toast("未选择文件");
     } else if (path.endsWith(".txt") || path.endsWith(".json")) {
@@ -457,12 +506,14 @@ class AutoBackupPage extends StatelessWidget {
 
   void restoreShareRule(BuildContext context, Offset pos, bool download) async {
     try {
-      var client = Client(myWebdavServer, myWebdavAccount, myWebdavPassword, path: "ESO");
+      var client = Client(myWebdavServer, myWebdavAccount, myWebdavPassword,
+          path: "ESO");
       final files = await client.ls();
       final fs = <String>[];
       for (var file in files) {
         final name = Utils.getFileNameAndExt(file.path);
-        if (name.startsWith("share.") && name.indexOf(".rule..") == -1) fs.add(name);
+        if (name.startsWith("share.") && name.indexOf(".rule..") == -1)
+          fs.add(name);
       }
       showMenu(
         context: context,
@@ -475,15 +526,16 @@ class AutoBackupPage extends StatelessWidget {
         }).toList(),
       ).then((value) async {
         if (value == null) return;
-        final req = await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
+        final req =
+            await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
         final res = await req.close();
         final r = await res.toList();
         final bytes = r.reduce((value, element) => <int>[]
           ..addAll(value)
           ..addAll(element));
         if (download) {
-          final dir =
-              join(await CacheUtil(backup: true).cacheDir(), decodeShareRuleName(value));
+          final dir = join(await CacheUtil(backup: true).cacheDir(),
+              decodeShareRuleName(value));
           File(dir)
             ..create(recursive: true)
             ..writeAsBytes(bytes);
@@ -498,14 +550,20 @@ class AutoBackupPage extends StatelessWidget {
     }
   }
 
-  void restoreFromWebDav(BuildContext context, Offset pos, bool isOnlyRule) async {
+  void restoreFromWebDav(
+      BuildContext context, Offset pos, bool isOnlyRule) async {
     final profile = Profile();
     try {
+      print(
+          "profile.webdavAccount:${profile.webdavAccount},profile.webdavPassword:${profile.webdavPassword}");
+
       Client client = Client(
           profile.webdavServer, profile.webdavAccount, profile.webdavPassword,
           path: "ESO");
 
-      final fs = (await client.ls()).map((e) => Utils.getFileNameAndExt(e.path)).toList();
+      final fs = (await client.ls())
+          .map((e) => Utils.getFileNameAndExt(e.path))
+          .toList();
       showMenu(
         context: context,
         position: RelativeRect.fromLTRB(pos.dx, pos.dy, pos.dx + 100, 0),
@@ -517,7 +575,8 @@ class AutoBackupPage extends StatelessWidget {
             .toList(),
       ).then((value) async {
         if (value == null) return;
-        final req = await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
+        final req =
+            await client.httpClient.getUrl(Uri.parse(client.getUrl("$value")));
         final res = await req.close();
         final r = await res.toList();
         restore(

@@ -9,12 +9,14 @@ part of 'database.dart';
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$AppDatabaseBuilder databaseBuilder(String name) => _$AppDatabaseBuilder(name);
+  static _$AppDatabaseBuilder databaseBuilder(String name) =>
+      _$AppDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$AppDatabaseBuilder inMemoryDatabaseBuilder() => _$AppDatabaseBuilder(null);
+  static _$AppDatabaseBuilder inMemoryDatabaseBuilder() =>
+      _$AppDatabaseBuilder(null);
 }
 
 class _$AppDatabaseBuilder {
@@ -34,8 +36,9 @@ class _$AppDatabaseBuilder {
 
   /// Creates the database and initializes it.
   Future<AppDatabase> build() async {
-    final path =
-        name != null ? await sqfliteDatabaseFactory.getDatabasePath(name) : ':memory:';
+    final path = name != null
+        ? await sqfliteDatabaseFactory.getDatabasePath(name)
+        : ':memory:';
     final database = _$AppDatabase();
     database.database = await database.open(
       path,
@@ -56,7 +59,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 8,
+      version: 11,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
@@ -71,7 +74,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `enableUpload` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `viewStyle` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `loginUrl` TEXT, `cookies` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverNextUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchNextUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterUrl` TEXT, `chapterNextUrl` TEXT, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentNextUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `enableUpload` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `viewStyle` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `loginUrl` TEXT, `cookies` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverMoreKeys` TEXT, `discoverNextUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchNextUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterUrl` TEXT, `chapterNextUrl` TEXT, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentNextUrl` TEXT, `contentItems` TEXT, `contentDecrypt` TEXT, `icon` TEXT, `desc` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -95,8 +98,9 @@ class _$RuleDao extends RuleDao {
                   'id': item.id,
                   'createTime': item.createTime,
                   'modifiedTime': item.modifiedTime,
-                  'enableUpload':
-                      item.enableUpload == null ? null : (item.enableUpload ? 1 : 0),
+                  'enableUpload': item.enableUpload == null
+                      ? null
+                      : (item.enableUpload ? 1 : 0),
                   'author': item.author,
                   'postScript': item.postScript,
                   'name': item.name,
@@ -105,15 +109,20 @@ class _$RuleDao extends RuleDao {
                   'group': item.group,
                   'sort': item.sort,
                   'viewStyle': item.viewStyle,
-                  'useCryptoJS':
-                      item.useCryptoJS == null ? null : (item.useCryptoJS ? 1 : 0),
+                  'useCryptoJS': item.useCryptoJS == null
+                      ? null
+                      : (item.useCryptoJS ? 1 : 0),
                   'loadJs': item.loadJs,
                   'userAgent': item.userAgent,
+                  'icon': item.icon,
+                  'desc': item.desc,
                   'loginUrl': item.loginUrl,
                   'cookies': item.cookies,
-                  'enableDiscover':
-                      item.enableDiscover == null ? null : (item.enableDiscover ? 1 : 0),
+                  'enableDiscover': item.enableDiscover == null
+                      ? null
+                      : (item.enableDiscover ? 1 : 0),
                   'discoverUrl': item.discoverUrl,
+                  'discoverMoreKeys': item.discoverMoreKeys,
                   'discoverNextUrl': item.discoverNextUrl,
                   'discoverItems': item.discoverItems,
                   'discoverList': item.discoverList,
@@ -124,8 +133,9 @@ class _$RuleDao extends RuleDao {
                   'discoverChapter': item.discoverChapter,
                   'discoverDescription': item.discoverDescription,
                   'discoverResult': item.discoverResult,
-                  'enableSearch':
-                      item.enableSearch == null ? null : (item.enableSearch ? 1 : 0),
+                  'enableSearch': item.enableSearch == null
+                      ? null
+                      : (item.enableSearch ? 1 : 0),
                   'searchUrl': item.searchUrl,
                   'searchNextUrl': item.searchNextUrl,
                   'searchItems': item.searchItems,
@@ -153,7 +163,8 @@ class _$RuleDao extends RuleDao {
                   'chapterResult': item.chapterResult,
                   'contentUrl': item.contentUrl,
                   'contentNextUrl': item.contentNextUrl,
-                  'contentItems': item.contentItems
+                  'contentItems': item.contentItems,
+                  'contentDecrypt': item.contentDecrypt,
                 }),
         _ruleDeletionAdapter = DeletionAdapter(
             database,
@@ -163,8 +174,9 @@ class _$RuleDao extends RuleDao {
                   'id': item.id,
                   'createTime': item.createTime,
                   'modifiedTime': item.modifiedTime,
-                  'enableUpload':
-                      item.enableUpload == null ? null : (item.enableUpload ? 1 : 0),
+                  'enableUpload': item.enableUpload == null
+                      ? null
+                      : (item.enableUpload ? 1 : 0),
                   'author': item.author,
                   'postScript': item.postScript,
                   'name': item.name,
@@ -173,15 +185,20 @@ class _$RuleDao extends RuleDao {
                   'group': item.group,
                   'sort': item.sort,
                   'viewStyle': item.viewStyle,
-                  'useCryptoJS':
-                      item.useCryptoJS == null ? null : (item.useCryptoJS ? 1 : 0),
+                  'useCryptoJS': item.useCryptoJS == null
+                      ? null
+                      : (item.useCryptoJS ? 1 : 0),
                   'loadJs': item.loadJs,
                   'userAgent': item.userAgent,
+                  'icon': item.icon,
+                  'desc': item.desc,
                   'loginUrl': item.loginUrl,
                   'cookies': item.cookies,
-                  'enableDiscover':
-                      item.enableDiscover == null ? null : (item.enableDiscover ? 1 : 0),
+                  'enableDiscover': item.enableDiscover == null
+                      ? null
+                      : (item.enableDiscover ? 1 : 0),
                   'discoverUrl': item.discoverUrl,
+                  'discoverMoreKeys': item.discoverMoreKeys,
                   'discoverNextUrl': item.discoverNextUrl,
                   'discoverItems': item.discoverItems,
                   'discoverList': item.discoverList,
@@ -192,8 +209,9 @@ class _$RuleDao extends RuleDao {
                   'discoverChapter': item.discoverChapter,
                   'discoverDescription': item.discoverDescription,
                   'discoverResult': item.discoverResult,
-                  'enableSearch':
-                      item.enableSearch == null ? null : (item.enableSearch ? 1 : 0),
+                  'enableSearch': item.enableSearch == null
+                      ? null
+                      : (item.enableSearch ? 1 : 0),
                   'searchUrl': item.searchUrl,
                   'searchNextUrl': item.searchNextUrl,
                   'searchItems': item.searchItems,
@@ -221,7 +239,8 @@ class _$RuleDao extends RuleDao {
                   'chapterResult': item.chapterResult,
                   'contentUrl': item.contentUrl,
                   'contentNextUrl': item.contentNextUrl,
-                  'contentItems': item.contentItems
+                  'contentItems': item.contentItems,
+                  'contentDecrypt': item.contentDecrypt,
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -246,10 +265,13 @@ class _$RuleDao extends RuleDao {
         row['useCryptoJS'] as int != 0,
         row['loadJs'],
         row['userAgent'],
+        row['icon'],
+        row['desc'],
         row['loginUrl'],
         row['cookies'],
         row['enableDiscover'] as int != 0,
         row['discoverUrl'],
+        row['discoverMoreKeys'],
         row['discoverNextUrl'],
         row['discoverItems'],
         row['discoverList'],
@@ -287,6 +309,7 @@ class _$RuleDao extends RuleDao {
         row['contentUrl'],
         row['contentNextUrl'],
         row['contentItems'],
+        row['contentDecrypt'],
       );
 
   final InsertionAdapter<Rule> _ruleInsertionAdapter;
@@ -301,7 +324,8 @@ class _$RuleDao extends RuleDao {
 
   @override
   Future<List<Rule>> findAllRules() async {
-    return _queryAdapter.queryList('SELECT * FROM rule ORDER BY ${RuleDao.order}',
+    return _queryAdapter.queryList(
+        'SELECT * FROM rule ORDER BY ${RuleDao.order}',
         mapper: _ruleMapper);
   }
 
@@ -347,7 +371,8 @@ class _$RuleDao extends RuleDao {
 
   @override
   Future<int> insertOrUpdateRule(Rule rule) {
-    return _ruleInsertionAdapter.insertAndReturnId(rule, OnConflictStrategy.replace);
+    return _ruleInsertionAdapter.insertAndReturnId(
+        rule, OnConflictStrategy.replace);
   }
 
   @override
