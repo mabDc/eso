@@ -28,7 +28,7 @@ import '../../profile.dart';
 import '../../qing/main.dart';
 import '../novel_page_refactor.dart';
 import 'auto_backup_page.dart';
-import 'ba_setting.dart';
+import 'theme_setting.dart';
 import 'darkmod_page.dart';
 import 'package:about/about.dart';
 
@@ -97,6 +97,12 @@ class AboutPage extends StatelessWidget {
   }
 
   Widget _buildAppSetting(BuildContext context, Profile profile) {
+    final iconColor = getThemeColor("iconColor");
+    final trailing = Icon(
+      CupertinoIcons.right_chevron,
+      size: CupertinoTheme.of(context).textTheme.textStyle.fontSize,
+      color: getThemeColor("iconColor"),
+    );
     return CupertinoListSection.insetGrouped(
       decoration: BoxDecoration(color: Colors.transparent),
       backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
@@ -108,11 +114,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           title: const Text('本地导入TEXT&EPUB'),
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          leading: Icon(
-            CupertinoIcons.folder_open,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
+          leading: Icon(CupertinoIcons.folder_open, color: iconColor),
+          trailing: trailing,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<AddLocalItemPage>(
               builder: (BuildContext context) => AddLocalItemPage(),
@@ -122,11 +125,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           title: const Text('历史记录'),
-          trailing: const CupertinoListTileChevron(),
-          leading: Icon(
-            CupertinoIcons.paperplane,
-            color: Colors.blue,
-          ),
+          trailing: trailing,
+          leading: Icon(CupertinoIcons.paperplane, color: iconColor),
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<HistoryPage2>(
               builder: (BuildContext context) => HistoryPage2(),
@@ -136,11 +136,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           title: const Text('规则管理'),
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          trailing: const CupertinoListTileChevron(),
-          leading: Icon(
-            CupertinoIcons.hammer,
-            color: Colors.blue,
-          ),
+          trailing: trailing,
+          leading: Icon(CupertinoIcons.hammer, color: iconColor),
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<EditSourcePage>(
               builder: (BuildContext context) => EditSourcePage(),
@@ -150,11 +147,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           title: const Text('QING'),
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          trailing: const CupertinoListTileChevron(),
-          leading: Icon(
-            CupertinoIcons.briefcase,
-            color: Colors.blue,
-          ),
+          trailing: trailing,
+          leading: Icon(CupertinoIcons.briefcase, color: iconColor),
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<ksfenlei>(
               builder: (BuildContext context) => RequestAndParserTestTool(),
@@ -164,11 +158,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           title: const Text('快速分类'),
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          trailing: const CupertinoListTileChevron(),
-          leading: Icon(
-            CupertinoIcons.cube,
-            color: Colors.blue,
-          ),
+          trailing: trailing,
+          leading: Icon(CupertinoIcons.cube, color: iconColor),
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<ksfenlei>(
               builder: (BuildContext context) => ksfenlei(),
@@ -178,11 +169,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           title: Text('Webdav备份&恢复'),
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          trailing: const CupertinoListTileChevron(),
-          leading: Icon(
-            CupertinoIcons.tray,
-            color: Colors.blue,
-          ),
+          trailing: trailing,
+          leading: Icon(CupertinoIcons.tray, color: iconColor),
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<AutoBackupPage>(
               builder: (BuildContext context) => AutoBackupPage(),
@@ -192,11 +180,8 @@ class AboutPage extends StatelessWidget {
         CupertinoListTile(
           title: const Text('清理缓存'),
           backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          trailing: const CupertinoListTileChevron(),
-          leading: Icon(
-            CupertinoIcons.gobackward,
-            color: Colors.blue,
-          ),
+          trailing: trailing,
+          leading: Icon(CupertinoIcons.gobackward, color: iconColor),
           onTap: () {
             showCupertinoDialog(
               context: context,
@@ -235,9 +220,14 @@ class AboutPage extends StatelessWidget {
       Profile.dartModeLight,
       Profile.dartModeAuto,
     ];
-
+    final iconColor = getThemeColor("iconColor");
+    final trailing = Icon(
+      CupertinoIcons.right_chevron,
+      size: CupertinoTheme.of(context).textTheme.textStyle.fontSize,
+      color: getThemeColor("iconColor"),
+    );
     return CupertinoListSection.insetGrouped(
-      decoration: BoxDecoration(color: Colors.transparent),
+      decoration: BoxDecoration(color: Color(profile.scaffoldBackgroundColor).withOpacity(0.2)),
       backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
       header: Text(
         "界面",
@@ -246,12 +236,8 @@ class AboutPage extends StatelessWidget {
       children: [
         CupertinoListTile(
           title: const Text('阅读设置'),
-          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          leading: Icon(
-            CupertinoIcons.book,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
+          leading: Icon(CupertinoIcons.book, color: iconColor),
+          trailing: trailing,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<ConfigSettingPage>(
               builder: (BuildContext context) => ConfigSettingPage(),
@@ -259,16 +245,13 @@ class AboutPage extends StatelessWidget {
           ),
         ),
         CupertinoListTile(
-          title: const Text('背景设置'),
-          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          leading: Icon(
-            CupertinoIcons.bolt_horizontal_circle,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
+          title: const Text('主题装扮'),
+          leading:
+              Icon(CupertinoIcons.chevron_left_slash_chevron_right, color: iconColor),
+          trailing: trailing,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<ConfigSettingPage>(
-              builder: (BuildContext context) => BaSetting(),
+              builder: (BuildContext context) => themeSetting(),
             ),
           ),
         ),
@@ -278,9 +261,9 @@ class AboutPage extends StatelessWidget {
         //       Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
         //   leading: Icon(
         //     CupertinoIcons.command,
-        //     color: Colors.blue,
+        //     color: iconColor
         //   ),
-        //   trailing: const CupertinoListTileChevron(),
+        //   trailing: trailing,
         //   onTap: () => Navigator.of(context).push(
         //     MaterialWithModalsPageRoute<UISetting>(
         //       builder: (BuildContext context) => UISetting(),
@@ -289,13 +272,9 @@ class AboutPage extends StatelessWidget {
         // ),
         CupertinoListTile(
           title: const Text('夜间模式'),
-          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           additionalInfo: Text(profile.darkMode),
-          leading: Icon(
-            CupertinoIcons.moon_stars,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
+          leading: Icon(CupertinoIcons.moon_stars, color: iconColor),
+          trailing: trailing,
           // onTap: () => Navigator.of(context).push(
           //   CupertinoPageRoute<DarkModpage>(
           //     builder: (BuildContext context) => DarkModpage(),
@@ -331,45 +310,48 @@ class AboutPage extends StatelessWidget {
         ),
         CupertinoListTile(
           title: const Text('字体管理'),
-          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
           additionalInfo: (profile.fontFamily == null || profile.fontFamily.isEmpty)
               ? Text("默认字体")
               : Text(
                   profile.fontFamily,
                   overflow: TextOverflow.ellipsis,
                 ),
-          leading: Icon(
-            CupertinoIcons.pencil_outline,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
+          leading: Icon(CupertinoIcons.pencil_outline, color: iconColor),
+          trailing: trailing,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<FontFamilyPage>(
               builder: (BuildContext context) => FontFamilyPage(),
             ),
           ),
         ),
-        CupertinoListTile(
-          title: const Text('颜色主题'),
-          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          leading: Icon(
-            CupertinoIcons.color_filter,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
-          onTap: () => Navigator.of(context).push(
-            MaterialWithModalsPageRoute<ColorLensPage>(
-              builder: (BuildContext context) => ColorLensPage(),
-            ),
-          ),
-        ),
+        // CupertinoListTile(
+        //   title: const Text('颜色主题'),
+        //   backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
+        //   leading: Icon(
+        //     CupertinoIcons.color_filter,
+        //     color: iconColor
+        //   ),
+        //   trailing: trailing,
+        //   onTap: () => Navigator.of(context).push(
+        //     MaterialWithModalsPageRoute<ColorLensPage>(
+        //       builder: (BuildContext context) => ColorLensPage(),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
 
   Widget _buildAbout(BuildContext context, Profile profile) {
+    final iconColor = getThemeColor("iconColor");
+    final backgroundColor = getThemeColor("backgroundColor");
+    final trailing = Icon(
+      CupertinoIcons.right_chevron,
+      size: CupertinoTheme.of(context).textTheme.textStyle.fontSize,
+      color: getThemeColor("iconColor"),
+    );
     return CupertinoListSection.insetGrouped(
-      decoration: BoxDecoration(color: Colors.transparent),
+      decoration: BoxDecoration(color: Color(profile.scaffoldBackgroundColor).withOpacity(0.2)),
       backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
       header: Text(
         "关于",
@@ -378,188 +360,190 @@ class AboutPage extends StatelessWidget {
       children: [
         CupertinoListTile(
           title: const Text('关于亦搜'),
-          backgroundColor: Color(profile.scaffoldBackgroundColor).withOpacity(0.2),
-          leading: Icon(
-            CupertinoIcons.book,
-            color: Colors.blue,
-          ),
-          trailing: const CupertinoListTileChevron(),
+          leading: Icon(CupertinoIcons.book, color: iconColor),
+          trailing: trailing,
           onTap: () => Navigator.of(context).push(
             CupertinoPageRoute<ConfigSettingPage>(
               builder: (BuildContext context) => Material(
-                child: CupertinoPageScaffold(
-                  navigationBar: CupertinoNavigationBar(
-                    middle: Text("关于"),
-                  ),
-                  child: SafeArea(
-                    child: CustomScrollView(
-                      slivers: [
-                        SliverList(
-                          delegate: SliverChildListDelegate(
-                            [
-                              CupertinoListSection.insetGrouped(
-                                header: Text('联系&帮助'),
-                                children: [
-                                  CupertinoListTile(
-                                    title: Text('亦搜①群'),
-                                    subtitle: Text('1106156709'),
-                                    onTap: () => joinGroup(),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('亦搜②群'),
-                                    subtitle: Text('1148443231'),
-                                    onTap: () => joinGroup('1148443231'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text(qing.joinPindao),
-                                    subtitle: Image.memory(
-                                      base64Decode(qing.esoPindao.base64.split(',')[1]),
-                                      fit: BoxFit.contain,
-                                      height: 150,
-                                      width: 150,
-                                      alignment: Alignment.topLeft,
-                                    ),
-                                    onTap: () => launch(qing.esoPindao.url),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('规则获取'),
-                                    subtitle:
-                                        Text('https://github.com/mabDc/eso_source/'),
-                                    onTap: () =>
-                                        launch('https://github.com/mabDc/eso_source/'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('规则说明'),
-                                    subtitle: FittedBox(
-                                      fit: BoxFit.fitWidth,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'https://github.com/mabDc/eso_source/blob/master/README.md'),
-                                    ),
-                                    onTap: () => launch(
-                                        'https://github.com/mabDc/eso_source/blob/master/README.md'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('新规则说明'),
-                                    subtitle: FittedBox(
-                                      fit: BoxFit.fitWidth,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          'https://github.com/xiaohucode/eso_source/blob/main/README.md'),
-                                    ),
-                                    onTap: () => launch(
-                                        'https://github.com/xiaohucode/eso_source/blob/main/README.md'),
-                                  ),
-                                ],
+                child: Container(
+                  decoration: globalDecoration,
+                  child: CupertinoPageScaffold(
+                    backgroundColor: Colors.transparent,
+                    navigationBar: CupertinoNavigationBar(
+                      middle: Text("关于"),
+                      backgroundColor: Colors.transparent,
+                    ),
+                    child: SafeArea(
+                      child: ListView(
+                        children: [
+                          CupertinoListSection.insetGrouped(
+                            decoration:
+                                BoxDecoration(color: backgroundColor.withOpacity(0.2)),
+                            backgroundColor: backgroundColor.withOpacity(0.2),
+                            header: Text('联系&帮助'),
+                            children: [
+                              CupertinoListTile(
+                                title: Text('亦搜①群'),
+                                subtitle: Text('1106156709'),
+                                onTap: () => joinGroup(),
                               ),
-                              SizedBox(height: 4),
-                              CupertinoListSection.insetGrouped(
-                                header: Text('主要开发者'),
-                                children: [
-                                  CupertinoListTile(
-                                    title: Text('mabdc'),
-                                    subtitle: Text('https://github.com/mabDc'),
-                                    onTap: () => launch('https://github.com/mabDc'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('DaguDuiyuan'),
-                                    subtitle: Text('https://github.com/DaguDuiyuan'),
-                                    onTap: () => launch('https://github.com/DaguDuiyuan'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('yangyxd'),
-                                    subtitle: Text('https://github.com/yangyxd'),
-                                    onTap: () => launch('https://github.com/yangyxd'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('xiaohucode'),
-                                    subtitle: Text('https://github.com/xiaohucode'),
-                                    onTap: () => launch('https://github.com/xiaohucode'),
-                                  ),
-                                ],
+                              CupertinoListTile(
+                                title: Text('亦搜②群'),
+                                subtitle: Text('1148443231'),
+                                onTap: () => joinGroup('1148443231'),
                               ),
-                              SizedBox(height: 4),
-                              CupertinoListSection.insetGrouped(
-                                header: Text('项目'),
-                                children: [
-                                  MarkdownPageListTile(
-                                    filename: 'README.md',
-                                    title: Text('使用指北'),
-                                    // icon: Icon(Icons.info_outline),
-                                  ),
-                                  MarkdownPageListTile(
-                                    filename: 'CHANGELOG.md',
-                                    title: Text('更新日志'),
-                                    // icon: Icon(FIcons.list),
-                                  ),
-                                  MarkdownPageListTile(
-                                    filename: 'LICENSE',
-                                    title: Text('源代码许可'),
-                                    // icon: Icon(Icons.description),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('开源地址'),
-                                    subtitle: Text('https://github.com/mabDc/eso'),
-                                    onTap: () => launch('https://github.com/mabDc/eso'),
-                                  ),
-                                  CupertinoListTile(
-                                    title: Text('问题反馈'),
-                                    subtitle: Text(
-                                        'https://github.com/xiaohucode/eso_source/issues'),
-                                    onTap: () => launch(
-                                        'https://github.com/xiaohucode/eso_source/issues'),
-                                  ),
-                                  CupertinoListTile(
-                                    title:
-                                        Text('${Global.appName} - ${Global.appVersion}'),
-                                    subtitle: Text(
-                                        'https://github.com/xiaohucode/eso_source/releases'),
-                                    onTap: () => launch(
-                                        'https://github.com/xiaohucode/eso_source/releases'),
-                                  ),
-                                ],
+                              CupertinoListTile(
+                                title: Text(qing.joinPindao),
+                                subtitle: Image.memory(
+                                  base64Decode(qing.esoPindao.base64.split(',')[1]),
+                                  fit: BoxFit.contain,
+                                  height: 150,
+                                  width: 150,
+                                  alignment: Alignment.topLeft,
+                                ),
+                                onTap: () => launch(qing.esoPindao.url),
                               ),
-                              SizedBox(height: 4),
-                              Card(
-                                child: Material(
-                                  color: Theme.of(context).primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4.0)),
-                                  child: InkWell(
-                                    onTap: () => showAbout(context),
-                                    child: SizedBox(
-                                      height: 260,
-                                      width: double.infinity,
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text(
-                                              'ESO',
-                                              style: TextStyle(
-                                                fontSize: 100,
-                                                fontStyle: FontStyle.italic,
-                                                color: Theme.of(context).cardColor,
-                                              ),
-                                            ),
-                                            Text(
-                                              '亦搜，亦看，亦闻',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                color: Theme.of(context).cardColor,
-                                              ),
-                                            ),
-                                          ],
+                              CupertinoListTile(
+                                title: Text('规则获取'),
+                                subtitle: Text('https://github.com/mabDc/eso_source/'),
+                                onTap: () =>
+                                    launch('https://github.com/mabDc/eso_source/'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('规则说明'),
+                                subtitle: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                      'https://github.com/mabDc/eso_source/blob/master/README.md'),
+                                ),
+                                onTap: () => launch(
+                                    'https://github.com/mabDc/eso_source/blob/master/README.md'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('新规则说明'),
+                                subtitle: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                      'https://github.com/xiaohucode/eso_source/blob/main/README.md'),
+                                ),
+                                onTap: () => launch(
+                                    'https://github.com/xiaohucode/eso_source/blob/main/README.md'),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          CupertinoListSection.insetGrouped(
+                            decoration:
+                                BoxDecoration(color: backgroundColor.withOpacity(0.2)),
+                            backgroundColor: backgroundColor.withOpacity(0.2),
+                            header: Text('主要开发者'),
+                            children: [
+                              CupertinoListTile(
+                                title: Text('mabdc'),
+                                subtitle: Text('https://github.com/mabDc'),
+                                onTap: () => launch('https://github.com/mabDc'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('DaguDuiyuan'),
+                                subtitle: Text('https://github.com/DaguDuiyuan'),
+                                onTap: () => launch('https://github.com/DaguDuiyuan'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('yangyxd'),
+                                subtitle: Text('https://github.com/yangyxd'),
+                                onTap: () => launch('https://github.com/yangyxd'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('xiaohucode'),
+                                subtitle: Text('https://github.com/xiaohucode'),
+                                onTap: () => launch('https://github.com/xiaohucode'),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          CupertinoListSection.insetGrouped(
+                            decoration:
+                                BoxDecoration(color: backgroundColor.withOpacity(0.2)),
+                            backgroundColor: backgroundColor.withOpacity(0.2),
+                            header: Text('项目'),
+                            children: [
+                              MarkdownPageListTile(
+                                filename: 'README.md',
+                                title: Text('使用指北'),
+                                // icon: Icon(Icons.info_outline),
+                              ),
+                              MarkdownPageListTile(
+                                filename: 'CHANGELOG.md',
+                                title: Text('更新日志'),
+                                // icon: Icon(FIcons.list),
+                              ),
+                              MarkdownPageListTile(
+                                filename: 'LICENSE',
+                                title: Text('源代码许可'),
+                                // icon: Icon(Icons.description),
+                              ),
+                              CupertinoListTile(
+                                title: Text('开源地址'),
+                                subtitle: Text('https://github.com/mabDc/eso'),
+                                onTap: () => launch('https://github.com/mabDc/eso'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('问题反馈'),
+                                subtitle: Text(
+                                    'https://github.com/xiaohucode/eso_source/issues'),
+                                onTap: () => launch(
+                                    'https://github.com/xiaohucode/eso_source/issues'),
+                              ),
+                              CupertinoListTile(
+                                title: Text('${Global.appName} - ${Global.appVersion}'),
+                                subtitle: Text(
+                                    'https://github.com/xiaohucode/eso_source/releases'),
+                                onTap: () => launch(
+                                    'https://github.com/xiaohucode/eso_source/releases'),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Card(
+                            child: Material(
+                              color: Theme.of(context).primaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0)),
+                              child: InkWell(
+                                onTap: () => showAbout(context),
+                                child: SizedBox(
+                                  height: 260,
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text(
+                                          'ESO',
+                                          style: TextStyle(
+                                            fontSize: 100,
+                                            fontStyle: FontStyle.italic,
+                                            color: Theme.of(context).cardColor,
+                                          ),
                                         ),
-                                      ),
+                                        Text(
+                                          '亦搜，亦看，亦闻',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Theme.of(context).cardColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        )
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -574,7 +558,7 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: aboutBoxDecoration,
+      decoration: globalDecoration,
       child: CupertinoPageScaffold(
         backgroundColor: Colors.transparent,
         navigationBar: CupertinoNavigationBar(

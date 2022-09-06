@@ -31,6 +31,8 @@ import 'package:provider/provider.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'setting/theme_setting.dart';
+
 class DiscoverPageWinthIOS extends StatefulWidget {
   const DiscoverPageWinthIOS({Key key}) : super(key: key);
 
@@ -112,10 +114,9 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
           );
   }
 
-  Widget _buildItems(BuildContext context, EditSourceProvider provider,
-      List<Rule> rules, int index) {
-    final rule =
-        rules.where((element) => element.enableDiscover).elementAt(index);
+  Widget _buildItems(
+      BuildContext context, EditSourceProvider provider, List<Rule> rules, int index) {
+    final rule = rules.where((element) => element.enableDiscover).elementAt(index);
 
 // CupertinoListTile(title: title)
     // if (rule.icon.isNotEmpty) {
@@ -131,8 +132,7 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
       },
       onLongPress: () => Navigator.of(context)
           .push(MaterialWithModalsPageRoute(
-              builder: (context) =>
-                  EditRulePage(rule: rule, provider: provider)))
+              builder: (context) => EditRulePage(rule: rule, provider: provider)))
           .whenComplete(() => provider.setShowGroup(null)),
       // leadingSize: 45,
       leading: Container(
@@ -293,8 +293,7 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
                 );
                 break;
               case MenuDiscoverSource.copy:
-                Clipboard.setData(
-                    ClipboardData(text: jsonEncode(rule.toJson(true))));
+                Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson(true))));
                 Utils.toast("已复制 ${rule.name}");
                 break;
               case MenuDiscoverSource.share:
@@ -317,8 +316,7 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
                         CupertinoDialogAction(
                           child: Text('确定'),
                           onPressed: () {
-                            provider.handleSelect(
-                                [rule], MenuEditSource.delete_this);
+                            provider.handleSelect([rule], MenuEditSource.delete_this);
                             Navigator.of(context).pop();
                           },
                         ),
@@ -406,8 +404,7 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
         rules = provider.ruleContentType == -1
             ? rules
             : rules
-                    ?.where((element) =>
-                        element.contentType == provider.ruleContentType)
+                    ?.where((element) => element.contentType == provider.ruleContentType)
                     ?.toList() ??
                 [];
 
@@ -416,143 +413,144 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
         return Scaffold(
           key: _scaffoldKey,
           endDrawer: buildEndDrawer(context, provider),
-          body: CupertinoPageScaffold(
-            // backgroundColor: CupertinoColors.systemGroupedBackground,
-            navigationBar: CupertinoNavigationBar(
-              // transitionBetweenRoutes: false,
-              border: null,
-              middle: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: SizedBox(
-                  height: 30,
-                  child: CupertinoSearchTextField(
-                    decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .primaryColorDark
-                            .withOpacity(0.06)),
-                    focusNode: focusNode,
-                    padding: EdgeInsets.zero,
-                    onSubmitted: (value) =>
-                        provider.getRuleListByNameDebounce(value, type: 2),
-                    onChanged: (value) =>
-                        provider.getRuleListByName(value, type: 2),
-                    placeholder: "搜索发现,共${rules?.length ?? 0}条",
-                    controller: _searchEdit,
+          body: Container(
+            decoration: globalDecoration,
+            child: CupertinoPageScaffold(
+              backgroundColor: Colors.transparent,
+              // backgroundColor: CupertinoColors.systemGroupedBackground,
+              navigationBar: CupertinoNavigationBar(
+                backgroundColor: Colors.transparent,
+                // transitionBetweenRoutes: false,
+                border: null,
+                middle: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: SizedBox(
+                    height: 30,
+                    child: CupertinoSearchTextField(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColorDark.withOpacity(0.06)),
+                      focusNode: focusNode,
+                      padding: EdgeInsets.zero,
+                      onSubmitted: (value) =>
+                          provider.getRuleListByNameDebounce(value, type: 2),
+                      onChanged: (value) => provider.getRuleListByName(value, type: 2),
+                      placeholder: "搜索发现,共${rules?.length ?? 0}条",
+                      controller: _searchEdit,
+                    ),
                   ),
                 ),
-              ),
-              trailing: focusNode.hasFocus
-                  ? CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: Text("取消"),
-                      onPressed: () => focusNode.unfocus(),
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CupertinoButton(
-                          child: Icon(CupertinoIcons.add),
-                          // child: Text('分组'),
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            focusNode.unfocus();
-                            showDialog(
-                              context: context,
-                              builder: (context) => UIAddRuleDialog(
-                                  refresh: () => refreshData(provider)),
-                            );
-                          },
-                        ),
-                        CupertinoButton(
-                          child: Icon(CupertinoIcons.slider_horizontal_3),
-                          // child: Text('分组'),
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            _scaffoldKey.currentState.openEndDrawer();
-                            focusNode.unfocus();
-                          },
-                        )
-                      ],
-                    ),
-            ),
-            child: SafeArea(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  focusNode.unfocus();
-                },
-                onVerticalDragStart: (details) {
-                  print("onVerticalDragEnd");
-                  focusNode.unfocus();
-                },
-                onHorizontalDragStart: (details) {
-                  print("onHorizontalDragEnd");
-                  focusNode.unfocus();
-                },
-                child: Scrollbar(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverList(
-                        delegate: SliverChildListDelegate(
-                          [
-                            SizedBox(height: 5),
-                            _buildFilterView(context, provider),
-                            if (isLoading && rules?.length == 0)
-                              Center(
-                                child: SizedBox(
-                                  height: 200,
-                                  child: CupertinoActivityIndicator(),
-                                ),
-                              ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        ),
+                trailing: focusNode.hasFocus
+                    ? CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text("取消"),
+                        onPressed: () => focusNode.unfocus(),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CupertinoButton(
+                            child: Icon(CupertinoIcons.add),
+                            // child: Text('分组'),
+                            padding: EdgeInsets.zero,
+                            onPressed: () {
+                              focusNode.unfocus();
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    UIAddRuleDialog(refresh: () => refreshData(provider)),
+                              );
+                            },
+                          ),
+                          CupertinoButton(
+                            child: Icon(CupertinoIcons.slider_horizontal_3),
+                            // child: Text('分组'),
+                            padding: EdgeInsets.zero,
+                            onPressed: () {
+                              _scaffoldKey.currentState.openEndDrawer();
+                              focusNode.unfocus();
+                            },
+                          )
+                        ],
                       ),
-                      if (!isLoading && rules?.length != 0)
+              ),
+              child: SafeArea(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    focusNode.unfocus();
+                  },
+                  onVerticalDragStart: (details) {
+                    print("onVerticalDragEnd");
+                    focusNode.unfocus();
+                  },
+                  onHorizontalDragStart: (details) {
+                    print("onHorizontalDragEnd");
+                    focusNode.unfocus();
+                  },
+                  child: Scrollbar(
+                    child: CustomScrollView(
+                      slivers: [
                         SliverList(
                           delegate: SliverChildListDelegate(
-                            List.generate(rules?.length ?? 0, (index) {
-                              return Container(
-                                // margin: EdgeInsets.only(top: 20),
-                                // padding: EdgeInsets.only(bottom: 30),
-                                // height: 60,
-                                alignment: Alignment.topLeft,
-                                padding: EdgeInsets.zero,
-                                // decoration: BoxDecoration(
-                                //   border: Border(
-                                //     top: index == 0
-                                //         ? BorderSide(
-                                //             color: Colors.grey,
-                                //             width: 0.3,
-                                //           )
-                                //         : BorderSide.none,
-                                //     bottom: BorderSide(
-                                //       color: Colors.grey,
-                                //       width: 0.2,
-                                //     ),
-                                //   ),
-                                // ),
-                                // height: 65,
-                                child: _buildItems(
-                                    context, provider, rules, index),
-                              );
-                              // return _buildItems(
-                              //     context, provider, rules, index - 1);
-                            })
-                              ..add(SizedBox(
-                                height: 50,
-                              )),
+                            [
+                              SizedBox(height: 5),
+                              _buildFilterView(context, provider),
+                              if (isLoading && rules?.length == 0)
+                                Center(
+                                  child: SizedBox(
+                                    height: 200,
+                                    child: CupertinoActivityIndicator(),
+                                  ),
+                                ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                            ],
                           ),
-                        )
-                      else if (!isLoading && provider.allRules.length == 0)
-                        SliverList(
-                          delegate: SliverChildListDelegate([
-                            _buildEmptyHintView(provider),
-                          ]),
-                        )
-                    ],
+                        ),
+                        if (!isLoading && rules?.length != 0)
+                          SliverList(
+                            delegate: SliverChildListDelegate(
+                              List.generate(rules?.length ?? 0, (index) {
+                                return Container(
+                                  // margin: EdgeInsets.only(top: 20),
+                                  // padding: EdgeInsets.only(bottom: 30),
+                                  // height: 60,
+                                  alignment: Alignment.topLeft,
+                                  padding: EdgeInsets.zero,
+                                  // decoration: BoxDecoration(
+                                  //   border: Border(
+                                  //     top: index == 0
+                                  //         ? BorderSide(
+                                  //             color: Colors.grey,
+                                  //             width: 0.3,
+                                  //           )
+                                  //         : BorderSide.none,
+                                  //     bottom: BorderSide(
+                                  //       color: Colors.grey,
+                                  //       width: 0.2,
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  // height: 65,
+                                  child: _buildItems(context, provider, rules, index),
+                                );
+                                // return _buildItems(
+                                //     context, provider, rules, index - 1);
+                              })
+                                ..add(SizedBox(
+                                  height: 50,
+                                )),
+                            ),
+                          )
+                        else if (!isLoading && provider.allRules.length == 0)
+                          SliverList(
+                            delegate: SliverChildListDelegate([
+                              _buildEmptyHintView(provider),
+                            ]),
+                          )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -596,9 +594,7 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
         //   provider.getRuleListByName(_searchEdit.text);
       },
       child: Material(
-        color: selected
-            ? Theme.of(context).primaryColor
-            : Theme.of(context).cardColor,
+        color: selected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(5.0)),
             side: BorderSide(
@@ -625,10 +621,10 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
   Widget _buildEmptyHintView(EditSourceProvider provider) {
     final _shape = RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3),
-        side: BorderSide(
-            color: Theme.of(context).dividerColor, width: Global.borderSize));
-    final _txtStyle = TextStyle(
-        fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
+        side:
+            BorderSide(color: Theme.of(context).dividerColor, width: Global.borderSize));
+    final _txtStyle =
+        TextStyle(fontSize: 13, color: Theme.of(context).hintColor, height: 1.3);
     return EmptyListMsgView(
         text: Column(
       children: [
@@ -659,8 +655,8 @@ class _DiscoverPageWinthIOSState extends State<DiscoverPageWinthIOS> {
               ),
               TextButton(
                 child: Text("规则管理", style: _txtStyle),
-                onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => EditSourcePage())),
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => EditSourcePage())),
               ),
             ],
           ),

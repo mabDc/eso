@@ -32,6 +32,8 @@ import 'chapter_page.dart';
 import 'langding_page.dart';
 import 'package:eso/model/moreKeys.dart';
 
+import 'setting/theme_setting.dart';
+
 class DiscoverNewSearchPage extends StatefulWidget {
   final String originTag;
   final String origin;
@@ -110,8 +112,7 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
         discoverUrl: widget.rule.discoverUrl.trim(),
       ),
       child: Consumer<DiscoverPageController>(
-        builder:
-            (BuildContext context, DiscoverPageController pageController, _) {
+        builder: (BuildContext context, DiscoverPageController pageController, _) {
           final _iconTheme = Theme.of(context).primaryIconTheme;
           final _textTheme = Theme.of(context).textTheme;
           final _color = _textTheme.bodyText1.color.withOpacity(0.4);
@@ -120,83 +121,83 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
           if (pageController.showSearchField) {
             children.add(KeepAliveWidget(
               wantKeepAlive: true,
-              child: _buildListView(
-                  context, pageController, pageController.items.last),
+              child: _buildListView(context, pageController, pageController.items.last),
             ));
           } else if (map.isNotEmpty) {
             for (var i = 0; i < map.length; i++) {
               children.add(KeepAliveWidget(
                 wantKeepAlive: true,
-                child: _buildListView(context, pageController,
-                    pageController.items[i], map[i], i),
+                child: _buildListView(
+                    context, pageController, pageController.items[i], map[i], i),
               ));
             }
           }
-          return Scaffold(
-            appBar: PreferredSize(
-              child: pageController.showSearchField
-                  ? AppBar(
-                      titleSpacing: 0,
-                      leading: IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () => pageController.toggleSearching(),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).appBarTheme.backgroundColor,
-                      iconTheme: _iconTheme.copyWith(color: _color),
-                      actionsIconTheme: _iconTheme.copyWith(color: _color),
-                      actions: pageController.queryController.text == ''
-                          ? <Widget>[
-                              _buildSwitchStyle(context),
-                            ]
-                          : <Widget>[
-                              IconButton(
-                                icon: Icon(FIcons.x),
-                                onPressed: pageController.clearInputText,
-                              ),
-                              _buildSwitchStyle(context),
-                            ],
-                      title: SearchTextField(
-                        controller: pageController.queryController,
-                        autofocus: true,
-                        hintText: '搜索 ${widget.origin}',
-                        onSubmitted: (query) => pageController.search(),
-                      ),
-                      bottom: _buildAppBarBottom(context, pageController),
-                    )
-                  : AppBar(
-                      centerTitle: true,
-                      title: Text(
-                        pageController.title,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w800),
-                      ),
-                      actions: <Widget>[
-                        IconButton(
-                            onPressed: () => pageController.login(context),
-                            icon: Icon(Icons.account_box)),
-                        IconButton(
-                          tooltip: "搜索",
-                          icon: Icon(FIcons.search),
-                          onPressed: pageController.toggleSearching,
+          return Container(
+            decoration: globalDecoration,
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: PreferredSize(
+                child: pageController.showSearchField
+                    ? AppBar(
+                        titleSpacing: 0,
+                        leading: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () => pageController.toggleSearching(),
                         ),
-                        _buildSwitchStyle(context),
-                      ],
-                      bottom: _buildAppBarBottom(context, pageController),
-                    ),
-              preferredSize: Size.fromHeight(
-                  pageController.showSearchField || children.length == 1
-                      ? 50.0
-                      : 70.0),
-            ),
-            body: children.isEmpty
-                ? Container()
-                : children.length == 1
-                    ? children.first
-                    : TabBarView(
-                        controller: _tabController,
-                        children: children,
+                        backgroundColor: Colors.transparent,
+                        iconTheme: _iconTheme.copyWith(color: _color),
+                        actionsIconTheme: _iconTheme.copyWith(color: _color),
+                        actions: pageController.queryController.text == ''
+                            ? <Widget>[
+                                _buildSwitchStyle(context),
+                              ]
+                            : <Widget>[
+                                IconButton(
+                                  icon: Icon(FIcons.x),
+                                  onPressed: pageController.clearInputText,
+                                ),
+                                _buildSwitchStyle(context),
+                              ],
+                        title: SearchTextField(
+                          controller: pageController.queryController,
+                          autofocus: true,
+                          hintText: '搜索 ${widget.origin}',
+                          onSubmitted: (query) => pageController.search(),
+                        ),
+                        bottom: _buildAppBarBottom(context, pageController),
+                      )
+                    : AppBar(
+                        centerTitle: true,
+                        backgroundColor: Colors.transparent,
+                        title: Text(
+                          pageController.title,
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                        ),
+                        actions: <Widget>[
+                          IconButton(
+                              onPressed: () => pageController.login(context),
+                              icon: Icon(Icons.account_box)),
+                          IconButton(
+                            tooltip: "搜索",
+                            icon: Icon(FIcons.search),
+                            onPressed: pageController.toggleSearching,
+                          ),
+                          _buildSwitchStyle(context),
+                        ],
+                        bottom: _buildAppBarBottom(context, pageController),
                       ),
+                preferredSize: Size.fromHeight(
+                    pageController.showSearchField || children.length == 1 ? 50.0 : 70.0),
+              ),
+              body: children.isEmpty
+                  ? Container()
+                  : children.length == 1
+                      ? children.first
+                      : TabBarView(
+                          controller: _tabController,
+                          children: children,
+                        ),
+            ),
           );
         },
       ),
@@ -323,13 +324,11 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
           ),
       ],
     );
-    return type == null
-        ? SliverToBoxAdapter(child: _body)
-        : Container(child: _body);
+    return type == null ? SliverToBoxAdapter(child: _body) : Container(child: _body);
   }
 
-  Widget _buildListView(BuildContext context,
-      DiscoverPageController pageController, ListDataItem item,
+  Widget _buildListView(
+      BuildContext context, DiscoverPageController pageController, ListDataItem item,
       [DiscoverMap map, int index]) {
     final pairs = map?.pairs;
     if (pairs == null || pairs.isEmpty || pairs.length == 0) {
@@ -378,10 +377,8 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
                           onTap: () {
                             pageController.queryController.text = e;
 
-                            pageController.queryController.selection =
-                                TextSelection(
-                                    baseOffset: e.length,
-                                    extentOffset: e.length);
+                            pageController.queryController.selection = TextSelection(
+                                baseOffset: e.length, extentOffset: e.length);
 
                             pageController.search();
                           },
@@ -455,11 +452,9 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
       builder: (context) {
         switch (widget.viewStyle) {
           case 0:
-            return buildDiscoverResultList(
-                item.items, pageController, item, index);
+            return buildDiscoverResultList(item.items, pageController, item, index);
           case 1:
-            return buildDiscoverResultList(
-                item.items, pageController, item, index,
+            return buildDiscoverResultList(item.items, pageController, item, index,
                 builderItem: (v) => UiSearch2Item(item: v));
           case 2:
             return buildDiscoverResultGrid(
@@ -469,8 +464,7 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
             );
           case 3:
             return buildDiscoverResultGrid(item.items, pageController, item,
-                crossAxisCount: 2,
-                builderItem: (v) => UIDiscoverItem(searchItem: v));
+                crossAxisCount: 2, builderItem: (v) => UIDiscoverItem(searchItem: v));
           case 4:
             return buildDiscoverResultGrid(item.items, pageController, item,
                 crossAxisCount: 2,
@@ -525,11 +519,9 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
             return Container();
           }
           SearchItem searchItem = items[index_];
-          if (SearchItemManager.isFavorite(
-              searchItem.originTag, searchItem.url)) {
+          if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
             searchItem = SearchItemManager.searchItem.firstWhere((item) =>
-                item.url == searchItem.url &&
-                item.originTag == searchItem.originTag);
+                item.url == searchItem.url && item.originTag == searchItem.originTag);
           }
           return InkWell(
             child: builderItem != null
@@ -577,8 +569,8 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
     );
   }
 
-  Widget buildDiscoverResultGrid(List<SearchItem> items,
-      DiscoverPageController pageController, ListDataItem item,
+  Widget buildDiscoverResultGrid(
+      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item,
       {Widget Function(SearchItem searchItem) builderItem,
       double childAspectRatio,
       int crossAxisCount}) {
@@ -598,8 +590,7 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: (_size.width < _size.height
                     ? (crossAxisCount ?? 3)
-                    : ((crossAxisCount ?? 3) * (_size.width / _size.height))
-                        .toInt()),
+                    : ((crossAxisCount ?? 3) * (_size.width / _size.height)).toInt()),
                 childAspectRatio: childAspectRatio ?? 0.65,
                 mainAxisSpacing: 0,
                 crossAxisSpacing: 0,
@@ -607,13 +598,11 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   if (index == items.length) {
-                    if (item.length == 0 &&
-                        item.pair == null &&
-                        !item.isLoading) return Container();
+                    if (item.length == 0 && item.pair == null && !item.isLoading)
+                      return Container();
                     if (item.more)
                       return InkWell(
-                        child:
-                            LoadMoreView(msg: "正在加载...", axis: Axis.vertical),
+                        child: LoadMoreView(msg: "正在加载...", axis: Axis.vertical),
                         onTap: () {
                           if (!item.isLoading) {
                             pageController.loadMore(item);
@@ -625,10 +614,9 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
                   SearchItem searchItem = items[index];
                   if (SearchItemManager.isFavorite(
                       searchItem.originTag, searchItem.url)) {
-                    searchItem = SearchItemManager.searchItem.firstWhere(
-                        (item) =>
-                            item.originTag == searchItem.originTag &&
-                            item.url == searchItem.url);
+                    searchItem = SearchItemManager.searchItem.firstWhere((item) =>
+                        item.originTag == searchItem.originTag &&
+                        item.url == searchItem.url);
                   }
                   return InkWell(
                     child: builderItem == null
@@ -639,8 +627,7 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
                         : builderItem(searchItem),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                          builder: (context) =>
-                              ChapterPage(searchItem: searchItem)),
+                          builder: (context) => ChapterPage(searchItem: searchItem)),
                     ),
                   );
                 },
@@ -705,8 +692,8 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
         ),
       );
 
-  Future<void> onRefresh(DiscoverPageController pageController,
-      ListDataItem item, int index) async {
+  Future<void> onRefresh(
+      DiscoverPageController pageController, ListDataItem item, int index) async {
     if (item.isLoading) return;
     if (pageController.showSearchField)
       await pageController.search();
@@ -717,8 +704,7 @@ class _DiscoverNewSearchPage extends State<DiscoverNewSearchPage>
   }
 
   /// 切换到指定分类
-  _select(DiscoverPageController pageController, int index,
-      [List<RequestFilters> pair]) {
+  _select(DiscoverPageController pageController, int index, [List<RequestFilters> pair]) {
     pageController.selectDiscoverPair(map[index].name, pair);
   }
 }

@@ -3,9 +3,12 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/page/setting/theme_setting.dart';
 import 'package:eso/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -22,7 +25,7 @@ class Global with ChangeNotifier {
   static String appName = '亦搜';
   static String appVersion = '1.22.15';
   static String appBuildNumber = '12215';
-  static String appPackageName = "com.zyd.eso";
+  static String appPackageName = "com.mabdc.eso";
   static bool needShowAbout = true;
   static String userAgent =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Edg/100.0.1185.29';
@@ -67,9 +70,9 @@ class Global with ChangeNotifier {
       }
     } catch (e) {}
     try {
-      final fontFamily = TextCompositionConfig.fromJSON(
-              jsonDecode(_prefs.getString(TextConfigKey)))
-          .fontFamily;
+      final fontFamily =
+          TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey)))
+              .fontFamily;
       if (fontFamily != null && fontFamily.contains('.')) {
         await loadFontFromList(
           await File(dir + fontFamily).readAsBytes(),
@@ -83,8 +86,7 @@ class Global with ChangeNotifier {
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     if (isDesktop) {
       sqflite.databaseFactory = databaseFactoryFfi;
-      final factory =
-          sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
+      final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
 
       factory.setDatabasesPathOrNull(
           await CacheUtil(backup: true, basePath: "database").cacheDir());
@@ -118,6 +120,15 @@ class Global with ChangeNotifier {
     appName = packageInfo.appName;
     appPackageName = packageInfo.packageName;
     print("delay global init");
+
+    var appDir = await getApplicationDocumentsDirectory();
+    print("appDir" + appDir.path);
+    await Hive.initFlutter("eso");
+    await Hive.openBox(themeSettingBoxName);
+    updateDecoration();
+    // Hive.registerAdapter(ChapterItemAdapter());
+    // Hive.registerAdapter(SearchItemAdapter());
+    // await Hive.openBox<SearchItem>(Global.searchItemKey);
     return true;
   }
 
@@ -290,8 +301,8 @@ class Global with ChangeNotifier {
       return Color.fromARGB(value.alpha, min(255, value.red + v),
           min(255, value.green + v), min(255, value.blue + v));
     } else {
-      return Color.fromARGB(value.alpha, max(0, value.red + v),
-          max(0, value.green + v), max(0, value.blue + v));
+      return Color.fromARGB(value.alpha, max(0, value.red + v), max(0, value.green + v),
+          max(0, value.blue + v));
     }
   }
 

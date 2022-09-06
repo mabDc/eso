@@ -6,3 +6,4 @@ const novelConfigTypeId = 3;
 // const searchItemTypeId = 5;
 // const searchItemTypeId = 6;
 // const searchItemTypeId = 7;
+const esoThemeTypeId = 8;

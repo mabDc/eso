@@ -25,6 +25,7 @@ import '../fonticons_icons.dart';
 import '../global.dart';
 import 'chapter_page.dart';
 import 'langding_page.dart';
+import 'setting/theme_setting.dart';
 
 class DiscoverSearchPage extends StatefulWidget {
   final String originTag;
@@ -102,8 +103,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           origin: widget.origin,
           discoverMap: widget.discoverMap),
       child: Consumer<DiscoverPageController>(
-        builder:
-            (BuildContext context, DiscoverPageController pageController, _) {
+        builder: (BuildContext context, DiscoverPageController pageController, _) {
           final _iconTheme = Theme.of(context).primaryIconTheme;
           final _textTheme = Theme.of(context).textTheme;
           final _color = _textTheme.bodyText1.color.withOpacity(0.4);
@@ -112,82 +112,82 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           if (pageController.showSearchField) {
             children.add(KeepAliveWidget(
               wantKeepAlive: true,
-              child: _buildListView(
-                  context, pageController, pageController.items.last),
+              child: _buildListView(context, pageController, pageController.items.last),
             ));
           } else if (map.isNotEmpty) {
             for (var i = 0; i < map.length; i++) {
               children.add(KeepAliveWidget(
                 wantKeepAlive: true,
-                child: _buildListView(context, pageController,
-                    pageController.items[i], map[i], i),
+                child: _buildListView(
+                    context, pageController, pageController.items[i], map[i], i),
               ));
             }
           }
-          return Scaffold(
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(
-                  pageController.showSearchField || children.length == 1
-                      ? 50.0
-                      : 70.0),
-              child: pageController.showSearchField
-                  ? AppBar(
-                      titleSpacing: 0,
-                      leading: IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () => pageController.toggleSearching(),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).appBarTheme.backgroundColor,
-                      iconTheme: _iconTheme.copyWith(color: _color),
-                      actionsIconTheme: _iconTheme.copyWith(color: _color),
-                      actions: pageController.queryController.text == ''
-                          ? <Widget>[
-                              _buildSwitchStyle(context),
-                            ]
-                          : <Widget>[
-                              IconButton(
-                                icon: Icon(FIcons.x),
-                                onPressed: pageController.clearInputText,
-                              ),
-                              _buildSwitchStyle(context),
-                            ],
-                      title: SearchTextField(
-                        controller: pageController.queryController,
-                        autofocus: true,
-                        hintText: '搜索 ${widget.origin}',
-                        onSubmitted: (query) => pageController.search(),
-                      ),
-                      bottom: _buildAppBarBottom(context, pageController),
-                    )
-                  : AppBar(
-                      title: Text(
-                        pageController.title,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w800),
-                      ),
-                      actions: <Widget>[
-                        IconButton(
-                            onPressed: () => pageController.login(context),
-                            icon: Icon(Icons.account_box)),
-                        IconButton(
-                          tooltip: "搜索",
-                          icon: Icon(FIcons.search),
-                          onPressed: pageController.toggleSearching,
+          return Container(
+            decoration: globalDecoration,
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(
+                    pageController.showSearchField || children.length == 1 ? 50.0 : 70.0),
+                child: pageController.showSearchField
+                    ? AppBar(
+                        titleSpacing: 0,
+                        leading: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () => pageController.toggleSearching(),
                         ),
-                        _buildSwitchStyle(context),
-                      ],
-                      bottom: _buildAppBarBottom(context, pageController),
-                    ),
-            ),
-            body: children.isEmpty
-                ? Container()
-                : children.length == 1
-                    ? children.first
-                    : TabBarView(
-                        controller: _tabController,
-                        children: children,
+                        backgroundColor: Colors.transparent,
+                        iconTheme: _iconTheme.copyWith(color: _color),
+                        actionsIconTheme: _iconTheme.copyWith(color: _color),
+                        actions: pageController.queryController.text == ''
+                            ? <Widget>[
+                                _buildSwitchStyle(context),
+                              ]
+                            : <Widget>[
+                                IconButton(
+                                  icon: Icon(FIcons.x),
+                                  onPressed: pageController.clearInputText,
+                                ),
+                                _buildSwitchStyle(context),
+                              ],
+                        title: SearchTextField(
+                          controller: pageController.queryController,
+                          autofocus: true,
+                          hintText: '搜索 ${widget.origin}',
+                          onSubmitted: (query) => pageController.search(),
+                        ),
+                        bottom: _buildAppBarBottom(context, pageController),
+                      )
+                    : AppBar(
+                        title: Text(
+                          pageController.title,
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                        ),
+                        backgroundColor: Colors.transparent,
+                        actions: <Widget>[
+                          IconButton(
+                              onPressed: () => pageController.login(context),
+                              icon: Icon(Icons.account_box)),
+                          IconButton(
+                            tooltip: "搜索",
+                            icon: Icon(FIcons.search),
+                            onPressed: pageController.toggleSearching,
+                          ),
+                          _buildSwitchStyle(context),
+                        ],
+                        bottom: _buildAppBarBottom(context, pageController),
                       ),
+              ),
+              body: children.isEmpty
+                  ? Container()
+                  : children.length == 1
+                      ? children.first
+                      : TabBarView(
+                          controller: _tabController,
+                          children: children,
+                        ),
+            ),
           );
         },
       ),
@@ -199,9 +199,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       {VoidCallback onTap}) {
     return Container(
       height: 24,
-      width: 22 +
-          min(6 * utf8.encode(pair.name).length, 12 * pair.name.length)
-              .toDouble(),
+      width:
+          22 + min(6 * utf8.encode(pair.name).length, 12 * pair.name.length).toDouble(),
       margin: EdgeInsets.fromLTRB(4, 8, 4, 0),
       child: OutlinedButton(
         child: Text(
@@ -264,8 +263,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       decoration: BoxDecoration(
         color: Theme.of(context).canvasColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            width: Global.borderSize, color: Theme.of(context).primaryColor),
+        border:
+            Border.all(width: Global.borderSize, color: Theme.of(context).primaryColor),
       ),
     );
   }
@@ -295,47 +294,41 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           };
           _updateList(_popupMenuController.text);
 
-          return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  child: SearchTextField(
-                    hintText: "搜索分类名称",
-                    controller: _popupMenuController,
-                    onChanged: (v) => _updateList(v),
-                    onSubmitted: (v) => _updateList(v),
-                  ),
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              child: SearchTextField(
+                hintText: "搜索分类名称",
+                controller: _popupMenuController,
+                onChanged: (v) => _updateList(v),
+                onSubmitted: (v) => _updateList(v),
+              ),
+            ),
+            Divider(height: Global.lineSize),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                child: StatefulBuilder(
+                  key: _listKey,
+                  builder: (context, _state) {
+                    final discoverPair = pageController.discoverParams[map.name];
+                    return Wrap(
+                      children: pairs
+                          .map((pair) => buildPairButton(
+                                  pair,
+                                  pair == discoverPair ? primaryColor : null,
+                                  Theme.of(context).canvasColor,
+                                  pageController,
+                                  index, onTap: () {
+                                _state(() => null);
+                              }))
+                          .toList(),
+                    );
+                  },
                 ),
-                Divider(height: Global.lineSize),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                    child: StatefulBuilder(
-                      key: _listKey,
-                      builder: (context, _state) {
-                        final discoverPair =
-                            pageController.discoverParams[map.name];
-                        return Wrap(
-                          children: pairs
-                              .map((pair) => buildPairButton(
-                                      pair,
-                                      pair == discoverPair
-                                          ? primaryColor
-                                          : null,
-                                      Theme.of(context).canvasColor,
-                                      pageController,
-                                      index, onTap: () {
-                                    _state(() => null);
-                                  }))
-                              .toList(),
-                        );
-                      },
-                    ),
-                  ),
-                )
-              ]);
+              ),
+            )
+          ]);
         },
       ),
     );
@@ -344,8 +337,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   final _showAllPairs = Map<int, bool>();
   final _bodyKey = Map<int, GlobalKey<StateViewState>>();
 
-  Widget _buildListView(BuildContext context,
-      DiscoverPageController pageController, ListDataItem item,
+  Widget _buildListView(
+      BuildContext context, DiscoverPageController pageController, ListDataItem item,
       [DiscoverMap map, int index]) {
     final pairs = map?.pairs;
     if (pairs == null || pairs.isEmpty || pairs.length == 1) {
@@ -393,10 +386,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                           onTap: () {
                             pageController.queryController.text = e;
 
-                            pageController.queryController.selection =
-                                TextSelection(
-                                    baseOffset: e.length,
-                                    extentOffset: e.length);
+                            pageController.queryController.selection = TextSelection(
+                                baseOffset: e.length, extentOffset: e.length);
 
                             pageController.search();
                           },
@@ -430,15 +421,13 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 index))
             .toList();
         if (_pairsViews.length > 1)
-          _pairsViews.add(_buildMorePairIconButton(index, _showPairs, map,
-              pageController, () => _state(() => null)));
+          _pairsViews.add(_buildMorePairIconButton(
+              index, _showPairs, map, pageController, () => _state(() => null)));
 
         return Container(
           width: _showPairs ? double.infinity : null,
           color: Theme.of(context).primaryColorLight.withAlpha(50),
-          padding: _showPairs
-              ? const EdgeInsets.fromLTRB(3, 3, 3, 8)
-              : EdgeInsets.zero,
+          padding: _showPairs ? const EdgeInsets.fromLTRB(3, 3, 3, 8) : EdgeInsets.zero,
           child: _showPairs
               ? SizedBox(
                   height: 200,
@@ -491,8 +480,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         indicatorSize: TabBarIndicatorSize.label,
         indicator: RoundTabIndicator(
             insets: EdgeInsets.only(left: 5, right: 5),
-            borderSide:
-                BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
+            borderSide: BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
         labelColor: Theme.of(context).primaryColor,
         unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
         onTap: (index) {
@@ -518,8 +506,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
             return buildDiscoverResultGrid(item.items, pageController, item);
           case 3:
             return buildDiscoverResultGrid(item.items, pageController, item,
-                crossAxisCount: 2,
-                builderItem: (v) => UIDiscoverItem(searchItem: v));
+                crossAxisCount: 2, builderItem: (v) => UIDiscoverItem(searchItem: v));
           case 4:
             return buildDiscoverResultGrid(item.items, pageController, item,
                 crossAxisCount: 2,
@@ -546,8 +533,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
     );
   }
 
-  Widget buildDiscoverResultList(List<SearchItem> items,
-      DiscoverPageController pageController, ListDataItem item,
+  Widget buildDiscoverResultList(
+      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item,
       {Widget Function(SearchItem searchItem) builderItem}) {
     return Stack(
       children: [
@@ -571,11 +558,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 return Container();
               }
               SearchItem searchItem = items[index];
-              if (SearchItemManager.isFavorite(
-                  searchItem.originTag, searchItem.url)) {
+              if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
                 searchItem = SearchItemManager.searchItem.firstWhere((item) =>
-                    item.url == searchItem.url &&
-                    item.originTag == searchItem.originTag);
+                    item.url == searchItem.url && item.originTag == searchItem.originTag);
               }
               return InkWell(
                 child: builderItem != null
@@ -583,8 +568,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                     : UiSearchItem(item: searchItem),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) =>
-                          ChapterPage(searchItem: searchItem)),
+                      builder: (context) => ChapterPage(searchItem: searchItem)),
                 ),
               );
             },
@@ -596,8 +580,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
     );
   }
 
-  Widget buildDiscoverResultGrid(List<SearchItem> items,
-      DiscoverPageController pageController, ListDataItem item,
+  Widget buildDiscoverResultGrid(
+      List<SearchItem> items, DiscoverPageController pageController, ListDataItem item,
       {Widget Function(SearchItem searchItem) builderItem,
       double childAspectRatio,
       int crossAxisCount}) {
@@ -610,8 +594,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: (_size.width < _size.height
                   ? (crossAxisCount ?? 3)
-                  : ((crossAxisCount ?? 3) * (_size.width / _size.height))
-                      .toInt()),
+                  : ((crossAxisCount ?? 3) * (_size.width / _size.height)).toInt()),
               childAspectRatio: childAspectRatio ?? 0.65,
               mainAxisSpacing: 0,
               crossAxisSpacing: 0,
@@ -634,11 +617,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 return Container();
               }
               SearchItem searchItem = items[index];
-              if (SearchItemManager.isFavorite(
-                  searchItem.originTag, searchItem.url)) {
+              if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
                 searchItem = SearchItemManager.searchItem.firstWhere((item) =>
-                    item.originTag == searchItem.originTag &&
-                    item.url == searchItem.url);
+                    item.originTag == searchItem.originTag && item.url == searchItem.url);
               }
               return InkWell(
                 child: builderItem == null
@@ -649,8 +630,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                     : builderItem(searchItem),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) =>
-                          ChapterPage(searchItem: searchItem)),
+                      builder: (context) => ChapterPage(searchItem: searchItem)),
                 ),
               );
             },
@@ -699,8 +679,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         ),
       );
 
-  Future<void> onRefresh(
-      DiscoverPageController pageController, ListDataItem item) async {
+  Future<void> onRefresh(DiscoverPageController pageController, ListDataItem item) async {
     if (item.isLoading) return;
     if (pageController.showSearchField)
       await pageController.search();
@@ -711,8 +690,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   }
 
   /// 切换到指定分类
-  _select(DiscoverPageController pageController, int index,
-      [DiscoverPair pair]) {
+  _select(DiscoverPageController pageController, int index, [DiscoverPair pair]) {
     pageController.selectDiscoverPair(map[index].name, pair);
   }
 }

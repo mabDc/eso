@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../profile.dart';
+import 'theme_setting.dart';
 
 class FontFamilyPage extends StatelessWidget {
   const FontFamilyPage({
@@ -24,31 +25,34 @@ class FontFamilyPage extends StatelessWidget {
         builder: (context, child) {
           final fontFamilyProvider =
               Provider.of<_FontFamilyProvider>(context, listen: false);
-          context.select(
-              (_FontFamilyProvider provider) => provider._ttfList?.length);
+          context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
           final profile = Provider.of<Profile>(context, listen: true);
           return Material(
-            child: CupertinoPageScaffold(
-              backgroundColor: CupertinoColors.systemGroupedBackground,
-              navigationBar: CupertinoNavigationBar(
-                middle: Text("全局字体"),
-                border: null,
-                trailing: CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: Text("添加"),
-                  onPressed: () => fontFamilyProvider.pickFont(context),
+            child: Container(
+              decoration: globalDecoration,
+              child: CupertinoPageScaffold(
+                backgroundColor: Colors.transparent,
+                navigationBar: CupertinoNavigationBar(
+                  backgroundColor: Colors.transparent,
+                  middle: Text("全局字体"),
+                  border: null,
+                  trailing: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Text("添加"),
+                    onPressed: () => fontFamilyProvider.pickFont(context),
+                  ),
                 ),
+                child: fontFamilyProvider.ttfList == null
+                    ? LandingPage()
+                    : ListView(
+                        children: [
+                          _buildFontListTile("默认", null, profile),
+                          _buildFontListTile("Roboto", 'Roboto', profile),
+                          for (final ttf in fontFamilyProvider.ttfList)
+                            _buildFontListTile(ttf, ttf, profile),
+                        ],
+                      ),
               ),
-              child: fontFamilyProvider.ttfList == null
-                  ? LandingPage()
-                  : ListView(
-                      children: [
-                        _buildFontListTile("默认", null, profile),
-                        _buildFontListTile("Roboto", 'Roboto', profile),
-                        for (final ttf in fontFamilyProvider.ttfList)
-                          _buildFontListTile(ttf, ttf, profile),
-                      ],
-                    ),
             ),
           );
         });
@@ -177,9 +181,8 @@ class _FontFamilyProvider with ChangeNotifier {
     final directory = Directory(_dir);
     final files = directory.listSync();
 
-    _ttfList = files
-        .map((file) => file.path.substring(file.parent.path.length + 1))
-        .toSet();
+    _ttfList =
+        files.map((file) => file.path.substring(file.parent.path.length + 1)).toSet();
 
     _ttfList.forEach((ttf) async => await _loadFont(ttf));
 

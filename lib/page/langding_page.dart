@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'setting/theme_setting.dart';
+
 class LandingPage extends StatelessWidget {
   final Color color;
   final Widget title;
@@ -21,8 +23,11 @@ class LandingPage extends StatelessWidget {
               elevation: 0,
               brightness: brightness,
             ),
-      body: Center(
-        child: SizedBox(width: 200, child: CupertinoActivityIndicator()),
+      body: Container(
+        decoration: globalDecoration,
+        child: Center(
+          child: SizedBox(width: 200, child: CupertinoActivityIndicator()),
+        ),
       ),
     );
   }

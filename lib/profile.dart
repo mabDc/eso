@@ -17,6 +17,10 @@ class Profile with ChangeNotifier {
     notifyListeners();
   }
 
+  refreshAllApp(){
+    notifyListeners();
+  }
+
   static final Profile _profile = Profile._internal();
   factory Profile() => _profile;
 

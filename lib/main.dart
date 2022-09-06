@@ -53,16 +53,14 @@ Future<void> onLink(String linkPath) async {
       final _path = Uri.decodeFull(_uri.path);
       final _file = File(_path);
       final _name = _path.substring(_path.lastIndexOf('/') + 1);
-      platformFile =
-          PlatformFile(path: _path, name: _name, size: _file.lengthSync());
+      platformFile = PlatformFile(path: _path, name: _name, size: _file.lengthSync());
     } catch (e) {}
   }
   if (platformFile == null) {
     return;
   }
   String fileContent = autoReadFile(platformFile.path).trim();
-  if (platformFile.name.contains(".json") ||
-      fileContent.startsWith(RuleCompress.tag)) {
+  if (platformFile.name.contains(".json") || fileContent.startsWith(RuleCompress.tag)) {
     if (fileContent.startsWith(RuleCompress.tag)) {
       fileContent = RuleCompress.decompassString(fileContent);
     }
@@ -86,8 +84,7 @@ Future<void> onLink(String linkPath) async {
     } else {
       Utils.toast("失败，未导入规则！");
     }
-  } else if (platformFile.name.contains(".txt") ||
-      platformFile.name.contains(".epub")) {
+  } else if (platformFile.name.contains(".txt") || platformFile.name.contains(".epub")) {
     Future.delayed(Duration(seconds: 0)).then((_) {
       Navigator.push(
           MyAudioService.audioHandler.navigatorKey.currentState.overlay.context,
@@ -129,12 +126,6 @@ void main() async {
     linkStream.listen(onLink);
   }
 
-  var appDir = await getApplicationDocumentsDirectory();
-  print("appDir" + appDir.path);
-  await Hive.initFlutter("eso");
-  // Hive.registerAdapter(ChapterItemAdapter());
-  // Hive.registerAdapter(SearchItemAdapter());
-  // await Hive.openBox<SearchItem>(Global.searchItemKey);
   // 必须加上这一行。
   if (Platform.isWindows) {
     WidgetsFlutterBinding.ensureInitialized();
@@ -184,8 +175,7 @@ class MyApp extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
-          return ErrorApp(
-              error: snapshot.error, stackTrace: snapshot.stackTrace);
+          return ErrorApp(error: snapshot.error, stackTrace: snapshot.stackTrace);
         }
         if (!snapshot.hasData) {
           return MaterialApp(
@@ -206,8 +196,7 @@ class MyApp extends StatelessWidget {
             Provider<HistoryManager>.value(
               value: HistoryManager(),
             ),
-            ChangeNotifierProvider<EditSourceProvider>.value(
-                value: EditSourceProvider())
+            ChangeNotifierProvider<EditSourceProvider>.value(value: EditSourceProvider())
           ],
           child: Consumer<Profile>(
             builder: (BuildContext context, Profile profile, Widget widget) {
@@ -226,10 +215,8 @@ class MyApp extends StatelessWidget {
                         ? null
                         : MyAudioService.audioHandler?.navigatorKey,
                     scrollBehavior: MyCustomScrollBehavior(),
-                    theme:
-                        profile.getTheme(profile.fontFamily, isDarkMode: false),
-                    darkTheme:
-                        profile.getTheme(profile.fontFamily, isDarkMode: true),
+                    theme: profile.getTheme(profile.fontFamily, isDarkMode: false),
+                    darkTheme: profile.getTheme(profile.fontFamily, isDarkMode: true),
                     title: Global.appName,
                     localizationsDelegates: [
                       LocalizationsCupertinoDelegate.delegate,
@@ -240,8 +227,7 @@ class MyApp extends StatelessWidget {
                     supportedLocales: [Locale('zh', 'CH')],
                     onGenerateRoute: (RouteSettings settings) {
                       if (settings.name == '/') {
-                        return MaterialWithModalsPageRoute(
-                            builder: (_) => HomePage());
+                        return MaterialWithModalsPageRoute(builder: (_) => HomePage());
                       }
                       return null;
                     },
