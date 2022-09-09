@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../database/chapter_item.dart';
+
 class DebugRuleProvider with ChangeNotifier {
   DateTime _startTime;
   final Rule rule;
@@ -332,6 +334,11 @@ class DebugRuleProvider with ChangeNotifier {
   }
 
   void parseChapter(String result) async {
+    if (rule.chapterUrl == "正文") {
+      _addContent("章节地址为'正文', 跳过目录, 进入正文");
+      praseContent(result);
+      return;
+    }
     _beginEvent("目录");
     dynamic firstChapter;
     String next;

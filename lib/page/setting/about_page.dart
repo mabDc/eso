@@ -215,7 +215,8 @@ class AboutPage2 extends StatelessWidget {
                                 pickerColor: Color(profile.primaryColor),
                                 onColorChanged: (color) =>
                                     profile.primaryColor = color.value | 0xFF000000,
-                                showLabel: true,
+                                labelTypes: [],
+                                hexInputBar: true,
                                 pickerAreaHeightPercent: 0.8,
                                 enableAlpha: false,
                                 portraitOnly: true,

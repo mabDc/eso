@@ -41,7 +41,8 @@ class AnalyzerXPath implements Analyzer {
           .nodes
           .map((e) => (e.node as Element)
               .innerHtml
-              .replaceAll(RegExp("<([a-zA-Z0-9]+)[\\s\\S]+?/(\\1)?>"), ""))
+              .replaceAll(RegExp("<([a-zA-Z0-9]+)[\\s\\S]+?/(\\1)?>"), "")
+              .replaceAll(RegExp("<.?br.?>"), ""))
           .toList();
     }
     return _xpath.query(rule).attrs;

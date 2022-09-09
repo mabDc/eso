@@ -428,6 +428,11 @@ class _ChapterPageState extends State<ChapterPage> {
             child: Container(height: 200, child: LandingPage()),
           );
         }
+        if (searchItem.chapters.first.name == "正文") {
+          Future.delayed(Duration(milliseconds: 100)).then((value) => Navigator.of(context)
+              .pushReplacement(ContentPageRoute().route(searchItem)));
+        }
+
         void Function(int index) onTap = (int index) {
           provider.changeChapter(index);
           Navigator.of(context)

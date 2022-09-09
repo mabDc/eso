@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'novel_more_page.dart';
 import 'novel_page_refactor.dart';
 
 class ContentPageRoute {
@@ -40,6 +41,8 @@ class ContentPageRoute {
                 return NovelPage(searchItem: searchItem);
               case API.MANGA:
                 return MangaPage(searchItem: searchItem);
+              case API.NOVELMORE:
+                return NovelMorePage(searchItem: searchItem);
               // case API.RSS:
               //   return RSSPage(searchItem: searchItem);
               case API.VIDEO:

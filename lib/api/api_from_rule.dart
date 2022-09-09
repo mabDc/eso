@@ -186,6 +186,9 @@ class APIFromRUle implements API {
 
   @override
   Future<List<ChapterItem>> chapter(final String lastResult) async {
+    if (rule.chapterUrl == "正文") {
+      return [ChapterItem(url: lastResult, name: "正文")];
+    }
     API.chapterUrl = null;
     final result = <ChapterItem>[];
     final reversed = rule.chapterList.startsWith("-");

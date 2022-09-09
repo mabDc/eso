@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:eso/api/api.dart';
@@ -185,22 +186,22 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       width:
           22 + min(6 * utf8.encode(pair.name).length, 12 * pair.name.length).toDouble(),
       margin: EdgeInsets.fromLTRB(4, 8, 4, 0),
-      child: OutlineButton(
+      child: OutlinedButton(
         child: Text(
           pair.name,
           style: TextStyle(fontSize: 12),
         ),
-        padding: EdgeInsets.zero,
-        textColor: color,
+        // padding: EdgeInsets.zero,
+        // textColor: color,
         onPressed: () {
           _select(pageController, index, pair);
           if (onTap != null) onTap();
         },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        borderSide:
-            color != null ? BorderSide(color: color, width: Global.borderSize) : null,
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.all(Radius.circular(12)),
+        // ),
+        // borderSide:
+        //     color != null ? BorderSide(color: color, width: Global.borderSize) : null,
       ),
       decoration: BoxDecoration(
         color: bgColor,
