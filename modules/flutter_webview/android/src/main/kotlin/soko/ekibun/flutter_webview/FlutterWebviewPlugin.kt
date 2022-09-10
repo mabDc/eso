@@ -66,7 +66,7 @@ class FlutterWebviewPlugin: FlutterPlugin, MethodCallHandler {
         }
       }
     } else if (call.method == "close") {
-      val id = call.arguments<Int>()
+      val id = call.arguments<Int>()!!
       webviews[id]?.finish()
       webviews[id] = null
       result.success(null)
