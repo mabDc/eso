@@ -2,8 +2,9 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/model/chapter_page_provider.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-class SearchItem {
+class SearchItem extends HiveObject{
   String searchUrl;
   String chapterUrl;
 

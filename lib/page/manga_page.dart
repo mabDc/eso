@@ -326,10 +326,10 @@ class MangaPageProvider with ChangeNotifier {
     _showSetting = false;
     _headers = Map<String, String>();
     shouldUpdateManga = true;
-    if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-    }
+    // if (searchItem.chapters?.length == 0 &&
+    //     SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+    //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    // }
     _initContent();
     loadChapter();
   }

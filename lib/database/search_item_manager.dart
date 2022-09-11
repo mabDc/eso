@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/utils.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'chapter_item.dart';
 import 'search_item.dart';
 import '../global.dart';
@@ -11,7 +12,7 @@ class SearchItemManager {
   static List<SearchItem> get searchItem => _searchItem;
   static String get key => Global.searchItemKey;
 
-  static String genChapterKey(int id) => "chapter$id";
+  // static String genChapterKey(int id) => "chapter$id";
 
   /// 根据类型和排序规则取出收藏
   static List<SearchItem> getSearchItemByType(int contentType, SortType sortType) {
@@ -53,67 +54,85 @@ class SearchItemManager {
   static Future<bool> addSearchItem(SearchItem searchItem) async {
     _searchItem.removeWhere((element) => element.id == searchItem.id);
     _searchItem.add(searchItem);
-    return await saveSearchItem() &&
-        await saveChapter(searchItem.id, searchItem.chapters);
+    final sbox = Hive.box<SearchItem>(key);
+    sbox.put(searchItem.id.toString(), searchItem);
+    return true;
   }
 
-  static List<ChapterItem> getChapter(int id) {
-    return Global.prefs
-        .getStringList(genChapterKey(id))
-        .map((item) => ChapterItem.fromJson(jsonDecode(item)))
-        .toList();
-  }
+  // static List<ChapterItem> getChapter(int id) {
+  //   final sbox = Hive.box<SearchItem>(key);
+  //   return sbox.get(id.toString()).chapters;
+  // }
 
   static void initSearchItem() {
     _searchItem = <SearchItem>[];
-    Global.prefs
-        .getStringList(key)
-        ?.forEach((item) => _searchItem.add(SearchItem.fromJson(jsonDecode(item))));
+    final sbox = Hive.box<SearchItem>(key);
+    if (sbox.isEmpty) {
+      final ori = Global.prefs.getStringList(key);
+      if (ori != null) {
+        if (ori.isNotEmpty) {
+          ori.forEach((item) {
+            final it = SearchItem.fromJson(jsonDecode(item));
+            sbox.put(it.id.toString(), it);
+          });
+          _searchItem = sbox.values.toList();
+        }
+        ori.clear();
+        Global.prefs.setStringList(key, []);
+      }
+    } else {
+      _searchItem = sbox.values.toList();
+    }
   }
 
   static Future<bool> removeSearchItem(int id) async {
-    await Global.prefs.remove(genChapterKey(id));
-    _searchItem.removeWhere((item) => item.id == id);
-    return saveSearchItem();
+    final sbox = Hive.box<SearchItem>(key);
+    sbox.delete(id.toString());
+    _searchItem = sbox.values.toList();
+    return true;
   }
 
-  static Future<bool> saveSearchItem() async {
-    return await Global.prefs.setStringList(
-        key, _searchItem.map((item) => jsonEncode(item.toJson())).toList());
-  }
+  // static Future<bool> saveSearchItem() async {
+  //   final sbox = Hive.box<SearchItem>(key);
+  //   sbox.
+  //   return true;
+  //   return await Global.prefs.setStringList(
+  //       key, _searchItem.map((item) => jsonEncode(item.toJson())).toList());
+  // }
 
-  static Future<bool> removeChapter(int id) {
-    return Global.prefs.remove(genChapterKey(id));
-  }
+  // static Future<bool> removeChapter(int id) {
+  //   return Global.prefs.remove(genChapterKey(id));
+  // }
 
-  static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
-    return await Global.prefs.setStringList(
-        genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
-  }
+  // static Future<bool> saveChapter(int id, List<ChapterItem> chapters) async {
+  //   return await Global.prefs.setStringList(
+  //       genChapterKey(id), chapters.map((item) => jsonEncode(item.toJson())).toList());
+  // }
 
   static String backupItems() {
     if (_searchItem == null || _searchItem.isEmpty) initSearchItem();
     return json.encode(_searchItem.map((item) {
       Map<String, dynamic> json = item.toJson();
       json["chapters"] =
-          getChapter(item.id).map((chapter) => jsonEncode(chapter.toJson())).toList();
+          item.chapters.map((chapter) => jsonEncode(chapter.toJson())).toList();
       return json;
     }).toList());
   }
 
   static Future<bool> restore(String data) async {
-    List json = jsonDecode(data);
-    json.forEach((item) {
+    final sbox = Hive.box<SearchItem>(key);
+    sbox.clear();
+    jsonDecode(data).forEach((item) {
       SearchItem searchItem = SearchItem.fromJson(item);
       if (!isFavorite(searchItem.originTag, searchItem.url)) {
-        List<ChapterItem> chapters = (jsonDecode('${item["chapters"]}') as List)
+        searchItem.chapters = (jsonDecode('${item["chapters"]}') as List)
             .map((chapter) => ChapterItem.fromJson(chapter))
             .toList();
-        saveChapter(searchItem.id, chapters);
+        // if(searchItem.chapters == null) searchItem.chapters = <ChapterItem>[];
         _searchItem.add(searchItem);
+        sbox.put(searchItem.id.toString(), searchItem);
       }
     });
-    saveSearchItem();
     return true;
   }
 
@@ -135,9 +154,9 @@ class SearchItemManager {
   }
 
   static Future<void> refreshItem(SearchItem item) async {
-    if (item.chapters.isEmpty) {
-      item.chapters = SearchItemManager.getChapter(item.id);
-    }
+    // if (item.chapters.isEmpty) {
+    //   item.chapters = SearchItemManager.getChapter(item.id);
+    // }
     List<ChapterItem> chapters;
     try {
       chapters = await APIManager.getChapter(item.originTag, item.url);
@@ -155,7 +174,8 @@ class SearchItemManager {
       item.chapters = chapters;
       item.chapter = chapters.last?.name;
       item.chaptersCount = chapters.length;
-      await SearchItemManager.saveChapter(item.id, item.chapters);
+      await item.save();
+      // await SearchItemManager.saveChapter(item.id, item.chapters);
     } else {
       Utils.toast("${item.name} 无新增章节");
     }

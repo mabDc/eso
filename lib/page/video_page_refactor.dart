@@ -487,10 +487,10 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
   final ContentProvider contentProvider;
   VideoPageProvider({@required this.searchItem, @required this.contentProvider}) {
     WidgetsBinding.instance.addObserver(this);
-    if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-    }
+    // if (searchItem.chapters?.length == 0 &&
+    //     SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+    //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    // }
     _titleText = "${searchItem.name} - ${searchItem.durChapter}";
     _screenAxis = Axis.horizontal;
     _disposed = false;
@@ -524,7 +524,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     notifyListeners();
     () async {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      await SearchItemManager.saveSearchItem();
+      // await SearchItemManager.saveSearchItem();
+      await searchItem.save();
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
       await HistoryItemManager.saveHistoryItem();
     }();
@@ -592,7 +593,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       }
       searchItem.durContentIndex = _controller.value.position.inMilliseconds;
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      SearchItemManager.saveSearchItem();
+      searchItem.save();
       notifyListeners();
     }
   }
@@ -613,7 +614,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     }
     () async {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      await SearchItemManager.saveSearchItem();
+      await searchItem.save();;
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
       await HistoryItemManager.saveHistoryItem();
     }();
@@ -775,7 +776,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void displayController() {
     _showController = true;
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     _controllerTime = DateTime.now();
   }
 

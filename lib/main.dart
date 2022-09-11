@@ -35,11 +35,14 @@ void main() async {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
-  runApp(MyApp());
   WidgetsFlutterBinding.ensureInitialized();
   var appDir = await getApplicationDocumentsDirectory();
   print("appDir" + appDir.path);
   await Hive.initFlutter("eso");
+  Hive.registerAdapter(ChapterItemAdapter());
+  Hive.registerAdapter(SearchItemAdapter());
+  await Hive.openBox<SearchItem>(Global.searchItemKey);
+  runApp(MyApp());
   // Hive.registerAdapter(ChapterItemAdapter());
   // Hive.registerAdapter(SearchItemAdapter());
   // await Hive.openBox<SearchItem>(Global.searchItemKey);

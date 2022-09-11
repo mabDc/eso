@@ -47,10 +47,10 @@ class AudioPageController with ChangeNotifier {
       notifyListeners();
     });
     // searchItem
-    if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-    }
+    // if (searchItem.chapters?.length == 0 &&
+    //     SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+    //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    // }
     _audioService.playChapter(searchItem.durChapterIndex, searchItem: searchItem);
   }
 

@@ -51,10 +51,11 @@ class ChapterPageProvider with ChangeNotifier {
     if (searchItem.chapters == null) {
       _isLoading = true;
       initChapters();
-    } else if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     }
+    //  else if (searchItem.chapters?.length == 0 &&
+    //     SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+    //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    // }
   }
 
   // double get _calcHeight {
@@ -130,7 +131,8 @@ class ChapterPageProvider with ChangeNotifier {
       searchItem.chapter = '';
     }
     if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-      await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
+      await searchItem.save();
+      // await SearchItemManager.saveChapter(searchItem.id, searchItem.chapters);
     }
     _isLoading = false;
     notifyListeners();
@@ -143,7 +145,8 @@ class ChapterPageProvider with ChangeNotifier {
       searchItem.durChapterIndex = index;
       searchItem.durChapter = searchItem.chapters[index].name;
       searchItem.durContentIndex = 1;
-      await SearchItemManager.saveSearchItem();
+      // await SearchItemManager.saveSearchItem();
+      await searchItem.save();
       notifyListeners();
     }
   }
@@ -238,7 +241,8 @@ class ChapterPageProvider with ChangeNotifier {
   void changeListStyle(int listStyle) async {
     if (searchItem.chapterListStyle != listStyle) {
       searchItem.chapterListStyle = listStyle;
-      await SearchItemManager.saveSearchItem();
+      // await SearchItemManager.saveSearchItem();
+      await searchItem.save();
       notifyListeners();
       await Future.delayed(Duration(milliseconds: 10));
     }

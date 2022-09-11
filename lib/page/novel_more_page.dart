@@ -24,7 +24,7 @@ class NovelMorePage extends StatelessWidget {
     final contentProvider = Provider.of<ContentProvider>(context);
     return Scaffold(
       body: FutureBuilder<List<String>>(
-        future: contentProvider.refresh(),
+        future: contentProvider.loadChapter(searchItem.durChapterIndex),
         initialData: null,
         builder: (BuildContext _, AsyncSnapshot<List<String>> snapshot) {
           if (!snapshot.hasData) {

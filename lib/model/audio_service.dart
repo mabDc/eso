@@ -219,7 +219,8 @@ class AudioService {
     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
     _searchItem.durContentIndex = 1;
     _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
-    await SearchItemManager.saveSearchItem();
+    await _searchItem.save();
+    // await SearchItemManager.saveSearchItem();
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     await HistoryItemManager.saveHistoryItem();
     print(_url);

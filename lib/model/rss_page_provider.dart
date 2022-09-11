@@ -22,10 +22,10 @@ class RSSPageProvider with ChangeNotifier {
   RSSPageProvider({this.searchItem}) {
     _isLoading = false;
     _showChapter = false;
-    if (searchItem.chapters?.length == 0 &&
-        SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-      searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-    }
+    // if (searchItem.chapters?.length == 0 &&
+    //     SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+    //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+    // }
     _initContent();
   }
 
@@ -48,7 +48,8 @@ class RSSPageProvider with ChangeNotifier {
     searchItem.durChapterIndex = chapterIndex;
     searchItem.durChapter = searchItem.chapters[chapterIndex].name;
     searchItem.durContentIndex = 1;
-    await SearchItemManager.saveSearchItem();
+    // await SearchItemManager.saveSearchItem();
+    await searchItem.save();
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     await HistoryItemManager.saveHistoryItem();
     _isLoading = false;
@@ -60,7 +61,8 @@ class RSSPageProvider with ChangeNotifier {
     content.clear();
     () async {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      await SearchItemManager.saveSearchItem();
+      // await SearchItemManager.saveSearchItem();
+      await searchItem.save();
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
       await HistoryItemManager.saveHistoryItem();
     }();

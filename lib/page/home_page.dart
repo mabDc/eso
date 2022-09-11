@@ -51,8 +51,8 @@ class _HomePageState extends State<HomePage> {
     }
     final item = _searchList[index];
     if (item.chapters.isEmpty) {
-      if (SearchItemManager.isFavorite(item.originTag, item.url))
-        item.chapters = SearchItemManager.getChapter(item.id);
+      // if (SearchItemManager.isFavorite(item.originTag, item.url))
+      //   item.chapters = SearchItemManager.getChapter(item.id);
       if (item.chapters.isEmpty) {
         // 如果还是为空，则尝试加载下一个
         playNextAudio(item, true);

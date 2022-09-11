@@ -93,12 +93,12 @@ class ContentProvider with ChangeNotifier {
     try {
       if (searchItem.chapters == null || searchItem.chapters.isEmpty) {
         _addInfo("目录为空 重新获取目录");
-        if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-          searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
-        } else {
-          searchItem.chapters =
-              await APIManager.getChapter(searchItem.originTag, searchItem.url);
-        }
+        // if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
+        //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
+        // } else {
+        searchItem.chapters =
+            await APIManager.getChapter(searchItem.originTag, searchItem.url);
+        // }
         _addInfo("结束 得到${searchItem.chapters.length}个章节");
       }
       _cache = CacheUtil(basePath: "cache${Platform.pathSeparator}${searchItem.id}");
@@ -174,7 +174,8 @@ class ContentProvider with ChangeNotifier {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       // print("SearchItemManager.saveSearchItem()" +
       //     DateTime.now().millisecondsSinceEpoch.toString());
-      await SearchItemManager.saveSearchItem();
+      // await SearchItemManager.saveSearchItem();
+      await searchItem.save();
       // final box = Hive.box<SearchItem>(Global.searchItemKey);
       // box.clear();
       // box.putAll(Map<String, SearchItem>.fromIterable(SearchItemManager.searchItem,
@@ -183,6 +184,6 @@ class ContentProvider with ChangeNotifier {
       // print("SearchItemManager.saveSearchItem()" +
       //     DateTime.now().millisecondsSinceEpoch.toString());
     }
-    await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    // await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
   }
 }

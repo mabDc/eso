@@ -85,15 +85,16 @@ class _NovelPageState extends State<NovelPage> {
           if (percent > 0.0000001) {
             percent -= 0.0000001;
           }
-          Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
+          // Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
           searchItem.durContentIndex = (percent * NovelContentTotal).floor();
           final index = (percent * searchItem.chapters.length).floor();
-          HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+          // HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
           if (searchItem.durChapterIndex != index) {
             searchItem.durChapterIndex = index;
             searchItem.durChapter = searchItem.chapters[index].name;
             // searchItem.durContentIndex = 1;
-            await SearchItemManager.saveSearchItem();
+            // await SearchItemManager.saveSearchItem();
+            await searchItem.save();
           }
         },
         name: bookName,
@@ -776,8 +777,7 @@ class _BrightnessSettingsState extends State<BrightnessSettings> {
                   color: bgColor,
                   child: Text((value as double).toStringAsFixed(0)),
                 ),
-                positionOffset:
-                    FlutterSliderTooltipPositionOffset(left: -20, right: -20),
+                positionOffset: FlutterSliderTooltipPositionOffset(left: -20, right: -20),
               ),
             ),
           )
