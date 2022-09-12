@@ -6,7 +6,7 @@ import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/history_manager.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -58,7 +58,7 @@ class AutoBackupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Profile();
+    final profile = ESOTheme();
     return Scaffold(
       appBar: AppBar(
         title: Text('备份恢复与webdav'),
@@ -75,14 +75,14 @@ class AutoBackupPage extends StatelessWidget {
                     children: [
                       RadioListTile<int>(
                         title: Text('从不'),
-                        value: Profile.autoBackupNone,
+                        value: ESOTheme.autoBackupNone,
                         groupValue: profile.autoBackRate,
                         onChanged: (int value) =>
                             setState(() => profile.autoBackRate = value),
                       ),
                       RadioListTile<int>(
                         title: Text('每日'),
-                        value: Profile.autoBackupDay,
+                        value: ESOTheme.autoBackupDay,
                         groupValue: profile.autoBackRate,
                         onChanged: (int value) =>
                             setState(() => profile.autoBackRate = value),
@@ -278,7 +278,7 @@ class AutoBackupPage extends StatelessWidget {
   static const myWebdavServer = 'https://dav.jianguoyun.com/dav/';
 
   static shareRule([bool autoShare = false]) async {
-    final profile = Profile();
+    final profile = ESOTheme();
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
     final fileName = Uri.encodeComponent(
         'share.${profile.webdavRuleCheckcode}.rule.${profile.webdavRuleAccount}.$today.zip');
@@ -315,7 +315,7 @@ class AutoBackupPage extends StatelessWidget {
   }
 
   share() async {
-    final profile = Profile();
+    final profile = ESOTheme();
     if (profile.autoBackupLastDay.isEmpty) {
       Utils.toast("从未备份");
       return;
@@ -341,14 +341,14 @@ class AutoBackupPage extends StatelessWidget {
   }
 
   static backup([bool autoBackup = false]) async {
-    final profile = Profile();
+    final profile = ESOTheme();
     final today = intl.DateFormat('yyyy-MM-dd').format(DateTime.now());
     // final fileName = '$today.${Platform.operatingSystem}.${Platform.operatingSystemVersion}.zip';
     final fileName = '$today.${Platform.operatingSystem}.zip';
     final dir = join(await CacheUtil(backup: true).cacheDir(), fileName);
     if (autoBackup) {
       if (today == profile.autoBackupLastDay ||
-          profile.autoBackRate != Profile.autoBackupDay) return;
+          profile.autoBackRate != ESOTheme.autoBackupDay) return;
       Utils.toast("1s后开始自动每日备份，路径$dir，可在设置中取消");
       await Future.delayed(Duration(seconds: 1));
     }
@@ -404,7 +404,7 @@ class AutoBackupPage extends StatelessWidget {
       } else if (file.name == "${Global.profileKey}.json") {
         final profile = utf8.decode(file.content);
         if (profile != null && profile is String && profile.isNotEmpty) {
-          Profile().restore(profile);
+          ESOTheme().restore(profile);
         }
       } else if (file.name == "${Global.searchItemKey}.json") {
         final searchItem = utf8.decode(file.content);
@@ -499,7 +499,7 @@ class AutoBackupPage extends StatelessWidget {
   }
 
   void restoreFromWebDav(BuildContext context, Offset pos, bool isOnlyRule) async {
-    final profile = Profile();
+    final profile = ESOTheme();
     try {
       Client client = Client(
           profile.webdavServer, profile.webdavAccount, profile.webdavPassword,

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_chapter.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/page/photo_view_page.dart';
 import 'package:text_composition/text_composition.dart';
 import 'package:eso/ui/ui_image_item.dart';
@@ -181,7 +181,7 @@ class _ChapterPageState extends State<ChapterPage> {
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodyText1.color,
                             fontWeight: FontWeight.w700,
-                            fontFamily: Profile.staticFontFamily,
+                            fontFamily: ESOTheme.staticFontFamily,
                             fontSize: 18,
                             shadows: [Shadow(blurRadius: 2, color: Colors.grey)],
                           ),
@@ -191,7 +191,7 @@ class _ChapterPageState extends State<ChapterPage> {
                           searchItem.author,
                           style: TextStyle(
                             fontSize: 12,
-                            fontFamily: Profile.staticFontFamily,
+                            fontFamily: ESOTheme.staticFontFamily,
                             color: Theme.of(context).textTheme.bodyText1.color,
                           ),
                         ),
@@ -220,7 +220,7 @@ class _ChapterPageState extends State<ChapterPage> {
                                 tag,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontFamily: Profile.staticFontFamily,
+                                    fontFamily: ESOTheme.staticFontFamily,
                                     fontSize: 10,
                                     color: Colors.white,
                                     height: 1.0),
@@ -253,7 +253,7 @@ class _ChapterPageState extends State<ChapterPage> {
         config: TextCompositionConfig(
           fontSize: 12,
           paragraphPadding: 8,
-          fontFamily: Profile.staticFontFamily,
+          fontFamily: ESOTheme.staticFontFamily,
           fontColor: Theme.of(context).textTheme.headline6.color,
         ),
         width: constrains.maxWidth,
@@ -428,9 +428,12 @@ class _ChapterPageState extends State<ChapterPage> {
             child: Container(height: 200, child: LandingPage()),
           );
         }
-        if (searchItem.chapters != null && searchItem.chapters.length > 0 && searchItem.chapters.first.name == "正文") {
-          Future.delayed(Duration(milliseconds: 100)).then((value) => Navigator.of(context)
-              .pushReplacement(ContentPageRoute().route(searchItem)));
+        if (searchItem.chapters != null &&
+            searchItem.chapters.length > 0 &&
+            searchItem.chapters.first.name == "正文") {
+          Future.delayed(Duration(milliseconds: 100)).then((value) =>
+              Navigator.of(context)
+                  .pushReplacement(ContentPageRoute().route(searchItem)));
         }
 
         void Function(int index) onTap = (int index) {

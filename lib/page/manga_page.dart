@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_display_brightness/device_display_brightness.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_chapter_loding.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/ui_fade_in_image.dart';
@@ -40,7 +40,7 @@ class _MangaPageState extends State<MangaPage> {
   @override
   Widget build(BuildContext context) {
     if (page == null) {
-      final provider = Provider.of<Profile>(context, listen: false);
+      final provider = ESOTheme();
       page = buildPage(
         provider.mangaKeepOn,
         provider.mangaLandscape,
@@ -68,9 +68,9 @@ class _MangaPageState extends State<MangaPage> {
         contentProvider: contentProvider,
       ),
       child: Scaffold(
-        body: Consumer2<MangaPageProvider, Profile>(
-          builder:
-              (BuildContext context, MangaPageProvider provider, Profile profile, _) {
+        body: Consumer<MangaPageProvider>(
+          builder: (BuildContext context, MangaPageProvider provider, _) {
+            final profile = ESOTheme();
             if (__provider == null) {
               __provider = provider;
             }
@@ -107,20 +107,20 @@ class _MangaPageState extends State<MangaPage> {
     );
   }
 
-  Widget _buildMangaContent(MangaPageProvider provider, Profile profile) {
+  Widget _buildMangaContent(MangaPageProvider provider, ESOTheme profile) {
     if (pageMangaContent != null && !provider.shouldUpdateManga) return pageMangaContent;
     Axis direction;
     bool reverse;
     switch (profile.mangaDirection) {
-      case Profile.mangaDirectionTopToBottom:
+      case ESOTheme.mangaDirectionTopToBottom:
         direction = Axis.vertical;
         reverse = false;
         break;
-      case Profile.mangaDirectionLeftToRight:
+      case ESOTheme.mangaDirectionLeftToRight:
         direction = Axis.horizontal;
         reverse = false;
         break;
-      case Profile.mangaDirectionRightToLeft:
+      case ESOTheme.mangaDirectionRightToLeft:
         direction = Axis.horizontal;
         reverse = true;
         break;
@@ -156,7 +156,7 @@ class _MangaPageState extends State<MangaPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  fontFamily: Profile.staticFontFamily,
+                  fontFamily: ESOTheme.staticFontFamily,
                   height: 2,
                   color: Theme.of(context).textTheme.bodyText1.color,
                 ),
@@ -180,7 +180,7 @@ class _MangaPageState extends State<MangaPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  fontFamily: Profile.staticFontFamily,
+                  fontFamily: ESOTheme.staticFontFamily,
                   height: 2,
                   color: Theme.of(context).textTheme.bodyText1.color,
                 ),
@@ -221,7 +221,7 @@ class _MangaPageState extends State<MangaPage> {
 
   bool lastShowMenu;
 
-  updateSystemChrome(bool showMenu, Profile profile) {
+  updateSystemChrome(bool showMenu, ESOTheme profile) {
     if (showMenu == lastShowMenu) return;
     lastShowMenu = showMenu;
     if (showMenu) {
@@ -316,7 +316,7 @@ class MangaPageProvider with ChangeNotifier {
     this.searchItem,
     this.keepOn = false,
     this.landscape = false,
-    this.direction = Profile.mangaDirectionTopToBottom,
+    this.direction = ESOTheme.mangaDirectionTopToBottom,
     this.contentProvider,
   }) {
     _brightness = 0.5;

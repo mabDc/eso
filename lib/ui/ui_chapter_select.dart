@@ -1,6 +1,6 @@
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:flutter/material.dart';
 
@@ -97,7 +97,7 @@ class _UIChapterSelectState extends State<UIChapterSelect> {
               style: TextStyle(
                   color: widget.fontColor ?? Theme.of(context).textTheme.bodyText1.color,
                   fontSize: 16,
-                  fontFamily: Profile.staticFontFamily),
+                  fontFamily: ESOTheme.staticFontFamily),
               child: _count > 64
                   ? DraggableScrollbar.semicircle(
                       controller: _controller,

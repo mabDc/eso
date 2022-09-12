@@ -1,6 +1,6 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/page/setting/auto_backup_page.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/page/setting/about_page.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +71,7 @@ class FavoritePage2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Profile();
+    final profile = ESOTheme();
     if (Global.needShowAbout) {
       Global.needShowAbout = false;
       if (profile.version != profile.lastestVersion) {
@@ -104,7 +104,7 @@ class FavoritePage2 extends StatelessWidget {
                       tab[0],
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontFamily: Profile.staticFontFamily),
+                          fontFamily: ESOTheme.staticFontFamily),
                     )))
                 .toList(),
           ),
@@ -113,7 +113,7 @@ class FavoritePage2 extends StatelessWidget {
                 icon: Icon(Icons.add_to_photos_outlined),
                 tooltip: "导入本地txt或epub",
                 onPressed: () => Utils.startPageWait(context, AddLocalItemPage())),
-            if (profile.searchPostion == Profile.searchAction)
+            if (profile.searchPostion == ESOTheme.searchAction)
               IconButton(
                   icon: Icon(Icons.search),
                   tooltip: "搜索",

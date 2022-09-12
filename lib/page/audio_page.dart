@@ -5,7 +5,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/audio_page_controller.dart';
 import 'package:eso/model/audio_service.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
@@ -228,7 +228,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontSize: 12,
-                                fontFamily: Profile.staticFontFamily,
+                                fontFamily: ESOTheme.staticFontFamily,
                                 height: 1.75,
                               ),
                               child: Column(

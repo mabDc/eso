@@ -1,4 +1,4 @@
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../../global.dart';
@@ -7,7 +7,8 @@ class ImagePlaceHolder extends StatelessWidget {
   final double height;
   final double width;
   final bool error;
-  const ImagePlaceHolder({Key key, this.height = 400, this.width = 400, this.error = false})
+  const ImagePlaceHolder(
+      {Key key, this.height = 400, this.width = 400, this.error = false})
       : super(key: key);
 
   @override
@@ -34,7 +35,7 @@ class ImagePlaceHolder extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    fontFamily: Profile.staticFontFamily,
+                    fontFamily: ESOTheme.staticFontFamily,
                     color: Theme.of(context).primaryColor.withOpacity(0.1),
                   ),
                 )

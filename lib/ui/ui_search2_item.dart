@@ -1,5 +1,5 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/material.dart';
 import '../database/search_item.dart';
@@ -26,8 +26,7 @@ class UiSearch2Item extends StatelessWidget {
       author: item.author,
       chapter: item.chapter,
       description: item.description,
-      contentTypeName:
-          showType ? API.getRuleContentTypeName(item.ruleContentType) : "",
+      contentTypeName: showType ? API.getRuleContentTypeName(item.ruleContentType) : "",
     );
   }
 }
@@ -60,16 +59,13 @@ class _UiSearchItem extends StatelessWidget {
     final _chapter = chapter?.trim();
     final _description = description?.trim();
     final _origin = origin?.trim();
-    final _txtColor =
-        Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7);
-    final _textStyle = TextStyle(color: _txtColor,
-        fontFamily: Profile.staticFontFamily, height: 1.0, fontSize: 13);
-    final _chapterText = Utils.empty(_chapter)
-        ? null
-        : Text(_chapter, maxLines: 1, style: _textStyle);
-    final _originText = Utils.empty(_origin)
-        ? null
-        : Text(_origin, maxLines: 1, style: _textStyle);
+    final _txtColor = Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7);
+    final _textStyle = TextStyle(
+        color: _txtColor, fontFamily: ESOTheme.staticFontFamily, height: 1.0, fontSize: 13);
+    final _chapterText =
+        Utils.empty(_chapter) ? null : Text(_chapter, maxLines: 1, style: _textStyle);
+    final _originText =
+        Utils.empty(_origin) ? null : Text(_origin, maxLines: 1, style: _textStyle);
     final _authorText = Utils.empty(_author)
         ? null
         : Text(_author,
@@ -91,7 +87,7 @@ class _UiSearchItem extends StatelessWidget {
             name?.trim() ?? '',
             maxLines: 2,
             style: TextStyle(
-                fontFamily: Profile.staticFontFamily,
+                fontFamily: ESOTheme.staticFontFamily,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyText1.color,
                 fontSize: 16),
@@ -112,7 +108,7 @@ class _UiSearchItem extends StatelessWidget {
                     fontSize: 11,
                     height: 1.4,
                     color: Colors.white,
-                    fontFamily: Profile.staticFontFamily,
+                    fontFamily: ESOTheme.staticFontFamily,
                     textBaseline: TextBaseline.alphabetic,
                   ),
                 ),
@@ -125,7 +121,8 @@ class _UiSearchItem extends StatelessWidget {
         height: 185,
         child: Padding(
           padding: const EdgeInsets.only(left: 8, right: 8, top: 6),
-          child: UIImageItem(cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
+          child: UIImageItem(
+              cover: cover, hero: Utils.empty(cover) ? null : '$name.$cover.$id'),
         ),
       ),
     ];
@@ -169,8 +166,10 @@ class _UiSearchItem extends StatelessWidget {
       constraints: BoxConstraints(minHeight: 105, minWidth: double.infinity),
       child: DefaultTextStyle(
         style: TextStyle(
-            fontFamily: Profile.staticFontFamily,
-            fontSize: 12, color: Theme.of(context).hintColor, height: 1.5),
+            fontFamily: ESOTheme.staticFontFamily,
+            fontSize: 12,
+            color: Theme.of(context).hintColor,
+            height: 1.5),
         overflow: TextOverflow.ellipsis,
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -1,4 +1,4 @@
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_image_item.dart';
 
 import '../database/search_item.dart';
@@ -76,7 +76,7 @@ class _UiShelfItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontFamily: Profile.staticFontFamily,
+                          fontFamily: ESOTheme.staticFontFamily,
                           fontSize: 15,
                         ),
                       ),
@@ -87,10 +87,8 @@ class _UiShelfItem extends StatelessWidget {
                             alignment: Alignment(0, 0),
                             decoration: BoxDecoration(
                                 color: Colors.grey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8))),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 4),
+                                borderRadius: BorderRadius.all(Radius.circular(8))),
+                            padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
                             child: Text(
                               '$chapterNum',
                               maxLines: 1,
@@ -108,11 +106,7 @@ class _UiShelfItem extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        .color
-                        .withOpacity(0.7),
+                    color: Theme.of(context).textTheme.bodyText1.color.withOpacity(0.7),
                   ),
                 ),
                 Text(

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 
-import '../../profile.dart';
+import '../../eso_theme.dart';
 
 class ColorLensPage extends StatelessWidget {
   const ColorLensPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<Profile>(context, listen: false);
+    final profile = ESOTheme();
     Color currentColor = Color(profile.primaryColor);
     void Function(Color color) changeColor =
         (Color color) => profile.primaryColor = color.value;

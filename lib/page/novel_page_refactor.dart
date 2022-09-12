@@ -10,7 +10,7 @@ import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/global.dart';
 import 'package:eso/page/content_page_manager.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/flutter_slider.dart';

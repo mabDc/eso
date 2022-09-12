@@ -5,7 +5,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_rule.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils.dart';
@@ -448,7 +448,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          fontFamily: Profile.staticFontFamily,
+          fontFamily: ESOTheme.staticFontFamily,
         ),
       ),
     );

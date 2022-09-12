@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/database/rule.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
@@ -108,7 +108,7 @@ class DebugRuleProvider with ChangeNotifier {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            fontFamily: Profile.staticFontFamily,
+            fontFamily: ESOTheme.staticFontFamily,
             height: 2,
           ),
         ),

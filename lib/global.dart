@@ -3,8 +3,9 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -13,7 +14,10 @@ import 'package:sqflite/src/factory_mixin.dart' as impl;
 import 'package:text_composition/text_composition.dart';
 import 'database/database.dart';
 import 'database/history_item_manager.dart';
+import 'hive/chapter_item_adapter.dart';
+import 'hive/search_item_adapter.dart';
 import 'database/rule_dao.dart';
+import 'database/search_item.dart';
 import 'page/novel_page_refactor.dart';
 import 'utils/cache_util.dart';
 
@@ -47,7 +51,7 @@ class Global with ChangeNotifier {
   static RuleDao get ruleDao => _ruleDao;
 
   static Future<void> initFont() async {
-    final profile = Profile();
+    final profile = ESOTheme();
     final fontFamily = profile.fontFamily;
     if (fontFamily == null) return;
     final _cacheUtil = CacheUtil(backup: true, basePath: "font");
@@ -61,7 +65,9 @@ class Global with ChangeNotifier {
       }
     } catch (e) {}
     try {
-      final fontFamily = TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey))).fontFamily;
+      final fontFamily =
+          TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey)))
+              .fontFamily;
       if (fontFamily != null && fontFamily.contains('.')) {
         await loadFontFromList(
           await File(dir + fontFamily).readAsBytes(),
@@ -72,6 +78,11 @@ class Global with ChangeNotifier {
   }
 
   static Future<bool> init() async {
+    Hive.registerAdapter(ChapterItemAdapter());
+    Hive.registerAdapter(SearchItemAdapter());
+    await Hive.openBox<SearchItem>(Global.searchItemKey);
+    await Hive.openBox(Global.profileKey);
+
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     if (isDesktop) {
       sqflite.databaseFactory = databaseFactoryFfi;

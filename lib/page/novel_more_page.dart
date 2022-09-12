@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/page/source/editor/highlight.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

@@ -1,5 +1,5 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 
 import 'ui_image_item.dart';
 import '../database/search_item.dart';
@@ -27,12 +27,12 @@ class UIFavoriteItem extends StatelessWidget {
       direction: Axis.vertical,
       children: <Widget>[
         Expanded(
-          child: Container(
-            width: double.infinity,
-            child: UIImageItem(cover: searchItem.cover),
-            decoration: BoxDecoration(
-              boxShadow: [BoxShadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black12)]
-            ),
+            child: Container(
+          width: double.infinity,
+          child: UIImageItem(cover: searchItem.cover),
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black12)
+          ]),
         )),
         SizedBox(height: 6),
         Container(
@@ -51,7 +51,7 @@ class UIFavoriteItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: Theme.of(context).hintColor,
-              fontFamily: Profile.staticFontFamily,
+              fontFamily: ESOTheme.staticFontFamily,
               fontSize: 10,
             ),
           ),

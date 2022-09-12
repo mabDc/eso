@@ -7,7 +7,7 @@ import 'package:eso/database/rule_dao.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
 import 'package:eso/model/history_manager.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
@@ -43,7 +43,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<Profile>(context, listen: false);
+    final profile = ESOTheme();
     final child = ChangeNotifierProvider(
         create: (context) => SearchProvider(
               threadCount: profile.searchCount,
@@ -68,7 +68,7 @@ class _SearchPageState extends State<SearchPage> {
                     iconSize: 14,
                     style: TextStyle(
                         fontSize: 13,
-                        fontFamily: Profile.staticFontFamily,
+                        fontFamily: ESOTheme.staticFontFamily,
                         color:
                             Theme.of(context).textTheme.bodyText1.color.withOpacity(0.5)),
                     isExpanded: true,
@@ -251,7 +251,7 @@ class _SearchPageState extends State<SearchPage> {
                                 ),
                               ],
                               style: TextStyle(
-                                  fontFamily: Profile.staticFontFamily,
+                                  fontFamily: ESOTheme.staticFontFamily,
                                   color: Theme.of(context).textTheme.bodyText1.color,
                                   height: 1.55),
                             ),
@@ -323,7 +323,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _buildFilterOpt(
-      SearchProvider provider, Profile profile, String text, SearchOption searchOption) {
+      SearchProvider provider, ESOTheme profile, String text, SearchOption searchOption) {
     final _selected = provider.searchOption == searchOption;
     return ButtonTheme(
       height: 25,
@@ -354,7 +354,7 @@ class SimpleChangeRule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Profile();
+    final profile = ESOTheme();
     return Scaffold(
       appBar: AppBar(
         title: Text("${searchItem.name} (${searchItem.author})"),
@@ -403,7 +403,7 @@ class SimpleChangeRule extends StatelessWidget {
                           TextSpan(text: ' | ${provider.rulesCount} (总数) | 结果数: $count'),
                         ],
                         style: TextStyle(
-                            fontFamily: Profile.staticFontFamily,
+                            fontFamily: ESOTheme.staticFontFamily,
                             color: Theme.of(context).textTheme.bodyText1.color,
                             height: 1.55),
                       ),
@@ -476,7 +476,7 @@ class SearchProvider with ChangeNotifier {
 
   int _searchId;
   int _sourceType = -1;
-  Profile _profile;
+  ESOTheme _profile;
   FocusNode _focusNode;
   FocusNode get focusNode => _focusNode;
   TextEditingController _searchController;
@@ -489,7 +489,7 @@ class SearchProvider with ChangeNotifier {
   SearchProvider({
     int threadCount,
     SearchOption searchOption,
-    Profile profile,
+    ESOTheme profile,
     String searchKey,
     int ruleContentType,
   }) {

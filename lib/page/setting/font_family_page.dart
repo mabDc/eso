@@ -8,7 +8,7 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../profile.dart';
+import '../../eso_theme.dart';
 
 class FontFamilyPage extends StatelessWidget {
   const FontFamilyPage({
@@ -25,7 +25,7 @@ class FontFamilyPage extends StatelessWidget {
         create: (context) => _FontFamilyProvider(),
         builder: (context, child) {
           context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
-          final profile = Provider.of<Profile>(context, listen: true);
+          final profile = ESOTheme();
           final fontFamilyProvider =
               Provider.of<_FontFamilyProvider>(context, listen: false);
           if (fontFamilyProvider.ttfList == null) {
@@ -59,7 +59,7 @@ class FontFamilyPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFontListTile(String name, String fontFamily, Profile profile) {
+  Widget _buildFontListTile(String name, String fontFamily, ESOTheme profile) {
     return ListTile(
       title: Text(
         name,

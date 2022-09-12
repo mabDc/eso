@@ -1,4 +1,4 @@
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:flutter/material.dart';
 
 class FirstPage extends StatelessWidget {
@@ -92,7 +92,7 @@ class FirstPage extends StatelessWidget {
               fontSize: 80,
               fontWeight: FontWeight.bold,
               fontStyle: FontStyle.italic,
-              fontFamily: Profile.staticFontFamily,
+              fontFamily: ESOTheme.staticFontFamily,
               letterSpacing: 6,
               color: Color.fromARGB(255, 40, 185, 130),
             ),

@@ -1,9 +1,9 @@
 import 'package:eso/api/api.dart';
-import 'package:eso/database/hive/chapter_item_adapter.dart';
+import 'package:eso/hive/chapter_item_adapter.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../../model/chapter_page_provider.dart';
+import '../model/chapter_page_provider.dart';
 import 'hive_type_id.dart';
 
 T cast<T>(x, T v) => x is T ? x : v;

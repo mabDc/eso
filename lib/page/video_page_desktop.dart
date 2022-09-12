@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -31,12 +31,12 @@ class VideoPageDesktop extends StatefulWidget {
 
 class _VideoPageDesktopState extends State<VideoPageDesktop> {
   WebviewController webviewController;
-  Profile profile;
+  ESOTheme profile;
   Color primaryColor;
 
   @override
   void initState() {
-    profile = Profile();
+    profile = ESOTheme();
     if (webviewController == null) webviewController = WebviewController();
     // (() async {
     //   try {
@@ -308,7 +308,7 @@ class _VideoPageDesktopState extends State<VideoPageDesktop> {
 
 class VPDProvider extends ChangeNotifier {
   final SearchItem searchItem;
-  final Profile profile;
+  final ESOTheme profile;
   final WebviewController webcontroller;
   final ContentProvider contentProvider;
 

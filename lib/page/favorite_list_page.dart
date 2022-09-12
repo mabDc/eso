@@ -2,7 +2,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/ui/ui_favorite_item.dart';
 import 'package:eso/page/content_page_manager.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/model/favorite_list_provider.dart';
 import 'package:eso/ui/widgets/empty_list_msg_view.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class FavoriteListPage extends StatelessWidget {
     SortType sortType;
     void Function(SortType sortType) setSortType;
     final values = SortType.values;
-    final profile = Provider.of<Profile>(context, listen: false);
+    final profile = ESOTheme();
     switch (type) {
       case API.NOVEL:
         sortType = values[profile.novelSortIndex];
@@ -139,7 +139,7 @@ class FavoriteListPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final searchItem = searchItems[index];
             final longPress = _size.width > 600 ||
-                Provider.of<Profile>(context, listen: true).switchLongPress;
+                ESOTheme().switchLongPress;
             VoidCallback openChapter = () => invokeTap(ChapterPage(
                   searchItem: searchItem,
                   key: Key(searchItem.id.toString()),

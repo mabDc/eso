@@ -8,7 +8,7 @@ import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/menu/menu_item.dart';
 import 'package:eso/model/edit_source_provider.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/ui/ui_add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
@@ -257,7 +257,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
               style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  fontFamily: Profile.staticFontFamily,
+                  fontFamily: ESOTheme.staticFontFamily,
                   color: Global.lightness(_leadColor) > 180
                       ? _theme.primaryColorDark
                       : Colors.white),

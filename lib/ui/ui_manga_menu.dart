@@ -1,5 +1,5 @@
 import 'package:eso/database/search_item.dart';
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +42,7 @@ class UIMangaMenu extends StatelessWidget {
 
   Widget _buildSetting(BuildContext context, Color bgColor, Color color) {
     final provider = Provider.of<MangaPageProvider>(context);
-    final profile = Provider.of<Profile>(context);
+    final profile = ESOTheme();
     return IconTheme(
       data: IconThemeData(size: 18, color: color),
       child: Container(
@@ -126,9 +126,11 @@ class UIMangaMenu extends StatelessWidget {
                     child: OutlinedButton(
                       child: Text("上->下", style: TextStyle(color: color)),
                       onPressed: () {
-                        profile.mangaDirection = Profile.mangaDirectionTopToBottom;
+                        profile.mangaDirection = ESOTheme.mangaDirectionTopToBottom;
                       },
-                      style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
                       ))),
@@ -139,9 +141,11 @@ class UIMangaMenu extends StatelessWidget {
                     child: OutlinedButton(
                       child: Text("左->右", style: TextStyle(color: color)),
                       onPressed: () {
-                        profile.mangaDirection = Profile.mangaDirectionLeftToRight;
+                        profile.mangaDirection = ESOTheme.mangaDirectionLeftToRight;
                       },
-                      style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
                       ))),
@@ -152,9 +156,11 @@ class UIMangaMenu extends StatelessWidget {
                     child: OutlinedButton(
                       child: Text("右->左", style: TextStyle(color: color)),
                       onPressed: () {
-                        profile.mangaDirection = Profile.mangaDirectionRightToLeft;
+                        profile.mangaDirection = ESOTheme.mangaDirectionRightToLeft;
                       },
-                      style: ButtonStyle(shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         side: BorderSide(color: color),
                       ))),
@@ -410,7 +416,7 @@ class UIMangaMenu extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: Profile.staticFontFamily,
+                                    fontFamily: ESOTheme.staticFontFamily,
                                     fontSize: 18,
                                   ),
                                 ),
@@ -420,7 +426,7 @@ class UIMangaMenu extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: Profile.staticFontFamily,
+                                  fontFamily: ESOTheme.staticFontFamily,
                                   color: color.withOpacity(0.7),
                                   fontSize: 18,
                                 ),

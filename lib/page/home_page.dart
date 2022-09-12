@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
 import '../model/page_switch.dart';
-import '../profile.dart';
+import '../eso_theme.dart';
 import '../utils.dart';
 import 'discover_page.dart';
 import 'favorite_page.dart';
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Profile();
+    final profile = ESOTheme();
     return OrientationBuilder(builder: (context, orientation) {
       if (MediaQuery.of(context).size.width > 600) {
         isLargeScreen = true;
@@ -97,104 +97,97 @@ class _HomePageState extends State<HomePage> {
                   }),
                 ],
               ),
-              bottomNavigationBar: Consumer<Profile>(
-                builder: (BuildContext context, Profile profile, Widget widget) {
-                  //bool isDark = Theme.of(context).brightness == Brightness.dark;
-                  return BottomAppBar(
-                    color: Theme.of(context).canvasColor,
-                    shape: CircularNotchedRectangle(),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            flex: 3,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: () => pageSwitch.changePage(0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Icon(FIcons.heart,
-                                            color: getColor(pageSwitch, context, 0)),
-                                        Text("收藏",
-                                            style: TextStyle(
-                                                color: getColor(pageSwitch, context, 0)))
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: () => pageSwitch.changePage(1),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        Icon(FIcons.compass,
-                                            color: getColor(pageSwitch, context, 1)),
-                                        Text("发现",
-                                            style: TextStyle(
-                                                color: getColor(pageSwitch, context, 1)))
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (profile.searchPostion == Profile.searchDocker &&
-                              (isLargeScreen || profile.bottomCount == 4))
-                            Spacer(),
-                          if (isLargeScreen || profile.bottomCount == 4)
+              bottomNavigationBar: BottomAppBar(
+                color: Theme.of(context).canvasColor,
+                shape: CircularNotchedRectangle(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 3,
+                        child: Row(
+                          children: [
                             Expanded(
-                              flex: 3,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  Expanded(
-                                    child: TextButton(
-                                      onPressed: () => pageSwitch.changePage(2),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          Icon(Icons.history,
-                                              color: getColor(pageSwitch, context, 2)),
-                                          Text("历史",
-                                              style: TextStyle(
-                                                  color:
-                                                      getColor(pageSwitch, context, 2)))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextButton(
-                                      onPressed: () => pageSwitch.changePage(3),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          Icon(Icons.info_outline_rounded,
-                                              color: getColor(pageSwitch, context, 3)),
-                                          Text("关于",
-                                              style: TextStyle(
-                                                  color:
-                                                      getColor(pageSwitch, context, 3)))
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: TextButton(
+                                onPressed: () => pageSwitch.changePage(0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    Icon(FIcons.heart,
+                                        color: getColor(pageSwitch, context, 0)),
+                                    Text("收藏",
+                                        style: TextStyle(
+                                            color: getColor(pageSwitch, context, 0)))
+                                  ],
+                                ),
                               ),
                             ),
-                        ],
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => pageSwitch.changePage(1),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    Icon(FIcons.compass,
+                                        color: getColor(pageSwitch, context, 1)),
+                                    Text("发现",
+                                        style: TextStyle(
+                                            color: getColor(pageSwitch, context, 1)))
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                      if (ESOTheme().searchPostion == ESOTheme.searchDocker &&
+                          (isLargeScreen || ESOTheme().bottomCount == 4))
+                        Spacer(),
+                      if (isLargeScreen || ESOTheme().bottomCount == 4)
+                        Expanded(
+                          flex: 3,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () => pageSwitch.changePage(2),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Icon(Icons.history,
+                                          color: getColor(pageSwitch, context, 2)),
+                                      Text("历史",
+                                          style: TextStyle(
+                                              color: getColor(pageSwitch, context, 2)))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () => pageSwitch.changePage(3),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Icon(Icons.info_outline_rounded,
+                                          color: getColor(pageSwitch, context, 3)),
+                                      Text("关于",
+                                          style: TextStyle(
+                                              color: getColor(pageSwitch, context, 3)))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-              floatingActionButton: profile.searchPostion == Profile.searchAction
+              floatingActionButton: profile.searchPostion == ESOTheme.searchAction
                   ? null
                   : FloatingActionButton(
                       elevation: 1,
@@ -204,9 +197,9 @@ class _HomePageState extends State<HomePage> {
                           .whenComplete(() => pageSwitch.refreshList()),
                       child: Icon(FIcons.search, color: Theme.of(context).canvasColor),
                     ),
-              floatingActionButtonLocation: profile.searchPostion == Profile.searchAction
+              floatingActionButtonLocation: profile.searchPostion == ESOTheme.searchAction
                   ? null
-                  : profile.searchPostion == Profile.searchFloat
+                  : profile.searchPostion == ESOTheme.searchFloat
                       ? FloatingActionButtonLocation.endFloat
                       : FloatingActionButtonLocation.centerDocked,
             );

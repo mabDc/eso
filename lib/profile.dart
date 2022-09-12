@@ -3,10 +3,13 @@ import 'package:eso/database/search_item_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'global.dart';
 
 enum SearchOption { Normal, None, Accurate }
+
+final profileBox = Hive.box(Global.profileKey);
 
 class Profile with ChangeNotifier {
   restore(String profile) {
@@ -20,8 +23,9 @@ class Profile with ChangeNotifier {
 
   Profile._internal() {
     print('***************  initProfile   **************');
-    final source = Global.prefs.getString(Global.profileKey);
-    fromJson(source == null ? {} : jsonDecode(source) ?? {});
+    // final source = Global.prefs.getString(Global.profileKey);
+    // fromJson(source == null ? {} : jsonDecode(source) ?? {});
+    profileBox.watch().map((value) => notifyListeners());
   }
 
   static const mangaDirectionTopToBottom = 0; //'topToBottom';

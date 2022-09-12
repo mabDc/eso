@@ -1,4 +1,4 @@
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,7 @@ class UISetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<Profile>(context, listen: true);
+    final profile = ESOTheme();
     return Scaffold(
       appBar: AppBar(
         title: Text('界面与布局'),
@@ -84,19 +84,19 @@ class UISetting extends StatelessWidget {
                 Divider(),
                 RadioListTile<int>(
                   title: Text('凹陷'),
-                  value: Profile.searchDocker,
+                  value: ESOTheme.searchDocker,
                   groupValue: profile.searchPostion,
                   onChanged: (int value) => profile.searchPostion = value,
                 ),
                 RadioListTile<int>(
                   title: Text('浮动'),
-                  value: Profile.searchFloat,
+                  value: ESOTheme.searchFloat,
                   groupValue: profile.searchPostion,
                   onChanged: (int value) => profile.searchPostion = value,
                 ),
                 RadioListTile<int>(
                   title: Text('顶部'),
-                  value: Profile.searchAction,
+                  value: ESOTheme.searchAction,
                   groupValue: profile.searchPostion,
                   onChanged: (int value) => profile.searchPostion = value,
                 ),
@@ -118,7 +118,7 @@ class UISetting extends StatelessWidget {
                         elevation: 0,
                         leading: Text(''),
                         actions: [
-                          if (profile.searchPostion == Profile.searchAction)
+                          if (profile.searchPostion == ESOTheme.searchAction)
                             IconButton(icon: Icon(Icons.search), onPressed: null),
                           if (profile.showHistoryOnFavorite)
                             IconButton(icon: Icon(Icons.history), onPressed: null),
@@ -157,7 +157,7 @@ class UISetting extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            if (profile.searchPostion == Profile.searchDocker &&
+                            if (profile.searchPostion == ESOTheme.searchDocker &&
                                 profile.bottomCount == 4)
                               Spacer(),
                             if (profile.bottomCount == 4)
@@ -183,7 +183,7 @@ class UISetting extends StatelessWidget {
                           ],
                         ),
                       ),
-                      floatingActionButton: profile.searchPostion == Profile.searchAction
+                      floatingActionButton: profile.searchPostion == ESOTheme.searchAction
                           ? null
                           : FloatingActionButton(
                               elevation: 1,
@@ -194,9 +194,9 @@ class UISetting extends StatelessWidget {
                                   color: Theme.of(context).canvasColor),
                             ),
                       floatingActionButtonLocation:
-                          profile.searchPostion == Profile.searchAction
+                          profile.searchPostion == ESOTheme.searchAction
                               ? null
-                              : profile.searchPostion == Profile.searchFloat
+                              : profile.searchPostion == ESOTheme.searchFloat
                                   ? FloatingActionButtonLocation.endFloat
                                   : FloatingActionButtonLocation.centerDocked,
                     ),

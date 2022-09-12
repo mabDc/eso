@@ -1,4 +1,4 @@
-import 'package:eso/profile.dart';
+import 'package:eso/eso_theme.dart';
 import 'package:eso/model/system_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +59,7 @@ class _UISystemInfoState extends State<UISystemInfo> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
-                  fontFamily: Profile.staticFontFamily,
+                  fontFamily: ESOTheme.staticFontFamily,
                   textBaseline: TextBaseline.alphabetic,
                 ),
                 child: Row(
