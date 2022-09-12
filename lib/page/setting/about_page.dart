@@ -25,6 +25,8 @@ import 'auto_backup_page.dart';
 import 'darkmod_page.dart';
 import 'package:about/about.dart';
 
+import 'theme_page.dart';
+
 class AboutPage extends StatefulWidget {
   @override
   _AboutPageState createState() => _AboutPageState();
@@ -201,29 +203,9 @@ class AboutPage2 extends StatelessWidget {
                     onTap: () => invokeTap(DarkModpage()),
                   ),
                   ListTile(
-                    title: Text('调色板'),
-                    subtitle: Text('修改主题色'),
-                    // onTap: () => invokeTap(ColorLensPage()),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('选择颜色'),
-                          content: SingleChildScrollView(
-                            child: ColorPicker(
-                              pickerColor: Color(profile.primaryColor),
-                              onColorChanged: (color) =>
-                                  profile.primaryColor = color.value | 0xFF000000,
-                              labelTypes: [],
-                              hexInputBar: true,
-                              pickerAreaHeightPercent: 0.8,
-                              enableAlpha: false,
-                              portraitOnly: true,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                    title: Text('主题装扮'),
+                    subtitle: Text('调色板和背景'),
+                    onTap: () => invokeTap(ThemePage()),
                   ),
                   ListTile(
                     title: Text('字体管理'),

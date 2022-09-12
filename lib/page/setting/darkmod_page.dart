@@ -10,12 +10,8 @@ class DarkModpage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('夜间模式')),
       body: ValueListenableBuilder<Box<int>>(
-        valueListenable: ThemeModeBox.box.listenable(),
+        valueListenable: themeModeBox.listenable(),
         builder: (BuildContext context, Box<int> box, Widget child) {
-          final currentIndex = box.get(
-            ThemeModeBox.themeModeKey,
-            defaultValue: ThemeModeBox.defaultValue[ThemeModeBox.themeModeKey],
-          );
           return ListView.builder(
             itemCount: ThemeMode.values.length,
             itemBuilder: (BuildContext context, int index) {
@@ -25,11 +21,11 @@ class DarkModpage extends StatelessWidget {
                 ThemeMode.dark.index: "黑夜",
               };
               final title = Text(name[index] ?? ThemeMode.values[index].name);
-              return index == currentIndex
+              return index == themeMode
                   ? ListTile(title: title, trailing: Icon(Icons.done, size: 32))
                   : ListTile(
                       title: title,
-                      onTap: () => ThemeModeBox.box.put(ThemeModeBox.themeModeKey, index),
+                      onTap: () => themeMode = index,
                     );
             },
           );

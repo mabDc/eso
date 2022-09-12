@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:eso/hive/theme_box.dart';
 import 'package:eso/utils/local_cupertion_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
@@ -24,8 +25,6 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
       };
 }
 
-
-
 void main() async {
   if (Platform.isAndroid) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -33,7 +32,7 @@ void main() async {
   }
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter("eso");
-  await ThemeModeBox.open();
+  await openThemeModeBox();
   runApp(MyApp());
 
   // 必须加上这一行。
@@ -75,94 +74,68 @@ class ErrorApp extends StatelessWidget {
   }
 }
 
+BoxDecoration globalDecoration;
+
 class MyApp extends StatelessWidget {
   MyApp({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    ThemeModeBox.box.put(ThemeModeBox.initFlagKey, InitFlag.wait.index);
+    initFlag = InitFlag.wait.index;
     StackTrace _stackTrace;
     dynamic _error;
     () async {
       try {
+        await openThemeBox();
         await Global.init();
-        ThemeModeBox.box.put(ThemeModeBox.initFlagKey, InitFlag.ok.index);
+        globalDecoration = BoxDecoration(color: Color(decorationBackgroundColor));
+        themeBox.listenable(keys: [scaffoldBackgroundColorColorKey]).addListener(() {
+          globalDecoration = BoxDecoration(color: Color(decorationBackgroundColor));
+        });
+        initFlag = InitFlag.ok.index;
       } catch (e, st) {
         _error = e;
         _stackTrace = st;
-        ThemeModeBox.box.put(ThemeModeBox.initFlagKey, InitFlag.error.index);
+        initFlag = InitFlag.error.index;
       }
     }();
     return ValueListenableBuilder<Box<int>>(
-      valueListenable: ThemeModeBox.box.listenable(),
-      builder: (BuildContext context, Box<int> box, Widget child) {
-        final themeMode = ThemeMode.values[box.get(
-          ThemeModeBox.themeModeKey,
-          defaultValue: ThemeModeBox.defaultValue[ThemeModeBox.themeModeKey],
-        )];
-        switch (InitFlag.values[box.get(
-          ThemeModeBox.initFlagKey,
-          defaultValue: ThemeModeBox.defaultValue[ThemeModeBox.initFlagKey],
-        )]) {
+      valueListenable: themeModeBox.listenable(),
+      builder: (BuildContext context, Box<int> _, Widget child) {
+        final _themeMode = ThemeMode.values[themeMode];
+        switch (InitFlag.values[initFlag]) {
           case InitFlag.ok:
             return OKToast(
               textStyle: TextStyle(
                 fontSize: 16.0,
                 color: Colors.white,
-                fontFamily: ESOTheme().fontFamily,
               ),
               backgroundColor: Colors.black.withOpacity(0.8),
               radius: 20.0,
               textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-              child: MaterialApp(
-                themeMode: themeMode,
-                darkTheme: ThemeData.dark(),
-                scrollBehavior: MyCustomScrollBehavior(),
-                title: Global.appName,
-                home: HomePage(),
-              ),
+              child: ValueListenableBuilder<Box>(
+                  valueListenable: themeBox.listenable(),
+                  builder: (BuildContext context, Box _, Widget child) {
+                    return MaterialApp(
+                      themeMode: _themeMode,
+                      theme: getGlobalThemeData(Brightness.light),
+                      darkTheme: getGlobalThemeData(Brightness.dark),
+                      scrollBehavior: MyCustomScrollBehavior(),
+                      title: Global.appName,
+                      home: HomePage(),
+                      localizationsDelegates: [
+                        LocalizationsCupertinoDelegate.delegate,
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                      ],
+                      locale: Locale('zh', 'CH'),
+                      supportedLocales: [Locale('zh', 'CH')],
+                    );
+                  }),
             );
-          // return MultiProvider(
-          //   providers: [
-          //     // ChangeNotifierProvider<Profile>.value(
-          //     //   value: Profile(),
-          //     // ),
-          //     // Provider<HistoryManager>.value(
-          //     //   value: HistoryManager(),
-          //     // ),
-          //   ],
-          //   child: Consumer<Profile>(
-          //     builder: (BuildContext context, Profile profile, Widget widget) {
-          //       return OKToast(
-          //           textStyle: TextStyle(
-          //             fontSize: 16.0,
-          //             color: Colors.white,
-          //             fontFamily: profile.fontFamily,
-          //           ),
-          //           backgroundColor: Colors.black.withOpacity(0.8),
-          //           radius: 20.0,
-          //           textPadding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-          //           child: MaterialApp(
-          //             scrollBehavior: MyCustomScrollBehavior(),
-          //             theme: profile.getTheme(profile.fontFamily, isDarkMode: false),
-          //             themeMode: ThemeMode.values[themeMode],
-          //             darkTheme: profile.getTheme(profile.fontFamily, isDarkMode: true),
-          //             title: Global.appName,
-          //             localizationsDelegates: [
-          //               LocalizationsCupertinoDelegate.delegate,
-          //               GlobalMaterialLocalizations.delegate,
-          //               GlobalWidgetsLocalizations.delegate,
-          //             ],
-          //             locale: Locale('zh', 'CH'),
-          //             supportedLocales: [Locale('zh', 'CH')],
-          //             home: HomePage(),
-          //           ));
-          //     },
-          //   ),
-          // );
           case InitFlag.error:
             return MaterialApp(
-              themeMode: themeMode,
+              themeMode: _themeMode,
               darkTheme: ThemeData.dark(),
               scrollBehavior: MyCustomScrollBehavior(),
               title: Global.appName,
@@ -170,7 +143,7 @@ class MyApp extends StatelessWidget {
             );
           default:
             return MaterialApp(
-              themeMode: themeMode,
+              themeMode: _themeMode,
               darkTheme: ThemeData.dark(),
               scrollBehavior: MyCustomScrollBehavior(),
               title: Global.appName,
