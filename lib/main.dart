@@ -88,9 +88,17 @@ class MyApp extends StatelessWidget {
       try {
         await openThemeBox();
         await Global.init();
-        globalDecoration = BoxDecoration(color: Color(decorationBackgroundColor));
-        themeBox.listenable(keys: [scaffoldBackgroundColorColorKey]).addListener(() {
-          globalDecoration = BoxDecoration(color: Color(decorationBackgroundColor));
+        globalDecoration = BoxDecoration(
+          color: Color(decorationBackgroundColor),
+          image: DecorationImage(image: AssetImage(decorationImage), fit: BoxFit.fitWidth),
+        );
+        themeBox.listenable(
+            keys: [decorationBackgroundColorKey, decorationImageKey]).addListener(() {
+          globalDecoration = BoxDecoration(
+            color: Color(decorationBackgroundColor),
+            image:
+                DecorationImage(image: AssetImage(decorationImage), fit: BoxFit.fitWidth),
+          );
         });
         initFlag = InitFlag.ok.index;
       } catch (e, st) {
