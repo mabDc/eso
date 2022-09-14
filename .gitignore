@@ -45,3 +45,4 @@ ios/build/XCBuildData/
 ios/build/XCBuildData/build.db
 ios/Runner.xcodeproj/project.pbxproj
 eso_database.db
+modules/text_composition/

@@ -3,7 +3,7 @@ description: Demonstrates how to use the text_composition plugin.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ">=2.12.0-0 <3.0.0"
@@ -23,3 +23,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter:
+  assets:
+    - assets/bg/

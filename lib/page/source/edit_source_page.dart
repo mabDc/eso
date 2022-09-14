@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:eso/api/api.dart';
@@ -10,17 +11,21 @@ import 'package:eso/menu/menu_item.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/eso_theme.dart';
 import 'package:eso/page/langding_page.dart';
+import 'package:eso/page/share_page.dart';
 import 'package:eso/ui/ui_add_rule_dialog.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../fonticons_icons.dart';
 import '../../global.dart';
+import '../../utils/rule_comparess.dart';
 import '../discover_search_page.dart';
 
 class EditSourcePage extends StatefulWidget {
@@ -96,6 +101,20 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       TextField(onChanged: (value) => group = value),
                       () => provider.handleSelect(rules, value, group),
                     );
+                  } else if (value == MenuEditSource.many_export) {
+                    final text = RuleCompress.manyCompass(rules);
+                    Utils.startPageWait(
+                        context,
+                        SharePage(
+                            text: text,
+                            addInfo:
+                                "规则数量：${rules.length}\n名称分别为：${rules.map((rule) => rule.name).join("、")}"));
+                    // if (Platform.isWindows) {
+                    //   Clipboard.setData(ClipboardData(text: text));
+                    //   Utils.toast("已保存到剪贴板 ${rules.length}条规则");
+                    // } else {
+                    //   Share.share(text);
+                    // }
                   } else {
                     provider.handleSelect(rules, value);
                   }

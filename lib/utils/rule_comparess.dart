@@ -22,4 +22,13 @@ class RuleCompress {
     final gzipBytes = GZipEncoder().encode(utf8.encode(json));
     return '$tag${rule.author}:${rule.name}@${base64.encode(gzipBytes)}';
   }
+
+  // static String manyCompass(List<Rule> rules){
+  //   final json = jsonEncode(rules.map((rule) => rule.toJson()).toList());
+  //   final gzipBytes = GZipEncoder().encode(utf8.encode(json));
+  //   return '$tag多规则:${rules.length}@${base64.encode(gzipBytes)}';
+  // }
+  static String manyCompass(List<Rule> rules) {
+    return jsonEncode(rules.map((rule) => compass(rule)).toList());
+  }
 }

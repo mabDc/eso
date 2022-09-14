@@ -82,13 +82,13 @@ class AboutPage2 extends StatelessWidget {
         "7588a53508787a254b910d39476959823e3f36a7c894a6fc72504ac92e782ec2"; //1群key
     if (Global.isDesktop) {
       final s = "https://shang.qq.com/wpa/qunwpa?idkey=$key&source_id=1_40001";
-      launch(s);
+      launchUrl(Uri.parse(s));
     } else {
       //Flutter 跳转(打开)QQ聊天对话和QQ群聊
       //https://www.jianshu.com/p/8dc54ef6329c
       final s =
           'mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${group ?? 1106156709}&card_type=group&source=qrcode';
-      launch(s);
+      launchUrl(Uri.parse(s));
     }
   }
 

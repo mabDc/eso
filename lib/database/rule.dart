@@ -539,5 +539,5 @@ class Rule {
         'loginUrl': loginUrl,
         'cookies': withCookies == true ? cookies : "",
         'viewStyle': viewStyle ?? 0,
-      };
+      }..removeWhere((key, value) => value == null || value == "");
 }
