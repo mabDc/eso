@@ -51,7 +51,6 @@ class RSSPageProvider with ChangeNotifier {
     // await SearchItemManager.saveSearchItem();
     await searchItem.save();
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-    await HistoryItemManager.saveHistoryItem();
     _isLoading = false;
     notifyListeners();
   }
@@ -64,7 +63,6 @@ class RSSPageProvider with ChangeNotifier {
       // await SearchItemManager.saveSearchItem();
       await searchItem.save();
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-      await HistoryItemManager.saveHistoryItem();
     }();
     super.dispose();
   }

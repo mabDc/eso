@@ -5,7 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/history_manager.dart';
+import 'package:eso/database/history_manager.dart';
 import 'package:eso/eso_theme.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -333,9 +333,9 @@ class AutoBackupPage extends StatelessWidget {
     if (type == 0) {
       bytes = utf8.encode(s);
     } else if (type == 1) {
-      bytes = utf8.encode(Global.prefs.getString(key));
+      // bytes = utf8.encode(Global.prefs.getString(key));
     } else if (type == 2) {
-      bytes = utf8.encode(jsonEncode(Global.prefs.getStringList(key)));
+      // bytes = utf8.encode(jsonEncode(Global.prefs.getStringList(key)));
     }
     return ArchiveFile("$key.json", bytes.length, bytes);
   }

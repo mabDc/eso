@@ -54,13 +54,13 @@ class AudioService {
       _player.onDurationChanged.listen((Duration d) {
         _duration = d;
       });
-      _player.onAudioPositionChanged.listen((Duration p) {
+      _player.onDurationChanged.listen((Duration p) {
         _positionDuration = p;
       });
       _player.onPlayerStateChanged.listen((PlayerState s) {
         _playerState = s;
       });
-      _player.onPlayerCompletion.listen((event) {
+      _player.onPlayerComplete.listen((event) {
         switch (_repeatMode) {
           case REPEAT_FAVORITE:
             playNext(true);
@@ -80,7 +80,7 @@ class AudioService {
 
   Future<int> seek(Duration duration) => _player.seek(duration);
 
-  Future<int> replay() async {
+  Future<void> replay() async {
     await _player.pause();
     await _player.seek(Duration.zero);
     return _player.resume();
@@ -89,14 +89,14 @@ class AudioService {
   /// 是否正在播放
   bool get __isPlaying =>
       _playerState != null &&
-      _playerState != PlayerState.STOPPED &&
-      _playerState != PlayerState.COMPLETED &&
-      _playerState != PlayerState.PAUSED;
+      _playerState != PlayerState.stopped &&
+      _playerState != PlayerState.completed &&
+      _playerState != PlayerState.paused;
 
-  Future<int> play() async {
+  Future<void> play() async {
     switch (_playerState) {
-      case PlayerState.COMPLETED:
-      case PlayerState.STOPPED:
+      case PlayerState.completed:
+      case PlayerState.stopped:
         return replay();
         break;
       // case PlayerState.PAUSED:
@@ -106,8 +106,8 @@ class AudioService {
     }
   }
 
-  Future<int> playOrPause() async {
-    if (_playerState == PlayerState.PLAYING) {
+  Future<void> playOrPause() async {
+    if (_playerState == PlayerState.playing) {
       return _player.pause();
     } else {
       return play();
@@ -222,10 +222,9 @@ class AudioService {
     await _searchItem.save();
     // await SearchItemManager.saveSearchItem();
     HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-    await HistoryItemManager.saveHistoryItem();
     print(_url);
     try {
-      await _player.play(_url);
+      await _player.play(UrlSource(_url));
     } catch (e) {
       print(e);
       if (tryNext == true) {

@@ -49,7 +49,6 @@ class ContentPageRoute {
                 if (Global.isDesktop) return VideoPageDesktop(searchItem: searchItem);
                 return VideoPage(searchItem: searchItem);
               case API.AUDIO:
-                if (Platform.isWindows) return VideoPageDesktop(searchItem: searchItem);
                 return AudioPage(searchItem: searchItem);
               default:
                 throw ('${searchItem.ruleContentType} not support !');

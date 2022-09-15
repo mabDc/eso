@@ -6,7 +6,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/global.dart';
-import 'package:eso/model/history_manager.dart';
+import 'package:eso/database/history_manager.dart';
 import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_search_item.dart';
@@ -113,57 +113,77 @@ class _SearchPageState extends State<SearchPage> {
                     : (provider.successCount + provider.failureCount) /
                         provider.rulesCount;
                 if (provider.showHistory && provider.history.length > 0) {
-                  return ListView.separated(
-                    separatorBuilder: (context, index) => Container(
-                      height: 0.6,
-                      color: Colors.grey,
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 18),
-                    itemCount: provider.history.length + 1,
-                    cacheExtent: 30,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == provider.history.length) {
-                        return Container(
-                          height: 30,
+                  return Column(
+                    children: [
+                      FittedBox(
+                        child: Container(
+                          height: 32,
+                          alignment: Alignment.center,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              IconButton(
-                                icon: Icon(Icons.close_outlined, size: 18),
-                                onPressed: provider.closeHistory,
-                                tooltip: "关闭",
+                              TextButton(
+                                onPressed: null,
+                                child: Text("结果过滤"),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.clear_all, size: 18),
-                                onPressed: provider.clearHistory,
-                                tooltip: "清空",
+                              _buildFilterOpt(provider, profile, '无', SearchOption.None),
+                              _buildFilterOpt(
+                                  provider, profile, '普通', SearchOption.Normal),
+                              _buildFilterOpt(
+                                  provider, profile, '精确', SearchOption.Accurate),
+                              TextButton(
+                                onPressed: null,
+                                child: Text("并发数"),
                               ),
+                              Center(
+                                child: DropdownButton<int>(
+                                  items:
+                                      [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+                                          .map((count) => DropdownMenuItem<int>(
+                                                child: Text('$count'),
+                                                value: count,
+                                              ))
+                                          .toList(),
+                                  isDense: true,
+                                  underline: Container(),
+                                  value: context.select(
+                                      (SearchProvider provider) => provider.threadCount),
+                                  onChanged: (value) {
+                                    Provider.of<SearchProvider>(context, listen: false)
+                                        .threadCount = value;
+                                    profile.searchCount = value;
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 8),
                             ],
                           ),
-                        );
-                      }
-                      final keyword = provider.history[index];
-                      return Container(
-                        height: 30,
-                        child: Row(
-                          children: [
-                            Icon(Icons.history, size: 18),
-                            SizedBox(width: 18),
-                            Expanded(child: Text(keyword)),
-                            IconButton(
-                              icon: Icon(Icons.arrow_upward, size: 18),
-                              onPressed: () => provider.upHistory(keyword),
-                              tooltip: "输入",
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.search, size: 18),
-                              onPressed: () => provider.search(keyword),
-                              tooltip: "搜索",
-                            ),
-                          ],
                         ),
-                      );
-                    },
+                      ),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        alignment: WrapAlignment.center,
+                        children: List.generate(
+                          provider.history.length,
+                          (int index) {
+                            final String text = provider.history[index];
+                            return Chip(
+                              label: InkWell(
+                                child: Text(text),
+                                onTap: () {
+                                  provider.searchController.text = text;
+                                  provider.search(text);
+                                },
+                              ),
+                              onDeleted: () {
+                                // 删除操作
+                                HistoryManager.remove(text);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 }
                 return Column(
@@ -481,7 +501,6 @@ class SearchProvider with ChangeNotifier {
   FocusNode get focusNode => _focusNode;
   TextEditingController _searchController;
   TextEditingController get searchController => _searchController;
-  HistoryManager _historyManager;
   List<String> _history;
   List<String> get history => _history;
   bool _showHistory;
@@ -503,8 +522,7 @@ class SearchProvider with ChangeNotifier {
     _searchId = 0;
     _showHistory = true;
     _searchController = TextEditingController()..addListener(_handleSearchChange);
-    _historyManager = HistoryManager();
-    _history = List.from(_historyManager.searchHistory);
+    _history = List.from(HistoryManager.searchHistory);
     _focusNode = FocusNode()..addListener(_handleFocusChange);
     APIFromRUle.clearNextUrl();
     init(ruleContentType, searchKey);
@@ -513,7 +531,7 @@ class SearchProvider with ChangeNotifier {
   void _handleSearchChange() {
     final text = _searchController.text.trim();
     _history =
-        _historyManager.searchHistory.where((element) => element.contains(text)).toList();
+        HistoryManager.searchHistory.where((element) => element.contains(text)).toList();
     notifyListeners();
   }
 
@@ -521,7 +539,7 @@ class SearchProvider with ChangeNotifier {
     if (_focusNode.hasFocus) {
       _history.clear();
       final text = _searchController.text.trim();
-      _history = _historyManager.searchHistory
+      _history = HistoryManager.searchHistory
           .where((element) => element.contains(text))
           .toList();
       _showHistory = true;
@@ -544,7 +562,7 @@ class SearchProvider with ChangeNotifier {
   }
 
   void clearHistory() {
-    _historyManager.clearHistory();
+    HistoryManager.clear();
     notifyListeners();
   }
 
@@ -647,7 +665,7 @@ class SearchProvider with ChangeNotifier {
   void search(String keyword) async {
     focusNode.unfocus();
     _searchController.text = keyword;
-    _historyManager.newSearch(keyword);
+    HistoryManager.newSearch(keyword);
     _searchId++;
     await Future.delayed(Duration(milliseconds: 300));
     searchListNone.clear();
@@ -705,7 +723,6 @@ class SearchProvider with ChangeNotifier {
     searchListAccurate.clear();
     _focusNode.removeListener(_handleSearchChange);
     _searchController.dispose();
-    _historyManager.searchHistory.clear();
     _focusNode.removeListener(_handleFocusChange);
     _focusNode.dispose();
     APIFromRUle.clearNextUrl();

@@ -1,5 +1,6 @@
 import 'package:eso/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../hive/theme_box.dart';
@@ -111,6 +112,33 @@ class ThemePage extends StatelessWidget {
                           Divider(),
                           pick('背景色 background', cardBackgroundColorColorKey,
                               colors["象牙色"]),
+                        ],
+                      ),
+                    ),
+                    Card(
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        alignment: WrapAlignment.center,
+                        runAlignment: WrapAlignment.center,
+                        children: [
+                          for (final color in colors.entries)
+                            Chip(
+                              backgroundColor: Color(color.value),
+                              labelStyle: TextStyle(color: Colors.black),
+                              label:
+                                  Text(color.key + " #${color.value.toRadixString(16)}"),
+                              onDeleted: () {
+                                Clipboard.setData(ClipboardData(
+                                    text:
+                                        "#${color.value.toRadixString(16).substring(2)}"));
+                              },
+                              deleteButtonTooltipMessage: "复制",
+                              deleteIcon: Icon(
+                                Icons.copy,
+                                size: 16,
+                              ),
+                            )
                         ],
                       ),
                     ),

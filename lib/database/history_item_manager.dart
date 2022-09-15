@@ -1,59 +1,35 @@
 import 'dart:convert';
 
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'search_item.dart';
 import '../global.dart';
 
 class HistoryItemManager {
-  static List<SearchItem> _historyItem;
-  static List<SearchItem> get historyItem => _historyItem;
+  static List<SearchItem> get historyItem => _box.values.toList();
   static String get key => Global.historyItemKey;
-
-  static String genChapterKey(int id) => "chapter$id";
+  static final _box = Hive.box<SearchItem>(Global.historyItemKey);
 
   /// 根据类型和排序规则取出收藏
   static List<SearchItem> getHistoryItemByType(String name, int contentType) {
     if (contentType != null) {
-      return _historyItem
+      return historyItem
           .where((element) =>
-              element.ruleContentType == contentType && element.name.contains(name))
-          .toList()
-          .reversed
+              element.ruleContentType == contentType && element.name.contains(name ?? ''))
           .toList();
     } else {
-      return _historyItem
-          .where((element) => element.name.contains(name ?? ''))
-          .toList()
-          .reversed
-          .toList();
+      return historyItem.where((element) => element.name.contains(name ?? '')).toList();
     }
   }
 
-  // static void sortReadTime() {
-  //   _historyItem.sort((a, b) => b.lastReadTime.compareTo(a.lastReadTime));
-  // }
-
   static Future<bool> insertOrUpdateHistoryItem(SearchItem searchItem) async {
-    _historyItem.removeWhere(
-        (item) => item.originTag == searchItem.originTag && item.url == searchItem.url);
-    _historyItem.add(searchItem);
-    return saveHistoryItem();
-  }
-
-  static void initHistoryItem() {
-    _historyItem = <SearchItem>[];
-    Global.prefs
-        .getStringList(key)
-        ?.forEach((item) => _historyItem.add(SearchItem.fromJson(jsonDecode(item))));
+    _box.put(searchItem.id.toString(), SearchItem.fromJson(searchItem.toJson()));
+    return true;
   }
 
   static Future<bool> removeSearchItem(Set<int> id) async {
-    _historyItem.removeWhere((item) => id.contains(item.id));
-    return saveHistoryItem();
-  }
-
-  static Future<bool> saveHistoryItem() async {
-    return await Global.prefs.setStringList(
-        key, _historyItem.map((item) => jsonEncode(item.toJson())).toList());
+    _box.deleteAll(id.map((e) => e.toString()));
+    return true;
   }
 
   // static String backupItems() {
@@ -69,9 +45,10 @@ class HistoryItemManager {
   static Future<bool> restore(String data) async {
     final json = jsonDecode(data);
     if (json != null && json is List && json.isNotEmpty) {
-      _historyItem.clear();
-      json.forEach((item) => _historyItem.add(SearchItem.fromJson(jsonDecode(item))));
-      saveHistoryItem();
+      json.forEach((item) {
+        final si = SearchItem.fromJson(item);
+        _box.put(si.id.toString(), si);
+      });
       return true;
     }
     return false;

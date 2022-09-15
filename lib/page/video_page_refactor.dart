@@ -524,10 +524,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     notifyListeners();
     () async {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      // await SearchItemManager.saveSearchItem();
       await searchItem.save();
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-      await HistoryItemManager.saveHistoryItem();
     }();
     if (_disposed) return;
     try {
@@ -616,7 +614,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       await searchItem.save();;
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-      await HistoryItemManager.saveHistoryItem();
     }();
     if (Platform.isIOS || Platform.isAndroid) {
       DeviceDisplayBrightness.resetBrightness();

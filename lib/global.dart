@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'package:eso/database/history_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/eso_theme.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,9 @@ class Global with ChangeNotifier {
   static const searchHistoryKey = "searchHistory";
   static const searchItemKey = "searchItem";
   static const historyItemKey = "historyItem";
-  static SharedPreferences _prefs;
-  static SharedPreferences get prefs => _prefs;
+  static const textConfigKey = "textConfig";
+  // static SharedPreferences _prefs;
+  // static SharedPreferences get prefs => _prefs;
   static bool _isDesktop;
   static bool get isDesktop => _isDesktop;
   static const fullSpace = "　";
@@ -64,35 +66,98 @@ class Global with ChangeNotifier {
         );
       }
     } catch (e) {}
-    try {
-      final fontFamily =
-          TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey)))
-              .fontFamily;
-      if (fontFamily != null && fontFamily.contains('.')) {
-        await loadFontFromList(
-          await File(dir + fontFamily).readAsBytes(),
-          fontFamily: fontFamily,
-        );
+    // try {
+    //   final fontFamily =
+    //       TextCompositionConfig.fromJSON(jsonDecode(_prefs.getString(TextConfigKey)))
+    //           .fontFamily;
+    //   if (fontFamily != null && fontFamily.contains('.')) {
+    //     await loadFontFromList(
+    //       await File(dir + fontFamily).readAsBytes(),
+    //       fontFamily: fontFamily,
+    //     );
+    //   }
+    // } catch (e) {}
+  }
+
+  static Future<void> initSearchItem() async {
+    const key = Global.searchItemKey;
+    final isExistSearchItems = await Hive.boxExists(key);
+    final sbox = await Hive.openBox<SearchItem>(key);
+    if (!isExistSearchItems) {
+      // 不存在box， 尝试从旧数据迁移
+      final _prefs = await SharedPreferences.getInstance();
+      final ori = _prefs.getStringList(key);
+      if (ori != null) {
+        if (ori.isNotEmpty) {
+          ori.forEach((item) {
+            final it = SearchItem.fromJson(jsonDecode(item));
+            sbox.put(it.id.toString(), it);
+          });
+        }
+        ori.clear();
+        _prefs.setStringList(key, const []);
       }
-    } catch (e) {}
+    }
+    SearchItemManager.initSearchItem();
+  }
+
+  static Future<void> initHistoryItem() async {
+    const key = Global.historyItemKey;
+    final isExistHistoryItem = await Hive.boxExists(key);
+    final hbox = await Hive.openBox<SearchItem>(key);
+    if (isExistHistoryItem) {
+      final _prefs = await SharedPreferences.getInstance();
+      final ori = _prefs.getStringList(key);
+      if (ori != null) {
+        if (ori.isNotEmpty) {
+          ori.forEach((item) {
+            final it = SearchItem.fromJson(jsonDecode(item));
+            hbox.put(it.id.toString(), it);
+          });
+        }
+        ori.clear();
+        _prefs.setStringList(key, const []);
+      }
+    }
+  }
+
+  static Future<void> initSearchHistory() async {
+    const key = Global.searchHistoryKey;
+    final isExistSearchHistory = await Hive.boxExists(key);
+    final shbox = await Hive.openBox<String>(key);
+    if (isExistSearchHistory) {
+      final _prefs = await SharedPreferences.getInstance();
+      final ori = _prefs.getStringList(key);
+      if (ori != null) {
+        if (ori.isNotEmpty) {
+          shbox.addAll(ori);
+        }
+        ori.clear();
+        _prefs.setStringList(key, const []);
+      }
+      _prefs.clear();
+    }
   }
 
   static Future<bool> init() async {
     Hive.registerAdapter(ChapterItemAdapter());
     Hive.registerAdapter(SearchItemAdapter());
-    await Hive.openBox<SearchItem>(Global.searchItemKey);
+
+    //迁移 一个一个来
+    await initSearchItem();
+    await initHistoryItem();
+    await initSearchHistory();
+
     await Hive.openBox(Global.profileKey);
+    await Hive.openBox(Global.textConfigKey);
 
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     if (isDesktop) {
       sqflite.databaseFactory = databaseFactoryFfi;
       final factory = sqflite.databaseFactory as impl.SqfliteDatabaseFactoryMixin;
-      factory.setDatabasesPath(
+      factory.setDatabasesPathOrNull(
           await CacheUtil(backup: true, basePath: "database").cacheDir());
     }
-    _prefs = await SharedPreferences.getInstance();
-    SearchItemManager.initSearchItem();
-    HistoryItemManager.initHistoryItem();
     final _migrations = [migration4to5, migration5to6, migration6to7, migration7to8];
 
     final _database = await $FloorAppDatabase

@@ -2113,8 +2113,8 @@ class _FlutterSliderState extends State<FlutterSlider> with TickerProviderStateM
       }
     }
 
-    width = (width < 0) ? 0 : width;
-    height = (height < 0) ? 0 : height;
+    width = (width.isNaN || width < 0) ? 0 : width;
+    height = (height.isNaN || height < 0) ? 0 : height;
 
     return Positioned(
       left: left,
@@ -2286,8 +2286,8 @@ class _MakeHandler extends StatelessWidget {
                   foregroundDecoration: handler.foregroundDecoration,
                   decoration: handler.decoration,
                   transform: handler.transform,
-                  width: width,
-                  height: height,
+                  width: width.isNaN ? 0 : width,
+                  height: height.isNaN ? 0 : height,
                   child: handler.child,
                 ),
               ),
@@ -2662,4 +2662,5 @@ class FlutterSliderRangeStep {
 }
 
 enum FlutterSliderTooltipDirection { top, left, right }
+
 enum FlutterSliderHatchMarkAlignment { left, right }

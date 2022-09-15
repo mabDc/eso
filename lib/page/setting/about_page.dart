@@ -17,6 +17,7 @@ import 'package:text_composition/text_composition_config.dart';
 import 'package:text_composition/text_composition_const.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../database/text_config_manager.dart';
 import '../../global.dart';
 import '../../eso_theme.dart';
 import '../../qing/main.dart';
@@ -446,9 +447,7 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
   TextCompositionConfig config;
   @override
   void initState() {
-    config = TextCompositionConfig.fromJSON(Global.prefs.containsKey(TextConfigKey)
-        ? jsonDecode(Global.prefs.get(TextConfigKey))
-        : {});
+    config = TextConfigManager.config;
     super.initState();
   }
 
@@ -462,7 +461,7 @@ class _ConfigSettingPageState extends State<ConfigSettingPage> {
 
   @override
   void dispose() {
-    Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
+    TextConfigManager.config = config;
     super.dispose();
   }
 }
@@ -480,9 +479,10 @@ Widget myConfigSettingBuilder(BuildContext context, TextCompositionConfig config
             child: ColorPicker(
               pickerColor: color,
               onColorChanged: onChange,
-              showLabel: true,
+              labelTypes: [],
               pickerAreaHeightPercent: 0.8,
               portraitOnly: true,
+              hexInputBar: true,
             ),
           ),
         ),

@@ -65,24 +65,9 @@ class SearchItemManager {
   // }
 
   static void initSearchItem() {
-    _searchItem = <SearchItem>[];
+    // _searchItem = <SearchItem>[];
     final sbox = Hive.box<SearchItem>(key);
-    if (sbox.isEmpty) {
-      final ori = Global.prefs.getStringList(key);
-      if (ori != null) {
-        if (ori.isNotEmpty) {
-          ori.forEach((item) {
-            final it = SearchItem.fromJson(jsonDecode(item));
-            sbox.put(it.id.toString(), it);
-          });
-          _searchItem = sbox.values.toList();
-        }
-        ori.clear();
-        Global.prefs.setStringList(key, []);
-      }
-    } else {
-      _searchItem = sbox.values.toList();
-    }
+    _searchItem = sbox.values.toList();
   }
 
   static Future<bool> removeSearchItem(int id) async {

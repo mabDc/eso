@@ -9,7 +9,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
 import 'global.dart';
-import 'eso_theme.dart';
 import 'hive/theme_mode_box.dart';
 import 'page/home_page.dart';
 

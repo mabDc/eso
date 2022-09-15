@@ -26,6 +26,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:win32/win32.dart';
 
+import '../database/text_config_manager.dart';
 import '../fonticons_icons.dart';
 import '../utils.dart';
 import 'novel_auto_cache_page.dart';
@@ -41,10 +42,12 @@ class NovelPage extends StatefulWidget {
 
 class _NovelPageState extends State<NovelPage> {
   SearchItem searchItem;
+  TextCompositionConfig _config;
 
   @override
   void initState() {
     super.initState();
+    _config = TextConfigManager.config;
     initBrightness();
     searchItem = widget.searchItem;
   }
@@ -53,6 +56,8 @@ class _NovelPageState extends State<NovelPage> {
   void dispose() {
     DeviceDisplayBrightness.keepOn(enabled: false);
     DeviceDisplayBrightness.resetBrightness();
+    TextConfigManager.config = _config;
+    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     super.dispose();
   }
 
@@ -70,9 +75,7 @@ class _NovelPageState extends State<NovelPage> {
 
     return Container(child: LayoutBuilder(builder: (context, constrains) {
       final controller = TextComposition(
-        config: TextCompositionConfig.fromJSON(Global.prefs.containsKey(TextConfigKey)
-            ? jsonDecode(Global.prefs.get(TextConfigKey))
-            : {}),
+        config: _config,
         loadChapter: provider.loadChapter,
         chapters: searchItem.chapters.map((e) => e.name).toList(),
         percent: () {
@@ -85,7 +88,7 @@ class _NovelPageState extends State<NovelPage> {
           if (percent > 0.0000001) {
             percent -= 0.0000001;
           }
-          // Global.prefs.setString(TextConfigKey, jsonEncode(config.toJSON()));
+          _config = config;
           searchItem.durContentIndex = (percent * NovelContentTotal).floor();
           final index = (percent * searchItem.chapters.length).floor();
           // HistoryItemManager.insertOrUpdateHistoryItem(searchItem);

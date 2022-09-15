@@ -350,7 +350,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
         Expanded(
           child: FlutterSlider(
             values: [provider.postionSeconds.toDouble()],
-            max: provider.seconds.toDouble(),
+            max: provider.seconds.toDouble() < 1 ? 1 : provider.seconds.toDouble(),
             min: 0,
             onDragging: (handlerIndex, lowerValue, upperValue) =>
                 provider.seekSeconds((lowerValue as double).toInt()),
@@ -430,7 +430,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
         ),
         IconButton(
           icon: Icon(
-            provider.state == PlayerState.PLAYING
+            provider.state == PlayerState.playing
                 ? Icons.pause_circle_outline
                 : Icons.play_circle_outline,
             color: Colors.white,

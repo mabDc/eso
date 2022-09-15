@@ -12,7 +12,7 @@ import 'package:share_plus/share_plus.dart';
 class AudioPageController with ChangeNotifier {
   AudioService _audioService;
   Timer _timer;
-  bool get isPlay => _audioService?.playerState == PlayerState.PLAYING;
+  bool get isPlay => _audioService?.playerState == PlayerState.playing;
   Duration get positionDuration => _audioService.positionDuration;
   int get seconds => _audioService.duration.inSeconds;
   int get postionSeconds => _audioService.positionDuration.inSeconds;
