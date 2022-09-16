@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'global.dart';
@@ -20,7 +19,6 @@ const showMangaInfoBox = "showMangaInfoBox";
 const searchPostionBox = "searchPostionBox";
 const bottomCountBox = "bottomCountBox";
 const autoRefreshBox = "autoRefreshBox";
-const darkModeBox = "darkModeBox";
 const primaryColorBox = "primaryColorBox";
 const mangaKeepOnBox = "mangaKeepOnBox";
 const mangaLandscapeBox = "mangaLandscapeBox";
@@ -59,7 +57,6 @@ const thDef = {
   searchPostionBox: ESOTheme.searchDocker,
   bottomCountBox: 2,
   autoRefreshBox: false,
-  darkModeBox: ESOTheme.dartModeAuto,
   primaryColorBox: 0xFF4BB0A0,
   mangaKeepOnBox: false,
   mangaLandscapeBox: false,
@@ -100,10 +97,6 @@ class ESOTheme {
   static const mangaDirectionTopToBottom = 0; //'topToBottom';
   static const mangaDirectionLeftToRight = 1; //'leftToRight';
   static const mangaDirectionRightToLeft = 2; //'rightToLeft';
-
-  static const dartModeAuto = '跟随系统';
-  static const dartModeDark = '开启';
-  static const dartModeLight = '关闭';
 
   static const autoBackupNone = 0;
   static const autoBackupDay = 1;
@@ -201,20 +194,6 @@ class ESOTheme {
   set autoRefresh(bool value) {
     if (value != autoRefresh) {
       _box.put(autoRefreshBox, cast(value, thDef[autoRefreshBox]));
-    }
-  }
-
-  String get darkMode => _box.get(darkModeBox, defaultValue: thDef[darkModeBox]);
-  set darkMode(String value) {
-    if (value != darkMode) {
-      _box.put(darkModeBox, cast(value, thDef[darkModeBox]));
-    }
-  }
-
-  int get primaryColor => _box.get(primaryColorBox, defaultValue: thDef[primaryColorBox]);
-  set primaryColor(int value) {
-    if (value != primaryColor) {
-      _box.put(primaryColorBox, cast(value, thDef[primaryColorBox]));
     }
   }
 
@@ -406,60 +385,6 @@ class ESOTheme {
   }
 
   static String staticFontFamily;
-
-  ThemeData getTheme(String fontFamily, {bool isDarkMode: false}) {
-    switch (darkMode) {
-      case "开启":
-        isDarkMode = true;
-        break;
-      case "关闭":
-        isDarkMode = false;
-        break;
-      default:
-        break;
-    }
-    final _color = Color(primaryColor | 0xFF000000);
-    Global.primaryColor = _color;
-    staticFontFamily = fontFamily;
-    final theme = ThemeData(
-      fontFamily: staticFontFamily,
-      primaryColor: _color,
-      primaryColorDark: Global.colorLight(_color, -0.25),
-      primaryColorLight: Global.colorLight(_color, 0.25),
-      toggleableActiveColor: _color,
-      dividerColor: isDarkMode ? Colors.white10 : Colors.black12,
-      bottomAppBarColor: isDarkMode ? Color(0xff424242) : Color(0xffb4bcc4),
-      brightness: isDarkMode ? Brightness.dark : Brightness.light,
-    );
-    final _txtStyle = TextStyle(fontFamily: fontFamily);
-    return theme.copyWith(
-      tabBarTheme: TabBarTheme(
-        labelStyle: _txtStyle,
-        unselectedLabelStyle: _txtStyle,
-      ),
-      appBarTheme: AppBarTheme(
-        color: theme.canvasColor,
-        elevation: Global.elevation,
-        foregroundColor: isDarkMode ? Color(0xffb4bcc4) : Color(0xff424242),
-        iconTheme: IconThemeData(
-          color: theme.textTheme.bodyText1.color.withOpacity(0.7),
-          size: 19,
-        ),
-        actionsIconTheme: IconThemeData(
-          color: theme.textTheme.bodyText1.color.withOpacity(0.7),
-          size: 19,
-        ),
-      ),
-      cardTheme: CardTheme(
-        elevation: Global.elevation,
-      ),
-      primaryTextTheme: TextTheme(
-        headline6: TextStyle(
-            color: theme.textTheme.bodyText1.color.withOpacity(0.8),
-            fontFamily: fontFamily),
-      ),
-    );
-  }
 
   void fromJson(Map<String, dynamic> json, [bool notIgnoreVersion = true]) {
     _box.putAll(json);

@@ -7,45 +7,75 @@ Future<Box> openThemeBox() => Hive.openBox(_name);
 final themeBox = Hive.box(_name);
 
 const primaryColorKey = "primaryColor";
-int get primaryColor => themeBox.get(primaryColorKey, defaultValue: colors["冰青色"]);
+int get primaryColor => themeBox.get(primaryColorKey, defaultValue: colors["哔哩粉"]);
 
 const iconColorKey = "iconColor";
-int get iconColor => themeBox.get(iconColorKey, defaultValue: colors["鹿皮色"]);
+int get iconColor => themeBox.get(iconColorKey, defaultValue: colors["西红柿色"]);
 
 const appBarForegroundColorKey = "appBarForegroundColor";
 int get appBarForegroundColor =>
-    themeBox.get(appBarForegroundColorKey, defaultValue: colors["象牙色"]);
+    themeBox.get(appBarForegroundColorKey, defaultValue: colors["星空灰"]);
 
 const appBarBackgroundColorKey = "appBarBackgroundColor";
 int get appBarBackgroundColor =>
-    themeBox.get(appBarBackgroundColorKey, defaultValue: colors["哔哩粉"]);
+    themeBox.get(appBarBackgroundColorKey, defaultValue: colors["象牙色"]);
 
-const decorationBackgroundColorKey = "decorationBackgroundColor";
-int get decorationBackgroundColor =>
-    themeBox.get(decorationBackgroundColorKey, defaultValue: colors["象牙色"]);
+const scaffoldBackgroundColorKey = "scaffoldBackgroundColor";
+int get scaffoldBackgroundColor =>
+    themeBox.get(scaffoldBackgroundColorKey, defaultValue: colors["象牙色"]);
 
-const decorationImageKey = "decorationImage";
-String get decorationImage => themeBox.get(decorationImageKey, defaultValue: "");
+const cardBackgroundColorKey = "cardBackgroundColor";
+int get cardBackgroundColor =>
+    themeBox.get(cardBackgroundColorKey, defaultValue: colors["象牙色"]);
 
-const scaffoldBackgroundColorColorKey = "scaffoldBackgroundColorColor";
-int get scaffoldBackgroundColorColor =>
-    themeBox.get(scaffoldBackgroundColorColorKey, defaultValue: colors["象牙色"]);
-
-const cardBackgroundColorColorKey = "cardBackgroundColorColor";
-int get cardBackgroundColorColor =>
-    themeBox.get(cardBackgroundColorColorKey, defaultValue: colors["象牙色"]);
-
-ThemeData getGlobalThemeData(Brightness brightness) => ThemeData(
+ThemeData getGlobalThemeData() => ThemeData(
       primaryColor: Color(primaryColor),
       iconTheme: IconThemeData(color: Color(iconColor)),
-      brightness: brightness,
+      brightness: Brightness.light,
       appBarTheme: AppBarTheme(
         foregroundColor: Color(appBarForegroundColor),
         backgroundColor: Color(appBarBackgroundColor),
+        iconTheme: IconThemeData(color: Color(iconColor)),
+        actionsIconTheme: IconThemeData(color: Color(iconColor)),
       ),
-      scaffoldBackgroundColor: Color(scaffoldBackgroundColorColor),
-      cardTheme: CardTheme(color: Color(cardBackgroundColorColor)),
+      bottomAppBarColor: Color(appBarBackgroundColor),
+      scaffoldBackgroundColor: Color(scaffoldBackgroundColor),
+      cardTheme: CardTheme(color: Color(cardBackgroundColor)),
     );
+
+const appBarForegroundDarkColorKey = "appBarForegroundDarkColor";
+int get appBarForegroundDarkColor =>
+    themeBox.get(appBarForegroundDarkColorKey, defaultValue: colors["象牙色"]);
+
+const appBarBackgroundDarkColorKey = "appBarBackgroundDarkColor";
+int get appBarBackgroundDarkColor =>
+    themeBox.get(appBarBackgroundDarkColorKey, defaultValue: colors["星空灰"]);
+
+const scaffoldBackgroundDarkColorKey = "scaffoldBackgroundDarkColor";
+int get scaffoldBackgroundDarkColor =>
+    themeBox.get(scaffoldBackgroundDarkColorKey, defaultValue: colors["星空灰"]);
+
+const cardBackgroundDarkColorKey = "cardBackgroundDarkColor";
+int get cardBackgroundDarkColor =>
+    themeBox.get(cardBackgroundDarkColorKey, defaultValue: colors["星空灰"]);
+
+ThemeData getGlobalDarkThemeData() => ThemeData(
+      primaryColor: Color(primaryColor),
+      iconTheme: IconThemeData(color: Color(iconColor)),
+      brightness: Brightness.dark,
+      appBarTheme: AppBarTheme(
+        foregroundColor: Color(appBarForegroundDarkColor),
+        backgroundColor: Color(appBarBackgroundDarkColor),
+        iconTheme: IconThemeData(color: Color(iconColor)),
+        actionsIconTheme: IconThemeData(color: Color(iconColor)),
+      ),
+      bottomAppBarColor: Color(appBarBackgroundDarkColor),
+      scaffoldBackgroundColor: Color(scaffoldBackgroundDarkColor),
+      cardTheme: CardTheme(color: Color(cardBackgroundDarkColor)),
+    );
+
+const decorationImageKey = "decorationImage";
+String get decorationImage => themeBox.get(decorationImageKey, defaultValue: "");
 
 Map<String, int> get colors => {
       // "自定义": 0xFF4BB0A0,

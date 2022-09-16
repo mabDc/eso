@@ -32,7 +32,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter("eso");
   await openThemeModeBox();
-  runApp(MyApp());
+  runApp(const MyApp());
 
   // 必须加上这一行。
   if (Platform.isWindows) {
@@ -75,42 +75,53 @@ class ErrorApp extends StatelessWidget {
 
 BoxDecoration globalDecoration;
 
-class MyApp extends StatelessWidget {
-  MyApp({Key key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    initFlag = InitFlag.wait.index;
-    StackTrace _stackTrace;
-    dynamic _error;
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  StackTrace _stackTrace;
+  dynamic _error;
+  InitFlag initFlag = InitFlag.wait;
+
+  @override
+  void initState() {
+    super.initState();
     () async {
       try {
         await openThemeBox();
         await Global.init();
         globalDecoration = BoxDecoration(
-          color: Color(decorationBackgroundColor),
-          image: DecorationImage(image: AssetImage(decorationImage), fit: BoxFit.fitWidth),
+          image:
+              DecorationImage(image: AssetImage(decorationImage), fit: BoxFit.fitWidth),
         );
-        themeBox.listenable(
-            keys: [decorationBackgroundColorKey, decorationImageKey]).addListener(() {
+        themeBox.listenable(keys: [decorationImageKey]).addListener(() {
           globalDecoration = BoxDecoration(
-            color: Color(decorationBackgroundColor),
             image:
                 DecorationImage(image: AssetImage(decorationImage), fit: BoxFit.fitWidth),
           );
         });
-        initFlag = InitFlag.ok.index;
+        initFlag = InitFlag.ok;
+        setState(() {});
       } catch (e, st) {
         _error = e;
         _stackTrace = st;
-        initFlag = InitFlag.error.index;
+        initFlag = InitFlag.error;
+        setState(() {});
       }
     }();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ValueListenableBuilder<Box<int>>(
       valueListenable: themeModeBox.listenable(),
       builder: (BuildContext context, Box<int> _, Widget child) {
         final _themeMode = ThemeMode.values[themeMode];
-        switch (InitFlag.values[initFlag]) {
+        switch (initFlag) {
           case InitFlag.ok:
             return OKToast(
               textStyle: TextStyle(
@@ -125,8 +136,8 @@ class MyApp extends StatelessWidget {
                   builder: (BuildContext context, Box _, Widget child) {
                     return MaterialApp(
                       themeMode: _themeMode,
-                      theme: getGlobalThemeData(Brightness.light),
-                      darkTheme: getGlobalThemeData(Brightness.dark),
+                      theme: getGlobalThemeData(),
+                      darkTheme: getGlobalDarkThemeData(),
                       scrollBehavior: MyCustomScrollBehavior(),
                       title: Global.appName,
                       home: HomePage(),

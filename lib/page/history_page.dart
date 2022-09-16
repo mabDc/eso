@@ -1,9 +1,11 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
+import 'package:eso/hive/theme_box.dart';
 import 'package:eso/ui/ui_text_field.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -92,7 +94,26 @@ class HistoryPage2 extends StatelessWidget {
     return ChangeNotifierProvider<HistoryPageProvider>(
       create: (_) => HistoryPageProvider(),
       builder: (context, child) {
-        final provider = Provider.of<HistoryPageProvider>(context, listen: false);
+        final provider = Provider.of<HistoryPageProvider>(context);
+        final historyItem = provider.historyItem;
+        final today =
+            DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+                .add(Duration(days: 1));
+        int days = -1;
+        final lastReadTimeList = <DateTime>[];
+        final daysList = <int>[];
+        for (var item in historyItem) {
+          final lastReadTime = DateTime.fromMicrosecondsSinceEpoch(item.lastReadTime);
+          lastReadTimeList.add(lastReadTime);
+
+          final _days = today.difference(lastReadTime).inDays;
+          if (days != _days) {
+            days = _days;
+            daysList.add(_days);
+          } else {
+            daysList.add(-_days - 1);
+          }
+        }
         return Scaffold(
           appBar: AppBar(
             title: SearchTextField(
@@ -103,9 +124,8 @@ class HistoryPage2 extends StatelessWidget {
             ),
             actions: [
               IconButton(
-                  icon: Icon(FIcons.check_square), onPressed: provider.toggleCheck),
-              IconButton(
                 icon: Icon(Icons.delete_sweep),
+                tooltip: "删除，点击时间选择，长按选择一天",
                 onPressed: () {
                   final checkCount = provider.checkCount;
                   if (checkCount == 0) {
@@ -122,97 +142,93 @@ class HistoryPage2 extends StatelessWidget {
               ),
             ],
           ),
-          body: RefreshIndicator(
-            onRefresh: provider.refresh,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Wrap(
-                    spacing: 10,
-                    children: [
-                      for (final contentType in [
-                        null,
-                        API.NOVEL,
-                        API.MANGA,
-                        API.AUDIO,
-                        API.VIDEO,
-                      ])
-                        buildButton(context, contentType)
-                    ],
-                  ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Wrap(
+                  spacing: 10,
+                  children: [
+                    for (final contentType in [
+                      null,
+                      API.NOVEL,
+                      API.MANGA,
+                      API.AUDIO,
+                      API.VIDEO,
+                    ])
+                      buildButton(context, contentType)
+                  ],
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: buildItems(context),
-                    ),
-                  ),
-                )
-              ],
-            ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemExtent: 120,
+                  itemCount: daysList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return buildItem(provider, context, historyItem[index],
+                        lastReadTimeList[index], daysList[index], daysList);
+                  },
+                ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  List<Widget> buildItems(BuildContext context) {
-    final historyItem =
-        context.select((HistoryPageProvider provider) => provider.historyItem);
-    final provider = Provider.of<HistoryPageProvider>(context, listen: true);
-    final list = <Widget>[];
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-        .add(Duration(days: 1));
-    int days = -1;
-    for (var item in historyItem) {
-      final lastRead = DateTime.fromMicrosecondsSinceEpoch(item.lastReadTime);
-      final _days = today.difference(lastRead).inDays;
-      if (days != _days) {
-        days = _days;
-        list.add(ListTile(
-          title: Text(
-            days == 0
-                ? '今天'
-                : days == 1
-                    ? '昨天'
-                    : '$days天前',
-          ),
-        ));
-      }
-      list.add(buildItem(provider, context, item, lastRead));
-      list.add(Divider());
-    }
-    return list;
-  }
-
-  Widget buildItem(HistoryPageProvider provider, BuildContext context, SearchItem item,
-      DateTime lastRead) {
+  Widget buildItem(
+    HistoryPageProvider provider,
+    BuildContext context,
+    SearchItem item,
+    DateTime lastReadTime,
+    int days,
+    List<int> daysList,
+  ) {
     return InkWell(
       onTap: () {
         if (item.chapters != null && item.chapters.isEmpty) {
           item.chapters = null;
         }
-        if (provider.checkkMode) {
-          provider.checkOne(item.id);
-          return;
-        }
-        invokeTap(ChapterPage(searchItem: item, key: Key(item.id.toString())));
+        invokeTap(ChapterPage(
+            searchItem: item, fromHistory: true, key: Key(item.id.toString())));
       },
       child: Container(
-        height: 90,
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 14),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color:
+                provider.isCheck(item.id) ? Color(primaryColor).withOpacity(0.3) : null,
+            border: Border(
+                top: days > 0
+                    ? BorderSide(color: Colors.grey, width: 0.6)
+                    : BorderSide.none)),
         child: Row(
           children: [
-            if (provider.checkkMode)
-              Container(
-                padding: EdgeInsets.all(8),
-                child: Icon(provider.isCheck(item.id)
-                    ? Icons.check_box_outlined
-                    : Icons.check_box_outline_blank),
+            InkWell(
+              onLongPress: () => provider.checkAll(days, daysList),
+              hoverColor: Colors.transparent,
+              onTap: () => provider.checkOne(item.id),
+              child: Container(
+                width: 50,
+                height: 100,
+                alignment: Alignment.center,
+                child: days < 0
+                    ? null
+                    : days == 0
+                        ? const Text("今天")
+                        : days == 1
+                            ? const Text("昨天")
+                            : Text("${days}${days.toString().length > 2 ? "\n" : ""}天前"),
               ),
+            ),
+            // if (provider.checkkMode)
+            //   Container(
+            //     padding: EdgeInsets.all(8),
+            //     child: Icon(provider.isCheck(item.id)
+            //         ? Icons.check_box_outlined
+            //         : Icons.check_box_outline_blank),
+            //   ),
             Container(
               width: 70,
               child: UIImageItem(
@@ -233,13 +249,13 @@ class HistoryPage2 extends StatelessWidget {
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    item.durChapter,
+                    "${item.durChapter} (${item.durChapterIndex}/${item.chaptersCount})",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12),
                   ),
                   Text(
-                    lastRead.toString().substring(0, 19),
+                    lastReadTime.toString().substring(0, 19),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 10),
@@ -293,14 +309,14 @@ class HistoryPage2 extends StatelessWidget {
 }
 
 class HistoryPageProvider with ChangeNotifier {
-  bool _checkMode;
-  bool get checkkMode => _checkMode == true;
+  // bool _checkMode;
+  // bool get checkkMode => _checkMode == true;
 
-  toggleCheck() {
-    _checkMode = !checkkMode;
-    if (!_checkMode) _idSet.clear();
-    notifyListeners();
-  }
+  // toggleCheck() {
+  //   _checkMode = !checkkMode;
+  //   if (!_checkMode) _idSet.clear();
+  //   notifyListeners();
+  // }
 
   final _idSet = Set<int>();
 
@@ -318,6 +334,21 @@ class HistoryPageProvider with ChangeNotifier {
       _idSet.remove(id);
     } else {
       _idSet.add(id);
+    }
+    notifyListeners();
+  }
+
+  checkAll(int days, List<int> daysList) {
+    final idList = <int>[];
+    for (var i = 0; i < daysList.length; i++) {
+      if (daysList[i] == days || daysList[i] == -days - 1) {
+        idList.add(_historyItem[i].id);
+      }
+    }
+    if (_idSet.containsAll(idList)) {
+      _idSet.removeAll(idList);
+    } else {
+      _idSet.addAll(idList);
     }
     notifyListeners();
   }

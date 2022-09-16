@@ -23,6 +23,7 @@ import 'novel_page_refactor.dart';
 
 class ContentPageRoute {
   MaterialPageRoute route(SearchItem searchItem) {
+    searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
     return MaterialPageRoute(
       builder: (context) {
         return ChangeNotifierProvider<ContentProvider>(
@@ -170,19 +171,8 @@ class ContentProvider with ChangeNotifier {
       searchItem.durChapterIndex = index;
       searchItem.durChapter = searchItem.chapters[index].name;
       searchItem.durContentIndex = 1;
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
-      // print("SearchItemManager.saveSearchItem()" +
-      //     DateTime.now().millisecondsSinceEpoch.toString());
-      // await SearchItemManager.saveSearchItem();
       await searchItem.save();
-      // final box = Hive.box<SearchItem>(Global.searchItemKey);
-      // box.clear();
-      // box.putAll(Map<String, SearchItem>.fromIterable(SearchItemManager.searchItem,
-      //     key: (item) => item.id, value: (item) => item));
-      // box.put(searchItem.id.toString(), searchItem);
-      // print("SearchItemManager.saveSearchItem()" +
-      //     DateTime.now().millisecondsSinceEpoch.toString());
     }
-    // await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
   }
 }

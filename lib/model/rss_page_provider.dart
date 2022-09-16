@@ -59,7 +59,6 @@ class RSSPageProvider with ChangeNotifier {
   void dispose() {
     content.clear();
     () async {
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       // await SearchItemManager.saveSearchItem();
       await searchItem.save();
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);

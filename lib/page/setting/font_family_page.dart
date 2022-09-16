@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:eso/hive/theme_box.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -76,7 +77,7 @@ class FontFamilyPage extends StatelessWidget {
             Text(
               '√全局 ',
               style: TextStyle(
-                color: Color(profile.primaryColor),
+                color: Color(primaryColor),
               ),
             ),
         ],

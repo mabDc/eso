@@ -22,7 +22,9 @@ import 'langding_page.dart';
 
 class ChapterPage extends StatefulWidget {
   final SearchItem searchItem;
-  const ChapterPage({this.searchItem, Key key}) : super(key: key);
+  final bool fromHistory;
+  const ChapterPage({this.searchItem, this.fromHistory = false, Key key})
+      : super(key: key);
 
   @override
   _ChapterPageState createState() => _ChapterPageState(searchItem);
@@ -428,7 +430,8 @@ class _ChapterPageState extends State<ChapterPage> {
             child: Container(height: 200, child: LandingPage()),
           );
         }
-        if (searchItem.chapters != null &&
+        if (!widget.fromHistory &&
+            searchItem.chapters != null &&
             searchItem.chapters.length > 0 &&
             searchItem.chapters.first.name == "正文") {
           Future.delayed(Duration(milliseconds: 100)).then((value) =>

@@ -12,7 +12,6 @@ import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:provider/provider.dart';
 import 'package:text_composition/text_composition_config.dart';
 import 'package:text_composition/text_composition_const.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,9 +20,7 @@ import '../../database/text_config_manager.dart';
 import '../../global.dart';
 import '../../eso_theme.dart';
 import '../../qing/main.dart';
-import '../novel_page_refactor.dart';
 import 'auto_backup_page.dart';
-import 'darkmod_page.dart';
 import 'package:about/about.dart';
 
 import 'theme_page.dart';
@@ -124,9 +121,9 @@ class AboutPage2 extends StatelessWidget {
                     ListTile(
                       title: Text('历史记录'),
                       subtitle: Text('浏览历史，界面设置可关闭'),
-                      onTap: () => invokeTap(HistoryPage2(
-                        invokeTap: invokeTap,
-                      )),
+                      onTap: () => invokeTap(HistoryPage(
+                          // invokeTap: invokeTap,
+                          )),
                     ),
                   ListTile(
                     title: Text('规则管理'),
@@ -197,11 +194,6 @@ class AboutPage2 extends StatelessWidget {
                     title: Text('界面与布局'),
                     subtitle: Text('正文状态栏信息栏和按钮布局'),
                     onTap: () => invokeTap(UISetting()),
-                  ),
-                  ListTile(
-                    title: Text('夜间模式'),
-                    subtitle: Text('切换夜间模式'),
-                    onTap: () => invokeTap(DarkModpage()),
                   ),
                   ListTile(
                     title: Text('主题装扮'),

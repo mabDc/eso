@@ -274,12 +274,10 @@ class _EditSourcePageState extends State<EditSourcePage> {
             child: Text(
               rule.ruleTypeName,
               style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: ESOTheme.staticFontFamily,
-                  color: Global.lightness(_leadColor) > 180
-                      ? _theme.primaryColorDark
-                      : Colors.white),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                fontFamily: ESOTheme.staticFontFamily,
+              ),
             ),
           ),
           SizedBox(width: 8),

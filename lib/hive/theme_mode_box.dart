@@ -13,8 +13,8 @@ set themeMode(int val){
   if(null != val && val != themeMode) themeModeBox.put(_themeMode, val);
 }
 
-const _initFlag = "initFlag";
-int get initFlag => themeModeBox.get(_initFlag, defaultValue: InitFlag.wait.index);
-set initFlag(int val){
-  if(null != val && val != initFlag) themeModeBox.put(_initFlag, val);
-}
+// const _initFlag = "initFlag";
+// int get initFlag => themeModeBox.get(_initFlag, defaultValue: InitFlag.wait.index);
+// set initFlag(int val){
+//   if(null != val && val != initFlag) themeModeBox.put(_initFlag, val);
+// }

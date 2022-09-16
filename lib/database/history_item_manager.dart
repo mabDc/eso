@@ -16,19 +16,19 @@ class HistoryItemManager {
       return historyItem
           .where((element) =>
               element.ruleContentType == contentType && element.name.contains(name ?? ''))
-          .toList();
+          .toList()..sort(((a, b) => b.lastReadTime - a.lastReadTime));
     } else {
-      return historyItem.where((element) => element.name.contains(name ?? '')).toList();
+      return historyItem.where((element) => element.name.contains(name ?? '')).toList()..sort(((a, b) => b.lastReadTime - a.lastReadTime));
     }
   }
 
   static Future<bool> insertOrUpdateHistoryItem(SearchItem searchItem) async {
-    _box.put(searchItem.id.toString(), SearchItem.fromJson(searchItem.toJson()));
+    await _box.put(searchItem.id.toString(), SearchItem.fromJson(searchItem.toJson()));
     return true;
   }
 
   static Future<bool> removeSearchItem(Set<int> id) async {
-    _box.deleteAll(id.map((e) => e.toString()));
+    await _box.deleteAll(id.map((e) => e.toString()));
     return true;
   }
 

@@ -523,7 +523,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     await controller?.pause();
     notifyListeners();
     () async {
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       await searchItem.save();
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     }();
@@ -590,7 +589,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         _showChapter = false;
       }
       searchItem.durContentIndex = _controller.value.position.inMilliseconds;
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       searchItem.save();
       notifyListeners();
     }
@@ -611,7 +609,6 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       controller.dispose();
     }
     () async {
-      searchItem.lastReadTime = DateTime.now().microsecondsSinceEpoch;
       await searchItem.save();;
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     }();
