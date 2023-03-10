@@ -3,10 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_windows
   battery_plus_windows
   flutter_qjs
   flutter_tts
   flutter_webview
+  sqlite3_flutter_libs
   url_launcher_windows
   webview_windows
   window_manager
