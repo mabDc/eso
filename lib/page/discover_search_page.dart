@@ -7,6 +7,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/discover_page_controller.dart';
+import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/ui/ui_discover_item.dart';
 import 'package:eso/ui/ui_search2_item.dart';
 import 'package:eso/ui/ui_search_item.dart';
@@ -19,6 +20,7 @@ import 'package:eso/ui/widgets/state_view.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:eso/ui/round_indicator.dart';
 import '../fonticons_icons.dart';
@@ -467,8 +469,8 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               }
               SearchItem searchItem = items[index];
               if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
-                searchItem = SearchItemManager.searchItem
-                    .firstWhere((item) => item.url == searchItem.url && item.originTag == searchItem.originTag);
+                searchItem = SearchItemManager.searchItem.firstWhere((item) =>
+                    item.url == searchItem.url && item.originTag == searchItem.originTag);
               }
               return InkWell(
                 child: builderItem != null

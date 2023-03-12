@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:eso/hive/theme_box.dart';
+import 'package:eso/utils.dart';
 import 'package:eso/utils/local_cupertion_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
@@ -11,7 +12,7 @@ import 'package:window_manager/window_manager.dart';
 import 'global.dart';
 import 'hive/theme_mode_box.dart';
 import 'page/home_page.dart';
-
+import 'package:hetu_script/hetu_script.dart';
 import 'package:flutter/gestures.dart';
 
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
@@ -74,6 +75,7 @@ class ErrorApp extends StatelessWidget {
 }
 
 BoxDecoration globalDecoration;
+final hetu = Hetu();
 
 class MyApp extends StatefulWidget {
   const MyApp({Key key}) : super(key: key);
@@ -94,6 +96,12 @@ class _MyAppState extends State<MyApp> {
       try {
         await openThemeBox();
         await Global.init();
+        await hetu.init(externalFunctions: {
+          'hello': (entity, {positionalArgs, namedArgs, typeArgs}) {},
+          'toast': (entity, {positionalArgs, namedArgs, typeArgs}) {
+            Utils.toast("msg");
+          },
+        });
         globalDecoration = BoxDecoration(
           image:
               DecorationImage(image: AssetImage(decorationImage), fit: BoxFit.fitWidth),

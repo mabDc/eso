@@ -1,16 +1,18 @@
+import 'package:hetu_script/hetu_script.dart';
+
 import 'dart:convert';
 
 import 'package:eso/api/api_js_engine.dart';
 import 'package:html/dom.dart';
+import '../main.dart';
 import 'analyzer.dart';
 
-class AnalyzerJS implements Analyzer {
+class AnalyzerHetu implements Analyzer {
+  String _content;
   static bool needSetEnvironmentFlag = true;
 
-  String _content;
-
   @override
-  AnalyzerJS parse(content) {
+  AnalyzerHetu parse(content) {
     if (content is Document) {
       _content = jsonEncode(content.outerHtml);
     } else if (content is Element) {
@@ -39,14 +41,13 @@ class AnalyzerJS implements Analyzer {
     return this;
   }
 
-  Future<dynamic> _eval(String rule) {
+  Future<dynamic> _eval(String rule) async {
     if (needSetEnvironmentFlag) {
-      final r =
-          JSEngine.evaluate("${JSEngine.environment};1+1;${JSEngine.rule.loadJs}var result = $_content; $rule;");
+      final r = hetu.eval("${JSEngine.environment};var result = $_content; $rule;");
       needSetEnvironmentFlag = false;
       return r;
     } else {
-      return JSEngine.evaluate("var result = $_content; $rule;");
+      return hetu.eval("var result = $_content; $rule;");
     }
   }
 

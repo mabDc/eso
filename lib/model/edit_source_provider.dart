@@ -7,6 +7,7 @@ import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class EditSourceProvider with ChangeNotifier {
   List<Rule> _rulesFilter;
@@ -186,11 +187,39 @@ class EditSourceProvider with ChangeNotifier {
     }(_loadKey);
   }
 
+  static final linyuan = "临渊";
+  static final leshi = "乐事";
+  static final schulte_grid = "舒尔特方格";
+  static final unlock_hidden_functions = "unlock_hidden_functions";
+
   ///搜索
   Future<void> getRuleListByName(String name) async {
     if (_isLoading) return;
     _isLoading = true;
     print("读取数据库 %$name%");
+    if (name.startsWith("打开功能")) {
+      final keyword = name.substring(4);
+      final box = await Hive.box<int>(unlock_hidden_functions);
+      if (keyword == linyuan || keyword == leshi || keyword == schulte_grid) {
+        if (box.get(keyword, defaultValue: 0) == 1) {
+          Utils.toast("$keyword 功能已解锁，无需重复输入");
+        } else {
+          box.put(keyword, 1);
+          Utils.toast("$keyword 功能打开成功");
+        }
+      }
+    } else if (name.startsWith("关闭功能")) {
+      final keyword = name.substring(4);
+      final box = await Hive.box<int>(unlock_hidden_functions);
+      if (keyword == linyuan || keyword == leshi || keyword == schulte_grid) {
+        if (box.get(keyword, defaultValue: 1) == 0) {
+          Utils.toast("$keyword 功能无需关闭");
+        } else {
+          box.put(keyword, 0);
+          Utils.toast("$keyword 功能关闭成功");
+        }
+      }
+    }
     switch (this.type) {
       case 1:
         _rules = await Global.ruleDao.getRuleByName('%$name%');

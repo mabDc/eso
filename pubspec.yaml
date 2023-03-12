@@ -1,7 +1,7 @@
 name: eso
 description: 亦搜，亦看，亦闻
 publish_to: none
-version: 1.22.16+12216
+version: 1.23.1+12301
 homepage: https://github.com/mabdc/eso
 author: mabdc
 
@@ -84,6 +84,7 @@ dependencies:
   flutter_inappwebview: ^5.4.3+7
   flutter_hooks: ^0.18.5+1
   sqlite3_flutter_libs: ^0.5.13
+  hetu_script_flutter: ^0.1.0+2
 
 dev_dependencies:
   build_runner: ^1.11.5

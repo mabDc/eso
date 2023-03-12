@@ -19,12 +19,16 @@ import 'package:eso/utils.dart';
 import 'package:eso/utils/rule_comparess.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
 import '../ui/ui_add_rule_dialog.dart';
+import 'hidden/leshi_oage.dart';
+import 'hidden/linyuan_page.dart';
+import 'hidden/schulte_grid.dart';
 import 'source/edit_rule_page.dart';
 
 class DiscoverFuture extends StatelessWidget {
@@ -121,6 +125,72 @@ class _DiscoverPageState extends State<DiscoverPage> {
     });
   }
 
+  Widget _buildLinyuan() {
+    return Row(
+      children: [
+        Container(
+          height: 100,
+          width: 100,
+          padding: EdgeInsets.all(10),
+          child: CircleAvatar(
+            backgroundImage: NetworkImage(
+                "https://cdn.nlark.com/yuque/0/2021/png/12924434/1628124182247-avatar/48d73035-8ee5-44ac-bbb2-0583092a4985.png?x-oss-process=image%2Fresize%2Cm_fill%2Cw_328%2Ch_328%2Fformat%2Cpng"),
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "临渊先生 ",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "小工具箱",
+                  style: TextStyle(backgroundColor: Theme.of(context).primaryColor),
+                ),
+              ],
+            ),
+            Text("宁在直中取，不向曲中求。"),
+            Row(
+              children: [
+                Icon(Icons.place_outlined, size: 14),
+                Text("人间彼岸"),
+                Icon(Icons.card_travel_rounded, size: 14),
+                Text("设计、写作"),
+              ],
+            ),
+            Row(
+              children: [
+                Icon(Icons.home, size: 14),
+                Text("yuque.com/mrlinyuan"),
+              ],
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _buildSchulteGrid() {
+    return ListTile(
+      title: Text("舒尔特方格"),
+      subtitle: Text("成绩记录功能待增加"),
+    );
+  }
+
+  Widget _buildLeshi() {
+    return ListTile(
+      title: Text("乐事"),
+      trailing: Text("万事屋"),
+    );
+  }
+
   Widget _buildPage() {
     return ChangeNotifierProvider.value(
       value: EditSourceProvider(type: 2),
@@ -175,12 +245,32 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   ],
                 );
               }
+              final box = Hive.box<int>(EditSourceProvider.unlock_hidden_functions);
+              int extCount = 1;
+              final extW = <Widget>[];
+              if (box.get(EditSourceProvider.schulte_grid, defaultValue: 0) == 1) {
+                extCount += 1;
+                extW.add(InkWell(
+                    onTap: () => invokeTap(SchulteGrid()), child: _buildSchulteGrid()));
+              }
+              if (box.get(EditSourceProvider.leshi, defaultValue: 0) == 1) {
+                extCount += 1;
+                extW.add(
+                    InkWell(onTap: () => invokeTap(LeshiPage()), child: _buildLeshi()));
+              }
+              if (box.get(EditSourceProvider.linyuan, defaultValue: 0) == 1) {
+                extCount += 1;
+                extW.add(InkWell(
+                    onTap: () => invokeTap(LinyuanPage()), child: _buildLinyuan()));
+              }
+
               final _listView = ListView.builder(
-                itemCount: provider.rules.length + 1,
+                itemCount: provider.rules.length + extCount,
                 physics: BouncingScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   if (index == 0) return _buildFilterView(context, provider);
-                  return _buildItem(provider, index - 1);
+                  if (extCount - index > 0) return extW[index - 1];
+                  return _buildItem(provider, index - extCount);
                 },
               );
               return KeyboardDismissBehaviorView(

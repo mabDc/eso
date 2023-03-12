@@ -1,3 +1,4 @@
+import 'package:eso/api/analyze_hetu.dart';
 import 'package:eso/api/analyzer.dart';
 import 'package:eso/api/analyzer_html.dart';
 import 'package:eso/api/analyzer_js.dart';
@@ -12,6 +13,8 @@ import 'analyzer_replace.dart';
 class AnalyzerManager {
   final ruleTypePattern = RegExp(
       r"@js:" // @js: code
+      "|"
+      "@hetu:" // @hetu: code
       "|"
       "@web:" // @web:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]
       "|"
@@ -356,6 +359,9 @@ class AnalyzerManager {
           if (r.startsWith(RegExp(r"@js:", caseSensitive: false))) {
             r = r.substring(4);
             analyzer = AnalyzerJS();
+          } else if (r.startsWith(RegExp(r"@hetu:", caseSensitive: false))) {
+            r = r.substring(6);
+            analyzer = AnalyzerHetu();
           } else if (r.startsWith(RegExp(r"@css:", caseSensitive: false))) {
             r = r.substring(5);
             analyzer = AnalyzerHtml();

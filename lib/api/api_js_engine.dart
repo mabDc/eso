@@ -8,7 +8,9 @@
  */
 import 'dart:convert';
 
+import 'package:eso/api/analyze_hetu.dart';
 import 'package:eso/api/analyzer_html.dart';
+import 'package:eso/api/analyzer_js.dart';
 import 'package:eso/api/analyzer_xpath.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
@@ -19,6 +21,7 @@ import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:xpath_selector/xpath_selector.dart';
 import 'package:http/http.dart' as http;
 import '../global.dart';
+import '../main.dart';
 import 'analyze_url.dart';
 
 class APIConst {
@@ -157,6 +160,8 @@ class JSEngine {
 
   static String thisBaseUrl;
 
+  static String environment;
+
   static Future<void> setEnvironment(
     int page,
     Rule rule,
@@ -168,17 +173,27 @@ class JSEngine {
     await initEngine();
     _rule = rule;
     thisBaseUrl = baseUrl;
-    await _engine.evaluate("""
+    AnalyzerJS.needSetEnvironmentFlag = true;
+    AnalyzerHetu.needSetEnvironmentFlag = true;
+    environment = """
 page = ${jsonEncode(page)};
 host = ${jsonEncode(rule.host)};
 cookie = ${jsonEncode(rule.cookies)};
 result = ${jsonEncode(result)};
 baseUrl = ${jsonEncode(baseUrl)};
 keyword = ${jsonEncode(keyword)};
-lastResult = ${jsonEncode(lastResult)};
-1+1;""" +
-        rule.loadJs +
-        ";1+1;");
+lastResult = ${jsonEncode(lastResult)};""";
+//     await _engine.evaluate("""
+// page = ${jsonEncode(page)};
+// host = ${jsonEncode(rule.host)};
+// cookie = ${jsonEncode(rule.cookies)};
+// result = ${jsonEncode(result)};
+// baseUrl = ${jsonEncode(baseUrl)};
+// keyword = ${jsonEncode(keyword)};
+// lastResult = ${jsonEncode(lastResult)};
+// 1+1;""" +
+//         rule.loadJs +
+//         ";1+1;");
   }
 
   static Future<dynamic> evaluate(String command) async {

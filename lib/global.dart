@@ -6,6 +6,7 @@ import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/history_manager.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/eso_theme.dart';
+import 'package:eso/model/edit_source_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -150,6 +151,7 @@ class Global with ChangeNotifier {
 
     await Hive.openBox(Global.profileKey);
     await Hive.openBox(Global.textConfigKey);
+    await Hive.openBox<int>(EditSourceProvider.unlock_hidden_functions);
 
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     if (isDesktop) {
