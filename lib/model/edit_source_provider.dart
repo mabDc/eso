@@ -197,15 +197,15 @@ class EditSourceProvider with ChangeNotifier {
     if (_isLoading) return;
     _isLoading = true;
     print("读取数据库 %$name%");
-    if (name.startsWith("打开功能")) {
+    if (name.startsWith("启用功能")) {
       final keyword = name.substring(4);
       final box = await Hive.box<int>(unlock_hidden_functions);
       if (keyword == linyuan || keyword == leshi || keyword == schulte_grid) {
         if (box.get(keyword, defaultValue: 0) == 1) {
-          Utils.toast("$keyword 功能已解锁，无需重复输入");
+          Utils.toast("$keyword 功能已启用，无需重复输入");
         } else {
           box.put(keyword, 1);
-          Utils.toast("$keyword 功能打开成功");
+          Utils.toast("$keyword 功能启用成功");
         }
       }
     } else if (name.startsWith("关闭功能")) {
