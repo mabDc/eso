@@ -1,4 +1,3 @@
-import 'package:eso/page/source/editor/highlight.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -48,120 +47,128 @@ class _SchulteGridState extends State<SchulteGrid> with SingleTickerProviderStat
         millPassed = 0;
         ++secondsPassed;
       }
-      if (mounted)
-        setState(() {});
-      else
-        timer.cancel();
+      if (mounted) setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("舒尔特方格"),
-        centerTitle: true,
-      ),
-      body: Builder(builder: (context) {
-        return Column(
+        appBar: AppBar(
+          title: Text("舒尔特方格"),
+          centerTitle: true,
+        ),
+        body: ListView(
           children: <Widget>[
-            Expanded(
-              child: GridView.count(
+            Container(
+              alignment: Alignment.center,
+              height: 65,
+              child: Text(
+                '计时 $secondsPassed.$millPassed',
+                style: TextStyle(fontSize: 38),
+              ),
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: count == 16 ? 4 : 5,
-                children: List.generate(count, (index) {
-                  return InkWell(
-                    onTap: () async {
-                      if (nextNum == 0 && (timer == null || !timer.isActive)) {
-                        startTick();
-                      }
-                      curNum = data[index];
-                      if (nextNum + 1 == curNum) {
-                        ++nextNum;
-                        animation = ColorTween(
-                          begin: Theme.of(context).cardColor,
-                          end: Colors.purple,
-                        ).animate(controller)
-                          ..addListener(() {
-                            setState(() {});
+              ),
+              itemCount: count,
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () async {
+                    if (nextNum == 0 && (timer == null || !timer.isActive)) {
+                      startTick();
+                    }
+                    curNum = data[index];
+                    if (nextNum + 1 == curNum) {
+                      ++nextNum;
+                      animation = ColorTween(
+                        begin: Theme.of(context).cardColor,
+                        end: Colors.purple,
+                      ).animate(controller)
+                        ..addListener(() {
+                          if (mounted) setState(() {});
+                        });
+                    } else {
+                      animation = ColorTween(
+                        begin: Theme.of(context).cardColor,
+                        end: Colors.red,
+                      ).animate(controller)
+                        ..addListener(() {
+                          if (mounted) setState(() {});
+                        });
+                    }
+                    await controller.forward();
+                    await controller.reverse();
+                    if (nextNum == count) {
+                      nextNum++;
+                      timer.cancel();
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text("恭喜！"),
+                              content: Text("您的成绩为 $secondsPassed.$millPassed"),
+                              actions: <Widget>[
+                                TextButton(
+                                    onPressed: () {
+                                      init(count);
+                                      if (mounted) setState(() {});
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text("再来一次")),
+                              ],
+                            );
                           });
-                      } else {
-                        animation = ColorTween(
-                          begin: Colors.white,
-                          end: Colors.red,
-                        ).animate(controller)
-                          ..addListener(() {
-                            setState(() {});
-                          });
-                      }
-                      await controller.forward();
-                      await controller.reverse();
-                      if (nextNum == count) {
-                        nextNum++;
-
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('恭喜'),
-                        ));
-                        timer.cancel();
-                      }
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1),
-                        color: curNum == data[index]
-                            ? animation.value
-                            : Theme.of(context).cardColor,
-                      ),
-                      child: Text(
-                        '${data[index]}',
-                        style: TextStyle(fontSize: 20),
-                      ),
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1),
+                      color: curNum == data[index]
+                          ? animation.value
+                          : Theme.of(context).cardColor,
                     ),
-                  );
-                }),
-              ),
-            ),
-            Text('$secondsPassed.$millPassed'),
-            SizedBox(height: 10),
-            OutlinedButton(
-              // color: Colors.blue,
-              child: Text(
-                '重来',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                init(count);
-                setState(() {});
+                    child: Text(
+                      '${data[index]}',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                );
               },
             ),
-            SizedBox(height: 10),
-            OutlinedButton(
-              // color: Colors.blue,
-              child: Text(
-                '16格子',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                init(16);
-                setState(() {});
-              },
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton(
+                  // color: Colors.blue,
+                  child: Text(
+                    '16格子',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    init(16);
+                    if (mounted) setState(() {});
+                  },
+                ),
+                SizedBox(width: 20),
+                OutlinedButton(
+                  // color: Colors.blue,
+                  child: Text(
+                    '25格子',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    init(25);
+                    if (mounted) setState(() {});
+                  },
+                ),
+              ],
             ),
-            SizedBox(height: 10),
-            OutlinedButton(
-              // color: Colors.blue,
-              child: Text(
-                '25格子',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                init(25);
-                setState(() {});
-              },
-            ),
-            SizedBox(height: 10),
           ],
-        );
-      }),
-    );
+        ));
   }
 }

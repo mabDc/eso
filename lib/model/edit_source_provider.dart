@@ -190,6 +190,7 @@ class EditSourceProvider with ChangeNotifier {
   static final linyuan = "临渊";
   static final leshi = "乐事";
   static final schulte_grid = "舒尔特方格";
+  static final wapbbs = "尿尿的论坛";
   static final unlock_hidden_functions = "unlock_hidden_functions";
 
   ///搜索
@@ -197,10 +198,14 @@ class EditSourceProvider with ChangeNotifier {
     if (_isLoading) return;
     _isLoading = true;
     print("读取数据库 %$name%");
-    if (name.startsWith("启用功能")) {
+    final list = [linyuan, leshi, schulte_grid, wapbbs];
+    if (name.startsWith("开启功能") ||
+        name.startsWith("启用功能") ||
+        name.startsWith("打开功能") ||
+        name.startsWith("使用功能")) {
       final keyword = name.substring(4);
       final box = await Hive.box<int>(unlock_hidden_functions);
-      if (keyword == linyuan || keyword == leshi || keyword == schulte_grid) {
+      if (list.contains(keyword)) {
         if (box.get(keyword, defaultValue: 0) == 1) {
           Utils.toast("$keyword 功能已启用，无需重复输入");
         } else {
@@ -211,7 +216,7 @@ class EditSourceProvider with ChangeNotifier {
     } else if (name.startsWith("关闭功能")) {
       final keyword = name.substring(4);
       final box = await Hive.box<int>(unlock_hidden_functions);
-      if (keyword == linyuan || keyword == leshi || keyword == schulte_grid) {
+      if (list.contains(keyword)) {
         if (box.get(keyword, defaultValue: 1) == 0) {
           Utils.toast("$keyword 功能无需关闭");
         } else {
