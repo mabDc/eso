@@ -201,48 +201,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  Widget _buildWapbbs() {
-    return Row(
-      children: [
-        Container(
-          height: 60,
-          width: 60,
-          padding: EdgeInsets.all(10),
-          child: CircleAvatar(
-            backgroundImage: NetworkImage("https://wapbbs.cn/favicon.ico"),
-          ),
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  "@尿尿打湿脚 ",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "论坛",
-                  style: TextStyle(backgroundColor: Theme.of(context).primaryColor),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.home, size: 14),
-                Text("wapbbs.cn @qq:1205783879"),
-              ],
-            ),
-          ],
-        )
-      ],
-    );
-  }
-
   Widget _buildLeshi() {
     return ListTile(
       title: Row(
@@ -320,9 +278,13 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   ],
                 );
               }
+
               final box = Hive.box<int>(EditSourceProvider.unlock_hidden_functions);
               int extCount = 1;
               final extW = <Widget>[];
+              if (box.get(EditSourceProvider.schulte_grid) == null) {
+                box.put(EditSourceProvider.schulte_grid, 1);
+              }
               if (box.get(EditSourceProvider.schulte_grid, defaultValue: 0) == 1) {
                 extCount += 1;
                 extW.add(InkWell(
@@ -332,16 +294,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 extCount += 1;
                 extW.add(
                     InkWell(onTap: () => invokeTap(LeshiPage()), child: _buildLeshi()));
-              }
-              if (box.get(EditSourceProvider.wapbbs, defaultValue: 0) == 1) {
-                extCount += 1;
-                extW.add(InkWell(
-                    onTap: () => invokeTap(LaunchUrlWithWebview(
-                          title: "尿尿的论坛",
-                          url: "https://wapbbs.cn/",
-                          icon: "https://wapbbs.cn/favicon.ico",
-                        )),
-                    child: _buildWapbbs()));
               }
               if (box.get(EditSourceProvider.linyuan, defaultValue: 0) == 1) {
                 extCount += 1;

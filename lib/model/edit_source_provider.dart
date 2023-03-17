@@ -190,7 +190,6 @@ class EditSourceProvider with ChangeNotifier {
   static final linyuan = "临渊";
   static final leshi = "乐事";
   static final schulte_grid = "舒尔特方格";
-  static final wapbbs = "尿尿的论坛";
   static final unlock_hidden_functions = "unlock_hidden_functions";
 
   ///搜索
@@ -198,7 +197,7 @@ class EditSourceProvider with ChangeNotifier {
     if (_isLoading) return;
     _isLoading = true;
     print("读取数据库 %$name%");
-    final list = [linyuan, leshi, schulte_grid, wapbbs];
+    final list = [linyuan, leshi, schulte_grid];
     if (name.startsWith("开启功能") ||
         name.startsWith("启用功能") ||
         name.startsWith("打开功能") ||

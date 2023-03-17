@@ -29,7 +29,7 @@ class LeshiPage extends StatelessWidget {
             child: Container(
                 padding: EdgeInsets.all(10),
                 child: Text(
-                  '水晶岩城（施工ing）',
+                  '',
                   style: TextStyle(fontSize: 24),
                 )),
           ),
