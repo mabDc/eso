@@ -33,38 +33,33 @@ class LaunchUrlWithWebview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          leadingWidth: 30,
-          title: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(icon),
-            ),
-            title: Text(title),
-            subtitle: Text(url),
-          ),
-          //Column(children: [Text(title)]),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  launchUrl(Uri.parse(url));
-                },
-                tooltip: "在浏览器打开",
-                icon: Icon(Icons.open_in_browser))
-          ],
-        ),
-        body: Center(
-            child: Platform.isWindows
-                ? WebInAppWindows(
-                    url: url,
-                  )
-                : Platform.isAndroid
-                    ? WebInAppAndroid(
-                        url: url,
-                      )
-                    : Container(
-                        child: Text(url),
-                      )));
+    return Platform.isWindows
+        ? WebInAppWindows(url: url, title: title, icon: icon)
+        : Platform.isAndroid
+            ? WebInAppAndroid(url: url, title: title, icon: icon)
+            : Scaffold(
+                appBar: AppBar(
+                  leadingWidth: 30,
+                  title: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(icon),
+                    ),
+                    title: Text(title),
+                    subtitle: Text(url),
+                  ),
+                  //Column(children: [Text(title)]),
+                  actions: [
+                    IconButton(
+                        onPressed: () {
+                          launchUrl(Uri.parse(url));
+                        },
+                        tooltip: "在浏览器打开",
+                        icon: Icon(Icons.open_in_browser))
+                  ],
+                ),
+                body: Container(
+                  child: Text(url),
+                ));
   }
 }
 
@@ -178,7 +173,8 @@ class WebInAppAndroid extends StatelessWidget {
 class WebInAppWindows extends StatefulWidget {
   final String url;
   final String title;
-  WebInAppWindows({Key key, this.url, this.title}) : super(key: key);
+  final String icon;
+  WebInAppWindows({Key key, this.url, this.title, this.icon}) : super(key: key);
 
   @override
   State<WebInAppWindows> createState() => _WebInAppWindowsState();
@@ -203,10 +199,51 @@ class _WebInAppWindowsState extends State<WebInAppWindows> {
   @override
   Widget build(BuildContext context) {
     final m = MediaQuery.of(context).size;
-    return Webview(
-      webviewController,
-      width: m.width,
-      height: m.height,
+    return Scaffold(
+      appBar: AppBar(
+        leadingWidth: 30,
+        title: ListTile(
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(widget.icon),
+          ),
+          title: Text(widget.title),
+          subtitle: Text(widget.url),
+        ),
+        //Column(children: [Text(title)]),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 20,
+            ),
+            tooltip: "后退",
+            onPressed: () async {
+              webviewController.goBack();
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.arrow_forward_ios,
+              size: 20,
+            ),
+            tooltip: "前进",
+            onPressed: () async {
+              webviewController.goForward();
+            },
+          ),
+          IconButton(
+              onPressed: () {
+                launchUrl(Uri.parse(widget.url));
+              },
+              tooltip: "在浏览器打开",
+              icon: Icon(Icons.open_in_browser))
+        ],
+      ),
+      body: Webview(
+        webviewController,
+        width: m.width,
+        height: m.height,
+      ),
     );
   }
 }
