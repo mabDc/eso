@@ -22,21 +22,23 @@ Future<Response> put(String url, {Map<String, String> headers, dynamic body}) {
 
 Future<Response> post(String url,
     {Map<String, String> headers, dynamic body, Encoding encoding}) async {
-  final response =
-      await nosslClient.post(Uri.parse(url), headers: headers, body: body, encoding: encoding);
+  final response = await nosslClient.post(Uri.parse(url),
+      headers: headers, body: body, encoding: encoding);
 
   /// https://github.com/dart-lang/http/issues/157#issuecomment-401227248
   /// https://github.com/dart-lang/http/issues/157#issuecomment-417639249
   /// 302 does not redirect
   if (response.statusCode == 302 || response.statusCode == 301) {
     var location = response.headers['location'];
-    if (location == null || location.isEmpty) return response;
-    if (location.startsWith("//")) {
-      location = "${response.request.url.scheme}:$location";
-    } else if (location.startsWith("/")) {
-      location = "${response.request.url.scheme}://${response.request.url.host}$location";
-    }
-    return nosslClient.get(Uri.parse(location), headers: headers);
+    // if (location == null || location.isEmpty) return response;
+    // if (location.startsWith("//")) {
+    //   location = "${response.request.url.scheme}:$location";
+    // } else if (location.startsWith("/")) {
+    //   location = "${response.request.url.scheme}://${response.request.url.host}$location";
+    // }
+
+    return nosslClient.get(Uri.parse(url).resolveUri(Uri.parse(location)),
+        headers: headers);
   }
   return response;
 }
