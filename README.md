@@ -240,7 +240,7 @@ flutter build macos -v
 
 以及flutter众多开源项目和插件。
 
-益达[xiaohucode](https://github.com/xiaohucode)（ios版界面，源码在xiaohu分支）
+益达[xiaohucode](https://github.com/xiaohucode)（ios版的界面，源码在xiaohu分支，重要的维护者）
 
 # LICENSE
 
