@@ -8,6 +8,7 @@ If you like my work, please Star this project.
 
 ## （亦搜为个人创作，社区驱动，没有官网和没有官方公众号和没有官方论坛，更新渠道为github和频道和群。
 
+
 # 特点
 
 开源的多站点跨平台阅读器来啦！
@@ -238,6 +239,8 @@ flutter build macos -v
 人艰不拆(LOGO、详情页设计)
 
 以及flutter众多开源项目和插件。
+
+益达[xiaohucode](https://github.com/xiaohucode)（ios版界面，源码在xiaohu分支）
 
 # LICENSE
 
