@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:eso/hive/theme_box.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/local_cupertion_delegate.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,12 @@ class _MyAppState extends State<MyApp> {
     () async {
       try {
         await openThemeBox();
+        // 设置刷新率
+        if (displayHighRate) {
+          await FlutterDisplayMode.setHighRefreshRate();
+        } else if (displayMode.refreshRate > 1) {
+          await FlutterDisplayMode.setPreferredMode(displayMode);
+        }
         await Global.init();
         await hetu.init(externalFunctions: {
           'hello': (entity, {positionalArgs, namedArgs, typeArgs}) {},

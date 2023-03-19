@@ -23,6 +23,7 @@ import '../../qing/main.dart';
 import 'auto_backup_page.dart';
 import 'package:about/about.dart';
 
+import 'display_high_rate.dart';
 import 'theme_page.dart';
 
 class AboutPage extends StatefulWidget {
@@ -108,6 +109,24 @@ class AboutPage2 extends StatelessWidget {
                     ),
                   ),
                   Divider(),
+                  ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                    title: Text("刷新率设置"),
+                    subtitle: Text(
+                      "一加的部分机型可能需要",
+                    ),
+                    // trailing: Transform.scale(
+                    //   scaleX: 0.8,
+                    //   scaleY: 0.8,
+                    //   child: Switch(
+                    //     value: highRefreshRate.value,
+                    //     onChanged: (value) =>
+                    //         setSpBool("highRefreshRate", value, highRefreshRate),
+                    //   ),
+                    // ),
+                    onTap: () => invokeTap(DisplayHighRate()),
+                  ),
                   ListTile(
                     title: Text('本地导入'),
                     subtitle: Text('导入txt或者epub'),

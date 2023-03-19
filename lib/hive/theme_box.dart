@@ -1,10 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 const _name = "themeBox";
 
 Future<Box> openThemeBox() => Hive.openBox(_name);
 final themeBox = Hive.box(_name);
+
+const displayHighRateKey = "displayHighRate";
+const displayModeIdKey = "displayModeId";
+const displayModeWidthKey = "displayModeWidth";
+const displayModeHeightKey = "displayModeHeight";
+const displayModeRefreshRateKey = "displayModeRefreshRate";
+bool get displayHighRate => themeBox.get(displayHighRateKey, defaultValue: false);
+DisplayMode get displayMode {
+  final int id = themeBox.get(displayModeIdKey, defaultValue: 0);
+  final int width = themeBox.get(displayModeWidthKey, defaultValue: 0);
+  final int height = themeBox.get(displayModeHeightKey, defaultValue: 0);
+  final double refreshRate = themeBox.get(displayModeRefreshRateKey, defaultValue: 0.0);
+  return DisplayMode(id: id, height: height, width: width, refreshRate: refreshRate);
+}
+
+set displayMode(DisplayMode mode) {
+  themeBox.put(displayModeIdKey, mode.id);
+  themeBox.put(displayModeWidthKey, mode.width);
+  themeBox.put(displayModeHeightKey, mode.height);
+  themeBox.put(displayModeRefreshRateKey, mode.refreshRate);
+}
 
 const primaryColorKey = "primaryColor";
 int get primaryColor => themeBox.get(primaryColorKey, defaultValue: colors["哔哩粉"]);

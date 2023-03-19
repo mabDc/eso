@@ -120,8 +120,11 @@ class WebInAppAndroid extends StatelessWidget {
             leading: CircleAvatar(
               backgroundImage: NetworkImage(icon),
             ),
-            title: Text(title),
-            subtitle: Text(url),
+            title: Text(
+              title,
+              overflow: TextOverflow.clip,
+            ),
+            subtitle: Text(url, overflow: TextOverflow.clip),
           ),
           actions: [
             IconButton(
