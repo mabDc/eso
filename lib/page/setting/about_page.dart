@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:eso/main.dart';
 import 'package:eso/page/add_local_item_page.dart';
 import 'package:eso/page/history_page.dart';
 import 'package:eso/page/setting/font_family_page.dart';
@@ -93,302 +94,305 @@ class AboutPage2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(Global.appName)),
-      body: () {
-        final profile = ESOTheme();
-        return ListView(
-          children: <Widget>[
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      '设置',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
-                  ),
-                  Divider(),
-                  ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                    title: Text("刷新率设置"),
-                    subtitle: Text(
-                      "一加的部分机型可能需要",
-                    ),
-                    // trailing: Transform.scale(
-                    //   scaleX: 0.8,
-                    //   scaleY: 0.8,
-                    //   child: Switch(
-                    //     value: highRefreshRate.value,
-                    //     onChanged: (value) =>
-                    //         setSpBool("highRefreshRate", value, highRefreshRate),
-                    //   ),
-                    // ),
-                    onTap: () => invokeTap(DisplayHighRate()),
-                  ),
-                  ListTile(
-                    title: Text('本地导入'),
-                    subtitle: Text('导入txt或者epub'),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddLocalItemPage(),
-                        )),
-                  ),
-                  if (ESOTheme().showHistoryOnAbout)
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(title: Text(Global.appName)),
+        body: () {
+          final profile = ESOTheme();
+          return ListView(
+            children: <Widget>[
+              Card(
+                child: Column(
+                  children: <Widget>[
                     ListTile(
-                      title: Text('历史记录'),
-                      subtitle: Text('浏览历史，界面设置可关闭'),
-                      onTap: () => invokeTap(HistoryPage(
-                          // invokeTap: invokeTap,
+                      title: Text(
+                        '设置',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                      title: Text("刷新率设置"),
+                      subtitle: Text(
+                        "一加的部分机型可能需要",
+                      ),
+                      // trailing: Transform.scale(
+                      //   scaleX: 0.8,
+                      //   scaleY: 0.8,
+                      //   child: Switch(
+                      //     value: highRefreshRate.value,
+                      //     onChanged: (value) =>
+                      //         setSpBool("highRefreshRate", value, highRefreshRate),
+                      //   ),
+                      // ),
+                      onTap: () => invokeTap(DisplayHighRate()),
+                    ),
+                    ListTile(
+                      title: Text('本地导入'),
+                      subtitle: Text('导入txt或者epub'),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddLocalItemPage(),
                           )),
                     ),
-                  ListTile(
-                    title: Text('规则管理'),
-                    subtitle: Text('添加、删除、修改您的数据源'),
-                    onTap: () => invokeTap(EditSourcePage()),
-                  ),
-                  ListTile(
-                    title: Text('QING'),
-                    subtitle: Text('请求测试与解析辅助工具'),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RequestAndParserTestTool(),
-                        )),
-                  ),
-                  ListTile(
-                    title: Text('备份恢复和webdav'),
-                    subtitle: Text('自动备份与恢复，webdav与规则分享'),
-                    onTap: () => invokeTap(AutoBackupPage()),
-                  ),
-                  ListTile(
-                    title: Text('清理缓存'),
-                    subtitle: Text('清理本地缓存的书籍等'),
-                    onTap: () async {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          backgroundColor: Theme.of(context).canvasColor,
-                          title: Text("清理缓存"),
-                          content: Text("此操作将会清除小说缓存，请确定是否继续！"),
-                          actions: <Widget>[
-                            TextButton(
-                                child: Text('取消',
-                                    style: TextStyle(color: Theme.of(context).hintColor)),
-                                onPressed: () => Navigator.pop(context)),
-                            TextButton(
-                                child: Text('立即清理'),
-                                onPressed: () async {
-                                  Navigator.pop(context);
-                                  await CacheUtil().clear(allCache: true);
-                                  Utils.toast("缓存清理成功");
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                    if (ESOTheme().showHistoryOnAbout)
+                      ListTile(
+                        title: Text('历史记录'),
+                        subtitle: Text('浏览历史，界面设置可关闭'),
+                        onTap: () => invokeTap(HistoryPage(
+                            // invokeTap: invokeTap,
+                            )),
+                      ),
+                    ListTile(
+                      title: Text('规则管理'),
+                      subtitle: Text('添加、删除、修改您的数据源'),
+                      onTap: () => invokeTap(EditSourcePage()),
+                    ),
+                    ListTile(
+                      title: Text('QING'),
+                      subtitle: Text('请求测试与解析辅助工具'),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RequestAndParserTestTool(),
+                          )),
+                    ),
+                    ListTile(
+                      title: Text('备份恢复和webdav'),
+                      subtitle: Text('自动备份与恢复，webdav与规则分享'),
+                      onTap: () => invokeTap(AutoBackupPage()),
+                    ),
+                    ListTile(
+                      title: Text('清理缓存'),
+                      subtitle: Text('清理本地缓存的书籍等'),
+                      onTap: () async {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            backgroundColor: Theme.of(context).canvasColor,
+                            title: Text("清理缓存"),
+                            content: Text("此操作将会清除小说缓存，请确定是否继续！"),
+                            actions: <Widget>[
+                              TextButton(
+                                  child: Text('取消',
+                                      style: TextStyle(color: Theme.of(context).hintColor)),
+                                  onPressed: () => Navigator.pop(context)),
+                              TextButton(
+                                  child: Text('立即清理'),
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+                                    await CacheUtil().clear(allCache: true);
+                                    Utils.toast("缓存清理成功");
+                                  }),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      '界面',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '界面',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
                     ),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('阅读设置'),
-                    subtitle: Text('翻页动画和文字排版'),
-                    onTap: () => invokeTap(ConfigSettingPage()),
-                  ),
-                  ListTile(
-                    title: Text('界面与布局'),
-                    subtitle: Text('正文状态栏信息栏和按钮布局'),
-                    onTap: () => invokeTap(UISetting()),
-                  ),
-                  ListTile(
-                    title: Text('主题装扮'),
-                    subtitle: Text('调色板和背景'),
-                    onTap: () => invokeTap(ThemePage()),
-                  ),
-                  ListTile(
-                    title: Text('字体管理'),
-                    subtitle: Text('全局界面、正文字体设置'),
-                    onTap: () => invokeTap(FontFamilyPage()),
-                  ),
-                ],
+                    Divider(),
+                    ListTile(
+                      title: Text('阅读设置'),
+                      subtitle: Text('翻页动画和文字排版'),
+                      onTap: () => invokeTap(ConfigSettingPage()),
+                    ),
+                    ListTile(
+                      title: Text('界面与布局'),
+                      subtitle: Text('正文状态栏信息栏和按钮布局'),
+                      onTap: () => invokeTap(UISetting()),
+                    ),
+                    ListTile(
+                      title: Text('主题装扮'),
+                      subtitle: Text('调色板和背景'),
+                      onTap: () => invokeTap(ThemePage()),
+                    ),
+                    ListTile(
+                      title: Text('字体管理'),
+                      subtitle: Text('全局界面、正文字体设置'),
+                      onTap: () => invokeTap(FontFamilyPage()),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      '联系&帮助',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '联系&帮助',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
                     ),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('亦搜①群'),
-                    subtitle: Text('1106156709'),
-                    onTap: () => joinGroup(),
-                  ),
-                  ListTile(
-                    title: Text('亦搜②群'),
-                    subtitle: Text('1148443231'),
-                    onTap: () => joinGroup('1148443231'),
-                  ),
-                  ListTile(
-                    title: Text(qing.joinPindao),
-                    subtitle: Image.memory(
-                      base64Decode(qing.esoPindao.base64.split(',')[1]),
-                      fit: BoxFit.contain,
-                      height: 150,
-                      width: 150,
-                      alignment: Alignment.topLeft,
+                    Divider(),
+                    ListTile(
+                      title: Text('亦搜①群'),
+                      subtitle: Text('1106156709'),
+                      onTap: () => joinGroup(),
                     ),
-                    onTap: () => launch(qing.esoPindao.url),
-                  ),
-                  ListTile(
-                    title: Text('规则获取'),
-                    subtitle: Text('https://github.com/mabDc/eso_source/'),
-                    onTap: () => launch('https://github.com/mabDc/eso_source/'),
-                  ),
-                  ListTile(
-                    title: Text('规则说明'),
-                    subtitle: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
+                    ListTile(
+                      title: Text('亦搜②群'),
+                      subtitle: Text('1148443231'),
+                      onTap: () => joinGroup('1148443231'),
+                    ),
+                    ListTile(
+                      title: Text(qing.joinPindao),
+                      subtitle: Image.memory(
+                        base64Decode(qing.esoPindao.base64.split(',')[1]),
+                        fit: BoxFit.contain,
+                        height: 150,
+                        width: 150,
+                        alignment: Alignment.topLeft,
+                      ),
+                      onTap: () => launch(qing.esoPindao.url),
+                    ),
+                    ListTile(
+                      title: Text('规则获取'),
+                      subtitle: Text('https://github.com/mabDc/eso_source/'),
+                      onTap: () => launch('https://github.com/mabDc/eso_source/'),
+                    ),
+                    ListTile(
+                      title: Text('规则说明'),
+                      subtitle: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                            'https://github.com/mabDc/eso_source/blob/master/README.md'),
+                      ),
+                      onTap: () => launch(
                           'https://github.com/mabDc/eso_source/blob/master/README.md'),
                     ),
-                    onTap: () => launch(
-                        'https://github.com/mabDc/eso_source/blob/master/README.md'),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      '主要开发者',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '主要开发者',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
                     ),
-                  ),
-                  Divider(),
-                  ListTile(
-                    title: Text('mabdc'),
-                    subtitle: Text('https://github.com/mabDc'),
-                    onTap: () => launch('https://github.com/mabDc'),
-                  ),
-                  ListTile(
-                    title: Text('DaguDuiyuan'),
-                    subtitle: Text('https://github.com/DaguDuiyuan'),
-                    onTap: () => launch('https://github.com/DaguDuiyuan'),
-                  ),
-                  ListTile(
-                    title: Text('yangyxd'),
-                    subtitle: Text('https://github.com/yangyxd'),
-                    onTap: () => launch('https://github.com/yangyxd'),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 4),
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      '项目',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    Divider(),
+                    ListTile(
+                      title: Text('mabdc'),
+                      subtitle: Text('https://github.com/mabDc'),
+                      onTap: () => launch('https://github.com/mabDc'),
                     ),
-                  ),
-                  Divider(),
-                  MarkdownPageListTile(
-                    filename: 'README.md',
-                    title: Text('使用指北'),
-                    // icon: Icon(Icons.info_outline),
-                  ),
-                  MarkdownPageListTile(
-                    filename: 'CHANGELOG.md',
-                    title: Text('更新日志'),
-                    // icon: Icon(FIcons.list),
-                  ),
-                  MarkdownPageListTile(
-                    filename: 'LICENSE',
-                    title: Text('源代码许可'),
-                    // icon: Icon(Icons.description),
-                  ),
-                  ListTile(
-                    title: Text('开源地址'),
-                    subtitle: Text('https://github.com/mabDc/eso'),
-                    onTap: () => launch('https://github.com/mabDc/eso'),
-                  ),
-                  ListTile(
-                    title: Text('问题反馈'),
-                    subtitle: Text('https://github.com/mabDc/eso/issues'),
-                    onTap: () => launch('https://github.com/mabDc/eso/issues'),
-                  ),
-                  ListTile(
-                    title: Text('${Global.appName} - ${Global.appVersion}'),
-                    subtitle: Text('https://github.com/mabDc/eso/releases'),
-                    onTap: () => launch('https://github.com/mabDc/eso/releases'),
-                  ),
-                ],
+                    ListTile(
+                      title: Text('DaguDuiyuan'),
+                      subtitle: Text('https://github.com/DaguDuiyuan'),
+                      onTap: () => launch('https://github.com/DaguDuiyuan'),
+                    ),
+                    ListTile(
+                      title: Text('yangyxd'),
+                      subtitle: Text('https://github.com/yangyxd'),
+                      onTap: () => launch('https://github.com/yangyxd'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Card(
-              child: Material(
-                color: Theme.of(context).primaryColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
-                child: InkWell(
-                  onTap: () => showAbout(context),
-                  child: SizedBox(
-                    height: 260,
-                    width: double.infinity,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            'ESO',
-                            style: TextStyle(
-                              fontSize: 100,
-                              fontStyle: FontStyle.italic,
-                              color: Theme.of(context).cardColor,
+              SizedBox(height: 4),
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        '项目',
+                        style: TextStyle(color: Theme.of(context).primaryColor),
+                      ),
+                    ),
+                    Divider(),
+                    MarkdownPageListTile(
+                      filename: 'README.md',
+                      title: Text('使用指北'),
+                      // icon: Icon(Icons.info_outline),
+                    ),
+                    MarkdownPageListTile(
+                      filename: 'CHANGELOG.md',
+                      title: Text('更新日志'),
+                      // icon: Icon(FIcons.list),
+                    ),
+                    MarkdownPageListTile(
+                      filename: 'LICENSE',
+                      title: Text('源代码许可'),
+                      // icon: Icon(Icons.description),
+                    ),
+                    ListTile(
+                      title: Text('开源地址'),
+                      subtitle: Text('https://github.com/mabDc/eso'),
+                      onTap: () => launch('https://github.com/mabDc/eso'),
+                    ),
+                    ListTile(
+                      title: Text('问题反馈'),
+                      subtitle: Text('https://github.com/mabDc/eso/issues'),
+                      onTap: () => launch('https://github.com/mabDc/eso/issues'),
+                    ),
+                    ListTile(
+                      title: Text('${Global.appName} - ${Global.appVersion}'),
+                      subtitle: Text('https://github.com/mabDc/eso/releases'),
+                      onTap: () => launch('https://github.com/mabDc/eso/releases'),
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                child: Material(
+                  color: Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+                  child: InkWell(
+                    onTap: () => showAbout(context),
+                    child: SizedBox(
+                      height: 260,
+                      width: double.infinity,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              'ESO',
+                              style: TextStyle(
+                                fontSize: 100,
+                                fontStyle: FontStyle.italic,
+                                color: Theme.of(context).cardColor,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '亦搜，亦看，亦闻',
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Theme.of(context).cardColor,
+                            Text(
+                              '亦搜，亦看，亦闻',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Theme.of(context).cardColor,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        );
-      }(),
+            ],
+          );
+        }(),
+      ),
     );
   }
 

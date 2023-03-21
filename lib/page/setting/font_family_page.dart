@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:eso/hive/theme_box.dart';
+import 'package:eso/main.dart';
 import 'package:eso/page/langding_page.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
@@ -18,44 +19,47 @@ class FontFamilyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("字体管理"),
-      ),
-      body: ChangeNotifierProvider(
-        create: (context) => _FontFamilyProvider(),
-        builder: (context, child) {
-          context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
-          final profile = ESOTheme();
-          final fontFamilyProvider =
-              Provider.of<_FontFamilyProvider>(context, listen: false);
-          if (fontFamilyProvider.ttfList == null) {
-            return LandingPage();
-          }
-          return ListView(
-            children: [
-              _buildFontListTile("默认", null, profile),
-              _buildFontListTile("Roboto", 'Roboto', profile),
-              for (final ttf in fontFamilyProvider.ttfList)
-                _buildFontListTile(ttf, ttf, profile),
-              ListTile(
-                onTap: () => fontFamilyProvider.pickFont(context),
-                title: Row(
-                  children: [
-                    Icon(Icons.add_outlined),
-                    Expanded(
-                      child: Text(
-                        '添加本地字体文件',
-                        overflow: TextOverflow.ellipsis,
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("字体管理"),
+        ),
+        body: ChangeNotifierProvider(
+          create: (context) => _FontFamilyProvider(),
+          builder: (context, child) {
+            context.select((_FontFamilyProvider provider) => provider._ttfList?.length);
+            final profile = ESOTheme();
+            final fontFamilyProvider =
+                Provider.of<_FontFamilyProvider>(context, listen: false);
+            if (fontFamilyProvider.ttfList == null) {
+              return LandingPage();
+            }
+            return ListView(
+              children: [
+                _buildFontListTile("默认", null, profile),
+                _buildFontListTile("Roboto", 'Roboto', profile),
+                for (final ttf in fontFamilyProvider.ttfList)
+                  _buildFontListTile(ttf, ttf, profile),
+                ListTile(
+                  onTap: () => fontFamilyProvider.pickFont(context),
+                  title: Row(
+                    children: [
+                      Icon(Icons.add_outlined),
+                      Expanded(
+                        child: Text(
+                          '添加本地字体文件',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                subtitle: Text('路径 ${fontFamilyProvider.dir}'),
-              )
-            ],
-          );
-        },
+                    ],
+                  ),
+                  subtitle: Text('路径 ${fontFamilyProvider.dir}'),
+                )
+              ],
+            );
+          },
+        ),
       ),
     );
   }

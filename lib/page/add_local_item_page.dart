@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:eso/main.dart';
 import 'package:path/path.dart' as path;
 import 'package:epubx/epubx.dart';
 import 'package:eso/api/api.dart';
@@ -181,120 +182,123 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("导入本地txt或epub"),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: InkWell(
-              child: Text(
-                "点击选择 ${platformFile?.extension} ${(platformFile?.size ?? 0) ~/ 1024}KB ${platformFile?.path}",
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("导入本地txt或epub"),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                child: Text(
+                  "点击选择 ${platformFile?.extension} ${(platformFile?.size ?? 0) ~/ 1024}KB ${platformFile?.path}",
+                ),
+                onTap: init,
               ),
-              onTap: init,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("书名："),
-                Expanded(
-                  child: TextField(
-                    controller: textEditingController,
-                    onChanged: (value) {
-                      searchItem.name = value;
-                    },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text("书名："),
+                  Expanded(
+                    child: TextField(
+                      controller: textEditingController,
+                      onChanged: (value) {
+                        searchItem.name = value;
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text("正则："),
+                  Expanded(
+                    child: TextField(controller: textEditingControllerReg),
+                  ),
+                ],
+              ),
+            ),
+            Wrap(
+              spacing: 10,
+              alignment: WrapAlignment.start,
               children: [
-                Text("正则："),
-                Expanded(
-                  child: TextField(controller: textEditingControllerReg),
+                TextButton(
+                    onPressed: () async {
+                      final r = await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SimpleChangeRule(searchItem: searchItem)));
+                      if (r != null && r is SearchItem) {
+                        searchItem.localAddInfo(r);
+                        setState(() {});
+                      } else {
+                        Utils.toast("未选择");
+                      }
+                    },
+                    child: Text("在线搜索")),
+                TextButton(
+                    onPressed: () {
+                      textEditingControllerReg.text = defaultReg;
+                    },
+                    child: Text("默认正则")),
+                TextButton(
+                    onPressed: () {
+                      if (platformFile.extension == "epub") {
+                        // parseEpub();
+                      } else {
+                        parseText();
+                      }
+                    },
+                    child: Text("分割目录")),
+                TextButton(
+                  onPressed: () async {
+                    // 写入文件
+                    final cache = CacheUtil(
+                        basePath: "cache${Platform.pathSeparator}${searchItem.id}");
+                    final dir = await cache.cacheDir();
+                    final d = Directory(dir);
+                    if (!d.existsSync()) {
+                      d.createSync(recursive: true);
+                    }
+                    Utils.toast("写入文件中 $dir");
+                    final reg = RegExp(r"^\s*|(\s{2,}|\n)\s*");
+                    for (var i = 0; i < contents.length; i++) {
+                      File(path.join(dir, '$i.txt')).writeAsStringSync(
+                          contents[i].split(reg).map((s) => s.trimLeft()).join("\n"));
+                    }
+                    SearchItemManager.addSearchItem(searchItem);
+                    Utils.toast("成功");
+                  },
+                  child: Text("导入"),
                 ),
               ],
             ),
-          ),
-          Wrap(
-            spacing: 10,
-            alignment: WrapAlignment.start,
-            children: [
-              TextButton(
-                  onPressed: () async {
-                    final r = await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => SimpleChangeRule(searchItem: searchItem)));
-                    if (r != null && r is SearchItem) {
-                      searchItem.localAddInfo(r);
-                      setState(() {});
-                    } else {
-                      Utils.toast("未选择");
-                    }
+            if (searchItem != null) UiSearchItem(item: searchItem),
+            Expanded(
+              child: Card(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  itemExtent: 26,
+                  itemCount: searchItem?.chapters?.length ?? 0,
+                  itemBuilder: (BuildContext context, int index) {
+                    return SizedBox(
+                      height: 26,
+                      child: Text(
+                          "${(index + 1).toString().padLeft(4)}   ${searchItem.chapters[index].name}"),
+                    );
                   },
-                  child: Text("在线搜索")),
-              TextButton(
-                  onPressed: () {
-                    textEditingControllerReg.text = defaultReg;
-                  },
-                  child: Text("默认正则")),
-              TextButton(
-                  onPressed: () {
-                    if (platformFile.extension == "epub") {
-                      // parseEpub();
-                    } else {
-                      parseText();
-                    }
-                  },
-                  child: Text("分割目录")),
-              TextButton(
-                onPressed: () async {
-                  // 写入文件
-                  final cache = CacheUtil(
-                      basePath: "cache${Platform.pathSeparator}${searchItem.id}");
-                  final dir = await cache.cacheDir();
-                  final d = Directory(dir);
-                  if (!d.existsSync()) {
-                    d.createSync(recursive: true);
-                  }
-                  Utils.toast("写入文件中 $dir");
-                  final reg = RegExp(r"^\s*|(\s{2,}|\n)\s*");
-                  for (var i = 0; i < contents.length; i++) {
-                    File(path.join(dir, '$i.txt')).writeAsStringSync(
-                        contents[i].split(reg).map((s) => s.trimLeft()).join("\n"));
-                  }
-                  SearchItemManager.addSearchItem(searchItem);
-                  Utils.toast("成功");
-                },
-                child: Text("导入"),
-              ),
-            ],
-          ),
-          if (searchItem != null) UiSearchItem(item: searchItem),
-          Expanded(
-            child: Card(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8.0),
-                itemExtent: 26,
-                itemCount: searchItem?.chapters?.length ?? 0,
-                itemBuilder: (BuildContext context, int index) {
-                  return SizedBox(
-                    height: 26,
-                    child: Text(
-                        "${(index + 1).toString().padLeft(4)}   ${searchItem.chapters[index].name}"),
-                  );
-                },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

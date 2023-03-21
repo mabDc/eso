@@ -6,6 +6,7 @@ import 'global.dart';
 enum SearchOption { Normal, None, Accurate }
 
 final _box = Hive.box(Global.profileKey);
+final globalConfigBox = _box;
 
 const desktopPlayerBox = "desktopPlayerBox";
 const versionBox = "versionBox";
@@ -298,8 +299,7 @@ class ESOTheme {
     }
   }
 
-  int get autoBackRate =>
-      _box.get(autoBackRateBox, defaultValue: thDef[autoBackRateBox]);
+  int get autoBackRate => _box.get(autoBackRateBox, defaultValue: thDef[autoBackRateBox]);
   set autoBackRate(int value) {
     if (value != autoBackRate) {
       _box.put(autoBackRateBox, cast(value, thDef[autoBackRateBox]));

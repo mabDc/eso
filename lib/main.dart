@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
+import 'eso_theme.dart';
 import 'global.dart';
 import 'hive/theme_mode_box.dart';
 import 'page/home_page.dart';
@@ -155,7 +156,11 @@ class _MyAppState extends State<MyApp> {
                       darkTheme: getGlobalDarkThemeData(),
                       scrollBehavior: MyCustomScrollBehavior(),
                       title: Global.appName,
-                      home: HomePage(),
+                      home: ValueListenableBuilder<Box<dynamic>>(
+                          valueListenable: globalConfigBox.listenable(),
+                          builder: (BuildContext context, Box<dynamic> _, Widget child) {
+                            return HomePage();
+                          }),
                       localizationsDelegates: [
                         LocalizationsCupertinoDelegate.delegate,
                         GlobalMaterialLocalizations.delegate,

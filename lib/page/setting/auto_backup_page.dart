@@ -7,6 +7,7 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/database/history_manager.dart';
 import 'package:eso/eso_theme.dart';
+import 'package:eso/main.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -59,216 +60,219 @@ class AutoBackupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = ESOTheme();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('备份恢复与webdav'),
-      ),
-      body: ListView(
-        children: [
-          Card(
-            child: Column(
-              children: [
-                ListTile(title: Text('自动备份')),
-                Divider(),
-                StatefulBuilder(
-                  builder: (context, setState) => Column(
-                    children: [
-                      RadioListTile<int>(
-                        title: Text('从不'),
-                        value: ESOTheme.autoBackupNone,
-                        groupValue: profile.autoBackRate,
-                        onChanged: (int value) =>
-                            setState(() => profile.autoBackRate = value),
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('备份恢复与webdav'),
+        ),
+        body: ListView(
+          children: [
+            Card(
+              child: Column(
+                children: [
+                  ListTile(title: Text('自动备份')),
+                  Divider(),
+                  StatefulBuilder(
+                    builder: (context, setState) => Column(
+                      children: [
+                        RadioListTile<int>(
+                          title: Text('从不'),
+                          value: ESOTheme.autoBackupNone,
+                          groupValue: profile.autoBackRate,
+                          onChanged: (int value) =>
+                              setState(() => profile.autoBackRate = value),
+                        ),
+                        RadioListTile<int>(
+                          title: Text('每日'),
+                          value: ESOTheme.autoBackupDay,
+                          groupValue: profile.autoBackRate,
+                          onChanged: (int value) =>
+                              setState(() => profile.autoBackRate = value),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  ListTile(
+                    title: Text('备份'),
+                    subtitle: Text(profile.autoBackupLastDay.isEmpty
+                        ? "上次备份：从未备份"
+                        : '上次备份：${profile.autoBackupLastDay}.${Platform.operatingSystem}.zip'),
+                    onTap: backup,
+                  ),
+                  ListTile(
+                    title: Text('分享'),
+                    subtitle: Text('发送最近备份文件至其他app'),
+                    onTap: share,
+                  ),
+                  GestureDetector(
+                    child: ListTile(
+                      title: Text('恢复'),
+                      subtitle: Text('选择文件恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreLocal(context, false, '选择文件恢复'),
+                  ),
+                  GestureDetector(
+                    child: ListTile(
+                      title: Text('仅恢复规则'),
+                      subtitle: Text('选择文件恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreLocal(context, true, '选择文件恢复规则'),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              child: Column(
+                children: [
+                  StatefulBuilder(
+                    builder: (context, setState) => SwitchListTile(
+                      title: Text('启用规则分享'),
+                      subtitle: Text('每日自动分享，不会自动覆盖删除，建议关闭'),
+                      onChanged: (value) =>
+                          setState(() => profile.enableWebdavRule = value),
+                      value: profile.enableWebdavRule,
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('分享的用户名称'),
+                    subtitle: Text(profile.webdavRuleAccount.isEmpty
+                        ? '输入用户名称'
+                        : profile.webdavRuleAccount),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showTextDialog(
+                        context,
+                        '账号',
+                        profile.webdavRuleAccount,
+                        (s) => profile.webdavRuleAccount = s,
                       ),
-                      RadioListTile<int>(
-                        title: Text('每日'),
-                        value: ESOTheme.autoBackupDay,
-                        groupValue: profile.autoBackRate,
-                        onChanged: (int value) =>
-                            setState(() => profile.autoBackRate = value),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('分享的用户校验码'),
+                    subtitle: Text(profile.webdavRuleCheckcode.isEmpty
+                        ? '防止覆盖同名用户, 至少六位'
+                        : '*' * profile.webdavRuleCheckcode.length),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showTextDialog(
+                        context,
+                        '密码',
+                        profile.webdavRuleCheckcode,
+                        (s) => profile.webdavRuleCheckcode = s,
+                        true,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('备份'),
-                  subtitle: Text(profile.autoBackupLastDay.isEmpty
-                      ? "上次备份：从未备份"
-                      : '上次备份：${profile.autoBackupLastDay}.${Platform.operatingSystem}.zip'),
-                  onTap: backup,
-                ),
-                ListTile(
-                  title: Text('分享'),
-                  subtitle: Text('发送最近备份文件至其他app'),
-                  onTap: share,
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('恢复'),
-                    subtitle: Text('选择文件恢复'),
+                  ListTile(
+                    title: Text('分享至云上'),
+                    subtitle: Text(profile.autoRuleUploadLastDay.isEmpty
+                        ? "上次分享：从未分享"
+                        : '上次分享：${profile.webdavRuleAccount}.${profile.autoRuleUploadLastDay}.zip'),
+                    onTap: shareRule,
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreLocal(context, false, '选择文件恢复'),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('仅恢复规则'),
-                    subtitle: Text('选择文件恢复'),
+                  GestureDetector(
+                    child: ListTile(
+                      title: Text('导入分享的规则'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreShareRule(context, details.globalPosition, false),
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreLocal(context, true, '选择文件恢复规则'),
-                ),
-              ],
+                  GestureDetector(
+                    child: ListTile(
+                      title: Text('下载分享的规则'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreShareRule(context, details.globalPosition, true),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Card(
-            child: Column(
-              children: [
-                StatefulBuilder(
-                  builder: (context, setState) => SwitchListTile(
-                    title: Text('启用规则分享'),
-                    subtitle: Text('每日自动分享，不会自动覆盖删除，建议关闭'),
-                    onChanged: (value) =>
-                        setState(() => profile.enableWebdavRule = value),
-                    value: profile.enableWebdavRule,
-                  ),
-                ),
-                ListTile(
-                  title: Text('分享的用户名称'),
-                  subtitle: Text(profile.webdavRuleAccount.isEmpty
-                      ? '输入用户名称'
-                      : profile.webdavRuleAccount),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '账号',
-                      profile.webdavRuleAccount,
-                      (s) => profile.webdavRuleAccount = s,
+            Card(
+              child: Column(
+                children: [
+                  StatefulBuilder(
+                    builder: (context, setState) => SwitchListTile(
+                      title: Text('启用webdav自动同步'),
+                      subtitle: Text('备份或自动备份后自动上传至webdav'),
+                      onChanged: (value) => setState(() => profile.enableWebdav = value),
+                      value: profile.enableWebdav,
                     ),
                   ),
-                ),
-                ListTile(
-                  title: Text('分享的用户校验码'),
-                  subtitle: Text(profile.webdavRuleCheckcode.isEmpty
-                      ? '防止覆盖同名用户, 至少六位'
-                      : '*' * profile.webdavRuleCheckcode.length),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '密码',
-                      profile.webdavRuleCheckcode,
-                      (s) => profile.webdavRuleCheckcode = s,
-                      true,
+                  ListTile(
+                    title: Text('坚果云webdav帮助'),
+                    subtitle: Text("https://help.jianguoyun.com/?p=2064"),
+                    onTap: () => launch('https://help.jianguoyun.com/?p=2064'),
+                  ),
+                  ListTile(
+                    title: Text('服务器地址'),
+                    subtitle: Text(
+                        profile.webdavServer.isEmpty ? '输入您的服务器地址' : profile.webdavServer),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showTextDialog(
+                        context,
+                        '服务器地址',
+                        profile.webdavServer,
+                        (s) => profile.webdavServer =
+                            s.isEmpty ? "https://dav.jianguoyun.com/dav/" : s,
+                      ),
                     ),
                   ),
-                ),
-                ListTile(
-                  title: Text('分享至云上'),
-                  subtitle: Text(profile.autoRuleUploadLastDay.isEmpty
-                      ? "上次分享：从未分享"
-                      : '上次分享：${profile.webdavRuleAccount}.${profile.autoRuleUploadLastDay}.zip'),
-                  onTap: shareRule,
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('导入分享的规则'),
+                  ListTile(
+                    title: Text('账号'),
+                    subtitle: Text(
+                        profile.webdavAccount.isEmpty ? '输入您的账号' : profile.webdavAccount),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showTextDialog(
+                        context,
+                        '账号',
+                        profile.webdavAccount,
+                        (s) => profile.webdavAccount = s,
+                      ),
+                    ),
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreShareRule(context, details.globalPosition, false),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('下载分享的规则'),
+                  ListTile(
+                    title: Text('密码'),
+                    subtitle: Text(profile.webdavPassword.isEmpty
+                        ? '输入您的授权密码'
+                        : '*' * profile.webdavPassword.length),
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => showTextDialog(
+                        context,
+                        '密码',
+                        profile.webdavPassword,
+                        (s) => profile.webdavPassword = s,
+                      ),
+                    ),
                   ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreShareRule(context, details.globalPosition, true),
-                ),
-              ],
+                  GestureDetector(
+                    child: ListTile(
+                      title: Text('恢复'),
+                      subtitle: Text('从webdav恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreFromWebDav(context, details.globalPosition, false),
+                  ),
+                  GestureDetector(
+                    child: ListTile(
+                      title: Text('仅恢复规则'),
+                      subtitle: Text('从webdav恢复'),
+                    ),
+                    onTapUp: (TapUpDetails details) =>
+                        restoreFromWebDav(context, details.globalPosition, true),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Card(
-            child: Column(
-              children: [
-                StatefulBuilder(
-                  builder: (context, setState) => SwitchListTile(
-                    title: Text('启用webdav自动同步'),
-                    subtitle: Text('备份或自动备份后自动上传至webdav'),
-                    onChanged: (value) => setState(() => profile.enableWebdav = value),
-                    value: profile.enableWebdav,
-                  ),
-                ),
-                ListTile(
-                  title: Text('坚果云webdav帮助'),
-                  subtitle: Text("https://help.jianguoyun.com/?p=2064"),
-                  onTap: () => launch('https://help.jianguoyun.com/?p=2064'),
-                ),
-                ListTile(
-                  title: Text('服务器地址'),
-                  subtitle: Text(
-                      profile.webdavServer.isEmpty ? '输入您的服务器地址' : profile.webdavServer),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '服务器地址',
-                      profile.webdavServer,
-                      (s) => profile.webdavServer =
-                          s.isEmpty ? "https://dav.jianguoyun.com/dav/" : s,
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: Text('账号'),
-                  subtitle: Text(
-                      profile.webdavAccount.isEmpty ? '输入您的账号' : profile.webdavAccount),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '账号',
-                      profile.webdavAccount,
-                      (s) => profile.webdavAccount = s,
-                    ),
-                  ),
-                ),
-                ListTile(
-                  title: Text('密码'),
-                  subtitle: Text(profile.webdavPassword.isEmpty
-                      ? '输入您的授权密码'
-                      : '*' * profile.webdavPassword.length),
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => showTextDialog(
-                      context,
-                      '密码',
-                      profile.webdavPassword,
-                      (s) => profile.webdavPassword = s,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('恢复'),
-                    subtitle: Text('从webdav恢复'),
-                  ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreFromWebDav(context, details.globalPosition, false),
-                ),
-                GestureDetector(
-                  child: ListTile(
-                    title: Text('仅恢复规则'),
-                    subtitle: Text('从webdav恢复'),
-                  ),
-                  onTapUp: (TapUpDetails details) =>
-                      restoreFromWebDav(context, details.globalPosition, true),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

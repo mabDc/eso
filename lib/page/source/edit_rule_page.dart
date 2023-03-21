@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/global.dart';
+import 'package:eso/main.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_rule.dart';
 import 'package:eso/eso_theme.dart';
@@ -217,163 +218,166 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
 
     final size = MediaQuery.of(context).size;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
-    final child = Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
-        actions: [
-          IconButton(
-            icon: Icon(FIcons.share_2),
-            tooltip: "分享",
-            onPressed: () {
-              Share.share(RuleCompress.compass(rule));
-              // FlutterShare.share(
-              //   title: '亦搜 eso',
-              //   text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
-              //   //linkUrl: '${searchItem.url}',
-              //   chooserTitle: '选择分享的应用',
-              // );
-            },
-          ),
-          IconButton(
-            icon: Icon(FIcons.save),
-            iconSize: 21,
-            tooltip: "保存",
-            onPressed: () => _saveRule(context),
-          ),
-          IconButton(
-            icon: Icon(Icons.bug_report),
-            tooltip: "调试",
-            onPressed: () async {
-              if (isLoading) return;
-              isLoading = true;
-              rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
-              await Global.ruleDao.insertOrUpdateRule(rule);
-              isLoading = false;
-              // Navigator.of(context).push(
-              //     MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
-              invokeTap(DebugRulePage(rule: rule));
-            },
-          ),
-          _buildpopupMenu(context),
-        ],
-      ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Stack(
-              children: [
-                editView,
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: isNotCollapsed ? size.width - 10 : null,
-                    constraints: isNotCollapsed
-                        ? BoxConstraints(maxHeight: size.height - 150 - bottom)
-                        : null,
-                    child: Card(
-                      child: isNotCollapsed
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: HighLightCodeEditor(
-                                    codeKey,
-                                    code,
-                                    focusNode: codeFocusNode,
+    final child = Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
+          actions: [
+            IconButton(
+              icon: Icon(FIcons.share_2),
+              tooltip: "分享",
+              onPressed: () {
+                Share.share(RuleCompress.compass(rule));
+                // FlutterShare.share(
+                //   title: '亦搜 eso',
+                //   text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
+                //   //linkUrl: '${searchItem.url}',
+                //   chooserTitle: '选择分享的应用',
+                // );
+              },
+            ),
+            IconButton(
+              icon: Icon(FIcons.save),
+              iconSize: 21,
+              tooltip: "保存",
+              onPressed: () => _saveRule(context),
+            ),
+            IconButton(
+              icon: Icon(Icons.bug_report),
+              tooltip: "调试",
+              onPressed: () async {
+                if (isLoading) return;
+                isLoading = true;
+                rule.modifiedTime = DateTime.now().microsecondsSinceEpoch;
+                await Global.ruleDao.insertOrUpdateRule(rule);
+                isLoading = false;
+                // Navigator.of(context).push(
+                //     MaterialPageRoute(builder: (context) => DebugRulePage(rule: rule)));
+                invokeTap(DebugRulePage(rule: rule));
+              },
+            ),
+            _buildpopupMenu(context),
+          ],
+        ),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: Stack(
+                children: [
+                  editView,
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: isNotCollapsed ? size.width - 10 : null,
+                      constraints: isNotCollapsed
+                          ? BoxConstraints(maxHeight: size.height - 150 - bottom)
+                          : null,
+                      child: Card(
+                        child: isNotCollapsed
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: HighLightCodeEditor(
+                                      codeKey,
+                                      code,
+                                      focusNode: codeFocusNode,
+                                    ),
                                   ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: SingleChildScrollView(child: SelectableText(s)),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      InkWell(
+                                        onTap: () async {
+                                          await Clipboard.setData(ClipboardData(text: s));
+                                          Utils.toast("已复制结果");
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("复制结果"),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          await Clipboard.setData(ClipboardData(
+                                              text: codeKey.currentState?.code ?? code));
+                                          Utils.toast("已复制代码");
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("复制代码"),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () => codeKey.currentState?.format(),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("格式化"),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          try {
+                                            await JSEngine.setEnvironment(
+                                                1, rule, "", rule.host, "", "");
+                                            final x = await JSEngine.evaluate(
+                                                codeKey.currentState?.code ?? code);
+                                            setState(() {
+                                              s = "$x";
+                                            });
+                                          } catch (e, st) {
+                                            setState(() {
+                                              s = "$e\n$st";
+                                            });
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("运行"),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          code = codeKey.currentState?.code ?? code;
+                                          setState(() => isNotCollapsed = !isNotCollapsed);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("折叠"),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                            : InkWell(
+                                onTap: () {
+                                  code = codeKey.currentState?.code ?? code;
+                                  setState(() => isNotCollapsed = !isNotCollapsed);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  child: Text("JS测试"),
                                 ),
-                                Expanded(
-                                  flex: 1,
-                                  child: SingleChildScrollView(child: SelectableText(s)),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkWell(
-                                      onTap: () async {
-                                        await Clipboard.setData(ClipboardData(text: s));
-                                        Utils.toast("已复制结果");
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("复制结果"),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () async {
-                                        await Clipboard.setData(ClipboardData(
-                                            text: codeKey.currentState?.code ?? code));
-                                        Utils.toast("已复制代码");
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("复制代码"),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () => codeKey.currentState?.format(),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("格式化"),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () async {
-                                        try {
-                                          await JSEngine.setEnvironment(
-                                              1, rule, "", rule.host, "", "");
-                                          final x = await JSEngine.evaluate(
-                                              codeKey.currentState?.code ?? code);
-                                          setState(() {
-                                            s = "$x";
-                                          });
-                                        } catch (e, st) {
-                                          setState(() {
-                                            s = "$e\n$st";
-                                          });
-                                        }
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("运行"),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        code = codeKey.currentState?.code ?? code;
-                                        setState(() => isNotCollapsed = !isNotCollapsed);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("折叠"),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : InkWell(
-                              onTap: () {
-                                code = codeKey.currentState?.code ?? code;
-                                setState(() => isNotCollapsed = !isNotCollapsed);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                child: Text("JS测试"),
                               ),
-                            ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          ...inputList.map((list) => _buildInputHelp(list)).toList()
-        ],
+            ...inputList.map((list) => _buildInputHelp(list)).toList()
+          ],
+        ),
       ),
     );
     return OrientationBuilder(builder: (context, orientation) {

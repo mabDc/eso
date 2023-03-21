@@ -5,6 +5,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/rule_dao.dart';
+import 'package:eso/main.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_source.dart';
 import 'package:eso/menu/menu_item.dart';
@@ -44,137 +45,140 @@ class _EditSourcePageState extends State<EditSourcePage> {
       create: (context) => EditSourceProvider(),
       builder: (context, child) {
         final provider = Provider.of<EditSourceProvider>(context, listen: true);
-        return Scaffold(
-          appBar: AppBar(
-            titleSpacing: 0.0,
-            title: SearchTextField(
-              controller: _searchEdit,
-              hintText:
-                  "搜索名称和分组(共${Provider.of<EditSourceProvider>(context, listen: false)?.rules?.length ?? 0}条)",
-              onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
-                  .getRuleListByName,
-              onChanged: Provider.of<EditSourceProvider>(context, listen: false)
-                  .getRuleListByNameDebounce,
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.add),
-                tooltip: '添加规则',
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) =>
-                      UIAddRuleDialog(refresh: () => refreshData(provider)),
+        return Container(
+          decoration: globalDecoration,
+          child: Scaffold(
+            appBar: AppBar(
+              titleSpacing: 0.0,
+              title: SearchTextField(
+                controller: _searchEdit,
+                hintText:
+                    "搜索名称和分组(共${Provider.of<EditSourceProvider>(context, listen: false)?.rules?.length ?? 0}条)",
+                onSubmitted: Provider.of<EditSourceProvider>(context, listen: false)
+                    .getRuleListByName,
+                onChanged: Provider.of<EditSourceProvider>(context, listen: false)
+                    .getRuleListByNameDebounce,
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.add),
+                  tooltip: '添加规则',
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) =>
+                        UIAddRuleDialog(refresh: () => refreshData(provider)),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(OMIcons.settingsEthernet),
+                  tooltip: '新建空白规则',
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                      .whenComplete(() => refreshData(provider)),
+                ),
+                Menu<MenuEditSource>(
+                  tooltip: "编辑选中规则",
+                  items: editSourceMenus,
+                  onSelect: (value) {
+                    if (value == null) return;
+                    final rules = provider.rules
+                        .where((element) => provider.checkSelectMap[element.id] == true)
+                        .toList();
+                    if (value != MenuEditSource.all &&
+                        value != MenuEditSource.revert &&
+                        rules.isEmpty) {
+                      Utils.toast("请先选择规则");
+                      return;
+                    }
+                    if (value == MenuEditSource.delete) {
+                      alert(
+                        Text("警告(不可恢复)"),
+                        Text("删除选中${rules.length}条规则"),
+                        () => provider.handleSelect(rules, value),
+                      );
+                    } else if (value == MenuEditSource.add_group ||
+                        value == MenuEditSource.delete_group) {
+                      group = "";
+                      alert(
+                        value == MenuEditSource.add_group ? Text('添加分组') : Text('移除分组'),
+                        TextField(onChanged: (value) => group = value),
+                        () => provider.handleSelect(rules, value, group),
+                      );
+                    } else if (value == MenuEditSource.many_export) {
+                      final text = RuleCompress.manyCompass(rules);
+                      Utils.startPageWait(
+                          context,
+                          SharePage(
+                              text: text,
+                              addInfo:
+                                  "规则数量：${rules.length}\n名称分别为：${rules.map((rule) => rule.name).join("、")}"));
+                      // if (Platform.isWindows) {
+                      //   Clipboard.setData(ClipboardData(text: text));
+                      //   Utils.toast("已保存到剪贴板 ${rules.length}条规则");
+                      // } else {
+                      //   Share.share(text);
+                      // }
+                    } else {
+                      provider.handleSelect(rules, value);
+                    }
+                  },
+                ),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(22),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    for (var sort in RuleDao.sortMap.entries)
+                      if (sort.value == RuleDao.sortName)
+                        InkWell(
+                          child: Text(
+                            " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
+                            style: TextStyle(
+                                fontSize: 14, color: Theme.of(context).primaryColor),
+                          ),
+                          onTap: () {
+                            if (RuleDao.sortOrder == RuleDao.desc) {
+                              RuleDao.sortOrder = RuleDao.asc;
+                            } else {
+                              RuleDao.sortOrder = RuleDao.desc;
+                            }
+                            Provider.of<EditSourceProvider>(context, listen: false)
+                                .refreshData();
+                          },
+                        )
+                      else
+                        InkWell(
+                          child: Text(
+                            " ${sort.key} ",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          onTap: () {
+                            RuleDao.sortName = sort.value;
+                            Provider.of<EditSourceProvider>(context, listen: false)
+                                .refreshData();
+                          },
+                        )
+                  ],
                 ),
               ),
-              IconButton(
-                icon: Icon(OMIcons.settingsEthernet),
-                tooltip: '新建空白规则',
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                    .whenComplete(() => refreshData(provider)),
-              ),
-              Menu<MenuEditSource>(
-                tooltip: "编辑选中规则",
-                items: editSourceMenus,
-                onSelect: (value) {
-                  if (value == null) return;
-                  final rules = provider.rules
-                      .where((element) => provider.checkSelectMap[element.id] == true)
-                      .toList();
-                  if (value != MenuEditSource.all &&
-                      value != MenuEditSource.revert &&
-                      rules.isEmpty) {
-                    Utils.toast("请先选择规则");
-                    return;
-                  }
-                  if (value == MenuEditSource.delete) {
-                    alert(
-                      Text("警告(不可恢复)"),
-                      Text("删除选中${rules.length}条规则"),
-                      () => provider.handleSelect(rules, value),
-                    );
-                  } else if (value == MenuEditSource.add_group ||
-                      value == MenuEditSource.delete_group) {
-                    group = "";
-                    alert(
-                      value == MenuEditSource.add_group ? Text('添加分组') : Text('移除分组'),
-                      TextField(onChanged: (value) => group = value),
-                      () => provider.handleSelect(rules, value, group),
-                    );
-                  } else if (value == MenuEditSource.many_export) {
-                    final text = RuleCompress.manyCompass(rules);
-                    Utils.startPageWait(
-                        context,
-                        SharePage(
-                            text: text,
-                            addInfo:
-                                "规则数量：${rules.length}\n名称分别为：${rules.map((rule) => rule.name).join("、")}"));
-                    // if (Platform.isWindows) {
-                    //   Clipboard.setData(ClipboardData(text: text));
-                    //   Utils.toast("已保存到剪贴板 ${rules.length}条规则");
-                    // } else {
-                    //   Share.share(text);
-                    // }
-                  } else {
-                    provider.handleSelect(rules, value);
-                  }
-                },
-              ),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(22),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  for (var sort in RuleDao.sortMap.entries)
-                    if (sort.value == RuleDao.sortName)
-                      InkWell(
-                        child: Text(
-                          " ${sort.key}${(RuleDao.sortOrder == RuleDao.desc ? "⇓" : "⇑")}",
-                          style: TextStyle(
-                              fontSize: 14, color: Theme.of(context).primaryColor),
-                        ),
-                        onTap: () {
-                          if (RuleDao.sortOrder == RuleDao.desc) {
-                            RuleDao.sortOrder = RuleDao.asc;
-                          } else {
-                            RuleDao.sortOrder = RuleDao.desc;
-                          }
-                          Provider.of<EditSourceProvider>(context, listen: false)
-                              .refreshData();
-                        },
-                      )
-                    else
-                      InkWell(
-                        child: Text(
-                          " ${sort.key} ",
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        onTap: () {
-                          RuleDao.sortName = sort.value;
-                          Provider.of<EditSourceProvider>(context, listen: false)
-                              .refreshData();
-                        },
-                      )
-                ],
-              ),
             ),
-          ),
-          body: Consumer<EditSourceProvider>(
-            builder: (context, provider, child) {
-              if (provider.isLoading) {
-                return LandingPage();
-              }
-              return ListView.separated(
-                separatorBuilder: (BuildContext context, int index) => Divider(),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 9),
-                itemCount: provider.rules.length,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildItem(context, provider, provider.rules[index]);
-                },
-              );
-            },
+            body: Consumer<EditSourceProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return LandingPage();
+                }
+                return ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) => Divider(),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 9),
+                  itemCount: provider.rules.length,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildItem(context, provider, provider.rules[index]);
+                  },
+                );
+              },
+            ),
           ),
         );
       },

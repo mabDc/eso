@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
+import '../main.dart';
 import 'chapter_page.dart';
 
 class HistoryPage extends StatefulWidget {
@@ -114,64 +115,67 @@ class HistoryPage2 extends StatelessWidget {
             daysList.add(-_days - 1);
           }
         }
-        return Scaffold(
-          appBar: AppBar(
-            title: SearchTextField(
-              controller: provider.editingController,
-              hintText: "搜索历史(共${provider.historyItem.length ?? 0}条)",
-              onSubmitted: (value) => provider.getRuleListByName(value),
-              onChanged: (value) => provider.getRuleListByNameDebounce(value),
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.delete_sweep),
-                tooltip: "删除，点击时间选择，长按选择一天",
-                onPressed: () {
-                  final checkCount = provider.checkCount;
-                  if (checkCount == 0) {
-                    Utils.toast("请先选择");
-                    return;
-                  }
-                  alert(
-                    context,
-                    Text("警告(不可恢复)"),
-                    Text("删除选中$checkCount条记录"),
-                    () => provider.delete(),
-                  );
-                },
+        return Container(
+          decoration: globalDecoration,
+          child: Scaffold(
+            appBar: AppBar(
+              title: SearchTextField(
+                controller: provider.editingController,
+                hintText: "搜索历史(共${provider.historyItem.length ?? 0}条)",
+                onSubmitted: (value) => provider.getRuleListByName(value),
+                onChanged: (value) => provider.getRuleListByNameDebounce(value),
               ),
-            ],
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Wrap(
-                  spacing: 10,
-                  children: [
-                    for (final contentType in [
-                      null,
-                      API.NOVEL,
-                      API.MANGA,
-                      API.AUDIO,
-                      API.VIDEO,
-                    ])
-                      buildButton(context, contentType)
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemExtent: 120,
-                  itemCount: daysList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return buildItem(provider, context, historyItem[index],
-                        lastReadTimeList[index], daysList[index], daysList);
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.delete_sweep),
+                  tooltip: "删除，点击时间选择，长按选择一天",
+                  onPressed: () {
+                    final checkCount = provider.checkCount;
+                    if (checkCount == 0) {
+                      Utils.toast("请先选择");
+                      return;
+                    }
+                    alert(
+                      context,
+                      Text("警告(不可恢复)"),
+                      Text("删除选中$checkCount条记录"),
+                      () => provider.delete(),
+                    );
                   },
                 ),
-              ),
-            ],
+              ],
+            ),
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Wrap(
+                    spacing: 10,
+                    children: [
+                      for (final contentType in [
+                        null,
+                        API.NOVEL,
+                        API.MANGA,
+                        API.AUDIO,
+                        API.VIDEO,
+                      ])
+                        buildButton(context, contentType)
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemExtent: 120,
+                    itemCount: daysList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return buildItem(provider, context, historyItem[index],
+                          lastReadTimeList[index], daysList[index], daysList);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

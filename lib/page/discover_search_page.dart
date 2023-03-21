@@ -6,6 +6,7 @@ import 'package:eso/api/api.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/main.dart';
 import 'package:eso/model/discover_page_controller.dart';
 import 'package:eso/model/edit_source_provider.dart';
 import 'package:eso/ui/ui_discover_item.dart';
@@ -124,56 +125,59 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
               ));
             }
           }
-          return Scaffold(
-            appBar: pageController.showSearchField
-                ? AppBar(
-                    titleSpacing: 0,
-                    leading: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => pageController.toggleSearching(),
-                    ),
-                    backgroundColor: Theme.of(context).appBarTheme.color,
-                    iconTheme: _iconTheme.copyWith(color: _color),
-                    actionsIconTheme: _iconTheme.copyWith(color: _color),
-                    actions: pageController.queryController.text == ''
-                        ? <Widget>[
-                            _buildSwitchStyle(context),
-                          ]
-                        : <Widget>[
-                            IconButton(
-                              icon: Icon(FIcons.x),
-                              onPressed: pageController.clearInputText,
-                            ),
-                            _buildSwitchStyle(context),
-                          ],
-                    title: SearchTextField(
-                      controller: pageController.queryController,
-                      autofocus: true,
-                      hintText: '搜索 ${widget.origin}',
-                      onSubmitted: (query) => pageController.search(),
-                    ),
-                    bottom: _buildAppBarBottom(context, pageController),
-                  )
-                : AppBar(
-                    title: Text(pageController.title),
-                    actions: <Widget>[
-                      IconButton(
-                        tooltip: "搜索",
-                        icon: Icon(FIcons.search),
-                        onPressed: pageController.toggleSearching,
+          return Container(
+            decoration: globalDecoration,
+            child: Scaffold(
+              appBar: pageController.showSearchField
+                  ? AppBar(
+                      titleSpacing: 0,
+                      leading: IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () => pageController.toggleSearching(),
                       ),
-                      _buildSwitchStyle(context),
-                    ],
-                    bottom: _buildAppBarBottom(context, pageController),
-                  ),
-            body: children.isEmpty
-                ? Container()
-                : children.length == 1
-                    ? children.first
-                    : TabBarView(
-                        controller: _tabController,
-                        children: children,
+                      backgroundColor: Theme.of(context).appBarTheme.color,
+                      iconTheme: _iconTheme.copyWith(color: _color),
+                      actionsIconTheme: _iconTheme.copyWith(color: _color),
+                      actions: pageController.queryController.text == ''
+                          ? <Widget>[
+                              _buildSwitchStyle(context),
+                            ]
+                          : <Widget>[
+                              IconButton(
+                                icon: Icon(FIcons.x),
+                                onPressed: pageController.clearInputText,
+                              ),
+                              _buildSwitchStyle(context),
+                            ],
+                      title: SearchTextField(
+                        controller: pageController.queryController,
+                        autofocus: true,
+                        hintText: '搜索 ${widget.origin}',
+                        onSubmitted: (query) => pageController.search(),
                       ),
+                      bottom: _buildAppBarBottom(context, pageController),
+                    )
+                  : AppBar(
+                      title: Text(pageController.title),
+                      actions: <Widget>[
+                        IconButton(
+                          tooltip: "搜索",
+                          icon: Icon(FIcons.search),
+                          onPressed: pageController.toggleSearching,
+                        ),
+                        _buildSwitchStyle(context),
+                      ],
+                      bottom: _buildAppBarBottom(context, pageController),
+                    ),
+              body: children.isEmpty
+                  ? Container()
+                  : children.length == 1
+                      ? children.first
+                      : TabBarView(
+                          controller: _tabController,
+                          children: children,
+                        ),
+            ),
           );
         },
       ),
@@ -186,13 +190,19 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
     return Container(
       height: 24,
       width:
-          22 + min(6 * utf8.encode(pair.name).length, 12 * pair.name.length).toDouble(),
+          20 + min(6 * utf8.encode(pair.name).length, 12 * pair.name.length).toDouble(),
       margin: EdgeInsets.fromLTRB(4, 8, 4, 0),
       child: OutlinedButton(
         child: Text(
           pair.name,
           style: TextStyle(fontSize: 12),
         ),
+        style: ButtonStyle(
+            padding: MaterialStateProperty.all(EdgeInsets.zero),
+            backgroundColor: MaterialStateProperty.all(bgColor),
+            shape: MaterialStateProperty.all<OutlinedBorder>(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ))),
         // padding: EdgeInsets.zero,
         // textColor: color,
         onPressed: () {
@@ -204,10 +214,6 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         // ),
         // borderSide:
         //     color != null ? BorderSide(color: color, width: Global.borderSize) : null,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
       ),
     );
   }

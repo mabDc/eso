@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:eso/main.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -103,70 +104,73 @@ class WebInAppAndroid extends StatelessWidget {
           return false;
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(
-              Icons.close,
-              size: 28,
-            ),
-            tooltip: "关闭",
-            onPressed: () async {
-              Navigator.of(context).pop();
-            },
-          ),
-          leadingWidth: 30,
-          title: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(icon),
-            ),
-            title: Text(
-              title,
-              overflow: TextOverflow.clip,
-            ),
-            subtitle: Text(url, overflow: TextOverflow.clip),
-          ),
-          actions: [
-            IconButton(
+      child: Container(
+        decoration: globalDecoration,
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
               icon: Icon(
-                Icons.arrow_back_ios,
-                size: 20,
+                Icons.close,
+                size: 28,
               ),
-              tooltip: "后退",
+              tooltip: "关闭",
               onPressed: () async {
-                final controller = await _controller.future;
-                if (await controller.canGoBack()) {
-                  controller.goBack();
-                }
+                Navigator.of(context).pop();
               },
             ),
-            IconButton(
-              icon: Icon(
-                Icons.arrow_forward_ios,
-                size: 20,
+            leadingWidth: 30,
+            title: ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(icon),
               ),
-              tooltip: "前进",
-              onPressed: () async {
-                final controller = await _controller.future;
-                if (await controller.canGoForward()) {
-                  controller.goForward();
-                }
-              },
+              title: Text(
+                title,
+                overflow: TextOverflow.clip,
+              ),
+              subtitle: Text(url, overflow: TextOverflow.clip),
             ),
-            IconButton(
-                onPressed: () {
-                  launchUrl(Uri.parse(url));
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  size: 20,
+                ),
+                tooltip: "后退",
+                onPressed: () async {
+                  final controller = await _controller.future;
+                  if (await controller.canGoBack()) {
+                    controller.goBack();
+                  }
                 },
-                tooltip: "在浏览器打开",
-                icon: Icon(Icons.open_in_browser))
-          ],
-        ),
-        body: WebView(
-          javascriptMode: JavascriptMode.unrestricted,
-          onWebViewCreated: (WebViewController webViewController) {
-            _controller.complete(webViewController);
-          },
-          initialUrl: url,
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 20,
+                ),
+                tooltip: "前进",
+                onPressed: () async {
+                  final controller = await _controller.future;
+                  if (await controller.canGoForward()) {
+                    controller.goForward();
+                  }
+                },
+              ),
+              IconButton(
+                  onPressed: () {
+                    launchUrl(Uri.parse(url));
+                  },
+                  tooltip: "在浏览器打开",
+                  icon: Icon(Icons.open_in_browser))
+            ],
+          ),
+          body: WebView(
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller.complete(webViewController);
+            },
+            initialUrl: url,
+          ),
         ),
       ),
     );
@@ -202,50 +206,53 @@ class _WebInAppWindowsState extends State<WebInAppWindows> {
   @override
   Widget build(BuildContext context) {
     final m = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        leadingWidth: 30,
-        title: ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(widget.icon),
-          ),
-          title: Text(widget.title),
-          subtitle: Text(widget.url),
-        ),
-        //Column(children: [Text(title)]),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              size: 20,
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(
+          leadingWidth: 30,
+          title: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(widget.icon),
             ),
-            tooltip: "后退",
-            onPressed: () async {
-              webviewController.goBack();
-            },
+            title: Text(widget.title),
+            subtitle: Text(widget.url),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.arrow_forward_ios,
-              size: 20,
-            ),
-            tooltip: "前进",
-            onPressed: () async {
-              webviewController.goForward();
-            },
-          ),
-          IconButton(
-              onPressed: () {
-                launchUrl(Uri.parse(widget.url));
+          //Column(children: [Text(title)]),
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+              ),
+              tooltip: "后退",
+              onPressed: () async {
+                webviewController.goBack();
               },
-              tooltip: "在浏览器打开",
-              icon: Icon(Icons.open_in_browser))
-        ],
-      ),
-      body: Webview(
-        webviewController,
-        width: m.width,
-        height: m.height,
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.arrow_forward_ios,
+                size: 20,
+              ),
+              tooltip: "前进",
+              onPressed: () async {
+                webviewController.goForward();
+              },
+            ),
+            IconButton(
+                onPressed: () {
+                  launchUrl(Uri.parse(widget.url));
+                },
+                tooltip: "在浏览器打开",
+                icon: Icon(Icons.open_in_browser))
+          ],
+        ),
+        body: Webview(
+          webviewController,
+          width: m.width,
+          height: m.height,
+        ),
       ),
     );
   }

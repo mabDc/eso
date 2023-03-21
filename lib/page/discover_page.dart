@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/main.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_discover_source.dart';
 import 'package:eso/menu/menu_edit_source.dart';
@@ -229,98 +230,101 @@ class _DiscoverPageState extends State<DiscoverPage> {
       value: EditSourceProvider(type: 2),
       builder: (BuildContext context, _) {
         final provider = Provider.of<EditSourceProvider>(context, listen: false);
-        return Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            titleSpacing: NavigationToolbar.kMiddleSpacing,
-            title: SearchTextField(
-              controller: _searchEdit,
-              hintText: "搜索发现站点(共${provider.rules?.length ?? 0}条)",
-              onSubmitted: (value) => __provider.getRuleListByName(value),
-              onChanged: (value) => __provider.getRuleListByNameDebounce(value),
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(Icons.add),
-                tooltip: '添加规则',
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) =>
-                      UIAddRuleDialog(refresh: () => refreshData(provider)),
+        return Container(
+          decoration: globalDecoration,
+          child: Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              titleSpacing: NavigationToolbar.kMiddleSpacing,
+              title: SearchTextField(
+                controller: _searchEdit,
+                hintText: "搜索发现站点(共${provider.rules?.length ?? 0}条)",
+                onSubmitted: (value) => __provider.getRuleListByName(value),
+                onChanged: (value) => __provider.getRuleListByNameDebounce(value),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.add),
+                  tooltip: '添加规则',
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) =>
+                        UIAddRuleDialog(refresh: () => refreshData(provider)),
+                  ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(OMIcons.settingsEthernet),
-                tooltip: '新建空白规则',
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => EditRulePage()))
-                    .whenComplete(() => refreshData(provider)),
-              ),
-              IconButton(
-                icon: Icon(FIcons.edit),
-                tooltip: '规则管理',
-                onPressed: () => Utils.startPageWait(context, EditSourcePage())
-                    .whenComplete(() => refreshData(provider)),
-              ),
-            ],
-          ),
-          body: Consumer<EditSourceProvider>(
-            builder: (context, EditSourceProvider provider, _) {
-              if (__provider == null) {
-                __provider = provider;
-                provider.ruleContentType = _lastContextType;
-              }
-              if (provider.isLoading) {
-                return Stack(
-                  children: [
-                    LandingPage(),
-                    _buildFilterView(context, provider),
-                  ],
+                IconButton(
+                  icon: Icon(OMIcons.settingsEthernet),
+                  tooltip: '新建空白规则',
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => EditRulePage()))
+                      .whenComplete(() => refreshData(provider)),
+                ),
+                IconButton(
+                  icon: Icon(FIcons.edit),
+                  tooltip: '规则管理',
+                  onPressed: () => Utils.startPageWait(context, EditSourcePage())
+                      .whenComplete(() => refreshData(provider)),
+                ),
+              ],
+            ),
+            body: Consumer<EditSourceProvider>(
+              builder: (context, EditSourceProvider provider, _) {
+                if (__provider == null) {
+                  __provider = provider;
+                  provider.ruleContentType = _lastContextType;
+                }
+                if (provider.isLoading) {
+                  return Stack(
+                    children: [
+                      LandingPage(),
+                      _buildFilterView(context, provider),
+                    ],
+                  );
+                }
+        
+                final box = Hive.box<int>(EditSourceProvider.unlock_hidden_functions);
+                int extCount = 1;
+                final extW = <Widget>[];
+                if (box.get(EditSourceProvider.schulte_grid) == null) {
+                  box.put(EditSourceProvider.schulte_grid, 1);
+                }
+                if (box.get(EditSourceProvider.schulte_grid, defaultValue: 0) == 1) {
+                  extCount += 1;
+                  extW.add(InkWell(
+                      onTap: () => invokeTap(SchulteGrid()), child: _buildSchulteGrid()));
+                }
+                if (box.get(EditSourceProvider.leshi, defaultValue: 0) == 1) {
+                  extCount += 1;
+                  extW.add(
+                      InkWell(onTap: () => invokeTap(LeshiPage()), child: _buildLeshi()));
+                }
+                if (box.get(EditSourceProvider.linyuan, defaultValue: 0) == 1) {
+                  extCount += 1;
+                  extW.add(InkWell(
+                      onTap: () => invokeTap(LinyuanPage()), child: _buildLinyuan()));
+                }
+        
+                final _listView = ListView.builder(
+                  itemCount: provider.rules.length + extCount,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == 0) return _buildFilterView(context, provider);
+                    if (extCount - index > 0) return extW[index - 1];
+                    return _buildItem(provider, index - extCount);
+                  },
                 );
-              }
-
-              final box = Hive.box<int>(EditSourceProvider.unlock_hidden_functions);
-              int extCount = 1;
-              final extW = <Widget>[];
-              if (box.get(EditSourceProvider.schulte_grid) == null) {
-                box.put(EditSourceProvider.schulte_grid, 1);
-              }
-              if (box.get(EditSourceProvider.schulte_grid, defaultValue: 0) == 1) {
-                extCount += 1;
-                extW.add(InkWell(
-                    onTap: () => invokeTap(SchulteGrid()), child: _buildSchulteGrid()));
-              }
-              if (box.get(EditSourceProvider.leshi, defaultValue: 0) == 1) {
-                extCount += 1;
-                extW.add(
-                    InkWell(onTap: () => invokeTap(LeshiPage()), child: _buildLeshi()));
-              }
-              if (box.get(EditSourceProvider.linyuan, defaultValue: 0) == 1) {
-                extCount += 1;
-                extW.add(InkWell(
-                    onTap: () => invokeTap(LinyuanPage()), child: _buildLinyuan()));
-              }
-
-              final _listView = ListView.builder(
-                itemCount: provider.rules.length + extCount,
-                physics: BouncingScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  if (index == 0) return _buildFilterView(context, provider);
-                  if (extCount - index > 0) return extW[index - 1];
-                  return _buildItem(provider, index - extCount);
-                },
-              );
-              return KeyboardDismissBehaviorView(
-                child: provider.rules.length == 0
-                    ? Stack(
-                        children: [
-                          _listView,
-                          _buildEmptyHintView(provider),
-                        ],
-                      )
-                    : _listView,
-              );
-            },
+                return KeyboardDismissBehaviorView(
+                  child: provider.rules.length == 0
+                      ? Stack(
+                          children: [
+                            _listView,
+                            _buildEmptyHintView(provider),
+                          ],
+                        )
+                      : _listView,
+                );
+              },
+            ),
           ),
         );
       },

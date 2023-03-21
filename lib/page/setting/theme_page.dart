@@ -166,32 +166,32 @@ class ThemePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Card(
-                      child: Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          for (final color in colors.entries)
-                            Chip(
-                              backgroundColor: Color(color.value),
-                              labelStyle: TextStyle(color: Colors.black),
-                              label:
-                                  Text(color.key + " #${color.value.toRadixString(16)}"),
-                              onDeleted: () {
-                                Clipboard.setData(ClipboardData(
-                                    text:
-                                        "#${color.value.toRadixString(16).substring(2)}"));
-                              },
-                              deleteButtonTooltipMessage: "复制",
-                              deleteIcon: Icon(
-                                Icons.copy,
-                                size: 16,
-                              ),
-                            )
-                        ],
-                      ),
-                    ),
+                    // Card(
+                    //   child: Wrap(
+                    //     spacing: 4,
+                    //     runSpacing: 4,
+                    //     alignment: WrapAlignment.center,
+                    //     children: [
+                    //       for (final color in colors.entries)
+                    //         Chip(
+                    //           backgroundColor: Color(color.value),
+                    //           labelStyle: TextStyle(color: Colors.black),
+                    //           label:
+                    //               Text(color.key + " #${color.value.toRadixString(16)}"),
+                    //           onDeleted: () {
+                    //             Clipboard.setData(ClipboardData(
+                    //                 text:
+                    //                     "#${color.value.toRadixString(16).substring(2)}"));
+                    //           },
+                    //           deleteButtonTooltipMessage: "复制",
+                    //           deleteIcon: Icon(
+                    //             Icons.copy,
+                    //             size: 16,
+                    //           ),
+                    //         )
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 )),
           );

@@ -1,4 +1,5 @@
 import 'package:eso/api/analyzer_html.dart';
+import 'package:eso/main.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -20,71 +21,74 @@ class LeshiPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final titles = getArticleTitle(innerHtml);
 
-    return Scaffold(
-      appBar: AppBar(title: Text("乐事专用(仍在施工ing)")),
-      body: ListView(
-        padding: EdgeInsets.all(10),
-        children: <Widget>[
-          Card(
-            child: Container(
-                padding: EdgeInsets.all(10),
-                child: Text(
-                  '',
-                  style: TextStyle(fontSize: 24),
-                )),
-          ),
-          Divider(),
-          Divider(),
-          Divider(),
-          Divider(),
-          Divider(),
-          Divider(),
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(left: 16),
-            child: Text(
-              '题头（废文）',
-              style: TextStyle(fontSize: 24),
-            ),
-          ),
-          if (titles.isEmpty)
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(title: Text("乐事专用(仍在施工ing)")),
+        body: ListView(
+          padding: EdgeInsets.all(10),
+          children: <Widget>[
             Card(
               child: Container(
-                padding: EdgeInsets.all(10),
-                child: Text("获取中"),
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    '',
+                    style: TextStyle(fontSize: 24),
+                  )),
+            ),
+            Divider(),
+            Divider(),
+            Divider(),
+            Divider(),
+            Divider(),
+            Divider(),
+            Container(
+              alignment: Alignment.topLeft,
+              margin: EdgeInsets.only(left: 16),
+              child: Text(
+                '题头（废文）',
+                style: TextStyle(fontSize: 24),
               ),
-            )
-          else
-            for (final title in titles)
+            ),
+            if (titles.isEmpty)
               Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12))),
                 child: Container(
                   padding: EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      InkWell(
-                          onTap: () {
-                            Utils.startPageWait(
-                                context,
-                                LaunchUrlWithWebview(
-                                  url: "https://sosadfun.link/quote/${title.number}",
-                                  title: "#${title.number}号题头",
-                                  icon: "https://sosadfun.link/favicon.ico",
-                                ));
-                          },
-                          child: Row(children: [Text("#${title.number}"), Spacer()])),
-                      Divider(),
-                      Text(
-                        "${title.content}",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      Row(children: [Spacer(), Text("${title.author}")]),
-                    ],
+                  child: Text("获取中"),
+                ),
+              )
+            else
+              for (final title in titles)
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12))),
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        InkWell(
+                            onTap: () {
+                              Utils.startPageWait(
+                                  context,
+                                  LaunchUrlWithWebview(
+                                    url: "https://sosadfun.link/quote/${title.number}",
+                                    title: "#${title.number}号题头",
+                                    icon: "https://sosadfun.link/favicon.ico",
+                                  ));
+                            },
+                            child: Row(children: [Text("#${title.number}"), Spacer()])),
+                        Divider(),
+                        Text(
+                          "${title.content}",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Row(children: [Spacer(), Text("${title.author}")]),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-        ],
+          ],
+        ),
       ),
     );
   }

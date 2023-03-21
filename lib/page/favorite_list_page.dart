@@ -138,8 +138,7 @@ class FavoriteListPage extends StatelessWidget {
           itemCount: searchItems.length,
           itemBuilder: (context, index) {
             final searchItem = searchItems[index];
-            final longPress = _size.width > 600 ||
-                ESOTheme().switchLongPress;
+            final longPress = _size.width > 600 || ESOTheme().switchLongPress;
             VoidCallback openChapter = () => invokeTap(ChapterPage(
                   searchItem: searchItem,
                   key: Key(searchItem.id.toString()),

@@ -75,8 +75,9 @@ class AnalyzeUrl {
 
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
+      final r_encoding = r['encoding'] == null ? null : "${r['encoding']}";
       var u = urlFix("${r['url']}", rule.host);
-      if (r['encoding'] != null) {
+      if (r_encoding != null) {
         String _urlEncode(String s) {
           if (s.length % 2 == 1) {
             s = '0$s';
@@ -88,15 +89,21 @@ class AnalyzeUrl {
           return sb.toString();
         }
 
-        final encoding = "${r['encoding']}".contains("gb")
-            ? gbk
-            : Encoding.getByName("${r['encoding']}");
+        final encoding = r_encoding.contains("gb") ? gbk : Encoding.getByName(r_encoding);
         u = u.replaceAllMapped(
             RegExp(r"[^\x00-\x7F]+"),
             (match) => encoding
                 .encode(match.group(0))
                 .map((code) => _urlEncode(code.toRadixString(16).toUpperCase()))
                 .join());
+        if (body != null && body is String) {
+          body = body.replaceAllMapped(
+              RegExp(r"[^\x00-\x7F]+"),
+              (match) => encoding
+                  .encode(match.group(0))
+                  .map((code) => _urlEncode(code.toRadixString(16).toUpperCase()))
+                  .join());
+        }
       }
       if (method == null || method == 'get') {
         return http.get(u, headers: headers);
@@ -109,8 +116,8 @@ class AnalyzeUrl {
           u,
           headers: headers,
           body: body,
-          encoding: r['encoding'] != null
-              ? "${r['encoding']}".contains("gb")
+          encoding: r_encoding != null && body is Map
+              ? r_encoding.contains("gb")
                   ? gbk
                   : Encoding.getByName("${r['encoding']}")
               : null,

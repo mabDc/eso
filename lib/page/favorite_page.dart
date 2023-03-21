@@ -8,6 +8,7 @@ import 'package:eso/ui/round_indicator.dart';
 import 'package:eso/page/favorite_list_page.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
+import '../main.dart';
 import 'add_local_item_page.dart';
 import 'history_page.dart';
 import 'search_page.dart';
@@ -83,59 +84,62 @@ class FavoritePage2 extends StatelessWidget {
     }
     return DefaultTabController(
       length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-          elevation: 0,
-          title: TabBar(
-            isScrollable: true,
-            indicatorSize: TabBarIndicatorSize.label,
-            labelColor: Theme.of(context).primaryColor,
-            unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
-            indicator: RoundTabIndicator(
-                insets: EdgeInsets.only(left: 5, right: 5),
-                borderSide:
-                    BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
-            tabs: tabs
-                .map((tab) => Container(
-                    height: 30,
-                    alignment: Alignment.center,
-                    child: Text(
-                      tab[0],
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: ESOTheme.staticFontFamily),
-                    )))
+      child: Container(
+        decoration: globalDecoration,
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            elevation: 0,
+            title: TabBar(
+              isScrollable: true,
+              indicatorSize: TabBarIndicatorSize.label,
+              labelColor: Theme.of(context).primaryColor,
+              unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
+              indicator: RoundTabIndicator(
+                  insets: EdgeInsets.only(left: 5, right: 5),
+                  borderSide:
+                      BorderSide(width: 3.0, color: Theme.of(context).primaryColor)),
+              tabs: tabs
+                  .map((tab) => Container(
+                      height: 30,
+                      alignment: Alignment.center,
+                      child: Text(
+                        tab[0],
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: ESOTheme.staticFontFamily),
+                      )))
+                  .toList(),
+            ),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.add_to_photos_outlined),
+                  tooltip: "导入本地txt或epub",
+                  onPressed: () => Utils.startPageWait(context, AddLocalItemPage())),
+              if (profile.searchPostion == ESOTheme.searchAction)
+                IconButton(
+                    icon: Icon(Icons.search),
+                    tooltip: "搜索",
+                    onPressed: () => Utils.startPageWait(context, SearchPage())),
+              if (profile.showHistoryOnFavorite)
+                IconButton(
+                  icon: Icon(Icons.history),
+                  tooltip: "浏览历史",
+                  onPressed: () => invokeTap(HistoryPage()),
+                ),
+              if (profile.bottomCount != 4)
+                IconButton(
+                  icon: Icon(FIcons.settings),
+                  tooltip: "设置",
+                  onPressed: () => invokeTap(AboutPage()),
+                ),
+            ],
+          ),
+          body: TabBarView(
+            children: tabs
+                .map((tab) => FavoriteListPage(type: tab[1], invokeTap: invokeTap))
                 .toList(),
           ),
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.add_to_photos_outlined),
-                tooltip: "导入本地txt或epub",
-                onPressed: () => Utils.startPageWait(context, AddLocalItemPage())),
-            if (profile.searchPostion == ESOTheme.searchAction)
-              IconButton(
-                  icon: Icon(Icons.search),
-                  tooltip: "搜索",
-                  onPressed: () => Utils.startPageWait(context, SearchPage())),
-            if (profile.showHistoryOnFavorite)
-              IconButton(
-                icon: Icon(Icons.history),
-                tooltip: "浏览历史",
-                onPressed: () => invokeTap(HistoryPage()),
-              ),
-            if (profile.bottomCount != 4)
-              IconButton(
-                icon: Icon(FIcons.settings),
-                tooltip: "设置",
-                onPressed: () => invokeTap(AboutPage()),
-              ),
-          ],
-        ),
-        body: TabBarView(
-          children: tabs
-              .map((tab) => FavoriteListPage(type: tab[1], invokeTap: invokeTap))
-              .toList(),
         ),
       ),
     );

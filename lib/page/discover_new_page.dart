@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/database/search_item.dart';
+import 'package:eso/main.dart';
 import 'package:eso/page/chapter_page.dart';
 import 'package:eso/ui/ui_search_item.dart';
 import 'package:eso/utils.dart';
@@ -145,23 +146,26 @@ class _DiscoverNewPageState extends State<DiscoverNewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.rule.name),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Utils.toast("使用规则搜索 还没做呢 xx yy ");
-              },
-              icon: Icon(Icons.search))
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          _buildBanner(),
-          _buildStickyBar(),
-          _buildList(),
-        ],
+    return Container(
+      decoration: globalDecoration,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.rule.name),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Utils.toast("使用规则搜索 还没做呢 xx yy ");
+                },
+                icon: Icon(Icons.search))
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: <Widget>[
+            _buildBanner(),
+            _buildStickyBar(),
+            _buildList(),
+          ],
+        ),
       ),
     );
   }

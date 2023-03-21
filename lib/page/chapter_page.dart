@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:eso/database/chapter_item.dart';
+import 'package:eso/main.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/eso_theme.dart';
@@ -51,44 +52,47 @@ class _ChapterPageState extends State<ChapterPage> {
 
     return ChangeNotifierProvider<ChapterPageProvider>(
       create: (context) => ChapterPageProvider(searchItem: searchItem, size: size),
-      builder: (context, child) => Scaffold(
-          body: Stack(
-        children: [
-          NotificationListener(
-            child: DraggableScrollbar.semicircle(
-              child: CustomScrollView(
-                physics: ClampingScrollPhysics(),
+      builder: (context, child) => Container(
+        decoration: globalDecoration,
+        child: Scaffold(
+            body: Stack(
+          children: [
+            NotificationListener(
+              child: DraggableScrollbar.semicircle(
+                child: CustomScrollView(
+                  physics: ClampingScrollPhysics(),
+                  controller: _controller,
+                  slivers: <Widget>[
+                    _comicDetail(context),
+                    _buildChapter(context),
+                  ],
+                ),
                 controller: _controller,
-                slivers: <Widget>[
-                  _comicDetail(context),
-                  _buildChapter(context),
-                ],
+                padding: const EdgeInsets.only(top: 100, bottom: 8),
               ),
-              controller: _controller,
-              padding: const EdgeInsets.only(top: 100, bottom: 8),
+              onNotification: ((ScrollUpdateNotification n) {
+                if (n.depth == 0 && n.metrics.pixels <= 200.0) {
+                  opacity = min(n.metrics.pixels, 100.0) / 100.0;
+                  if (opacity < 0) opacity = 0;
+                  if (opacity > 1) opacity = 1;
+                  if (state != null) state(() => null);
+                }
+                return true;
+              }),
             ),
-            onNotification: ((ScrollUpdateNotification n) {
-              if (n.depth == 0 && n.metrics.pixels <= 200.0) {
-                opacity = min(n.metrics.pixels, 100.0) / 100.0;
-                if (opacity < 0) opacity = 0;
-                if (opacity > 1) opacity = 1;
-                if (state != null) state(() => null);
-              }
-              return true;
-            }),
-          ),
-          StatefulBuilder(
-            builder: (context, _state) {
-              state = _state;
-              return Container(
-                child: _buildAlphaAppbar(context),
-                //color: Theme.of(context).primaryColor.withOpacity(opacity),
-                height: topHeight,
-              );
-            },
-          )
-        ],
-      )),
+            StatefulBuilder(
+              builder: (context, _state) {
+                state = _state;
+                return Container(
+                  child: _buildAlphaAppbar(context),
+                  //color: Theme.of(context).primaryColor.withOpacity(opacity),
+                  height: topHeight,
+                );
+              },
+            )
+          ],
+        )),
+      ),
     );
   }
 

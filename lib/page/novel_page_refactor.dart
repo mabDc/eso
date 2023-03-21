@@ -334,6 +334,7 @@ class NovelMenu extends StatelessWidget {
     const REFRESH = 4;
     const AUTO_CACHE = 5;
     const CLEARCACHE = 6;
+    const GOTOPAGE = 7;
     final primaryColor = Theme.of(context).primaryColor;
 
     return PopupMenuButton<int>(
@@ -342,6 +343,85 @@ class NovelMenu extends StatelessWidget {
       color: bgColor,
       onSelected: (int value) async {
         switch (value) {
+          case GOTOPAGE:
+            showDialog(
+                context: context,
+                builder: (context) {
+                  final page = composition.textPages[composition.currentIndex];
+                  final controllerChaptersNum = TextEditingController(text: "0");
+                  final TextEditingController controllerPagesNum =
+                      TextEditingController(text: page.number.toString());
+                  return AlertDialog(
+                    title: Text("快速跳转"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("章节（当前${page.chIndex + 1} / ${searchItem.chaptersCount}）："),
+                        Row(
+                          children: [
+                            Container(
+                              width: 100,
+                              child: TextField(
+                                controller: controllerChaptersNum,
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                            TextButton(
+                                onPressed: () {
+                                  final n = int.tryParse(controllerChaptersNum.text);
+                                  if (n == null) {
+                                    Utils.toast("请输入1到${searchItem.chaptersCount}以内的整数");
+                                    return;
+                                  }
+                                  if (n < 0 || n >= searchItem.chaptersCount) {
+                                    Utils.toast("请输入1到${searchItem.chaptersCount}以内的整数");
+                                    return;
+                                  }
+                                  composition.gotoChapter(n - 1);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text("跳章节")),
+                          ],
+                        ),
+                        Text("页数（当前${page.number} / ${page.total}）："),
+                        Row(
+                          children: [
+                            Container(
+                              width: 100,
+                              child: TextField(
+                                controller: controllerPagesNum,
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                            TextButton(
+                                onPressed: () {
+                                  final n = int.tryParse(controllerPagesNum.text);
+                                  if (n == null) {
+                                    Utils.toast("请输入1到${page.total}的整数");
+                                    return;
+                                  }
+                                  if (n < 0 || n > page.total) {
+                                    Utils.toast("请输入1到${page.total}的整数");
+                                    return;
+                                  }
+                                  if(n == page.number){
+                                    Utils.toast("已经是当前页，不需要调换");
+                                    return;
+                                  }
+                                  composition.goToPage(
+                                      composition.currentIndex + n - page.number);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text("跳页数")),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                });
+
+            break;
           case AUTO_CACHE:
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => NovelAutoCachePage(searchItem: searchItem)));
@@ -404,6 +484,16 @@ class NovelMenu extends StatelessWidget {
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('快速跳转'),
+              Icon(Icons.grid_goldenratio_sharp, color: primaryColor),
+            ],
+          ),
+          value: GOTOPAGE,
+        ),
         PopupMenuItem(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
