@@ -1,8 +1,10 @@
-### 2023.3.20
+### 2023.3.22
 - fix 音频进度问题
 - add 音频页打开网页
+- fix 音频ui异常
+- fix 音频异常，音频不在书架无法播放
 - 内置underscore.js调用语法`await require("underscore")`或者`await require("underscore.min")`
-### 2023.3.19
+### 2023.3.21
 - 刷新率教程
    - 设置 -> 刷新率设置
    - 第一个选项【强制刷新】，点击开启

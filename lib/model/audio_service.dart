@@ -218,9 +218,11 @@ class AudioService {
     _searchItem.durChapterIndex = chapterIndex;
     _searchItem.durChapter = _searchItem.chapters[chapterIndex].name;
     _searchItem.durContentIndex = 1;
-    await _searchItem.save();
+    try {
+      await _searchItem.save();
+      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+    } catch (e) {}
     // await SearchItemManager.saveSearchItem();
-    HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     print(_url);
     try {
       await _player.play(UrlSource(_url));

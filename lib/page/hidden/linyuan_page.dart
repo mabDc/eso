@@ -110,9 +110,7 @@ class WebInAppAndroid extends StatelessWidget {
         decoration: globalDecoration,
         child: Scaffold(
           appBar: AppBar(
-            leading: icon == null
-                ? null
-                : IconButton(
+            leading: IconButton(
                     icon: Icon(
                       Icons.close,
                       size: 28,
@@ -124,7 +122,9 @@ class WebInAppAndroid extends StatelessWidget {
                   ),
             leadingWidth: 30,
             title: ListTile(
-              leading: CircleAvatar(
+              leading: icon == null
+                ? null
+                : CircleAvatar(
                 backgroundImage: NetworkImage(icon),
               ),
               title: Text(title, maxLines: 1),
