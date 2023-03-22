@@ -19,6 +19,7 @@ import 'dart:math';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
+import 'hidden/linyuan_page.dart';
 
 class AudioPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -296,10 +297,24 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
           },
         ),
         IconButton(
+          onPressed: () {
+            Utils.startPageWait(
+                context,
+                LaunchUrlWithWebview(
+                  title: Utils.link(searchItem.origin, searchItem.name, divider: ' | ')
+                      .link(searchItem.durChapter)
+                      .value,
+                  url: searchItem.chapters[searchItem.durChapterIndex].url,
+                ));
+          },
+          icon: Icon(FIcons.book_open),
+          tooltip: "在浏览器打开",
+        ),
+        IconButton(
           icon: Icon(FIcons.share_2),
           tooltip: "分享",
           onPressed: provider.share,
-        )
+        ),
       ],
       titleSpacing: 0,
       title: author == null || author.isEmpty
@@ -400,64 +415,69 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
 
   Widget _buildBottomController(AudioPageController provider) {
     final _repeatMode = provider.repeatMode;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(
-            _repeatMode == AudioService.REPEAT_FAVORITE
-                ? Icons.restore
-                : _repeatMode == AudioService.REPEAT_ALL
-                    ? Icons.repeat
-                    : _repeatMode == AudioService.REPEAT_ONE
-                        ? Icons.repeat_one
-                        : Icons.label_outline,
-            color: Colors.white,
+    return Container(
+      height: 50,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(
+              _repeatMode == AudioService.REPEAT_FAVORITE
+                  ? Icons.restore
+                  : _repeatMode == AudioService.REPEAT_ALL
+                      ? Icons.repeat
+                      : _repeatMode == AudioService.REPEAT_ONE
+                          ? Icons.repeat_one
+                          : Icons.label_outline,
+              color: Colors.white,
+            ),
+            iconSize: 26,
+            tooltip: AudioService.getRepeatName(_repeatMode),
+            padding: EdgeInsets.zero,
+            onPressed: provider.switchRepeatMode,
           ),
-          iconSize: 26,
-          tooltip: AudioService.getRepeatName(_repeatMode),
-          padding: EdgeInsets.zero,
-          onPressed: provider.switchRepeatMode,
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.skip_previous,
-            color: Colors.white,
-            size: 26,
+          IconButton(
+            icon: Icon(
+              Icons.skip_previous,
+              color: Colors.white,
+              size: 26,
+            ),
+            onPressed: provider.playPrev,
+            tooltip: '上一曲',
           ),
-          onPressed: provider.playPrev,
-          tooltip: '上一曲',
-        ),
-        IconButton(
-          icon: Icon(
-            provider.state == PlayerState.playing
-                ? Icons.pause_circle_outline
-                : Icons.play_circle_outline,
-            color: Colors.white,
-            size: 42,
+          IconButton(
+            padding: EdgeInsets.zero,
+            icon: Icon(
+              provider.state == PlayerState.playing
+                  ? Icons.pause_circle_outline
+                  : Icons.play_circle_outline,
+              color: Colors.white,
+              size: 46,
+            ),
+            onPressed: provider.playOrPause,
+            tooltip: provider.isPlay ? '暂停' : '播放',
           ),
-          onPressed: provider.playOrPause,
-          tooltip: provider.isPlay ? '暂停' : '播放',
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.skip_next,
-            color: Colors.white,
-            size: 26,
+          IconButton(
+            icon: Icon(
+              Icons.skip_next,
+              color: Colors.white,
+              size: 26,
+            ),
+            onPressed: provider.playNext,
+            tooltip: '下一曲',
           ),
-          onPressed: provider.playNext,
-          tooltip: '下一曲',
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: Colors.white,
+          IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: Colors.white,
+            ),
+            iconSize: 26,
+            tooltip: "播放列表",
+            onPressed: () => provider.showChapter = !provider.showChapter,
           ),
-          iconSize: 26,
-          tooltip: "播放列表",
-          onPressed: () => provider.showChapter = !provider.showChapter,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -466,18 +486,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
           _defaultBackgroundImage.length];
 
   static const List<String> _defaultBackgroundImage = <String>[
-    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1862395032,4159614935&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=320821615,459299112&fm=26&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3709840964,4011199584&fm=26&gp=0.jpg',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=159400530,2390750984&fm=26&gp=0.jpg',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2942281081,4061453531&fm=26&gp=0.jpg',
-    'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3708202986,3174435156&fm=11&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2516210555,70809240&fm=26&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3096080338,1387947480&fm=11&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=884602971,918446192&fm=11&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2623678637,572331041&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2585876590,437169879&fm=11&gp=0.jpg',
-    'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1086362054,1110846781&fm=11&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2900641615,456703263&fm=26&gp=0.jpg',
+    "http://api.nmb.show/xiaojiejie1.php"
   ];
 }

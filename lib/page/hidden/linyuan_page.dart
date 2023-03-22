@@ -41,13 +41,15 @@ class LaunchUrlWithWebview extends StatelessWidget {
             : Scaffold(
                 appBar: AppBar(
                   leadingWidth: 30,
-                  title: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(icon),
-                    ),
-                    title: Text(title),
-                    subtitle: Text(url),
-                  ),
+                  title: icon == null
+                      ? null
+                      : ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(icon),
+                          ),
+                          title: Text(title, maxLines: 1),
+                          subtitle: Text(url, maxLines: 1),
+                        ),
                   //Column(children: [Text(title)]),
                   actions: [
                     IconButton(
@@ -108,26 +110,25 @@ class WebInAppAndroid extends StatelessWidget {
         decoration: globalDecoration,
         child: Scaffold(
           appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(
-                Icons.close,
-                size: 28,
-              ),
-              tooltip: "关闭",
-              onPressed: () async {
-                Navigator.of(context).pop();
-              },
-            ),
+            leading: icon == null
+                ? null
+                : IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      size: 28,
+                    ),
+                    tooltip: "关闭",
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                    },
+                  ),
             leadingWidth: 30,
             title: ListTile(
               leading: CircleAvatar(
                 backgroundImage: NetworkImage(icon),
               ),
-              title: Text(
-                title,
-                overflow: TextOverflow.clip,
-              ),
-              subtitle: Text(url, overflow: TextOverflow.clip),
+              title: Text(title, maxLines: 1),
+              subtitle: Text(url, maxLines: 1),
             ),
             actions: [
               IconButton(
@@ -204,6 +205,12 @@ class _WebInAppWindowsState extends State<WebInAppWindows> {
   }
 
   @override
+  void dispose() {
+    webviewController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final m = MediaQuery.of(context).size;
     return Container(
@@ -212,11 +219,13 @@ class _WebInAppWindowsState extends State<WebInAppWindows> {
         appBar: AppBar(
           leadingWidth: 30,
           title: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(widget.icon),
-            ),
-            title: Text(widget.title),
-            subtitle: Text(widget.url),
+            leading: widget.icon == null
+                ? null
+                : CircleAvatar(
+                    backgroundImage: NetworkImage(widget.icon),
+                  ),
+            title: Text(widget.title, maxLines: 1),
+            subtitle: Text(widget.url, maxLines: 1),
           ),
           //Column(children: [Text(title)]),
           actions: [

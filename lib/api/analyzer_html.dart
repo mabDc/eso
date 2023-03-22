@@ -7,6 +7,13 @@ class AnalyzerHtml implements Analyzer {
 
   @override
   AnalyzerHtml parse(content) {
+  //   final d = parser.parse('''<div class="path test">
+  //   <div class="p"><a href="/">顶点小说</a> &gt; <a href="/ebook/33715.html">自律的我简直无敌了最新章节</a>
+  //   <span class="oninfo"><a rel="nofollow" href="javascript:addBookCase('33715');">加入书架</a></span></div></div>
+	// ''').documentElement;
+  //   for (var it in d.querySelectorAll(".path.test a")) {
+  //     print(it.outerHtml);
+  //   }
     if (content is Element) {
       _element = content;
     } else if (content is Document) {

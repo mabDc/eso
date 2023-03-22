@@ -54,7 +54,7 @@ class AudioService {
       _player.onDurationChanged.listen((Duration d) {
         _duration = d;
       });
-      _player.onDurationChanged.listen((Duration p) {
+      _player.onPositionChanged.listen((Duration p) {
         _positionDuration = p;
       });
       _player.onPlayerStateChanged.listen((PlayerState s) {
