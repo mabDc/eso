@@ -134,7 +134,7 @@ class _DiscoverNewPageState extends State<DiscoverNewPage> {
   parseRule() async {
     JSEngine.setEnvironment(1, widget.rule, "", widget.rule.host, "", "");
     discoverUrl = await JSEngine.evaluate(
-        ";1+1;rules = ${jsonEncode(_discoverRule.rules)};;1+1;" + _discoverRule.js);
+        "${JSEngine.environment};;1+1;rules = ${jsonEncode(_discoverRule.rules)};;1+1;" + _discoverRule.js);
     setState(() {});
   }
 

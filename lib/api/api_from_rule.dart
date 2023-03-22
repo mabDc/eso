@@ -77,11 +77,13 @@ class APIFromRUle implements API {
         page: page,
         pageSize: pageSize,
       );
-      if (res.contentLength == 0) {
-        return <SearchItem>[];
+      if (res != null) {
+        if (res.contentLength == 0) {
+          return <SearchItem>[];
+        }
+        discoverUrl = res.request.url.toString();
+        body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
       }
-      discoverUrl = res.request.url.toString();
-      body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
     }
     await JSEngine.setEnvironment(page, rule, "", discoverUrl, "", "");
     final bodyAnalyzer = AnalyzerManager(body);
@@ -145,11 +147,13 @@ class APIFromRUle implements API {
         pageSize: pageSize,
         keyword: query,
       );
-      if (res.contentLength == 0) {
-        return <SearchItem>[];
+      if (res != null) {
+        if (res.contentLength == 0) {
+          return <SearchItem>[];
+        }
+        searchUrl = res.request.url.toString();
+        body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
       }
-      searchUrl = res.request.url.toString();
-      body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
     }
     await JSEngine.setEnvironment(page, rule, "", searchUrl, query, "");
     final bodyAnalyzer = AnalyzerManager(body);
@@ -222,11 +226,13 @@ class APIFromRUle implements API {
             result: lastResult,
             page: page,
           );
-          if (res.contentLength == 0) {
-            break;
+          if (res != null) {
+            if (res.contentLength == 0) {
+              break;
+            }
+            chapterUrl = res.request.url.toString();
+            body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
           }
-          chapterUrl = res.request.url.toString();
-          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         API.chapterUrl = chapterUrl;
         if (page == 1) {
@@ -354,11 +360,13 @@ class APIFromRUle implements API {
             result: lastResult,
             page: page,
           );
-          if (res.contentLength == 0) {
-            break;
+          if (res != null) {
+            if (res.contentLength == 0) {
+              break;
+            }
+            contentUrl = res.request.url.toString();
+            body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
           }
-          contentUrl = res.request.url.toString();
-          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         API.contentUrl = contentUrl;
         if (page == 1) {
@@ -410,7 +418,8 @@ class APIFromRUle implements API {
     try {
       if (discoverUrl.startsWith("@js:")) {
         await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
-        discoverUrl = await JSEngine.evaluate(discoverUrl.substring(4));
+        discoverUrl = await JSEngine.evaluate(
+            "${JSEngine.environment};${discoverUrl.substring(4)};");
       }
       final discovers = (discoverUrl is List)
           ? discoverUrl.map((e) => "$e")

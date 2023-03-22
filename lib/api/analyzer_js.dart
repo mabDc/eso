@@ -41,8 +41,8 @@ class AnalyzerJS implements Analyzer {
 
   Future<dynamic> _eval(String rule) {
     if (needSetEnvironmentFlag) {
-      final r =
-          JSEngine.evaluate("${JSEngine.environment};1+1;${JSEngine.rule.loadJs}var result = $_content; $rule;");
+      final r = JSEngine.evaluate(
+          "${JSEngine.environment};1+1;${JSEngine.rule.loadJs};1+1;var result = $_content; $rule;");
       needSetEnvironmentFlag = false;
       return r;
     } else {

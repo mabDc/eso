@@ -20,10 +20,12 @@ class AnalyzeUrl {
     if (url == "null") return originalHttp.Response("", 200);
     if (url.startsWith("@js:")) {
       // js规则
-      JSEngine.setEnvironment(page, rule, result, rule.host, keyword, result);
-      final re = await JSEngine.evaluate(url.substring(4));
-      if (re is String && re == "null") {
-        return originalHttp.Response("", 200);
+      await JSEngine.setEnvironment(page, rule, result, rule.host, keyword, result);
+      final re = await JSEngine.evaluate(
+          "${JSEngine.environment};1+1;${JSEngine.rule.loadJs};1+1;${url.substring(4)}");
+      if ((re is String && re == "null") || re == null) {
+        // return originalHttp.Response("null url", 200);
+        return null;
       }
       final res = await parser(re, rule);
       // if (res.statusCode > 400) {

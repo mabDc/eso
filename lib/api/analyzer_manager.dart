@@ -297,8 +297,9 @@ class AnalyzerManager {
       return rs.join();
     }
 
+    if (result.isEmpty) result = _content;
     for (final r in splitRuleReversed(rule).reversed) {
-      r.analyzer.parse(result.isNotEmpty ? result : _content);
+      r.analyzer.parse(result);
       result = await _getString(r);
     }
     return result;

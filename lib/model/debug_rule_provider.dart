@@ -130,7 +130,8 @@ class DebugRuleProvider with ChangeNotifier {
       if (discoverRule.startsWith("@js:")) {
         _addContent("执行发现js规则");
         await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
-        discoverRule = await JSEngine.evaluate(discoverRule.substring(4));
+        discoverRule = await JSEngine.evaluate(
+            "${JSEngine.environment};${discoverRule.substring(4)};");
         _addContent("结果", "$discoverRule");
       }
       final discoverFirst = (discoverRule is List
@@ -153,14 +154,18 @@ class DebugRuleProvider with ChangeNotifier {
           page: 1,
           pageSize: 20,
         );
-        if (discoverResult.contentLength == 0) {
-          _addContent("响应内容为空，终止解析！");
-          return;
+        if (discoverResult == null) {
+          _addContent("地址为null跳过请求");
+        } else {
+          if (discoverResult.contentLength == 0) {
+            _addContent("响应内容为空，终止解析！");
+            return;
+          }
+          discoverUrl = discoverResult.request.url.toString();
+          body = DecodeBody()
+              .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]);
+          _addContent("地址", discoverUrl, true);
         }
-        discoverUrl = discoverResult.request.url.toString();
-        body = DecodeBody()
-            .decode(discoverResult.bodyBytes, discoverResult.headers["content-type"]);
-        _addContent("地址", discoverUrl, true);
       }
 
       await JSEngine.setEnvironment(1, rule, "", discoverUrl, "", "");
@@ -253,14 +258,18 @@ class DebugRuleProvider with ChangeNotifier {
           page: 1,
           pageSize: 20,
         );
-        if (searchResult.contentLength == 0) {
-          _addContent("响应内容为空，终止解析！");
-          return;
+        if (searchResult == null) {
+          _addContent("地址为null跳过请求");
+        } else {
+          if (searchResult.contentLength == 0) {
+            _addContent("响应内容为空，终止解析！");
+            return;
+          }
+          searchUrl = searchResult.request.url.toString();
+          _addContent("地址", searchUrl, true);
+          body = DecodeBody()
+              .decode(searchResult.bodyBytes, searchResult.headers["content-type"]);
         }
-        searchUrl = searchResult.request.url.toString();
-        _addContent("地址", searchUrl, true);
-        body = DecodeBody()
-            .decode(searchResult.bodyBytes, searchResult.headers["content-type"]);
       }
       await JSEngine.setEnvironment(1, rule, "", searchUrl, value, "");
       _addContent("初始化js");
@@ -377,13 +386,17 @@ class DebugRuleProvider with ChangeNotifier {
             result: result,
             page: page,
           );
-          if (res.contentLength == 0) {
-            _addContent("响应内容为空，终止解析！");
-            break;
+          if (res == null) {
+            _addContent("地址为null跳过请求");
+          } else {
+            if (res.contentLength == 0) {
+              _addContent("响应内容为空，终止解析！");
+              break;
+            }
+            chapterUrl = res.request.url.toString();
+            _addContent("地址", chapterUrl, true);
+            body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
           }
-          chapterUrl = res.request.url.toString();
-          _addContent("地址", chapterUrl, true);
-          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
 
         if (page == 1) {
@@ -533,13 +546,17 @@ class DebugRuleProvider with ChangeNotifier {
             result: result,
             page: page,
           );
-          if (res.contentLength == 0) {
-            _addContent("响应内容为空，终止解析！");
-            return;
+          if (res == null) {
+            _addContent("地址为null跳过请求");
+          } else {
+            if (res.contentLength == 0) {
+              _addContent("响应内容为空，终止解析！");
+              return;
+            }
+            contentUrl = res.request.url.toString();
+            _addContent("地址", contentUrl, true);
+            body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
           }
-          contentUrl = res.request.url.toString();
-          _addContent("地址", contentUrl, true);
-          body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
         }
         if (page == 1) {
           await JSEngine.setEnvironment(page, rule, result, contentUrl, "", result);

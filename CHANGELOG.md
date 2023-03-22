@@ -4,6 +4,10 @@
 - fix 音频ui异常
 - fix 音频异常，音频不在书架无法播放
 - 内置underscore.js调用语法`await require("underscore")`或者`await require("underscore.min")`
+- add 增加特性url请求规则js结果为null时跳过请求
+- fix 修复环境变量设置问题（最近版本新bug，1.22.x版本正常）
+- 修改规则行为，前者获取为空不再重新以content来解析
+   - 比如这个规则现在可以成立`.title@text@js:result||"立即阅读"`
 ### 2023.3.21
 - 刷新率教程
    - 设置 -> 刷新率设置

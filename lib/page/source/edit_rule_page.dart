@@ -290,7 +290,8 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                                   ),
                                   Expanded(
                                     flex: 1,
-                                    child: SingleChildScrollView(child: SelectableText(s)),
+                                    child:
+                                        SingleChildScrollView(child: SelectableText(s)),
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -328,6 +329,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                                           try {
                                             await JSEngine.setEnvironment(
                                                 1, rule, "", rule.host, "", "");
+                                            await JSEngine.evaluate(JSEngine.environment);
                                             final x = await JSEngine.evaluate(
                                                 codeKey.currentState?.code ?? code);
                                             setState(() {
@@ -347,7 +349,8 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
                                       InkWell(
                                         onTap: () {
                                           code = codeKey.currentState?.code ?? code;
-                                          setState(() => isNotCollapsed = !isNotCollapsed);
+                                          setState(
+                                              () => isNotCollapsed = !isNotCollapsed);
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
