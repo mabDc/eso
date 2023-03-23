@@ -412,16 +412,15 @@ class VPDProvider extends ChangeNotifier {
         _url = content.first;
         log("播放地址 $_url\n自动开始本地播放");
         if (!webcontroller.value.isInitialized) await webcontroller.initialize();
-        if (_url.startsWith("https")) {
-          _url = "https://jx.parwix.com:4433/player/?url=" + Uri.encodeFull(_url);
-        } else {
-          var dir = kDebugMode
-              ? Utils.join(Directory.current.path, "player.html")
-              : Utils.join(
-                  Directory.current.path, "data", "flutter_assets", "player.html");
-          dir = Uri.encodeFull(dir).replaceAll("%5C", "\\");
-          _url = "$dir#$_url";
-        }
+        // if (_url.startsWith("https")) {
+        // _url = "https://jx.parwix.com:4433/player/?url=" + Uri.encodeFull(_url);
+        // } else {
+        var dir = kDebugMode
+            ? Utils.join(Directory.current.path, "player.html")
+            : Utils.join(Directory.current.path, "data", "flutter_assets", "player.html");
+        dir = Uri.encodeFull(dir).replaceAll("%5C", "\\");
+        _url = "file:///$dir#$_url";
+        // }
         await webcontroller.loadUrl(_url);
         _windowFullScreen = true;
         // if (autoPlay == true) {
