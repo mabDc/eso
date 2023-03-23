@@ -71,7 +71,7 @@ class AnalyzeUrl {
       Map<String, String> headers = {
         'user-agent': rule.userAgent.trim().isNotEmpty
             ? rule.userAgent
-            : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36 Edg/98.0.1108.50',
         "cookie": rule.cookies,
       }..addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
@@ -130,7 +130,7 @@ class AnalyzeUrl {
       return http.get(urlFix("$url", rule.host), headers: {
         'user-agent': rule.userAgent.trim().isNotEmpty
             ? rule.userAgent
-            : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36',
+            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36 Edg/98.0.1108.50',
         "cookie": rule.cookies,
       });
     }

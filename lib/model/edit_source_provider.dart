@@ -197,7 +197,8 @@ class EditSourceProvider with ChangeNotifier {
     if (_isLoading) return;
     _isLoading = true;
     print("读取数据库 %$name%");
-    final list = [linyuan, leshi, schulte_grid];
+    // final list = [linyuan, leshi, schulte_grid];
+    final list = [linyuan, schulte_grid];
     if (name.startsWith("开启功能") ||
         name.startsWith("启用功能") ||
         name.startsWith("打开功能") ||
