@@ -18,7 +18,8 @@ import '../utils/cache_util.dart';
 import 'search_page.dart';
 
 class AddLocalItemPage extends StatefulWidget {
-  AddLocalItemPage({Key key}) : super(key: key);
+  final PlatformFile platformFile;
+  AddLocalItemPage({Key key, this.platformFile}) : super(key: key);
 
   @override
   State<AddLocalItemPage> createState() => _AddLocalItemPageState();
@@ -38,6 +39,7 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
 
   @override
   void initState() {
+    platformFile = widget.platformFile;
     textEditingController = TextEditingController();
     textEditingControllerReg = TextEditingController();
     init();
@@ -118,66 +120,68 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
   }
 
   init() async {
-    FilePickerResult result = await FilePicker.platform
-        .pickFiles(withData: false, dialogTitle: "选择txt或者epub导入亦搜");
-    if (result == null) {
-      Utils.toast("未选择文件");
-      if (platformFile == null) {
-        Navigator.of(context).pop();
-      }
-    } else {
-      platformFile = result.files.first;
-      if (platformFile.extension == "epub") {
-        try {
-          epubBook = await EpubReader.readBook(File(platformFile.path).readAsBytesSync());
-          textEditingController.text = epubBook.Title;
-          searchItem = SearchItem(
-            cover:
-                "data:image/png;base64," + base64Encode(epubBook.CoverImage.getBytes()),
-            name: epubBook.Title,
-            author: epubBook.Author,
-            chapter: epubBook.Chapters.isNotEmpty ? epubBook.Chapters.last.Title : "",
-            description: "",
-            url: platformFile.path,
-            api: BaseAPI(origin: "本地", originTag: "本地", ruleContentType: API.NOVEL),
-            tags: [],
-          );
-          textEditingControllerReg.text = "";
-          // epubBook.Chapters.forEach((element) {
-          //   element.Title ;
-          // });
-        } catch (e) {
-          Utils.toast("$e");
-        }
-        parseEpub();
-      } else {
-        if (platformFile.size ~/ 1024 > 20000) {
-          Utils.toast("文件太大 放弃");
+    if (platformFile == null) {
+      FilePickerResult result = await FilePicker.platform
+          .pickFiles(withData: false, dialogTitle: "选择txt或者epub导入亦搜");
+      if (result == null) {
+        Utils.toast("未选择文件");
+        if (platformFile == null) {
+          Navigator.of(context).pop();
           return;
         }
-        try {
-          content = autoReadFile(platformFile.path);
-          textEditingController.text = Utils.getFileName(platformFile.name);
-          if (textEditingControllerReg.text.isEmpty) {
-            textEditingControllerReg.text = defaultReg;
-          }
-          searchItem = SearchItem(
-            cover: "",
-            name: textEditingController.text,
-            author: "",
-            chapter: "",
-            description: "",
-            url: platformFile.path,
-            api: BaseAPI(origin: "本地", originTag: "本地", ruleContentType: API.NOVEL),
-            tags: [],
-          );
-          parseText();
-        } catch (e) {
-          Utils.toast("$e");
-        }
+      } else {
+        platformFile = result.files.first;
       }
-      setState(() {});
     }
+    if (platformFile.extension == "epub") {
+      try {
+        epubBook = await EpubReader.readBook(File(platformFile.path).readAsBytesSync());
+        textEditingController.text = epubBook.Title;
+        searchItem = SearchItem(
+          cover: "data:image/png;base64," + base64Encode(epubBook.CoverImage.getBytes()),
+          name: epubBook.Title,
+          author: epubBook.Author,
+          chapter: epubBook.Chapters.isNotEmpty ? epubBook.Chapters.last.Title : "",
+          description: "",
+          url: platformFile.path,
+          api: BaseAPI(origin: "本地", originTag: "本地", ruleContentType: API.NOVEL),
+          tags: [],
+        );
+        textEditingControllerReg.text = "";
+        // epubBook.Chapters.forEach((element) {
+        //   element.Title ;
+        // });
+      } catch (e) {
+        Utils.toast("$e");
+      }
+      parseEpub();
+    } else {
+      if (platformFile.size ~/ 1024 > 20000) {
+        Utils.toast("文件太大 放弃");
+        return;
+      }
+      try {
+        content = autoReadFile(platformFile.path);
+        textEditingController.text = Utils.getFileName(platformFile.name);
+        if (textEditingControllerReg.text.isEmpty) {
+          textEditingControllerReg.text = defaultReg;
+        }
+        searchItem = SearchItem(
+          cover: "",
+          name: textEditingController.text,
+          author: "",
+          chapter: "",
+          description: "",
+          url: platformFile.path,
+          api: BaseAPI(origin: "本地", originTag: "本地", ruleContentType: API.NOVEL),
+          tags: [],
+        );
+        parseText();
+      } catch (e) {
+        Utils.toast("$e");
+      }
+    }
+    setState(() {});
   }
 
   @override
@@ -234,7 +238,8 @@ class _AddLocalItemPageState extends State<AddLocalItemPage> {
                 TextButton(
                     onPressed: () async {
                       final r = await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => SimpleChangeRule(searchItem: searchItem)));
+                          builder: (context) =>
+                              SimpleChangeRule(searchItem: searchItem)));
                       if (r != null && r is SearchItem) {
                         searchItem.localAddInfo(r);
                         setState(() {});

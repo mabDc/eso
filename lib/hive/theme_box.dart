@@ -29,26 +29,38 @@ set displayMode(DisplayMode mode) {
 }
 
 const primaryColorKey = "primaryColor";
-int get primaryColor => themeBox.get(primaryColorKey, defaultValue: colors["哔哩粉"]);
+int get primaryColor =>
+    themeBox.get(primaryColorKey, defaultValue: tomatoCat[primaryColorKey]);
 
 const iconColorKey = "iconColor";
-int get iconColor => themeBox.get(iconColorKey, defaultValue: colors["西红柿色"]);
+int get iconColor => themeBox.get(iconColorKey, defaultValue: tomatoCat[iconColorKey]);
 
 const appBarForegroundColorKey = "appBarForegroundColor";
-int get appBarForegroundColor =>
-    themeBox.get(appBarForegroundColorKey, defaultValue: colors["星空灰"]);
+int get appBarForegroundColor => themeBox.get(appBarForegroundColorKey,
+    defaultValue: tomatoCat[appBarForegroundColorKey]);
 
 const appBarBackgroundColorKey = "appBarBackgroundColor";
-int get appBarBackgroundColor =>
-    themeBox.get(appBarBackgroundColorKey, defaultValue: colors["象牙色"]);
+int get appBarBackgroundColor => themeBox.get(appBarBackgroundColorKey,
+    defaultValue: tomatoCat[appBarBackgroundColorKey]);
 
 const scaffoldBackgroundColorKey = "scaffoldBackgroundColor";
-int get scaffoldBackgroundColor =>
-    themeBox.get(scaffoldBackgroundColorKey, defaultValue: colors["象牙色"]);
+int get scaffoldBackgroundColor => themeBox.get(scaffoldBackgroundColorKey,
+    defaultValue: tomatoCat[scaffoldBackgroundColorKey]);
 
 const cardBackgroundColorKey = "cardBackgroundColor";
 int get cardBackgroundColor =>
-    themeBox.get(cardBackgroundColorKey, defaultValue: colors["象牙色"]);
+    themeBox.get(cardBackgroundColorKey, defaultValue: tomatoCat[cardBackgroundColorKey]);
+
+const tomatoCat = {
+  "themeMode": ThemeMode.light,
+  decorationImageKey: "懒儿3.jpg",
+  primaryColorKey: 0xe9604122,
+  iconColorKey: 0xffedbe83,
+  appBarForegroundColorKey: 0xff0e2832,
+  appBarBackgroundColorKey: 0xe8e1944e,
+  scaffoldBackgroundColorKey: 0xccf0e8d8,
+  cardBackgroundColorKey: 0xfff0e8d8,
+};
 
 ThemeData getGlobalThemeData() => ThemeData(
       primaryColor: Color(primaryColor),
@@ -60,7 +72,10 @@ ThemeData getGlobalThemeData() => ThemeData(
         iconTheme: IconThemeData(color: Color(iconColor)),
         actionsIconTheme: IconThemeData(color: Color(iconColor)),
       ),
-      bottomAppBarColor: Color(appBarBackgroundColor),
+      bottomAppBarTheme: BottomAppBarTheme(
+        color: Color(scaffoldBackgroundColor),
+        elevation: 100,
+      ),
       scaffoldBackgroundColor: Color(scaffoldBackgroundColor),
       cardTheme: CardTheme(color: Color(cardBackgroundColor)),
     );
@@ -91,13 +106,17 @@ ThemeData getGlobalDarkThemeData() => ThemeData(
         iconTheme: IconThemeData(color: Color(iconColor)),
         actionsIconTheme: IconThemeData(color: Color(iconColor)),
       ),
-      bottomAppBarColor: Color(appBarBackgroundDarkColor),
+      bottomAppBarTheme: BottomAppBarTheme(
+        color: Color(scaffoldBackgroundDarkColor),
+        elevation: 100,
+      ),
       scaffoldBackgroundColor: Color(scaffoldBackgroundDarkColor),
       cardTheme: CardTheme(color: Color(cardBackgroundDarkColor)),
     );
 
 const decorationImageKey = "decorationImage";
-String get decorationImage => themeBox.get(decorationImageKey, defaultValue: "");
+String get decorationImage => themeBox.get(decorationImageKey,
+    defaultValue: "assets/ba/${tomatoCat[decorationImageKey]}");
 
 Map<String, int> get colors => {
       // "自定义": 0xFF4BB0A0,

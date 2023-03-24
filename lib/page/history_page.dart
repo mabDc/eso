@@ -198,6 +198,7 @@ class HistoryPage2 extends StatelessWidget {
         invokeTap(ChapterPage(
             searchItem: item, fromHistory: true, key: Key(item.id.toString())));
       },
+      onLongPress: () => provider.checkOne(item.id),
       child: Container(
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -303,7 +304,7 @@ class HistoryPage2 extends StatelessWidget {
               fontSize: 11,
               color: selected
                   ? Theme.of(context).cardColor
-                  : Theme.of(context).textTheme.bodyText1.color,
+                  : Theme.of(context).textTheme.bodyLarge.color,
             ),
           ),
         ),

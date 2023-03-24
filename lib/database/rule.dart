@@ -319,6 +319,34 @@ class Rule {
       json = jsonZYPlayer(json["key"], json["name"], json["api"]);
     }
 
+    var discoverUrl2 = "${json['discoverUrl'] ?? defaultRule.discoverUrl}";
+    var group2 = json['group'] ?? defaultRule.group;
+    if (json['discoverMoreKeys'] != null) {
+      group2 = "discoverMoreKeys;$group2";
+
+      discoverUrl2 = """@js:
+var discoverMoreKeys = ${json['discoverMoreKeys']};
+
+var r = [];
+var pageIndex = 0;
+for(var list of discoverMoreKeys.list){
+  var filter = list.requestFilters[0];
+  for(var item of filter.items){
+    var params = {};
+    params.filters = {};
+    params.pageIndex = pageIndex;
+    params.filters[filter.key] = item.value;
+
+    var url = ${discoverUrl2.replaceFirst("@js:", "")};
+
+    r.push(`\${list.title}::\${item.title}::\${JSON.stringify(url)}`)
+  }
+  pageIndex++;
+}
+r
+""";
+    }
+
     id = json['id'] ?? defaultRule.id;
     createTime = json['createTime'] ?? defaultRule.createTime;
     modifiedTime = json['modifiedTime'] ?? defaultRule.modifiedTime;
@@ -327,7 +355,7 @@ class Rule {
     postScript = json['postScript'] ?? defaultRule.postScript;
     name = json['name'] ?? defaultRule.name;
     host = json['host'] ?? defaultRule.host;
-    group = json['group'] ?? defaultRule.group;
+    group = group2;
     contentType = json['contentType'] ?? defaultRule.contentType;
     sort = json['sort'] ?? defaultRule.sort;
     viewStyle = json['viewStyle'] ?? 0;
@@ -335,7 +363,7 @@ class Rule {
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
     userAgent = json['userAgent'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
-    discoverUrl = json['discoverUrl'] ?? defaultRule.discoverUrl;
+    discoverUrl = discoverUrl2;
     discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
     discoverItems = json['discoverItems'] ?? defaultRule.discoverItems;
     discoverList = json['discoverList'] ?? defaultRule.discoverList;

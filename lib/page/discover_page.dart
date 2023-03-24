@@ -69,6 +69,8 @@ class DiscoverPage extends StatefulWidget {
   _DiscoverPageState createState() => _DiscoverPageState();
 }
 
+EditSourceProvider editSourceProviderTemp;
+
 class _DiscoverPageState extends State<DiscoverPage> {
   Widget _page;
   EditSourceProvider __provider;
@@ -95,6 +97,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   void dispose() {
     __provider?.dispose();
+    editSourceProviderTemp = null;
     super.dispose();
   }
 
@@ -153,7 +156,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 ),
                 Text(
                   "语雀",
-                  style: TextStyle(backgroundColor: Theme.of(context).primaryColor),
+                  style: TextStyle(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      color: Colors.white),
                 ),
               ],
             ),
@@ -194,6 +199,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             style: TextStyle(
               backgroundColor: Theme.of(context).primaryColor,
               fontSize: 12,
+              color: Colors.white,
             ),
           ),
         ],
@@ -218,6 +224,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             style: TextStyle(
               backgroundColor: Theme.of(context).primaryColor,
               fontSize: 12,
+              color: Colors.white,
             ),
           ),
         ],
@@ -229,7 +236,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     return ChangeNotifierProvider.value(
       value: EditSourceProvider(type: 2),
       builder: (BuildContext context, _) {
-        final provider = Provider.of<EditSourceProvider>(context, listen: false);
+        final provider = Provider.of<EditSourceProvider>(context, listen: true);
         return Container(
           decoration: globalDecoration,
           child: Scaffold(
@@ -269,8 +276,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ),
             body: Consumer<EditSourceProvider>(
               builder: (context, EditSourceProvider provider, _) {
+                if (editSourceProviderTemp == null) {
+                  editSourceProviderTemp = provider;
+                }
                 if (__provider == null) {
                   __provider = provider;
+
                   provider.ruleContentType = _lastContextType;
                 }
                 if (provider.isLoading) {
@@ -281,7 +292,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     ],
                   );
                 }
-        
+
                 final box = Hive.box<int>(EditSourceProvider.unlock_hidden_functions);
                 int extCount = 1;
                 final extW = <Widget>[];
@@ -303,7 +314,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   extW.add(InkWell(
                       onTap: () => invokeTap(LinyuanPage()), child: _buildLinyuan()));
                 }
-        
+
                 final _listView = ListView.builder(
                   itemCount: provider.rules.length + extCount,
                   physics: BouncingScrollPhysics(),

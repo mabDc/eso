@@ -68,7 +68,7 @@ class AnalyzerWebview implements Analyzer {
     await webview.navigate(url);
     Future.delayed(Duration(seconds: 15)).then((value) {
       if (c.isCompleted) return;
-      c.completeError("执行webview规则超过10秒 加载超时");
+      c.completeError("执行webview规则超过15秒 加载超时");
     });
     try {
       return await c.future;

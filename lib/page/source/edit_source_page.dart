@@ -107,11 +107,15 @@ class _EditSourcePageState extends State<EditSourcePage> {
                     } else if (value == MenuEditSource.many_export) {
                       final text = RuleCompress.manyCompass(rules);
                       Utils.startPageWait(
-                          context,
-                          SharePage(
-                              text: text,
-                              addInfo:
-                                  "规则数量：${rules.length}\n名称分别为：${rules.map((rule) => rule.name).join("、")}"));
+                        context,
+                        SharePage(
+                            fileName: rules.length < 3
+                                ? rules.map((rule) => rule.name).join("和")
+                                : rules.first.name + "等共${rules.length}条",
+                            text: text,
+                            addInfo:
+                                "规则数量：${rules.length}\n名称分别为：${rules.map((rule) => rule.name).join("、")}"),
+                      );
                       // if (Platform.isWindows) {
                       //   Clipboard.setData(ClipboardData(text: text));
                       //   Utils.toast("已保存到剪贴板 ${rules.length}条规则");

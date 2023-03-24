@@ -5,18 +5,24 @@ import 'package:eso/database/rule.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:eso/utils/rule_comparess.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import '../global.dart';
+import '../utils/auto_decode_cli.dart';
 
 class UIAddRuleDialog extends StatelessWidget {
   final VoidCallback refresh;
+  final String fileContent;
+  final String fileName;
   const UIAddRuleDialog({
     Key key,
     this.refresh,
+    this.fileContent,
+    this.fileName = "未选择文件",
   }) : super(key: key);
 
   @override
@@ -24,7 +30,8 @@ class UIAddRuleDialog extends StatelessWidget {
     return AlertDialog(
       contentPadding: const EdgeInsets.all(8.0),
       content: ChangeNotifierProvider<AddRuleProvider>(
-          create: (context) => AddRuleProvider(refresh, () => Navigator.pop(context)),
+          create: (context) => AddRuleProvider(
+              refresh, () => Navigator.pop(context), fileContent, fileName),
           builder: (context, child) {
             final provider = Provider.of<AddRuleProvider>(context, listen: true);
             return Column(
@@ -135,9 +142,11 @@ class AddRuleProvider extends ChangeNotifier {
   final esoStart = RuleCompress.tag;
   final jsonStart = RegExp("\\[|\\{");
   void ruleListener() {
+    var compare = true;
     if (_importType == ImportType.file) {
       _importText = '导入文件';
-      return;
+      compare = false;
+      // return;
     }
     final s = ruleController.text.trim();
     ImportType importType = ImportType.error;
@@ -151,10 +160,21 @@ class AddRuleProvider extends ChangeNotifier {
       } catch (e) {
         Utils.toast("eso://内容格式不对");
       }
+    } else if (s.startsWith('"' + esoStart)) {
+      try {
+        final ds = RuleCompress.decompassString(jsonDecode(s));
+        ruleController.text = prettyJson(ds);
+        importType = ImportType.eso;
+      } catch (e) {
+        Utils.toast("eso://内容格式不对");
+      }
     } else if (s.startsWith(jsonStart)) {
       importType = ImportType.eso;
+    } else if (s.contains("https://netcut.cn")) {
+      _importType = ImportType.error;
+      Utils.toast("下版本支持直接导入https://netcut.cn");
     }
-    if (importType != _importType) {
+    if (compare && importType != _importType) {
       _importType = importType;
       final import = const [
         "格式不对", //0
@@ -167,8 +187,13 @@ class AddRuleProvider extends ChangeNotifier {
     }
   }
 
-  AddRuleProvider(this.refresh, this.close) {
+  AddRuleProvider(this.refresh, this.close, String fileContent, String fileName) {
     ruleController.addListener(ruleListener);
+    if (fileContent != null) {
+      _fileName = fileName;
+      handleFileContent(fileContent);
+      ruleListener();
+    }
   }
 
   void clear() {
@@ -231,26 +256,42 @@ class AddRuleProvider extends ChangeNotifier {
     //   _fileName = Utils.getFileNameAndExt(rules.path);
     //   fileContent = utf8.decode(rules.bytes);
     // }
-    final d = await CacheUtil.getCacheBasePath(true);
-    String f = await FilesystemPicker.open(
-      title: '选择规则文件',
-      rootName: d,
-      context: context,
-      rootDirectory: Directory(d),
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-      allowedExtensions: ['.json', '.txt', '.bin', ''],
-      fileTileSelectMode: FileTileSelectMode.wholeTile,
-      requestPermission: CacheUtil.requestPermission,
-    );
-    if (f == null) {
-      Utils.toast('未选取文件');
+    // final d = await CacheUtil.getCacheBasePath(true);
+    // String f = await FilesystemPicker.open(
+    //   title: '选择规则文件',
+    //   rootName: d,
+    //   context: context,
+    //   rootDirectory: Directory(d),
+    //   fsType: FilesystemType.file,
+    //   folderIconColor: Colors.teal,
+    //   allowedExtensions: ['.json', '.txt', '.bin', ''],
+    //   fileTileSelectMode: FileTileSelectMode.wholeTile,
+    //   requestPermission: CacheUtil.requestPermission,
+    // );
+    // if (f == null) {
+    //   Utils.toast('未选取文件');
+    //   return;
+    // }
+    FilePickerResult result = await FilePicker.platform
+        .pickFiles(withData: false, dialogTitle: "选择txt或者epub导入亦搜");
+    if (result == null) {
+      Utils.toast("未选择文件");
       return;
     }
-    var fileContent = File(f).readAsStringSync().trim();
+    final platformFile = result.files.first;
+    print("platformFile.path:${platformFile.path}");
+
+    var fileContent = autoReadFile(platformFile.path).trim();
     if (fileContent.startsWith(esoStart)) {
       fileContent = RuleCompress.decompassString(fileContent);
+    } else if (fileContent.startsWith('"' + esoStart) && fileContent.endsWith('"')) {
+      fileContent = fileContent.substring(1, fileContent.length - 1);
     }
+    _fileName = Utils.getFileNameAndExt(platformFile.name);
+    handleFileContent(fileContent);
+  }
+
+  void handleFileContent(String fileContent) {
     try {
       final json = jsonDecode(fileContent);
       if (json is Map) {
@@ -266,7 +307,6 @@ class AddRuleProvider extends ChangeNotifier {
         _importType = ImportType.file;
         ruleController.text = JsonEncoder.withIndent("  ").convert(_fileContent.first);
       }
-      _fileName = Utils.getFileNameAndExt(f);
       _totalFileIndex = _fileContent.length;
     } catch (e) {
       Utils.toast("文件格式不对");
@@ -318,7 +358,7 @@ class AddRuleProvider extends ChangeNotifier {
             'User-Agent':
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36'
           });
-          insertOrUpdateRule(utf8.decode(res.bodyBytes));
+          insertOrUpdateRule(autoReadBytes(res.bodyBytes));
         }();
       }
     };

@@ -195,7 +195,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       child: OutlinedButton(
         child: Text(
           pair.name,
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(fontSize: 12, color: color),
         ),
         style: ButtonStyle(
             padding: MaterialStateProperty.all(EdgeInsets.zero),
@@ -305,8 +305,12 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                       children: pairs
                           .map((pair) => buildPairButton(
                                   pair,
-                                  pair == discoverPair ? primaryColor : null,
-                                  Theme.of(context).canvasColor,
+                                  pair == discoverPair
+                                      ? Theme.of(context).cardColor
+                                      : Theme.of(context).textTheme.bodyLarge.color,
+                                  pair == discoverPair
+                                      ? primaryColor
+                                      : Theme.of(context).cardColor,
                                   pageController,
                                   index, onTap: () {
                                 _state(() => null);
@@ -345,8 +349,10 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
         final _pairsViews = pairs
             .map((pair) => buildPairButton(
                 pair,
-                pair == discoverPair ? primaryColor : null,
-                Theme.of(context).canvasColor,
+                pair == discoverPair
+                    ? Theme.of(context).cardColor
+                    : Theme.of(context).textTheme.bodyLarge.color,
+                pair == discoverPair ? primaryColor : Theme.of(context).cardColor,
                 pageController,
                 index))
             .toList();

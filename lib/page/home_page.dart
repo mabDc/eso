@@ -90,7 +90,8 @@ class _HomePageState extends State<HomePage> {
               physics: NeverScrollableScrollPhysics(), //禁止主页左右滑动
             );
             return Container(
-              decoration: globalDecoration,
+              // decoration: globalDecoration,
+              color: Theme.of(context).canvasColor,
               child: Scaffold(
                 body: Stack(
                   children: [
@@ -101,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 bottomNavigationBar: BottomAppBar(
-                  color: Theme.of(context).canvasColor,
+                  // color: Theme.of(context).canvasColor,
                   shape: CircularNotchedRectangle(),
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 5),
