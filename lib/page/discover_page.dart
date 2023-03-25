@@ -27,6 +27,7 @@ import 'package:provider/provider.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
 import '../ui/ui_add_rule_dialog.dart';
+import 'discover_waterfall_page.dart';
 import 'hidden/leshi_page.dart';
 import 'hidden/linyuan_page.dart';
 import 'hidden/schulte_grid.dart';
@@ -39,6 +40,9 @@ class DiscoverFuture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (rule.discoverUrl.startsWith("测试新发现瀑布流")) {
+      return DiscoverWaterfallPage(rule: rule);
+    }
     if (rule.discoverUrl.startsWith("测试新发现")) {
       return DiscoverNewPage(rule: rule);
     }

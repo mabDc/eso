@@ -325,7 +325,7 @@ class Rule {
       group2 = "discoverMoreKeys;$group2";
       final more = '${json['discoverMoreKeys']}';
       if (more.contains('"isWrap": true') || more.contains('"isWrap":true')) {
-        discoverUrl2 = '''测试新发现$discoverUrl2;
+        discoverUrl2 = '''测试新发现瀑布流$discoverUrl2;
 ;
 @@DiscoverRule:${more.replaceFirst('"list"', '"rules"').replaceAll('"title"', '"option"').replaceAll('"requestFilters"', '"options"')}
         ''';
