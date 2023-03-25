@@ -323,28 +323,36 @@ class Rule {
     var group2 = json['group'] ?? defaultRule.group;
     if (json['discoverMoreKeys'] != null) {
       group2 = "discoverMoreKeys;$group2";
-
-      discoverUrl2 = """@js:
-var discoverMoreKeys = ${json['discoverMoreKeys']};
-
+      final more = '${json['discoverMoreKeys']}';
+      if (more.contains('"isWrap": true') || more.contains('"isWrap":true')) {
+        discoverUrl2 = '''测试新发现$discoverUrl2;
+;
+@@DiscoverRule:${more.replaceFirst('"list"', '"rules"').replaceAll('"title"', '"option"').replaceAll('"requestFilters"', '"options"')}
+        ''';
+      } else {
+        discoverUrl2 = """@js:
+var discoverMoreKeys = $more;
+;;
 var r = [];
-var pageIndex = 0;
+var tabIndex = 0;
+var pageIndex = page;
 for(var list of discoverMoreKeys.list){
   var filter = list.requestFilters[0];
   for(var item of filter.items){
-    var params = {};
-    params.filters = {};
-    params.pageIndex = pageIndex;
-    params.filters[filter.key] = item.value;
-
+    var params = {
+      tabIndex,
+      pageIndex,
+      filters: {tabIndex, pageIndex, [filter.key]: item.value}
+    };
     var url = ${discoverUrl2.replaceFirst("@js:", "")};
 
-    r.push(`\${list.title}::\${item.title}::\${JSON.stringify(url)}`)
+    r.push(`\${list.title}::\${item.title}::\${typeof(url) == 'string' ? url : JSON.stringify(url)}`)
   }
-  pageIndex++;
+  tabIndex++;
 }
-r
+r;
 """;
+      }
     }
 
     id = json['id'] ?? defaultRule.id;
