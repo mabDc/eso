@@ -30,6 +30,7 @@ import '../ui/ui_add_rule_dialog.dart';
 import 'hidden/leshi_page.dart';
 import 'hidden/linyuan_page.dart';
 import 'hidden/schulte_grid.dart';
+import 'share_page.dart';
 import 'source/edit_rule_page.dart';
 
 class DiscoverFuture extends StatelessWidget {
@@ -450,12 +451,17 @@ class _DiscoverPageState extends State<DiscoverPage> {
         items: discoverSourceMenus,
         onSelect: (value) {
           switch (value) {
-            case MenuDiscoverSource.copy:
-              Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
-              Utils.toast("已复制 ${rule.name}");
-              break;
+            // case MenuDiscoverSource.copy:
+            //   Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
+            //   Utils.toast("已复制 ${rule.name}");
+            //   break;
             case MenuDiscoverSource.share:
-              Share.share(RuleCompress.compass(rule));
+              invokeTap(SharePage(
+                text: RuleCompress.compass(rule),
+                addInfo: "亦搜 eso 规则分享 ${rule.name}",
+                fileName: rule.name,
+              ));
+              // Share.share(RuleCompress.compass(rule));
               // FlutterShare.share(
               //   title: '亦搜 eso',
               //   text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),

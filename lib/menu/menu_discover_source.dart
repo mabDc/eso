@@ -8,7 +8,7 @@ enum MenuDiscoverSource {
   edit,
   delete,
   top,
-  copy,
+  // copy,
   share,
 }
 
@@ -31,12 +31,12 @@ List<MenuItem<MenuDiscoverSource>> discoverSourceMenus = [
     value: MenuDiscoverSource.delete,
     color: Global.primaryColor,
   ),
-  MenuItem<MenuDiscoverSource>(
-    text: '复制',
-    icon: OMIcons.fileCopy,
-    value: MenuDiscoverSource.copy,
-    color: Global.primaryColor,
-  ),
+  // MenuItem<MenuDiscoverSource>(
+  //   text: '复制',
+  //   icon: OMIcons.fileCopy,
+  //   value: MenuDiscoverSource.copy,
+  //   color: Global.primaryColor,
+  // ),
   MenuItem<MenuDiscoverSource>(
     text: '分享',
     icon: FIcons.share_2,

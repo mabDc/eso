@@ -26,6 +26,7 @@ class SharePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final share = useTextEditingController(text: text);
+    share.text = text;
     final netcut = useTextEditingController(text: Uuid().v4());
     String id;
     return Container(

@@ -7,6 +7,7 @@ import 'package:eso/main.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_edit_rule.dart';
 import 'package:eso/eso_theme.dart';
+import 'package:eso/page/share_page.dart';
 import 'package:eso/page/source/debug_rule_page.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils.dart';
@@ -229,7 +230,12 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
               icon: Icon(FIcons.share_2),
               tooltip: "分享",
               onPressed: () {
-                Share.share(RuleCompress.compass(rule));
+                invokeTap(SharePage(
+                  text: RuleCompress.compass(rule),
+                  addInfo: "亦搜 eso 规则分享 ${rule.name}",
+                  fileName: rule.name,
+                ));
+                // Share.share(RuleCompress.compass(rule));
                 // FlutterShare.share(
                 //   title: '亦搜 eso',
                 //   text: RuleCompress.compass(rule), //jsonEncode(rule.toJson()),
@@ -890,23 +896,23 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           case MenuEditRule.yiciyuan:
             _loadFromClipBoard(context, true);
             break;
-          case MenuEditRule.copy:
-            Clipboard.setData(ClipboardData(text: RuleCompress.compass(rule)));
-            Utils.toast("已保存到剪贴板");
-            break;
-          case MenuEditRule.copy_origin:
-            Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
-            Utils.toast("已保存到剪贴板");
-            break;
-          case MenuEditRule.share_origin:
-            Share.share(jsonEncode(rule.toJson()));
-            // FlutterShare.share(
-            //   title: '亦搜 eso',
-            //   text: jsonEncode(rule.toJson()),
-            //   //linkUrl: '${searchItem.url}',
-            //   chooserTitle: '选择分享的应用',
-            // );
-            break;
+          // case MenuEditRule.copy:
+          //   Clipboard.setData(ClipboardData(text: RuleCompress.compass(rule)));
+          //   Utils.toast("已保存到剪贴板");
+          //   break;
+          // case MenuEditRule.copy_origin:
+          //   Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
+          //   Utils.toast("已保存到剪贴板");
+          //   break;
+          // case MenuEditRule.share_origin:
+          //   Share.share(jsonEncode(rule.toJson()));
+          //   // FlutterShare.share(
+          //   //   title: '亦搜 eso',
+          //   //   text: jsonEncode(rule.toJson()),
+          //   //   //linkUrl: '${searchItem.url}',
+          //   //   chooserTitle: '选择分享的应用',
+          //   // );
+          //   break;
           case MenuEditRule.preview:
             // Navigator.of(context).push(
             //   MaterialPageRoute(
