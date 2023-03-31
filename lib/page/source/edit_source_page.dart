@@ -103,7 +103,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                       alert(
                         value == MenuEditSource.add_group ? Text('添加分组') : Text('移除分组'),
                         TextField(onChanged: (value) => group = value),
-                        () => provider.handleSelect(rules, value, group),
+                        () => provider.handleSelect(rules, value, group: group),
                       );
                     } else if (value == MenuEditSource.many_export) {
                       final text = RuleCompress.manyCompass(rules);
@@ -179,7 +179,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   itemCount: provider.rules.length,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (BuildContext context, int index) {
-                    return _buildItem(context, provider, provider.rules[index]);
+                    return _buildItem(context, provider, provider.rules[index], index);
                   },
                 );
               },
@@ -244,7 +244,7 @@ class _EditSourcePageState extends State<EditSourcePage> {
         ),
       );
 
-  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule) {
+  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule, int index) {
     final _theme = Theme.of(context);
     final _leadColor = () {
       switch (rule.contentType) {
@@ -417,18 +417,38 @@ class _EditSourcePageState extends State<EditSourcePage> {
                 value: MenuEditSource.delete_this,
                 color: Global.primaryColor,
               ),
+              MenuItem(
+                text: '副本',
+                icon: OMIcons.fileCopy,
+                value: MenuEditSource.replica,
+                color: Global.primaryColor,
+              ),
+              MenuItem(
+                text: '分享',
+                icon: OMIcons.share,
+                value: MenuEditSource.this_export,
+                color: Global.primaryColor,
+              ),
             ],
             onSelect: (value) {
-              if (value == MenuEditSource.delete_this) {
+              if (value == MenuEditSource.this_export) {
+                Utils.startPageWait(
+                    context,
+                    SharePage(
+                      text: RuleCompress.compass(rule),
+                      addInfo: "亦搜 eso 规则分享 ${rule.name}",
+                      fileName: rule.name,
+                    ));
+              } else if (value == MenuEditSource.delete_this) {
                 alert(
                   Text("警告(不可恢复)"),
                   Text("删除选中${rule.name}条规则"),
-                  () => provider.handleSelect([rule], value),
+                  () => provider.handleSelect([rule], value, index: index),
                 );
               } else if (value == MenuEditSource.preview) {
                 preview(rule);
               } else {
-                provider.handleSelect([rule], value);
+                provider.handleSelect([rule], value, index: index);
               }
             },
           ),

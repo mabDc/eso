@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
+import 'package:eso/database/rule_dao.dart';
 import 'package:eso/main.dart';
 import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_discover_source.dart';
@@ -426,6 +427,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
         : null;
     Widget _child = ListTile(
       onTap: () => invokeTap(DiscoverFuture(rule: rule, key: Key(rule.id.toString()))),
+      onLongPress: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
+          .whenComplete(() => refreshData(provider)),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
@@ -505,6 +509,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
             //   Clipboard.setData(ClipboardData(text: jsonEncode(rule.toJson())));
             //   Utils.toast("已复制 ${rule.name}");
             //   break;
+            case MenuDiscoverSource.replica:
+              Global.ruleDao.insertOrUpdateRule(rule.replica());
+              refreshData(provider);
+              Utils.toast("创建副本成功 ${rule.name}");
+              break;
             case MenuDiscoverSource.share:
               invokeTap(SharePage(
                 text: RuleCompress.compass(rule),

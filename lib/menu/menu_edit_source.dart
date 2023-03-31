@@ -21,6 +21,8 @@ enum MenuEditSource {
   delete_this,
   preview,
   many_export,
+  this_export,
+  replica,
 }
 
 List<MenuItem<MenuEditSource>> editSourceMenus = [

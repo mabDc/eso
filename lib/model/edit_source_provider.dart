@@ -80,7 +80,8 @@ class EditSourceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void handleSelect(List<Rule> rules, MenuEditSource type, [String group]) async {
+  void handleSelect(List<Rule> rules, MenuEditSource type,
+      {int index, String group}) async {
     if (_isLoading) return;
     if (type != MenuEditSource.all && (rules == null || rules.isEmpty)) return;
     bool updateFlag = false;
@@ -151,6 +152,14 @@ class EditSourceProvider with ChangeNotifier {
         _rules.remove(rule);
         _isLoading = true;
         await Global.ruleDao.deleteRule(rule);
+        _isLoading = false;
+        notifyListeners();
+        return;
+      case MenuEditSource.replica:
+        final rule = rules.first.replica();
+        _rules.insert(index + 1, rule);
+        _isLoading = true;
+        await Global.ruleDao.insertOrUpdateRule(rule);
         _isLoading = false;
         notifyListeners();
         return;
