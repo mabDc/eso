@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
@@ -270,24 +271,33 @@ class _EditSourcePageState extends State<EditSourcePage> {
             onChanged: (value) => provider.toggleSelect(rule.id, value),
           ),
           SizedBox(width: 8),
-          Container(
-            height: 28,
-            width: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: _leadColor,
-              shape: BoxShape.circle,
-              border: _leadBorder,
-            ),
-            child: Text(
-              rule.ruleTypeName,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                fontFamily: ESOTheme.staticFontFamily,
-              ),
-            ),
-          ),
+          rule.icon != null && rule.icon.isNotEmpty
+              ? Container(
+                  height: 28,
+                  width: 28,
+                  child: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(
+                    "${rule.icon}",
+                  )),
+                )
+              : Container(
+                  height: 28,
+                  width: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: _leadColor,
+                    shape: BoxShape.circle,
+                    border: _leadBorder,
+                  ),
+                  child: Text(
+                    rule.ruleTypeName,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: ESOTheme.staticFontFamily,
+                    ),
+                  ),
+                ),
           SizedBox(width: 8),
           Expanded(
             child: Column(

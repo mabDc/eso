@@ -56,7 +56,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 8,
+      version: 9,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
@@ -71,7 +71,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `enableUpload` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `viewStyle` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `loginUrl` TEXT, `cookies` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverNextUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchNextUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterUrl` TEXT, `chapterNextUrl` TEXT, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentNextUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Rule` (`id` TEXT, `createTime` INTEGER, `modifiedTime` INTEGER, `enableUpload` INTEGER, `author` TEXT, `postScript` TEXT, `name` TEXT, `host` TEXT, `icon` TEXT, `contentType` INTEGER, `group` TEXT, `sort` INTEGER, `viewStyle` INTEGER, `useCryptoJS` INTEGER, `loadJs` TEXT, `userAgent` TEXT, `loginUrl` TEXT, `cookies` TEXT, `enableDiscover` INTEGER, `discoverUrl` TEXT, `discoverNextUrl` TEXT, `discoverItems` TEXT, `discoverList` TEXT, `discoverTags` TEXT, `discoverName` TEXT, `discoverCover` TEXT, `discoverAuthor` TEXT, `discoverChapter` TEXT, `discoverDescription` TEXT, `discoverResult` TEXT, `enableSearch` INTEGER, `searchUrl` TEXT, `searchNextUrl` TEXT, `searchItems` TEXT, `searchList` TEXT, `searchTags` TEXT, `searchName` TEXT, `searchCover` TEXT, `searchAuthor` TEXT, `searchChapter` TEXT, `searchDescription` TEXT, `searchResult` TEXT, `enableMultiRoads` INTEGER, `chapterUrl` TEXT, `chapterNextUrl` TEXT, `chapterRoads` TEXT, `chapterRoadName` TEXT, `chapterItems` TEXT, `chapterList` TEXT, `chapterName` TEXT, `chapterCover` TEXT, `chapterLock` TEXT, `chapterTime` TEXT, `chapterResult` TEXT, `contentUrl` TEXT, `contentNextUrl` TEXT, `contentItems` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -101,6 +101,7 @@ class _$RuleDao extends RuleDao {
                   'postScript': item.postScript,
                   'name': item.name,
                   'host': item.host,
+                  'icon': item.icon,
                   'contentType': item.contentType,
                   'group': item.group,
                   'sort': item.sort,
@@ -169,6 +170,7 @@ class _$RuleDao extends RuleDao {
                   'postScript': item.postScript,
                   'name': item.name,
                   'host': item.host,
+                  'icon': item.icon,
                   'contentType': item.contentType,
                   'group': item.group,
                   'sort': item.sort,
@@ -238,6 +240,7 @@ class _$RuleDao extends RuleDao {
         row['author'],
         row['name'],
         row['host'],
+        row['icon'],
         row['group'],
         row['postScript'],
         row['contentType'],

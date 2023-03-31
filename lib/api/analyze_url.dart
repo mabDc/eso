@@ -65,15 +65,29 @@ class AnalyzeUrl {
         url = jsonDecode(url);
       }
     }
+
+    // 修改headers生成办法
+    var headers = <String, String>{
+      'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36 Edg/98.0.1108.50',
+    };
+    if (rule.cookies.trim().isNotEmpty) {
+      headers["cookie"] = rule.cookies;
+    }
+    if (rule.userAgent.trim().isNotEmpty) {
+      final ua = rule.userAgent.trim();
+      if (ua.startsWith("{") && ua.endsWith("}")) {
+        headers.addAll((jsonDecode(ua) as Map)
+            .map((k, v) => MapEntry(k.toString().toLowerCase(), v)));
+      } else {
+        headers["user-agent"] = ua;
+      }
+    }
+
     if (url is Map) {
       Map<String, dynamic> r = url.map((k, v) => MapEntry(k.toString().toLowerCase(), v));
 
-      Map<String, String> headers = {
-        'user-agent': rule.userAgent.trim().isNotEmpty
-            ? rule.userAgent
-            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36 Edg/98.0.1108.50',
-        "cookie": rule.cookies,
-      }..addAll(Map<String, String>.from(r['headers'] ?? Map()));
+      headers.addAll(Map<String, String>.from(r['headers'] ?? Map()));
 
       dynamic body = r['body'];
       dynamic method = r['method']?.toString()?.toLowerCase();
@@ -127,12 +141,7 @@ class AnalyzeUrl {
       }
       throw ('error parser url rule');
     } else {
-      return http.get(urlFix("$url", rule.host), headers: {
-        'user-agent': rule.userAgent.trim().isNotEmpty
-            ? rule.userAgent
-            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36 Edg/98.0.1108.50',
-        "cookie": rule.cookies,
-      });
+      return http.get(urlFix("$url", rule.host), headers: headers);
     }
   }
 

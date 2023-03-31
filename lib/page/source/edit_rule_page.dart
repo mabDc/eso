@@ -562,6 +562,12 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           maxLines: 1,
         ),
         _buildEditText(
+          rule.icon,
+          '小标志(icon)',
+          (text) => rule.icon = text,
+          maxLines: 1,
+        ),
+        _buildEditText(
           rule.group,
           '分组(group)',
           (text) => rule.group = text,
@@ -580,7 +586,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
         ),
         _buildEditText(
           rule.userAgent,
-          '用户代理字符串(userAgent)',
+          '用户代理字符串(userAgent)或请求头(httpHeaders)',
           (text) => rule.userAgent = text,
         ),
         _buildEditText(

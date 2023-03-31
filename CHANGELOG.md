@@ -1,3 +1,49 @@
+### 2023.3.31
+- 修改请求中headers生成办法，cookies字段规则优先级最小，
+   userAgent优先级次之，同名时覆盖前者，
+   地址规则优先级最高，同名覆盖前二者，
+   不重复时将可以同时启用。
+   举例 cookies规则填a=cookies
+         若此时userAgent规则填{"Cookie":"a=userAgent",}，
+         将生效{"url":"x",{"Cookie":"a=userAgent"}}
+      如果请求规则使用{"url":"x",{"Cookie":"a=url"}}则前面都会被覆盖
+- add 特性 为规则字段`用户代理字符串（userAgent）`
+   增加`httpHeaders`功能，自适应判断，规则形如
+   `Mozilla/5.0 (Windows NT 10.0; Win64; x64)`
+   字符串时为userAgent，而json时为httpHeaders，形如
+   ```{
+      "Referer":"xx",
+      "Cookie":"yy"
+   }```
+   - 规则优先级 小于地址规则中的headers
+- add icon 字段
+- 增加兼容性
+- `测试新发现瀑布流`用标识符`@@DiscoverRule:`分离js和json部分
+   整体规则形如@js:可有可无
+   ```测试新发现瀑布流
+   [@js:]"https:x"+rules.map((rule) => rule.key + "=" + rule.value).join("&")
+      // 瀑布流结构有差异 增加key字段
+      // 自动生成代码
+      // https://json.im/json2model/json2Dart.html
+   @@DiscoverRule:
+   {
+       "rules": [
+           {
+               "name": "标签",
+               "key": "不需要显示",
+               "option": "选中的标签",
+               "value": "选中的值",
+               "options": [
+                   {
+                       "option": "热血",
+                       "value": "/tags/6"
+                   }
+               ]
+           }
+       ]
+   }
+   ```
+
 ### 2023.3.24
 - fix 规则某些问题
 - fix 一些已知bug

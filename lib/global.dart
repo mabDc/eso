@@ -160,7 +160,13 @@ class Global with ChangeNotifier {
       factory.setDatabasesPathOrNull(
           await CacheUtil(backup: true, basePath: "database").cacheDir());
     }
-    final _migrations = [migration4to5, migration5to6, migration6to7, migration7to8];
+    final _migrations = [
+      migration4to5,
+      migration5to6,
+      migration6to7,
+      migration7to8,
+      migration8to9,
+    ];
 
     final _database = await $FloorAppDatabase
         .databaseBuilder('eso_database.db')

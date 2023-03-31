@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_from_rule.dart';
 import 'package:eso/database/rule.dart';
@@ -24,6 +25,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 import 'package:provider/provider.dart';
+import '../eso_theme.dart';
 import '../fonticons_icons.dart';
 import '../global.dart';
 import '../ui/ui_add_rule_dialog.dart';
@@ -142,7 +144,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           width: 100,
           padding: EdgeInsets.all(10),
           child: CircleAvatar(
-            backgroundImage: NetworkImage(
+            backgroundImage: CachedNetworkImageProvider(
                 "https://cdn.nlark.com/yuque/0/2021/png/12924434/1628124182247-avatar/48d73035-8ee5-44ac-bbb2-0583092a4985.png?x-oss-process=image%2Fresize%2Cm_fill%2Cw_328%2Ch_328%2Fformat%2Cpng"),
           ),
         ),
@@ -406,12 +408,56 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Widget _buildItem(EditSourceProvider provider, int index) {
     final rule = provider.rules[index];
+    final _theme = Theme.of(context);
+    final _leadColor = () {
+      switch (rule.contentType) {
+        case API.MANGA:
+          return _theme.primaryColorLight;
+        case API.VIDEO:
+          return _theme.primaryColor;
+        case API.AUDIO:
+          return _theme.primaryColorDark;
+        default:
+          return Colors.white;
+      }
+    }();
+    final _leadBorder = rule.contentType == API.NOVEL
+        ? Border.all(color: _theme.primaryColor, width: 1.0)
+        : null;
     Widget _child = ListTile(
       onTap: () => invokeTap(DiscoverFuture(rule: rule, key: Key(rule.id.toString()))),
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
         children: <Widget>[
+          rule.icon != null && rule.icon.isNotEmpty
+              ? Container(
+                  height: 28,
+                  width: 28,
+                  child: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(
+                    "${rule.icon}",
+                  )),
+                )
+              : Container(
+                  height: 28,
+                  width: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: _leadColor,
+                    shape: BoxShape.circle,
+                    border: _leadBorder,
+                  ),
+                  child: Text(
+                    rule.ruleTypeName,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: ESOTheme.staticFontFamily,
+                    ),
+                  ),
+                ),
+          SizedBox(width: 5),
           Flexible(
             child: Text(
               "${rule.name}",

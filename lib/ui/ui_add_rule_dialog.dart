@@ -392,7 +392,7 @@ class AddRuleProvider extends ChangeNotifier {
       close();
       refresh();
     } catch (e) {
-      Utils.toast("格式不对");
+      Utils.toast("格式不对$e");
     }
   }
 }

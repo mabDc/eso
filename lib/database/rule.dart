@@ -21,6 +21,7 @@ class Rule {
   String postScript = '';
   String name = ''; //站点名
   String host = ''; //主机
+  String icon = ''; //icon
   int contentType = API.MANGA; //站点类型
   String group = ''; //分组名
   int sort = 0; //排序值
@@ -96,6 +97,7 @@ class Rule {
     author = '';
     name = '';
     host = '';
+    icon = '';
     group = '';
     postScript = '';
     contentType = API.MANGA;
@@ -167,6 +169,7 @@ class Rule {
     this.author,
     this.name,
     this.host,
+    this.icon,
     this.group,
     this.postScript,
     this.contentType,
@@ -246,6 +249,7 @@ class Rule {
         "postScript": "https://github.com/cuiocean/ZY-Player",
         "name": cast(name, "麻花"),
         "host": cast(api, ""),
+        "icon": "",
         "group": "ZY-Player",
         "contentType": 2,
         "sort": 0,
@@ -363,13 +367,14 @@ r;
     postScript = json['postScript'] ?? defaultRule.postScript;
     name = json['name'] ?? defaultRule.name;
     host = json['host'] ?? defaultRule.host;
+    icon = json['icon'] ?? defaultRule.icon;
     group = group2;
     contentType = json['contentType'] ?? defaultRule.contentType;
     sort = json['sort'] ?? defaultRule.sort;
     viewStyle = json['viewStyle'] ?? 0;
     useCryptoJS = json['useCryptoJS'] ?? defaultRule.useCryptoJS;
     loadJs = json['loadJs'] ?? defaultRule.loadJs;
-    userAgent = json['userAgent'] ?? defaultRule.userAgent;
+    userAgent = json['userAgent'] ?? json['httpHeaders'] ?? defaultRule.userAgent;
     enableDiscover = json['enableDiscover'] ?? defaultRule.enableDiscover;
     discoverUrl = discoverUrl2;
     discoverNextUrl = json['discoverNextUrl'] ?? defaultRule.discoverNextUrl;
@@ -453,6 +458,7 @@ r;
     group = json['bookSourceGroup'] ?? defaultRule.group;
     name = json['bookSourceName'] ?? defaultRule.name;
     host = json['bookSourceUrl'] ?? defaultRule.host;
+    icon = json['icon'] ?? defaultRule.icon;
     contentType = json['contentType'] ?? json['bookSourceType'] == 'CARTOON'
         ? API.MANGA
         : json['bookSourceType'] == ''
@@ -527,6 +533,7 @@ r;
         'postScript': postScript,
         'name': name,
         'host': host,
+        'icon': icon,
         'group': group,
         'contentType': contentType,
         'sort': sort,
