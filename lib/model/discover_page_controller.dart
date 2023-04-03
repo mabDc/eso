@@ -22,8 +22,8 @@ class DiscoverPageController with ChangeNotifier {
   bool get showSearchField => _showSearchField;
   bool _showSearchField;
 
-  bool get showFilter => _showFilter;
-  bool _showFilter;
+  // bool get showFilter => _showFilter;
+  // bool _showFilter;
 
   TextEditingController get queryController => _queryController;
   TextEditingController _queryController;
@@ -31,21 +31,51 @@ class DiscoverPageController with ChangeNotifier {
   List<ListDataItem> get items => _items;
   List<ListDataItem> _items;
 
-  ListDataItem get searchItem => _items.last;
+  Map<String, ListDataItem> get searchItems => _searchItems;
+  Map<String, ListDataItem> _searchItems;
 
-  DiscoverPageController({
-    @required this.originTag,
-    @required this.discoverMap,
-    @required String origin,
-  }) {
+  ListDataItem get searchItem => _searchItems[_selectOption];
+  String get selectOption => _selectOption;
+  String _selectOption;
+  final Map<String, String> searchOptions = {};
+
+  set selectOption(String key) {
+    if (key != _selectOption) {
+      _selectOption = key;
+      if (searchItem.items?.isEmpty ?? false) {
+        fetchData(searchItem, needShowLoading: true);
+      } else {
+        notifyListeners();
+      }
+    }
+  }
+
+  DiscoverPageController(
+      {@required this.originTag,
+      @required this.discoverMap,
+      @required String origin,
+      @required String searchUrl}) {
     _discoverParams = Map<String, DiscoverPair>();
     discoverMap.forEach((map) {
       _discoverParams[map.name] = map.pairs.first;
     });
+    if (searchUrl.trimLeft().startsWith("@js:") || !searchUrl.contains("::")) {
+      searchOptions[""] = searchUrl;
+    } else {
+      for (final search in searchUrl.split(RegExp(r"\n\s*|&&"))) {
+        final r = search.split("::");
+        if (r.length == 1) {
+          searchOptions[""] = search;
+        } else {
+          searchOptions[r[0]] = r[1];
+        }
+      }
+    }
+    _selectOption = searchOptions.keys.first;
     _title = origin;
     _showSearchResult = false;
     _showSearchField = false;
-    _showFilter = false;
+    // _showFilter = false;
     _queryController = TextEditingController();
     _queryController.addListener(() => notifyListeners());
     APIFromRUle.clearNextUrl();
@@ -56,7 +86,7 @@ class DiscoverPageController with ChangeNotifier {
   void initItems() {
     if (_items != null) return;
     _items = <ListDataItem>[];
-    final _addItem = (DiscoverPair element) {
+    final _addItem = (DiscoverPair element, [String key = null]) {
       var item = ListDataItem();
       item.pair = element;
       item.controller = ScrollController();
@@ -69,14 +99,22 @@ class DiscoverPageController with ChangeNotifier {
       item.page = 1;
       item.isLoading = false;
       item.items = [];
-      _items.add(item);
+      if (key != null) {
+        _searchItems[key] = item;
+      } else {
+        _items.add(item);
+      }
     };
 
     discoverMap.forEach((element) {
       _addItem(element.pairs.first);
     });
 
-    _addItem(null); // 加一个空的用于搜索
+    // _addItem(null); // 加一个空的用于搜索
+    _searchItems = {};
+    for (final key in searchOptions.keys) {
+      _addItem(null, key);
+    }
   }
 
   void selectDiscoverPair(String name, DiscoverPair pair) {
@@ -116,7 +154,8 @@ class DiscoverPageController with ChangeNotifier {
     List<SearchItem> newItems;
     try {
       if (_showSearchResult) {
-        newItems = await APIManager.search(originTag, _queryController.text, item.page);
+        newItems = await APIManager.search(originTag,
+            'url@${searchOptions[_selectOption]}@url${_queryController.text}', item.page);
       } else {
         newItems = await APIManager.discover(
             originTag, {discoverMap.first.name: item.pair}, item.page);
@@ -143,6 +182,16 @@ class DiscoverPageController with ChangeNotifier {
   //   return fetchData();
   // }
 
+  submitSearch() async {
+    _showSearchResult = true;
+    var item = searchItem;
+    item.page = 1;
+    searchItems.forEach((_, item) {
+      item.items?.clear();
+    });
+    return await fetchData(item, goto: true);
+  }
+
   search([int page = 1, bool goto = false]) async {
     _showSearchResult = true;
     var item = searchItem;
@@ -163,16 +212,16 @@ class DiscoverPageController with ChangeNotifier {
   }
 
   void toggleSearching() {
-    queryController.text = '';
+    // queryController.text = '';
     _showSearchField = !_showSearchField;
-    _showFilter = false;
+    // _showFilter = false;
     notifyListeners();
   }
 
-  void toggleDiscoverFilter() {
-    _showFilter = !_showFilter;
-    notifyListeners();
-  }
+  // void toggleDiscoverFilter() {
+  //   // _showFilter = !_showFilter;
+  //   notifyListeners();
+  // }
 
   void clearInputText() {
     queryController.text = '';

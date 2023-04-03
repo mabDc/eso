@@ -23,6 +23,7 @@ enum MenuEditSource {
   many_export,
   this_export,
   replica,
+  delete_blank,
 }
 
 List<MenuItem<MenuEditSource>> editSourceMenus = [
@@ -96,6 +97,12 @@ List<MenuItem<MenuEditSource>> editSourceMenus = [
     text: '删除所选',
     icon: OMIcons.deleteSweep,
     value: MenuEditSource.delete,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuEditSource>(
+    text: '删除空白',
+    icon: OMIcons.deleteForever,
+    value: MenuEditSource.delete_blank,
     color: Global.primaryColor,
   ),
   MenuItem<MenuEditSource>(

@@ -122,7 +122,12 @@ class APIFromRUle implements API {
   Future<List<SearchItem>> search(String query, int page, int pageSize) async {
     final hasNextUrlRule = rule.searchNextUrl != null && rule.searchNextUrl.isNotEmpty;
     String searchRule;
-    final url = rule.searchUrl;
+    var url = rule.searchUrl;
+    final re = RegExp("url@.+@url", dotAll: true).stringMatch(query);
+    if (re != null && re.isNotEmpty) {
+      url = re.substring("url@".length, re.length - "@url".length);
+      query = query.substring(re.length);
+    }
     if (page == 1) {
       searchRule = url;
     } else if (hasNextUrlRule) {

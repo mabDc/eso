@@ -1,3 +1,12 @@
+### 2023.4.2
+- add 支持搜索规则多种类型，写起来和发现一样，用起来也和发现一样，形如
+   ```
+   书名::http://x.com/?key={{key}}&type=bookname
+   作者::http://x.com/?key={{key}}&type=zuozhe
+   ```
+- 增加删除空白规则功能，在规则管理->更多中，判定条件是地址为空或名称为空
+
+
 ### 2023.3.31
 - add 规则增加副本按钮，以规则为蓝本添加副本
 - add 发现页面规则长按进入编辑界面
@@ -14,7 +23,8 @@
    增加`httpHeaders`功能，自适应判断，规则形如
    `Mozilla/5.0 (Windows NT 10.0; Win64; x64)`
    字符串时为userAgent，而json时为httpHeaders，形如
-   ```{
+   ```
+   {
       "Referer":"xx",
       "Cookie":"yy"
    }```
@@ -23,7 +33,8 @@
 - 增加兼容性
 - `测试新发现瀑布流`用标识符`@@DiscoverRule:`分离js和json部分
    整体规则形如@js:可有可无
-   ```测试新发现瀑布流
+   ```
+   测试新发现瀑布流
    [@js:]"https:x"+rules.map((rule) => rule.key + "=" + rule.value).join("&")
       // 瀑布流结构有差异 增加key字段
       // 自动生成代码

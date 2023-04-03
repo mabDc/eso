@@ -101,9 +101,11 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
   Widget _buildDiscover() {
     return ChangeNotifierProvider<DiscoverPageController>.value(
       value: DiscoverPageController(
-          originTag: widget.originTag,
-          origin: widget.origin,
-          discoverMap: widget.discoverMap),
+        originTag: widget.originTag,
+        origin: widget.origin,
+        discoverMap: widget.discoverMap,
+        searchUrl: widget.rule.searchUrl,
+      ),
       child: Consumer<DiscoverPageController>(
         builder: (BuildContext context, DiscoverPageController pageController, _) {
           final _iconTheme = Theme.of(context).primaryIconTheme;
@@ -114,7 +116,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
           if (pageController.showSearchField) {
             children.add(KeepAliveWidget(
               wantKeepAlive: true,
-              child: _buildListView(context, pageController, pageController.items.last),
+              child: _buildListView(context, pageController, pageController.searchItem),
             ));
           } else if (map.isNotEmpty) {
             for (var i = 0; i < map.length; i++) {
@@ -138,22 +140,14 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                       backgroundColor: Theme.of(context).appBarTheme.color,
                       iconTheme: _iconTheme.copyWith(color: _color),
                       actionsIconTheme: _iconTheme.copyWith(color: _color),
-                      actions: pageController.queryController.text == ''
-                          ? <Widget>[
-                              _buildSwitchStyle(context),
-                            ]
-                          : <Widget>[
-                              IconButton(
-                                icon: Icon(FIcons.x),
-                                onPressed: pageController.clearInputText,
-                              ),
-                              _buildSwitchStyle(context),
-                            ],
+                      actions: <Widget>[
+                        _buildSwitchStyle(context),
+                      ],
                       title: SearchTextField(
                         controller: pageController.queryController,
                         autofocus: true,
                         hintText: '搜索 ${widget.origin}',
-                        onSubmitted: (query) => pageController.search(),
+                        onSubmitted: (query) => pageController.submitSearch(),
                       ),
                       bottom: _buildAppBarBottom(context, pageController),
                     )
@@ -335,12 +329,75 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
       [DiscoverMap map, int index]) {
     final pairs = map?.pairs;
     if (pairs == null || pairs.isEmpty || pairs.length == 1) {
+      if (pageController.showSearchField && pageController.searchItems.length > 1) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StatefulBuilder(
+              builder: (context, _state) {
+                return Container(
+                  width: double.infinity,
+                  color: Theme.of(context).primaryColor.withAlpha(50),
+                  padding: const EdgeInsets.fromLTRB(3, 3, 3, 8),
+                  child: Wrap(
+                    spacing: 3,
+                    children: pageController.searchItems.keys.map((option) {
+                      final color = option == pageController.selectOption
+                          ? Theme.of(context).cardColor
+                          : Theme.of(context).textTheme.bodyLarge.color;
+                      final bgColor = option == pageController.selectOption
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).cardColor;
+                      return Container(
+                        height: 24,
+                        width: 20 +
+                            min(6 * utf8.encode(option).length, 12 * option.length)
+                                .toDouble(),
+                        margin: EdgeInsets.fromLTRB(4, 8, 4, 0),
+                        child: OutlinedButton(
+                          child: Text(
+                            option,
+                            style: TextStyle(fontSize: 12, color: color),
+                          ),
+                          style: ButtonStyle(
+                              padding: MaterialStateProperty.all(EdgeInsets.zero),
+                              backgroundColor: MaterialStateProperty.all(bgColor),
+                              shape: MaterialStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ))),
+                          // padding: EdgeInsets.zero,
+                          // textColor: color,
+                          onPressed: () {
+                            pageController.selectOption = option;
+                          },
+                          // shape: RoundedRectangleBorder(
+                          //   borderRadius: BorderRadius.all(Radius.circular(12)),
+                          // ),
+                          // borderSide:
+                          //     color != null ? BorderSide(color: color, width: Global.borderSize) : null,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+            Expanded(
+              child: item.isLoading
+                  ? LandingPage()
+                  : _buildBodyView(pageController, item, index),
+            )
+          ],
+        );
+      }
+
       if (item.isLoading) {
         return LandingPage();
       }
+
       return _buildBodyView(pageController, item, index);
     }
-    Color primaryColor = Theme.of(context).primaryColor;
 
     final Widget _pairs = StatefulBuilder(
       builder: (context, _state) {
@@ -352,7 +409,9 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
                 pair == discoverPair
                     ? Theme.of(context).cardColor
                     : Theme.of(context).textTheme.bodyLarge.color,
-                pair == discoverPair ? primaryColor : Theme.of(context).cardColor,
+                pair == discoverPair
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).cardColor,
                 pageController,
                 index))
             .toList();
@@ -362,7 +421,7 @@ class _DiscoverSearchPageState extends State<DiscoverSearchPage>
 
         return Container(
           width: _showPairs ? double.infinity : null,
-          color: Theme.of(context).primaryColorLight.withAlpha(50),
+          color: Theme.of(context).primaryColor.withAlpha(50),
           padding: _showPairs ? const EdgeInsets.fromLTRB(3, 3, 3, 8) : EdgeInsets.zero,
           child: _showPairs
               ? Wrap(

@@ -82,6 +82,24 @@ class _EditSourcePageState extends State<EditSourcePage> {
                   items: editSourceMenus,
                   onSelect: (value) {
                     if (value == null) return;
+                    if (value == MenuEditSource.delete_blank) {
+                      alert(
+                        Text("警告（不可恢复）"),
+                        Text("删除空白地址或空白名称规则"),
+                        () async {
+                          final rules = await Global.ruleDao.findAllRules();
+                          final conut = await Global.ruleDao.deleteRules(rules
+                              .where((rule) =>
+                                  rule.name == null ||
+                                  rule.name.trim().isEmpty ||
+                                  rule.host == null ||
+                                  rule.host.trim().isEmpty)
+                              .toList());
+                          Utils.toast("成功删除${conut}条规则");
+                        },
+                      );
+                      return;
+                    }
                     final rules = provider.rules
                         .where((element) => provider.checkSelectMap[element.id] == true)
                         .toList();
@@ -244,7 +262,8 @@ class _EditSourcePageState extends State<EditSourcePage> {
         ),
       );
 
-  Widget _buildItem(BuildContext context, EditSourceProvider provider, Rule rule, int index) {
+  Widget _buildItem(
+      BuildContext context, EditSourceProvider provider, Rule rule, int index) {
     final _theme = Theme.of(context);
     final _leadColor = () {
       switch (rule.contentType) {
