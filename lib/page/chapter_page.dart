@@ -99,22 +99,15 @@ class _ChapterPageState extends State<ChapterPage> {
   //头部
   Widget _buildAlphaAppbar(BuildContext context) {
     final provider = Provider.of<ChapterPageProvider>(context, listen: false);
-    final _textTheme = Theme.of(context).primaryTextTheme;
-    final _iconTheme = Theme.of(context).primaryIconTheme;
 
     return AppBar(
       elevation: 0.0,
-      backgroundColor: Theme.of(context).primaryColor.withOpacity(opacity),
-      textTheme: _textTheme.copyWith(
-          headline6: _textTheme.headline6.copyWith(color: Colors.white70)),
-      iconTheme: _iconTheme.copyWith(color: Colors.white70),
-      actionsIconTheme: _iconTheme.copyWith(color: Colors.white70),
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor.withOpacity(opacity),
       title: Text(
         searchItem.origin,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      brightness: Brightness.dark,
       actions: <Widget>[
         // 加入收藏时需要刷新图标，其他不刷新
         Consumer<ChapterPageProvider>(

@@ -7,6 +7,7 @@ import 'package:eso/page/search_page.dart';
 import 'package:eso/page/source/edit_rule_page.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_manager.dart';
@@ -158,7 +159,12 @@ class ChapterPageProvider with ChangeNotifier {
   }
 
   void onSelect(MenuChapter value, BuildContext context) async {
+    if (value == null) return;
     switch (value) {
+      case MenuChapter.copy_dec:
+        await Clipboard.setData(ClipboardData(text: searchItem.description));
+        Utils.toast("已复制");
+        break;
       case MenuChapter.refresh:
         updateChapter();
         break;
@@ -222,6 +228,7 @@ class ChapterPageProvider with ChangeNotifier {
             '${searchItem.name.trim()}\n${searchItem.author.trim()}\n\n${searchItem.description}\n${searchItem.chapterUrl}');
         break;
       default:
+        Utils.toast("该选项功能未实现${value}");
     }
   }
 

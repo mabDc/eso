@@ -501,6 +501,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         overflow: TextOverflow.ellipsis,
       ),
       trailing: Menu<MenuDiscoverSource>(
+        // color: Theme.of(context).iconTheme.color,
         tooltip: "选项",
         items: discoverSourceMenus,
         onSelect: (value) {

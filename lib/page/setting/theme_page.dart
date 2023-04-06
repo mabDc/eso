@@ -142,7 +142,7 @@ class ThemePage extends StatelessWidget {
                                       controller: controller,
                                       maxLines: 8,
                                       decoration: InputDecoration(
-                                        labelText: "不了解请勿手动编辑",
+                                        labelText: "不了解请勿手动编辑", 
                                         // helperText: "",
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(4),

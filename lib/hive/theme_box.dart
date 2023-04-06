@@ -65,6 +65,20 @@ const tomatoCat = {
 ThemeData getGlobalThemeData() => ThemeData(
       primaryColor: Color(primaryColor),
       iconTheme: IconThemeData(color: Color(iconColor)),
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Color(iconColor);
+          }
+          return Colors.white;
+        }),
+        trackColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Color(iconColor).withOpacity(0.9);
+          }
+          return Colors.grey;
+        }),
+      ),
       brightness: Brightness.light,
       appBarTheme: AppBarTheme(
         foregroundColor: Color(appBarForegroundColor),
@@ -99,6 +113,20 @@ int get cardBackgroundDarkColor =>
 ThemeData getGlobalDarkThemeData() => ThemeData(
       primaryColor: Color(primaryColor),
       iconTheme: IconThemeData(color: Color(iconColor)),
+            switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Color(iconColor);
+          }
+          return Colors.white;
+        }),
+        trackColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Color(iconColor).withOpacity(0.9);
+          }
+          return Colors.grey;
+        }),
+      ),
       brightness: Brightness.dark,
       appBarTheme: AppBarTheme(
         foregroundColor: Color(appBarForegroundDarkColor),

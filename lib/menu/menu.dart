@@ -26,11 +26,12 @@ class Menu<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = color ?? Theme.of(context).iconTheme.color;
     return GestureDetector(
       child: child ??
           IconButton(
             tooltip: tooltip,
-            icon: Icon(icon, color: color),
+            icon: Icon(icon, color: iconColor),
             onPressed: null,
             padding: EdgeInsets.zero,
             iconSize: 20,
@@ -47,8 +48,11 @@ class Menu<T> extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(item.text, style: TextStyle(color: item.textColor),),
-                    Icon(item.icon, color: item.color),
+                    Text(
+                      item.text,
+                      style: TextStyle(color: item.textColor),
+                    ),
+                    Icon(item.icon, color: item.color ?? iconColor),
                   ],
                 ),
               ),

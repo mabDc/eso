@@ -15,6 +15,7 @@ enum MenuChapter {
   open_item_url,
   open_chapter_url,
   share,
+  copy_dec,
 }
 
 List<MenuItem<MenuChapter>> chapterMenus = [
@@ -52,6 +53,12 @@ List<MenuItem<MenuChapter>> chapterMenus = [
     text: '分享',
     icon: FIcons.share_2,
     value: MenuChapter.share,
+    color: Global.primaryColor,
+  ),
+  MenuItem<MenuChapter>(
+    text: '复制简介',
+    icon: FIcons.copy,
+    value: MenuChapter.copy_dec,
     color: Global.primaryColor,
   ),
   MenuItem<MenuChapter>(

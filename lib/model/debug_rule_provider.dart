@@ -5,6 +5,7 @@ import 'package:eso/api/api_js_engine.dart';
 import 'package:eso/database/rule.dart';
 import 'package:eso/eso_theme.dart';
 import 'package:eso/ui/ui_image_item.dart';
+import 'package:eso/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:oktoast/oktoast.dart';
@@ -29,6 +30,7 @@ class DebugRuleProvider with ChangeNotifier {
     disposeFlag = false;
     _controller = ScrollController();
     initPrint();
+    updateMap();
   }
 
   void initPrint() async {
@@ -121,28 +123,162 @@ class DebugRuleProvider with ChangeNotifier {
     _addContent("$s解析开始");
   }
 
-  void discover() async {
-    _startTime = DateTime.now();
-    rows.clear();
-    _beginEvent("发现");
+  Map mapKeys = {"搜索": {}, "发现": {}};
+  List<String> searchKeys = ["默认::都市"];
+  List<String> discoverKeys = ["默认::默认"];
+
+  Future<void> updateMap() async {
+    if (rule.searchUrl.trim().startsWith("@js:") || !rule.searchUrl.contains("::")) {
+      mapKeys["搜索"] = {"默认": rule.searchUrl};
+      searchKeys = ["默认::都市"];
+    } else {
+      mapKeys["搜索"] = {};
+      searchKeys = [];
+      for (final search in rule.searchUrl.split(RegExp(r"\n\s*|&&"))) {
+        final r = search.split("::");
+        if (r.length == 1) {
+          mapKeys["搜索"]["默认"] = search;
+          if (searchKeys.length < 10) {
+            searchKeys.add("默认::都市");
+          }
+        } else {
+          mapKeys["搜索"][r[0]] = r[1];
+          if (searchKeys.length < 10) {
+            searchKeys.add("${r[0]}::都市");
+          }
+        }
+      }
+    }
+
+    dynamic discoverRule = rule.discoverUrl.trimLeft();
     try {
-      dynamic discoverRule = rule.discoverUrl.trimLeft();
       if (discoverRule.startsWith("@js:")) {
-        _addContent("执行发现js规则");
         await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
         discoverRule = await JSEngine.evaluate(
             "${JSEngine.environment};${discoverRule.substring(4)};");
-        _addContent("结果", "$discoverRule");
       }
-      final discoverFirst = (discoverRule is List
-              ? "${discoverRule.first}"
-              : discoverRule is String
-                  ? discoverRule
-                      .split(RegExp(r"\n+\s*|&&"))
-                      .firstWhere((s) => s.trim().isNotEmpty, orElse: () => "")
-                  : "")
-          .split("::")
-          .last;
+    } catch (e) {
+      rows.add(Row(
+        children: [
+          Flexible(
+            child: SelectableText(
+              "发现js有误 $e",
+              style: TextStyle(color: Colors.red, height: 2),
+            ),
+          ),
+        ],
+      ));
+    }
+    if (discoverRule is String) {
+      discoverRule = discoverRule.split(RegExp(r"\n+\s*|&&"));
+    }
+    if (discoverRule is List) {
+      mapKeys["发现"] = {};
+      discoverKeys = [];
+      for (final rule in discoverRule) {
+        // 可能2级，全部处理成2级
+        final r = "$rule".split("::");
+        final first = r.length > 1 ? r[0] : "默认";
+        final second = r.length > 2 ? r[1] : "默认";
+        if (mapKeys["发现"][first] == null) {
+          mapKeys["发现"][first] = {second: r.last};
+        } else {
+          mapKeys["发现"][first][second] = r.last;
+        }
+        if (discoverKeys.length < 10) {
+          discoverKeys.add("$first::$second");
+        }
+      }
+    } else {
+      mapKeys["发现"] = {
+        "默认": {"默认": "$discoverRule"}
+      };
+      discoverKeys = ["默认::默认"];
+    }
+
+    if (searchKeys.isEmpty) {
+      searchKeys = ["默认::都市"];
+    }
+    if (discoverKeys.isEmpty) {
+      discoverKeys = ["默认::默认"];
+    }
+    notifyListeners();
+  }
+
+  void handle([String _rule]) async {
+    updateMap();
+    rows.clear();
+    _startTime = DateTime.now();
+    if (_rule != null) {
+      searchController.text = _rule.trim();
+    } else {
+      _rule = searchController.text.trim();
+    }
+    if (_rule.startsWith("发现::")) {
+      final r = _rule.split("::");
+      final last = r.length == 3 ? r[2] : "默认";
+      try {
+        final x = mapKeys[r[0]][r[1]][last];
+        _addContent("", "$r 规则 $x");
+        discover("$x");
+      } catch (e) {
+        Utils.toast("$e");
+      }
+    } else {
+      if (_rule.startsWith("搜索::")) {
+        _rule = _rule.substring("搜索::".length);
+      }
+      if (!_rule.contains("::") || _rule.startsWith("::默认")) {
+        var x = mapKeys["搜索"]["默认"];
+        if (x == null) {
+          final r = mapKeys["搜索"];
+          if (r is Map && r.isNotEmpty) {
+            x = r.entries.first.value;
+          } else {
+            x = rule.searchUrl;
+          }
+        }
+        final q = _rule.replaceFirst("::默认", "");
+        _addContent("", "[搜索, 默认] 关键词[$q] 规则 $x");
+        search(q, "$x");
+      } else {
+        final r = _rule.split("::");
+        final x = mapKeys["搜索"][r[0]];
+        _addContent("", "[搜索, ${r[0]}] 关键词[${r[1]}] 规则 $x");
+        search(r[1], "$x");
+      }
+    }
+  }
+
+  void discover([String _rule]) async {
+    if (_rule == null) {
+      _startTime = DateTime.now();
+      rows.clear();
+    }
+    _beginEvent("发现");
+    try {
+      dynamic discoverRule = rule.discoverUrl.trimLeft();
+      if (_rule == null) {
+        if (discoverRule.startsWith("@js:")) {
+          _addContent("执行发现js规则");
+          await JSEngine.setEnvironment(1, rule, "", rule.host, "", "");
+          discoverRule = await JSEngine.evaluate(
+              "${JSEngine.environment};${discoverRule.substring(4)};");
+          _addContent("结果", "$discoverRule");
+        }
+      }
+      final discoverFirst = _rule == null
+          ? ((discoverRule is List
+                  ? "${discoverRule.first}"
+                  : discoverRule is String
+                      ? discoverRule
+                          .split(RegExp(r"\n+\s*|&&"))
+                          .firstWhere((s) => s.trim().isNotEmpty, orElse: () => "")
+                      : "")
+              .split("::")
+              .last)
+          : _rule;
+
       var body = "";
       var discoverUrl = "";
       if (discoverFirst == 'null') {
@@ -241,18 +377,21 @@ class DebugRuleProvider with ChangeNotifier {
 
   final TextEditingController searchController = TextEditingController();
 
-  void search(String value) async {
-    _startTime = DateTime.now();
-    rows.clear();
+  void search(String value, [String _rule]) async {
+    if (_rule == null) {
+      _startTime = DateTime.now();
+      rows.clear();
+    }
     _beginEvent("搜索");
     try {
       String searchUrl = "";
       String body = "";
-      if (rule.searchUrl == 'null') {
+      _rule = _rule ?? rule.searchUrl;
+      if (_rule == 'null') {
         _addContent("地址为null跳过请求");
       } else {
         final searchResult = await AnalyzeUrl.urlRuleParser(
-          rule.searchUrl,
+          _rule,
           rule,
           keyword: value,
           page: 1,

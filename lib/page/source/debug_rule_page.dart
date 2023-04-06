@@ -16,6 +16,7 @@ class DebugRulePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).textTheme.bodyText1.color;
+    final focus = FocusNode();
     return ChangeNotifierProvider<DebugRuleProvider>(
       create: (_) => DebugRuleProvider(rule, textColor),
       builder: (context, child) => Container(
@@ -25,26 +26,65 @@ class DebugRulePage extends StatelessWidget {
             title: SearchTextField(
               controller:
                   Provider.of<DebugRuleProvider>(context, listen: false).searchController,
-              hintText: '请输入关键词开始搜索',
+              hintText: '请输入关键词开始测试',
               autofocus: true,
-              onSubmitted: Provider.of<DebugRuleProvider>(context, listen: false).search,
+              focusNode: focus,
+              onSubmitted: Provider.of<DebugRuleProvider>(context, listen: false).handle,
             ),
             actions: [
               IconButton(
-                icon: Icon(FIcons
-                    .compass), // Text("发现测试",style: TextStyle(color: Theme.of(context).textTheme.bodyText1.color)),
+                icon: Icon(FIcons.chevrons_right),
+                tooltip: "开始或刷新",
+                onPressed: Provider.of<DebugRuleProvider>(context, listen: false).handle,
+              ),
+              IconButton(
+                icon: Icon(FIcons.compass),
                 tooltip: "发现测试",
-                onPressed: Provider.of<DebugRuleProvider>(context, listen: false).discover,
+                onPressed:
+                    Provider.of<DebugRuleProvider>(context, listen: false).discover,
               ),
             ],
           ),
           body: Consumer<DebugRuleProvider>(
             builder: (context, DebugRuleProvider provider, _) {
+              Widget _buildKeyword(String title, List<String> keys) {
+                return Container(
+                  height: 35,
+                  child: Row(
+                    children: [
+                      Text("[$title::]"),
+                      Expanded(
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            for (final key in keys)
+                              TextButton(
+                                onPressed: () {
+                                  provider.handle(title + "::" + key);
+                                },
+                                child: Text(key),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
               if (provider.rows.isEmpty) {
-                return Center(
-                  child: Icon(FIcons.cpu,
-                      size: 128,
-                      color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                return Column(
+                  children: [
+                    _buildKeyword("发现", provider.discoverKeys),
+                    _buildKeyword("搜索", provider.searchKeys),
+                    Expanded(
+                      child: Center(
+                        child: Icon(FIcons.cpu,
+                            size: 128,
+                            color: Theme.of(context).primaryColorDark.withOpacity(0.08)),
+                      ),
+                    ),
+                  ],
                 );
               }
               return KeyboardDismissBehaviorView(
@@ -53,9 +93,15 @@ class DebugRulePage extends StatelessWidget {
                   child: ListView.builder(
                     controller: provider.controller,
                     padding: EdgeInsets.all(8),
-                    itemCount: provider.rows.length,
+                    itemCount: provider.rows.length + 2,
                     itemBuilder: (BuildContext context, int index) {
-                      return provider.rows[index];
+                      if (index == 0) {
+                        return _buildKeyword("发现", provider.discoverKeys);
+                      }
+                      if (index == 1) {
+                        return _buildKeyword("搜索", provider.searchKeys);
+                      }
+                      return provider.rows[index - 2];
                     },
                   ),
                 ),
