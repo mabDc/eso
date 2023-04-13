@@ -522,10 +522,12 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
     loadingText.add("开始解析...");
     await controller?.pause();
     notifyListeners();
-    () async {
-      await searchItem.save();
-      HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
-    }();
+    try {
+      () async {
+        await searchItem.save();
+        HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
+      }();
+    } catch (e) {}
     if (_disposed) return;
     try {
       _content =
@@ -609,7 +611,8 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       controller.dispose();
     }
     () async {
-      await searchItem.save();;
+      await searchItem.save();
+      ;
       HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
     }();
     if (Platform.isIOS || Platform.isAndroid) {

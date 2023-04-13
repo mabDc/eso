@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:uni_links/uni_links.dart';
+// import 'package:video_player_win/video_player_win.dart';
 import 'package:window_manager/window_manager.dart';
 import 'eso_theme.dart';
 import 'global.dart';
@@ -108,7 +109,9 @@ void main() async {
 
   // 必须加上这一行。
   if (Platform.isWindows) {
-    await windowManager.ensureInitialized();
+    // WindowsVideoPlayer.registerWith();
+    // await windowManager.ensureInitialized();
+    // initVideoPlayerMediaKitIfNeeded();
   }
   // if (Platform.isWindows) {
   //   final server = await HttpMultiServer.loopback(51532);

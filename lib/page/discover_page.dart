@@ -422,10 +422,72 @@ class _DiscoverPageState extends State<DiscoverPage> {
           return Colors.white;
       }
     }();
+    final _leadTextColor = () {
+      switch (rule.contentType) {
+        case API.MANGA:
+          return Colors.black;
+        case API.VIDEO:
+          return Colors.white;
+        case API.AUDIO:
+          return Colors.white;
+        default:
+          return Colors.black;
+      }
+    }();
     final _leadBorder = rule.contentType == API.NOVEL
         ? Border.all(color: _theme.primaryColor, width: 1.0)
         : null;
+    final iconUrl = rule.icon != null && rule.icon.isNotEmpty
+        ? rule.icon
+        : Uri.tryParse(rule.host)?.resolve("/favicon.ico")?.toString();
+    var showIcon = iconUrl != null;
+    final hostPre = RegExp("https?://");
+    final host = rule.host.replaceFirst("https://", "").replaceFirst("http://", "");
     Widget _child = ListTile(
+      minLeadingWidth: 6,
+      leading: StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          if (showIcon) {
+            return Container(
+              height: 32,
+              width: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _leadColor,
+                shape: BoxShape.circle,
+                border: _leadBorder,
+              ),
+              child: CircleAvatar(
+                foregroundImage: CachedNetworkImageProvider(iconUrl),
+                foregroundColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
+                // backgroundImage: AssetImage(Global.waitingPath),
+                onForegroundImageError: (exception, stackTrace) =>
+                    setState(() => showIcon = false),
+                // backgroundImage: AssetImage(Global.waitingPath),
+              ),
+            );
+          }
+          return Container(
+            height: 32,
+            width: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _leadColor,
+              shape: BoxShape.circle,
+              border: _leadBorder,
+            ),
+            child: Text(
+              rule.ruleTypeName,
+              style: TextStyle(
+                fontSize: 11,
+                color: _leadTextColor,
+                fontFamily: ESOTheme.staticFontFamily,
+              ),
+            ),
+          );
+        },
+      ),
       onTap: () => invokeTap(DiscoverFuture(rule: rule, key: Key(rule.id.toString()))),
       onLongPress: () => Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => EditRulePage(rule: rule)))
@@ -434,34 +496,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
         children: <Widget>[
-          rule.icon != null && rule.icon.isNotEmpty
-              ? Container(
-                  height: 28,
-                  width: 28,
-                  child: CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(
-                    "${rule.icon}",
-                  )),
-                )
-              : Container(
-                  height: 28,
-                  width: 28,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: _leadColor,
-                    shape: BoxShape.circle,
-                    border: _leadBorder,
-                  ),
-                  child: Text(
-                    rule.ruleTypeName,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: ESOTheme.staticFontFamily,
-                    ),
-                  ),
-                ),
-          SizedBox(width: 5),
           Flexible(
             child: Text(
               "${rule.name}",
@@ -469,16 +503,17 @@ class _DiscoverPageState extends State<DiscoverPage> {
               maxLines: 1,
               style: TextStyle(
                 textBaseline: TextBaseline.alphabetic,
-                fontSize: 14,
+                fontSize: 16,
+                // fontWeight: FontWeight.bold,
                 height: 1,
               ),
             ),
           ),
-          SizedBox(width: 5),
+          SizedBox(width: 10),
           Container(
-            height: 14,
+            height: 16,
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+              color: _leadColor,
               borderRadius: BorderRadius.circular(2),
             ),
             padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
@@ -486,17 +521,16 @@ class _DiscoverPageState extends State<DiscoverPage> {
             child: Text(
               '${rule.ruleTypeName}',
               style: TextStyle(
-                fontSize: 10,
-                height: 1.4,
-                color: Colors.white,
-                textBaseline: TextBaseline.alphabetic,
+                fontSize: 12,
+                color: _leadTextColor,
+                height: 1.3,
               ),
             ),
           ),
         ],
       ),
       subtitle: Text(
-        rule.author == '' ? '${rule.host}' : '@${rule.author}',
+        rule.author == '' ? host : '@${rule.author} [$host]',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),

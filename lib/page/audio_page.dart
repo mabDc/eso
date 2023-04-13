@@ -91,8 +91,8 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                       ),
                     ),
                     BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                      child: Container(color: Colors.black.withAlpha(30)),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(color: Colors.black.withAlpha(80)),
                     ),
                     SafeArea(
                       child: Column(

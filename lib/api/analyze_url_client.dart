@@ -37,7 +37,7 @@ Future<Response> post(String url,
     //   location = "${response.request.url.scheme}://${response.request.url.host}$location";
     // }
 
-    return nosslClient.get(Uri.parse(url).resolveUri(Uri.parse(location)),
+    return nosslClient.get(Uri.parse(url).resolve(location),
         headers: headers);
   }
   return response;
