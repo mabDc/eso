@@ -42,7 +42,7 @@ class AnalyzerWebview implements Analyzer {
     if (url.startsWith("//")) {
       url = JSEngine.rule.host.startsWith("https") ? "https://$url" : "http://$url";
     } else if (url.startsWith("/")) {
-      url = JSEngine.rule.host + url;
+      url = Uri.parse(JSEngine.rule.host).resolve(url).toString();
     }
     var webview = FlutterWebview();
     await webview.setMethodHandler((String method, dynamic args) async {
@@ -50,7 +50,7 @@ class AnalyzerWebview implements Analyzer {
         print(method);
       }
       if (method == "onNavigationCompleted") {
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < 60; i++) {
           if (c.isCompleted) return;
           try {
             final s = await webview.evaluate(
@@ -66,9 +66,9 @@ class AnalyzerWebview implements Analyzer {
       }
     });
     await webview.navigate(url);
-    Future.delayed(Duration(seconds: 15)).then((value) {
+    Future.delayed(Duration(seconds: 30)).then((value) {
       if (c.isCompleted) return;
-      c.completeError("执行webview规则超过15秒 加载超时");
+      c.completeError("执行webview规则超过30秒 加载超时");
     });
     try {
       return await c.future;
