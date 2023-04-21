@@ -28,7 +28,7 @@ class APIConst {
   static final pagePattern =
       RegExp(r"""(\$page)|((^|[^a-zA-Z'"_/-])page([^a-zA-Z0-9'"]|$))""");
   static final largeSpaceRegExp = RegExp(r"\n+\s*|\s{2,}");
-  static final tagsSplitRegExp = RegExp(r"[　 ,/\|\&\%]+");
+  static final tagsSplitRegExp = RegExp(r"[　,/\|\&\%]+");
 }
 
 class JSEngine {

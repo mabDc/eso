@@ -43,6 +43,7 @@ class Global with ChangeNotifier {
   static const searchItemKey = "searchItem";
   static const historyItemKey = "historyItem";
   static const textConfigKey = "textConfig";
+  static const favoriteListTagKey = "favoriteListTag";
   // static SharedPreferences _prefs;
   // static SharedPreferences get prefs => _prefs;
   static bool _isDesktop;
@@ -152,6 +153,7 @@ class Global with ChangeNotifier {
     await Hive.openBox(Global.profileKey);
     await Hive.openBox(Global.textConfigKey);
     await Hive.openBox<int>(EditSourceProvider.unlock_hidden_functions);
+    await Hive.openBox<List<String>>(Global.favoriteListTagKey);
 
     _isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
     if (isDesktop) {

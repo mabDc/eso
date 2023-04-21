@@ -213,7 +213,7 @@ class EditSourceProvider with ChangeNotifier {
         name.startsWith("打开功能") ||
         name.startsWith("使用功能")) {
       final keyword = name.substring(4);
-      final box = await Hive.box<int>(unlock_hidden_functions);
+      final box = Hive.box<int>(unlock_hidden_functions);
       if (list.contains(keyword)) {
         if (box.get(keyword, defaultValue: 0) == 1) {
           Utils.toast("$keyword 功能已启用，无需重复输入");
@@ -224,7 +224,7 @@ class EditSourceProvider with ChangeNotifier {
       }
     } else if (name.startsWith("关闭功能")) {
       final keyword = name.substring(4);
-      final box = await Hive.box<int>(unlock_hidden_functions);
+      final box = Hive.box<int>(unlock_hidden_functions);
       if (list.contains(keyword)) {
         if (box.get(keyword, defaultValue: 1) == 0) {
           Utils.toast("$keyword 功能无需关闭");

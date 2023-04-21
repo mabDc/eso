@@ -15,12 +15,19 @@ class SearchItemManager {
   // static String genChapterKey(int id) => "chapter$id";
 
   /// 根据类型和排序规则取出收藏
-  static List<SearchItem> getSearchItemByType(int contentType, SortType sortType) {
+  static List<SearchItem> getSearchItemByType(int contentType, SortType sortType,
+      [String tag]) {
+    if (tag == "全部") {
+      tag = null;
+    }
     final searchItem = <SearchItem>[];
     _searchItem.forEach((element) {
-      if (element.ruleContentType == contentType) searchItem.add(element);
+      if (element.ruleContentType == contentType &&
+          (tag == null || tag.isEmpty || element.tags.contains(tag)))
+        searchItem.add(element);
     });
     //排序
+    sortType = SortType.CREATE;
     switch (sortType) {
       case SortType.CREATE:
         searchItem.sort((a, b) => b.createTime.compareTo(a.createTime));
