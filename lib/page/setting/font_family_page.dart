@@ -138,17 +138,19 @@ class _FontFamilyProvider with ChangeNotifier {
   }
 
   void pickFont(BuildContext context) async {
-    String ttf = await FilesystemPicker.open(
-      title: '选择字体',
-      context: context,
-      rootName: _dir,
-      rootDirectory: Directory(_dir),
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-      allowedExtensions: ['.ttf', '.ttc', '.otf'],
-      fileTileSelectMode: FileTileSelectMode.wholeTile,
-      requestPermission: CacheUtil.requestPermission,
-    );
+    // String ttf = await FilesystemPicker.open(
+    //   title: '选择字体',
+    //   context: context,
+    //   rootName: _dir,
+    //   rootDirectory: Directory(_dir),
+    //   fsType: FilesystemType.file,
+    //   folderIconColor: Colors.teal,
+    //   allowedExtensions: ['.ttf', '.ttc', '.otf'],
+    //   fileTileSelectMode: FileTileSelectMode.wholeTile,
+    //   requestPermission: CacheUtil.requestPermission,
+    // );
+    String ttf =
+        await Utils.pickFile(context, ['.ttf', '.ttc', '.otf'], _dir, title: "选择字体");
     if (ttf == null) {
       Utils.toast('未选取字体文件');
       return;

@@ -43,7 +43,7 @@ class DiscoverFuture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (rule.discoverUrl.startsWith("测试新发现瀑布流")) {
+    if (rule.discoverUrl.startsWith("测试新发现瀑布流") || rule.discoverUrl.contains("@@DiscoverRule:")) {
       return DiscoverWaterfallPage(rule: rule);
     }
     if (rule.discoverUrl.startsWith("测试新发现")) {

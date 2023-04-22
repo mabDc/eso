@@ -179,7 +179,8 @@ class AboutPage2 extends StatelessWidget {
                             actions: <Widget>[
                               TextButton(
                                   child: Text('取消',
-                                      style: TextStyle(color: Theme.of(context).hintColor)),
+                                      style:
+                                          TextStyle(color: Theme.of(context).hintColor)),
                                   onPressed: () => Navigator.pop(context)),
                               TextButton(
                                   child: Text('立即清理'),
@@ -507,17 +508,18 @@ Widget myConfigSettingBuilder(BuildContext context, TextCompositionConfig config
       print("选择背景");
       final _cacheUtil = CacheUtil(backup: true, basePath: "background");
       final dir = await _cacheUtil.cacheDir();
-      String path = await FilesystemPicker.open(
-        title: '选择背景',
-        context: context,
-        rootDirectory: Directory(dir),
-        rootName: dir,
-        fsType: FilesystemType.file,
-        folderIconColor: Colors.teal,
-        allowedExtensions: ['.jpg', '.png', '.webp'],
-        fileTileSelectMode: FileTileSelectMode.wholeTile,
-        requestPermission: CacheUtil.requestPermission,
-      );
+      // String path = await FilesystemPicker.open(
+      //   title: '选择背景',
+      //   context: context,
+      //   rootDirectory: Directory(dir),
+      //   rootName: dir,
+      //   fsType: FilesystemType.file,
+      //   folderIconColor: Colors.teal,
+      //   allowedExtensions: ['.jpg', '.png', '.webp'],
+      //   fileTileSelectMode: FileTileSelectMode.wholeTile,
+      //   requestPermission: CacheUtil.requestPermission,
+      // );
+      String path = await Utils.pickFile(context, ['.jpg', '.png', '.webp'], dir, title: "选择背景");
       if (path == null) {
         Utils.toast("未选择文件");
         // onChange('');
@@ -533,17 +535,18 @@ Widget myConfigSettingBuilder(BuildContext context, TextCompositionConfig config
       print("选择字体");
       final _cacheUtil = CacheUtil(backup: true, basePath: "font");
       final dir = await _cacheUtil.cacheDir();
-      String ttf = await FilesystemPicker.open(
-        title: '选择字体',
-        context: context,
-        rootName: dir,
-        rootDirectory: Directory(dir),
-        fsType: FilesystemType.file,
-        folderIconColor: Colors.teal,
-        allowedExtensions: ['.ttf', '.ttc', '.otf'],
-        fileTileSelectMode: FileTileSelectMode.wholeTile,
-        requestPermission: CacheUtil.requestPermission,
-      );
+      // String ttf = await FilesystemPicker.open(
+      //   title: '选择字体',
+      //   context: context,
+      //   rootName: dir,
+      //   rootDirectory: Directory(dir),
+      //   fsType: FilesystemType.file,
+      //   folderIconColor: Colors.teal,
+      //   allowedExtensions: ['.ttf', '.ttc', '.otf'],
+      //   fileTileSelectMode: FileTileSelectMode.wholeTile,
+      //   requestPermission: CacheUtil.requestPermission,
+      // );
+      final ttf = await Utils.pickFile(context, ['.ttf', '.ttc', '.otf'], dir, title: "选择字体");
       if (ttf == null) {
         Utils.toast('未选取字体文件');
         // onChange('');

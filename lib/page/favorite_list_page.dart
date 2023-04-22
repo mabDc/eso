@@ -125,8 +125,10 @@ class FavoriteListPage extends StatelessWidget {
                                               onTap: () {
                                                 if (select) {
                                                   item.tags.remove(tag);
+                                                  item.save();
                                                 } else {
                                                   item.tags.add(tag);
+                                                  item.save();
                                                 }
                                                 setState(() {});
                                               },

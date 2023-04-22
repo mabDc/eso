@@ -39,4 +39,8 @@ class HistoryManager {
     if (searchHistory.isNotEmpty) _box.addAll(searchHistory);
     return true;
   }
+
+  static String backUpsearchHistory() {
+    return jsonEncode(_box.values.toList());
+  }
 }

@@ -1,11 +1,7 @@
 import 'dart:io';
 
-import 'package:eso/api/api.dart';
-import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/eso_theme.dart';
-import 'package:eso/utils/cache_util.dart';
-import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -472,18 +468,33 @@ class VPDProvider extends ChangeNotifier {
     //   return;
     // }
     // profile.desktopPlayer = f.paths.first;
-    profile.desktopPlayer = await FilesystemPicker.open(
-      title: '选择本地播放器',
-      rootName: profile.desktopPlayer ?? 'C:\\',
-      context: context,
-      rootDirectory: Directory(Utils.dirname(profile.desktopPlayer ?? "C:\\")),
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-      allowedExtensions: ['.exe'],
-      fileTileSelectMode: FileTileSelectMode.wholeTile,
-      requestPermission: CacheUtil.requestPermission,
-    );
-    if (profile.desktopPlayer == null) Utils.toast('未选取文件');
+
+    // profile.desktopPlayer = await FilesystemPicker.openDialog(
+    //     title: '选择本地播放器',
+    //     rootName: profile.desktopPlayer ?? 'C:\\',
+    //     context: context,
+    //     permissionText: "没有权限读取该文件夹",
+    //     rootDirectory: Directory(Utils.dirname(profile.desktopPlayer ?? "C:\\")),
+    //     fsType: FilesystemType.file,
+    //     folderIconColor: Theme.of(context).iconTheme.color,
+    //     allowedExtensions: ['.exe'],
+    //     fileTileSelectMode: FileTileSelectMode.wholeTile,
+    //     requestPermission: CacheUtil.requestPermission,
+    //     contextActions: <FilesystemPickerContextAction>[
+    //       FilesystemPickerContextAction(
+    //           action: (context, path) => null,
+    //           text: "读取",
+    //           icon: Icon(
+    //             Icons.open_in_new,
+    //             color: Theme.of(context).iconTheme.color,
+    //           ))
+    //     ]);
+    final r = await Utils.pickFile(context, ['.exe'], profile.desktopPlayer ?? 'C:\\',
+        title: '选择本地播放器');
+    if (r != null) {
+      profile.desktopPlayer = r;
+      notifyListeners();
+    }
   }
 
   final controller = TextEditingController(text: "解析日志\n");

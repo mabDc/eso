@@ -20,7 +20,7 @@ dependencies:
   encrypt: ^5.0.0
   equatable: ^2.0.0
   fast_gbk: ^0.1.2+1
-  filesystem_picker: ^2.0.0
+  filesystem_picker: ^3.1.0
   floor: ^1.0.1
   webview_windows: ^0.1.6
   # xpath_selector: ^2.2.4

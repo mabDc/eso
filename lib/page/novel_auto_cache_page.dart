@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:eso/api/api.dart';
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/search_item.dart';
+import 'package:eso/main.dart';
 import 'package:eso/ui/widgets/draggable_scrollbar_sliver.dart';
 import 'package:eso/utils/cache_util.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
@@ -244,6 +245,7 @@ class _NovelAutoCachePageState extends State<NovelAutoCachePage> {
       ),
       body: Container(
         padding: EdgeInsets.all(2),
+        decoration: globalDecoration,
         child: DraggableScrollbar.semicircle(
           controller: scrollController,
           labelTextBuilder: (double offset) => Text("${offset ~/ 30 + 1}"),
@@ -258,34 +260,35 @@ class _NovelAutoCachePageState extends State<NovelAutoCachePage> {
                   title: Text("导出路径"),
                   subtitle: Text(exportDir),
                   onTap: () async {
-                    Directory rootDirectory;
-                    switch (Platform.operatingSystem) {
-                      case 'android':
-                        print(Platform.operatingSystemVersion);
-                        rootDirectory = await path.getExternalStorageDirectory();
-                        rootDirectory = rootDirectory.parent.parent.parent.parent;
-                        break;
-                      case 'ios':
-                        rootDirectory = await path.getApplicationDocumentsDirectory();
-                        break;
-                      case 'windows':
-                        rootDirectory = await path.getApplicationDocumentsDirectory();
-                        break;
-                      case 'macos':
-                        rootDirectory = await path.getApplicationDocumentsDirectory();
-                        break;
-                      default:
-                        rootDirectory = await path.getApplicationDocumentsDirectory();
-                    }
-                    final p = await FilesystemPicker.open(
-                      context: context,
-                      rootDirectory:
-                          Directory(rootDirectory.path + Platform.pathSeparator),
-                      fileTileSelectMode: FileTileSelectMode.checkButton,
-                      fsType: FilesystemType.folder,
-                      requestPermission: CacheUtil.requestPermission,
-                      rootName: rootDirectory.path,
-                    );
+                    // Directory rootDirectory;
+                    // switch (Platform.operatingSystem) {
+                    //   case 'android':
+                    //     print(Platform.operatingSystemVersion);
+                    //     rootDirectory = await path.getApplicationDocumentsDirectory();
+                    //     break;
+                    //   case 'ios':
+                    //     rootDirectory = await path.getApplicationDocumentsDirectory();
+                    //     break;
+                    //   case 'windows':
+                    //     rootDirectory = await path.getApplicationDocumentsDirectory();
+                    //     break;
+                    //   case 'macos':
+                    //     rootDirectory = await path.getApplicationDocumentsDirectory();
+                    //     break;
+                    //   default:
+                    //     rootDirectory = await path.getApplicationDocumentsDirectory();
+                    // }
+                    // final p = await FilesystemPicker.open(
+                    //   context: context,
+                    //   rootDirectory:
+                    //       Directory(rootDirectory.path + Platform.pathSeparator),
+                    //   fileTileSelectMode: FileTileSelectMode.checkButton,
+                    //   fsType: FilesystemType.folder,
+                    //   requestPermission: CacheUtil.requestPermission,
+                    //   rootName: rootDirectory.path,
+                    // );
+                    final p = await Utils.pickFolder(context,title: "选择导出路径",
+                        initialDirectory: novel_cache_export_dir_box.get(0));
                     if (p != null) {
                       exportDir = p;
                       novel_cache_export_dir_box.put(0, p);

@@ -90,6 +90,10 @@ class ESOTheme {
     fromJson(jsonDecode(profile));
   }
 
+  static String backUpESOTheme() {
+    return jsonEncode(_box.toMap());
+  }
+
   static final ESOTheme _profile = ESOTheme._internal();
   factory ESOTheme() => _profile;
 

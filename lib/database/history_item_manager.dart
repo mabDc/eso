@@ -16,9 +16,11 @@ class HistoryItemManager {
       return historyItem
           .where((element) =>
               element.ruleContentType == contentType && element.name.contains(name ?? ''))
-          .toList()..sort(((a, b) => b.lastReadTime - a.lastReadTime));
+          .toList()
+        ..sort(((a, b) => b.lastReadTime - a.lastReadTime));
     } else {
-      return historyItem.where((element) => element.name.contains(name ?? '')).toList()..sort(((a, b) => b.lastReadTime - a.lastReadTime));
+      return historyItem.where((element) => element.name.contains(name ?? '')).toList()
+        ..sort(((a, b) => b.lastReadTime - a.lastReadTime));
     }
   }
 
@@ -41,6 +43,10 @@ class HistoryItemManager {
   //     return json;
   //   }).toList());
   // }
+
+  static String backupItems() {
+    return jsonEncode(_box.toMap());
+  }
 
   static Future<bool> restore(String data) async {
     final json = jsonDecode(data);

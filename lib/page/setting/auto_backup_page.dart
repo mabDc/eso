@@ -210,8 +210,9 @@ class AutoBackupPage extends StatelessWidget {
                   ),
                   ListTile(
                     title: Text('服务器地址'),
-                    subtitle: Text(
-                        profile.webdavServer.isEmpty ? '输入您的服务器地址' : profile.webdavServer),
+                    subtitle: Text(profile.webdavServer.isEmpty
+                        ? '输入您的服务器地址'
+                        : profile.webdavServer),
                     onTap: () => showDialog(
                       context: context,
                       builder: (context) => showTextDialog(
@@ -300,7 +301,7 @@ class AutoBackupPage extends StatelessWidget {
     try {
       final rules = await Rule.backupRules(await Global.ruleDao.findUploadRules());
       final archive = Archive();
-      archive.addFile(getArchiveFile("rules", rules, 0));
+      archive.addFile(getArchiveFile("rules", rules));
       final bytes = ZipEncoder().encode(archive);
 
       try {
@@ -332,16 +333,16 @@ class AutoBackupPage extends StatelessWidget {
   }
 
   /// type: 0->s, 1->getString, 2-> getStringList
-  static getArchiveFile(String key, String s, int type) {
-    List<int> bytes;
-    if (type == 0) {
-      bytes = utf8.encode(s);
-    } else if (type == 1) {
-      // bytes = utf8.encode(Global.prefs.getString(key));
-    } else if (type == 2) {
-      // bytes = utf8.encode(jsonEncode(Global.prefs.getStringList(key)));
-    }
-    return ArchiveFile("$key.json", bytes.length, bytes);
+  static getArchiveFile(String key, String s) {
+    // List<int> bytes;
+    // if (type == 0) {
+    //   bytes = utf8.encode(s);
+    // } else if (type == 1) {
+    //   // bytes = utf8.encode(Global.prefs.getString(key));
+    // } else if (type == 2) {
+    //   // bytes = utf8.encode(jsonEncode(Global.prefs.getStringList(key)));
+    // }
+    return ArchiveFile("$key.json", 0, s ?? "");
   }
 
   static backup([bool autoBackup = false]) async {
@@ -360,16 +361,26 @@ class AutoBackupPage extends StatelessWidget {
       final rules = await Rule.backupRules();
       final favorite = SearchItemManager.backupItems();
       final archive = Archive();
-      archive.addFile(getArchiveFile("rules", rules, 0));
-      archive.addFile(getArchiveFile(Global.searchItemKey, favorite, 0));
-      archive.addFile(getArchiveFile(Global.profileKey, "", 1));
-      archive.addFile(getArchiveFile(Global.historyItemKey, "", 2));
-      archive.addFile(getArchiveFile(Global.searchHistoryKey, "", 2));
+      archive.addFile(getArchiveFile("rules", rules));
+      archive.addFile(getArchiveFile(Global.searchItemKey, favorite));
+      archive.addFile(getArchiveFile(Global.profileKey, ESOTheme.backUpESOTheme()));
+      archive.addFile(
+          getArchiveFile(Global.historyItemKey, HistoryItemManager.backupItems()));
+      archive.addFile(
+          getArchiveFile(Global.searchHistoryKey, HistoryManager.backUpsearchHistory()));
+      // archive.addFile(getArchiveFile(Global.profileKey, "", 1));
+      // archive.addFile(getArchiveFile(Global.historyItemKey, "", 2));
+      // archive.addFile(getArchiveFile(Global.searchHistoryKey, "", 2));
       final bytes = ZipEncoder().encode(archive);
-      File(dir)
-        ..create(recursive: true)
-        ..writeAsBytes(bytes);
-      Utils.toast("$dir 文件写入成功");
+      try {
+        File(dir)
+          ..create(recursive: true)
+          ..writeAsBytes(bytes);
+        Utils.toast("$dir 文件写入成功");
+      } catch (e) {
+        Utils.toast("文件写入失败 $e");
+      }
+
       profile.autoBackupLastDay = today;
       if (profile.enableWebdav) {
         try {
@@ -386,6 +397,7 @@ class AutoBackupPage extends StatelessWidget {
       }
     } catch (e) {
       print("获取备份信息[收藏夹、规则、搜索关键词记录、个人配置]失败 $e");
+      Utils.toast("获取备份信息[收藏夹、规则、搜索关键词记录、个人配置]失败 $e");
     }
   }
 

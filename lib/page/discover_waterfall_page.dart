@@ -146,16 +146,18 @@ class _DiscoverWaterfallPageState extends State<DiscoverWaterfallPage> {
 
   @override
   void initState() {
-    final json = widget.rule.discoverUrl.substring("测试新发现瀑布流".length).trim();
-    final jsons = json.split("@@DiscoverRule:");
+    final s = widget.rule.discoverUrl.startsWith("测试新发现瀑布流")
+        ? widget.rule.discoverUrl.substring("测试新发现瀑布流".length).trim()
+        : widget.rule.discoverUrl.trim();
+    final jsons = s.split("@@DiscoverRule:");
     if (jsons.length > 1) {
       _discoverRule = DiscoverRule.fromJson(
-          jsonDecode(json[1].trim()),
+          jsonDecode(jsons[1].trim()),
           jsons[0].trim().startsWith("@js:")
               ? jsons[0].replaceFirst('@js:', '')
               : jsons[0]);
     } else {
-      _discoverRule = DiscoverRule.fromJson(jsonDecode(json));
+      _discoverRule = DiscoverRule.fromJson(jsonDecode(s));
     }
 
     parseRule();
