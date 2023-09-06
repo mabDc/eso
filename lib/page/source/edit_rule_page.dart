@@ -226,6 +226,18 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
           titleSpacing: 0,
           title: Text(widget.rule == null ? '新建规则' : '编辑规则'),
           actions: [
+            // IconButton(
+            //   icon: Icon(Icons.undo_rounded),
+            //   tooltip: "撤销",
+            //   onPressed:
+            //       editContentHistory.value.canUndo ? editContentHistory.undo : null,
+            // ),
+            // IconButton(
+            //   icon: Icon(Icons.redo_rounded),
+            //   tooltip: "重做",
+            //   onPressed:
+            //       editContentHistory.value.canRedo ? editContentHistory.redo : null,
+            // ),
             IconButton(
               icon: Icon(FIcons.share_2),
               tooltip: "分享",
@@ -469,6 +481,7 @@ class _EditRulePageState extends State<EditRulePage> with WidgetsBindingObserver
 
   TextEditingController currentController;
   void Function(String text) currentOnChanged;
+  // UndoHistoryController currentController;
 
   Widget _buildEditText(
     String text,

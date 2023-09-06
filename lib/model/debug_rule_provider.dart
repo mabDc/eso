@@ -488,11 +488,12 @@ class DebugRuleProvider with ChangeNotifier {
       return;
     }
     _beginEvent("目录");
+    _addContent("如果有分页，只尝试加载两页作为测试");
     dynamic firstChapter;
     String next;
     String chapterUrlRule;
     final hasNextUrlRule = rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
-    for (var page = 1;; page++) {
+    for (var page = 1; page < 3; page++) {
       if (disposeFlag) return;
       chapterUrlRule = null;
       final url = rule.chapterUrl != null && rule.chapterUrl.isNotEmpty

@@ -193,13 +193,129 @@ class APIFromRUle implements API {
     return result;
   }
 
+  String checkString(String s) => s != null && s.isNotEmpty ? s : null;
+  static String chapterNextUrl;
+
   // page放进chapter里头
   @override
-  Future<List<ChapterItem>> chapter(final String lastResult) async {
+  Future<List<ChapterItem>> chapter(final String lastResult, [int page]) async {
     if (rule.chapterUrl == "正文") {
       return [ChapterItem(url: lastResult, name: "正文")];
     }
     API.chapterUrl = null;
+    if (page != null) {
+      // 这里拦截再退出
+      final result = <ChapterItem>[];
+      final reversed = false; //rule.chapterList.startsWith("-"); //暂时关闭
+      if (page == 1) {
+        chapterNextUrl = null;
+      }
+      try {
+        final url =
+            checkString(chapterNextUrl) ?? checkString(rule.chapterUrl) ?? lastResult;
+        var chapterUrl = url;
+        API.chapterUrl = chapterUrl;
+        var body = '';
+        if (url != "null") {
+          final res = await AnalyzeUrl.urlRuleParser(
+            url,
+            rule,
+            result: lastResult,
+            page: page,
+          );
+          if (res != null) {
+            if (res.contentLength == 0) {
+              return result;
+            }
+            chapterUrl = res.request.url.toString();
+            API.chapterUrl = chapterUrl;
+            body = DecodeBody().decode(res.bodyBytes, res.headers["content-type"]);
+          }
+        }
+        if (page == 1) {
+          await JSEngine.setEnvironment(page, rule, "", chapterUrl, "", lastResult);
+        } else {
+          await JSEngine.evaluate(
+              "baseUrl = ${jsonEncode(chapterUrl)}; page = ${jsonEncode(page)};");
+        }
+        final bodyAnalyzer = AnalyzerManager(body);
+        if (rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty) {
+          chapterNextUrl = await bodyAnalyzer.getString(rule.chapterNextUrl);
+        }
+        if (rule.enableMultiRoads) {
+          final roads = await bodyAnalyzer.getElements(rule.chapterRoads);
+          if (roads.isEmpty) {
+            return result;
+          }
+          for (final road in roads) {
+            final roadAnalyzer = AnalyzerManager(road);
+            result.add(ChapterItem(
+              name: "@线路" + await roadAnalyzer.getString(rule.chapterRoadName),
+            ));
+            final list = await roadAnalyzer
+                .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+            if (list.isEmpty) {
+              break;
+            }
+            for (final item in (reversed ? list.reversed : list)) {
+              final analyzer = AnalyzerManager(item);
+              final lock = await analyzer.getString(rule.chapterLock);
+              // final unLock = await analyzer.getString(rule.chapterUnLock);
+              var name = (await analyzer.getString(rule.chapterName))
+                  .trim()
+                  .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace);
+              // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+              //   name = "🔓" + name;
+              // }else
+              if (lock != null &&
+                  lock.isNotEmpty &&
+                  lock != "undefined" &&
+                  lock != "false" &&
+                  lock != "0") {
+                name = "🔒" + name;
+              }
+              result.add(ChapterItem(
+                cover: await analyzer.getString(rule.chapterCover),
+                name: name,
+                time: await analyzer.getString(rule.chapterTime),
+                url: await analyzer.getString(rule.chapterResult),
+              ));
+            }
+          }
+        } else {
+          final list = await bodyAnalyzer
+              .getElements(reversed ? rule.chapterList.substring(1) : rule.chapterList);
+          if (list.isEmpty) {
+            return result;
+          }
+          for (final item in (reversed ? list.reversed : list)) {
+            final analyzer = AnalyzerManager(item);
+            final lock = await analyzer.getString(rule.chapterLock);
+            // final unLock = await analyzer.getString(rule.chapterUnLock);
+            var name = (await analyzer.getString(rule.chapterName))
+                .trim()
+                .replaceAll(APIConst.largeSpaceRegExp, Global.fullSpace);
+            // if (unLock != null && unLock.isNotEmpty && unLock != "undefined" && unLock != "false") {
+            //   name = "🔓" + name;
+            // }else
+            if (lock != null &&
+                lock.isNotEmpty &&
+                lock != "undefined" &&
+                lock != "false" &&
+                lock != "0") {
+              name = "🔒" + name;
+            }
+            result.add(ChapterItem(
+              cover: await analyzer.getString(rule.chapterCover),
+              name: name,
+              time: await analyzer.getString(rule.chapterTime),
+              url: await analyzer.getString(rule.chapterResult),
+            ));
+          }
+        }
+      } catch (e) {}
+      return result;
+    }
     final result = <ChapterItem>[];
     final reversed = rule.chapterList.startsWith("-");
     final hasNextUrlRule = rule.chapterNextUrl != null && rule.chapterNextUrl.isNotEmpty;
@@ -223,7 +339,8 @@ class APIFromRUle implements API {
         break;
       }
       try {
-        var chapterUrl = '';
+        var chapterUrl = chapterUrlRule;
+        API.chapterUrl = chapterUrl;
         var body = '';
         if (chapterUrlRule != 'null') {
           final res = await AnalyzeUrl.urlRuleParser(

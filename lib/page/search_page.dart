@@ -543,7 +543,7 @@ class SearchProvider with ChangeNotifier {
   List<String> _history;
   List<String> get history => _history;
   bool _showHistory;
-  bool get showHistory => _showHistory;
+  bool get showHistory => false; //_showHistory;
   SearchProvider({
     int threadCount,
     SearchOption searchOption,
@@ -584,7 +584,7 @@ class SearchProvider with ChangeNotifier {
       _showHistory = true;
       notifyListeners();
     } else {
-      Future.delayed(Duration(milliseconds: 100), closeHistory);     
+      Future.delayed(Duration(milliseconds: 100), closeHistory);
     }
   }
 

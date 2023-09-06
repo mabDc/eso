@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:eso/api/api.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../api/api_manager.dart';
+import '../database/chapter_item.dart';
 import '../database/search_item.dart';
 import '../database/search_item_manager.dart';
 import '../global.dart';
@@ -97,9 +99,51 @@ class ChapterPageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  int _page = -1;
+  int get page => _page;
+  String checkContent;
+
+  Future loadChpaterWithPage(int page) async {
+    if (_page == 1) {
+      _page++;
+      notifyListeners();
+      checkContent = buildCheck(searchItem.chapters);
+    }
+    await Duration(milliseconds: 500); // 随意休息一下
+    print("加载目录$page");
+    final durChapters =
+        await APIManager.getChapter(searchItem.originTag, searchItem.url, _page);
+    if (durChapters.isEmpty) {
+      _page = -page; // 结束
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+    final _checkContent = buildCheck(durChapters);
+    if (checkContent == _checkContent) {
+      _page = -page; // 结束
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+    searchItem.chapters.addAll(durChapters);
+    searchItem.chaptersCount = searchItem.chapters?.length ?? 0;
+    searchItem.chapter = searchItem.chapters?.last?.name;
+    _page++;
+    notifyListeners();
+    loadChpaterWithPage(_page);
+  }
+
+  String buildCheck(List<ChapterItem> chapters) {
+    return json.encode(chapters.first.toJson()) +
+        searchItem.chapters.length.toString() +
+        json.encode(chapters.last.toJson());
+  }
+
   void initChapters() async {
+    _page = 1;
     searchItem.chapters =
-        await APIManager.getChapter(searchItem.originTag, searchItem.url);
+        await APIManager.getChapter(searchItem.originTag, searchItem.url, page);
     searchItem.chapterUrl = API.chapterUrl;
     searchItem.durChapterIndex = 0;
     searchItem.durContentIndex = 1;
@@ -107,10 +151,12 @@ class ChapterPageProvider with ChangeNotifier {
       searchItem.durChapter = '';
       searchItem.chaptersCount = 0;
       searchItem.chapter = '';
+      _page = 0;
     } else {
       searchItem.durChapter = searchItem.chapters?.first?.name ?? '';
       searchItem.chaptersCount = searchItem.chapters?.length ?? 0;
       searchItem.chapter = searchItem.chapters?.last?.name;
+      loadChpaterWithPage(_page);
     }
     _isLoading = false;
     notifyListeners();
@@ -128,8 +174,10 @@ class ChapterPageProvider with ChangeNotifier {
     searchItem.chaptersCount = searchItem.chapters.length;
     if (searchItem.chaptersCount > 0) {
       searchItem.chapter = searchItem.chapters.last?.name;
+      _page = 1;
+      loadChpaterWithPage(_page);
     } else {
-      searchItem.chapter = '';
+      _page = 0;
     }
     if (SearchItemManager.isFavorite(searchItem.originTag, searchItem.url)) {
       await searchItem.save();

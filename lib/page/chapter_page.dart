@@ -6,6 +6,7 @@ import 'package:eso/menu/menu.dart';
 import 'package:eso/menu/menu_chapter.dart';
 import 'package:eso/eso_theme.dart';
 import 'package:eso/page/photo_view_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:text_composition/text_composition.dart';
 import 'package:eso/ui/ui_image_item.dart';
 import 'package:eso/utils.dart';
@@ -20,6 +21,47 @@ import '../database/search_item.dart';
 import '../model/chapter_page_provider.dart';
 import 'content_page_manager.dart';
 import 'langding_page.dart';
+
+class NextPageAnimation extends StatefulWidget {
+  final String text;
+  const NextPageAnimation({Key key, this.text = "加载下一页。。。"}) : super(key: key);
+
+  @override
+  State<NextPageAnimation> createState() => _NextPageAnimationState();
+}
+
+class _NextPageAnimationState extends State<NextPageAnimation> {
+  int count = 0;
+
+  @override
+  void initState() {
+    start();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    count = -1;
+    super.dispose();
+  }
+
+  void start() {
+    if (count == -1 || !mounted) return;
+    if (kDebugMode) {
+      print("播放动画 $count");
+    }
+    Future.delayed(const Duration(milliseconds: 200), start);
+    setState(() {
+      count++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = widget.text;
+    return Text(text.substring(0, count % (text.length + 1)));
+  }
+}
 
 class ChapterPage extends StatefulWidget {
   final SearchItem searchItem;
@@ -89,10 +131,32 @@ class _ChapterPageState extends State<ChapterPage> {
                   height: topHeight,
                 );
               },
-            )
+            ),
+            buildPage(context),
           ],
         )),
       ),
+    );
+  }
+
+  Widget buildPage(BuildContext context) {
+    final page = Provider.of<ChapterPageProvider>(context, listen: true).page;
+    print(page);
+    if (page > 0)
+      return Positioned(
+        right: 20,
+        bottom: 10,
+        child: Row(
+          children: [
+            Text("${Provider.of<ChapterPageProvider>(context).page}"),
+            NextPageAnimation(text: "页加载中")
+          ],
+        ),
+      );
+    return Positioned(
+      right: 20,
+      bottom: 10,
+      child: Card(child: Text("${-Provider.of<ChapterPageProvider>(context).page}页")),
     );
   }
 

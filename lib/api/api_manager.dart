@@ -5,7 +5,7 @@ import '../global.dart';
 import 'api.dart';
 
 class APIManager {
-  static Future<API> chooseAPI(String originTag) async {
+  static Future<APIFromRUle> chooseAPI(String originTag) async {
     return APIFromRUle(await Global.ruleDao.findRuleById(originTag));
   }
 
@@ -28,10 +28,10 @@ class APIManager {
     return <SearchItem>[];
   }
 
-  static Future<List<ChapterItem>> getChapter(String originTag, String url) async {
+  static Future<List<ChapterItem>> getChapter(String originTag, String url, [int page]) async {
     if (originTag != null) {
       final api = await chooseAPI(originTag);
-      if (api != null) return api.chapter(url);
+      if (api != null) return api.chapter(url, page);
     }
     return <ChapterItem>[];
   }
