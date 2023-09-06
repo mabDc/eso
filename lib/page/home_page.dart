@@ -1,11 +1,10 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
-import 'package:eso/model/audio_service.dart';
-import 'package:eso/page/audio_page.dart';
 import 'package:eso/page/history_page.dart';
 import 'package:eso/page/search_page.dart';
 import 'package:eso/page/setting/about_page.dart';
+import 'package:eso/ui/ui_audio_view.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,27 +40,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   // 播放下一个收藏
-  void playNextAudio(SearchItem lastItem, [bool reNext]) async {
-    final _searchList = SearchItemManager.getSearchItemByType(API.AUDIO, SortType.CREATE);
-    if (_searchList == null || _searchList.isEmpty) return;
-    var index = _searchList.indexOf(lastItem) + 1;
-    if (index < 0) index = 0;
-    if (index >= _searchList.length) {
-      if (reNext == true) return;
-      index = 0;
-    }
-    final item = _searchList[index];
-    if (item.chapters.isEmpty) {
-      // if (SearchItemManager.isFavorite(item.originTag, item.url))
-      //   item.chapters = SearchItemManager.getChapter(item.id);
-      if (item.chapters.isEmpty) {
-        // 如果还是为空，则尝试加载下一个
-        playNextAudio(item, true);
-        return;
-      }
-    }
-    AudioService().playChapter(0, searchItem: item);
-  }
+  // void playNextAudio(SearchItem lastItem, [bool reNext]) async {
+  //   final _searchList = SearchItemManager.getSearchItemByType(API.AUDIO, SortType.CREATE);
+  //   if (_searchList == null || _searchList.isEmpty) return;
+  //   var index = _searchList.indexOf(lastItem) + 1;
+  //   if (index < 0) index = 0;
+  //   if (index >= _searchList.length) {
+  //     if (reNext == true) return;
+  //     index = 0;
+  //   }
+  //   final item = _searchList[index];
+  //   if (item.chapters.isEmpty) {
+  //     // if (SearchItemManager.isFavorite(item.originTag, item.url))
+  //     //   item.chapters = SearchItemManager.getChapter(item.id);
+  //     if (item.chapters.isEmpty) {
+  //       // 如果还是为空，则尝试加载下一个
+  //       playNextAudio(item, true);
+  //       return;
+  //     }
+  //   }
+  //   AudioService().playChapter(0, searchItem: item);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +95,10 @@ class _HomePageState extends State<HomePage> {
                 body: Stack(
                   children: [
                     _pageView,
-                    StatefulBuilder(builder: (context, state) {
-                      return _buildAudioView(context);
-                    }),
+                    AudioView(),
+                    // StatefulBuilder(builder: (context, state) {
+                    //   return _buildAudioView(context);
+                    // }),
                   ],
                 ),
                 bottomNavigationBar: BottomAppBar(
@@ -221,61 +221,61 @@ class _HomePageState extends State<HomePage> {
         : Theme.of(context).textTheme.bodyText1.color;
   }
 
-  Widget _buildAudioView(BuildContext context) {
-    if (!AudioService.isPlaying) return SizedBox();
-    final chapter = AudioService().curChapter;
-    final Widget _view = Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(
-              color: Theme.of(context).primaryColorLight.withOpacity(0.8), width: 0.5)),
-      child: AnimationRotateView(
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: Utils.empty(chapter?.cover)
-                ? null
-                : DecorationImage(
-                    image: NetworkImage(chapter.cover ?? ''),
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          child: Utils.empty(chapter?.cover)
-              ? Icon(Icons.audiotrack, color: Colors.black12, size: 24)
-              : Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).canvasColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                          color: Theme.of(context).primaryColorLight.withOpacity(0.8),
-                          width: 0.35)),
-                ),
-        ),
-      ),
-    );
-    return Positioned(
-      right: 16,
-      bottom: MediaQuery.of(context).padding.bottom + 16,
-      child: InkWell(
-        child: chapter != null
-            ? Tooltip(
-                child: _view,
-                message: '正在播放: ' + chapter.name ?? '',
-              )
-            : _view,
-        onTap: chapter == null
-            ? null
-            : () {
-                Utils.startPageWait(
-                    context, AudioPage(searchItem: AudioService().searchItem));
-              },
-      ),
-    );
-  }
+  // Widget _buildAudioView(BuildContext context) {
+  //   if (!AudioService.isPlaying) return SizedBox();
+  //   final chapter = AudioService().curChapter;
+  //   final Widget _view = Container(
+  //     width: 40,
+  //     height: 40,
+  //     decoration: BoxDecoration(
+  //         color: Theme.of(context).primaryColor.withOpacity(0.2),
+  //         borderRadius: BorderRadius.circular(50),
+  //         border: Border.all(
+  //             color: Theme.of(context).primaryColorLight.withOpacity(0.8), width: 0.5)),
+  //     child: AnimationRotateView(
+  //       child: Container(
+  //         alignment: Alignment.center,
+  //         decoration: BoxDecoration(
+  //           shape: BoxShape.circle,
+  //           image: Utils.empty(chapter?.cover)
+  //               ? null
+  //               : DecorationImage(
+  //                   image: NetworkImage(chapter.cover ?? ''),
+  //                   fit: BoxFit.cover,
+  //                 ),
+  //         ),
+  //         child: Utils.empty(chapter?.cover)
+  //             ? Icon(Icons.audiotrack, color: Colors.black12, size: 24)
+  //             : Container(
+  //                 width: 8,
+  //                 height: 8,
+  //                 decoration: BoxDecoration(
+  //                     color: Theme.of(context).canvasColor,
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     border: Border.all(
+  //                         color: Theme.of(context).primaryColorLight.withOpacity(0.8),
+  //                         width: 0.35)),
+  //               ),
+  //       ),
+  //     ),
+  //   );
+  //   return Positioned(
+  //     right: 16,
+  //     bottom: MediaQuery.of(context).padding.bottom + 16,
+  //     child: InkWell(
+  //       child: chapter != null
+  //           ? Tooltip(
+  //               child: _view,
+  //               message: '正在播放: ' + chapter.name ?? '',
+  //             )
+  //           : _view,
+  //       onTap: chapter == null
+  //           ? null
+  //           : () {
+  //               Utils.startPageWait(
+  //                   context, AudioPage(searchItem: AudioService().searchItem));
+  //             },
+  //     ),
+  //   );
+  // }
 }

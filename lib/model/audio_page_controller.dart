@@ -1,25 +1,22 @@
 import 'dart:async';
 
 import 'package:eso/database/search_item.dart';
-import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/audio_service.dart';
 import 'package:eso/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import '../lyric/lyric.dart';
 import 'package:share_plus/share_plus.dart';
 
 class AudioPageController with ChangeNotifier {
   AudioService _audioService;
   Timer _timer;
-  bool get isPlay => _audioService?.playerState == PlayerState.playing;
+  bool get isPlay => _audioService.playing;
   Duration get positionDuration => _audioService.positionDuration;
   int get seconds => _audioService.duration.inSeconds;
   int get postionSeconds => _audioService.positionDuration.inSeconds;
   String get durationText => _getTimeString(seconds);
   String get positionDurationText => _getTimeString(postionSeconds);
   int get repeatMode => _audioService.repeatMode;
-  PlayerState get state => _audioService.playerState;
 
   bool _showChapter;
   bool get showChapter => _showChapter;
@@ -52,6 +49,7 @@ class AudioPageController with ChangeNotifier {
     //   searchItem.chapters = SearchItemManager.getChapter(searchItem.id);
     // }
     _audioService.playChapter(searchItem.durChapterIndex, searchItem: searchItem);
+    _audioService.close = false;
   }
 
   void share() async {
@@ -90,7 +88,7 @@ class AudioPageController with ChangeNotifier {
   }
 
   void playNext() {
-    _audioService.playNext(_audioService.repeatMode == AudioService.REPEAT_FAVORITE);
+    _audioService.playNext();
   }
 
   void seekSeconds(int seconds) async {

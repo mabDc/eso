@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/model/audio_page_controller.dart';
@@ -449,7 +449,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
           IconButton(
             padding: EdgeInsets.zero,
             icon: Icon(
-              provider.state == PlayerState.playing
+              provider.isPlay
                   ? Icons.pause_circle_outline
                   : Icons.play_circle_outline,
               color: Colors.white,

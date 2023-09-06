@@ -560,7 +560,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         _aspectRatio = VideoAspectRatio.auto;
       }
       notifyListeners();
-      AudioService.stop();
+      AudioService().stop();
       await _controller.initialize();
       _controller.seekTo(Duration(milliseconds: searchItem.durContentIndex));
       _controller.play();

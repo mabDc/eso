@@ -1,10 +1,12 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'dart:convert';
+
 import 'package:eso/api/api_manager.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/database/search_item.dart';
-import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/utils.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import '../lyric/lyric.dart';
 
 class AudioService {
@@ -21,13 +23,6 @@ class AudioService {
   }
 
   factory AudioService() => getAudioService();
-
-  static bool get isPlaying => __internal != null && __internal.__isPlaying;
-
-  static Future<void> stop() async {
-    if (!isPlaying) return;
-    await __internal._player.stop();
-  }
 
   static String getRepeatName(int value) {
     switch (value) {
@@ -49,28 +44,20 @@ class AudioService {
       _durChapterIndex = -1;
       _player = AudioPlayer();
       _repeatMode = REPEAT_ALL;
-      _duration = Duration.zero;
-      _positionDuration = Duration.zero;
-      _player.onDurationChanged.listen((Duration d) {
-        _duration = d;
-      });
-      _player.onPositionChanged.listen((Duration p) {
-        _positionDuration = p;
-      });
-      _player.onPlayerStateChanged.listen((PlayerState s) {
-        _playerState = s;
-      });
-      _player.onPlayerComplete.listen((event) {
-        switch (_repeatMode) {
-          case REPEAT_FAVORITE:
-            playNext(true);
-            break;
-          case REPEAT_ALL:
-            playNext();
-            break;
-          case REPEAT_ONE:
-            replay();
-            break;
+      _player.playerStateStream.listen((s) {
+        if (s.processingState == ProcessingState.completed) {
+          switch (_repeatMode) {
+            case REPEAT_FAVORITE:
+              // playNext(true);
+              playNext();
+              break;
+            case REPEAT_ALL:
+              playNext();
+              break;
+            case REPEAT_ONE:
+              replay();
+              break;
+          }
         }
       });
     }
@@ -78,36 +65,35 @@ class AudioService {
 
   String get durChapter => _searchItem.durChapter;
 
-  Future<int> seek(Duration duration) => _player.seek(duration);
+  Future seek(Duration duration) => _player.seek(duration);
 
   Future<void> replay() async {
     await _player.pause();
     await _player.seek(Duration.zero);
-    return _player.resume();
+    return _player.play();
   }
 
   /// 是否正在播放
-  bool get __isPlaying =>
-      _playerState != null &&
-      _playerState != PlayerState.stopped &&
-      _playerState != PlayerState.completed &&
-      _playerState != PlayerState.paused;
+  bool get playing => _player.playing == true;
+  // _playerState != null &&
+  // _playerState != PlayerState.stopped &&
+  // _playerState != PlayerState.completed &&
+  // _playerState != PlayerState.paused;
 
   Future<void> play() async {
-    switch (_playerState) {
-      case PlayerState.completed:
-      case PlayerState.stopped:
+    switch (_player.processingState) {
+      case ProcessingState.completed:
         return replay();
         break;
-      // case PlayerState.PAUSED:
-      //   return _player.resume();
+      case ProcessingState.idle:
+      // return _player.resume();
       default:
-        return _player.resume();
+        return _player.play();
     }
   }
 
   Future<void> playOrPause() async {
-    if (_playerState == PlayerState.playing) {
+    if (playing) {
       return _player.pause();
     } else {
       return play();
@@ -224,20 +210,54 @@ class AudioService {
     } catch (e) {}
     // await SearchItemManager.saveSearchItem();
     print(_url);
+    var _cover = _searchItem.chapters[_searchItem.durChapterIndex].cover;
+    if (_cover.isEmpty) {
+      _cover = searchItem.cover;
+    }
+    Map<String, String> _aHeaders;
+    if (_cover.contains("@headers")) {
+      final u = _cover.split("@headers");
+      final h = (jsonDecode(u[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+      _cover = u[0];
+      _aHeaders = h;
+    }
+    final m = MediaItem(
+      id: "${_searchItem.id}z${chapterIndex}",
+      album: _searchItem.chapters[_searchItem.durChapterIndex].name,
+      title: _searchItem.name,
+      artist: _searchItem.author,
+      artHeaders: _aHeaders,
+      artUri: Uri.parse(_cover),
+    );
     try {
-      await _player.play(UrlSource(_url));
+      if (_url.contains("@headers")) {
+        final u = _url.split("@headers");
+        final h = (jsonDecode(u[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+        print("url:${u[0]},headers:${h}");
+
+        await _player.setAudioSource(AudioSource.uri(Uri.parse(u[0]), headers: h, tag: m),
+            initialIndex: searchItem.durChapterIndex,
+            preload: false,
+            initialPosition: Duration.zero);
+      } else {
+        await _player.setAudioSource(AudioSource.uri(Uri.parse(_url), tag: m),
+            initialIndex: searchItem.durChapterIndex,
+            preload: false,
+            initialPosition: Duration.zero);
+      }
+      await _player.play();
     } catch (e) {
       print(e);
       if (tryNext == true) {
-        await Utils.sleep(3000);
-        if (!AudioService.isPlaying) playNext();
+        await Utils.sleep(1000);
+        if (!playing) playNext();
       }
     }
   }
 
   void switchRepeatMode() {
     int temp = _repeatMode + 1;
-    if (temp > 3) {
+    if (temp > 2) {
       _repeatMode = 0;
     } else {
       _repeatMode = temp;
@@ -254,13 +274,8 @@ class AudioService {
   int _repeatMode;
   int get repeatMode => _repeatMode;
 
-  Duration _duration;
-  Duration get duration => _duration;
-  Duration _positionDuration;
-  Duration get positionDuration => _positionDuration;
-
-  PlayerState _playerState;
-  PlayerState get playerState => _playerState;
+  Duration get duration => _player.duration ?? Duration.zero;
+  Duration get positionDuration => _player.position ?? Duration.zero;
 
   /// 当前播放的节目
   ChapterItem get curChapter =>
@@ -268,11 +283,26 @@ class AudioService {
           ? null
           : _searchItem.chapters[_durChapterIndex];
 
+  Stream<PlayerState> get playerStateStream => _player.playerStateStream;
+
+  bool _close = true;
+  bool get close => _close;
+  set close(bool value) {
+    if (value != _close) {
+      _close = value;
+    }
+  }
+
+  void stop() {
+    _player.stop();
+  }
+
   void dispose() {
     try {
+      _player?.pause();
       _player?.stop();
-      _player?.resume();
-      _player?.dispose();
+      print("_player?.dispose();在這");
+      // _player?.dispose();
     } catch (_) {}
   }
 }

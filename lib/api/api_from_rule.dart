@@ -193,6 +193,7 @@ class APIFromRUle implements API {
     return result;
   }
 
+  // page放进chapter里头
   @override
   Future<List<ChapterItem>> chapter(final String lastResult) async {
     if (rule.chapterUrl == "正文") {

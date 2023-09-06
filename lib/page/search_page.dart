@@ -584,7 +584,7 @@ class SearchProvider with ChangeNotifier {
       _showHistory = true;
       notifyListeners();
     } else {
-      closeHistory();
+      Future.delayed(Duration(milliseconds: 100), closeHistory);     
     }
   }
 
