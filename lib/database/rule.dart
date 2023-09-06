@@ -288,7 +288,7 @@ class Rule {
     if (rules == null) {
       rules = await Global.ruleDao.findAllRules();
     }
-    return jsonEncode(rules.map((e) => e.toJson()).toList());
+    return json.encode(rules.map((e) => e.toJson()).toList());
   }
 
   static Future<bool> restore(List<dynamic> rules, bool reset) async {

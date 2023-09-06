@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:eso/database/history_item_manager.dart';
@@ -342,7 +343,8 @@ class AutoBackupPage extends StatelessWidget {
     // } else if (type == 2) {
     //   // bytes = utf8.encode(jsonEncode(Global.prefs.getStringList(key)));
     // }
-    return ArchiveFile("$key.json", 0, s ?? "");
+    final bytes = utf8.encode(s);
+    return ArchiveFile("$key.json", bytes.length, bytes);
   }
 
   static backup([bool autoBackup = false]) async {
@@ -404,7 +406,7 @@ class AutoBackupPage extends StatelessWidget {
   void restore(List<int> bytes, bool isOnlyRule) {
     ZipDecoder().decodeBytes(bytes).files.forEach((file) async {
       if (file.name == "rules.json") {
-        final rules = jsonDecode(utf8.decode(file.content));
+        final rules = jsonDecode(utf8.decode(file.content, allowMalformed: true));
         if (rules is List) {
           Rule.restore(rules, false);
           Utils.toast("规则导入${rules.length}条");
@@ -413,22 +415,22 @@ class AutoBackupPage extends StatelessWidget {
       }
       if (isOnlyRule) return;
       if (file.name == "${Global.searchItemKey}.json") {
-        final favorite = utf8.decode(file.content);
+        final favorite = utf8.decode(file.content, allowMalformed: true);
         if (favorite != null && favorite is String) {
           SearchItemManager.restore(favorite);
         }
       } else if (file.name == "${Global.profileKey}.json") {
-        final profile = utf8.decode(file.content);
+        final profile = utf8.decode(file.content, allowMalformed: true);
         if (profile != null && profile is String && profile.isNotEmpty) {
           ESOTheme().restore(profile);
         }
       } else if (file.name == "${Global.searchItemKey}.json") {
-        final searchItem = utf8.decode(file.content);
+        final searchItem = utf8.decode(file.content, allowMalformed: true);
         if (searchItem != null && searchItem is String && searchItem.isNotEmpty) {
           SearchItemManager.restore(searchItem);
         }
       } else if (file.name == "${Global.historyItemKey}.json") {
-        final historyItem = utf8.decode(file.content);
+        final historyItem = utf8.decode(file.content, allowMalformed: true);
         if (historyItem != null && historyItem is String && historyItem.isNotEmpty) {
           HistoryItemManager.restore(historyItem);
         }
@@ -443,17 +445,20 @@ class AutoBackupPage extends StatelessWidget {
 
   void restoreLocal(BuildContext context, bool isOnlyRule, String title) async {
     final dir = await CacheUtil(backup: true).cacheDir();
-    String path = await FilesystemPicker.open(
-      title: title,
-      context: context,
-      rootDirectory: Directory(dir),
-      rootName: dir,
-      fsType: FilesystemType.file,
-      folderIconColor: Colors.teal,
-      allowedExtensions: ['.zip', '.txt', '.json'],
-      fileTileSelectMode: FileTileSelectMode.wholeTile,
-      requestPermission: CacheUtil.requestPermission,
-    );
+    // String path = await FilesystemPicker.open(
+    //   title: title,
+    //   context: context,
+    //   rootDirectory: Directory(dir),
+    //   rootName: dir,
+    //   fsType: FilesystemType.file,
+    //   folderIconColor: Colors.teal,
+    //   allowedExtensions: ['.zip', '.txt', '.json'],
+    //   fileTileSelectMode: FileTileSelectMode.wholeTile,
+    //   requestPermission: CacheUtil.requestPermission,
+    // );
+    final path = await Utils.pickFile(
+        context, ['.zip', '.txt', '.json'], dir + "backup.zip",
+        title: title);
     if (path == null) {
       Utils.toast("未选择文件");
     } else if (path.endsWith(".txt") || path.endsWith(".json")) {
