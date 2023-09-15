@@ -77,6 +77,26 @@ class TextCompositionEffect extends CustomPainter {
         index != oldDelegate.index;
   }
 
+  static bool autoVerticalDrag = false;
+
+  drawBackImage(ui.Canvas canvas, bool withImage, [Rect? rect]) {
+    if (withImage != textComposition.animationWithImage) return;
+    final backImage = textComposition.backImage;
+    if (backImage == null) {
+      if (rect != null) {
+        canvas.drawRect(rect, Paint()..color = textComposition.backgroundColor);
+      } else {
+        canvas.drawPaint(Paint()..color = textComposition.backgroundColor);
+      }
+    } else {
+      if (rect != null) {
+        canvas.drawImageRect(backImage, rect, rect, Paint());
+      } else {
+        canvas.drawImage(backImage, Offset.zero, Paint());
+      }
+    }
+  }
+
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
     if (index > textComposition.currentIndex + 2 ||
@@ -92,7 +112,9 @@ class TextCompositionEffect extends CustomPainter {
       return;
     }
 
-    if (textComposition.animation == 'curl' && image == null && toImageIng != true) {
+    if (textComposition.animation == AnimationType.curl &&
+        image == null &&
+        toImageIng != true) {
       toImageIng = true;
       toImage(picture, size);
     }
@@ -101,6 +123,7 @@ class TextCompositionEffect extends CustomPainter {
     /// 如果上一页还有东西 直接裁剪或者不画 也许会节约资源??
     /// 即便出问题 有时候少一帧 大概没影响??
     if (textComposition.getAnimationPostion(index - 1) > 0.998) {
+      drawBackImage(canvas, textComposition.animationWithImage);
       return;
     }
 
@@ -112,15 +135,16 @@ class TextCompositionEffect extends CustomPainter {
     final pos = amount.value; // 1 / 500 = 0.002 也就是500宽度相差1像素 忽略掉动画
     if (pos > 0.998) {
       canvas.drawPicture(picture);
-      if (textComposition.animation.startsWith("simulation2")) {
-        // 中间阴影
-        drawMiddleShadow(canvas, size);
-      }
+      // if (textComposition.config.columns == 2 || (textComposition.config.columns == 0 && size.width > 580)) {
+      //   // 中间阴影
+      //   drawMiddleShadow(canvas, size);
+      // }
+      // 中间阴影应该在textpaint时候画
     } else if (pos < 0.002) {
       return;
     } else {
       switch (textComposition.animation) {
-        case 'curl':
+        case AnimationType.curl:
           if (image == null) {
             if (toImageIng == true) return;
             toImageIng = true;
@@ -131,21 +155,132 @@ class TextCompositionEffect extends CustomPainter {
           }
           break;
 
-        case 'cover':
-          final right = pos * size.width;
+        case AnimationType.coverHorizontal:
+          final offset = pos * size.width;
           final shadowSigma = Shadow.convertRadiusToSigma(16);
-          final pageRect = Rect.fromLTRB(0.0, 0.0, right, size.height);
+          final pageRect = Rect.fromLTRB(0.0, 0.0, offset, size.height);
+          drawBackImage(canvas, false, pageRect);
           canvas.drawRect(
             pageRect,
             Paint()
               ..color = Colors.black54
               ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
           );
-          canvas.translate(right - size.width, 0);
+          canvas.translate(offset - size.width, 0);
+          drawBackImage(canvas, true);
           canvas.drawPicture(picture);
           break;
 
-        case 'flip':
+        case AnimationType.coverVertical:
+          final offset = pos * size.height;
+          final shadowSigma = Shadow.convertRadiusToSigma(16);
+          final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, offset);
+          drawBackImage(canvas, false, pageRect);
+          canvas.drawRect(
+            pageRect,
+            Paint()
+              ..color = Colors.black54
+              ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+          );
+          canvas.translate(0, offset - size.height);
+          drawBackImage(canvas, true);
+          canvas.drawPicture(picture);
+          break;
+
+        case AnimationType.cover:
+          final offset = autoVerticalDrag ? (pos * size.height) : (pos * size.width);
+          final shadowSigma = Shadow.convertRadiusToSigma(16);
+          final pageRect = autoVerticalDrag
+              ? Rect.fromLTRB(0.0, 0.0, size.width, offset)
+              : Rect.fromLTRB(0.0, 0.0, offset, size.height);
+          drawBackImage(canvas, false, pageRect);
+          canvas.drawRect(
+            pageRect,
+            Paint()
+              ..color = Colors.black54
+              ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadowSigma),
+          );
+          if (autoVerticalDrag) {
+            canvas.translate(0, offset - size.height);
+          } else {
+            canvas.translate(offset - size.width, 0);
+          }
+          drawBackImage(canvas, true);
+          canvas.drawPicture(picture);
+          break;
+
+        case AnimationType.slideHorizontal:
+          final offset = pos * size.width;
+          drawBackImage(canvas, false);
+          canvas.translate(offset - size.width, 0);
+          drawBackImage(canvas, true);
+          canvas.drawPicture(picture);
+          // 绘制下一页
+          final nextPicture = textComposition.getPicture(index + 1, size);
+          if (nextPicture == null) return;
+          canvas.translate(size.width, 0);
+          drawBackImage(canvas, true);
+          canvas.drawPicture(nextPicture);
+          break;
+
+        case AnimationType.slideVertical:
+          final offset = pos * size.height;
+          drawBackImage(canvas, false);
+          canvas.translate(0, offset - size.height);
+          drawBackImage(canvas, true);
+          canvas.drawPicture(picture);
+          // 绘制下一页
+          final nextPicture = textComposition.getPicture(index + 1, size);
+          if (nextPicture == null) return;
+          canvas.translate(0, size.height);
+          drawBackImage(canvas, true);
+          canvas.drawPicture(nextPicture);
+          break;
+
+        case AnimationType.slide:
+          final offset = autoVerticalDrag ? (pos * size.height) : (pos * size.width);
+          drawBackImage(canvas, false);
+          if (autoVerticalDrag) {
+            canvas.translate(0, offset - size.height);
+          } else {
+            canvas.translate(offset - size.width, 0);
+          }
+          drawBackImage(canvas, true);
+          canvas.drawPicture(picture);
+          // 绘制下一页
+          final nextPicture = textComposition.getPicture(index + 1, size);
+          if (nextPicture == null) return;
+          if (autoVerticalDrag) {
+            canvas.translate(0, size.height);
+          } else {
+            canvas.translate(size.width, 0);
+          }
+          drawBackImage(canvas, true);
+          canvas.drawPicture(nextPicture);
+          break;
+
+        case AnimationType.scroll:
+          drawBackImage(canvas, textComposition.animationWithImage);
+          canvas.translate(
+              0,
+              pos * size.height -
+                  size.height +
+                  (textComposition.isForward == true ? 0 : 50));
+          canvas.save();
+          canvas.clipRect(Rect.fromLTRB(
+              0, textComposition.config.topPadding + 1, size.width, size.height - 30));
+          canvas.drawPicture(picture);
+          canvas.restore();
+          // 绘制下一页
+          final nextPicture = textComposition.getPicture(index + 1, size);
+          if (nextPicture == null) return;
+          canvas.translate(0, size.height - 50);
+          canvas.clipRect(Rect.fromLTRB(
+              0, textComposition.config.topPadding + 1, size.width, size.height));
+          canvas.drawPicture(nextPicture);
+          break;
+
+        case AnimationType.flip:
           if (pos > 0.5) {
             canvas.drawPicture(picture);
             canvas.clipRect(Rect.fromLTRB(size.width / 2, 0, size.width, size.height));
@@ -189,7 +324,7 @@ class TextCompositionEffect extends CustomPainter {
           }
           break;
 
-        case 'simulation':
+        case AnimationType.simulation:
           final w = size.width;
           final h = size.height;
           final right = pos * w;
@@ -224,7 +359,7 @@ class TextCompositionEffect extends CustomPainter {
           canvas.drawRect(shadowRect, shadowPaint);
           break;
 
-        case 'simulation2L':
+        case AnimationType.simulation2L:
           final w = size.width;
           final h = size.height;
           final half = w / 2;
@@ -260,7 +395,7 @@ class TextCompositionEffect extends CustomPainter {
           canvas.drawRect(shadowRect, shadowPaint);
           break;
 
-        case 'simulation2R':
+        case AnimationType.simulation2R:
           final w = size.width;
           final h = size.height;
           final left = pos * w;
@@ -269,10 +404,10 @@ class TextCompositionEffect extends CustomPainter {
           canvas.save();
           canvas.clipRect(Rect.fromLTRB(0, 0, left, h));
           canvas.drawPicture(picture);
-          if (pos > 0.4) {
-            // 中间阴影
-            drawMiddleShadow(canvas, size);
-          }
+          // if (pos > 0.4) {
+          //   // 中间阴影
+          //   drawMiddleShadow(canvas, size);
+          // }
           // 左侧阴影
           final shadow = Path()
             ..moveTo(left - 3, 0)
@@ -323,20 +458,37 @@ class TextCompositionEffect extends CustomPainter {
     }
   }
 
-  drawMiddleShadow(Canvas canvas, ui.Size size) {
-    final half = size.width / 2;
-    final shadowGradientM = LinearGradient(colors: [
-      Colors.transparent,
-      Color(0x22000000),
-      Color(0x66000000),
-      Color(0x22000000),
-      Colors.transparent
-    ]);
-    final shadowRectM = Rect.fromLTRB(half - 8, 0, half + 8, size.height);
-    final shadowPaintM = Paint()
-      ..isAntiAlias = true
-      ..style = PaintingStyle.fill //填充
-      ..shader = shadowGradientM.createShader(shadowRectM);
-    canvas.drawRect(shadowRectM, shadowPaintM);
-  }
+  // drawMiddleShadow(Canvas canvas, ui.Size size) {
+  //   final half = size.width / 2;
+  //   final shadowGradientM = LinearGradient(colors: [
+  //     Colors.transparent,
+  //     Color(0x22000000),
+  //     Color(0x66000000),
+  //     Color(0x22000000),
+  //     Colors.transparent
+  //   ]);
+  //   final shadowRectM = Rect.fromLTRB(half - 8, 0, half + 8, size.height);
+  //   final shadowPaintM = Paint()
+  //     ..isAntiAlias = true
+  //     ..style = PaintingStyle.fill //填充
+  //     ..shader = shadowGradientM.createShader(shadowRectM);
+  //   canvas.drawRect(shadowRectM, shadowPaintM);
+  // }
+}
+
+drawMiddleShadow(Canvas canvas, ui.Size size) {
+  final half = size.width / 2;
+  final shadowGradientM = LinearGradient(colors: [
+    Colors.transparent,
+    Color(0x22000000),
+    Color(0x66000000),
+    Color(0x22000000),
+    Colors.transparent
+  ]);
+  final shadowRectM = Rect.fromLTRB(half - 8, 0, half + 8, size.height);
+  final shadowPaintM = Paint()
+    ..isAntiAlias = true
+    ..style = PaintingStyle.fill //填充
+    ..shader = shadowGradientM.createShader(shadowRectM);
+  canvas.drawRect(shadowRectM, shadowPaintM);
 }

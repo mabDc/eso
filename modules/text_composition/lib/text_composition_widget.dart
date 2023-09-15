@@ -67,7 +67,7 @@ TextPage getOnePage(
       }
     }
   }
-  return TextPage(height: dy + config.bottomPadding, lines: lines, number: 1, column: width);
+  return TextPage(height: dy + config.bottomPadding, lines: lines, number: 1, column: width, columns: 1);
 }
 
 class SimpleWidgetPainter extends CustomPainter {

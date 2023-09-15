@@ -13,6 +13,7 @@ import 'memory_cache.dart';
 import 'text_composition_effect_refactor.dart';
 import 'text_composition_const.dart';
 import 'text_composition_config.dart';
+import 'text_composition_widget.dart';
 
 export 'text_composition_config.dart';
 export 'text_composition_effect_refactor.dart';
@@ -29,6 +30,7 @@ class TextPage {
   final double height;
   final double column;
   final List<TextLine> lines;
+  final int columns;
 
   TextPage({
     this.percent = 0.0,
@@ -39,6 +41,7 @@ class TextPage {
     required this.number,
     required this.height,
     required this.lines,
+    required this.columns,
   });
 }
 
@@ -88,6 +91,7 @@ class TextComposition extends ChangeNotifier {
 
   double _initPercent;
   int _firstChapterIndex;
+  int get firstChapterIndex => _firstChapterIndex;
   int _lastChapterIndex;
 
   int _firstIndex, _currentIndex, _lastIndex;
@@ -101,6 +105,7 @@ class TextComposition extends ChangeNotifier {
   final MemoryCache<int, ui.Picture> pictures;
   ui.Image? _backImage;
   ui.Image? get backImage => _backImage;
+  bool get animationWithImage => _backImage != null && config.animationWithImage == true;
 
   Future<void> _getBackImage() async {
     try {
@@ -125,18 +130,32 @@ class TextComposition extends ChangeNotifier {
     } catch (e) {}
   }
 
+  // drawBackImage(ui.Canvas canvas, [Rect? rect]) {
+  //   if (_backImage == null) return;
+  //   if (rect != null) {
+  //     canvas.drawImageRect(_backImage!, rect, rect, Paint());
+  //   } else {
+  //     canvas.drawImage(_backImage!, Offset.zero, Paint());
+  //   }
+  // }
+
   ui.Picture? getPicture(int index, Size size) => pictures.getValueOrSet(index, () {
         final textPage = textPages[index];
         if (textPage == null) return null;
         final pic = ui.PictureRecorder();
         final c = Canvas(pic);
-        final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
-        c.drawRect(pageRect, Paint()..color = config.backgroundColor);
-        if (_backImage != null) c.drawImage(_backImage!, Offset.zero, Paint());
+        if (animation == AnimationType.simulation || animation == AnimationType.flip) {
+          final pageRect = Rect.fromLTRB(0.0, 0.0, size.width, size.height);
+          c.drawRect(pageRect, Paint()..color = config.backgroundColor);
+          if (_backImage != null) c.drawImage(_backImage!, Offset.zero, Paint());
+        }
+        if (animationWithImage && animation == AnimationType.curl) {
+          c.drawImage(_backImage!, Offset.zero, Paint());
+        }
         paintText(c, size, textPage, config);
         return pic.endRecording();
       });
-  String get animation => config.animation;
+  AnimationType get animation => config.animation;
   Color get backgroundColor => config.backgroundColor;
   bool get shouldClipStatus => config.showStatus && !config.animationStatus;
 
@@ -340,6 +359,9 @@ class TextComposition extends ChangeNotifier {
   }
 
   List<Widget> get pages {
+    if (textPages.isEmpty) {
+      return [CircularProgressIndicator()];
+    }
     return [
       for (var i = _currentIndex + HALF, last = _currentIndex - HALF; i > last; i--)
         CustomPaint(
@@ -434,11 +456,14 @@ class TextComposition extends ChangeNotifier {
     });
   }
 
-  void turnPage(DragUpdateDetails details, BoxConstraints dimens) {
+  void turnPage(DragUpdateDetails details, BoxConstraints dimens,
+      {bool vertical = false}) {
     if (_disposed) return;
-    final _ratio = details.delta.dx / dimens.maxWidth;
+    TextCompositionEffect.autoVerticalDrag = vertical;
+    final offset = vertical ? details.delta.dy : details.delta.dx;
+    final _ratio = vertical ? (offset / dimens.maxHeight) : (offset / dimens.maxWidth);
     if (isForward == null) {
-      if (details.delta.dx > 0) {
+      if (offset > 0) {
         isForward = false;
       } else {
         isForward = true;
@@ -608,13 +633,13 @@ class TextComposition extends ChangeNotifier {
       }
       if (columnNum == columns || lastPage) {
         pages.add(TextPage(
-          lines: lines,
-          height: dy,
-          number: pageIndex++,
-          info: chapter,
-          chIndex: index,
-          column: _width,
-        ));
+            lines: lines,
+            height: dy,
+            number: pageIndex++,
+            info: chapter,
+            chIndex: index,
+            column: _width,
+            columns: columns));
         lines = <TextLine>[];
         columnNum = 1;
         dx = _dx;
@@ -667,6 +692,7 @@ class TextComposition extends ChangeNotifier {
         info: chapter,
         chIndex: index,
         column: _width,
+        columns: columns,
       ));
     }
 

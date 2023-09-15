@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 
 import 'text_composition.dart';
 
+enum AnimationType {
+  simulation,
+  simulation2L,
+  simulation2R,
+  simulationHalf,
+  scroll,
+  slide,
+  slideHorizontal,
+  slideVertical,
+  cover,
+  coverHorizontal,
+  coverVertical,
+  curl,
+  flip,
+}
+
 /// + 这里配置需要离线保存和加载
 /// + 其他配置实时计算
 ///
@@ -14,7 +30,8 @@ class TextCompositionConfig {
   bool underLine;
   bool animationStatus;
   bool animationHighImage;
-  String animation;
+  bool animationWithImage;
+  AnimationType animation;
   int animationDuration;
 
   /// padding
@@ -46,7 +63,8 @@ class TextCompositionConfig {
     this.underLine = true,
     this.animationStatus = true,
     this.animationHighImage = false,
-    this.animation = 'curl',
+    this.animationWithImage = true,
+    this.animation = AnimationType.cover,
     this.animationDuration = 450,
     this.topPadding = 16,
     this.leftPadding = 16,
@@ -73,7 +91,8 @@ class TextCompositionConfig {
     bool? underLine,
     bool? animationStatus,
     bool? animationHighImage,
-    String? animation,
+    bool? animationWithImage,
+    AnimationType? animation,
     int? animationDuration,
     double? topPadding,
     double? leftPadding,
@@ -119,6 +138,10 @@ class TextCompositionConfig {
     }
     if (animationHighImage != null && this.animationHighImage != animationHighImage) {
       this.animationHighImage = animationHighImage;
+      update ??= true;
+    }
+    if (animationWithImage != null && this.animationWithImage != animationWithImage) {
+      this.animationWithImage = animationWithImage;
       update ??= true;
     }
     if (animation != null && this.animation != animation) {
@@ -203,7 +226,10 @@ class TextCompositionConfig {
       underLine: cast(encoded['underLine'], true),
       animationStatus: cast(encoded['animationStatus'], true),
       animationHighImage: cast(encoded['animationHighImage'], false),
-      animation: cast(encoded['animation'], 'curl'),
+      animationWithImage: cast(encoded['animationWithImage'], true),
+      animation: AnimationType.values.firstWhere(
+          (a) => a.name == cast(encoded['animation'], ''),
+          orElse: () => AnimationType.cover),
       animationDuration: cast(encoded['animationDuration'], 400),
       topPadding: cast(encoded['topPadding'], 16),
       leftPadding: cast(encoded['leftPadding'], 16),
@@ -233,7 +259,8 @@ class TextCompositionConfig {
       'underLine': underLine,
       'animationStatus': animationStatus,
       'animationHighImage': animationHighImage,
-      'animation': animation,
+      'animationWithImage': animationWithImage,
+      'animation': animation.name,
       'animationDuration': animationDuration,
       'topPadding': topPadding,
       'leftPadding': leftPadding,
@@ -264,6 +291,7 @@ class TextCompositionConfig {
         other.underLine == underLine &&
         other.animationStatus == animationStatus &&
         other.animationHighImage == animationHighImage &&
+        other.animationWithImage == animationWithImage &&
         other.animation == animation &&
         other.animationDuration == animationDuration &&
         other.topPadding == topPadding &&

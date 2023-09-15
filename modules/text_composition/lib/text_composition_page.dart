@@ -27,12 +27,13 @@ class TextCompositionPageState extends State<TextCompositionPage>
   void dispose() {
     widget.controller.removeListener(refresh);
     widget.controller.dispose();
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
   refresh() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -42,7 +43,8 @@ class TextCompositionPageState extends State<TextCompositionPage>
   }
 
   setUp() {
-    if (!widget.controller.config.showStatus) SystemChrome.setEnabledSystemUIOverlays([]);
+    if (!widget.controller.config.showStatus)
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     widget.controller.addListener(refresh);
     widget.controller.init((_controllers) {
       if (_controllers.length == TextComposition.TOTAL) return;
@@ -96,8 +98,12 @@ class TextCompositionPageState extends State<TextCompositionPage>
             behavior: HitTestBehavior.opaque,
             onHorizontalDragCancel: () => widget.controller.isForward = null,
             onHorizontalDragUpdate: (details) =>
-                widget.controller.turnPage(details, dimens),
+                widget.controller.turnPage(details, dimens, vertical: false),
             onHorizontalDragEnd: (details) => widget.controller.onDragFinish(),
+            onVerticalDragCancel: () => widget.controller.isForward = null,
+            onVerticalDragUpdate: (details) =>
+                widget.controller.turnPage(details, dimens, vertical: true),
+            onVerticalDragEnd: (details) => widget.controller.onDragFinish(),
             onTapUp: (details) {
               final size = MediaQuery.of(context).size;
               if (details.globalPosition.dx > size.width * 3 / 8 &&
