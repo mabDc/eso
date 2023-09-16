@@ -88,11 +88,12 @@ dependencies:
   uni_links: ^0.5.1
   # audio_service: ^0.18.9
   waterfall_flow: ^3.0.2
-  just_audio: ^0.9.34
   flutter_lyric: ^2.0.4+6
-  just_audio_background: ^0.0.1-beta.10
+  just_audio: ^0.9.35
+  # just_audio_background: ^0.0.1-beta.10
   just_audio_windows: ^0.2.0
   just_audio_mpv: ^0.1.7
+  audio_service: ^0.18.12
   # video_player_media_kit: ^0.0.5
   # video_player_win: ^2.2.2
   
