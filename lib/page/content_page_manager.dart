@@ -168,12 +168,12 @@ class ContentProvider with ChangeNotifier {
   }
 
   void changeChapter(int index) async {
-    if (searchItem.durChapterIndex != index) {
-      searchItem.durChapterIndex = index;
-      searchItem.durChapter = searchItem.chapters[index].name;
-      searchItem.durContentIndex = 1;
-      await searchItem.save();
-    }
+    // if (searchItem.durChapterIndex != index) {
+    //   searchItem.durChapterIndex = index;
+    //   searchItem.durChapter = searchItem.chapters[index].name;
+    //   searchItem.durContentIndex = 1;
+    //   await searchItem.save();
+    // }
     await HistoryItemManager.insertOrUpdateHistoryItem(searchItem);
   }
 }

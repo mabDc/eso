@@ -6,12 +6,14 @@ import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/eso_theme.dart';
+import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
 import 'package:eso/utils/flutter_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../lyric/lyric.dart';
 import '../lyric/lyric_widget.dart';
@@ -20,6 +22,7 @@ import 'dart:math';
 
 import '../fonticons_icons.dart';
 import '../global.dart';
+import 'content_page_manager.dart';
 import 'hidden/linyuan_page.dart';
 import 'langding_page.dart';
 
@@ -42,7 +45,7 @@ Future<bool> ensureInitAudioHandler() async {
 }
 
 checkAudioInList(List<SearchItem> searchList) {
-  if (_audioHandler.searchItem != null &&
+  if (_audioHandler?.searchItem != null &&
       !SearchItemManager.isFavorite(
           _audioHandler.searchItem.originTag, _audioHandler.searchItem.url)) {
     searchList.add(_audioHandler.searchItem);
@@ -57,13 +60,16 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
   bool get playing => _player.playing;
   Duration get position => _player.position;
   Duration get duration => _player.duration;
-  Stream<PlayerState> get playerStateStream => _player.playerStateStream;
 
   SearchItem _searchItem;
   SearchItem get searchItem => _searchItem;
   ChapterItem get chapter => searchItem.chapters[searchItem.durChapterIndex];
   final List<Lyric> lyrics = <Lyric>[];
   var close = false;
+  String cover;
+  Map<String, String> headers;
+  bool get emptyCover => Utils.empty(cover);
+  ContentProvider _contentProvider;
 
   AudioHandler() {
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
@@ -82,12 +88,15 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [
-        if (_player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToPrevious,
+        if (_player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToNext,
       ],
       systemActions: const {
         MediaAction.seek,
+        MediaAction.play,
+        MediaAction.pause,
+        MediaAction.playPause,
       },
       androidCompactActionIndices: const [0, 1, 2],
       processingState: const {
@@ -119,12 +128,12 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> skipToPrevious() async {
-    // todo
+    loadChapter(searchItem.durChapterIndex - 1);
   }
 
   @override
   Future<void> skipToNext() async {
-    // todo
+    loadChapter(searchItem.durChapterIndex + 1);
   }
 
   Future<void> playOrPause() async {
@@ -136,12 +145,49 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
 
   // int get currentIndex => 0;
 
-  Future<void> load(SearchItem searchItem) async {
-    _searchItem = searchItem;
-    close = false;
+  String get genID => "${_searchItem.id}${_searchItem.durChapterIndex}";
+
+  void upMediaItem({Duration duration}) {
+    mediaItem.add(MediaItem(
+      id: genID,
+      title: chapter.name,
+      album: searchItem.origin,
+      artist: "${searchItem.name}(${searchItem.author})",
+      artUri: Uri.tryParse(cover),
+      artHeaders: headers,
+      duration: duration,
+    ));
   }
 
-  Future<void> loadChapter(int index) async {
+  Future<void> load(SearchItem searchItem,
+      [ContentProvider contentProvider = null]) async {
+    close = false;
+    if (contentProvider != null) _contentProvider = contentProvider;
+    if (_searchItem?.id != searchItem.id) {
+      _searchItem = searchItem;
+      if (emptyCover && !Utils.empty(_searchItem.cover)) {
+        final i = PhotoItem.parse(_searchItem.cover);
+        cover = i.url;
+        headers = i.headers;
+      }
+      upMediaItem();
+      loadChapter(_searchItem.durChapterIndex, true);
+    } else {
+      loadChapter(_searchItem.durChapterIndex);
+    }
+  }
+
+  Future<void> loadChapter(int index, [bool forse = false]) async {
+    if (!forse && _searchItem.durChapterIndex == index) {
+      play();
+      return;
+    }
+    _searchItem.durChapterIndex = index;
+    _searchItem.durChapter = chapter.name;
+    final result = await _contentProvider.loadChapter(index);
+    final d = await _player.setUrl(result[0]);
+    upMediaItem(duration: d);
+    play();
     // todo
   }
 
@@ -171,24 +217,27 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   bool _showLyric = false;
   bool _showChapter = false;
   void toggleLyric() {
-    if (mounted)
-      setState(() {
-        _showLyric = !_showLyric;
-      });
+    if (mounted) {
+      _showLyric = !_showLyric;
+      _audioPage = _buildPage();
+      setState(() {});
+    }
   }
 
   void closeChapter() {
-    if (_showChapter && mounted)
-      setState(() {
-        _showChapter = false;
-      });
+    if (_showChapter && mounted) {
+      _showChapter = false;
+      _audioPage = _buildPage();
+      setState(() {});
+    }
   }
 
-  void showChapter() {
-    if (!_showChapter && mounted)
-      setState(() {
-        _showChapter = true;
-      });
+  void toggleChapter() {
+    if (mounted) {
+      _showChapter = !_showChapter;
+      _audioPage = _buildPage();
+      setState(() {});
+    }
   }
 
   @override
@@ -213,7 +262,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
         future: ensureInitAudioHandler(),
         initialData: null,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) return _buildPage();
+          if (snapshot.hasData) return _buildPage(Provider.of<ContentProvider>(context));
           if (snapshot.hasError) return Scaffold(body: Text(snapshot.error.toString()));
           return LandingPage();
         },
@@ -229,9 +278,10 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Widget _buildPage() {
-    audioHandler.load(searchItem);
+  Widget _buildPage([ContentProvider contentProvider = null]) {
+    audioHandler.load(searchItem, contentProvider);
     final chapter = audioHandler.chapter;
+    final cover = Utils.empty(chapter.cover) ? searchItem.cover : chapter.cover;
     return Scaffold(
       body: GestureDetector(
         onTap: closeChapter,
@@ -240,14 +290,15 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
           width: double.infinity,
           child: Stack(
             children: <Widget>[
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-                child: Image.network(
-                  Utils.empty(chapter.cover) ? defaultImage : chapter.cover,
-                  fit: BoxFit.cover,
+              if (!Utils.empty(cover))
+                Container(
+                  height: double.infinity,
+                  width: double.infinity,
+                  child: Image.network(
+                    cover,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
               BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                 child: Container(color: Colors.black.withAlpha(80)),
@@ -257,7 +308,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                   children: <Widget>[
                     _buildAppBar(chapter.name, chapter.time),
                     if (_showLyric)
-                      if (audioHandler.lyrics.isEmpty || audioHandler.position == null)
+                      if (audioHandler.lyrics.isEmpty)
                         Expanded(
                           child: InkWell(
                             onTap: toggleLyric,
@@ -277,7 +328,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                         )
                       else
                         () {
-                          _lyricController.progress = audioHandler.position;
+                          // _lyricController.progress = AudioService.position.;
                           return Expanded(
                             child: Stack(
                               alignment: Alignment.center,
@@ -338,33 +389,34 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                         child: Tooltip(
                           message: '点击切换显示歌词',
                           child: Center(
-                              child: SizedBox(
-                            width: 300,
-                            height: 300,
-                            child: AnimationRotateView(
-                              child: InkWell(
-                                onTap: toggleLyric,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Utils.empty(chapter.cover)
-                                        ? Colors.black26
-                                        : null,
-                                    image: Utils.empty(chapter.cover)
-                                        ? null
-                                        : DecorationImage(
-                                            image: NetworkImage(chapter.cover ?? ''),
-                                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: 300,
+                              height: 300,
+                              child: AnimationRotateView(
+                                child: InkWell(
+                                  onTap: toggleLyric,
+                                  child: Utils.empty(cover)
+                                      ? Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.black26,
                                           ),
-                                  ),
-                                  child: Utils.empty(chapter.cover)
-                                      ? Icon(Icons.audiotrack,
-                                          color: Colors.white30, size: 200)
-                                      : null,
+                                          child: Icon(Icons.audiotrack,
+                                              color: Colors.white30, size: 200),
+                                        )
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                              image: NetworkImage(cover ?? ''),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
                                 ),
                               ),
                             ),
-                          )),
+                          ),
                         ),
                       ),
                     SizedBox(height: 50),
@@ -506,65 +558,70 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   }
 
   Widget _buildProgressBar() {
-    return Row(
-      children: <Widget>[
-        Container(
-          alignment: Alignment.centerRight,
-          child: Text(audioHandler.position.inSeconds.toString(),
-              style: TextStyle(color: Colors.white)),
-          width: 52,
-        ),
-        Expanded(
-          child: FlutterSlider(
-            values: [audioHandler.position.inSeconds.toDouble()],
-            max: audioHandler.duration.inSeconds.toDouble() < 1
-                ? 1
-                : audioHandler.duration.inSeconds.toDouble(),
-            min: 0,
-            onDragging: (handlerIndex, lowerValue, upperValue) =>
-                audioHandler.seek(Duration(seconds: (lowerValue as double).toInt())),
-            handlerHeight: 12,
-            handlerWidth: 12,
-            handler: FlutterSliderHandler(
-              child: Container(
-                width: 12,
-                height: 12,
-                alignment: Alignment.center,
-                child: Icon(Icons.audiotrack, color: Colors.red, size: 8),
-              ),
+    final r = (Duration position, Duration duration) => Row(
+          children: <Widget>[
+            Container(
+              alignment: Alignment.centerRight,
+              child: Text(Utils.formatDuration(position),
+                  style: TextStyle(color: Colors.white)),
+              width: 52,
             ),
-            trackBar: FlutterSliderTrackBar(
-              inactiveTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white54,
-              ),
-              activeTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Colors.white70,
-              ),
-            ),
-            tooltip: FlutterSliderTooltip(
-              disableAnimation: true,
-              custom: (value) => Container(
-                color: Colors.black12,
-                padding: EdgeInsets.all(4),
-                child: Text(
-                  Utils.formatDuration(Duration(seconds: (value as double).toInt())),
-                  style: TextStyle(color: Colors.white),
+            Expanded(
+              child: FlutterSlider(
+                values: [position.inSeconds.toDouble()],
+                max:
+                    duration.inSeconds.toDouble() < 1 ? 1 : duration.inSeconds.toDouble(),
+                min: 0,
+                onDragging: (handlerIndex, lowerValue, upperValue) =>
+                    audioHandler.seek(Duration(seconds: (lowerValue as double).toInt())),
+                handlerHeight: 12,
+                handlerWidth: 12,
+                handler: FlutterSliderHandler(
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.audiotrack, color: Colors.red, size: 8),
+                  ),
+                ),
+                trackBar: FlutterSliderTrackBar(
+                  inactiveTrackBar: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white54,
+                  ),
+                  activeTrackBar: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.white70,
+                  ),
+                ),
+                tooltip: FlutterSliderTooltip(
+                  disableAnimation: true,
+                  custom: (value) => Container(
+                    color: Colors.black12,
+                    padding: EdgeInsets.all(4),
+                    child: Text(
+                      Utils.formatDuration(Duration(seconds: (value as double).toInt())),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  positionOffset:
+                      FlutterSliderTooltipPositionOffset(left: -10, right: -10, top: -10),
                 ),
               ),
-              positionOffset:
-                  FlutterSliderTooltipPositionOffset(left: -10, right: -10, top: -10),
             ),
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          child: Text(audioHandler.duration.inSeconds.toString(),
-              style: TextStyle(color: Colors.white)),
-          width: 52,
-        ),
-      ],
+            Container(
+              alignment: Alignment.centerLeft,
+              child: Text(Utils.formatDuration(duration),
+                  style: TextStyle(color: Colors.white)),
+              width: 52,
+            ),
+          ],
+        );
+    return StreamBuilder<Duration>(
+      stream: AudioService.position,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return r(snapshot.data ?? Duration.zero, _audioHandler.duration ?? Duration.zero);
+      },
     );
   }
 
@@ -602,17 +659,22 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
             onPressed: audioHandler.skipToPrevious,
             tooltip: '上一曲',
           ),
-          IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(
-              audioHandler.playing
-                  ? Icons.pause_circle_outline
-                  : Icons.play_circle_outline,
-              color: Colors.white,
-              size: 46,
-            ),
-            onPressed: audioHandler.playOrPause,
-            tooltip: audioHandler.playing ? '暂停' : '播放',
+          StreamBuilder(
+            stream: _audioHandler.playbackState.map((state) => state.playing).distinct(),
+            builder: (BuildContext context, AsyncSnapshot _) {
+              return IconButton(
+                padding: EdgeInsets.zero,
+                icon: Icon(
+                  audioHandler.playing
+                      ? Icons.pause_circle_outline
+                      : Icons.play_circle_outline,
+                  color: Colors.white,
+                  size: 46,
+                ),
+                onPressed: audioHandler.playOrPause,
+                tooltip: audioHandler.playing ? '暂停' : '播放',
+              );
+            },
           ),
           IconButton(
             icon: Icon(
@@ -630,7 +692,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
             ),
             iconSize: 26,
             tooltip: "播放列表",
-            onPressed: showChapter,
+            onPressed: toggleChapter,
           ),
         ],
       ),
