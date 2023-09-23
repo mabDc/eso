@@ -109,21 +109,25 @@ class ChapterPageProvider with ChangeNotifier {
       notifyListeners();
       checkContent = buildCheck(searchItem.chapters);
     }
+
+    final endCheck = () {
+      _page = -page; // 结束
+      checkContent = "";
+      _isLoading = false;
+      notifyListeners();
+    };
+    
     await Duration(milliseconds: 500); // 随意休息一下
     print("加载目录$page");
     final durChapters =
         await APIManager.getChapter(searchItem.originTag, searchItem.url, _page);
     if (durChapters.isEmpty) {
-      _page = -page; // 结束
-      _isLoading = false;
-      notifyListeners();
+      endCheck();
       return;
     }
     final _checkContent = buildCheck(durChapters);
     if (checkContent == _checkContent) {
-      _page = -page; // 结束
-      _isLoading = false;
-      notifyListeners();
+      endCheck();
       return;
     }
     searchItem.chapters.addAll(durChapters);
@@ -135,9 +139,7 @@ class ChapterPageProvider with ChangeNotifier {
   }
 
   String buildCheck(List<ChapterItem> chapters) {
-    return json.encode(chapters.first.toJson()) +
-        searchItem.chapters.length.toString() +
-        json.encode(chapters.last.toJson());
+    return "${chapters.length}${chapters.map((c) => c.name.trim()).join("")}";
   }
 
   void initChapters() async {

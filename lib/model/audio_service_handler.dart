@@ -101,6 +101,11 @@
 
 //     // Load the player.
 //   }
+//   @override
+//   Future<void> skipToNext() {
+//     // TODO: implement skipToNext
+//     return super.skipToNext();
+//   }
 
 //   void _init() async {
 //     final session = await AudioSession.instance;

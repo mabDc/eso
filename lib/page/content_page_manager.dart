@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'audio_page_refactor.dart';
 import 'novel_more_page.dart';
 import 'novel_page_refactor.dart';
 

@@ -45,7 +45,12 @@ class AnalyzerXPath implements Analyzer {
               .replaceAll(RegExp("<.?br.?>"), "\n"))
           .toList();
     }
-    return _xpath.query(rule).attrs;
+    final nodes = _xpath.query(rule);
+    final attrs = nodes.attrs;
+    if (attrs.isEmpty && !rule.contains("@") && !rule.contains("()")) {
+      return nodes.nodes.map((e) => (e.node as Element).outerHtml).toList();
+    }
+    return attrs;
   }
 
   @override

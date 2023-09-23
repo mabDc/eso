@@ -10,7 +10,6 @@ import 'package:eso/page/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:uni_links/uni_links.dart';
 // import 'package:video_player_win/video_player_win.dart';
@@ -19,6 +18,7 @@ import 'eso_theme.dart';
 import 'global.dart';
 import 'hive/theme_mode_box.dart';
 import 'model/audio_service_handler.dart';
+import 'page/audio_page_refactor.dart';
 import 'page/discover_page.dart';
 import 'page/home_page.dart';
 import 'package:hetu_script/hetu_script.dart';
@@ -94,13 +94,13 @@ void main() async {
         SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   }
   WidgetsFlutterBinding.ensureInitialized();
-  if (!Platform.isWindows)
-    await JustAudioBackground.init(
-      androidNotificationChannelId: 'com.eso.channel.audio',
-      androidNotificationChannelName: '亦搜音频',
-      androidNotificationOngoing: true,
-      androidNotificationIcon: 'mipmap/eso_logo',
-    );
+  // if (!Platform.isWindows)
+  // await JustAudioBackground.init(
+  //   androidNotificationChannelId: 'com.eso.channel.audio',
+  //   androidNotificationChannelName: '亦搜音频',
+  //   androidNotificationOngoing: true,
+  //   androidNotificationIcon: 'mipmap/eso_logo',
+  // );
   if (Platform.isAndroid || Platform.isIOS) {
     final linkPath = await getInitialLink();
 

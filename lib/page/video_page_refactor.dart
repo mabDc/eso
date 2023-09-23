@@ -22,6 +22,7 @@ import '../global.dart';
 import '../model/audio_service.dart';
 import '../utils.dart';
 import '../utils/dlna_util.dart';
+import 'audio_page_refactor.dart';
 import 'content_page_manager.dart';
 
 class VideoPage extends StatelessWidget {
@@ -560,7 +561,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
         _aspectRatio = VideoAspectRatio.auto;
       }
       notifyListeners();
-      AudioService().stop();
+      audioHandler.stop();
       await _controller.initialize();
       _controller.seekTo(Duration(milliseconds: searchItem.durContentIndex));
       _controller.play();

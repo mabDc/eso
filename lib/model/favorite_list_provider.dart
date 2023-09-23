@@ -1,6 +1,7 @@
 import 'package:eso/api/api.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
+import 'package:eso/page/audio_page_refactor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -10,7 +11,8 @@ import 'audio_service.dart';
 class FavoriteListProvider with ChangeNotifier {
   List<SearchItem> _searchList;
   List<SearchItem> get searchList => _searchList;
-  List<SearchItem> get allSearchList => SearchItemManager.getSearchItemByType(type, _sortType, "全部");
+  List<SearchItem> get allSearchList =>
+      SearchItemManager.getSearchItemByType(type, _sortType, "全部");
   final box = Hive.box<List<String>>(Global.favoriteListTagKey);
 
   List<String> _tags = ["全部"];
@@ -37,12 +39,7 @@ class FavoriteListProvider with ChangeNotifier {
     if (selectTag == tag) {
       _tags[0] = "全部";
       _searchList = SearchItemManager.getSearchItemByType(type, _sortType, "全部");
-      if (type == API.AUDIO &&
-          AudioService().searchItem != null &&
-          !SearchItemManager.isFavorite(
-              AudioService().searchItem.originTag, AudioService().searchItem.url)) {
-        _searchList.add(AudioService().searchItem);
-      }
+      if (type == API.AUDIO) checkAudioInList(_searchList);
     }
     _tags.remove(tag);
     box.put(type, _tags);
@@ -54,12 +51,7 @@ class FavoriteListProvider with ChangeNotifier {
     _tags.add(tag);
     box.put(type, _tags);
     _searchList = SearchItemManager.getSearchItemByType(type, _sortType, tag);
-    if (type == API.AUDIO &&
-        AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(
-            AudioService().searchItem.originTag, AudioService().searchItem.url)) {
-      _searchList.add(AudioService().searchItem);
-    }
+    if (type == API.AUDIO) checkAudioInList(_searchList);
     notifyListeners();
   }
 
@@ -69,24 +61,14 @@ class FavoriteListProvider with ChangeNotifier {
     box.put(type, _tags);
 
     _searchList = SearchItemManager.getSearchItemByType(type, _sortType, tag);
-    if (type == API.AUDIO &&
-        AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(
-            AudioService().searchItem.originTag, AudioService().searchItem.url)) {
-      _searchList.add(AudioService().searchItem);
-    }
+    if (type == API.AUDIO) checkAudioInList(_searchList);
     notifyListeners();
   }
 
   void updateList([String tag]) {
     _searchList =
         SearchItemManager.getSearchItemByType(type, _sortType, tag ?? selectTag);
-    if (type == API.AUDIO &&
-        AudioService().searchItem != null &&
-        !SearchItemManager.isFavorite(
-            AudioService().searchItem.originTag, AudioService().searchItem.url)) {
-      _searchList.add(AudioService().searchItem);
-    }
+   if (type == API.AUDIO) checkAudioInList(_searchList);
     notifyListeners();
   }
 
