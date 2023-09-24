@@ -138,7 +138,7 @@ class _AudioViewState extends State<AudioView> {
         return InkWell(
           child: Tooltip(
             child: _view,
-            message: '正在播放: ' + audioHandler.chapter.name ?? '',
+            message: '正在播放: ' + audioHandler.chapter?.name ?? '',
           ),
           onTap: () {
             Utils.startPageWait(context, AudioPage(searchItem: audioHandler.searchItem));

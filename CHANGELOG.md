@@ -2,7 +2,9 @@
 - fix 修復zy-player的規則解析問題
 - fix 目錄章節的多頁判斷
 - refactor 重寫音頻播放控制器
-
+   - 音頻結果字符串 第一項是播放地址，允許帶有headers，格式形如`url@headers{xx}`
+   - 其他支持封面，以`@cover`開頭，允許帶有headers，格式形如`@coverurl@headers{xx}`
+   - 其他支持lrc格式歌詞，以`@lrc`開頭，格式形如`@lrcyyy`
 ### 2023.9.6
 - add 更换音频播放器。增加系统状态栏标签，响应系统事件。
 - fix 修复备份文件编码问题

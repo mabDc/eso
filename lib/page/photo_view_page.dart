@@ -27,7 +27,7 @@ class PhotoItem {
     if (urlWithHeaders == null) return null;
     final index = urlWithHeaders.indexOf("@headers");
     if (index == -1) return PhotoItem(urlWithHeaders, null);
-    final headers = (jsonDecode(urlWithHeaders.substring(index + 8)) as Map)
+    final headers = (jsonDecode(urlWithHeaders.substring(index + "@headers".length)) as Map)
         .map((k, v) => MapEntry('$k', '$v'));
     return PhotoItem(urlWithHeaders.substring(0, index), headers);
   }

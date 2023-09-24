@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../global.dart';
-import 'audio_service.dart';
 
 class FavoriteListProvider with ChangeNotifier {
   List<SearchItem> _searchList;

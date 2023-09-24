@@ -1,12 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
-// import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:eso/database/chapter_item.dart';
 import 'package:eso/database/search_item.dart';
 import 'package:eso/database/search_item_manager.dart';
 import 'package:eso/eso_theme.dart';
-import 'package:eso/page/photo_view_page.dart';
 import 'package:eso/ui/ui_chapter_select.dart';
 import 'package:eso/ui/widgets/animation_rotate_view.dart';
 import 'package:eso/utils.dart';
@@ -25,14 +25,15 @@ import '../global.dart';
 import 'content_page_manager.dart';
 import 'hidden/linyuan_page.dart';
 import 'langding_page.dart';
+import 'package:rxdart/rxdart.dart';
 
 AudioHandler _audioHandler;
 AudioHandler get audioHandler => _audioHandler;
 
-Future<bool> ensureInitAudioHandler() async {
+Future<bool> ensureInitAudioHandler(SearchItem searchItem) async {
   if (_audioHandler == null) {
     _audioHandler = await AudioService.init(
-      builder: () => AudioHandler(),
+      builder: () => AudioHandler(searchItem),
       config: AudioServiceConfig(
         androidNotificationChannelId: 'com.eso.channel.audio',
         androidNotificationChannelName: '亦搜音频',
@@ -53,37 +54,101 @@ checkAudioInList(List<SearchItem> searchList) {
 }
 
 class AudioHandler extends BaseAudioHandler with SeekHandler {
-// with QueueHandler, // mix in default queue callback implementations
-// mix in default seek callback implementations
-
-  final _player = AudioPlayer();
-  bool get playing => _player.playing;
-  Duration get position => _player.position;
-  Duration get duration => _player.duration;
-
   SearchItem _searchItem;
   SearchItem get searchItem => _searchItem;
-  ChapterItem get chapter => searchItem.chapters[searchItem.durChapterIndex];
-  final List<Lyric> lyrics = <Lyric>[];
+  int _currentIndex = 0;
+  ChapterItem get chapter {
+    if (searchItem.chapters == null || searchItem.chapters.isEmpty) {
+      Utils.toast("无曲目");
+      return null;
+    }
+    final len = searchItem.chapters.length;
+    if (_currentIndex < 0) {
+      _currentIndex = len - 1;
+    } else if (_currentIndex >= len) {
+      _currentIndex = 0;
+    }
+    return searchItem.chapters[_currentIndex];
+  }
+
   var close = false;
-  String cover;
+  String cover = "";
   Map<String, String> headers;
   bool get emptyCover => Utils.empty(cover);
   ContentProvider _contentProvider;
+  final _player = AudioPlayer();
+  bool get playing => _player.playing;
+  Stream<Duration> get positionStream => _player.positionStream;
+  Duration get position => _player.position;
+  Duration get duration => _player.duration;
+  Duration get bufferedPosition => _player.bufferedPosition;
 
-  AudioHandler() {
-    _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+  final _repeatMode = BehaviorSubject.seeded(AudioServiceRepeatMode.all);
+  Stream<AudioServiceRepeatMode> get repeatMode => _repeatMode.stream;
+
+  @override
+  Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
+    if (repeatMode == AudioServiceRepeatMode.group) {
+      final list = AudioServiceRepeatMode.values;
+      repeatMode = list[(repeatMode.index + 1) % list.length];
+    }
+    _repeatMode.add(repeatMode);
+    super.setRepeatMode(repeatMode);
   }
 
-  // static final _item = MediaItem(
-  //   id: 'https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3',
-  //   album: "Science Friday",
-  //   title: "A Salute To Head-Scratching Science",
-  //   artist: "Science Friday and WNYC Studios",
-  //   duration: const Duration(milliseconds: 5739820),
-  //   artUri: Uri.parse(
-  //       'https://media.wnyc.org/i/1400/1400/l/80/1/ScienceFriday_WNYCStudios_1400.jpg'),
-  // );
+  void toggleRepeatMode() {
+    final list = AudioServiceRepeatMode.values;
+    final next = list[(_repeatMode.value.index + 1) % list.length];
+    if (next == AudioServiceRepeatMode.group) {
+      _repeatMode.add(list[(_repeatMode.value.index + 2) % list.length]);
+    } else {
+      _repeatMode.add(next);
+    }
+  }
+
+  MapEntry<String, IconData> getRepeatModeName() {
+    switch (_repeatMode.value) {
+      case AudioServiceRepeatMode.all:
+        return MapEntry<String, IconData>("歌单循环", Icons.repeat_rounded);
+      case AudioServiceRepeatMode.none:
+        return MapEntry<String, IconData>("不循环", Icons.label_outline);
+      case AudioServiceRepeatMode.one:
+        return MapEntry<String, IconData>("单曲循环", Icons.repeat_one_rounded);
+      case AudioServiceRepeatMode.group:
+        return MapEntry<String, IconData>("分组循环", Icons.event_repeat_rounded);
+      default:
+        return MapEntry<String, IconData>("位置循环模式", Icons.report_gmailerrorred_outlined);
+    }
+  }
+
+  AudioHandler(SearchItem searchItem) {
+    _searchItem = searchItem;
+    upMediaItem();
+    _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+    _player.processingStateStream.listen((event) {
+      if (event == ProcessingState.completed) {
+        switch (_repeatMode.value) {
+          case AudioServiceRepeatMode.all:
+            return skipToNext();
+            break;
+          case AudioServiceRepeatMode.none:
+            if (_currentIndex < searchItem.chapters.length - 1)
+              skipToNext();
+            else
+              stop();
+            break;
+          case AudioServiceRepeatMode.one:
+            _player.seek(Duration.zero);
+            play();
+            break;
+          case AudioServiceRepeatMode.group:
+            skipToNext();
+            break;
+          default:
+        }
+      }
+    });
+  }
 
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
@@ -94,6 +159,7 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
       ],
       systemActions: const {
         MediaAction.seek,
+        MediaAction.setRepeatMode,
         MediaAction.play,
         MediaAction.pause,
         MediaAction.playPause,
@@ -110,7 +176,8 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
       updatePosition: _player.position,
       bufferedPosition: _player.bufferedPosition,
       speed: _player.speed,
-      // queueIndex: event.currentIndex,
+      repeatMode: _repeatMode.value,
+      // queueIndex: currentIndex,
     );
   }
 
@@ -143,14 +210,16 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
       play();
   }
 
-  // int get currentIndex => 0;
-
-  String get genID => "${_searchItem.id}${_searchItem.durChapterIndex}";
-
-  void upMediaItem({Duration duration}) {
+  void upMediaItem({Duration duration, String coverUrl}) {
+    if (coverUrl != null) {
+      upCover(coverUrl);
+    }
     mediaItem.add(MediaItem(
-      id: genID,
+      id: "${_searchItem.id}${_searchItem.durChapterIndex}",
       title: chapter.name,
+      displayTitle: chapter.name,
+      displaySubtitle: "${searchItem.name} ( ${searchItem.author} ${searchItem.origin} )",
+      displayDescription: searchItem.description,
       album: searchItem.origin,
       artist: "${searchItem.name}(${searchItem.author})",
       artUri: Uri.tryParse(cover),
@@ -159,36 +228,168 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
     ));
   }
 
-  Future<void> load(SearchItem searchItem,
-      [ContentProvider contentProvider = null]) async {
+  void upCover(String urlWithHeaders) {
+    final index = urlWithHeaders.indexOf("@headers");
+    if (index == -1) {
+      cover = urlWithHeaders;
+      headers?.clear();
+      headers = null;
+    } else {
+      cover = urlWithHeaders.substring(0, index);
+      headers = (jsonDecode(urlWithHeaders.substring(index + "@headers".length)) as Map)
+          .map((k, v) => MapEntry('$k', '$v'));
+    }
+  }
+
+  void load(SearchItem searchItem, [ContentProvider contentProvider = null]) {
     close = false;
     if (contentProvider != null) _contentProvider = contentProvider;
     if (_searchItem?.id != searchItem.id) {
       _searchItem = searchItem;
-      if (emptyCover && !Utils.empty(_searchItem.cover)) {
-        final i = PhotoItem.parse(_searchItem.cover);
-        cover = i.url;
-        headers = i.headers;
+      _currentIndex = _searchItem.durChapterIndex;
+      final c = chapter;
+      if (chapter == null) {
+        upMediaItem(duration: Duration.zero);
+        _player.stop();
+      } else {
+        upMediaItem(coverUrl: _searchItem.cover);
+        loadChapter(_searchItem.durChapterIndex, c);
       }
-      upMediaItem();
-      loadChapter(_searchItem.durChapterIndex, true);
+    } else if (_searchItem.durChapterIndex == _currentIndex) {
+      play();
     } else {
       loadChapter(_searchItem.durChapterIndex);
     }
   }
 
-  Future<void> loadChapter(int index, [bool forse = false]) async {
-    if (!forse && _searchItem.durChapterIndex == index) {
+  Future<void> loadChapter(int index, [ChapterItem c]) async {
+    if (c == null && _currentIndex == index) {
       play();
       return;
     }
-    _searchItem.durChapterIndex = index;
-    _searchItem.durChapter = chapter.name;
-    final result = await _contentProvider.loadChapter(index);
-    final d = await _player.setUrl(result[0]);
-    upMediaItem(duration: d);
-    play();
-    // todo
+    if (_currentIndex != index) {
+      _currentIndex = index;
+      c = chapter;
+    }
+    if (c == null) {
+      Utils.toast("播放失敗");
+      _player.stop();
+      upMediaItem(duration: Duration.zero);
+      return;
+    }
+    _searchItem.durChapterIndex = _currentIndex;
+    _searchItem.durChapter = c.name;
+    _searchItem.lastReadTime = DateTime.now().millisecondsSinceEpoch;
+    if (SearchItemManager.isFavorite(_searchItem.originTag, _searchItem.url))
+      _searchItem.save();
+    final result = await _contentProvider.loadChapter(_currentIndex);
+    final url = result[0];
+    String coverTemp = null;
+
+    int lrcIndex = 0;
+    int coverIndex = 0;
+    for (var i = 1; i < result.length; i++) {
+      final r = result[i];
+      if (r.startsWith('@cover')) {
+        coverIndex = i;
+        final cover = r.substring('@cover'.length);
+        if (cover.isNotEmpty) {
+          c.cover = cover;
+          if (SearchItemManager.isFavorite(_searchItem.originTag, _searchItem.url))
+            _searchItem.save();
+        }
+      } else if (r.startsWith('@lrc')) {
+        lrcIndex = i;
+      }
+    }
+    if (lrcIndex != 0) {
+      if (lrcIndex < coverIndex) {
+        upLyrics(result.getRange(lrcIndex, coverIndex).join("\n"));
+      } else {
+        upLyrics(result.skip(lrcIndex).join('\n'));
+      }
+    } else {
+      _lyrics.clear();
+    }
+
+    if (coverTemp == null && !Utils.empty(c.cover)) {
+      coverTemp = c.cover;
+    }
+    if (url.isEmpty) {
+      Utils.toast("播放失敗");
+      upMediaItem(duration: Duration.zero, coverUrl: coverTemp);
+      _player.stop();
+    } else {
+      if (url.contains("@headers")) {
+        final u = url.split("@headers");
+        final h = (jsonDecode(u[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
+        print("url:${u[0]},headers:${h}");
+        final d = await _player.setUrl(u[0], headers: h);
+        await play();
+        upMediaItem(duration: d, coverUrl: coverTemp);
+      } else {
+        final d = await _player.setUrl(url);
+        await play();
+        upMediaItem(duration: d, coverUrl: coverTemp);
+      }
+    }
+  }
+
+  final List<Lyric> _lyrics = <Lyric>[];
+  List<Lyric> get lyrics => _lyrics.isNotEmpty
+      ? _lyrics
+      : [Lyric('暂无歌词', startTime: Duration.zero, endTime: Duration.zero)];
+
+  void upLyrics(String lrc) {
+    if (lrc.startsWith("@lrc")) {
+      lrc = lrc.substring("@lrc".length);
+    }
+    Duration start = Duration.zero;
+    final durationReg = RegExp(r'\[(\d{1,2}):(\d{1,2})(\.\d{1,3})?\]');
+    final temp = lrc.split("\n").map((l) {
+      final m = durationReg.allMatches(l).toList();
+      Duration end;
+      int startIndex = 0;
+      int endIndex = l.length;
+      if (m.length > 0) {
+        final startM = m.first;
+        startIndex = startM.end;
+        start = Duration(
+          minutes: int.parse(startM.group(1)),
+          seconds: int.parse(startM.group(2)),
+          milliseconds: int.parse(startM.group(3)?.substring(1) ?? '0'),
+        );
+      }
+      if (m.length > 1) {
+        final endM = m.last;
+        endIndex = endM.start;
+        end = Duration(
+          minutes: int.parse(endM.group(1)),
+          seconds: int.parse(endM.group(2)),
+          milliseconds: int.parse(endM.group(3) ?? '0'),
+        );
+      }
+      return Lyric(
+        l.substring(startIndex, endIndex),
+        startTime: start,
+        endTime: end,
+      );
+    });
+    _lyrics.clear();
+    if (temp.isEmpty) {
+      return;
+    }
+    _lyrics.addAll(temp);
+    for (var i = 0; i < _lyrics.length - 1; i++) {
+      if (_lyrics[i].endTime == null) {
+        _lyrics[i].endTime = _lyrics[i + 1].startTime;
+      }
+    }
+    if (_lyrics.last.startTime.inSeconds == 0) {
+      _lyrics.last.endTime = _lyrics.last.startTime;
+    } else {
+      _lyrics.last.endTime = _lyrics.last.startTime + Duration(seconds: 10);
+    }
   }
 
   void share() {
@@ -216,18 +417,10 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   bool _showSelect = false;
   bool _showLyric = false;
   bool _showChapter = false;
-  void toggleLyric() {
-    if (mounted) {
-      _showLyric = !_showLyric;
-      _audioPage = _buildPage();
-      setState(() {});
-    }
-  }
 
   void closeChapter() {
     if (_showChapter && mounted) {
       _showChapter = false;
-      _audioPage = _buildPage();
       setState(() {});
     }
   }
@@ -235,7 +428,6 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   void toggleChapter() {
     if (mounted) {
       _showChapter = !_showChapter;
-      _audioPage = _buildPage();
       setState(() {});
     }
   }
@@ -259,16 +451,42 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     if (_audioPage == null) {
       _audioPage = FutureBuilder<bool>(
-        future: ensureInitAudioHandler(),
-        initialData: null,
+        future: ensureInitAudioHandler(searchItem),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) return _buildPage(Provider.of<ContentProvider>(context));
+          if (snapshot.hasData) {
+            try {
+              audioHandler.load(
+                  searchItem, Provider.of<ContentProvider>(context, listen: false));
+            } catch (e) {
+              audioHandler.load(searchItem);
+            }
+            return _buildPage();
+          }
           if (snapshot.hasError) return Scaffold(body: Text(snapshot.error.toString()));
           return LandingPage();
         },
       );
     }
-    return _audioPage;
+    return GestureDetector(
+      onTap: closeChapter,
+      child: Stack(
+        children: [
+          _audioPage,
+          if (_showChapter)
+            UIChapterSelect(
+              searchItem: searchItem,
+              color: Colors.black38,
+              fontColor: Colors.white70,
+              border: BorderSide(color: Colors.white10, width: Global.borderSize),
+              heightScale: 0.5,
+              loadChapter: (index) {
+                audioHandler.loadChapter(index);
+                closeChapter();
+              },
+            )
+        ],
+      ),
+    );
   }
 
   @override
@@ -278,57 +496,54 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Widget _buildPage([ContentProvider contentProvider = null]) {
-    audioHandler.load(searchItem, contentProvider);
+  Widget _buildPage() {
     final chapter = audioHandler.chapter;
-    final cover = Utils.empty(chapter.cover) ? searchItem.cover : chapter.cover;
     return Scaffold(
-      body: GestureDetector(
-        onTap: closeChapter,
-        child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          child: Stack(
-            children: <Widget>[
-              if (!Utils.empty(cover))
-                Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: Image.network(
-                    cover,
-                    fit: BoxFit.cover,
-                  ),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        child: Stack(
+          children: <Widget>[
+            if (!Utils.empty(audioHandler.cover))
+              Container(
+                height: double.infinity,
+                width: double.infinity,
+                child: Image.network(
+                  audioHandler.cover,
+                  fit: BoxFit.cover,
+                  headers: audioHandler.headers,
                 ),
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(color: Colors.black.withAlpha(80)),
               ),
-              SafeArea(
-                child: Column(
-                  children: <Widget>[
-                    _buildAppBar(chapter.name, chapter.time),
-                    if (_showLyric)
-                      if (audioHandler.lyrics.isEmpty)
-                        Expanded(
-                          child: InkWell(
-                            onTap: toggleLyric,
-                            child: LyricWidget(
-                              size: Size(double.infinity, double.infinity),
-                              controller: _lyricController,
-                              lyricStyle: TextStyle(color: Colors.white),
-                              lyrics: <Lyric>[
-                                Lyric(
-                                  '加载中...',
-                                  startTime: Duration.zero,
-                                  endTime: Duration.zero,
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      else
-                        () {
-                          // _lyricController.progress = AudioService.position.;
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(color: Colors.black.withAlpha(80)),
+            ),
+            SafeArea(
+              child: Column(
+                children: <Widget>[
+                  StreamBuilder<MediaItem>(
+                    stream: _audioHandler.mediaItem.stream,
+                    builder: (BuildContext context, AsyncSnapshot<MediaItem> snapshot) {
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return _buildAppBar(chapter.name, chapter.time);
+                      }
+                      return _buildAppBar(
+                          snapshot.data.title, snapshot.data.displaySubtitle);
+                    },
+                  ),
+                  StreamBuilder<MediaItem>(
+                    stream: _audioHandler.mediaItem.stream,
+                    builder: (BuildContext context, AsyncSnapshot<MediaItem> snapshot) {
+                      return StatefulBuilder(builder: (BuildContext context, setState) {
+                        void toggleLyric() {
+                          if (mounted) {
+                            _showLyric = !_showLyric;
+                            setState(() {});
+                          }
+                        }
+
+                        if (_showLyric) {
+                          _lyricController.progress = audioHandler.position;
                           return Expanded(
                             child: Stack(
                               alignment: Alignment.center,
@@ -383,91 +598,86 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                               ],
                             ),
                           );
-                        }()
-                    else
-                      Expanded(
-                        child: Tooltip(
-                          message: '点击切换显示歌词',
-                          child: Center(
-                            child: SizedBox(
-                              width: 300,
-                              height: 300,
-                              child: AnimationRotateView(
-                                child: InkWell(
-                                  onTap: toggleLyric,
-                                  child: Utils.empty(cover)
-                                      ? Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.black26,
-                                          ),
-                                          child: Icon(Icons.audiotrack,
-                                              color: Colors.white30, size: 200),
-                                        )
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                              image: NetworkImage(cover ?? ''),
-                                              fit: BoxFit.cover,
+                        }
+                        // _lyricController.progress = AudioService.position.;
+                        else {
+                          return Expanded(
+                            child: Tooltip(
+                              message: '点击切换显示歌词',
+                              child: Center(
+                                child: SizedBox(
+                                  width: 300,
+                                  height: 300,
+                                  child: AnimationRotateView(
+                                    child: InkWell(
+                                      onTap: toggleLyric,
+                                      child: Utils.empty(audioHandler.cover)
+                                          ? Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.black26,
+                                              ),
+                                              child: Icon(Icons.audiotrack,
+                                                  color: Colors.white30, size: 200),
+                                            )
+                                          : Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: NetworkImage(
+                                                    audioHandler.cover,
+                                                    headers: audioHandler.headers,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    SizedBox(height: 50),
-                    _buildProgressBar(),
-                    SizedBox(height: 10),
-                    _buildBottomController(),
-                    SizedBox(height: 25),
-                  ],
-                ),
+                          );
+                        }
+                      });
+                    },
+                  ),
+                  SizedBox(height: 50),
+                  _buildProgressBar(),
+                  SizedBox(height: 10),
+                  _buildBottomController(),
+                  SizedBox(height: 25),
+                ],
               ),
-              if (_showLyric)
-                SafeArea(
-                  child: Center(
-                    child: Container(
-                      height: 300,
-                      alignment: Alignment.bottomCenter,
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                          color: Colors.white54,
-                          fontSize: 12,
-                          fontFamily: ESOTheme.staticFontFamily,
-                          height: 1.75,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(chapter.name, style: TextStyle(fontSize: 15)),
-                            Text(Utils.link(searchItem.origin, searchItem.name,
-                                    divider: ' | ')
-                                .link(searchItem.chapter)
-                                .value),
-                          ],
-                        ),
+            ),
+            if (_showLyric)
+              SafeArea(
+                child: Center(
+                  child: Container(
+                    height: 300,
+                    alignment: Alignment.bottomCenter,
+                    child: DefaultTextStyle(
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 12,
+                        fontFamily: ESOTheme.staticFontFamily,
+                        height: 1.75,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(chapter.name, style: TextStyle(fontSize: 15)),
+                          Text(Utils.link(searchItem.origin, searchItem.name,
+                                  divider: ' | ')
+                              .link(searchItem.chapter)
+                              .value),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              if (_showChapter)
-                UIChapterSelect(
-                  searchItem: searchItem,
-                  color: Colors.black38,
-                  fontColor: Colors.white70,
-                  border: BorderSide(color: Colors.white10, width: Global.borderSize),
-                  heightScale: 0.5,
-                  loadChapter: (index) {
-                    audioHandler.loadChapter(index);
-                    closeChapter();
-                  },
-                ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -558,7 +768,7 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
   }
 
   Widget _buildProgressBar() {
-    final r = (Duration position, Duration duration) => Row(
+    final r = (Duration position, Duration duration, Duration buffer) => Row(
           children: <Widget>[
             Container(
               alignment: Alignment.centerRight,
@@ -568,12 +778,22 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
             ),
             Expanded(
               child: FlutterSlider(
-                values: [position.inSeconds.toDouble()],
-                max:
-                    duration.inSeconds.toDouble() < 1 ? 1 : duration.inSeconds.toDouble(),
+                rightHandler: FlutterSliderHandler(
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.audiotrack, color: Colors.red, size: 8),
+                  ),
+                ),
+                values: [
+                  position.inMilliseconds.toDouble(),
+                  buffer.inMilliseconds.toDouble()
+                ],
+                max: duration.inMilliseconds < 1 ? 1 : duration.inMilliseconds.toDouble(),
                 min: 0,
-                onDragging: (handlerIndex, lowerValue, upperValue) =>
-                    audioHandler.seek(Duration(seconds: (lowerValue as double).toInt())),
+                onDragging: (handlerIndex, lowerValue, upperValue) => audioHandler
+                    .seek(Duration(milliseconds: (lowerValue as double).toInt())),
                 handlerHeight: 12,
                 handlerWidth: 12,
                 handler: FlutterSliderHandler(
@@ -600,7 +820,8 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
                     color: Colors.black12,
                     padding: EdgeInsets.all(4),
                     child: Text(
-                      Utils.formatDuration(Duration(seconds: (value as double).toInt())),
+                      Utils.formatDuration(
+                          Duration(milliseconds: (value as double).toInt())),
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -617,10 +838,13 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
             ),
           ],
         );
-    return StreamBuilder<Duration>(
-      stream: AudioService.position,
+    return StreamBuilder(
+      stream: _audioHandler.positionStream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return r(snapshot.data ?? Duration.zero, _audioHandler.duration ?? Duration.zero);
+        return r(
+            _audioHandler.position ?? Duration.zero,
+            _audioHandler.duration ?? Duration.zero,
+            _audioHandler.bufferedPosition ?? Duration.zero);
       },
     );
   }
@@ -633,23 +857,22 @@ class _AudioPageState extends State<AudioPage> with TickerProviderStateMixin {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          IconButton(
-              icon: Icon(
-                Icons.ac_unit,
-                // _repeatMode == AudioService.REPEAT_FAVORITE
-                //     ? Icons.restore
-                //     : _repeatMode == AudioService.REPEAT_ALL
-                //         ? Icons.repeat
-                //         : _repeatMode == AudioService.REPEAT_ONE
-                //             ? Icons.repeat_one
-                //             : Icons.label_outline,
-                color: Colors.white,
-              ),
-              iconSize: 26,
-              // tooltip: AudioService.getRepeatName(_repeatMode),
-              padding: EdgeInsets.zero,
-              onPressed: () {} //audioHandler.switchRepeatMode,
-              ),
+          StreamBuilder(
+            stream: _audioHandler.repeatMode,
+            builder: (BuildContext context, AsyncSnapshot _) {
+              final map = audioHandler.getRepeatModeName();
+              return IconButton(
+                icon: Icon(
+                  map.value,
+                  color: Colors.white,
+                ),
+                iconSize: 26,
+                tooltip: map.key,
+                padding: EdgeInsets.zero,
+                onPressed: audioHandler.toggleRepeatMode,
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               Icons.skip_previous,
