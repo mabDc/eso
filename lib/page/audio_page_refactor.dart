@@ -325,10 +325,12 @@ class AudioHandler extends BaseAudioHandler with SeekHandler {
         final h = (jsonDecode(u[1]) as Map).map((k, v) => MapEntry('$k', '$v'));
         print("url:${u[0]},headers:${h}");
         final d = await _player.setUrl(u[0], headers: h);
+        upMediaItem(duration: d, coverUrl: coverTemp);
         await play();
         upMediaItem(duration: d, coverUrl: coverTemp);
       } else {
         final d = await _player.setUrl(url);
+        upMediaItem(duration: d, coverUrl: coverTemp);
         await play();
         upMediaItem(duration: d, coverUrl: coverTemp);
       }
