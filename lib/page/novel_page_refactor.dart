@@ -335,6 +335,7 @@ class NovelMenu extends StatelessWidget {
     const AUTO_CACHE = 5;
     const CLEARCACHE = 6;
     const GOTOPAGE = 7;
+    const TEXT_TO_CLICPBOARD = 8;
     final primaryColor = Theme.of(context).primaryColor;
 
     return PopupMenuButton<int>(
@@ -405,7 +406,7 @@ class NovelMenu extends StatelessWidget {
                                     Utils.toast("请输入1到${page.total}的整数");
                                     return;
                                   }
-                                  if(n == page.number){
+                                  if (n == page.number) {
                                     Utils.toast("已经是当前页，不需要调换");
                                     return;
                                   }
@@ -480,7 +481,90 @@ class NovelMenu extends StatelessWidget {
             await _fileCache.clear();
             Utils.toast("清理成功");
             break;
+          case TEXT_TO_CLICPBOARD:
+            final cIndex = composition.textPages[composition.currentIndex]?.chIndex ??
+                searchItem.durChapterIndex;
+            final p = "    " + (await composition.loadChapter(cIndex)).join("\n    ");
+            final title = searchItem.name + "    " + searchItem.durChapter;
+            final config = composition.config;
+            TextEditingController controller = TextEditingController(text: p);
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: config.backgroundColor,
+                content: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.justify,
+                  maxLines: null,
+                  style: TextStyle(
+                    height: config.fontHeight,
+                    color: config.fontColor,
+                    fontSize: config.fontSize,
+                    fontFamily: config.fontFamily,
+                  ),
+                ),
+                title: Text(title),
+                actions: [
+                  TextButton(
+                    child: Text(
+                      "取消",
+                      style: TextStyle(color: Theme.of(context).hintColor),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  // TextButton(
+                  //   child: Text(
+                  //     "全选",
+                  //     style: TextStyle(color: Colors.red),
+                  //   ),
+                  //   onPressed: () {
+                  //     controller.selection =
+                  //         TextSelection.fromPosition(TextPosition(offset: 0));
+                  //   },
+                  // ),
+                  TextButton(
+                    child: Text(
+                      "复制",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    onPressed: () {
+                      final t = p.substring(
+                          controller.selection.start, controller.selection.end);
+                      Utils.toast("已复制: " +
+                          (t.length > 10
+                              ? t.substring(0, 5) +
+                                  "..." +
+                                  t.substring(t.length - 5, t.length)
+                              : t));
+                      Clipboard.setData(ClipboardData(text: t));
+                    },
+                  ),
+                ],
+              ),
+            );
+            // showDialog(
+            //   context: context,
+            //   builder: (context) {
+            //     return Container(
+            //       decoration: getDecoration(config.background, config.backgroundColor),
+            //       child: SelectableText(
+            //         searchItem.durChapter + "\n    " + p.join("\n    "),
+            //         textAlign: TextAlign.justify,
+            //         style: TextStyle(
+            //           height: config.fontHeight,
+            //           color: config.fontColor,
+            //           fontSize: config.fontSize,
+            //           fontFamily: config.fontFamily,
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // );
+            break;
           default:
+            Utils.toast("未实现的操作");
+            break;
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
@@ -556,6 +640,16 @@ class NovelMenu extends StatelessWidget {
             ],
           ),
           value: ADD_ITEM,
+        ),
+        PopupMenuItem(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('编辑文本'),
+              Icon(Icons.edit_calendar_outlined, color: primaryColor),
+            ],
+          ),
+          value: TEXT_TO_CLICPBOARD,
         ),
       ],
     );

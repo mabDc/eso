@@ -1,357 +1,406 @@
+### 2023.11.25
+
+- 增加文本阅读菜单的编辑按钮，可以对章节内容复制
+- 增加视频播放强制跟随重力感应调整向左横屏或向右横屏
+
 ### 2023.10.18
+
 - fix 修复视频播放中运行时语法错误导致无法工作
+
 ### 2023.9.26
-- fix 修復zy-player的規則解析問題
+
+- fix 修復 zy-player 的規則解析問題
 - fix 目錄章節的多頁判斷
 - refactor 重寫音頻播放控制器
-   - 音頻結果字符串 第一項是播放地址，允許帶有headers，格式形如`url@headers{xx}`
-   - 其他支持封面，以`@cover`開頭，允許帶有headers，格式形如`@coverurl@headers{xx}`
-   - 其他支持lrc格式歌詞，以`@lrc`開頭，格式形如`@lrcyyy`
+  - 音頻結果字符串 第一項是播放地址，允許帶有 headers，格式形如`url@headers{xx}`
+  - 其他支持封面，以`@cover`開頭，允許帶有 headers，格式形如`@coverurl@headers{xx}`
+  - 其他支持 lrc 格式歌詞，以`@lrc`開頭，格式形如`@lrcyyy`
+
 ### 2023.9.6
+
 - add 更换音频播放器。增加系统状态栏标签，响应系统事件。
 - fix 修复备份文件编码问题
 - add 选取备份文件增添可以使用系统文件管理器
 - 暂时移除搜索界面历史
-- 规则和js文本编辑框添加撤销和重做（划掉。旧版flutter不支持）
+- 规则和 js 文本编辑框添加撤销和重做（划掉。旧版 flutter 不支持）
 - 目录分页加载
 - 调试时多页目录只加载一页
 
 ### 2023.4.22
+
 - fix 书架分组自动保存
-- fix 新发现瀑布流。标识符改成`@@DiscoverRule:`，其用来分隔js和json
+- fix 新发现瀑布流。标识符改成`@@DiscoverRule:`，其用来分隔 js 和 json
 - fix 备份，如果写入本地失败 依旧会尝试写入云端
 - fix 文件管理器，内置文件管理器增加【新建文件夹】、【使用系统管理器打开】，统一背景选择、字体选择等几处文件选择器
-- 
+-
 
 ### 2023.4.21
+
 - 调整 书架
 - 增加书架分组功能，默认分组为【全部】，长按分组修改
 
 ### 2023.4.16
+
 - 更新版本号
-- webview超时改为30s
+- webview 超时改为 30s
 - 翻页动画完善。
 - 滚动效果更像真的
 - 增加选项【背景图随动画移动】，关闭后背景图固定位置而不移动，某些翻页效果下更舒服。
-- js增加jsencrypt用于rsa编码，可以使用`require("jsencrypt")`或`require("jsencrypt.min")`
+- js 增加 jsencrypt 用于 rsa 编码，可以使用`require("jsencrypt")`或`require("jsencrypt.min")`
 
 ### 2023.4.13
-- 修改音频ui
-- 修改发现ui
+
+- 修改音频 ui
+- 修改发现 ui
+
 ### 2023.4.6
+
 - 完善主题 图标颜色在按钮和开关也生效
 - 可复制简介（测试性）
 - 完善规则调试，可以输入`搜索::类别::关键字`或者`发现::一级分类名::二级分类名`开始对特定规则测试。默认类别名称使用`默认`二字做标识符。
+
 ### 2023.4.2
+
 - add 支持搜索规则多种类型，写起来和发现一样，用起来也和发现一样，形如
-   ```
-   书名::http://x.com/?key=$keyword&type=bookname
-   作者::http://x.com/?key=$keyword&type=zuozhe
-   ```
+  ```
+  书名::http://x.com/?key=$keyword&type=bookname
+  作者::http://x.com/?key=$keyword&type=zuozhe
+  ```
 - 增加删除空白规则功能，在规则管理->更多中，判定条件是地址为空或名称为空
 
-
 ### 2023.3.31
+
 - add 规则增加副本按钮，以规则为蓝本添加副本
 - add 发现页面规则长按进入编辑界面
+
 ### 2023.3.31
-- 修改请求中headers生成办法，cookies字段规则优先级最小，
-   userAgent优先级次之，同名时覆盖前者，
-   地址规则优先级最高，同名覆盖前二者，
-   不重复时将可以同时启用。
-   举例 cookies规则填a=cookies
-         若此时userAgent规则填{"Cookie":"a=userAgent",}，
-         将生效{"url":"x",{"Cookie":"a=userAgent"}}
-      如果请求规则使用{"url":"x",{"Cookie":"a=url"}}则前面都会被覆盖
+
+- 修改请求中 headers 生成办法，cookies 字段规则优先级最小，
+  userAgent 优先级次之，同名时覆盖前者，
+  地址规则优先级最高，同名覆盖前二者，
+  不重复时将可以同时启用。
+  举例 cookies 规则填 a=cookies
+  若此时 userAgent 规则填{"Cookie":"a=userAgent",}，
+  将生效{"url":"x",{"Cookie":"a=userAgent"}}
+  如果请求规则使用{"url":"x",{"Cookie":"a=url"}}则前面都会被覆盖
 - add 特性 为规则字段`用户代理字符串（userAgent）`
-   增加`httpHeaders`功能，自适应判断，规则形如
-   `Mozilla/5.0 (Windows NT 10.0; Win64; x64)`
-   字符串时为userAgent，而json时为httpHeaders，形如
-   ```
-   {
-      "Referer":"xx",
-      "Cookie":"yy"
-   }```
-   - 规则优先级 小于地址规则中的headers
+  增加`httpHeaders`功能，自适应判断，规则形如
+  `Mozilla/5.0 (Windows NT 10.0; Win64; x64)`
+  字符串时为 userAgent，而 json 时为 httpHeaders，形如
+  ````
+  {
+     "Referer":"xx",
+     "Cookie":"yy"
+  }```
+  - 规则优先级 小于地址规则中的headers
+  ````
 - add icon 字段
 - 增加兼容性
-- `测试新发现瀑布流`用标识符`@@DiscoverRule:`分离js和json部分
-   整体规则形如@js:可有可无
-   ```
-   测试新发现瀑布流
-   [@js:]"https:x"+rules.map((rule) => rule.key + "=" + rule.value).join("&")
-      // 瀑布流结构有差异 增加key字段
-      // 自动生成代码
-      // https://json.im/json2model/json2Dart.html
-   @@DiscoverRule:
-   {
-       "rules": [
-           {
-               "name": "标签",
-               "key": "不需要显示",
-               "option": "选中的标签",
-               "value": "选中的值",
-               "options": [
-                   {
-                       "option": "热血",
-                       "value": "/tags/6"
-                   }
-               ]
-           }
-       ]
-   }
-   ```
+- `测试新发现瀑布流`用标识符`@@DiscoverRule:`分离 js 和 json 部分
+  整体规则形如@js:可有可无
+  ```
+  测试新发现瀑布流
+  [@js:]"https:x"+rules.map((rule) => rule.key + "=" + rule.value).join("&")
+     // 瀑布流结构有差异 增加key字段
+     // 自动生成代码
+     // https://json.im/json2model/json2Dart.html
+  @@DiscoverRule:
+  {
+      "rules": [
+          {
+              "name": "标签",
+              "key": "不需要显示",
+              "option": "选中的标签",
+              "value": "选中的值",
+              "options": [
+                  {
+                      "option": "热血",
+                      "value": "/tags/6"
+                  }
+              ]
+          }
+      ]
+  }
+  ```
 
 ### 2023.3.24
+
 - fix 规则某些问题
-- fix 一些已知bug
+- fix 一些已知 bug
 - 完成 规则的复制和分享统一跳转页面
 - 更新版本号至第四个版本
-- 目录分页自动加载逻辑准备改为自动加载前5页，以后的页面手动触发（待讨论）
+- 目录分页自动加载逻辑准备改为自动加载前 5 页，以后的页面手动触发（待讨论）
 
 ### 2023.3.24
-- add 支持文件管理器中使用亦搜打开txt导入文字或规则
-- add 支持文件管理器中使用亦搜打开json导入规则
+
+- add 支持文件管理器中使用亦搜打开 txt 导入文字或规则
+- add 支持文件管理器中使用亦搜打开 json 导入规则
 - 修改 合并复制和分享(进行中)
 - add 分享规则允许分享文件
 - add 底栏颜色也可以设置
 - add 内置白天主题`西红柿喵`，感谢频道用户@懒儿，欢迎尝试
-- add 添加更多键规则导入时转换为旧版规则，此时分组添加标识符discoverMoreKeys
+- add 添加更多键规则导入时转换为旧版规则，此时分组添加标识符 discoverMoreKeys
 - fix 数量计算
-- fix ui细节与主题配色
+- fix ui 细节与主题配色
 
 ### 2023.3.23
-- 替换请求的默认ua为win10的edge
+
+- 替换请求的默认 ua 为 win10 的 edge
 - fix 桌面端视频播放器
 - add 主题代码文本与导出导入
 - 准备修改 规则复制与分享统一页面
 - 准备增加 目录分页加载
 
 ### 2023.3.22
+
 - fix 音频进度问题
 - add 音频页打开网页
-- fix 音频ui异常
+- fix 音频 ui 异常
 - fix 音频异常，音频不在书架无法播放
-- 内置underscore.js调用语法`await require("underscore")`或者`await require("underscore.min")`
-- add 增加特性url请求规则js结果为null时跳过请求
-- fix 修复环境变量设置问题（最近版本新bug，1.22.x版本正常）
-- 修改规则行为，前者获取为空不再重新以content来解析
-   - 比如这个规则现在可以成立`.title@text@js:result||"立即阅读"`
+- 内置 underscore.js 调用语法`await require("underscore")`或者`await require("underscore.min")`
+- add 增加特性 url 请求规则 js 结果为 null 时跳过请求
+- fix 修复环境变量设置问题（最近版本新 bug，1.22.x 版本正常）
+- 修改规则行为，前者获取为空不再重新以 content 来解析
+  - 比如这个规则现在可以成立`.title@text@js:result||"立即阅读"`
 
 ### 2023.3.21
+
 - 刷新率教程
-   - 设置 -> 刷新率设置
-   - 第一个选项【强制刷新】，点击开启
-   - 可以在刷新率页面的列表中查看开启结果
-   - 也可以手动选取刷新率模式
+  - 设置 -> 刷新率设置
+  - 第一个选项【强制刷新】，点击开启
+  - 可以在刷新率页面的列表中查看开启结果
+  - 也可以手动选取刷新率模式
 - add 增加主题，修复页面布局
-   - 使用教程，包括主题和布局
-   - 设置 -> 界面 -> 界面与布局
-      - 选择搜索按钮位置，可以悬浮，可以居中，也可以放置在收藏页右上角，推荐后者
-      - 底部按钮可以选择四个并排
-      - 顶部历史按钮可以关闭，设置中历史按钮也可以关闭
-      - 宽屏界面模式不需要开启，根据宽度会自适应
-   - 设置 -> 界面 -> 主题装扮
-      - 推荐点击试试黑夜模式
-      - 顶栏前景色就是字体颜色，透明度拉到最右边，不要透明
-      - 顶栏背景色建议0.9透明，最右侧往左一点
-      - 顶栏页面背景色可以一半透明
-      - 卡片背景色建议一样选择0.9左右
-      - 选择喜爱的背景图试试
-      - 如不需要背景图只要透明度调到最右侧不透明就是纯色背景了
-- fix 修复 请求时gbk编码和post冲突问题,形如
-   ```{
-         "url": "/s.php",
-         "method": "POST",
-         "body": "s=$keyword&type=articlename",
-         "encoding":"gbk",
-         "headers": {
-            "Content-Type":"application/x-www-form-urlencoded"
-         }
-      }```
+  - 使用教程，包括主题和布局
+  - 设置 -> 界面 -> 界面与布局
+    - 选择搜索按钮位置，可以悬浮，可以居中，也可以放置在收藏页右上角，推荐后者
+    - 底部按钮可以选择四个并排
+    - 顶部历史按钮可以关闭，设置中历史按钮也可以关闭
+    - 宽屏界面模式不需要开启，根据宽度会自适应
+  - 设置 -> 界面 -> 主题装扮
+    - 推荐点击试试黑夜模式
+    - 顶栏前景色就是字体颜色，透明度拉到最右边，不要透明
+    - 顶栏背景色建议 0.9 透明，最右侧往左一点
+    - 顶栏页面背景色可以一半透明
+    - 卡片背景色建议一样选择 0.9 左右
+    - 选择喜爱的背景图试试
+    - 如不需要背景图只要透明度调到最右侧不透明就是纯色背景了
+- fix 修复 请求时 gbk 编码和 post 冲突问题,形如
+  ````{
+        "url": "/s.php",
+        "method": "POST",
+        "body": "s=$keyword&type=articlename",
+        "encoding":"gbk",
+        "headers": {
+           "Content-Type":"application/x-www-form-urlencoded"
+        }
+     }```
+  ````
 - add 增加 小说正文的章节数和页数的手动输入以快速跳转
 - fix 修复多处按钮显示
-- fix 修复 发现分类ui显示问题
-- fix 修复 搜索ui显示问题
+- fix 修复 发现分类 ui 显示问题
+- fix 修复 搜索 ui 显示问题
 - 关闭目录自动跳正文
 
 ### 2023.3.19
+
 - 增加刷新率模式调节（仅安卓）
 - 一般机型不用配置默认开启高刷
 - 一加部分机型需要强制高刷
 
 ### 2023.03.17
-- fix 302跳转地址拼接问题
-- fix webview界面问题
-- 完善webview界面
+
+- fix 302 跳转地址拼接问题
+- fix webview 界面问题
+- 完善 webview 界面
 - 移除尿尿的论坛
 
 ### 2023.03.15
+
 - 完善舒尔特方格，【启用功能舒尔特方格】
 - 开启功能前缀调整为【开启功能】、【启用功能】、【打开功能】、【使用功能】皆可
 - 临渊功能完成，【启用功能临渊】
 - 增加尿尿的论坛，【开启功能尿尿的论坛】
 - 下次更新修改开启方式为订阅
+
 ### 2023.03.12
+
 - 有趣的更新
   - 增加隐藏可解锁功能。
-  - 发现页面，搜索栏输入指定代码来控制app。
+  - 发现页面，搜索栏输入指定代码来控制 app。
   - 前缀【启用功能】启用。前缀【关闭功能】关闭。
-  - 输入【启用功能舒尔特方格】增加小游戏舒尔特方格入口，内容为我19年入门flutter写的第一个代码段。
-  - 输入【启用功能临渊】展示临渊主页card，可以增加一些文艺的工具箱。待施工。
+  - 输入【启用功能舒尔特方格】增加小游戏舒尔特方格入口，内容为我 19 年入门 flutter 写的第一个代码段。
+  - 输入【启用功能临渊】展示临渊主页 card，可以增加一些文艺的工具箱。待施工。
   - 其他待施工。欢迎提出。可以找我增加。
-- 支持hetu规则
+- 支持 hetu 规则
   - 河图主页 https://hetu.dev/
   - 识别码是@hetu。功能还比较简单。
 
-
 ### 2022.09.15
+
 - 历史记录性能大优化
 - 主题完善，模式和调色板整合
 - add 增加白天主题和黑夜主题分离两套设置
 - 初始效果优化
 - 幺蛾子（bugs）
-   - 搜索历史聚焦
+  - 搜索历史聚焦
 
 ### 2022.09.15
+
 - 文字阅读 优化
-- 所有配置都替换hive保存，sp清空
+- 所有配置都替换 hive 保存，sp 清空
 - 搜索历史换用标签
 - 主题设置底部增加很多颜色可以参考和复制
 - 还有很多幺蛾子(bugs)
-   - 搜索聚焦bug
-   - 历史记录有性能问题
-   - 主题内置
+  - 搜索聚焦 bug
+  - 历史记录有性能问题
+  - 主题内置
 
 ### 2022.09.13
+
 - fix 修复 双栏 中间阴影
 - add 增加 文字动效
-   - 四向覆盖
-   - 水平覆盖
-   - 垂直覆盖
-   - 滑动
-   - 水平滑动
-   - 垂直滑动
-   - 模拟滚动
-- fix 修复 xpath only替换br为换行
+  - 四向覆盖
+  - 水平覆盖
+  - 垂直覆盖
+  - 滑动
+  - 水平滑动
+  - 垂直滑动
+  - 模拟滚动
+- fix 修复 xpath only 替换 br 为换行
 - add 增加 规则多选导出，分享结果编辑
-   - 上传netcut.cn
-   - 复制到剪贴板
-   - 分享结果
-   - 分享地址
-- 更新版本号16，今年第16个版本
+  - 上传 netcut.cn
+  - 复制到剪贴板
+  - 分享结果
+  - 分享地址
+- 更新版本号 16，今年第 16 个版本
 
 ### 2022.09.12
+
 - fix 目录为空
-- 书架使用hive保存
-- 主题使用hive保存
-   - 生效夜间模式
-   - 背景图
-   - 主题色
-   - 背景色
-- 加入新bug，删掉了一些存储，重启APP可能丢失部分信息
+- 书架使用 hive 保存
+- 主题使用 hive 保存
+  - 生效夜间模式
+  - 背景图
+  - 主题色
+  - 背景色
+- 加入新 bug，删掉了一些存储，重启 APP 可能丢失部分信息
 
 ### 2022.09
-- xpath增加`/only()`以区别`/text()`,不取下级标签
+
+- xpath 增加`/only()`以区别`/text()`,不取下级标签
 - 输入框支持历史、撤销、重做
 - 更新编译插件，桌面版输入框支持`ctrl+z`撤销和`ctrl+shif+z`重做。
 - 增加跳目录规则，目录不展示直接进正文
-   - 目录地址填正文直接使用搜索、发现结果进入正文解析
-   - 目录章节名填正文直接使用章节结果进入正文解析
+  - 目录地址填正文直接使用搜索、发现结果进入正文解析
+  - 目录章节名填正文直接使用章节结果进入正文解析
 - 增加图文，在规则类型中选择。使用旧代码，排版没问题。排版自定义未开放。
-- 版本号同步大炮，更新至15。
+- 版本号同步大炮，更新至 15。
 
 ### 2022.3.23
+
 - fix 优化一些问题
+
 ### 2022.3.22
+
 - 新版本 1.22.4+12204
-- 本地读取txt完成
-- 本地读取epub完成
+- 本地读取 txt 完成
+- 本地读取 epub 完成
 - 规则搜索现在是搜索名称、分组、作者和地址
 
 ### 2022.3.21
+
 - add tts 朗读语速调节
 - add 文字 亮度调节和常量
 - update 更新插件库
-- update 章节线路换用wrap显示 直接显示全部线路
+- update 章节线路换用 wrap 显示 直接显示全部线路
 - add 增加更新至按钮和阅读至按钮
 - fix 线路自动切换至当前进度了
-- 支持本地txt和epub 章节解析未完成
+- 支持本地 txt 和 epub 章节解析未完成
 
 ### 2022.3.13
+
 - fix 文字自动缓存 缓存章节显示错误
 - add 允许修改文字缓存导出目录
 
-### 编译ipa包 需要自签名或者越狱安装
+### 编译 ipa 包 需要自签名或者越狱安装
 
 ### 2022.3.4
+
 - 桌面端音频播放器暂时使用视频播放器
 - 导入导出全部用编码
-- xpath支持/html()来获取html文本
-- 修复window对象
+- xpath 支持/html()来获取 html 文本
+- 修复 window 对象
 - 修复某些开关不刷新问题
 
 ### 2022.2.24
-- add xpath 结尾用node()时返回html字符串
-- fix 安装包解析失败 适配安卓12
+
+- add xpath 结尾用 node()时返回 html 字符串
+- fix 安装包解析失败 适配安卓 12
 
 ### 2022.2.24
-- window端播放并入统一的缓存器
+
+- window 端播放并入统一的缓存器
 - fix 图片正文加载
-- fix windows端播放切换地址
+- fix windows 端播放切换地址
 
 ### 2022.2.23
+
 - 多项更新
 - add 图片类型也使用统一的缓存器
 - add 图片`@headers`统一解析和管理
-- add @webview: js部分将会重复执行 当返回`null`或者`空字符串`时将重复执行
-- fix @webview: 实装baseUrl@@和result@@
-- fix `searchItem`中`id`重复问题 使用新的生成方法 解决cache重复问题
-- fix 等待图默认宽高改到400
+- add @webview: js 部分将会重复执行 当返回`null`或者`空字符串`时将重复执行
+- fix @webview: 实装 baseUrl@@和 result@@
+- fix `searchItem`中`id`重复问题 使用新的生成方法 解决 cache 重复问题
+- fix 等待图默认宽高改到 400
 - fix 保存图片
-- fix 调试时可以使用print(...args)打印结果，如`print("test js result")` `print("/1.html", true)`
-- remove 图片类正文中去掉position列表
+- fix 调试时可以使用 print(...args)打印结果，如`print("test js result")` `print("/1.html", true)`
+- remove 图片类正文中去掉 position 列表
 - 版本号修改至`1.22.3+12203`
- 
-### 2022.2.19
-- 额外编译关闭avx2的版本 尝试兼容老旧cpu （文件名带noavx2）
 
 ### 2022.2.19
-- 增加webview规则
+
+- 额外编译关闭 avx2 的版本 尝试兼容老旧 cpu （文件名带 noavx2）
+
+### 2022.2.19
+
+- 增加 webview 规则
 - `@web:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]`
 - `@webview:[(baseUrl|result)@@]script0[\n\s*@@\s*\nscript1]`
 - 示例：
-   ``` 
-      @web:
-      var x = document.querySelectorAll(".mh_comicpic img");
-      var y = x[0].src.split("0001");
-      var a = [];
-      for(var i = 1; i <= x.length; i++)
-         a.push(y[0] + ("0000" + i).slice(-4) + y[1])
-   
-      a[0] += "@headers" + JSON.stringify({"referrer": "https://www.cocomanga.com/"})
-      a
-   ```
- - 版本号修改至`1.22.2+12202`
- - 增加桌面版按住滑动，类似移动版的操作逻辑
+  ```
+     @web:
+     var x = document.querySelectorAll(".mh_comicpic img");
+     var y = x[0].src.split("0001");
+     var a = [];
+     for(var i = 1; i <= x.length; i++)
+        a.push(y[0] + ("0000" + i).slice(-4) + y[1])
+
+     a[0] += "@headers" + JSON.stringify({"referrer": "https://www.cocomanga.com/"})
+     a
+  ```
+- 版本号修改至`1.22.2+12202`
+- 增加桌面版按住滑动，类似移动版的操作逻辑
 
 ### 2022.2.17
+
 - fix 主题`appbar`前景色
-- pc播放器改进
-   - https链接（可以不解析，直接网页）调用在线解析器 播放器更好用
-   - 解决视频全屏问题
-   - pc播放器剧集列表 在右下角和左上角
-- 修复书架某些bug
+- pc 播放器改进
+  - https 链接（可以不解析，直接网页）调用在线解析器 播放器更好用
+  - 解决视频全屏问题
+  - pc 播放器剧集列表 在右下角和左上角
+- 修复书架某些 bug
 - 更详细的解析日志
-- 版本号修改至`1.22.1+12201` （对应2022年）
+- 版本号修改至`1.22.1+12201` （对应 2022 年）
 - 修复地址编码
 
 ### 2022.2.16
-- PC端视频播放器
+
+- PC 端视频播放器
 - 如果没反应请尝试滑动到页面底部下载微软的运行时
-   - 用于嗅探和视频播放(任意安装一个都可以，win11已经内置不需要安装)
-   - edge https://www.microsoftedgeinsider.com/zh-cn/
-   - webview2 https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/
+  - 用于嗅探和视频播放(任意安装一个都可以，win11 已经内置不需要安装)
+  - edge https://www.microsoftedgeinsider.com/zh-cn/
+  - webview2 https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/
 - 下版本增加剧集 预解析 缓存
 - fix bug 中文路径
 - 优化视频按钮
@@ -366,9 +415,9 @@
 ### 2022.1.25
 
 - 尝试修复权限问题 还需要修改
-- 增加视频支持headers，和图片写法一致: `url@headersjson`
+- 增加视频支持 headers，和图片写法一致: `url@headersjson`
 - 更新部分插件版本
-- js支持`css`方法：`var r = await css(html, selector)`
+- js 支持`css`方法：`var r = await css(html, selector)`
 
 ### 1.21.15
 

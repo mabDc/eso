@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:auto_orientation/auto_orientation.dart';
 import 'package:dlna/dlna.dart';
 import 'package:eso/database/history_item_manager.dart';
 import 'package:eso/menu/menu.dart';
@@ -634,6 +635,7 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    AutoOrientation.portraitAutoMode();
   }
 
   void setHorizontal() {
@@ -641,6 +643,11 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+    if (Platform.isAndroid) {
+      AutoOrientation.landscapeAutoMode(forceSensor: true);
+    } else {
+      AutoOrientation.landscapeAutoMode();
+    }
   }
 
   void setVertical() {
@@ -648,6 +655,11 @@ class VideoPageProvider with ChangeNotifier, WidgetsBindingObserver {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    if (Platform.isAndroid) {
+      AutoOrientation.portraitAutoMode(forceSensor: true);
+    } else {
+      AutoOrientation.portraitAutoMode();
+    }
   }
 
   void openDLNA(BuildContext context) {
